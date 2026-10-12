@@ -1,6 +1,6 @@
 # schemas/ — 모듈 간 데이터 형식 (공용, 4명 합의)
 
-모듈끼리 주고받는 JSON 형식을 [JSON Schema 2020-12](https://json-schema.org/)로 정의한다. 지금 파일은 **0단계 검토용 초안**(`schema_version: "0.1-draft"`)이다. 4명 검토가 끝나면 `"0.1"`로 올린다.
+모듈끼리 주고받는 JSON 형식을 [JSON Schema 2020-12](https://json-schema.org/)로 정의한다. 지금 파일은 **0단계 검토용 초안**이다 (`patient_state`는 `0.1-draft2`, 나머지는 `0.1-draft`). 4명 검토가 끝나면 `"0.1"`로 올린다.
 
 바꿀 때는 4명이 모두 검토한다. 필드를 추가·삭제하면 이 README의 표와 예시도 함께 고친다.
 
@@ -16,14 +16,14 @@
 
 | 파일 | 내용 | 만드는 쪽 | 쓰는 쪽 | 초안 검토 |
 |---|---|---|---|---|
-| [patient_state.json](patient_state.json) | 차트에서 추출한 환자 상태 | [1] 입력 (A) | [2], [4] | B, C, D |
+| [patient_state.json](patient_state.json) (0.1-draft2) | 차트에서 추출한 환자 상태 | [1] 입력 (A) | [2], [4] | B, C, D |
 | [biomarker_record.json](biomarker_record.json) | 바이오마커 상태값, 아형, 치료 상황, 검사 공백 | [2] 바이오마커 (B) | [3] 필터, [4] | A, C, D |
 | [chunk.json](chunk.json) | 검색 색인 청크 (지침·급여 공용) | [3] (C), [5] (D) | [3] 색인, [4] | D 필수, A, B |
 | [recommendation.json](recommendation.json) | 처방 후보, 급여 분류, 검사 권고 | [4] 추천 (B) | 출력 화면 | A, C, D |
 
 ## 2. 공통 규칙
 
-- 날짜는 `YYYY-MM-DD`, 시각은 ISO 8601(`2026-10-12T09:00:00+09:00`)로 쓴다.
+- 날짜는 `YYYY-MM-DD`로 쓰고, 차트에 월·연도까지만 있으면 `YYYY-MM`·`YYYY`도 허용한다 (`patient_state`). 모르면 `null`. 시각은 ISO 8601(`2026-10-12T09:00:00+09:00`)로 쓴다.
 - 코드값은 영문으로 저장하고, 화면에 보일 때만 아래 한국어 표시로 바꾼다.
 - `patient_ref`는 가명 ID다. 실제 이름, 등록번호, 주민번호를 어떤 스키마에도 넣지 않는다.
 - 약제명은 일반명 소문자로 쓴다 (예: `palbociclib`). `dictionaries/drug_names.csv`로 맞춘다.
@@ -34,6 +34,8 @@
 | 구분 | 코드 | 표시 |
 |---|---|---|
 | 추출 상태 (IN-6) | `present` / `not_done` / `not_recorded` | 값 있음 / 미시행 / 기록 없음 |
+| 수용체 판정 (A가 옮긴 값) | `positive` / `low_positive` / `negative` / `indeterminate` / `unknown` | 양성 / 저발현 / 음성 / 판정 불가 / 알 수 없음 |
+| 특수 표기 | `not_assessed` / `[Not Available]` / `[Not Applicable]` | 평가 안됨 / 기록 없음 / 해당 없음 |
 | 바이오마커 상태 | `positive` / `negative` / `indeterminate` / `not_done` / `retest_needed` / `not_recorded` | 양성 / 음성 / 불확정 / 미시행 / 재검 필요 / 기록 없음 |
 | 바이오마커 세부 | `low` / `ultralow` / `zero` / `vus` | 저발현 / 초저발현 / 0 / VUS |
 | 급여 분류 | `covered` | 급여 (조건 충족) |
@@ -43,52 +45,89 @@
 
 ## 3. patient_state.json — [1] 입력 → [2], [4]
 
-추출값 하나는 모두 같은 형태(`$defs/extracted`)다.
+버전 `0.1-draft2` (2026-10-12). 필드별 표준값, 정규화 예시, TCGA 정답 규칙은 [src/input/schema_fields.md](../src/input/schema_fields.md)에 있다.
 
-| 필드 | 설명 |
+추출값 하나는 모두 같은 틀(`$defs/extracted`)이고, `value`의 형태만 필드마다 다르다.
+
+| 항목 | 설명 |
 |---|---|
 | `status` | `present` / `not_done` / `not_recorded`. 필수 |
-| `value` | 정규화된 값. `present`이면 필수 |
+| `value` | 표준값. `present`이면 필수 |
 | `raw` | 정규화 전 원문 표기 |
-| `observed_date` | 검사일 또는 기록일. 시간 정렬(IN-4) 기준 |
+| `observed_date` | 검사일·기록일. `YYYY-MM-DD`, `YYYY-MM`, `YYYY` 또는 `null` |
+| `specimen` | `primary` / `metastasis` / `cfDNA` / `unknown` |
 | `confidence` | LLM 추출 확신도 0–1 |
-| `source` | `{doc_id, quote, char_start, char_end}`. `present`이면 필수 |
+| `source` | `{doc_id, quote, char_start, char_end}` 또는 `null` (TCGA 정답 1단계는 `null`, 가상 차트 생성 후 채움) |
+| `history[]` | 새 결과에 밀려난 이전 값. `superseded_reason`: `recurrence`(재발 재생검으로 대체) / `newer_result` |
 
-`fields` 그룹: `diagnosis`(진단일, 조직형, 등급), `stage`(ctnm, ptnm, 전이 부위), `receptors`(ER %, PR %, HER2 IHC, HER2 ISH), `proliferation`(Ki-67), `patient`(나이, 폐경 여부, ECOG), `treatment_history`(약제, 단계, 기간, 중단 사유, 최선 반응), `neoadjuvant_response`(pCR, RCB), `recurrence`, `genomic_reports`(NGS 원문, 해석하지 않음). 같은 시점에 값이 다르면 `conflicts`에 넣고 자동 선택하지 않는다.
+`fields` 그룹과 주요 `value` 형태:
+
+| 그룹 | 필드 | `value` 형태 |
+|---|---|---|
+| diagnosis | `diagnosis_date`, `histology`, `grade` | 날짜 / `IDC`·`ILC`·`mucinous`·`metaplastic`·`invasive_NOS`·`other` / `1`·`2`·`3` |
+| stage | `ctnm`, `ptnm` | `{t, n, m, edition}`. X값은 `not_assessed` |
+| | `group` | `IIA`, `IIIC`, `IV` … 또는 `not_assessed` |
+| | `positive_ln_count` | `{positive, examined}`. 각각 정수 또는 `"[Not Available]"` |
+| | `metastatic_sites` | 부위 목록 또는 `"[Not Applicable]"` / `"[Not Available]"` |
+| receptors | `er_percent`, `pr_percent` | `{percent, range, score, allred, result}` 중 있는 것 모두. `result`: `positive`·`low_positive`·`negative`·`indeterminate` |
+| | `her2_ihc` | `{score, faint, result}` 중 있는 것 모두. `result`는 ISH로 보정한 값 (`unknown` 포함) |
+| | `her2_ish` | `{result, method}` |
+| proliferation | `ki67_percent` | `{percent, range, result}` |
+| patient | `gender`, `age`, `menopausal_status`, `ecog` | `FEMALE`·`MALE` / 정수 / 폐경 4종 / `0`~`4` |
+| treatment_history[] | 요법 하나 | `drugs`, `setting`, `start_date`, `end_date`, `duration_days`, `stop_reason`, `best_response`, `source` |
+| neoadjuvant_response | `pcr`, `rcb` | `yes`·`no` / `RCB-0`~`RCB-III` |
+| recurrence | `recurrence_date`, `adjuvant_endocrine_end_date` | 날짜 |
+| genomic_reports[] | 보고서 하나 | `doc_id`, `report_date`, `specimen`, `raw_text` (해석하지 않음) |
+
+TCGA 정답은 실제 날짜가 없으므로, 날짜 칸은 추출값이면 `status: not_recorded`, 치료 이력·보고서의 날짜는 `null`이다.
+
+예시 (가상 차트에서 추출한 경우):
 
 ```json
 {
-  "schema_version": "0.1-draft",
+  "schema_version": "0.1-draft2",
   "patient_ref": "VC-0001",
   "created_at": "2026-10-12T09:00:00+09:00",
   "documents": [
     {"doc_id": "D1", "doc_type": "pathology", "doc_date": "2024-03-05"},
-    {"doc_id": "D2", "doc_type": "molecular", "doc_date": "2026-07-01"}
+    {"doc_id": "D2", "doc_type": "molecular", "doc_date": "2026-07"}
   ],
   "fields": {
     "diagnosis": {
-      "histology": {"status": "present", "value": "IDC", "raw": "invasive ductal carcinoma", "observed_date": "2024-03-05", "confidence": 0.98,
+      "histology": {"status": "present", "value": "IDC", "raw": "invasive ductal carcinoma", "confidence": 0.98,
                     "source": {"doc_id": "D1", "quote": "invasive ductal carcinoma, grade 2"}}
     },
-    "stage": {},
+    "stage": {
+      "ptnm": {"status": "present", "value": {"t": "T2", "n": "N1a", "m": "M0", "edition": "8th"}, "raw": "pT2 pN1a M0",
+               "source": {"doc_id": "D1", "quote": "pT2 pN1a M0"}},
+      "positive_ln_count": {"status": "present", "value": {"positive": 2, "examined": 15}, "raw": "LN 2/15 (+)",
+                            "source": {"doc_id": "D1", "quote": "LN 2/15 (+)"}}
+    },
     "receptors": {
-      "her2_ihc": {"status": "present", "value": "2+", "raw": "HER2 (4B5) 2+", "observed_date": "2024-03-05", "confidence": 0.95,
+      "er_percent": {"status": "present", "value": {"percent": 95, "result": "positive"}, "raw": "ER(+) 95%", "specimen": "primary",
+                     "source": {"doc_id": "D1", "quote": "ER(+) 95%"}},
+      "her2_ihc": {"status": "present", "value": {"score": "2+", "result": "negative"}, "raw": "HER2 (4B5) 2+, SISH 음성", "specimen": "primary",
                    "source": {"doc_id": "D1", "quote": "HER2 (4B5) 2+"}},
-      "her2_ish": {"status": "not_done", "source": null}
+      "her2_ish": {"status": "present", "value": {"result": "not_amplified", "method": "SISH"}, "raw": "SISH 음성",
+                   "source": {"doc_id": "D1", "quote": "SISH 음성"}}
     },
     "proliferation": {},
     "patient": {
+      "gender": {"status": "present", "value": "FEMALE", "raw": "F/62", "source": {"doc_id": "D1", "quote": "F/62"}},
       "menopausal_status": {"status": "present", "value": "postmenopausal", "raw": "폐경 후", "confidence": 0.9,
                             "source": {"doc_id": "D1", "quote": "폐경 후"}}
     },
     "treatment_history": [
       {"drugs": ["letrozole", "palbociclib"], "setting": "metastatic", "start_date": "2025-01-10", "end_date": "2026-06-20",
-       "stop_reason": "진행", "best_response": "PR", "source": {"doc_id": "D1", "quote": "AI + palbociclib, PD"}}
+       "duration_days": 526, "stop_reason": "progression", "best_response": "PR",
+       "source": {"doc_id": "D1", "quote": "AI + palbociclib, PD"}}
     ],
     "neoadjuvant_response": {},
-    "recurrence": {},
+    "recurrence": {
+      "recurrence_date": {"status": "not_recorded"}
+    },
     "genomic_reports": [
-      {"doc_id": "D2", "report_date": "2026-07-01", "specimen": "cfDNA", "raw_text": "ESR1 p.Y537S detected, VAF 4.2%"}
+      {"doc_id": "D2", "report_date": "2026-07", "specimen": "cfDNA", "raw_text": "ESR1 p.Y537S detected, VAF 4.2%"}
     ]
   },
   "conflicts": []

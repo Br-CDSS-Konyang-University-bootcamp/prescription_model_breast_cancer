@@ -1,6 +1,6 @@
 # patient_state 필드 정리와 정규화 예시
 
-> 담당 A · 2026-10-12 · 기준 스키마: `schemas/patient_state.json` (0.1-draft)
+> 담당 A · 2026-10-12 · 기준 스키마: `schemas/patient_state.json` (0.1-draft2)
 
 입력 모듈(A)이 만드는 `patient_state`의 필드, 표준값 형태, 정규화 방식, 예시, TCGA 정답 생성 규칙을 정리한다. TCGA 열 변환의 세부 규칙은 [tcga_mapping.md](tcga_mapping.md)에 있다.
 
@@ -54,7 +54,7 @@ TCGA 정답에서 아래 표기는 `value` 안에 그대로 쓴다. 칸 전체�
 
 | 필드 | 의미 | 표준값 형태 | 정규화 방식 | 원문 → 정규화 예시 | TCGA 정답 규칙 |
 |---|---|---|---|---|---|
-| `diagnosis_date` | 진단일 | `YYYY-MM-DD` | 해석 | `2024.3.5 조직검사로 진단` → `"2024-03-05"` | 가상 날짜 (tcga_mapping.md §2.3) |
+| `diagnosis_date` | 진단일 | `YYYY-MM-DD` | 해석 | `2024.3.5 조직검사로 진단` → `"2024-03-05"` | `not_recorded` (tcga_mapping.md §2.3) |
 | `histology` | 조직형 | `IDC` / `ILC` / `mucinous` / `metaplastic` / `invasive_NOS` / `other` | 사전 | `침윤성 유관암` → `"IDC"` | [A 결정] 아래 표 |
 | `grade` | 조직학적 등급 | `1` / `2` / `3` | 사전 + 해석 | `Nottingham grade III (3+3+2=8)` → `3` | 없음 (합성) |
 
@@ -269,7 +269,7 @@ TCGA 건수 (score 2+ 또는 Equivocal):
 | `recurrence.recurrence_date` | 재발일 | 날짜 | 해석 | `2026년 6월 간 전이로 재발` → `"2026-06"` [제안: 부분 날짜] | `nte_first_dx_days` |
 | `recurrence.adjuvant_endocrine_end_date` | 보조 내분비요법 종료일 | 날짜 | 해석 | `타목시펜 5년 복용 후 2023.3 종료` → `"2023-03"` | `drug_timeline`에서 유도 |
 | `genomic_reports[].specimen` | 검체 | `primary` / `metastasis` / `cfDNA` / `unknown` | 사전 | `혈장 cfDNA NGS` → `"cfDNA"` | 원발(01) 고정 |
-| `genomic_reports[].report_date` | 보고일 | `YYYY-MM-DD` | 해석 | `보고일 2026-07-01` → `"2026-07-01"` | 가상 날짜 |
+| `genomic_reports[].report_date` | 보고일 | `YYYY-MM-DD` | 해석 | `보고일 2026-07-01` → `"2026-07-01"` | `null` |
 | `genomic_reports[].raw_text` | 보고서 원문 | 문자열 | **그대로** | `ESR1 p.Y537S detected, VAF 4.2%` → 그대로 | `mut_*`, `cna_*`로 가상 보고서 |
 
 - 유전자 보고서는 검체와 날짜만 정리하고 변이 내용은 손대지 않는다 (B의 BM-1~3)
@@ -277,7 +277,7 @@ TCGA 건수 (score 2+ 또는 Equivocal):
 
 ## 10. B와 합의할 항목
 
-A가 받아들인 제안과 A 결정 중 스키마를 바꿔야 하는 것이다. `schemas/patient_state.json`에 반영하기 전에 B와 확인한다.
+A가 받아들인 제안과 A 결정이다. 2026-10-12에 `schemas/patient_state.json` 0.1-draft2로 모두 반영했다. B 검토 후 `0.1`로 확정한다.
 
 | 항목 | 상태 |
 |---|---|
@@ -285,14 +285,14 @@ A가 받아들인 제안과 A 결정 중 스키마를 바꿔야 하는 것이다
 | TCGA 정답에는 ER·PR `score`를 넣지 않음 | A 결정 |
 | HER2 IHC `{score, faint}` + `{result}` 동시 표기, ISH로 `result` 보정 | A 결정. B는 score를 먼저 읽는다 |
 | `her2_ish`는 `{result, method}`만 (복제수·비율 제외) | A 결정 |
-| `specimen`, `history[]`(`superseded_reason`: `recurrence` / `newer_result`) 추가 | 합의 예정 |
+| `specimen`, `history[]`(`superseded_reason`: `recurrence` / `newer_result`) 추가 | 스키마 반영 (0.1-draft2) |
 | 재발 병소 재생검 결과를 `value`로, 원발 값을 `history[]`로 (IN-4와 같음) | A 결정 |
 | ER·PR 원본 구간 `<10%`를 `1-9%`(Low Positive) / `<1%`(Negative)로 나눔. Negative는 1% 기준 음성으로 가정 | A 결정 |
-| `stage.group`, `stage.positive_ln_count` 추가 | 합의 예정 |
-| `patient.gender` 추가 | 합의 예정 |
-| `treatment_history[].duration_days` 추가 | 합의 예정 |
+| `stage.group`, `stage.positive_ln_count` 추가 | 스키마 반영 (0.1-draft2) |
+| `patient.gender` 추가 | 스키마 반영 (0.1-draft2) |
+| `treatment_history[].duration_days` 추가 | 스키마 반영 (0.1-draft2) |
 | 특수 표기값 `not_assessed`, `[Not Available]`, `[Not Applicable]`을 `value`에 허용 | A 결정 (평가 안됨·불가 통합) |
-| `stop_reason` 표준값 목록 | 합의 예정 |
-| 부분 날짜(`YYYY-MM`) 허용 | 합의 예정 |
-| 치료 날짜가 `null`인데 진단일·재발일은 가상 날짜로 만드는 것이 맞는지 | 미정 |
+| `stop_reason` 표준값 목록 | 스키마 반영 (0.1-draft2) |
+| 부분 날짜(`YYYY-MM`, `YYYY`) 허용 | 스키마 반영 (0.1-draft2) |
+| TCGA 정답의 모든 날짜를 비움 (가상 날짜를 만들지 않음) | A 결정 (2026-10-12) |
 | 점수 없는 HER2 Equivocal 7명에 `score: "2+"` 채우기 | A 결정 |

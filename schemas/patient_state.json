@@ -2,12 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "patient_state.json",
   "title": "patient_state",
-  "description": "[1] 입력 모듈(A)의 출력. 비식별화된 차트에서 추출한 환자 상태. 모든 값에 원문 근거 위치를 붙인다. 초안 v0.1-draft.",
+  "description": "[1] 입력 모듈(A)의 출력. 비식별화된 차트에서 추출한 환자 상태. 모든 값에 원문 근거 위치를 붙인다. 필드 설명은 src/input/schema_fields.md. 초안 v0.1-draft2 (2026-10-12).",
   "type": "object",
   "required": ["schema_version", "patient_ref", "created_at", "documents", "fields", "conflicts"],
   "additionalProperties": false,
   "properties": {
-    "schema_version": {"const": "0.1-draft"},
+    "schema_version": {"const": "0.1-draft2"},
     "patient_ref": {"type": "string", "description": "가명 ID. 실제 이름·등록번호를 넣지 않는다."},
     "created_at": {"type": "string", "format": "date-time"},
     "documents": {
@@ -20,7 +20,7 @@
         "properties": {
           "doc_id": {"type": "string"},
           "doc_type": {"enum": ["progress_note", "pathology", "molecular", "medication"]},
-          "doc_date": {"type": ["string", "null"], "format": "date"}
+          "doc_date": {"$ref": "#/$defs/date"}
         }
       }
     },
@@ -34,61 +34,93 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "diagnosis_date": {"$ref": "#/$defs/extracted"},
-            "histology": {"$ref": "#/$defs/extracted"},
-            "grade": {"$ref": "#/$defs/extracted"}
+            "diagnosis_date": {"$ref": "#/$defs/date_field"},
+            "histology": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"enum": ["IDC", "ILC", "mucinous", "metaplastic", "invasive_NOS", "other"]}}}]},
+            "grade": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"enum": [1, 2, 3]}}}]}
           }
         },
         "stage": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "ctnm": {"$ref": "#/$defs/extracted"},
-            "ptnm": {"$ref": "#/$defs/extracted"},
-            "metastatic_sites": {"$ref": "#/$defs/extracted"}
+            "ctnm": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"$ref": "#/$defs/tnm_value"}}}]},
+            "ptnm": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"$ref": "#/$defs/tnm_value"}}}]},
+            "group": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {
+              "type": "string",
+              "pattern": "^((0|I{1,3}|IV)[A-C]?|not_assessed)$",
+              "description": "병기군. 예: IIA, IIIC, IV. Stage X → not_assessed"}}}]},
+            "positive_ln_count": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {
+              "type": "object",
+              "required": ["positive", "examined"],
+              "additionalProperties": false,
+              "properties": {
+                "positive": {"anyOf": [{"type": "integer", "minimum": 0}, {"const": "[Not Available]"}]},
+                "examined": {"anyOf": [{"type": "integer", "minimum": 0}, {"const": "[Not Available]"}]}
+              }}}}]},
+            "metastatic_sites": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"anyOf": [
+              {"type": "array", "items": {"type": "string"}, "description": "bone, liver, lung, brain, distant_ln, skin, other: <자유 기재>"},
+              {"enum": ["[Not Applicable]", "[Not Available]"]}
+            ]}}}]}
           }
         },
         "receptors": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "er_percent": {"$ref": "#/$defs/extracted"},
-            "pr_percent": {"$ref": "#/$defs/extracted"},
-            "her2_ihc": {"$ref": "#/$defs/extracted"},
-            "her2_ish": {"$ref": "#/$defs/extracted"}
+            "er_percent": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"$ref": "#/$defs/receptor_value"}}}]},
+            "pr_percent": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"$ref": "#/$defs/receptor_value"}}}]},
+            "her2_ihc": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"$ref": "#/$defs/her2_ihc_value"}}}]},
+            "her2_ish": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {
+              "type": "object",
+              "required": ["result"],
+              "additionalProperties": false,
+              "properties": {
+                "result": {"enum": ["amplified", "not_amplified", "equivocal"]},
+                "method": {"enum": ["FISH", "SISH", "DISH", "unknown"]}
+              }}}}]}
           }
         },
         "proliferation": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "ki67_percent": {"$ref": "#/$defs/extracted"}
+            "ki67_percent": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": false,
+              "properties": {
+                "percent": {"type": "number", "minimum": 0, "maximum": 100},
+                "range": {"$ref": "#/$defs/range"},
+                "result": {"enum": ["low", "intermediate", "high"]}
+              }}}}]}
           }
         },
         "patient": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "age": {"$ref": "#/$defs/extracted"},
-            "menopausal_status": {"$ref": "#/$defs/extracted"},
-            "ecog": {"$ref": "#/$defs/extracted"}
+            "gender": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"enum": ["FEMALE", "MALE"]}}}]},
+            "age": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"type": "integer", "minimum": 0}}}]},
+            "menopausal_status": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"enum": ["premenopausal", "perimenopausal", "postmenopausal", "indeterminate"]}}}]},
+            "ecog": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"enum": [0, 1, 2, 3, 4]}}}]}
           }
         },
         "treatment_history": {
           "type": "array",
-          "description": "치료 이력. 시간순.",
+          "description": "치료 이력. 시간순. 항목 하나 = 요법 하나.",
           "items": {
             "type": "object",
-            "required": ["drugs", "source"],
+            "required": ["drugs"],
             "additionalProperties": false,
             "properties": {
-              "drugs": {"type": "array", "items": {"type": "string"}, "description": "일반명으로 정규화 (IN-3)"},
+              "drugs": {"type": "array", "minItems": 1, "items": {"type": "string"}, "description": "일반명 소문자 (IN-3)"},
               "setting": {"enum": ["neoadjuvant", "adjuvant", "metastatic", "unknown"]},
-              "start_date": {"type": ["string", "null"], "format": "date"},
-              "end_date": {"type": ["string", "null"], "format": "date"},
-              "stop_reason": {"type": ["string", "null"], "description": "예: 진행, 독성, 완료"},
+              "start_date": {"$ref": "#/$defs/date"},
+              "end_date": {"$ref": "#/$defs/date"},
+              "duration_days": {"type": ["integer", "null"], "minimum": 0, "description": "투여일. TCGA 정답에서는 d종료 − d시작"},
+              "stop_reason": {"enum": ["progression", "toxicity", "completed", "other", null]},
               "best_response": {"enum": ["CR", "PR", "SD", "PD", "unknown", null]},
-              "source": {"$ref": "#/$defs/source"}
+              "source": {"anyOf": [{"$ref": "#/$defs/source"}, {"type": "null"}]}
             }
           }
         },
@@ -96,16 +128,16 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "pcr": {"$ref": "#/$defs/extracted"},
-            "rcb": {"$ref": "#/$defs/extracted"}
+            "pcr": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"enum": ["yes", "no"]}}}]},
+            "rcb": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"enum": ["RCB-0", "RCB-I", "RCB-II", "RCB-III"]}}}]}
           }
         },
         "recurrence": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "recurrence_date": {"$ref": "#/$defs/extracted"},
-            "adjuvant_endocrine_end_date": {"$ref": "#/$defs/extracted"}
+            "recurrence_date": {"$ref": "#/$defs/date_field"},
+            "adjuvant_endocrine_end_date": {"$ref": "#/$defs/date_field"}
           }
         },
         "genomic_reports": {
@@ -117,8 +149,8 @@
             "additionalProperties": false,
             "properties": {
               "doc_id": {"type": "string"},
-              "report_date": {"type": ["string", "null"], "format": "date"},
-              "specimen": {"type": ["string", "null"], "description": "예: 원발 조직, 전이 병소, cfDNA"},
+              "report_date": {"$ref": "#/$defs/date"},
+              "specimen": {"$ref": "#/$defs/specimen"},
               "raw_text": {"type": "string"}
             }
           }
@@ -141,6 +173,59 @@
     }
   },
   "$defs": {
+    "date": {
+      "description": "날짜. 전체 날짜(YYYY-MM-DD) 또는 부분 날짜(YYYY-MM, YYYY). 모르면 null. TCGA 정답은 모든 날짜가 null.",
+      "anyOf": [
+        {"type": "string", "pattern": "^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$"},
+        {"type": "null"}
+      ]
+    },
+    "date_field": {
+      "allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"$ref": "#/$defs/date"}}}]
+    },
+    "specimen": {"enum": ["primary", "metastasis", "cfDNA", "unknown", null]},
+    "range": {
+      "type": "array",
+      "prefixItems": [{"type": "number", "minimum": 0, "maximum": 100}, {"type": "number", "minimum": 0, "maximum": 100}],
+      "minItems": 2,
+      "maxItems": 2,
+      "description": "[최소, 최대]. 예: 90-99% → [90, 99], 1-9% → [1, 9], <1% → [0, 0]"
+    },
+    "receptor_value": {
+      "type": "object",
+      "description": "ER·PR. 있는 것을 모두 담는다 (A 결정). TCGA 정답에는 score를 넣지 않는다.",
+      "minProperties": 1,
+      "additionalProperties": false,
+      "properties": {
+        "percent": {"type": "number", "minimum": 0, "maximum": 100},
+        "range": {"$ref": "#/$defs/range"},
+        "score": {"enum": ["0", "1+", "2+", "3+", "4+"], "description": "염색 강도 점수"},
+        "allred": {"type": "integer", "minimum": 0, "maximum": 8},
+        "result": {"enum": ["positive", "low_positive", "negative", "indeterminate"]}
+      }
+    },
+    "her2_ihc_value": {
+      "type": "object",
+      "description": "HER2 IHC. score와 result를 있는 것 모두 담는다. result는 ISH로 보정한 값이므로 B는 score를 먼저 읽는다 (A 결정).",
+      "minProperties": 1,
+      "additionalProperties": false,
+      "properties": {
+        "score": {"enum": ["0", "1+", "2+", "3+"]},
+        "faint": {"type": "boolean", "description": "IHC 0 중 미약한 막 염색 (초저발현 판정용)"},
+        "result": {"enum": ["positive", "negative", "equivocal", "indeterminate", "unknown"]}
+      }
+    },
+    "tnm_value": {
+      "type": "object",
+      "required": ["t", "n", "m"],
+      "additionalProperties": false,
+      "properties": {
+        "t": {"type": "string", "description": "예: T2, T1c, T4b. TX → not_assessed"},
+        "n": {"type": "string", "description": "예: N1a, N0(i+), N1mi. NX → not_assessed"},
+        "m": {"type": "string", "description": "예: M0, M1, cM0(i+). MX → not_assessed"},
+        "edition": {"type": ["string", "null"], "description": "AJCC 판. 예: 7th, 8th"}
+      }
+    },
     "source": {
       "type": "object",
       "description": "원문 근거 위치",
@@ -153,21 +238,38 @@
         "char_end": {"type": "integer", "minimum": 0}
       }
     },
+    "history_item": {
+      "type": "object",
+      "description": "새 결과에 밀려난 이전 값 (참고용)",
+      "required": ["status", "superseded_reason"],
+      "additionalProperties": false,
+      "properties": {
+        "status": {"enum": ["present", "not_done", "not_recorded"]},
+        "value": {},
+        "raw": {"type": ["string", "null"]},
+        "observed_date": {"$ref": "#/$defs/date"},
+        "specimen": {"$ref": "#/$defs/specimen"},
+        "source": {"anyOf": [{"$ref": "#/$defs/source"}, {"type": "null"}]},
+        "superseded_reason": {"enum": ["recurrence", "newer_result"], "description": "recurrence = 재발 병소 재생검 결과로 대체, newer_result = 같은 검체의 더 최근 결과로 대체"}
+      }
+    },
     "extracted": {
       "type": "object",
-      "description": "추출된 값 하나. IN-6 상태: present(값 있음) / not_done(미시행) / not_recorded(기록 없음).",
+      "description": "추출된 값 하나. status: present(값 있음) / not_done(미시행) / not_recorded(기록 없음).",
       "required": ["status"],
       "additionalProperties": false,
       "properties": {
         "status": {"enum": ["present", "not_done", "not_recorded"]},
-        "value": {"description": "정규화된 값 (IN-3). status가 present일 때만 채운다."},
+        "value": {"description": "표준값. 형태는 필드마다 다르다. status가 present일 때만 채운다."},
         "raw": {"type": ["string", "null"], "description": "정규화 전 원문 표기"},
-        "observed_date": {"type": ["string", "null"], "format": "date", "description": "검사일 또는 기록일 (IN-4 시간 정렬 기준)"},
+        "observed_date": {"$ref": "#/$defs/date"},
+        "specimen": {"$ref": "#/$defs/specimen"},
         "confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
-        "source": {"anyOf": [{"$ref": "#/$defs/source"}, {"type": "null"}]}
+        "source": {"anyOf": [{"$ref": "#/$defs/source"}, {"type": "null"}], "description": "TCGA 정답 생성 1단계에서는 null, 가상 차트 생성 후 채운다"},
+        "history": {"type": "array", "items": {"$ref": "#/$defs/history_item"}}
       },
       "if": {"properties": {"status": {"const": "present"}}},
-      "then": {"required": ["value", "source"]}
+      "then": {"required": ["value"]}
     }
   }
 }

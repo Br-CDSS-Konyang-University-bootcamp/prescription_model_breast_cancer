@@ -40,13 +40,14 @@ TCGA 한 행 ──(1) 이 대응표로 변환──▶ 정답 값
 
 정답 세트는 1,086명 → 1,074명이다.
 
-### 2.3 날짜
+### 2.3 날짜 [A 결정, 2026-10-12]
 
-TCGA 날짜는 "진단 후 일수(d77)"다. 환자마다 **가상 진단일**을 정하고 일수를 더해 실제 날짜로 바꾼다.
+TCGA에는 실제 날짜가 없고 "진단 후 일수(d77)"만 있다. **가상 날짜를 만들지 않고 모든 날짜를 비운다.**
 
-- 가상 진단일 = `gdc_initial_pathologic_dx_year`의 연도 안에서, 환자 ID로 시드를 고정한 무작위 날짜. 같은 환자는 항상 같은 날짜가 나와야 한다.
-- 진단 연도가 없으면 2010-07-01을 쓰고 표시해 둔다.
-- 모든 날짜는 가상값이다. 실제 진단일이 아니라는 점을 정답 파일 메타데이터에 적는다.
+- 추출값 날짜 칸(`diagnosis_date`, `recurrence_date`, `adjuvant_endocrine_end_date`): `{"status": "not_recorded"}`
+- 날짜 속성(`observed_date`, 치료 이력의 `start_date`·`end_date`, 보고서의 `report_date`, 문서의 `doc_date`): `null`
+- 상대 일수는 정답에 넣지 않고, 코드 안에서 순서 정렬과 유도(치료 단계, 보조 내분비요법 종료, 재발 이전·이후 판단)에만 쓴다. 투여 기간만 `duration_days`로 남긴다 (§3.6).
+- 가상 차트에도 실제 날짜를 쓰지 않는다. 정답과 맞지 않게 되기 때문이다. 순서는 "수술 후", "재발 후" 같은 표현으로 나타낸다.
 
 ### 2.4 구간 값
 
@@ -58,7 +59,7 @@ ER/PR/HER2 양성 비율은 `90-99%` 같은 구간이다. 정답 `value`에 구�
 
 | 필드 | TCGA 열 | 변환 | 실제 값 비율 · 주의 |
 |---|---|---|---|
-| `diagnosis_date` | (가상 진단일) | §2.3 | 100% 가상값 |
+| `diagnosis_date` | 없음 | `{"status": "not_recorded"}` (§2.3) | TCGA에는 진단 연도만 있음 |
 | `histology` | `gdc_histological_type`, `cbio_sample_ONCOTREE_CODE`, `gdc_histologic_diagnosis_other` | 아래 규칙 [A 결정] | 99.8% |
 | `grade` | 없음 | `not_recorded`. 경계 사례가 필요하면 합성값 (§4) | TCGA에 조직학적 등급 열 없음 |
 
@@ -139,7 +140,7 @@ TNM 세부 표기 [합의 예정]: 공백만 지우고 그대로 둔다. `N0 (i-
 | 필드 | TCGA 열 | 변환 | 실제 값 비율 · 주의 |
 |---|---|---|---|
 | `gender` [제안, A 결정] | `gdc_gender` | `FEMALE` / `MALE` | 정리본은 FEMALE 1,085명, 빈칸 1명 (남성은 정리 단계에서 제외됨) |
-| `age` | `gdc_age_at_diagnosis` | 정수. `observed_date` = 진단일 | 99.9% |
+| `age` | `gdc_age_at_diagnosis` | 정수. `observed_date`는 `null` | 99.9% |
 | `menopausal_status` | `gdc_menopause_status` | Post → `postmenopausal`, Pre → `premenopausal`, Peri → `perimenopausal`, Indeterminate → `indeterminate` (기록된 판단이므로 `present`) | 92.7%. 괄호 안 정의 문장은 `raw`에 보관 |
 | `ecog` | 없음 | `not_recorded`. 합성값 가능 (§4) | |
 
@@ -174,7 +175,7 @@ TNM 세부 표기 [합의 예정]: 공백만 지우고 그대로 둔다. `N0 (i-
 | 필드 | TCGA 열 | 변환 |
 |---|---|---|
 | `neoadjuvant_response.pcr`, `.rcb` | 없음 | `not_recorded` |
-| `recurrence.recurrence_date` | `nte_first_dx_days`, `nte_types`, `nte_sites`, `nte_sites_other` | 날짜는 §2.3. 사건 종류와 부위는 가상 차트 문장에 쓴다. New Primary Tumor는 재발이 아니므로 제외 |
+| `recurrence.recurrence_date` | `nte_first_dx_days`, `nte_types`, `nte_sites`, `nte_sites_other` | 날짜는 `not_recorded` (§2.3). 재발 여부와 사건 종류·부위는 가상 차트 문장에 쓴다. New Primary Tumor는 재발이 아니므로 제외 |
 | `recurrence.adjuvant_endocrine_end_date` | `drug_timeline` | 재발일 이전에 끝난 마지막 Hormone Therapy의 종료일 (유도값) |
 
 재발 병소 재생검 수용체 [A 결정]:
@@ -232,7 +233,6 @@ TNM 세부 표기 [합의 예정]: 공백만 지우고 그대로 둔다. `N0 (i-
 
 스키마 변경 항목은 [schema_fields.md §10](schema_fields.md)에 모았다. 이 대응표에만 해당하는 것:
 
-- [ ] 진단일·재발일을 가상 날짜로 만들지(§2.3), 치료 날짜처럼 만들지 않을지
 - [ ] 치료 이력의 유도값(setting, 보조 내분비요법 종료일)을 정답에서 구분하는 방법 (`derived: true` 필드 추가 등)
 - [ ] 다른 암 병력을 스키마에 넣을지
 - [ ] 정답 파일 위치: `tests/fixtures/truth/` (공용 폴더라 4명 합의)
