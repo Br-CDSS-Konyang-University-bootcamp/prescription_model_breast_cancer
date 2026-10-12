@@ -2,24 +2,25 @@
 
 입력: data/tcga_brca/merged/tcga_brca_merged.csv (tcga_brca_merge.py 결과, 수정하지 않음)
 출력 (data/tcga_brca/merged/):
-- tcga_braca_merging_cropped.csv           정리본 (Excel용 UTF-8 BOM)
-- tcga_braca_merging_cropped_columns.txt   남은 열별 의미
-- tcga_braca_merging_cropped_changes.txt   변경 내역: 행 삭제, 바꾼 값, 삭제한 열(한 줄 사유), 용어 통일
+- tcga_brca_merging_cropped.csv           정리본 (Excel용 UTF-8 BOM)
+- tcga_brca_merging_cropped_columns.txt   남은 열별 의미
+- tcga_brca_merging_cropped_changes.txt   변경 내역: 행 삭제, 바꾼 값, 삭제한 열(한 줄 사유), 용어 통일
 
 실행: conda team_project 환경에서 tcga_brca_merge.py 다음에
-    python script/tcga_brca_crop.py
+    python data/script/tcga_brca_crop.py
 """
 from datetime import date
 from pathlib import Path
 
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parent.parent
-MERGED_DIR = ROOT / "data" / "tcga_brca" / "merged"
+# 이 스크립트는 data/script/에 있다. DATA_ROOT = data/
+DATA_ROOT = Path(__file__).resolve().parent.parent
+MERGED_DIR = DATA_ROOT / "tcga_brca" / "merged"
 SRC = MERGED_DIR / "tcga_brca_merged.csv"
-OUT_CSV = MERGED_DIR / "tcga_braca_merging_cropped.csv"
-OUT_COLS = MERGED_DIR / "tcga_braca_merging_cropped_columns.txt"
-OUT_CHANGES = MERGED_DIR / "tcga_braca_merging_cropped_changes.txt"
+OUT_CSV = MERGED_DIR / "tcga_brca_merging_cropped.csv"
+OUT_COLS = MERGED_DIR / "tcga_brca_merging_cropped_columns.txt"
+OUT_CHANGES = MERGED_DIR / "tcga_brca_merging_cropped_changes.txt"
 CORRECTIONS = MERGED_DIR / "drug_corrections.csv"
 
 # ---------------------------------------------------------------------------
@@ -360,7 +361,7 @@ def write_changes_txt(before, after, males, recoded):
               "  재발 시 수용체 결과 11개: 전이 병소 재생검 우선 규칙(IN-4) 테스트에 사용",
               "  원본 약제 열 2개 (drug_names_raw, drug_therapy_types_raw): 정규화 전 값과 대조용", ""]
 
-    lines += ["=" * 78, "4. 용어 통일 (tcga_brca_merge.py 단계에서 적용, 사전: dictionaries/)", "=" * 78]
+    lines += ["=" * 78, "4. 용어 통일 (tcga_brca_merge.py 단계에서 적용, 사전: data/dictionaries/)", "=" * 78]
     if CORRECTIONS.exists():
         log = pd.read_csv(CORRECTIONS, dtype=str, keep_default_na=False)
         log["n_records"] = log["n_records"].astype(int)
@@ -371,7 +372,7 @@ def write_changes_txt(before, after, males, recoded):
                   "원본 값은 drug_names_raw, drug_therapy_types_raw 열과 drug_corrections.csv에 남아 있음", "",
                   "4-1. 약제명 → 성분명 (상품명, 오타, 라틴어 표기, 요법 약어 통일)"]
         names = (log.groupby("generic_names")["raw_name"]
-                 .agg(lambda s: sorted(set(s), key=str.lower)))
+                 .agg(lambda s: sorted(set(s), key=lambda r: (r.lower(), r))))
         for generic, raws in names.items():
             raws = [r for r in raws if r.strip().lower() != generic]
             if raws:

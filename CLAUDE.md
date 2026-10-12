@@ -4,17 +4,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-`prescription_model_breast_cancer`: a team Python project for a breast cancer prescription model. The repository is at an early stage. Source code lives in `script/`. There is no dependency file, test suite, or lint configuration yet.
+`prescription_model_breast_cancer`: a team Python project for a breast cancer prescription model. The repository is at an early stage. Module code goes in `src/<module>/` with tests in `tests/<module>/` (see PROJECT.md §15). TCGA data scripts live in `data/script/`. There is no dependency file, test suite, or lint configuration yet.
 
-Scripts (run from the `team_project` conda env):
+TCGA data scripts (run from the `team_project` conda env, from any folder; paths resolve from the script location, with `data/` as the base):
 
-- `script/tcga_brca_download.py`: downloads TCGA-BRCA clinical files (GDC BCR Biotab) and cBioPortal PanCancer Atlas clinical, mutation, and biomarker-gene CNA data into `data/tcga_brca/`. Already-downloaded files are skipped.
-- `script/tcga_brca_explore.py`: prints a structure summary and writes `data/tcga_brca/structure_report.md`. Needs `tabulate`.
-- `script/tcga_brca_merge.py`: joins all tables on patient ID into one row per patient, `data/tcga_brca/merged/tcga_brca_merged.csv`, plus a column dictionary CSV. Multi-row tables (drugs, radiation, recurrence, follow-up, other cancers, mutations) are summarized per patient. Column prefixes name the source. Run after the download script. Drug names and therapy types are corrected with `dictionaries/drug_names.csv` (raw name to generic) and `dictionaries/drug_classes.csv` (generic to class). The merge stops if a drug name is missing from the dictionary; add it there. Original values stay in `drug_*_raw` columns, and every correction is logged in `merged/drug_corrections.csv`.
-- `script/tcga_brca_crop.py`: reads the merged CSV (unchanged) and writes `merged/tcga_braca_merging_cropped.csv` (the user chose this file name), dropping male patients and the columns listed in its `DROP` dict. It also writes a column description txt and a change log txt. Every merged column must be in either `DROP` or `DESCRIPTIONS`, or the script stops. Run after the merge script.
-- `metadata/` holds a TCGA-BRCA diagnostic slide list from GDC (v0.2). The script that made it was removed; rewrite it when v0.2 starts.
+- `data/script/tcga_brca_download.py`: downloads TCGA-BRCA clinical files (GDC BCR Biotab) and cBioPortal PanCancer Atlas clinical, mutation, and biomarker-gene CNA data into `data/tcga_brca/`. Already-downloaded files are skipped.
+- `data/script/tcga_brca_explore.py`: prints a structure summary and writes `data/tcga_brca/structure_report.md`. Needs `tabulate`.
+- `data/script/tcga_brca_merge.py`: joins all tables on patient ID into one row per patient, `data/tcga_brca/merged/tcga_brca_merged.csv`, plus a column dictionary CSV. Multi-row tables (drugs, radiation, recurrence, follow-up, other cancers, mutations) are summarized per patient. Column prefixes name the source. Run after the download script. Drug names and therapy types are corrected with `data/dictionaries/drug_names.csv` (raw name to generic) and `data/dictionaries/drug_classes.csv` (generic to class). The merge stops if a drug name is missing from the dictionary; add it there. Original values stay in `drug_*_raw` columns, and every correction is logged in `merged/drug_corrections.csv`.
+- `data/script/tcga_brca_crop.py`: reads the merged CSV (unchanged) and writes `merged/tcga_brca_merging_cropped.csv`, dropping male patients and the columns listed in its `DROP` dict. It also writes a column description txt and a change log txt. Every merged column must be in either `DROP` or `DESCRIPTIONS`, or the script stops. Run after the merge script.
+- `data/metadata/` holds a TCGA-BRCA diagnostic slide list from GDC (v0.2). The script that made it was removed; rewrite it when v0.2 starts.
 
 GDC Biotab files have three header rows (names, alternate names, CDE IDs). Missing values are bracket codes. Keep them: `[Not Available]` means the value was not recorded (maps to 기록 없음), and `[Not Evaluated]` means the test was not done (maps to 미시행).
+
+Module folders (owners and rules in `PROJECT.md` §15):
+
+- `src/input/` [1] input (A), `src/biomarker/` [2] biomarker (B), `src/recommend/` [4] LLM recommendation (B), `src/rag/` [3] guideline RAG and the shared search index (C), `src/reimbursement/` [5] reimbursement auto-update (D). Tests go in the matching `tests/<module>/`.
+- Shared folders: `schemas/` (JSON contracts between modules), `llm/` (common LLM interface), `tests/fixtures/` (virtual charts and expected outputs). Change these only after all four members review.
+- Write code only inside the module folder you are working on. Modules exchange data only through the `schemas/` formats and do not import each other's internals. The one exception: `src/reimbursement/` calls the index functions that `src/rag/` exposes. Index code lives only in `src/rag/`.
 
 The planned design is in `PROJECT.md` (Korean, design v0.1). Read it before starting work. Summary:
 
@@ -29,16 +35,17 @@ This is a non-profit project. ESMO guidelines are used under ESMO's non-commerci
 
 ## Environment
 
-- Use the conda env `team_project` (`C:\Users\301-10\anaconda3\envs\team_project\python.exe`, Python 3.14). Install packages with `conda install -n team_project ...`, not bare `pip`, which may target `base`. A separate uv-installed Python 3.14 (`C:\Users\301-10\.local\bin\python3.14.exe`) also exists; do not use it.
-- Platform is Windows. The user communicates in Korean.
+- Use a conda env named `team_project` with Python 3.14. Packages in use: `requests`, `pandas`, `tabulate`. Install with `conda install -n team_project ...`, not bare `pip`, which may target another env.
+- Each member's machine paths, OS, and language preferences belong in their own `CLAUDE.local.md` (git-ignored), not in this file.
 
 ## Repository conventions (from .gitignore)
 
-- Large data goes in `data/` and is not committed. Do not commit `*.h5`, `*.db`, `*.parquet`, or `*.npy` files.
+- Inside `data/`, only `.csv`, `.txt`, and `.py` files are committed; everything else there is ignored. To commit another small text format, add `!data/**/*.<ext>` to `.gitignore`. Keep each committed file well under GitHub's 50 MB warning limit. Never commit `*.h5`, `*.db`, `*.parquet`, or `*.npy` files.
 - Secrets and API keys go in `.env`, which is ignored.
+- `CLAUDE.local.md` is personal and ignored.
 - A local virtualenv, if created, should be named `.venv/` (ignored).
 
 ## Notes
 
 - `README.md` is saved as UTF-16. Read it with an encoding-aware tool rather than plain `cat`.
-- Update this file when a dependency file, test runner, or entry point is added.
+- Update this file when a dependency file, test runner, or entry point is added. Keep it to what applies to every team member.

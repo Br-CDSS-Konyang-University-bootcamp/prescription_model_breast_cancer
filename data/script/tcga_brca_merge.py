@@ -11,7 +11,7 @@
 - 환자당 여러 행 테이블 (투약, 방사선, 재발, 추적 관찰, 다른 암, 변이): 환자별로 요약해 붙인다
   원래의 행 단위 정보는 data/tcga_brca/ 원본 파일에 그대로 있다
 - 열 이름 앞에 출처를 붙인다: gdc_, cbio_, drug_, rad_, nte_, fu_, omf_, mut_, cna_
-- 투약 기록의 원본 오류(상품명·오타·잘못된 치료 종류)는 dictionaries/drug_names.csv,
+- 투약 기록의 원본 오류(상품명·오타·잘못된 치료 종류)는 data/dictionaries/drug_names.csv,
   drug_classes.csv로 바로잡는다. 원본 값은 drug_*_raw 열에 남긴다
 - GDC 결측 코드([Not Available], [Not Evaluated] 등)는 지우지 않고 그대로 둔다.
   "기록 없음"과 "미시행"을 구분하는 데 필요하다
@@ -20,19 +20,20 @@
   "약제 [치료 종류] d시작~d종료 (최선 반응)" 형식이고, 종료일이 없으면 "?"로 표시한다
 
 실행: conda team_project 환경에서
-    python script/tcga_brca_merge.py
+    python data/script/tcga_brca_merge.py
 """
 import re
 from pathlib import Path
 
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parent.parent
-DATA = ROOT / "data" / "tcga_brca"
+# 이 스크립트는 data/script/에 있다. DATA_ROOT = data/
+DATA_ROOT = Path(__file__).resolve().parent.parent
+DATA = DATA_ROOT / "tcga_brca"
 GDC_DIR = DATA / "gdc_clinical"
 CBIO_DIR = DATA / "cbioportal"
 OUT_DIR = DATA / "merged"
-DICT_DIR = ROOT / "dictionaries"
+DICT_DIR = DATA_ROOT / "dictionaries"
 
 BIOMARKER_GENES = ["ERBB2", "ESR1", "PIK3CA", "AKT1", "PTEN", "BRCA1", "BRCA2", "PALB2"]
 GDC_CODE = re.compile(r"^\[.*\]$")
@@ -43,7 +44,7 @@ SOURCES = {
     "gdc_": "GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",
     "cbio_sample_": "cBioPortal clinical_sample (원본 그대로)",
     "cbio_": "cBioPortal clinical_patient (원본 그대로)",
-    "drug_": "GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",
+    "drug_": "GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 data/dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",
     "rad_": "GDC clinical_radiation 환자별 요약",
     "nte_": "GDC clinical_nte + follow_up_v4.0_nte 환자별 요약",
     "fu_": "GDC follow_up v1.5·v2.1·v4.0 환자별 요약",
@@ -123,7 +124,7 @@ def normalize_drugs(d):
     key = d["pharmaceutical_therapy_drug_name"].fillna("").str.strip().str.lower()
     missing = sorted(set(key) - set(to_generic) - {""})
     if missing:
-        raise SystemExit(f"약제 사전에 없는 이름이 있습니다. dictionaries/drug_names.csv에 추가하세요: {missing}")
+        raise SystemExit(f"약제 사전에 없는 이름이 있습니다. data/dictionaries/drug_names.csv에 추가하세요: {missing}")
 
     d["drug_generic"] = key.map(to_generic).fillna("unknown")
 
@@ -310,7 +311,7 @@ def describe_columns(df):
 
 def main():
     if not (CBIO_DIR / "profiled_samples.tsv").exists():
-        raise SystemExit("profiled_samples.tsv가 없습니다. 먼저 script/tcga_brca_download.py를 다시 실행하세요.")
+        raise SystemExit("profiled_samples.tsv가 없습니다. 먼저 data/script/tcga_brca_download.py를 다시 실행하세요.")
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
     parts = [

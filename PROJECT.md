@@ -346,7 +346,7 @@ v0.2:
 | gnomAD, KRGDB | PGx 빈도 확인 | KRGDB는 조회 중심 |
 | PharmVar, CPIC | PGx 판정·권고 | 지침 개정 추적 |
 
-데이터는 `data/`에 두고 git에 올리지 않는다.
+데이터는 `data/`에 둔다. `data/` 안에서는 csv·txt·py 파일만 git에 올리고 나머지 형식은 제외한다 (§15.2).
 
 ## 11. v0.2 미리보기 — H&E 이미지 모듈
 
@@ -373,7 +373,7 @@ H&E에서 ER/PR/HER2를 예측해 차트 값과의 불일치를 표시하는 QC 
 
 이 모델들은 TCGA 특징 파일이 공개돼 있지 않아 슬라이드를 직접 받아 특징을 뽑는다.
 
-1. GDC API로 TCGA-BRCA 진단 슬라이드 목록을 받고, 파일명의 환자 ID(submitter_id)로 임상 라벨과 매칭한다 (2026-10-07 조회 결과는 `metadata/`에 있음. 조회 스크립트는 v0.2 시작 시 다시 작성)
+1. GDC API로 TCGA-BRCA 진단 슬라이드 목록을 받고, 파일명의 환자 ID(submitter_id)로 임상 라벨과 매칭한다 (2026-10-07 조회 결과는 `data/metadata/`에 있음. 조회 스크립트는 v0.2 시작 시 다시 작성)
 2. 라벨 있는 환자만, 샘플 코드 `01`(원발), 환자당 1장만 고른다. 2026-10-07 조회 결과 1,133장(약 1.16TB), 환자 1,062명, 샘플 코드 `06` 1장 포함
 3. 처음에는 100~200장으로 파이프라인을 검증한다
 4. 한 장 받기 → 특징 추출 → 원본 삭제를 반복해 디스크 사용량을 줄인다
@@ -410,9 +410,9 @@ H&E에서 ER/PR/HER2를 예측해 차트 값과의 불일치를 표시하는 QC 
 
 ## 14. 남은 과제
 
-- [x] TCGA-BRCA 임상·체세포 변이 데이터 다운로드와 구조 파악 (2026-10-07, `script/tcga_brca_download.py`, `script/tcga_brca_explore.py`)
-- [x] TCGA-BRCA 테이블을 환자 ID로 합친 환자 1명 = 1행 파일 (2026-10-07, `script/tcga_brca_merge.py`). GDC 결측 코드는 `[Not Available]` = 기록 없음, `[Not Evaluated]` = 미시행으로 해석한다. 변이 검사를 받았는데 변이가 없으면 "변이 없음"으로 쓴다
-- [x] TCGA 투약 기록의 약제명·치료 종류 정규화 사전 (`dictionaries/drug_names.csv`, `drug_classes.csv`). IN-3 약어 사전의 출발점으로 쓴다
+- [x] TCGA-BRCA 임상·체세포 변이 데이터 다운로드와 구조 파악 (2026-10-07, `data/script/tcga_brca_download.py`, `data/script/tcga_brca_explore.py`)
+- [x] TCGA-BRCA 테이블을 환자 ID로 합친 환자 1명 = 1행 파일 (2026-10-07, `data/script/tcga_brca_merge.py`). GDC 결측 코드는 `[Not Available]` = 기록 없음, `[Not Evaluated]` = 미시행으로 해석한다. 변이 검사를 받았는데 변이가 없으면 "변이 없음"으로 쓴다
+- [x] TCGA 투약 기록의 약제명·치료 종류 정규화 사전 (`data/dictionaries/drug_names.csv`, `drug_classes.csv`). IN-3 약어 사전의 출발점으로 쓴다
 - [ ] TCGA 필드를 v0.1 추출 스키마에 대응시키고 가상 차트 작성 방법 정하기
 - [ ] ESMO 치료 알고리즘 도식의 텍스트 변환과 검수
 - [x] ESMO 사용 조건 확인 (2026-10-07): ESMO 웹사이트 약관은 개인·비영리 사용을 허가 없이 허용하고, AI 관련 조항은 없다. 비영리 프로젝트이므로 ESMO로 진행한다
@@ -425,3 +425,225 @@ H&E에서 ER/PR/HER2를 예측해 차트 값과의 불일치를 표시하는 QC 
 - [ ] 최종 출력 형식 (CLI, 웹 UI, 리포트 등)
 - [ ] 다음 버전: 약물유전체 경고, Oncotype 대리 점수, 멀티모달 QC 연결 (v0.2 문서)
 - [ ] v0.2: H-optimus-0 접근 신청 후 바로 열리는지 확인, 슬라이드 100~200장으로 특징 추출 파이프라인 검증
+- [x] `data/script/`, `data/dictionaries/`, `data/metadata/`의 공유 방법 (2026-10-12): `.gitignore`를 바꿔 `data/` 안의 csv·txt·py 파일만 git에 올린다 (§15.2)
+
+## 15. 역할 분담 (4명)과 폴더 구조
+
+### 15.1 폴더 구조와 충돌 방지 규칙
+
+모듈마다 폴더를 따로 두고, **각자 자기 모듈 폴더 안에서만 코드를 작성한다.** 다른 사람의 모듈 폴더는 고치지 않는다. 필요한 변경은 담당자에게 요청한다.
+
+```
+team_project/
+├── src/
+│   ├── input/          [1] 입력 모듈          — A
+│   ├── biomarker/      [2] 바이오마커 모듈     — B
+│   ├── recommend/      [4] LLM 추천 모듈       — B (2단계)
+│   ├── rag/            [3] 지침 RAG + 공용 검색 색인 — C
+│   └── reimbursement/  [5] 급여 기준 자동 업데이트 — D
+├── schemas/            모듈 간 JSON 형식        — 공용 (4명 합의)
+├── llm/                LLM 공통 인터페이스      — 공용 (4명 합의)
+├── tests/
+│   ├── fixtures/       가상 차트, 모듈별 예상 출력 — 공용
+│   ├── input/  biomarker/  rag/  reimbursement/  recommend/   — 각 모듈 담당
+└── data/               데이터 (csv·txt·py만 git에 올림)
+    ├── script/         TCGA-BRCA 데이터 탐색 스크립트
+    ├── dictionaries/   약제명·치료 종류 사전
+    ├── metadata/       v0.2 슬라이드 목록
+    └── tcga_brca/      다운로드한 TCGA 데이터와 합친 파일
+```
+
+규칙:
+
+1. 모듈 코드는 `src/<모듈>/`, 모듈 테스트는 `tests/<모듈>/`에만 둔다.
+2. 공용 폴더(`schemas/`, `llm/`, `tests/fixtures/`)는 4명이 모두 검토한 뒤에만 바꾼다.
+3. 모듈끼리는 `schemas/`에 정한 JSON 형식으로만 데이터를 주고받는다. 다른 모듈의 내부 함수를 직접 가져다 쓰지 않는다. 예외: D는 `src/rag/`가 공개한 색인 함수를 호출해 급여 청크를 넣는다.
+4. 공용 검색 색인 코드는 `src/rag/`에만 둔다 (C 관리). D는 색인 코드를 따로 만들지 않는다.
+5. 브랜치는 모듈별로 나눈다 (예: `feature/input-deid`, `feature/rag-chunking`). 공용 폴더 변경은 별도 브랜치로 올린다.
+6. 앞 모듈이 끝나지 않았으면 `tests/fixtures/`의 예상 출력을 입력으로 써서 개발한다.
+
+### 15.2 폴더별 사용법과 파일 목록
+
+2026-10-12 기준이다. 폴더나 파일을 추가·이동하면 이 표도 함께 고친다.
+
+#### 루트 파일
+
+| 파일 | 용도 | git |
+|---|---|---|
+| `PROJECT.md` | 설계 문서 (이 파일). 결정 사항과 남은 과제를 여기에 기록한다 | 올림 |
+| `CLAUDE.md` | 팀 공용 Claude Code 안내. 4명 모두에게 적용되는 규칙만 쓴다 | 올림 |
+| `CLAUDE.local.md` | 개인별 설정 (내 PC 경로, conda 위치, 사용 언어) | 제외 |
+| `README.md` | 저장소 제목. UTF-16으로 저장되어 있어 인코딩을 지원하는 도구로 연다 | 올림 |
+| `.gitignore` | git 제외 목록. `data/` 안은 csv·txt·py만 올리고 나머지 제외, 스프레드시트 잠금 파일(`.~lock.*#`), `*.h5`·`*.db`·`*.parquet`·`*.npy`, `.env`, `.venv/`, `CLAUDE.local.md`, 캐시 | 올림 |
+| `.vscode/settings.json` | VS Code 설정 | 올림 |
+| `.env` (만들 때) | API 키 (Claude API, OncoKB 토큰 등). 절대 커밋하지 않는다 | 제외 |
+
+#### src/ — 모듈 코드
+
+각 모듈 폴더에는 지금 `README.md`(담당자, 범위, 입력, 출력)와 빈 `__init__.py`만 있다. 코드는 담당자가 이 폴더 안에 추가한다.
+
+| 폴더 | 담당 | 사용법 | 입력 → 출력 |
+|---|---|---|---|
+| `src/input/` | A | 비식별화(IN-0)부터 유전자 보고서 전달(IN-7)까지. 환자 텍스트는 `llm/`의 로컬 설정으로만 처리 | 차트 원문 → `patient_state` |
+| `src/biomarker/` | B | BM-1 파싱(로컬 LLM), BM-2·BM-4는 규칙 코드, BM-3은 OncoKB·ClinVar 조회 | `patient_state` → `biomarker_record` |
+| `src/rag/` | C | 지침 수집·파싱·청킹, 공용 Qdrant 색인, 검색 API. D가 호출할 색인 함수를 여기서 공개 | 지침 PDF, 급여 청크 → 검색 결과(`chunk` 목록) |
+| `src/reimbursement/` | D | 심평원 게시판 수집, 날짜 규칙, SQLite 레지스트리, 급여 청크 생성. 색인 반영은 `src/rag/` 함수 호출 | 심평원 공고 → 급여 `chunk` |
+| `src/recommend/` | B (2단계) | 프롬프트 구성, 로컬 LLM 호출, 스키마 검증, 환각 방지 후처리, 급여 분류 | `patient_state` + `biomarker_record` + 검색 결과 → `recommendation` |
+| `src/__init__.py` | 공용 | `from src.input import ...` 형태로 가져오기 위한 빈 파일 | — |
+
+#### schemas/ — 모듈 간 JSON 형식 (공용)
+
+| 파일 | 내용 |
+|---|---|
+| `README.md` | 스키마 설명, 코드값과 한국어 표시 대응표, 가상 환자 예시 4개, 검증 방법, 0단계에서 정할 것 |
+| `patient_state.json` | [1] 입력 출력 |
+| `biomarker_record.json` | [2] 바이오마커 출력 (레코드 목록 + 아형 + 치료 상황 + 검사 공백) |
+| `chunk.json` | 지침·급여 공용 청크 |
+| `recommendation.json` | [4] 최종 출력 |
+
+사용법: 모듈 출력을 내보내기 전에 해당 스키마로 검증한다 (`jsonschema` 패키지, 검증 코드는 `schemas/README.md` §7). 지금은 초안(`0.1-draft`)이다.
+
+#### llm/ — LLM 공통 인터페이스 (공용)
+
+| 파일 | 내용 |
+|---|---|
+| `README.md` | 사용 원칙 (환자 데이터 모듈은 로컬 설정만, Claude API는 공개 문서 모듈만, 키는 `.env`) |
+| `__init__.py` | 빈 파일. 0단계에서 A가 공통 인터페이스 초안을 작성한다 |
+
+#### tests/ — 테스트
+
+| 폴더 | 담당 | 사용법 |
+|---|---|---|
+| `tests/fixtures/` | 공용 (가상 차트는 A) | 가상 차트와 모듈별 예상 출력. 앞 모듈이 없어도 이 파일을 입력으로 써서 개발한다. 실제 환자 데이터는 넣지 않는다. 지금은 `README.md`만 있다 |
+| `tests/input/`, `tests/biomarker/`, `tests/rag/`, `tests/reimbursement/`, `tests/recommend/` | 각 모듈 담당 | 모듈 단위 테스트. 지금은 git에 빈 폴더를 올리기 위한 `.gitkeep`만 있다 |
+
+#### data/ — 데이터와 데이터 준비 스크립트
+
+git 규칙: `data/` 안은 기본적으로 제외하고 **csv·txt·py 파일만 올린다.** 다른 텍스트 형식을 올리려면 `.gitignore`에 `!data/**/*.확장자`를 추가한다. GitHub는 50MB가 넘는 파일에 경고하고 100MB가 넘으면 거부하므로, 큰 파일은 올리지 말고 스크립트로 다시 만든다.
+
+| 경로 | 내용 | git |
+|---|---|---|
+| `data/script/tcga_brca_download.py` | TCGA-BRCA 임상 파일(GDC BCR Biotab)과 cBioPortal 임상·변이·바이오마커 유전자 CNA 데이터를 `data/tcga_brca/`에 내려받는다. 이미 받은 파일은 건너뛴다 | 올림 |
+| `data/script/tcga_brca_explore.py` | 구조 요약을 출력하고 `data/tcga_brca/structure_report.md`를 만든다 (`tabulate` 필요) | 올림 |
+| `data/script/tcga_brca_merge.py` | 모든 표를 환자 ID로 합쳐 환자 1명 = 1행 파일을 만든다. 약제명은 `data/dictionaries/` 사전으로 바로잡고, 사전에 없는 약제명이 나오면 멈춘다 | 올림 |
+| `data/script/tcga_brca_crop.py` | 합친 파일에서 남성 환자와 `DROP` 목록의 열을 빼고, 열 설명과 변경 기록을 만든다 | 올림 |
+| `data/dictionaries/drug_names.csv` | 원문 약제명 → 일반명 사전. IN-3 약어 사전의 출발점 | 올림 |
+| `data/dictionaries/drug_classes.csv` | 일반명 → 치료 종류 사전 | 올림 |
+| `data/metadata/slides_files.csv`, `gdc_manifest_slides_test.txt` | v0.2용 TCGA-BRCA 진단 슬라이드 목록과 GDC 다운로드 매니페스트 | 올림 |
+| `data/tcga_brca/gdc_clinical/` | GDC Biotab 임상 파일 9개 (환자, 투약, 방사선, 추적 관찰 v1.5·v2.1·v4.0, 새 종양 사건, 기타 악성종양). 헤더 3줄, 결측은 `[Not Available]` = 기록 없음, `[Not Evaluated]` = 미시행 | 올림 (txt) |
+| `data/tcga_brca/cbioportal/` | cBioPortal PanCancer Atlas 파일 6개 (환자·샘플 임상, 임상 속성 설명, 변이, 바이오마커 유전자 CNA, 검사 대상 샘플) | 제외 (tsv). 다운로드 스크립트로 다시 받는다 |
+| `data/tcga_brca/structure_report.md` | 탐색 스크립트가 만든 열 단위 구조 보고서 | 제외 (md). 탐색 스크립트로 다시 만든다 |
+| `data/tcga_brca/merged/tcga_brca_merged.csv` | 환자 1명 = 1행으로 합친 파일, 열 설명은 `tcga_brca_merged_columns.csv`, 약제명 수정 기록은 `drug_corrections.csv` | 올림 (csv·txt) |
+| `data/tcga_brca/merged/tcga_brca_merging_cropped.csv` | 남성 환자와 불필요한 열을 뺀 최종 파일. 열 설명 `_columns.txt`, 변경 기록 `_changes.txt` | 올림 (csv·txt) |
+
+스크립트 실행 순서 (`team_project` 폴더에서, `team_project` conda 환경으로):
+
+```bash
+python data/script/tcga_brca_download.py
+python data/script/tcga_brca_explore.py
+python data/script/tcga_brca_merge.py
+python data/script/tcga_brca_crop.py
+```
+
+새로 받은 팀원은 git에 없는 파일(cbioportal tsv, structure_report.md)을 위 순서대로 스크립트를 실행해 만든다. 합친 파일(`merged/`)은 git으로 받으므로, 다운로드 없이 바로 쓸 수도 있다. 단, 합친 파일을 다시 만들려면 cbioportal 파일이 필요하므로 다운로드부터 실행한다.
+
+### 15.3 진행 단계
+
+| 단계 | 내용 | 완료 기준 |
+|---|---|---|
+| 0단계 (1–2일, 4명 함께) | `schemas/` 4개 파일, `llm/` 공통 인터페이스, 가상 차트 5건과 모듈별 예상 출력 | 스키마 합의, fixture 저장 |
+| 1단계 (병렬) | A·B·C·D가 각자 모듈 개발 | 각 모듈이 fixture 입력으로 자기 테스트 통과 |
+| 2단계 (통합) | [4] LLM 추천 개발, 전체 연결 | 가상 차트 5건이 [1]→[2]→[3]/[5]→[4]를 거쳐 출력까지 나옴 |
+| 3단계 (평가) | §12 검증 계획 실행 | 추출 정확도, 경계 사례, recall@5, 시나리오 대조 측정 |
+
+### 15.4 담당 A — [1] 입력 모듈 + 가상 차트
+
+폴더: `src/input/`, `tests/input/`. 공용 책임: `tests/fixtures/` 가상 차트 작성.
+
+| 작업 | 내용 |
+|---|---|
+| IN-0 비식별화기 | Presidio + 한국어 패턴(주민번호, 등록번호, 전화번호). 원래 값 대응표는 내부 보관 |
+| IN-1 문서 분류기 | 경과기록 / 병리 / 분자병리·NGS / 투약 기록 분류 |
+| IN-2 필드 추출기 | 로컬 LLM으로 §4 추출 스키마 추출. 값마다 원문 인용과 확신도 |
+| IN-3 표기 정규화기 | 국문·영문 혼용 표기 표준화. `data/dictionaries/`를 출발점으로 확장 |
+| IN-4 ~ IN-6 | 시간 정렬(최신 값, 전이 병소 재생검 우선), 충돌 검사, 누락 상태 판정(값 있음 / 미시행 / 기록 없음) |
+| IN-7 | 분자병리·NGS 보고서 원문을 해석 없이 B에게 전달 |
+| 가상 차트 | TCGA-BRCA 필드를 추출 스키마에 대응시키고, 형식이 다른 가상 차트를 만든다 (0단계 5건 → 검증용 30건 이상). 종양내과 검수 요청 |
+| 로컬 LLM 선정 | Qwen 계열, EXAONE, snuh/hari-q3-8b를 같은 가상 차트로 비교 (추출 정확도, 인용 준수율). 결과를 팀에 공유 |
+
+산출물: `patient_state` (schemas/patient_state.json). 2단계: 가상 차트를 전체 흐름에 넣어 끝까지 돌리고 종양내과 검수용 시나리오를 정리한다.
+
+### 15.5 담당 B — [2] 바이오마커 모듈 + [4] LLM 추천 모듈
+
+폴더: `src/biomarker/`, `src/recommend/`, `tests/biomarker/`, `tests/recommend/`.
+
+1단계 — 바이오마커:
+
+| 작업 | 내용 |
+|---|---|
+| BM-1 보고서 정규화기 | 로컬 LLM으로 보고서 문장 파싱 (모듈 안의 유일한 LLM 단계) |
+| BM-2 상태 판정기 | §5 판정 기준표를 규칙 코드로 작성. 상태값: 양성 / 음성 / 불확정 / 미시행 / 재검 필요 / 기록 없음 |
+| BM-3 근거 주석기 | OncoKB(학술 토큰 신청), ClinVar 조회 |
+| BM-4 검사 공백 탐지기 | §5 검사 공백 규칙 (gBRCA, PIK3CA·AKT1·PTEN, ESR1 재검, PD-L1, HER2 재판정) |
+| 테스트 | HER2 IHC 2+/ISH 미시행, ER 5%, gBRCA VUS, 진행 전 ESR1 결과 같은 경계 사례. TCGA-BRCA, MSK-IMPACT 변이 데이터 사용 |
+| 기준 확정 | BM-2 수치 기준을 종양내과·병리과 검토로 확정 |
+
+2단계 — LLM 추천 (§7):
+
+| 작업 | 내용 |
+|---|---|
+| 프롬프트 | 환자 상태, 바이오마커 상태값·판정 이유, 검사 공백, 지침 청크(부모 소단원 포함), 급여 청크 |
+| 출력 검증 | `schemas/recommendation.json` 스키마 검사 |
+| 환각 방지 후처리 | 인용 없는 문장 삭제, 인용 청크의 약제명 문자열 재확인, 불확정·미시행 바이오마커가 필요한 치료는 검사 권고로 전환 |
+| 급여 분류 로직 | 급여 / 급여(조건 확인 필요) / 허가초과 인정 / 급여 기준 없음. D와 판정 근거 연결 |
+
+산출물: `biomarker_record` 목록 (schemas/biomarker_record.json), `recommendation` (schemas/recommendation.json).
+
+### 15.6 담당 C — [3] 지침 RAG + 공용 검색 색인
+
+폴더: `src/rag/`, `tests/rag/`.
+
+| 작업 | 내용 |
+|---|---|
+| 수집 | ESMO 조기(2024)·eUpdate, ESMO 전이성(2026-05), ASCO 유방암 지침과 Rapid Update. 원문과 발행일 보관 |
+| 사용 조건 | ASCO 재사용 조건 확인, ESMO 전이성 2026 원문 확보 경로 결정 (esmo.org 게시본 우선) |
+| 파싱 | Docling. 실패하면 Marker, PyMuPDF 비교 |
+| 청킹 | 권고문 단위(약 300–800 토큰), 근거 수준(LoE/GoR, ESMO-MCBS, ESCAT), 부모-자식 구조, 표는 행 단위 문장화 |
+| 알고리즘 도식 | 노드-엣지 텍스트("조건 → 권고")로 변환 후 사람 검수 |
+| 공용 색인 | Qdrant + bge-m3 + BM25 하이브리드. `schemas/chunk.json` 메타데이터, `superseded_by` 관리. D가 호출할 색인 함수 공개 |
+| 검색 API | setting·subtype·line 하드 필터 → biomarker_tags 가중치 → bge-reranker-v2-m3 재정렬. ESMO와 ASCO는 출처별로 따로 반환 |
+| 평가 | 아형 × 세팅 × 차수 조합별 질의의 recall@5. 평가용 질의는 Claude API로 생성 가능 (환자 정보 없음) |
+
+산출물: 지침 청크, 공용 색인, 검색 API. 2단계: 후보 약제명으로 급여 청크를 다시 검색하는 2차 검색 연결, RAGAS 평가.
+
+### 15.7 담당 D — [5] 급여 기준 자동 업데이트 + 급여 청크
+
+폴더: `src/reimbursement/`, `tests/reimbursement/`.
+
+| 작업 | 내용 |
+|---|---|
+| 수집 | 항암화학요법 게시판(공고책자, 허가초과 항암요법), 공고 게시판, 공고예고 게시판. 다운로드 요청 재현, 안 되면 Playwright. 첨부 형식(PDF/HWP) 확인 |
+| 날짜 규칙 | §8 날짜 비교 규칙 1–5 (책자 날짜 B, 시행일 기준 비교, 예정·진행중 처리, 날짜 표기 통일) |
+| 레지스트리 | SQLite (source, doc_no, board_id, effective_date, posted_date, file_name, file_hash, status) |
+| 구조화 | 유방암 약제·요법만 남기고 Claude API로 조건 단위 JSON 생성 (약제, 요법, 투여 단계, 조건, 시행일, 공고번호, 출처 쪽수). 스키마 검사와 약제명 사전 대조 |
+| 허가초과 | 유방암 인정 요법 21건을 (암종, 약제 조합, 투여대상, 투여단계, 본인부담률)로 저장. 파일명 날짜로 갱신 판단 |
+| 색인 반영 | `src/rag/` 색인 함수로 급여 청크 저장. source_type(baseline / overlay / preview), effective_from, superseded_by 부여 |
+| 실패 처리 | 마지막 정상 버전 유지, 현재 버전과 경고 표시 |
+| 가정 검증 | 공고책자 날짜 = 마지막 반영 공고 시행일 가정을 몇 달간 대조 |
+
+산출물: 급여 청크(doc_type = reimbursement), 레지스트리, 신설·변경·삭제 목록. 2단계: 급여 분류 판정 근거를 B의 추천 모듈에 연결하고, 화면 하단 반영 현황 요약("현재 반영: 공고책자 … / 예정 … / 진행중 …")을 만든다.
+
+### 15.8 0단계 공동 산출물
+
+| 파일 | 초안 작성 | 검토 |
+|---|---|---|
+| `schemas/patient_state.json` | A | B, C, D |
+| `schemas/biomarker_record.json` | B | A, C, D |
+| `schemas/chunk.json` | C | D 필수, A, B |
+| `schemas/recommendation.json` | B | A, C, D |
+| `llm/` 공통 인터페이스 | A | 전원 |
+| `tests/fixtures/` 가상 차트 5건 | A | 전원, 모듈별 예상 출력은 각 담당자 |
+
+### 15.9 v0.2 H&E 모듈
+
+1단계에서 여유가 생기는 사람(B 또는 D)이 슬라이드 100–200장으로 특징 추출 파이프라인 검증부터 시작한다. 폴더는 v0.2 시작 시 `src/pathology/`로 만든다.

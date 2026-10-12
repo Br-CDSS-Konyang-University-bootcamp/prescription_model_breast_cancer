@@ -1,0 +1,245 @@
+﻿TCGA-BRCA 정리본 변경 내역 (tcga_brca_merging_cropped.csv)
+작성일 2026-10-12
+
+원본: tcga_brca_merged.csv (수정하지 않음)
+결과: 환자 1,098명 × 219열  →  1,086명 × 113열
+
+==============================================================================
+1. 삭제한 행
+==============================================================================
+남성 환자 12명 (gdc_gender = MALE). 설계서 범위에서 남성 유방암은 제외
+  TCGA-A1-A0SM, TCGA-A8-A085, TCGA-AC-A62V, TCGA-AO-A1KQ, TCGA-AQ-A54O, TCGA-AR-A1AV, TCGA-BH-A0B4, TCGA-BH-A0DD, TCGA-D8-A1XS, TCGA-E2-A14W, TCGA-EW-A1PD, TCGA-EW-A6SA
+
+==============================================================================
+1-1. 바꾼 값: 양성 세포 비율 <10%인데 Positive로 판정된 ER·PR을 Negative로 변경
+==============================================================================
+사용자 결정 (2026-10-07). 원래 값은 tcga_brca_merged.csv에 그대로 있음
+주의: ASCO/CAP 기준은 1% 이상을 양성으로 본다. <10% 구간에는 1-9% 저발현 양성이 섞여 있다
+[ER] gdc_er_status_by_ihc: Positive → Negative 17명 (gdc_er_status_ihc_Percent_Positive = <10%)
+  TCGA-3C-AALI, TCGA-A2-A0YJ, TCGA-A2-A25A, TCGA-A2-A3XV, TCGA-A2-A4RX, TCGA-A2-A4S1, TCGA-AC-A62X, TCGA-AO-A0J3, TCGA-AR-A0TP, TCGA-AR-A0TX, TCGA-AR-A1AT, TCGA-AR-A24Q, TCGA-BH-A18P, TCGA-D8-A1JM, TCGA-E9-A22H, TCGA-LD-A74U, TCGA-LL-A5YP
+[PR] gdc_pr_status_by_ihc: Positive → Negative 53명 (gdc_pr_status_ihc_percent_positive = <10%)
+  TCGA-3C-AALI, TCGA-A2-A0CL, TCGA-A2-A0CU, TCGA-A2-A0SU, TCGA-A2-A0YG, TCGA-A2-A1FV, TCGA-A2-A25A, TCGA-A2-A25F, TCGA-A2-A4RX, TCGA-A7-A13D, TCGA-A7-A3J1, TCGA-A7-A56D, TCGA-AC-A2FB, TCGA-AC-A2FE, TCGA-AC-A3HN, TCGA-AC-A6IX, TCGA-AC-A8OS, TCGA-AO-A03N, TCGA-AO-A03R, TCGA-AO-A0J3, TCGA-AO-A0J7, TCGA-AO-A0JA, TCGA-AO-A0JM, TCGA-AO-A12H, TCGA-AR-A1AP, TCGA-AR-A1AT, TCGA-AR-A24V, TCGA-AR-A2LQ, TCGA-BH-A0DZ, TCGA-BH-A0E2, TCGA-BH-A0H0, TCGA-BH-A0HF, TCGA-D8-A140, TCGA-D8-A145, TCGA-D8-A1JK, TCGA-D8-A1JN, TCGA-D8-A1JP, TCGA-D8-A1XW, TCGA-D8-A1Y2, TCGA-D8-A27E, TCGA-D8-A27V, TCGA-E2-A56Z, TCGA-E9-A22D, TCGA-E9-A22E, TCGA-EW-A423, TCGA-GI-A2C8, TCGA-LL-A6FR, TCGA-LL-A73Z, TCGA-LL-A7T0, TCGA-LL-A9Q3, TCGA-S3-AA0Z, TCGA-UL-AAZ6, TCGA-WT-AB41
+
+==============================================================================
+2. 삭제한 열 (106개)
+==============================================================================
+[모든 환자가 빈칸] 20개
+  gdc_nte_er_positivity_other_scale                       재발 시 ER 기타 척도, 입력 없음
+  gdc_nte_er_positivity_define_method                     재발 시 ER 판정 방법, 입력 없음
+  gdc_nte_pr_positivity_other_scale                       재발 시 PR 기타 척도, 입력 없음
+  gdc_nte_pr_positivity_define_method                     재발 시 PR 판정 방법, 입력 없음
+  gdc_nte_her2_positivity_other_scale                     재발 시 HER2 기타 척도, 입력 없음
+  gdc_nte_her2_positivity_method                          재발 시 HER2 판정 방법, 입력 없음
+  gdc_nte_her2_signal_number                              재발 시 HER2 신호 수, 입력 없음
+  gdc_nte_cent_17_signal_number                           재발 시 CEP17 신호 수, 입력 없음
+  gdc_her2_cent17_counted_cells_count                     재발 시 FISH 계수 세포 수, 입력 없음
+  gdc_nte_cent17_her2_other_scale                         재발 시 FISH 기타 척도, 입력 없음
+  gdc_nte_her2_fish_define_method                         재발 시 FISH 판정 방법, 입력 없음
+  gdc_clinical_T                                          임상 T 병기, 입력 없음
+  gdc_clinical_N                                          임상 N 병기, 입력 없음
+  gdc_clinical_M                                          임상 M 병기, 입력 없음
+  gdc_clinical_stage                                      임상 병기, 입력 없음
+  gdc_days_to_patient_progression_free                    무진행 일수, 입력 없음
+  gdc_days_to_tumor_progression                           진행까지 일수, 입력 없음
+  gdc_extranodal_involvement                              림프절 외 침범, 입력 없음
+  gdc_site_of_primary_tumor_other                         원발 부위 기타, 입력 없음
+  gdc_stage_other                                         기타 병기, 입력 없음
+
+[모든 환자가 같은 값] 13개
+  gdc_tumor_tissue_site                                   모두 Breast
+  cbio_sample_TUMOR_TISSUE_SITE                           모두 Breast
+  gdc_days_to_initial_pathologic_diagnosis                모두 0 (진단일이 기준일)
+  cbio_DAYS_TO_INITIAL_PATHOLOGIC_DIAGNOSIS               모두 0 (진단일이 기준일)
+  gdc_informed_consent_verified                           모두 YES
+  cbio_INFORMED_CONSENT_VERIFIED                          모두 Yes
+  cbio_CANCER_TYPE_ACRONYM                                모두 BRCA
+  cbio_sample_CANCER_TYPE                                 모두 Breast Cancer
+  cbio_sample_SAMPLE_TYPE                                 모두 Primary
+  cbio_sample_SOMATIC_STATUS                              모두 Matched
+  cbio_SAMPLE_COUNT                                       모두 1
+  gdc_disease_code                                        0.5%만 입력, 값 FPPP 하나
+  gdc_project_code                                        0.5%만 입력, 값 TCGA 하나
+
+[다른 열과 내용이 같음 (GDC 쪽을 남김)] 26개
+  cbio_AGE                                                gdc_age_at_diagnosis와 같음
+  cbio_DAYS_TO_BIRTH                                      gdc_birth_days_to와 같음
+  cbio_SEX                                                gdc_gender와 같음
+  cbio_RACE                                               gdc_race와 같음
+  cbio_ETHNICITY                                          gdc_ethnicity와 같음
+  cbio_AJCC_PATHOLOGIC_TUMOR_STAGE                        gdc_ajcc_pathologic_tumor_stage와 같음
+  cbio_AJCC_STAGING_EDITION                               gdc_ajcc_staging_edition과 같음
+  cbio_PATH_T_STAGE                                       gdc_ajcc_tumor_pathologic_pt와 같음
+  cbio_PATH_N_STAGE                                       gdc_ajcc_nodes_pathologic_pn과 같음
+  cbio_PATH_M_STAGE                                       gdc_ajcc_metastasis_pathologic_pm과 같음
+  cbio_ICD_10                                             gdc_icd_10과 같음
+  cbio_ICD_O_3_HISTOLOGY                                  gdc_icd_o_3_histology와 같음
+  cbio_ICD_O_3_SITE                                       gdc_icd_o_3_site와 같음
+  cbio_sample_TUMOR_TYPE                                  gdc_histological_type과 같음
+  cbio_HISTORY_NEOADJUVANT_TRTYN                          gdc_history_neoadjuvant_treatment와 같음
+  cbio_PRIOR_DX                                           gdc_history_other_malignancy와 같음
+  cbio_PERSON_NEOPLASM_CANCER_STATUS                      gdc_tumor_status와 같음
+  cbio_PRIMARY_LYMPH_NODE_PRESENTATION_ASSESSMENT         gdc_lymph_nodes_examined와 같음
+  cbio_FORM_COMPLETION_DATE                               gdc_form_completion_date와 같음
+  cbio_OTHER_PATIENT_ID                                   환자 UUID, patient_id로 충분
+  gdc_patient_id                                          바코드 끝 4자리, patient_id로 충분
+  cbio_sample_MUTATION_COUNT                              mut_n_total과 같음 (전원 일치 확인)
+  cbio_sample_TISSUE_SOURCE_SITE_CODE                     gdc_tissue_source_site와 같음
+  cbio_sample_TISSUE_PROSPECTIVE_COLLECTION_INDICATOR     gdc_prospective_collection과 같음
+  cbio_sample_TISSUE_RETROSPECTIVE_COLLECTION_INDICATOR   gdc_retrospective_collection과 같음
+  has_mutation_data                                       mut_sequenced와 같음
+
+[생존 정보 중복 (fu_ 요약과 cBioPortal 생존 지표를 남김)] 5개
+  gdc_vital_status                                        등록 시점 생존 여부, fu_last_vital_status가 더 최신
+  gdc_last_contact_days_to                                등록 시점 마지막 연락일, fu_last_days가 더 최신
+  gdc_death_days_to                                       등록 시점 사망일, fu_death_days와 겹침
+  gdc_tumor_status                                        등록 시점 종양 상태, fu_last_tumor_status가 더 최신
+  cbio_DAYS_LAST_FOLLOWUP                                 마지막 추적일, fu_last_days와 겹침
+
+[행정·수집 정보] 6개
+  gdc_bcr_patient_uuid                                    환자 UUID
+  gdc_form_completion_date                                양식 작성일
+  gdc_prospective_collection                              전향적 수집 여부
+  gdc_retrospective_collection                            후향적 수집 여부
+  cbio_IN_PANCANPATHWAYS_FREEZE                           PanCancer 분석 포함 여부
+  cbio_sample_TISSUE_SOURCE_SITE                          수집 기관 이름 (기관 코드 gdc_tissue_source_site는 남김)
+
+[설계서 범위 밖 (수술·방사선)] 17개
+  gdc_method_initial_path_dx                              첫 병리 진단 방법 (생검 종류)
+  gdc_method_initial_path_dx_other                        첫 병리 진단 방법 기타
+  gdc_surgical_procedure_first                            첫 수술 종류
+  gdc_first_surgical_procedure_other                      첫 수술 종류 기타
+  gdc_surgery_for_positive_margins                        절제면 양성 시 추가 수술
+  gdc_surgery_for_positive_margins_other                  절제면 양성 시 추가 수술 기타
+  gdc_margin_status                                       절제면 상태
+  gdc_margin_status_reexcision                            재절제 후 절제면 상태
+  gdc_axillary_staging_method                             액와 림프절 병기 결정 방법
+  gdc_axillary_staging_method_other                       액와 림프절 병기 결정 방법 기타
+  gdc_micromet_detection_by_ihc                           미세전이 IHC 검출 여부
+  gdc_lymph_nodes_examined                                림프절 평가 시행 여부 (개수 열은 남김)
+  gdc_anatomic_neoplasm_subdivision                       종양 위치 (좌우, 사분면)
+  rad_n_records                                           방사선 치료 기록 수
+  rad_types                                               방사선 치료 종류
+  rad_sites                                               방사선 치료 부위
+  rad_first_start_days                                    첫 방사선 치료 시작일
+
+[수용체 검사 방법 세부 (자유 기재, 판정 결과 열에 정리돼 있음)] 11개
+  gdc_er_positivity_scale_used                            ER 강도 척도 종류
+  gdc_er_positivity_scale_other                           ER 기타 척도 (Allred, H-score 등 자유 기재)
+  gdc_er_positivity_method                                ER 판정 방법 자유 기재
+  gdc_pr_positivity_scale_used                            PR 강도 척도 종류
+  gdc_pr_positivity_scale_other                           PR 기타 척도 자유 기재
+  gdc_pr_positivity_define_method                         PR 판정 방법 자유 기재
+  gdc_her2_positivity_scale_other                         HER2 기타 척도 자유 기재
+  gdc_her2_positivity_method_text                         HER2 판정 방법 자유 기재
+  gdc_her2_and_cent17_scale_other                         FISH 기타 척도 자유 기재
+  gdc_her2_fish_method                                    FISH 키트·기준 자유 기재
+  gdc_her2_and_cent17_cells_count                         FISH 계수 세포 수
+
+[사용자 요청으로 삭제] 1개
+  gdc_birth_days_to                                       진단일 기준 출생일 일수, 진단 시 나이(gdc_age_at_diagnosis)로 충분
+
+[처방에 쓰지 않는 연구용 점수] 7개
+  cbio_BUFFA_HYPOXIA_SCORE                                저산소 유전자 점수 (Buffa)
+  cbio_RAGNUM_HYPOXIA_SCORE                               저산소 유전자 점수 (Ragnum)
+  cbio_WINTER_HYPOXIA_SCORE                               저산소 유전자 점수 (Winter)
+  cbio_GENETIC_ANCESTRY_LABEL                             유전적 조상 추정
+  cbio_sample_ANEUPLOIDY_SCORE                            이수성 점수
+  cbio_sample_FRACTION_GENOME_ALTERED                     복제수 변화 유전체 비율
+  cbio_sample_TBL_SCORE                                   총 결실 부담 점수
+
+==============================================================================
+3. 유지하기로 정한 열 (삭제 후보였음)
+==============================================================================
+  MSI·TMB 점수 3개: 종양 비특이 면역항암제 적응증(MSI-H, TMB-high)에 쓸 수 있음
+  재발 시 수용체 결과 11개: 전이 병소 재생검 우선 규칙(IN-4) 테스트에 사용
+  원본 약제 열 2개 (drug_names_raw, drug_therapy_types_raw): 정규화 전 값과 대조용
+
+==============================================================================
+4. 용어 통일 (tcga_brca_merge.py 단계에서 적용, 사전: data/dictionaries/)
+==============================================================================
+투약 기록 2,406건 중 약제명 1,143건, 치료 종류 177건을 고침 (남성 환자 기록 포함 전체 기준)
+원본 값은 drug_names_raw, drug_therapy_types_raw 열과 drug_corrections.csv에 남아 있음
+
+4-1. 약제명 → 성분명 (상품명, 오타, 라틴어 표기, 요법 약어 통일)
+  ae-37 vaccine                            ← AE-37
+  anastrozole                              ← Anastrazole, ANASTROZOLE (ARIMIDEX), anastrozolum, ARIMIDEX, Arimidex, arimidex, ARIMIDEX (ANASTROZOLE), Arimidex (Anastrozole)
+  bevacizumab                              ← Avastin, avastin, BEVACIZUMAB (AVASTIN)/PLACEBO PROVIDED BY STUDY, Bevacizumab or Placebo
+  capecitabine                             ← Capecetabine, XELODA, Xeloda, Xeloda (Capecitabine)
+  chemotherapy nos                         ← Chemo, NOS
+  clodronate                               ← clodronic acid
+  cyclophosphamide                         ← Cyclophasphamide, Cyclophospamide, cyclophosphamid, cyclophosphamidum, Cyclophosphane, Cyotxan, CYTOXAN, Cytoxan, cytoxan, Cytoxen
+  cyclophosphamide+methotrexate+fluorouracil ← cyclophosphamide+methotrexatum+fluorouracillum, methotrexate+5 fluorouracil+cyclophosphamide
+  denosumab                                ← Xgeva
+  docetaxel                                ← Doxetaxel, TAXOTERE, Taxotere, taxotere
+  docetaxel+carboplatin+trastuzumab        ← TCH
+  docetaxel+cyclophosphamide               ← Cytoxan and Taxotere, Taxotere/Cytoxan, TC, tc
+  doxorubicin                              ← adriamicin, ADRIAMYCIN, Adriamycin, adriamycin, Adriamyicin, Adrimycin, doxorubicin HCL, doxorubicine, Doxorubicinum
+  doxorubicin+cyclophosphamide             ← ac, adriamycin+cuclophosphamide, adriamycin+cyclophosphamid, adriamycin+cyclophosphamide, adrimicin+cyclophosphamide, adrimycin+cyclophosphamide, doxorubicin+ cyclophosphamide, doxorubicin+cyclophosphamid, doxorubicine+cyclophosphamide
+  doxorubicin+cyclophosphamide+bevacizumab ← Adriamycin, cytoxan, avastin
+  doxorubicin+cyclophosphamide+tamoxifen   ← doxorubicine cyclophosphamide tamoxifen, doxorubicine+cyclophosphamide+tamoxifen
+  endocrine therapy nos                    ← Hormone, NOS
+  epirubicin                               ← Epirubicoin
+  etoposide                                ← VP-16
+  exemestane                               ← Aromasin, aromasin, AROMASIN (EXEMESTANE), Aromasin (Exemestane), aromatase exemestane, EXEMESTANE (AROMASIN)
+  fluorouracil                             ← 5 fluorouracil, 5-Flourouracil, 5-Fluorouracil, 5-FU, FLOUROURACIL
+  fulvestrant                              ← Faslodex, faslodex, Fulvestrant (Faslodex)
+  gemcitabine                              ← GEMZAR, Gemzar
+  goserelin                                ← Zoladex
+  letrozole                                ← FEMARA, Femara, femara, Femara (Letrozole), Letrozol, LETROZOLE (FEMARA), Letrozole (Femara), letrozolum
+  leuprolide                               ← LEUPROLIDE ACETATE (LUPRON), Leuprorelin, LUPRON, Lupron
+  liposomal doxorubicin                    ← Doxil, Doxorubicin Liposome
+  megestrol                                ← Megace
+  mesna                                    ← MESNA-1, MESNA-2
+  methotrexate                             ← metotreksat
+  nab-paclitaxel                           ← Abraxane, abraxane, Albumin-Bound Paclitaxel, Paclitaxel (Protein-Bound)
+  nelipepimut-s (e75) vaccine              ← E-75
+  paclitaxel                               ← paclitaxelum, TAXOL, Taxol, taxol
+  paclitaxel+doxorubicin+cyclophosphamide+trastuzumab ← taxol+adriamycin+cyclophosphamide+herceptin
+  palonosetron                             ← Aloxi
+  pamidronate                              ← Pamidronic acid
+  pegfilgrastim                            ← NEULASTA, Neulasta
+  tamoxifen                                ← Nolvadex, nolvadex, TAMOXIFEN (NOVADEX), tamoxifen citrate, tamoxiphene
+  tamoxifen+anastrozole                    ← tamoxiphen+anastrazolum, tamoxiphene+anastrozolum
+  tamoxifen+leuprolide+goserelin           ← tamoxiphene+leuporeline+gosereline
+  taxane nos                               ← Taxane
+  toremifene                               ← Fareston
+  trabectedin                              ← Yondelis
+  trastuzumab                              ← HERCEPTIN, Herceptin, herceptin, Trustuzumab
+  unknown                                  ← [Not Available], [Unknown], Not otherwise specified, Poly E
+  vinorelbine                              ← NAVELBINE, Navelbine
+  zoledronic acid                          ← Zometa
+
+4-2. 치료 종류 (약제 성분 기준으로 다시 분류)
+  분류: Chemotherapy, Hormone Therapy, HER2-targeted Therapy, Other Targeted Therapy,
+        Bone-modifying Agent(골 보호제), Supportive Care(보조요법), Vaccine, Other, Unknown
+  약제를 알 수 없는 기록은 원본 분류를 그대로 둠
+
+  Chemotherapy                 → HER2-targeted Therapy                  33건  (lapatinib, trastuzumab)
+  Targeted Molecular therapy   → HER2-targeted Therapy                  28건  (lapatinib, trastuzumab)
+  Immunotherapy                → HER2-targeted Therapy                  27건  (trastuzumab)
+  Other, specify in notes      → Bone-modifying Agent                   18건  (clodronate, denosumab, zoledronic acid)
+  Ancillary                    → Bone-modifying Agent                   13건  (denosumab, ibandronate, pamidronate, zoledronic acid)
+  Ancillary                    → Supportive Care                        10건  (mesna, palonosetron, pegfilgrastim)
+  Chemotherapy                 → Other Targeted Therapy                  8건  (bevacizumab, everolimus)
+  Chemotherapy                 → Hormone Therapy                         6건  (anastrozole, exemestane, goserelin, letrozole, tamoxifen)
+  Immunotherapy                → Other Targeted Therapy                  5건  (bevacizumab, rituximab)
+  [Not Available]              → Chemotherapy                            5건  (cyclophosphamide, doxorubicin, paclitaxel)
+  Immunotherapy                → Vaccine                                 4건  (ae-37 vaccine, nelipepimut-s (e75) vaccine)
+  Hormone Therapy              → Chemotherapy                            3건  (cyclophosphamide, docetaxel, paclitaxel)
+  Other, specify in notes      → Hormone Therapy                         3건  (anastrozole, goserelin, triptorelin)
+  Chemotherapy                 → Bone-modifying Agent                    2건  (zoledronic acid)
+  Targeted Molecular therapy   → Other Targeted Therapy                  2건  (bevacizumab)
+  Chemotherapy                 → Chemotherapy|HER2-targeted Therapy      2건  (docetaxel+carboplatin+trastuzumab, paclitaxel+doxorubicin+cyclophosphamide+trastuzumab)
+  Chemotherapy                 → Chemotherapy|Other Targeted Therapy     1건  (doxorubicin+cyclophosphamide+bevacizumab)
+  Chemotherapy                 → Chemotherapy|Hormone Therapy            1건  (doxorubicin+cyclophosphamide+tamoxifen)
+  Ancillary                    → Other Targeted Therapy                  1건  (bevacizumab)
+  Hormone Therapy              → HER2-targeted Therapy                   1건  (trastuzumab)
+  Hormone Therapy              → Supportive Care                         1건  (prednisone)
+  Other, specify in notes      → Other Targeted Therapy                  1건  (bevacizumab)
+  Targeted Molecular therapy   → Bone-modifying Agent                    1건  (zoledronic acid)
+  [Not Available]              → Other                                   1건  (metformin)
+
+4-3. 기타 표기
+  투약 타임라인 종료일 [Not Available] → ?
+  개수·일수 열 소수점(77.0) → 정수(77)
+  변이 검사를 받았는데 변이가 없으면 '변이 없음', 검사를 안 받았으면 빈칸

@@ -9,7 +9,7 @@
 이미 받은 파일은 건너뛴다. 처음부터 다시 받으려면 해당 파일을 지우고 실행한다.
 
 실행: conda team_project 환경에서
-    python script/tcga_brca_download.py
+    python data/script/tcga_brca_download.py
 """
 import json
 from pathlib import Path
@@ -17,8 +17,9 @@ from pathlib import Path
 import pandas as pd
 import requests
 
-ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / "data" / "tcga_brca"
+# 이 스크립트는 data/script/에 있다. DATA_ROOT = data/
+DATA_ROOT = Path(__file__).resolve().parent.parent
+OUT = DATA_ROOT / "tcga_brca"
 GDC_DIR = OUT / "gdc_clinical"
 CBIO_DIR = OUT / "cbioportal"
 

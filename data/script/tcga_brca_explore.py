@@ -10,15 +10,16 @@ tcga_brca_download.py로 받은 파일을 읽어서
 터미널에는 요약을 출력하고, 열 단위 상세 표는 data/tcga_brca/structure_report.md에 저장한다.
 
 실행: conda team_project 환경에서
-    python script/tcga_brca_explore.py
+    python data/script/tcga_brca_explore.py
 """
 import re
 from pathlib import Path
 
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parent.parent
-DATA = ROOT / "data" / "tcga_brca"
+# 이 스크립트는 data/script/에 있다. DATA_ROOT = data/
+DATA_ROOT = Path(__file__).resolve().parent.parent
+DATA = DATA_ROOT / "tcga_brca"
 GDC_DIR = DATA / "gdc_clinical"
 CBIO_DIR = DATA / "cbioportal"
 REPORT = DATA / "structure_report.md"
@@ -105,7 +106,7 @@ def value_counts_block(df, cols, top=8):
 
 def main():
     if not DATA.exists():
-        raise SystemExit("data/tcga_brca가 없습니다. 먼저 script/tcga_brca_download.py를 실행하세요.")
+        raise SystemExit("data/tcga_brca가 없습니다. 먼저 data/script/tcga_brca_download.py를 실행하세요.")
     t = load_all()
     md = ["# TCGA-BRCA 임상·변이 데이터 구조", ""]
 

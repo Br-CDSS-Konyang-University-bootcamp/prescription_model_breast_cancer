@@ -1,0 +1,242 @@
+﻿raw_name,raw_type,generic_names,corrected_type,n_records,name_changed,type_changed
+Trastuzumab,Immunotherapy,trastuzumab,HER2-targeted Therapy,18,False,True
+Herceptin,Chemotherapy,trastuzumab,HER2-targeted Therapy,14,True,True
+Herceptin,Targeted Molecular therapy,trastuzumab,HER2-targeted Therapy,12,True,True
+Trastuzumab,Chemotherapy,trastuzumab,HER2-targeted Therapy,11,False,True
+Trastuzumab,Targeted Molecular therapy,trastuzumab,HER2-targeted Therapy,9,False,True
+Zometa,"Other, specify in notes",zoledronic acid,Bone-modifying Agent,7,True,True
+NEULASTA,Ancillary,pegfilgrastim,Supportive Care,5,True,True
+TRASTUZUMAB,Targeted Molecular therapy,trastuzumab,HER2-targeted Therapy,4,False,True
+Zoledronic acid,Ancillary,zoledronic acid,Bone-modifying Agent,4,False,True
+herceptin,Chemotherapy,trastuzumab,HER2-targeted Therapy,4,True,True
+Bevacizumab,Chemotherapy,bevacizumab,Other Targeted Therapy,3,False,True
+Clodronate,"Other, specify in notes",clodronate,Bone-modifying Agent,3,False,True
+Denosumab,Ancillary,denosumab,Bone-modifying Agent,3,False,True
+Herceptin,Immunotherapy,trastuzumab,HER2-targeted Therapy,3,True,True
+Pamidronate,Ancillary,pamidronate,Bone-modifying Agent,3,False,True
+Trustuzumab,Immunotherapy,trastuzumab,HER2-targeted Therapy,3,True,True
+AE-37,Immunotherapy,ae-37 vaccine,Vaccine,2,True,True
+Adriamycin,[Not Available],doxorubicin,Chemotherapy,2,True,True
+Avastin,Chemotherapy,bevacizumab,Other Targeted Therapy,2,True,True
+Bevacizumab,Immunotherapy,bevacizumab,Other Targeted Therapy,2,False,True
+Bevacizumab,Targeted Molecular therapy,bevacizumab,Other Targeted Therapy,2,False,True
+E-75,Immunotherapy,nelipepimut-s (e75) vaccine,Vaccine,2,True,True
+HERCEPTIN,Immunotherapy,trastuzumab,HER2-targeted Therapy,2,True,True
+Neulasta,Ancillary,pegfilgrastim,Supportive Care,2,True,True
+Taxol,[Not Available],paclitaxel,Chemotherapy,2,True,True
+ZOLEDRONIC ACID,"Other, specify in notes",zoledronic acid,Bone-modifying Agent,2,False,True
+Zoledronic Acid,Chemotherapy,zoledronic acid,Bone-modifying Agent,2,False,True
+Zoledronic Acid,"Other, specify in notes",zoledronic acid,Bone-modifying Agent,2,False,True
+"Adriamycin, cytoxan, avastin",Chemotherapy,doxorubicin+cyclophosphamide+bevacizumab,Chemotherapy|Other Targeted Therapy,1,True,True
+Aloxi,Ancillary,palonosetron,Supportive Care,1,True,True
+Aromasin,Chemotherapy,exemestane,Hormone Therapy,1,True,True
+Avastin,Ancillary,bevacizumab,Other Targeted Therapy,1,True,True
+Avastin,Immunotherapy,bevacizumab,Other Targeted Therapy,1,True,True
+BEVACIZUMAB,Immunotherapy,bevacizumab,Other Targeted Therapy,1,False,True
+BEVACIZUMAB (AVASTIN)/PLACEBO PROVIDED BY STUDY,Chemotherapy,bevacizumab,Other Targeted Therapy,1,True,True
+Bevacizumab or Placebo,"Other, specify in notes",bevacizumab,Other Targeted Therapy,1,True,True
+Cyclophosphamide,Hormone Therapy,cyclophosphamide,Chemotherapy,1,False,True
+Cytoxan,[Not Available],cyclophosphamide,Chemotherapy,1,True,True
+Everolimus,Chemotherapy,everolimus,Other Targeted Therapy,1,False,True
+Femara,Chemotherapy,letrozole,Hormone Therapy,1,True,True
+HERCEPTIN,Chemotherapy,trastuzumab,HER2-targeted Therapy,1,True,True
+HERCEPTIN,Hormone Therapy,trastuzumab,HER2-targeted Therapy,1,True,True
+HERCEPTIN,Targeted Molecular therapy,trastuzumab,HER2-targeted Therapy,1,True,True
+Ibandronate,Ancillary,ibandronate,Bone-modifying Agent,1,False,True
+Lapatinib,Chemotherapy,lapatinib,HER2-targeted Therapy,1,False,True
+Lapatinib,Targeted Molecular therapy,lapatinib,HER2-targeted Therapy,1,False,True
+Letrozole,Chemotherapy,letrozole,Hormone Therapy,1,False,True
+MESNA-1,Ancillary,mesna,Supportive Care,1,True,True
+MESNA-2,Ancillary,mesna,Supportive Care,1,True,True
+Metformin,[Not Available],metformin,Other,1,False,True
+Pamidronic acid,Ancillary,pamidronate,Bone-modifying Agent,1,True,True
+Prednisone,Hormone Therapy,prednisone,Supportive Care,1,False,True
+Rituximab,Immunotherapy,rituximab,Other Targeted Therapy,1,False,True
+TCH,Chemotherapy,docetaxel+carboplatin+trastuzumab,Chemotherapy|HER2-targeted Therapy,1,True,True
+Tamoxifen,Chemotherapy,tamoxifen,Hormone Therapy,1,False,True
+Taxol,Hormone Therapy,paclitaxel,Chemotherapy,1,True,True
+Taxotere,Hormone Therapy,docetaxel,Chemotherapy,1,True,True
+Triptorelin,"Other, specify in notes",triptorelin,Hormone Therapy,1,False,True
+Xgeva,"Other, specify in notes",denosumab,Bone-modifying Agent,1,True,True
+Zoladex,Chemotherapy,goserelin,Hormone Therapy,1,True,True
+Zoladex,"Other, specify in notes",goserelin,Hormone Therapy,1,True,True
+Zoledronic Acid,Ancillary,zoledronic acid,Bone-modifying Agent,1,False,True
+Zometa,Targeted Molecular therapy,zoledronic acid,Bone-modifying Agent,1,True,True
+arimidex,Chemotherapy,anastrozole,Hormone Therapy,1,True,True
+arimidex,"Other, specify in notes",anastrozole,Hormone Therapy,1,True,True
+avastin,Chemotherapy,bevacizumab,Other Targeted Therapy,1,True,True
+clodronate,"Other, specify in notes",clodronate,Bone-modifying Agent,1,False,True
+clodronic acid,"Other, specify in notes",clodronate,Bone-modifying Agent,1,True,True
+doxorubicine+cyclophosphamide+tamoxifen,Chemotherapy,doxorubicin+cyclophosphamide+tamoxifen,Chemotherapy|Hormone Therapy,1,True,True
+herceptin,Immunotherapy,trastuzumab,HER2-targeted Therapy,1,True,True
+herceptin,Targeted Molecular therapy,trastuzumab,HER2-targeted Therapy,1,True,True
+lapatinib,Chemotherapy,lapatinib,HER2-targeted Therapy,1,False,True
+taxol+adriamycin+cyclophosphamide+herceptin,Chemotherapy,paclitaxel+doxorubicin+cyclophosphamide+trastuzumab,Chemotherapy|HER2-targeted Therapy,1,True,True
+trastuzumab,Chemotherapy,trastuzumab,HER2-targeted Therapy,1,False,True
+zoledronic acid,"Other, specify in notes",zoledronic acid,Bone-modifying Agent,1,False,True
+Cytoxan,Chemotherapy,cyclophosphamide,Chemotherapy,221,True,False
+Tamoxifen,Hormone Therapy,tamoxifen,Hormone Therapy,221,False,False
+Cyclophosphamide,Chemotherapy,cyclophosphamide,Chemotherapy,172,False,False
+Doxorubicin,Chemotherapy,doxorubicin,Chemotherapy,150,False,False
+Arimidex,Hormone Therapy,anastrozole,Hormone Therapy,138,True,False
+Adriamycin,Chemotherapy,doxorubicin,Chemotherapy,130,True,False
+Paclitaxel,Chemotherapy,paclitaxel,Chemotherapy,105,False,False
+Taxotere,Chemotherapy,docetaxel,Chemotherapy,94,True,False
+Docetaxel,Chemotherapy,docetaxel,Chemotherapy,74,False,False
+Anastrozole,Hormone Therapy,anastrozole,Hormone Therapy,67,False,False
+Taxol,Chemotherapy,paclitaxel,Chemotherapy,67,True,False
+5-Fluorouracil,Chemotherapy,fluorouracil,Chemotherapy,54,True,False
+Epirubicin,Chemotherapy,epirubicin,Chemotherapy,42,False,False
+Fluorouracil,Chemotherapy,fluorouracil,Chemotherapy,33,False,False
+CYCLOPHOSPHAMIDE,Chemotherapy,cyclophosphamide,Chemotherapy,32,False,False
+Letrozole,Hormone Therapy,letrozole,Hormone Therapy,32,False,False
+Carboplatin,Chemotherapy,carboplatin,Chemotherapy,27,False,False
+Femara,Hormone Therapy,letrozole,Hormone Therapy,26,True,False
+Methotrexate,Chemotherapy,methotrexate,Chemotherapy,25,False,False
+DOXORUBICIN,Chemotherapy,doxorubicin,Chemotherapy,24,False,False
+Exemestane,Hormone Therapy,exemestane,Hormone Therapy,23,False,False
+cyclophosphamide,Chemotherapy,cyclophosphamide,Chemotherapy,22,False,False
+PACLITAXEL,Chemotherapy,paclitaxel,Chemotherapy,20,False,False
+ARIMIDEX,Hormone Therapy,anastrozole,Hormone Therapy,19,True,False
+CYTOXAN,Chemotherapy,cyclophosphamide,Chemotherapy,18,True,False
+Aromasin,Hormone Therapy,exemestane,Hormone Therapy,17,True,False
+TAMOXIFEN,Hormone Therapy,tamoxifen,Hormone Therapy,14,False,False
+Xeloda,Chemotherapy,capecitabine,Chemotherapy,13,True,False
+[Not Available],Chemotherapy,unknown,Chemotherapy,13,True,False
+tamoxifen,Hormone Therapy,tamoxifen,Hormone Therapy,13,False,False
+ADRIAMYCIN,Chemotherapy,doxorubicin,Chemotherapy,12,True,False
+Cyclophosphane,Chemotherapy,cyclophosphamide,Chemotherapy,12,True,False
+TAXOL,Chemotherapy,paclitaxel,Chemotherapy,12,True,False
+TAXOTERE,Chemotherapy,docetaxel,Chemotherapy,11,True,False
+doxorubicin,Chemotherapy,doxorubicin,Chemotherapy,10,False,False
+paclitaxel,Chemotherapy,paclitaxel,Chemotherapy,10,False,False
+5-Flourouracil,Chemotherapy,fluorouracil,Chemotherapy,9,True,False
+Abraxane,Chemotherapy,nab-paclitaxel,Chemotherapy,9,True,False
+Zoladex,Hormone Therapy,goserelin,Hormone Therapy,9,True,False
+adriamycin+cyclophosphamide,Chemotherapy,doxorubicin+cyclophosphamide,Chemotherapy,8,True,False
+arimidex,Hormone Therapy,anastrozole,Hormone Therapy,7,True,False
+taxol,Chemotherapy,paclitaxel,Chemotherapy,7,True,False
+ANASTROZOLE,Hormone Therapy,anastrozole,Hormone Therapy,6,False,False
+ANASTROZOLE (ARIMIDEX),Hormone Therapy,anastrozole,Hormone Therapy,6,True,False
+adriamycin,Chemotherapy,doxorubicin,Chemotherapy,6,True,False
+cytoxan,Chemotherapy,cyclophosphamide,Chemotherapy,6,True,False
+Gemcitabine,Chemotherapy,gemcitabine,Chemotherapy,5,False,False
+LETROZOLE (FEMARA),Hormone Therapy,letrozole,Hormone Therapy,5,True,False
+doxorubicine,Chemotherapy,doxorubicin,Chemotherapy,5,True,False
+Anastrazole,Hormone Therapy,anastrozole,Hormone Therapy,4,True,False
+DOCETAXEL,Chemotherapy,docetaxel,Chemotherapy,4,False,False
+Paclitaxel (Protein-Bound),Chemotherapy,nab-paclitaxel,Chemotherapy,4,True,False
+Vinorelbine,Chemotherapy,vinorelbine,Chemotherapy,4,False,False
+doxorubicine+cyclophosphamide,Chemotherapy,doxorubicin+cyclophosphamide,Chemotherapy,4,True,False
+5-FU,Chemotherapy,fluorouracil,Chemotherapy,3,True,False
+Arimidex (Anastrozole),Hormone Therapy,anastrozole,Hormone Therapy,3,True,False
+"Chemo, NOS",Chemotherapy,chemotherapy nos,Chemotherapy,3,True,False
+Fulvestrant,Hormone Therapy,fulvestrant,Hormone Therapy,3,False,False
+Goserelin,Hormone Therapy,goserelin,Hormone Therapy,3,False,False
+LETROZOLE,Hormone Therapy,letrozole,Hormone Therapy,3,False,False
+METHOTREXATE,Chemotherapy,methotrexate,Chemotherapy,3,False,False
+docetaxel,Chemotherapy,docetaxel,Chemotherapy,3,False,False
+CARBOPLATIN,Chemotherapy,carboplatin,Chemotherapy,2,False,False
+Cisplatin,Chemotherapy,cisplatin,Chemotherapy,2,False,False
+EXEMESTANE,Hormone Therapy,exemestane,Hormone Therapy,2,False,False
+Fareston,Hormone Therapy,toremifene,Hormone Therapy,2,True,False
+Faslodex,Hormone Therapy,fulvestrant,Hormone Therapy,2,True,False
+Gemzar,Chemotherapy,gemcitabine,Chemotherapy,2,True,False
+Lupron,Hormone Therapy,leuprolide,Hormone Therapy,2,True,False
+Mitomycin,Chemotherapy,mitomycin,Chemotherapy,2,False,False
+Mitoxantrone,Chemotherapy,mitoxantrone,Chemotherapy,2,False,False
+Navelbine,Chemotherapy,vinorelbine,Chemotherapy,2,True,False
+Vincristine,Chemotherapy,vincristine,Chemotherapy,2,False,False
+XELODA,Chemotherapy,capecitabine,Chemotherapy,2,True,False
+ac,Chemotherapy,doxorubicin+cyclophosphamide,Chemotherapy,2,True,False
+aromasin,Hormone Therapy,exemestane,Hormone Therapy,2,True,False
+cyclophosphamid,Chemotherapy,cyclophosphamide,Chemotherapy,2,True,False
+fluorouracil,Chemotherapy,fluorouracil,Chemotherapy,2,False,False
+letrozole,Hormone Therapy,letrozole,Hormone Therapy,2,False,False
+nolvadex,Hormone Therapy,tamoxifen,Hormone Therapy,2,True,False
+tamoxiphene,Hormone Therapy,tamoxifen,Hormone Therapy,2,True,False
+taxotere,Chemotherapy,docetaxel,Chemotherapy,2,True,False
+5 fluorouracil,Chemotherapy,fluorouracil,Chemotherapy,1,True,False
+ARIMIDEX (ANASTROZOLE),Hormone Therapy,anastrozole,Hormone Therapy,1,True,False
+AROMASIN (EXEMESTANE),Hormone Therapy,exemestane,Hormone Therapy,1,True,False
+Adriamyicin,Chemotherapy,doxorubicin,Chemotherapy,1,True,False
+Adrimycin,Chemotherapy,doxorubicin,Chemotherapy,1,True,False
+Albumin-Bound Paclitaxel,Chemotherapy,nab-paclitaxel,Chemotherapy,1,True,False
+Aromasin (Exemestane),Hormone Therapy,exemestane,Hormone Therapy,1,True,False
+CAPECITABINE,Chemotherapy,capecitabine,Chemotherapy,1,False,False
+Capecetabine,Chemotherapy,capecitabine,Chemotherapy,1,True,False
+Cyclophasphamide,Chemotherapy,cyclophosphamide,Chemotherapy,1,True,False
+Cyclophospamide,Chemotherapy,cyclophosphamide,Chemotherapy,1,True,False
+Cyotxan,Chemotherapy,cyclophosphamide,Chemotherapy,1,True,False
+Cytoxan and Taxotere,Chemotherapy,docetaxel+cyclophosphamide,Chemotherapy,1,True,False
+Cytoxen,Chemotherapy,cyclophosphamide,Chemotherapy,1,True,False
+Doxetaxel,Chemotherapy,docetaxel,Chemotherapy,1,True,False
+Doxil,Chemotherapy,liposomal doxorubicin,Chemotherapy,1,True,False
+Doxorubicin Liposome,Chemotherapy,liposomal doxorubicin,Chemotherapy,1,True,False
+Doxorubicinum,Chemotherapy,doxorubicin,Chemotherapy,1,True,False
+E-75,Vaccine,nelipepimut-s (e75) vaccine,Vaccine,1,True,False
+EXEMESTANE (AROMASIN),Hormone Therapy,exemestane,Hormone Therapy,1,True,False
+Epirubicoin,Chemotherapy,epirubicin,Chemotherapy,1,True,False
+FEMARA,Hormone Therapy,letrozole,Hormone Therapy,1,True,False
+FLOUROURACIL,Chemotherapy,fluorouracil,Chemotherapy,1,True,False
+FLUOROURACIL,Chemotherapy,fluorouracil,Chemotherapy,1,False,False
+FULVESTRANT,Hormone Therapy,fulvestrant,Hormone Therapy,1,False,False
+Femara (Letrozole),Hormone Therapy,letrozole,Hormone Therapy,1,True,False
+Fulvestrant (Faslodex),Hormone Therapy,fulvestrant,Hormone Therapy,1,True,False
+GEMZAR,Chemotherapy,gemcitabine,Chemotherapy,1,True,False
+"Hormone, NOS",Hormone Therapy,endocrine therapy nos,Hormone Therapy,1,True,False
+Ifosfamide,Chemotherapy,ifosfamide,Chemotherapy,1,False,False
+Ixabepilone,Chemotherapy,ixabepilone,Chemotherapy,1,False,False
+LEUPROLIDE ACETATE (LUPRON),Hormone Therapy,leuprolide,Hormone Therapy,1,True,False
+LUPRON,Hormone Therapy,leuprolide,Hormone Therapy,1,True,False
+Letrozol,Hormone Therapy,letrozole,Hormone Therapy,1,True,False
+Letrozole (Femara),Hormone Therapy,letrozole,Hormone Therapy,1,True,False
+Leuprolide,Hormone Therapy,leuprolide,Hormone Therapy,1,False,False
+Leuprorelin,Hormone Therapy,leuprolide,Hormone Therapy,1,True,False
+Megace,Hormone Therapy,megestrol,Hormone Therapy,1,True,False
+NAVELBINE,Chemotherapy,vinorelbine,Chemotherapy,1,True,False
+Nolvadex,Hormone Therapy,tamoxifen,Hormone Therapy,1,True,False
+Not otherwise specified,Chemotherapy,unknown,Chemotherapy,1,True,False
+Pemetrexed,Chemotherapy,pemetrexed,Chemotherapy,1,False,False
+Poly E,[Not Available],unknown,[Not Available],1,True,False
+TAMOXIFEN (NOVADEX),Hormone Therapy,tamoxifen,Hormone Therapy,1,True,False
+TC,Chemotherapy,docetaxel+cyclophosphamide,Chemotherapy,1,True,False
+Taxane,Chemotherapy,taxane nos,Chemotherapy,1,True,False
+Taxotere/Cytoxan,Chemotherapy,docetaxel+cyclophosphamide,Chemotherapy,1,True,False
+Tesetaxel,Chemotherapy,tesetaxel,Chemotherapy,1,False,False
+Triptorelin,Hormone Therapy,triptorelin,Hormone Therapy,1,False,False
+VP-16,Chemotherapy,etoposide,Chemotherapy,1,True,False
+Vinblastine,Chemotherapy,vinblastine,Chemotherapy,1,False,False
+Xeloda (Capecitabine),Chemotherapy,capecitabine,Chemotherapy,1,True,False
+Yondelis,Chemotherapy,trabectedin,Chemotherapy,1,True,False
+[Not Available],Hormone Therapy,unknown,Hormone Therapy,1,True,False
+[Not Available],Immunotherapy,unknown,Immunotherapy,1,True,False
+[Unknown],Chemotherapy,unknown,Chemotherapy,1,True,False
+abraxane,Chemotherapy,nab-paclitaxel,Chemotherapy,1,True,False
+adriamicin,Chemotherapy,doxorubicin,Chemotherapy,1,True,False
+adriamycin+cuclophosphamide,Chemotherapy,doxorubicin+cyclophosphamide,Chemotherapy,1,True,False
+adriamycin+cyclophosphamid,Chemotherapy,doxorubicin+cyclophosphamide,Chemotherapy,1,True,False
+adrimicin+cyclophosphamide,Chemotherapy,doxorubicin+cyclophosphamide,Chemotherapy,1,True,False
+adrimycin+cyclophosphamide,Chemotherapy,doxorubicin+cyclophosphamide,Chemotherapy,1,True,False
+anastrozolum,Hormone Therapy,anastrozole,Hormone Therapy,1,True,False
+aromatase exemestane,Hormone Therapy,exemestane,Hormone Therapy,1,True,False
+cyclophosphamide+methotrexatum+fluorouracillum,Chemotherapy,cyclophosphamide+methotrexate+fluorouracil,Chemotherapy,1,True,False
+cyclophosphamidum,Chemotherapy,cyclophosphamide,Chemotherapy,1,True,False
+doxorubicin HCL,Chemotherapy,doxorubicin,Chemotherapy,1,True,False
+doxorubicin+ cyclophosphamide,Chemotherapy,doxorubicin+cyclophosphamide,Chemotherapy,1,True,False
+doxorubicin+cyclophosphamid,Chemotherapy,doxorubicin+cyclophosphamide,Chemotherapy,1,True,False
+doxorubicine cyclophosphamide tamoxifen,Chemotherapy|Hormone Therapy,doxorubicin+cyclophosphamide+tamoxifen,Chemotherapy|Hormone Therapy,1,True,False
+doxorubicine+cyclophosphamide+tamoxifen,Chemotherapy|Hormone Therapy,doxorubicin+cyclophosphamide+tamoxifen,Chemotherapy|Hormone Therapy,1,True,False
+faslodex,Hormone Therapy,fulvestrant,Hormone Therapy,1,True,False
+femara,Hormone Therapy,letrozole,Hormone Therapy,1,True,False
+gemcitabine,Chemotherapy,gemcitabine,Chemotherapy,1,False,False
+letrozolum,Hormone Therapy,letrozole,Hormone Therapy,1,True,False
+methotrexate+5 fluorouracil+cyclophosphamide,Chemotherapy,cyclophosphamide+methotrexate+fluorouracil,Chemotherapy,1,True,False
+metotreksat,Chemotherapy,methotrexate,Chemotherapy,1,True,False
+paclitaxelum,Chemotherapy,paclitaxel,Chemotherapy,1,True,False
+tamoxifen citrate,Hormone Therapy,tamoxifen,Hormone Therapy,1,True,False
+tamoxiphen+anastrazolum,Hormone Therapy,tamoxifen+anastrozole,Hormone Therapy,1,True,False
+tamoxiphene+anastrozolum,Hormone Therapy,tamoxifen+anastrozole,Hormone Therapy,1,True,False
+tamoxiphene+leuporeline+gosereline,Hormone Therapy,tamoxifen+leuprolide+goserelin,Hormone Therapy,1,True,False
+tc,Chemotherapy,docetaxel+cyclophosphamide,Chemotherapy,1,True,False
+triptorelin,Hormone Therapy,triptorelin,Hormone Therapy,1,False,False

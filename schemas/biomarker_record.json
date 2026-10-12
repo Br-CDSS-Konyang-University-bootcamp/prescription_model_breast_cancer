@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "biomarker_record.json",
+  "title": "biomarker_output",
+  "description": "[2] 바이오마커 모듈(B)의 출력. 바이오마커 레코드 목록, 환자 아형·치료 상황, 검사 공백. 상태값은 규칙(BM-2)으로 정하며 LLM이 바꿀 수 없다. 초안 v0.1-draft.",
+  "type": "object",
+  "required": ["schema_version", "patient_ref", "records", "subtype", "setting", "tests_needed"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": "0.1-draft"},
+    "patient_ref": {"type": "string"},
+    "records": {"type": "array", "items": {"$ref": "#/$defs/record"}},
+    "subtype": {
+      "enum": ["HR+/HER2-", "HR+/HER2+", "HR-/HER2+", "TNBC", "indeterminate"],
+      "description": "HR+ = ER 또는 PR 양성. RAG 하드 필터에 쓴다."
+    },
+    "setting": {
+      "type": "object",
+      "description": "치료 상황. RAG 하드 필터(setting, line)에 쓴다. 산출 담당은 0단계에서 확정 (README 참고).",
+      "required": ["disease", "line"],
+      "additionalProperties": false,
+      "properties": {
+        "disease": {"enum": ["early", "metastatic", "indeterminate"]},
+        "line": {"enum": ["neoadjuvant", "adjuvant", "1L", "2L", ">=3L", "indeterminate"]},
+        "prior_drug_classes": {"type": "array", "items": {"type": "string"}, "description": "예: CDK4/6 inhibitor, aromatase inhibitor"},
+        "reason": {"type": "string"}
+      }
+    },
+    "tests_needed": {
+      "type": "array",
+      "description": "BM-4 검사 공백",
+      "items": {
+        "type": "object",
+        "required": ["test", "reason", "rule_id"],
+        "additionalProperties": false,
+        "properties": {
+          "test": {"type": "string", "description": "예: ESR1 (cfDNA)"},
+          "reason": {"type": "string"},
+          "rule_id": {"type": "string", "description": "예: BM4-ESR1-RETEST"}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "record": {
+      "type": "object",
+      "required": ["marker", "status", "reason", "source_span", "rag_tags"],
+      "additionalProperties": false,
+      "properties": {
+        "marker": {"enum": ["ER", "PR", "HER2", "Ki-67", "gBRCA1", "gBRCA2", "PALB2", "sBRCA1", "sBRCA2", "PIK3CA", "AKT1", "PTEN", "ESR1", "PD-L1"]},
+        "status": {
+          "enum": ["positive", "negative", "low", "ultralow", "zero", "vus", "indeterminate", "not_done", "retest_needed", "not_recorded"],
+          "description": "마커별 허용 값은 README의 판정 표를 따른다."
+        },
+        "reason": {"type": "string", "description": "판정 이유. 예: IHC 2+, ISH 비증폭 → HER2 저발현"},
+        "rule_id": {"type": ["string", "null"], "description": "적용한 BM-2 규칙 ID"},
+        "evidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "test_date": {"type": ["string", "null"], "format": "date"},
+            "specimen": {"type": ["string", "null"], "description": "원발 조직 / 전이 병소 / cfDNA"},
+            "assay": {"type": ["string", "null"], "description": "예: 4B5, 22C3, SP142, NGS 패널명"},
+            "ihc_score": {"type": ["string", "null"], "description": "예: 0, 0 with faint staining, 1+, 2+, 3+"},
+            "percent": {"type": ["number", "null"], "description": "ER/PR/Ki-67 %"},
+            "ish_result": {"enum": ["amplified", "not_amplified", "equivocal", null]},
+            "ish_ratio": {"type": ["number", "null"]},
+            "score": {"type": ["number", "null"], "description": "PD-L1 CPS 또는 IC"},
+            "variant": {"type": ["string", "null"], "description": "예: p.H1047R"},
+            "vaf": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+            "oncokb": {"type": ["string", "null"], "description": "BM-3. 예: Oncogenic, Level 1"},
+            "clinvar": {"type": ["string", "null"], "description": "BM-3. 예: Pathogenic"}
+          }
+        },
+        "source_span": {
+          "type": "object",
+          "required": ["doc_id", "quote"],
+          "additionalProperties": false,
+          "properties": {
+            "doc_id": {"type": "string"},
+            "quote": {"type": "string"}
+          }
+        },
+        "rag_tags": {"type": "array", "items": {"type": "string"}, "description": "검색 가중치 태그. 예: ESR1-mut, HER2-low, gBRCA"}
+      }
+    }
+  }
+}

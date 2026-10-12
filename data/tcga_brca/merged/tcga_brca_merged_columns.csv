@@ -1,0 +1,220 @@
+﻿column,source,description,filled_%,n_unique,examples
+patient_id,키,,100.0,1098,TCGA-3C-AAAU; TCGA-3C-AALI; TCGA-3C-AALJ
+has_gdc_clinical,출처별 기록 유무 (True면 해당 출처에 이 환자 기록이 있음),,100.0,2,True; False
+has_cbio_clinical,출처별 기록 유무 (True면 해당 출처에 이 환자 기록이 있음),,100.0,2,True; False
+has_drug,출처별 기록 유무 (True면 해당 출처에 이 환자 기록이 있음),,100.0,2,True; False
+has_mutation_data,출처별 기록 유무 (True면 해당 출처에 이 환자 기록이 있음),,100.0,2,True; False
+gdc_bcr_patient_uuid,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",,99.9,1097,6E7D5EC6-A469-467C-B748-237353C23416; 55262FCB-1B01-4480-B322-36570430C917; 427D0648-3F77-4FFC-B52C-89855426D647
+gdc_form_completion_date,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",,99.9,315,2011-5-27; 2010-11-2; 2011-8-2
+gdc_prospective_collection,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: tissue_prospective_collection_indicator, CDE_ID:3088492",99.5,2,NO; YES
+gdc_retrospective_collection,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: tissue_retrospective_collection_indicator, CDE_ID:3088528",99.5,2,YES; NO
+gdc_birth_days_to,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: days_to_birth, CDE_ID:3008233",98.5,1045,-32872; -32873; -22199
+gdc_gender,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",CDE_ID:2200604,99.9,2,FEMALE; MALE
+gdc_menopause_status,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",CDE_ID:2957270,91.7,4,Post (prior bilateral ovariectomy OR >12; Pre (<6 months since LMP AND no prior bi; Peri (6-12 months since last menstrual p
+gdc_race,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",CDE_ID:2192199,91.3,4,WHITE; BLACK OR AFRICAN AMERICAN; ASIAN
+gdc_ethnicity,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",CDE_ID:2192217,84.1,2,NOT HISPANIC OR LATINO; HISPANIC OR LATINO
+gdc_history_other_malignancy,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: other_dx, CDE_ID:3382736",99.8,2,No; Yes
+gdc_history_neoadjuvant_treatment,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: history_of_neoadjuvant_treatment, CDE_ID:3382737",99.7,2,No; Yes
+gdc_tumor_status,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: person_neoplasm_cancer_status, CDE_ID:2759550",88.5,2,TUMOR FREE; WITH TUMOR
+gdc_vital_status,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",CDE_ID:5,99.9,2,Alive; Dead
+gdc_last_contact_days_to,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: days_to_last_followup, CDE_ID:3008273",90.4,649,0; 10; 7
+gdc_death_days_to,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: days_to_death, CDE_ID:3165475",9.5,101,2965; 991; 967
+gdc_radiation_treatment_adjuvant,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: radiation_therapy, CDE_ID:2005312",15.1,2,NO; YES
+gdc_pharmaceutical_tx_adjuvant,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: postoperative_rx_tx, CDE_ID:3397567",15.0,2,YES; NO
+gdc_histologic_diagnosis_other,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: histological_type_other, CDE_ID:3124492",6.9,60,Infiltrating ductal and lobular carcinom; infiltrating ductal and mucinous; lobular/ductal
+gdc_initial_pathologic_dx_year,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: year_of_initial_pathologic_diagnosis, CDE_ID:2896960",99.7,26,2010; 2009; 2011
+gdc_age_at_diagnosis,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: age_at_initial_pathologic_diagnosis, CDE_ID:2006657",99.9,65,62; 63; 61
+gdc_method_initial_path_dx,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: initial_pathologic_diagnosis_method, CDE_ID:2757941",91.0,7,Core needle biopsy; Tumor resection; Fine needle aspiration biopsy
+gdc_method_initial_path_dx_other,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: init_pathology_dx_method_other, CDE_ID:2757948",5.8,14,"Patey's Surgery; Biopsy, NOS; intraoperative examination"
+gdc_surgical_procedure_first,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: breast_carcinoma_surgical_procedure_name, CDE_ID:2739580",94.9,4,Modified Radical Mastectomy; Other; Lumpectomy
+gdc_first_surgical_procedure_other,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: surgical_procedure_purpose_other_text, CDE_ID:3020338",25.0,76,Surgical Resection; Segmental mastectomy; Patey's Surgery
+gdc_margin_status,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",CDE_ID:3114007,93.7,3,Negative; Positive; Close
+gdc_surgery_for_positive_margins,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: breast_carcinoma_primary_surgical_procedure_name, CDE_ID:1218",5.0,4,Mastectomy NOS; Other; Modified radical mastectomy
+gdc_surgery_for_positive_margins_other,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: breast_neoplasm_other_surgical_procedure_descriptive_text, CDE_ID:3124493",1.3,14,surgical resection; Margin resection; Skin excision
+gdc_margin_status_reexcision,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: breast_cancer_surgery_margin_status, CDE_ID:2241252",5.4,3,Negative; Positive; Close
+gdc_axillary_staging_method,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: axillary_lymph_node_stage_method_type, CDE_ID:2516112",80.2,5,Axillary lymph node dissection alone; Sentinel node biopsy alone; Sentinel lymph node biopsy plus axillary
+gdc_axillary_staging_method_other,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: axillary_lymph_node_stage_other_method_descriptive_text, CDE_ID:3124496",1.8,19,mastectomy with TLND; Level 1 clearance; Sentinel lymph node biopsy plus non-sent
+gdc_micromet_detection_by_ihc,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: cytokeratin_immunohistochemistry_staining_method_micrometastasis_indicator, CDE_ID:3086152",66.5,2,NO; YES
+gdc_lymph_nodes_examined,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: primary_lymph_node_presentation_assessment, CDE_ID:2200396",65.6,2,YES; NO
+gdc_lymph_nodes_examined_count,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: lymph_node_examined_count, CDE_ID:3",88.4,42,2; 1; 3
+gdc_lymph_nodes_examined_he_count,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: number_of_lymphnodes_positive_by_he, CDE_ID:3086388",84.6,31,0; 1; 2
+gdc_lymph_nodes_examined_ihc_count,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: number_of_lymphnodes_positive_by_ihc, CDE_ID:3086383",31.4,6,0; 1; 2
+gdc_ajcc_staging_edition,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: system_version, CDE_ID:2722309",87.1,5,6th; 7th; 5th
+gdc_ajcc_tumor_pathologic_pt,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: pathologic_T, CDE_ID:3045435",99.9,13,T2; T1c; T3
+gdc_ajcc_nodes_pathologic_pn,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: pathologic_N, CDE_ID:3203106",99.9,16,N0; N1a; N0 (i-)
+gdc_ajcc_metastasis_pathologic_pm,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: pathologic_M, CDE_ID:3045439",99.9,4,M0; MX; M1
+gdc_ajcc_pathologic_tumor_stage,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: pathologic_stage, CDE_ID:3203222",98.9,12,Stage IIA; Stage IIB; Stage IIIA
+gdc_metastasis_site,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: metastatic_site_at_diagnosis, CDE_ID:3124499",2.2,9,"Bone; Other, specify; Bone|Liver"
+gdc_metastasis_site_other,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: metastatic_site_at_diagnosis_other, CDE_ID:3124503",0.6,6,skin; Ovary; Abdomen
+gdc_er_status_by_ihc,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: breast_carcinoma_estrogen_receptor_status, CDE_ID:2957359",95.4,3,Positive; Negative; Indeterminate
+gdc_er_status_ihc_Percent_Positive,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: er_level_cell_percentage_category, CDE_ID:3128341",42.8,10,90-99%; <10%; 70-79%
+gdc_er_positivity_scale_used,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: breast_carcinoma_immunohistochemistry_er_pos_finding_scale, CDE_ID:3203081",13.4,2,3 Point Scale; 4 Point Scale
+gdc_er_ihc_score,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: immunohistochemistry_positive_cell_score, CDE_ID:2230166",19.5,5,3+; 2+; 4+
+gdc_er_positivity_scale_other,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: positive_finding_estrogen_receptor_other_measurement_scale_text, CDE_ID:3086851",22.0,65,>75%; Allred score = 8; H-SCORE
+gdc_er_positivity_method,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: er_detection_method_text, CDE_ID:69",19.7,54,manual counting; Image Analysis; % IHC
+gdc_pr_status_by_ihc,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: breast_carcinoma_progesterone_receptor_status, CDE_ID:2957357",95.4,3,Positive; Negative; Indeterminate
+gdc_pr_status_ihc_percent_positive,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: progesterone_receptor_level_cell_percent_category, CDE_ID:3128342",39.2,10,<10%; 90-99%; 70-79%
+gdc_pr_positivity_scale_used,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: breast_carcinoma_immunohistochemistry_progesterone_receptor_pos_finding_scale, CDE_ID:3203083",12.9,2,3 Point Scale; 4 Point Scale
+gdc_pr_positivity_ihc_intensity_score,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: breast_carcinoma_immunohistochemistry_pos_cell_score, CDE_ID:3133874",18.9,5,3+; 2+; 1+
+gdc_pr_positivity_scale_other,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: pos_finding_progesterone_receptor_other_measurement_scale_text, CDE_ID:3086857",20.1,66,>75%; H-SCORE; Allred score = 0
+gdc_pr_positivity_define_method,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: pgr_detection_method_text, CDE_ID:785",19.0,60,manual counting; Image Analysis; Allred score 0+0 = 0
+gdc_her2_status_by_ihc,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: lab_proc_her2_neu_immunohistochemistry_receptor_status, CDE_ID:2957563",83.7,4,Negative; Equivocal; Positive
+gdc_her2_ihc_percent_positive,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: her2_erbb_pos_finding_cell_percent_category, CDE_ID:3086980",18.9,10,<10%; 10-19%; 90-99%
+gdc_her2_ihc_score,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: her2_immunohistochemistry_level_result, CDE_ID:2178402",56.6,4,1+; 2+; 3+
+gdc_her2_positivity_scale_other,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: pos_finding_her2_erbb2_other_measurement_scale_text, CDE_ID:3087479",1.3,7,0; CISH; Hercep Test  TM Dako
+gdc_her2_positivity_method_text,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: her2_erbb_method_calculation_method_text, CDE_ID:3087487",8.2,20,3+ Positive; 3+ POSITIVE; dextran coated charcoal
+gdc_her2_fish_status,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: lab_procedure_her2_neu_in_situ_hybrid_outcome_type, CDE_ID:2854089",38.3,4,Negative; Positive; Equivocal
+gdc_her2_copy_number,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: her2_neu_breast_carcinoma_copy_analysis_input_total_number, CDE_ID:3133738",10.4,76,not amplified; 3.2; 2.4
+gdc_cent17_copy_number,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: fluorescence_in_situ_hybridization_diagnostic_procedure_chromosome_17_signal_result_range, CDE_ID:3104295",9.7,66,1.8; 1.7; 2.2
+gdc_her2_and_cent17_cells_count,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: her2_neu_and_centromere_17_copy_number_analysis_input_total_number_count, CDE_ID:3087902",9.5,30,60; 40; 20
+gdc_her2_cent17_ratio,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: her2_neu_chromosone_17_signal_ratio_value, CDE_ID:2497552",21.2,78,1.1; 1.3; 1.0
+gdc_her2_and_cent17_scale_other,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: her2_and_centromere_17_positive_finding_other_measurement_scale_text, CDE_ID:3087923",0.4,4,Vysis AutoVysion System; >2.2 Positive; HER2 amplification - negative
+gdc_her2_fish_method,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: her2_erbb_pos_finding_fluorescence_in_situ_hybridization_calculation_method_text, CDE_ID:3087929",4.6,30,>=2.0 Positive; PathVysion HER-2 DNA Probe Kit; RATIO > = 2.0
+gdc_new_tumor_event_dx_indicator,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: new_tumor_event_after_initial_treatment, CDE_ID:3121376",17.8,2,NO; YES
+gdc_nte_er_status,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: metastatic_breast_carcinoma_estrogen_receptor_status, CDE_ID:3131865",1.1,2,Positive; Negative
+gdc_nte_er_status_ihc__positive,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: metastatic_breast_carcinoma_estrogen_receptor_level_cell_percent_category, CDE_ID:3131869",0.5,3,70-79%; 90-99%; <10%
+gdc_nte_er_ihc_intensity_score,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: metastatic_breast_carcinoma_immunohistochemistry_er_pos_cell_score, CDE_ID:3131873",0.1,1,3+
+gdc_nte_er_positivity_other_scale,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: pos_finding_metastatic_breast_carcinoma_estrogen_receptor_other_measuremenet_scale_text, CDE_ID:3131877",0.0,0,
+gdc_nte_er_positivity_define_method,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: metastatic_breast_carcinoma_estrogen_receptor_detection_method_text, CDE_ID:3131881",0.0,0,
+gdc_nte_pr_status_by_ihc,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: metastatic_breast_carcinoma_progesterone_receptor_status, CDE_ID:3131884",1.0,2,Negative; Positive
+gdc_nte_pr_status_ihc__positive,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: metastatic_breast_carcinoma_progesterone_receptor_level_cell_percent_category, CDE_ID:3131891",0.4,1,<10%
+gdc_nte_pr_ihc_intensity_score,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: metastatic_breast_carcinoma_immunohistochemistry_pr_pos_cell_score, CDE_ID:3131988",0.1,1,1+
+gdc_nte_pr_positivity_other_scale,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: metastatic_breast_carcinoma_pos_finding_progesterone_receptor_other_measure_scale_text, CDE_ID:3131992",0.0,0,
+gdc_nte_pr_positivity_define_method,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: metastatic_breast_carcinoma_progesterone_receptor_detection_method_text, CDE_ID:3131993",0.0,0,
+gdc_nte_her2_status,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: metastatic_breast_carcinoma_lab_proc_her2_neu_immunohistochemistry_receptor_status, CDE_ID:3131997",0.8,2,Negative; Equivocal
+gdc_nte_her2_status_ihc__positive,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: metastatic_breast_carcinoma_her2_erbb_pos_finding_cell_percent_category, CDE_ID:3132322",0.3,1,<10%
+gdc_nte_her2_positivity_ihc_score,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: metastatic_breast_carcinoma_erbb2_immunohistochemistry_level_result, CDE_ID:3132444",0.5,2,1+; 2+
+gdc_nte_her2_positivity_other_scale,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: metastatic_breast_carcinoma_pos_finding_her2_erbb2_other_measure_scale_text, CDE_ID:3132448",0.0,0,
+gdc_nte_her2_positivity_method,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: metastatic_breast_carcinoma_her2_erbb_method_calculation_method_text, CDE_ID:3132452",0.0,0,
+gdc_nte_her2_fish_status,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: metastatic_breast_carcinoma_lab_proc_her2_neu_in_situ_hybridization_outcome_type, CDE_ID:3132455",0.3,1,Negative
+gdc_nte_her2_signal_number,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: her2_neu_metastatic_breast_carcinoma_copy_analysis_input_total_number, CDE_ID:3133734",0.0,0,
+gdc_nte_cent_17_signal_number,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: metastatic_breast_carcinoma_fluorescence_in_situ_hybridization_diagnostic_proc_centromere_17_signal_result_range, CDE_ID:3132887",0.0,0,
+gdc_her2_cent17_counted_cells_count,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: her2_neu_and_centromere_17_copy_number_metastatic_breast_carcinoma_analysis_input_total_number_count, CDE_ID:3132899",0.0,0,
+gdc_nte_cent_17_her2_ratio,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: metastatic_breast_carcinoma_her2_neu_chromosone_17_signal_ratio_value, CDE_ID:3132903",0.2,2,1.09; 2.47
+gdc_nte_cent17_her2_other_scale,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: metastatic_breast_carcinoma_pos_finding_other_scale_measurement_text, CDE_ID:3132907",0.0,0,
+gdc_nte_her2_fish_define_method,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: metastatic_breast_carcinoma_her2_erbb_pos_finding_fluorescence_in_situ_hybridization_calculation_method_text, CDE_ID:3132910",0.0,0,
+gdc_anatomic_neoplasm_subdivision,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",CDE_ID:3108203,99.9,53,Left Upper Outer Quadrant; Left; Right Upper Outer Quadrant
+gdc_clinical_M,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",CDE_ID:3440331,0.0,0,
+gdc_clinical_N,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",CDE_ID:3440330,0.0,0,
+gdc_clinical_T,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",CDE_ID:3440328,0.0,0,
+gdc_clinical_stage,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",CDE_ID:3440332,0.0,0,
+gdc_days_to_initial_pathologic_diagnosis,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",CDE_ID:3008275,99.9,1,0
+gdc_days_to_patient_progression_free,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",CDE_ID:4887491,0.0,0,
+gdc_days_to_tumor_progression,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",CDE_ID:3165480,0.0,0,
+gdc_disease_code,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",,0.5,1,FPPP
+gdc_extranodal_involvement,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",CDE_ID:3364582,0.0,0,
+gdc_histological_type,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",CDE_ID:3081934,99.8,8,"Infiltrating Ductal Carcinoma; Infiltrating Lobular Carcinoma; Other, specify"
+gdc_icd_10,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",CDE_ID:3226287,99.9,7,C50.9; C50.3; C50.2
+gdc_icd_o_3_histology,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",CDE_ID:3226275,99.9,22,8500/3; 8520/3; 8522/3
+gdc_icd_o_3_site,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",CDE_ID:3226281,99.9,6,C50.9; C50.3; C50.2
+gdc_informed_consent_verified,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",CDE_ID:3288361,99.9,1,YES
+gdc_metastatic_tumor_indicator,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: distant_metastasis_present_ind2, CDE_ID:2194698",35.8,2,NO; YES
+gdc_patient_id,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",,99.9,1097,AAAU; AALI; AALJ
+gdc_project_code,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",,0.5,1,TCGA
+gdc_site_of_primary_tumor_other,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)","다른 이름: tumor_tissue_site_other, CDE_ID:2584114",0.0,0,
+gdc_stage_other,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",CDE_ID:2007104,0.0,0,
+gdc_tissue_source_site,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",,99.9,40,BH; A2; E2
+gdc_tumor_tissue_site,"GDC clinical_patient (환자 1명 = 1행, 원본 그대로)",CDE_ID:3427536,99.9,1,Breast
+cbio_AGE,cBioPortal clinical_patient (원본 그대로),Diagnosis Age: Age at which a condition or disease was first diagnosed.,98.7,65,62; 61; 63
+cbio_AJCC_PATHOLOGIC_TUMOR_STAGE,cBioPortal clinical_patient (원본 그대로),"Neoplasm Disease Stage American Joint Committee on Cancer Code: The extent of a cancer, especially whether the disease has spread from the original site to other parts of the body based on AJCC staging criteria.",98.3,12,STAGE IIA; STAGE IIB; STAGE IIIA
+cbio_AJCC_STAGING_EDITION,cBioPortal clinical_patient (원본 그대로),"American Joint Committee on Cancer Publication Version Type: The version or edition of the American Joint Committee on Cancer Cancer Staging Handbooks, a publication by the group formed for the purpose of developing a system of clinical staging for cancer that is acceptable to the American medical profession and is compatible with other accepted classifications.",86.0,5,6TH; 7TH; 5TH
+cbio_BUFFA_HYPOXIA_SCORE,cBioPortal clinical_patient (원본 그대로),Buffa Hypoxia Score: mRNA based Buffa Hypoxia Score,98.3,49,-29; -27; -23
+cbio_CANCER_TYPE_ACRONYM,cBioPortal clinical_patient (원본 그대로),TCGA PanCanAtlas Cancer Type Acronym: Text field to hold cancer type acronym used by TCGA PanCanAtlas.,98.7,1,BRCA
+cbio_DAYS_LAST_FOLLOWUP,cBioPortal clinical_patient (원본 그대로),"Last Communication Contact from Initial Pathologic Diagnosis Date: Time interval from the date of last followup to the date of initial pathologic diagnosis, represented as a calculated number of days..",89.3,753,10; 0; 385
+cbio_DAYS_TO_BIRTH,cBioPortal clinical_patient (원본 그대로),"Birth from Initial Pathologic Diagnosis Date: Time interval from a person's date of birth to the date of initial pathologic diagnosis, represented as a calculated number of days.",97.4,1032,-32872; -32873; -22199
+cbio_DAYS_TO_INITIAL_PATHOLOGIC_DIAGNOSIS,cBioPortal clinical_patient (원본 그대로),"Last Alive Less Initial Pathologic Diagnosis Date Calculated Day Value: Time interval from the last day on which a person is known to be alive to the date of initial pathologic diagnosis, represented as a calculated number of days.",98.7,1,0
+cbio_DFS_MONTHS,cBioPortal clinical_patient (원본 그대로),Disease Free (Months): Disease free (months) since initial treatment.,85.7,736,0.32876352; 0; 18.21349903
+cbio_DFS_STATUS,cBioPortal clinical_patient (원본 그대로),Disease Free Status: Disease free status since initial treatment.,85.8,2,0:DiseaseFree; 1:Recurred/Progressed
+cbio_DSS_MONTHS,cBioPortal clinical_patient (원본 그대로),Months of disease-specific survival: The time period (months) usually begins at the time of diagnosis or at the start of treatment and ends at the time of death.,98.5,824,0.32876352; 0; 12.65739554
+cbio_DSS_STATUS,cBioPortal clinical_patient (원본 그대로),Disease-specific Survival status: The time period usually begins at the time of diagnosis or at the start of treatment and ends at the time of death.,96.9,2,0:ALIVE OR DEAD TUMOR FREE; 1:DEAD WITH TUMOR
+cbio_ETHNICITY,cBioPortal clinical_patient (원본 그대로),Ethnicity Category: The text for reporting information about ethnicity.,83.3,2,Not Hispanic Or Latino; Hispanic Or Latino
+cbio_FORM_COMPLETION_DATE,cBioPortal clinical_patient (원본 그대로),Form completion date: Form completion date,98.7,314,5/27/11; 11/2/10; 8/2/11
+cbio_GENETIC_ANCESTRY_LABEL,cBioPortal clinical_patient (원본 그대로),Genetic Ancestry Label: Genetic ancestries were determined using five different methods as described in Carrot-Zhang et al (2020). These consensus calls were created based on the ancestral population that received the majority of assignments for each patient.,87.5,10,EUR; AFR; AFR_ADMIX
+cbio_HISTORY_NEOADJUVANT_TRTYN,cBioPortal clinical_patient (원본 그대로),Neoadjuvant Therapy Type Administered Prior To Resection Text: Text term to describe the patient's history of neoadjuvant treatment and the kind of treatment given prior to resection of the tumor.,98.6,2,No; Yes
+cbio_ICD_10,cBioPortal clinical_patient (원본 그대로),ICD-10 Classification: 10th revision of the International Statistical Classification of Diseases and Related Health Problems.,98.7,7,C50.9; C50.3; C50.2
+cbio_ICD_O_3_HISTOLOGY,cBioPortal clinical_patient (원본 그대로),"International Classification of Diseases for Oncology, Third Edition ICD-O-3 Histology Code: The third edition of the International Classification of Diseases for Oncology, published in 2000, used principally in tumor and cancer registries for coding the site (topography) and the histology (morphology) of neoplasms._The study of the structure of the cells and their arrangement to constitute tissues and, finally, the association among these to form organs.  In pathology, the microscopic process of identifying normal and abnormal morphologic characteristics in tissues, by employing various cytochemical and immunocytochemical stains._A system of numbered categories for representation of data.",98.7,22,8500/3; 8520/3; 8522/3
+cbio_ICD_O_3_SITE,cBioPortal clinical_patient (원본 그대로),"International Classification of Diseases for Oncology, Third Edition ICD-O-3 Site Code: The third edition of the International Classification of Diseases for Oncology, published in 2000, used principally in tumor and cancer registries for coding the site (topography) and the histology (morphology) of neoplasms._The description of an anatomical region or of a body part._Named locations of, or within, the body._A system of numbered categories for representation of data.",98.7,6,C50.9; C50.3; C50.2
+cbio_INFORMED_CONSENT_VERIFIED,cBioPortal clinical_patient (원본 그대로),Informed consent verified: Informed consent verified,98.7,1,Yes
+cbio_IN_PANCANPATHWAYS_FREEZE,cBioPortal clinical_patient (원본 그대로),In PanCan Pathway Analysis: Patient Part of PanCan Pathway Analysis,98.7,2,Yes; No
+cbio_NEW_TUMOR_EVENT_AFTER_INITIAL_TREATMENT,cBioPortal clinical_patient (원본 그대로),New Neoplasm Event Post Initial Therapy Indicator: Yes/No/Unknown indicator to identify whether a patient has had a new tumor event after initial treatment.,80.6,2,No; Yes
+cbio_OS_MONTHS,cBioPortal clinical_patient (원본 그대로),Overall Survival (Months): Overall survival in months since initial diagonosis.,98.7,826,0.32876352; 0; 12.65739554
+cbio_OS_STATUS,cBioPortal clinical_patient (원본 그대로),Overall Survival Status: Overall patient survival status.,98.7,2,0:LIVING; 1:DECEASED
+cbio_OTHER_PATIENT_ID,cBioPortal clinical_patient (원본 그대로),Other Patient ID: Legacy DMP patient identifier (DMPnnnn),98.7,1084,6E7D5EC6-A469-467C-B748-237353C23416; 55262FCB-1B01-4480-B322-36570430C917; 427D0648-3F77-4FFC-B52C-89855426D647
+cbio_PATH_M_STAGE,cBioPortal clinical_patient (원본 그대로),"American Joint Committee on Cancer Metastasis Stage Code: Code to represent the defined absence or presence of distant spread or metastases (M) to locations via vascular channels or lymphatics beyond the regional lymph nodes, using criteria established by the American Joint Committee on Cancer (AJCC).",98.7,4,M0; MX; M1
+cbio_PATH_N_STAGE,cBioPortal clinical_patient (원본 그대로),Neoplasm Disease Lymph Node Stage American Joint Committee on Cancer Code: The codes that represent the stage of cancer based on the nodes present (N stage) according to criteria based on multiple editions of the AJCC's Cancer Staging Manual.,98.7,16,N0; N1A; N0 (I-)
+cbio_PATH_T_STAGE,cBioPortal clinical_patient (원본 그대로),"American Joint Committee on Cancer Tumor Stage Code: Code of pathological T (primary tumor) to define the size or contiguous extension of the primary tumor (T), using staging criteria from the American Joint Committee on Cancer (AJCC).",98.7,13,T2; T1C; T3
+cbio_PERSON_NEOPLASM_CANCER_STATUS,cBioPortal clinical_patient (원본 그대로),Person Neoplasm Cancer Status: Person neoplasm cancer status.,87.5,2,Tumor Free; With Tumor
+cbio_PFS_MONTHS,cBioPortal clinical_patient (원본 그대로),Progress Free Survival (Months): Progress Free Survival (Months),98.5,821,0.32876352; 0; 13.01903541
+cbio_PFS_STATUS,cBioPortal clinical_patient (원본 그대로),Progression Free Status: Progression Free Status,98.6,2,0:CENSORED; 1:PROGRESSION
+cbio_PRIMARY_LYMPH_NODE_PRESENTATION_ASSESSMENT,cBioPortal clinical_patient (원본 그대로),Primary Lymph Node Presentation Assessment: Primary lymph node presentation assessment.,65.6,2,Yes; No
+cbio_PRIOR_DX,cBioPortal clinical_patient (원본 그대로),Prior Diagnosis: Prior diagnosis.,98.6,2,No; Yes
+cbio_RACE,cBioPortal clinical_patient (원본 그대로),Race Category: The text for reporting information about race.,90.5,4,White; Black or African American; Asian
+cbio_RADIATION_THERAPY,cBioPortal clinical_patient (원본 그대로),Radiation Therapy: Radiation Therapy.,89.5,2,Yes; No
+cbio_RAGNUM_HYPOXIA_SCORE,cBioPortal clinical_patient (원본 그대로),Ragnum Hypoxia Score: mRNA based Ragnum Hypoxia Score,98.3,28,14; 10; 12
+cbio_SAMPLE_COUNT,cBioPortal clinical_patient (원본 그대로),Number of Samples Per Patient: Number of Samples Per Patient,98.7,1,1
+cbio_SEX,cBioPortal clinical_patient (원본 그대로),Sex: Sex,98.7,2,Female; Male
+cbio_SUBTYPE,cBioPortal clinical_patient (원본 그대로),Subtype: Subtype,89.3,5,BRCA_LumA; BRCA_LumB; BRCA_Basal
+cbio_WINTER_HYPOXIA_SCORE,cBioPortal clinical_patient (원본 그대로),Winter Hypoxia Score: mRNA based Winter Hypoxia Score,98.3,60,-18; -32; -8
+cbio_sample_sampleId,cBioPortal clinical_sample (원본 그대로),,98.7,1084,TCGA-3C-AAAU-01; TCGA-3C-AALI-01; TCGA-3C-AALJ-01
+cbio_sample_ANEUPLOIDY_SCORE,cBioPortal clinical_sample (원본 그대로),Aneuploidy Score: Aneuploidy Score,94.8,36,4; 5; 6
+cbio_sample_CANCER_TYPE,cBioPortal clinical_sample (원본 그대로),Cancer Type: Cancer Type,98.7,1,Breast Cancer
+cbio_sample_CANCER_TYPE_DETAILED,cBioPortal clinical_sample (원본 그대로),Cancer Type Detailed: Cancer Type Detailed,98.7,6,Breast Invasive Ductal Carcinoma; Breast Invasive Lobular Carcinoma; Breast Invasive Carcinoma (NOS)
+cbio_sample_FRACTION_GENOME_ALTERED,cBioPortal clinical_sample (원본 그대로),Fraction Genome Altered: Fraction Genome Altered,97.3,966,0.0; 1.0E-4; 0.1153
+cbio_sample_MSI_SCORE_MANTIS,cBioPortal clinical_sample (원본 그대로),"MSI MANTIS Score: MSI Score reported by MANTIS. The suggested thresholds are MSI: >0.6, Indeterminate: 0.4-0.6 and MSS: <0.4.",94.2,675,0.2894; 0.2846; 0.2932
+cbio_sample_MSI_SENSOR_SCORE,cBioPortal clinical_sample (원본 그대로),"MSIsensor Score: MSI Score reported by MSIsensor. The suggested thresholds are MSI: >10, Indeterminate: 4-10 and MSS: <10.",97.9,186,0; 0.01; 0.02
+cbio_sample_MUTATION_COUNT,cBioPortal clinical_sample (원본 그대로),Mutation Count: Mutation Count,97.1,202,0; 27; 28
+cbio_sample_ONCOTREE_CODE,cBioPortal clinical_sample (원본 그대로),Oncotree Code: Oncotree Code,98.7,6,IDC; ILC; BRCNOS
+cbio_sample_SAMPLE_TYPE,cBioPortal clinical_sample (원본 그대로),"Sample Type: The type of sample (i.e., normal, primary, met, recurrence).",98.7,1,Primary
+cbio_sample_SOMATIC_STATUS,cBioPortal clinical_sample (원본 그대로),Somatic Status: Somatic Status,98.7,1,Matched
+cbio_sample_TBL_SCORE,cBioPortal clinical_sample (원본 그대로),"Tumor Break Load: The sum of unbalanced somatic chromosomal breaks per tumor sample (Lakbir et al., Eur J Cancer 2022; Data from new manuscript in progress)",98.5,350,3; 2; 5
+cbio_sample_TISSUE_PROSPECTIVE_COLLECTION_INDICATOR,cBioPortal clinical_sample (원본 그대로),Tissue Prospective Collection Indicator: Tissue prospective collection indicator.,98.4,2,No; Yes
+cbio_sample_TISSUE_RETROSPECTIVE_COLLECTION_INDICATOR,cBioPortal clinical_sample (원본 그대로),Tissue Retrospective Collection Indicator: Tissue retrospective collection indicator.,98.4,2,Yes; No
+cbio_sample_TISSUE_SOURCE_SITE,cBioPortal clinical_sample (원본 그대로),"Tissue Source Site: A Tissue Source Site collects samples (tissue, cell, or blood) and cliincal metadata which are then sent to tha Biospecimen Core Resource.",98.7,40,University of Pittsburgh; Walter Reed; Roswell Park
+cbio_sample_TISSUE_SOURCE_SITE_CODE,cBioPortal clinical_sample (원본 그대로),Tissue Source Site Code: Tissue Source Site Code,98.7,40,BH; A2; E2
+cbio_sample_TMB_NONSYNONYMOUS,cBioPortal clinical_sample (원본 그대로),TMB (nonsynonymous): TMB (nonsynonymous),97.1,208,0; 0.933333333; 0.8
+cbio_sample_TUMOR_TISSUE_SITE,cBioPortal clinical_sample (원본 그대로),Tumor Disease Anatomic Site: Text term that describes the anatomic site of the tumor or disease.,98.7,1,Breast
+cbio_sample_TUMOR_TYPE,cBioPortal clinical_sample (원본 그대로),Tumor Type: Tumor Type,98.7,9,Infiltrating Ductal Carcinoma; Infiltrating Lobular Carcinoma; Other
+drug_n_records,"GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 data/dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",,71.0,13,1; 4; 3
+drug_names,"GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 data/dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",,71.0,331,anastrozole; tamoxifen; doxorubicin; cyclophosphamide
+drug_therapy_types,"GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 data/dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",,70.9,44,Chemotherapy; Hormone Therapy; Chemotherapy; Hormone Therapy
+drug_best_responses,"GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 data/dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",,20.0,8,Complete Response; Stable Disease; Clinical Progressive Disease
+drug_first_start_days,"GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 data/dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",,69.1,206,31; 61; 62
+drug_timeline,"GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 data/dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",,71.0,754,anastrozole [Hormone Therapy] d31~?; tamoxifen [Hormone Therapy] d66~?; tamoxifen [Hormone Therapy] d98~?
+drug_names_raw,"GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 data/dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",,70.6,482,Tamoxifen; Arimidex; Anastrozole
+drug_therapy_types_raw,"GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 data/dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",,70.9,42,Chemotherapy; Hormone Therapy; Chemotherapy; Hormone Therapy
+rad_n_records,GDC clinical_radiation 환자별 요약,,48.1,5,1; 2; 3
+rad_types,GDC clinical_radiation 환자별 요약,,46.4,6,EXTERNAL BEAM; External; EXTERNAL BEAM; External
+rad_sites,GDC clinical_radiation 환자별 요약,,46.4,11,Primary Tumor Field; Regional site; Primary Tumor Field; Regional site
+rad_first_start_days,GDC clinical_radiation 환자별 요약,,46.1,248,153; 181; 218
+nte_n_records,GDC clinical_nte + follow_up_v4.0_nte 환자별 요약,,14.1,6,1; 2; 3
+nte_types,GDC clinical_nte + follow_up_v4.0_nte 환자별 요약,,4.6,5,Distant Metastasis; New Primary Tumor; Locoregional Recurrence
+nte_sites,GDC clinical_nte + follow_up_v4.0_nte 환자별 요약,,4.3,13,"Other, specify; Bone; Lung"
+nte_sites_other,GDC clinical_nte + follow_up_v4.0_nte 환자별 요약,,2.1,23,Axilla; LEFT BREAST; Left Chest Wall
+nte_first_dx_days,GDC clinical_nte + follow_up_v4.0_nte 환자별 요약,,5.4,59,1808; 102; 1364
+fu_n_records,GDC follow_up v1.5·v2.1·v4.0 환자별 요약,,91.0,4,1; 2; 3
+fu_last_days,GDC follow_up v1.5·v2.1·v4.0 환자별 요약,,90.9,774,10; 0; 385
+fu_last_vital_status,GDC follow_up v1.5·v2.1·v4.0 환자별 요약,,90.0,2,Alive; Dead
+fu_last_tumor_status,GDC follow_up v1.5·v2.1·v4.0 환자별 요약,,85.2,2,TUMOR FREE; WITH TUMOR
+fu_death_days,GDC follow_up v1.5·v2.1·v4.0 환자별 요약,,9.7,102,0; 792; 991
+omf_n_records,GDC clinical_omf_v4.0 (다른 암 병력) 환자별 요약,,7.0,2,1; 2
+omf_malignancy_types,GDC clinical_omf_v4.0 (다른 암 병력) 환자별 요약,,7.0,3,Prior Malignancy; Synchronous Malignancy; Prior Malignancy; Synchronous Malignancy
+omf_sites,GDC clinical_omf_v4.0 (다른 암 병력) 환자별 요약,,6.9,20,Breast; Colon; Cervix
+mut_sequenced,cBioPortal mutations 환자별 요약,,98.7,2,True; False
+cna_profiled,cBioPortal sample list (복제수 검사 여부),,98.7,2,True; False
+mut_n_total,cBioPortal mutations 환자별 요약,,97.1,202,0; 27; 28
+mut_ERBB2,cBioPortal mutations 환자별 요약,,97.1,31,"변이 없음; V777L (Missense_Mutation, VAF 0.361); L755M (Missense_Mutation, VAF 0.278); R6"
+mut_ESR1,cBioPortal mutations 환자별 요약,,97.1,10,"변이 없음; A593D (Missense_Mutation, VAF 0.257); E523Q (Missense_Mutation, VAF 0.136)"
+mut_PIK3CA,cBioPortal mutations 환자별 요약,,97.1,332,"변이 없음; H1047R (Missense_Mutation, VAF 0.417); E542K (Missense_Mutation, VAF 0.304)"
+mut_AKT1,cBioPortal mutations 환자별 요약,,97.1,28,"변이 없음; E17K (Missense_Mutation, VAF 0.667); E17K (Missense_Mutation, VAF 0.154)"
+mut_PTEN,cBioPortal mutations 환자별 요약,,97.1,59,"변이 없음; R130* (Nonsense_Mutation, VAF 0.056); V166Sfs*14 (Frame_Shift_Ins, VAF 0.382)"
+mut_BRCA1,cBioPortal mutations 환자별 요약,,97.1,28,"변이 없음; Q934* (Nonsense_Mutation, VAF 0.216); E9Q (Missense_Mutation, VAF 0.257)"
+mut_BRCA2,cBioPortal mutations 환자별 요약,,97.1,30,"변이 없음; Q3206E (Missense_Mutation, VAF 0.089); Y3308* (Nonsense_Mutation, VAF 0.397)"
+mut_PALB2,cBioPortal mutations 환자별 요약,,97.1,8,"변이 없음; L381V (Missense_Mutation, VAF 0.342); G115E (Missense_Mutation, VAF 0.155)"
+cna_AKT1,"cBioPortal GISTIC 복제수 (-2 깊은 결실, -1 얕은 결실, 0 정상, 1 증가, 2 증폭)",,97.4,5,0; -1; 1
+cna_BRCA1,"cBioPortal GISTIC 복제수 (-2 깊은 결실, -1 얕은 결실, 0 정상, 1 증가, 2 증폭)",,97.4,5,0; -1; 1
+cna_BRCA2,"cBioPortal GISTIC 복제수 (-2 깊은 결실, -1 얕은 결실, 0 정상, 1 증가, 2 증폭)",,97.4,5,0; -1; 1
+cna_ERBB2,"cBioPortal GISTIC 복제수 (-2 깊은 결실, -1 얕은 결실, 0 정상, 1 증가, 2 증폭)",,97.4,4,0; -1; 1
+cna_ESR1,"cBioPortal GISTIC 복제수 (-2 깊은 결실, -1 얕은 결실, 0 정상, 1 증가, 2 증폭)",,97.4,5,0; -1; 1
+cna_PALB2,"cBioPortal GISTIC 복제수 (-2 깊은 결실, -1 얕은 결실, 0 정상, 1 증가, 2 증폭)",,97.4,4,1; 0; -1
+cna_PIK3CA,"cBioPortal GISTIC 복제수 (-2 깊은 결실, -1 얕은 결실, 0 정상, 1 증가, 2 증폭)",,97.4,4,0; 1; -1
+cna_PTEN,"cBioPortal GISTIC 복제수 (-2 깊은 결실, -1 얕은 결실, 0 정상, 1 증가, 2 증폭)",,97.4,5,0; -1; 1

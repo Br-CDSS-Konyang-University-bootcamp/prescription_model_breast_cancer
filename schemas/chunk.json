@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "chunk.json",
+  "title": "chunk",
+  "description": "공용 검색 색인의 청크 하나. 지침 청크([3], C)와 급여 청크([5], D)가 같은 형식을 쓰고 doc_type으로 구분한다. 초안 v0.1-draft.",
+  "type": "object",
+  "required": ["schema_version", "chunk_id", "doc_type", "source", "version", "section", "text", "url", "setting", "subtype", "line", "drugs", "superseded_by"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": "0.1-draft"},
+    "chunk_id": {"type": "string", "description": "예: esmo-mbc-2026-05-hrpos-2l-r03, hira-booklet-20261001-p52-c02"},
+    "doc_type": {"enum": ["guideline", "reimbursement"]},
+    "source": {"enum": ["ESMO-EBC", "ESMO-MBC", "ASCO", "HIRA-booklet", "HIRA-notice", "HIRA-preview", "HIRA-offlabel"]},
+    "version": {"type": "string", "description": "지침 발행일·eUpdate 날짜 또는 공고책자 날짜. 예: 2026-05, 2026-10-01"},
+    "section": {"type": "string", "description": "예: ER+/HER2- 2차, 9. 유방암 > 2. 수술후보조요법"},
+    "page_start": {"type": ["integer", "null"]},
+    "page_end": {"type": ["integer", "null"]},
+    "url": {"type": "string"},
+    "chunk_kind": {"enum": ["recommendation", "section", "algorithm", "table_row", "reimbursement_condition", "offlabel_regimen"]},
+    "parent_id": {"type": ["string", "null"], "description": "부모 소단원 청크 ID. LLM에는 부모 전체를 함께 넘긴다."},
+    "text": {"type": "string"},
+    "setting": {"type": "array", "items": {"enum": ["early", "metastatic"]}, "minItems": 1},
+    "subtype": {"type": "array", "items": {"enum": ["HR+/HER2-", "HR+/HER2+", "HR-/HER2+", "TNBC", "any"]}, "minItems": 1},
+    "line": {"type": "array", "items": {"enum": ["neoadjuvant", "adjuvant", "1L", "2L", ">=3L", "any"]}, "minItems": 1},
+    "biomarker_tags": {"type": "array", "items": {"type": "string"}},
+    "drugs": {"type": "array", "items": {"type": "string"}, "description": "일반명 소문자. 예: elacestrant"},
+    "evidence": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "loe": {"type": ["string", "null"]},
+        "gor": {"type": ["string", "null"]},
+        "esmo_mcbs": {"type": ["string", "null"]},
+        "escat": {"type": ["string", "null"]}
+      }
+    },
+    "superseded_by": {"type": ["string", "null"], "description": "후속 개정 청크 ID. 대체된 청크는 지우지 않는다."},
+    "copyright_notice": {"type": ["string", "null"], "description": "ESMO 청크: Copyright © European Society for Medical Oncology. All rights reserved"},
+    "reimbursement": {
+      "type": "object",
+      "description": "doc_type = reimbursement일 때만 채운다 (D).",
+      "required": ["source_type", "notice_no", "effective_from"],
+      "additionalProperties": false,
+      "properties": {
+        "source_type": {"enum": ["baseline", "overlay", "preview"]},
+        "notice_no": {"type": "string", "description": "예: 제2026-210호"},
+        "effective_from": {"type": "string", "format": "date", "description": "시행일. 오늘 이전인 baseline·overlay만 판정에 쓴다."},
+        "regimen": {"type": "array", "items": {"type": "string"}},
+        "conditions": {
+          "type": "object",
+          "description": "투여 조건 구조화. 예: {\"her2\": \"positive\", \"ln_positive\": true, \"positive_ln_count_min\": 4}. 세부 키는 D가 정하고 B가 검토한다."
+        },
+        "copay": {"type": ["string", "null"], "description": "허가초과 본인부담률. 예: 100/100, 5/100"}
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"doc_type": {"const": "reimbursement"}}},
+      "then": {"required": ["reimbursement"]}
+    },
+    {
+      "if": {"properties": {"doc_type": {"const": "guideline"}}},
+      "then": {"not": {"required": ["reimbursement"]}}
+    }
+  ]
+}

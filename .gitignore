@@ -1,5 +1,13 @@
 # 대용량 데이터
-data/
+# data/ 안은 기본적으로 제외하고, 작은 텍스트 파일(csv, txt)과 스크립트(py)만 올린다.
+# 다른 형식을 올리려면 아래에 !data/**/*.확장자 를 추가한다. GitHub는 50MB 넘는 파일에 경고, 100MB 넘으면 거부한다.
+data/**
+!data/**/
+!data/**/*.csv
+!data/**/*.txt
+!data/**/*.py
+# 스프레드시트 프로그램이 파일을 열 때 만드는 잠금 파일
+.~lock.*#
 *.h5
 *.db
 *.parquet
@@ -13,3 +21,6 @@ __pycache__/
 
 # 비밀번호, API 키
 .env
+
+# 개인 Claude Code 설정
+CLAUDE.local.md
