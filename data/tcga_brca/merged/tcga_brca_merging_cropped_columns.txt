@@ -157,24 +157,24 @@ gdc_metastasis_site_other
 [수용체 (진단 시 원발 종양)]
 ==============================================================================
 gdc_er_status_by_ihc
-    의미: ER 면역염색 판정 (Positive/Negative/Indeterminate). 비율이 <10%인데 Positive였던 값은 Negative로 바꿈
-    실제 값 비율: 95.4%   예시: Positive; Negative; Indeterminate
+    의미: ER 면역염색 판정 (Positive/Low Positive/Negative/Indeterminate). 비율이 <10%인데 Positive였던 값은 Low Positive(저발현)로 바꿈
+    실제 값 비율: 95.4%   예시: Positive; Negative; Low Positive
 
 gdc_er_status_ihc_Percent_Positive
-    의미: ER 양성 세포 비율 구간 (<10%, 10-19% … 90-99%). <10%는 저발현(1-10%)과 음성(<1%)을 구분 못 함
-    실제 값 비율: 42.5%   예시: 90-99%; <10%; 70-79%
+    의미: ER 양성 세포 비율 구간 (<1%, 1-9%, 10-19% … 90-99%). 원본 <10%는 판정에 따라 1-9%(Low Positive) 또는 <1%(Negative)로 나눔
+    실제 값 비율: 42.5%   예시: 90-99%; <1%; 70-79%
 
 gdc_er_ihc_score
     의미: ER 염색 강도 점수 (1+~4+)
     실제 값 비율: 19.4%   예시: 3+; 2+; 4+
 
 gdc_pr_status_by_ihc
-    의미: PR 면역염색 판정. 비율이 <10%인데 Positive였던 값은 Negative로 바꿈
-    실제 값 비율: 95.3%   예시: Positive; Negative; Indeterminate
+    의미: PR 면역염색 판정 (Positive/Low Positive/Negative/Indeterminate). 비율이 <10%인데 Positive였던 값은 Low Positive(저발현)로 바꿈
+    실제 값 비율: 95.3%   예시: Positive; Negative; Low Positive
 
 gdc_pr_status_ihc_percent_positive
-    의미: PR 양성 세포 비율 구간
-    실제 값 비율: 39.0%   예시: <10%; 90-99%; 70-79%
+    의미: PR 양성 세포 비율 구간 (<1%, 1-9%, 10-19% … 90-99%). 원본 <10%는 판정에 따라 1-9%(Low Positive) 또는 <1%(Negative)로 나눔
+    실제 값 비율: 39.0%   예시: 90-99%; <1%; 1-9%
 
 gdc_pr_positivity_ihc_intensity_score
     의미: PR 염색 강도 점수
@@ -216,24 +216,24 @@ gdc_new_tumor_event_dx_indicator
     실제 값 비율: 17.7%   예시: NO; YES
 
 gdc_nte_er_status
-    의미: 재발 병소 ER 판정
+    의미: 재발 병소 ER 판정. 비율이 <10%인데 Positive였던 값은 Low Positive로 바꿈
     실제 값 비율: 1.1%   예시: Positive; Negative
 
 gdc_nte_er_status_ihc__positive
-    의미: 재발 병소 ER 양성 세포 비율 구간
-    실제 값 비율: 0.6%   예시: 70-79%; 90-99%; <10%
+    의미: 재발 병소 ER 양성 세포 비율 구간. 원본 <10%는 1-9% 또는 <1%로 나눔
+    실제 값 비율: 0.6%   예시: 70-79%; 90-99%; <1%
 
 gdc_nte_er_ihc_intensity_score
     의미: 재발 병소 ER 염색 강도
     실제 값 비율: 0.1%   예시: 3+
 
 gdc_nte_pr_status_by_ihc
-    의미: 재발 병소 PR 판정
-    실제 값 비율: 1.0%   예시: Negative; Positive
+    의미: 재발 병소 PR 판정. 비율이 <10%인데 Positive였던 값은 Low Positive로 바꿈
+    실제 값 비율: 1.0%   예시: Negative; Positive; Low Positive
 
 gdc_nte_pr_status_ihc__positive
-    의미: 재발 병소 PR 양성 세포 비율 구간
-    실제 값 비율: 0.4%   예시: <10%
+    의미: 재발 병소 PR 양성 세포 비율 구간. 원본 <10%는 1-9% 또는 <1%로 나눔
+    실제 값 비율: 0.4%   예시: <1%; 1-9%
 
 gdc_nte_pr_ihc_intensity_score
     의미: 재발 병소 PR 염색 강도

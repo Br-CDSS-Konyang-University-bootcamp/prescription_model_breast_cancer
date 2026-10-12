@@ -198,11 +198,11 @@ DESCRIPTIONS = {
         "gdc_metastasis_site_other": "원격 전이 부위 기타 자유 기재",
     },
     "수용체 (진단 시 원발 종양)": {
-        "gdc_er_status_by_ihc": "ER 면역염색 판정 (Positive/Negative/Indeterminate). 비율이 <10%인데 Positive였던 값은 Negative로 바꿈",
-        "gdc_er_status_ihc_Percent_Positive": "ER 양성 세포 비율 구간 (<10%, 10-19% … 90-99%). <10%는 저발현(1-10%)과 음성(<1%)을 구분 못 함",
+        "gdc_er_status_by_ihc": "ER 면역염색 판정 (Positive/Low Positive/Negative/Indeterminate). 비율이 <10%인데 Positive였던 값은 Low Positive(저발현)로 바꿈",
+        "gdc_er_status_ihc_Percent_Positive": "ER 양성 세포 비율 구간 (<1%, 1-9%, 10-19% … 90-99%). 원본 <10%는 판정에 따라 1-9%(Low Positive) 또는 <1%(Negative)로 나눔",
         "gdc_er_ihc_score": "ER 염색 강도 점수 (1+~4+)",
-        "gdc_pr_status_by_ihc": "PR 면역염색 판정. 비율이 <10%인데 Positive였던 값은 Negative로 바꿈",
-        "gdc_pr_status_ihc_percent_positive": "PR 양성 세포 비율 구간",
+        "gdc_pr_status_by_ihc": "PR 면역염색 판정 (Positive/Low Positive/Negative/Indeterminate). 비율이 <10%인데 Positive였던 값은 Low Positive(저발현)로 바꿈",
+        "gdc_pr_status_ihc_percent_positive": "PR 양성 세포 비율 구간 (<1%, 1-9%, 10-19% … 90-99%). 원본 <10%는 판정에 따라 1-9%(Low Positive) 또는 <1%(Negative)로 나눔",
         "gdc_pr_positivity_ihc_intensity_score": "PR 염색 강도 점수",
         "gdc_her2_status_by_ihc": "HER2 면역염색 판정 (Positive/Equivocal/Negative). Equivocal = IHC 2+",
         "gdc_her2_ihc_score": "HER2 IHC 점수 (0, 1+, 2+, 3+). HER2 저발현(1+, 2+/ISH 음성) 판정에 사용",
@@ -214,11 +214,11 @@ DESCRIPTIONS = {
     },
     "재발 시 정보": {
         "gdc_new_tumor_event_dx_indicator": "재발 또는 새 종양 발생 여부 (등록 양식 기준)",
-        "gdc_nte_er_status": "재발 병소 ER 판정",
-        "gdc_nte_er_status_ihc__positive": "재발 병소 ER 양성 세포 비율 구간",
+        "gdc_nte_er_status": "재발 병소 ER 판정. 비율이 <10%인데 Positive였던 값은 Low Positive로 바꿈",
+        "gdc_nte_er_status_ihc__positive": "재발 병소 ER 양성 세포 비율 구간. 원본 <10%는 1-9% 또는 <1%로 나눔",
         "gdc_nte_er_ihc_intensity_score": "재발 병소 ER 염색 강도",
-        "gdc_nte_pr_status_by_ihc": "재발 병소 PR 판정",
-        "gdc_nte_pr_status_ihc__positive": "재발 병소 PR 양성 세포 비율 구간",
+        "gdc_nte_pr_status_by_ihc": "재발 병소 PR 판정. 비율이 <10%인데 Positive였던 값은 Low Positive로 바꿈",
+        "gdc_nte_pr_status_ihc__positive": "재발 병소 PR 양성 세포 비율 구간. 원본 <10%는 1-9% 또는 <1%로 나눔",
         "gdc_nte_pr_ihc_intensity_score": "재발 병소 PR 염색 강도",
         "gdc_nte_her2_status": "재발 병소 HER2 판정",
         "gdc_nte_her2_status_ihc__positive": "재발 병소 HER2 양성 세포 비율 구간",
@@ -285,20 +285,32 @@ DESCRIPTIONS = {
     },
 }
 
-# 양성 세포 비율 구간이 <10%인데 판정이 Positive이면 Negative로 바꾼다 (사용자 결정, 2026-10-07).
-# 주의: ASCO/CAP 기준(1% 이상 양성)으로는 <10% 구간에 1-9% 저발현 양성이 섞여 있다.
+# 양성 세포 비율 구간 <10%를 판정에 따라 둘로 나눈다 (사용자 결정, 2026-10-12).
+#   <10% + Positive → 판정 Low Positive, 구간 1-9%   (ASCO/CAP 2020은 ER 1-10%를 Low Positive로 부름)
+#   <10% + Negative → 구간 <1%                       (가정: 1% 기준 음성. 2010년 이전 진단은 10% 기준이었을 수 있음)
+# 이력: 2026-10-07에는 <10% + Positive를 Negative로 바꿨다.
 RECODE = [
     ("ER", "gdc_er_status_ihc_Percent_Positive", "gdc_er_status_by_ihc"),
     ("PR", "gdc_pr_status_ihc_percent_positive", "gdc_pr_status_by_ihc"),
+    ("재발 ER", "gdc_nte_er_status_ihc__positive", "gdc_nte_er_status"),
+    ("재발 PR", "gdc_nte_pr_status_ihc__positive", "gdc_nte_pr_status_by_ihc"),
 ]
 
 
 def recode_low_percent(df):
     changed = {}
+    year = pd.to_numeric(df["gdc_initial_pathologic_dx_year"], errors="coerce")
     for marker, pct_col, status_col in RECODE:
-        mask = (df[pct_col] == "<10%") & (df[status_col] == "Positive")
-        changed[marker] = sorted(df.loc[mask, "patient_id"])
-        df.loc[mask, status_col] = "Negative"
+        low = (df[pct_col] == "<10%") & (df[status_col] == "Positive")
+        neg = (df[pct_col] == "<10%") & (df[status_col] == "Negative")
+        changed[marker] = {
+            "low": sorted(df.loc[low, "patient_id"]),
+            "neg": sorted(df.loc[neg, "patient_id"]),
+            "neg_before_2010": int((neg & (year < 2010)).sum()),
+        }
+        df.loc[low, status_col] = "Low Positive"
+        df.loc[low, pct_col] = "1-9%"
+        df.loc[neg, pct_col] = "<1%"
     return changed
 
 
@@ -340,13 +352,19 @@ def write_changes_txt(before, after, males, recoded):
               f"남성 환자 {len(males)}명 (gdc_gender = MALE). 설계서 범위에서 남성 유방암은 제외",
               "  " + ", ".join(males), ""]
 
-    lines += ["=" * 78, "1-1. 바꾼 값: 양성 세포 비율 <10%인데 Positive로 판정된 ER·PR을 Negative로 변경", "=" * 78,
-              "사용자 결정 (2026-10-07). 원래 값은 tcga_brca_merged.csv에 그대로 있음",
-              "주의: ASCO/CAP 기준은 1% 이상을 양성으로 본다. <10% 구간에는 1-9% 저발현 양성이 섞여 있다"]
+    lines += ["=" * 78, "1-1. 바꾼 값: ER·PR 양성 세포 비율 <10%를 판정에 따라 둘로 나눔", "=" * 78,
+              "사용자 결정 (2026-10-12). 원래 값은 tcga_brca_merged.csv에 그대로 있음",
+              "  <10% + Positive → 판정 Low Positive, 구간 1-9% (ASCO/CAP 2020은 ER 1-10%를 Low Positive로 부름)",
+              "  <10% + Negative → 구간 <1% (가정: 1% 기준 음성)",
+              "주의: 1% 기준은 2010년 ASCO/CAP 지침부터다. 2010년 이전 진단 환자의 음성 판정은 10% 기준이었을 수 있어,",
+              "      <1%로 바꾼 값 중 일부는 실제로 1-9%였을 수 있다",
+              "이력: 2026-10-07에는 <10% + Positive를 Negative로 바꿨다", ""]
     for (marker, pct_col, status_col) in RECODE:
-        ids = recoded[marker]
-        lines += [f"[{marker}] {status_col}: Positive → Negative {len(ids)}명 ({pct_col} = <10%)",
-                  "  " + ", ".join(ids)]
+        r = recoded[marker]
+        lines += [f"[{marker}] {status_col}: Positive → Low Positive, {pct_col}: <10% → 1-9%  {len(r['low'])}명",
+                  "  " + (", ".join(r["low"]) or "없음"),
+                  f"[{marker}] {pct_col}: <10% → <1% (판정 Negative)  {len(r['neg'])}명, 이 중 2010년 이전 진단 {r['neg_before_2010']}명",
+                  "  " + (", ".join(r["neg"]) or "없음")]
     lines.append("")
 
     n_drop = sum(len(v) for v in DROP.values())
@@ -417,7 +435,7 @@ def main():
 
     print(f"환자 {before[0]:,}명 × {before[1]}열 → {df.shape[0]:,}명 × {df.shape[1]}열")
     print(f"  남성 {len(males)}명 행 삭제, 열 {len(drop_cols)}개 삭제")
-    print("  <10%인데 Positive → Negative: " + ", ".join(f"{k} {len(v)}명" for k, v in recoded.items()))
+    print("  <10% → 1-9%(Low Positive) / <1%(Negative): " + ", ".join(f"{k} {len(v['low'])}/{len(v['neg'])}명" for k, v in recoded.items()))
     for p in (OUT_CSV, OUT_COLS, OUT_CHANGES):
         print(f"  {p}")
 
