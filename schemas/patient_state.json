@@ -2,12 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "patient_state.json",
   "title": "patient_state",
-  "description": "[1] 입력 모듈(A)의 출력. 비식별화된 차트에서 추출한 환자 상태. 모든 값에 원문 근거 위치를 붙인다. 필드 설명은 src/input/schema_fields.md. 초안 v0.1-draft2 (2026-10-12).",
+  "description": "[1] 입력 모듈(A)의 출력. 비식별화된 차트에서 추출한 환자 상태. 모든 값에 원문 근거 위치를 붙인다. 필드 설명은 src/input/schema_fields.md. 초안 v0.1-draft3 (2026-10-12, ER만 저발현, Allred 객체).",
   "type": "object",
   "required": ["schema_version", "patient_ref", "created_at", "documents", "fields", "conflicts"],
   "additionalProperties": false,
   "properties": {
-    "schema_version": {"const": "0.1-draft2"},
+    "schema_version": {"const": "0.1-draft3"},
     "patient_ref": {"type": "string", "description": "가명 ID. 실제 이름·등록번호를 넣지 않는다."},
     "created_at": {"type": "string", "format": "date-time"},
     "documents": {
@@ -67,8 +67,8 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "er_percent": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"$ref": "#/$defs/receptor_value"}}}]},
-            "pr_percent": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"$ref": "#/$defs/receptor_value"}}}]},
+            "er_percent": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"$ref": "#/$defs/er_value"}}}]},
+            "pr_percent": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"$ref": "#/$defs/pr_value"}}}]},
             "her2_ihc": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"$ref": "#/$defs/her2_ihc_value"}}}]},
             "her2_ish": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {
               "type": "object",
@@ -191,17 +191,41 @@
       "maxItems": 2,
       "description": "[최소, 최대]. 예: 90-99% → [90, 99], 1-9% → [1, 9], <1% → [0, 0]"
     },
-    "receptor_value": {
+    "allred": {
       "type": "object",
-      "description": "ER·PR. 있는 것을 모두 담는다 (A 결정). TCGA 정답에는 score를 넣지 않는다.",
+      "description": "Allred 점수. 적힌 것만 넣는다. total = ps + is (0, 2~8). ps = 비율 점수 (0 없음, 1 <1%, 2 1~10%, 3 11~33%, 4 34~66%, 5 ≥67%), is = 강도 점수 (0~3).",
+      "minProperties": 1,
+      "additionalProperties": false,
+      "properties": {
+        "total": {"type": "integer", "minimum": 0, "maximum": 8},
+        "ps": {"type": "integer", "minimum": 0, "maximum": 5},
+        "is": {"type": "integer", "minimum": 0, "maximum": 3}
+      }
+    },
+    "er_value": {
+      "type": "object",
+      "description": "ER. 있는 것을 모두 담는다 (A 결정). TCGA 정답에는 score를 넣지 않는다.",
       "minProperties": 1,
       "additionalProperties": false,
       "properties": {
         "percent": {"type": "number", "minimum": 0, "maximum": 100},
         "range": {"$ref": "#/$defs/range"},
-        "score": {"enum": ["0", "1+", "2+", "3+", "4+"], "description": "염색 강도 점수"},
-        "allred": {"type": "integer", "minimum": 0, "maximum": 8},
-        "result": {"enum": ["positive", "low_positive", "negative", "indeterminate"]}
+        "score": {"enum": ["0", "1+", "2+", "3+", "4+"], "description": "염색 강도 점수. 강도만으로는 양성 여부를 정할 수 없다"},
+        "allred": {"$ref": "#/$defs/allred"},
+        "result": {"enum": ["positive", "low_positive", "negative", "indeterminate"], "description": "low_positive는 ER에만 있다 (ASCO/CAP 2020 ER Low Positive)"}
+      }
+    },
+    "pr_value": {
+      "type": "object",
+      "description": "PR. ER과 같은 형태지만 저발현 범주가 없다 (ASCO/CAP Low Positive는 ER만 해당). TCGA 정답에는 score를 넣지 않는다.",
+      "minProperties": 1,
+      "additionalProperties": false,
+      "properties": {
+        "percent": {"type": "number", "minimum": 0, "maximum": 100},
+        "range": {"$ref": "#/$defs/range"},
+        "score": {"enum": ["0", "1+", "2+", "3+", "4+"], "description": "염색 강도 점수. 강도만으로는 양성 여부를 정할 수 없다"},
+        "allred": {"$ref": "#/$defs/allred"},
+        "result": {"enum": ["positive", "negative", "indeterminate"]}
       }
     },
     "her2_ihc_value": {

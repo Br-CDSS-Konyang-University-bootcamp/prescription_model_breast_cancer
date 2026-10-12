@@ -169,11 +169,11 @@ gdc_er_ihc_score
     실제 값 비율: 19.4%   예시: 3+; 2+; 4+
 
 gdc_pr_status_by_ihc
-    의미: PR 면역염색 판정 (Positive/Low Positive/Negative/Indeterminate). 비율이 <10%인데 Positive였던 값은 Low Positive(저발현)로 바꿈
-    실제 값 비율: 95.3%   예시: Positive; Negative; Low Positive
+    의미: PR 면역염색 판정 (Positive/Negative/Indeterminate). PR에는 저발현 범주가 없다 (ASCO/CAP Low Positive는 ER만 해당)
+    실제 값 비율: 95.3%   예시: Positive; Negative; Indeterminate
 
 gdc_pr_status_ihc_percent_positive
-    의미: PR 양성 세포 비율 구간 (<1%, 1-9%, 10-19% … 90-99%). 원본 <10%는 판정에 따라 1-9%(Low Positive) 또는 <1%(Negative)로 나눔
+    의미: PR 양성 세포 비율 구간 (<1%, 1-9%, 10-19% … 90-99%). 원본 <10%는 판정에 따라 1-9%(Positive) 또는 <1%(Negative)로 나눔
     실제 값 비율: 39.0%   예시: 90-99%; <1%; 1-9%
 
 gdc_pr_positivity_ihc_intensity_score
@@ -228,8 +228,8 @@ gdc_nte_er_ihc_intensity_score
     실제 값 비율: 0.1%   예시: 3+
 
 gdc_nte_pr_status_by_ihc
-    의미: 재발 병소 PR 판정. 비율이 <10%인데 Positive였던 값은 Low Positive로 바꿈
-    실제 값 비율: 1.0%   예시: Negative; Positive; Low Positive
+    의미: 재발 병소 PR 판정 (저발현 범주 없음)
+    실제 값 비율: 1.0%   예시: Negative; Positive
 
 gdc_nte_pr_status_ihc__positive
     의미: 재발 병소 PR 양성 세포 비율 구간. 원본 <10%는 1-9% 또는 <1%로 나눔

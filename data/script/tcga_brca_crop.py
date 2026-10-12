@@ -201,8 +201,8 @@ DESCRIPTIONS = {
         "gdc_er_status_by_ihc": "ER 면역염색 판정 (Positive/Low Positive/Negative/Indeterminate). 비율이 <10%인데 Positive였던 값은 Low Positive(저발현)로 바꿈",
         "gdc_er_status_ihc_Percent_Positive": "ER 양성 세포 비율 구간 (<1%, 1-9%, 10-19% … 90-99%). 원본 <10%는 판정에 따라 1-9%(Low Positive) 또는 <1%(Negative)로 나눔",
         "gdc_er_ihc_score": "ER 염색 강도 점수 (1+~4+)",
-        "gdc_pr_status_by_ihc": "PR 면역염색 판정 (Positive/Low Positive/Negative/Indeterminate). 비율이 <10%인데 Positive였던 값은 Low Positive(저발현)로 바꿈",
-        "gdc_pr_status_ihc_percent_positive": "PR 양성 세포 비율 구간 (<1%, 1-9%, 10-19% … 90-99%). 원본 <10%는 판정에 따라 1-9%(Low Positive) 또는 <1%(Negative)로 나눔",
+        "gdc_pr_status_by_ihc": "PR 면역염색 판정 (Positive/Negative/Indeterminate). PR에는 저발현 범주가 없다 (ASCO/CAP Low Positive는 ER만 해당)",
+        "gdc_pr_status_ihc_percent_positive": "PR 양성 세포 비율 구간 (<1%, 1-9%, 10-19% … 90-99%). 원본 <10%는 판정에 따라 1-9%(Positive) 또는 <1%(Negative)로 나눔",
         "gdc_pr_positivity_ihc_intensity_score": "PR 염색 강도 점수",
         "gdc_her2_status_by_ihc": "HER2 면역염색 판정 (Positive/Equivocal/Negative). Equivocal = IHC 2+",
         "gdc_her2_ihc_score": "HER2 IHC 점수 (0, 1+, 2+, 3+). HER2 저발현(1+, 2+/ISH 음성) 판정에 사용",
@@ -217,7 +217,7 @@ DESCRIPTIONS = {
         "gdc_nte_er_status": "재발 병소 ER 판정. 비율이 <10%인데 Positive였던 값은 Low Positive로 바꿈",
         "gdc_nte_er_status_ihc__positive": "재발 병소 ER 양성 세포 비율 구간. 원본 <10%는 1-9% 또는 <1%로 나눔",
         "gdc_nte_er_ihc_intensity_score": "재발 병소 ER 염색 강도",
-        "gdc_nte_pr_status_by_ihc": "재발 병소 PR 판정. 비율이 <10%인데 Positive였던 값은 Low Positive로 바꿈",
+        "gdc_nte_pr_status_by_ihc": "재발 병소 PR 판정 (저발현 범주 없음)",
         "gdc_nte_pr_status_ihc__positive": "재발 병소 PR 양성 세포 비율 구간. 원본 <10%는 1-9% 또는 <1%로 나눔",
         "gdc_nte_pr_ihc_intensity_score": "재발 병소 PR 염색 강도",
         "gdc_nte_her2_status": "재발 병소 HER2 판정",
@@ -286,21 +286,23 @@ DESCRIPTIONS = {
 }
 
 # 양성 세포 비율 구간 <10%를 판정에 따라 둘로 나눈다 (사용자 결정, 2026-10-12).
-#   <10% + Positive → 판정 Low Positive, 구간 1-9%   (ASCO/CAP 2020은 ER 1-10%를 Low Positive로 부름)
-#   <10% + Negative → 구간 <1%                       (가정: 1% 기준 음성. 2010년 이전 진단은 10% 기준이었을 수 있음)
-# 이력: 2026-10-07에는 <10% + Positive를 Negative로 바꿨다.
+#   <10% + Positive → 구간 1-9%. ER만 판정을 Low Positive로 바꾼다
+#                     (ASCO/CAP 2020의 Low Positive는 ER에만 정의됨. PR은 Positive 유지)
+#   <10% + Negative → 구간 <1%  (가정: 1% 기준 음성. 2010년 이전 진단은 10% 기준이었을 수 있음)
+# 이력: 2026-10-07에는 <10% + Positive를 Negative로 바꿨다. 2026-10-12 오전에는 PR도 Low Positive로 바꿨다.
+# (마커, 비율 열, 판정 열, Low Positive로 바꿀지)
 RECODE = [
-    ("ER", "gdc_er_status_ihc_Percent_Positive", "gdc_er_status_by_ihc"),
-    ("PR", "gdc_pr_status_ihc_percent_positive", "gdc_pr_status_by_ihc"),
-    ("재발 ER", "gdc_nte_er_status_ihc__positive", "gdc_nte_er_status"),
-    ("재발 PR", "gdc_nte_pr_status_ihc__positive", "gdc_nte_pr_status_by_ihc"),
+    ("ER", "gdc_er_status_ihc_Percent_Positive", "gdc_er_status_by_ihc", True),
+    ("PR", "gdc_pr_status_ihc_percent_positive", "gdc_pr_status_by_ihc", False),
+    ("재발 ER", "gdc_nte_er_status_ihc__positive", "gdc_nte_er_status", True),
+    ("재발 PR", "gdc_nte_pr_status_ihc__positive", "gdc_nte_pr_status_by_ihc", False),
 ]
 
 
 def recode_low_percent(df):
     changed = {}
     year = pd.to_numeric(df["gdc_initial_pathologic_dx_year"], errors="coerce")
-    for marker, pct_col, status_col in RECODE:
+    for marker, pct_col, status_col, relabel in RECODE:
         low = (df[pct_col] == "<10%") & (df[status_col] == "Positive")
         neg = (df[pct_col] == "<10%") & (df[status_col] == "Negative")
         changed[marker] = {
@@ -308,7 +310,8 @@ def recode_low_percent(df):
             "neg": sorted(df.loc[neg, "patient_id"]),
             "neg_before_2010": int((neg & (year < 2010)).sum()),
         }
-        df.loc[low, status_col] = "Low Positive"
+        if relabel:
+            df.loc[low, status_col] = "Low Positive"
         df.loc[low, pct_col] = "1-9%"
         df.loc[neg, pct_col] = "<1%"
     return changed
@@ -354,14 +357,16 @@ def write_changes_txt(before, after, males, recoded):
 
     lines += ["=" * 78, "1-1. 바꾼 값: ER·PR 양성 세포 비율 <10%를 판정에 따라 둘로 나눔", "=" * 78,
               "사용자 결정 (2026-10-12). 원래 값은 tcga_brca_merged.csv에 그대로 있음",
-              "  <10% + Positive → 판정 Low Positive, 구간 1-9% (ASCO/CAP 2020은 ER 1-10%를 Low Positive로 부름)",
+              "  <10% + Positive → 구간 1-9%. ER만 판정을 Low Positive로 바꿈 (ASCO/CAP 2020의 Low Positive는 ER에만 정의됨)",
+              "                    PR은 판정 Positive를 그대로 둠 (PR에는 저발현 범주가 없음)",
               "  <10% + Negative → 구간 <1% (가정: 1% 기준 음성)",
               "주의: 1% 기준은 2010년 ASCO/CAP 지침부터다. 2010년 이전 진단 환자의 음성 판정은 10% 기준이었을 수 있어,",
               "      <1%로 바꾼 값 중 일부는 실제로 1-9%였을 수 있다",
-              "이력: 2026-10-07에는 <10% + Positive를 Negative로 바꿨다", ""]
-    for (marker, pct_col, status_col) in RECODE:
+              "이력: 2026-10-07에는 <10% + Positive를 Negative로 바꿨고, 2026-10-12 오전에는 PR도 Low Positive로 바꿨다", ""]
+    for (marker, pct_col, status_col, relabel) in RECODE:
         r = recoded[marker]
-        lines += [f"[{marker}] {status_col}: Positive → Low Positive, {pct_col}: <10% → 1-9%  {len(r['low'])}명",
+        change = f"{status_col}: Positive → Low Positive, " if relabel else f"{status_col}: Positive 유지, "
+        lines += [f"[{marker}] {change}{pct_col}: <10% → 1-9%  {len(r['low'])}명",
                   "  " + (", ".join(r["low"]) or "없음"),
                   f"[{marker}] {pct_col}: <10% → <1% (판정 Negative)  {len(r['neg'])}명, 이 중 2010년 이전 진단 {r['neg_before_2010']}명",
                   "  " + (", ".join(r["neg"]) or "없음")]
@@ -435,7 +440,7 @@ def main():
 
     print(f"환자 {before[0]:,}명 × {before[1]}열 → {df.shape[0]:,}명 × {df.shape[1]}열")
     print(f"  남성 {len(males)}명 행 삭제, 열 {len(drop_cols)}개 삭제")
-    print("  <10% → 1-9%(Low Positive) / <1%(Negative): " + ", ".join(f"{k} {len(v['low'])}/{len(v['neg'])}명" for k, v in recoded.items()))
+    print("  <10% → 1-9%(Positive, ER은 Low Positive) / <1%(Negative): " + ", ".join(f"{k} {len(v['low'])}/{len(v['neg'])}명" for k, v in recoded.items()))
     for p in (OUT_CSV, OUT_COLS, OUT_CHANGES):
         print(f"  {p}")
 

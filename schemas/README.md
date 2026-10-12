@@ -1,6 +1,6 @@
 # schemas/ — 모듈 간 데이터 형식 (공용, 4명 합의)
 
-모듈끼리 주고받는 JSON 형식을 [JSON Schema 2020-12](https://json-schema.org/)로 정의한다. 지금 파일은 **0단계 검토용 초안**이다 (`patient_state`는 `0.1-draft2`, 나머지는 `0.1-draft`). 4명 검토가 끝나면 `"0.1"`로 올린다.
+모듈끼리 주고받는 JSON 형식을 [JSON Schema 2020-12](https://json-schema.org/)로 정의한다. 지금 파일은 **0단계 검토용 초안**이다 (`patient_state`는 `0.1-draft3`, 나머지는 `0.1-draft`). 4명 검토가 끝나면 `"0.1"`로 올린다.
 
 바꿀 때는 4명이 모두 검토한다. 필드를 추가·삭제하면 이 README의 표와 예시도 함께 고친다.
 
@@ -16,7 +16,7 @@
 
 | 파일 | 내용 | 만드는 쪽 | 쓰는 쪽 | 초안 검토 |
 |---|---|---|---|---|
-| [patient_state.json](patient_state.json) (0.1-draft2) | 차트에서 추출한 환자 상태 | [1] 입력 (A) | [2], [4] | B, C, D |
+| [patient_state.json](patient_state.json) (0.1-draft3) | 차트에서 추출한 환자 상태 | [1] 입력 (A) | [2], [4] | B, C, D |
 | [biomarker_record.json](biomarker_record.json) | 바이오마커 상태값, 아형, 치료 상황, 검사 공백 | [2] 바이오마커 (B) | [3] 필터, [4] | A, C, D |
 | [chunk.json](chunk.json) | 검색 색인 청크 (지침·급여 공용) | [3] (C), [5] (D) | [3] 색인, [4] | D 필수, A, B |
 | [recommendation.json](recommendation.json) | 처방 후보, 급여 분류, 검사 권고 | [4] 추천 (B) | 출력 화면 | A, C, D |
@@ -34,7 +34,7 @@
 | 구분 | 코드 | 표시 |
 |---|---|---|
 | 추출 상태 (IN-6) | `present` / `not_done` / `not_recorded` | 값 있음 / 미시행 / 기록 없음 |
-| 수용체 판정 (A가 옮긴 값) | `positive` / `low_positive` / `negative` / `indeterminate` / `unknown` | 양성 / 저발현 / 음성 / 판정 불가 / 알 수 없음 |
+| 수용체 판정 (A가 옮긴 값) | `positive` / `low_positive` (ER만) / `negative` / `indeterminate` / `unknown` (HER2만) | 양성 / 저발현 / 음성 / 판정 불가 / 알 수 없음 |
 | 특수 표기 | `not_assessed` / `[Not Available]` / `[Not Applicable]` | 평가 안됨 / 기록 없음 / 해당 없음 |
 | 바이오마커 상태 | `positive` / `negative` / `indeterminate` / `not_done` / `retest_needed` / `not_recorded` | 양성 / 음성 / 불확정 / 미시행 / 재검 필요 / 기록 없음 |
 | 바이오마커 세부 | `low` / `ultralow` / `zero` / `vus` | 저발현 / 초저발현 / 0 / VUS |
@@ -45,7 +45,7 @@
 
 ## 3. patient_state.json — [1] 입력 → [2], [4]
 
-버전 `0.1-draft2` (2026-10-12). 필드별 표준값, 정규화 예시, TCGA 정답 규칙은 [src/input/schema_fields.md](../src/input/schema_fields.md)에 있다.
+버전 `0.1-draft3` (2026-10-12). 필드별 표준값, 정규화 예시, TCGA 정답 규칙은 [src/input/schema_fields.md](../src/input/schema_fields.md)에 있다.
 
 추출값 하나는 모두 같은 틀(`$defs/extracted`)이고, `value`의 형태만 필드마다 다르다.
 
@@ -69,7 +69,7 @@
 | | `group` | `IIA`, `IIIC`, `IV` … 또는 `not_assessed` |
 | | `positive_ln_count` | `{positive, examined}`. 각각 정수 또는 `"[Not Available]"` |
 | | `metastatic_sites` | 부위 목록 또는 `"[Not Applicable]"` / `"[Not Available]"` |
-| receptors | `er_percent`, `pr_percent` | `{percent, range, score, allred, result}` 중 있는 것 모두. `result`: `positive`·`low_positive`·`negative`·`indeterminate` |
+| receptors | `er_percent`, `pr_percent` | `{percent, range, score, allred, result}` 중 있는 것 모두. `allred`는 `{total, ps, is}`. `result`: `positive`·`negative`·`indeterminate`, ER만 `low_positive` 추가 |
 | | `her2_ihc` | `{score, faint, result}` 중 있는 것 모두. `result`는 ISH로 보정한 값 (`unknown` 포함) |
 | | `her2_ish` | `{result, method}` |
 | proliferation | `ki67_percent` | `{percent, range, result}` |
@@ -85,7 +85,7 @@ TCGA 정답은 실제 날짜가 없으므로, 날짜 칸은 추출값이면 `sta
 
 ```json
 {
-  "schema_version": "0.1-draft2",
+  "schema_version": "0.1-draft3",
   "patient_ref": "VC-0001",
   "created_at": "2026-10-12T09:00:00+09:00",
   "documents": [

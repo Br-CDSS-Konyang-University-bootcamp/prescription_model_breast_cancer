@@ -123,11 +123,11 @@ TNM 세부 표기 [합의 예정]: 공백만 지우고 그대로 둔다. `N0 (i-
 | 필드 | TCGA 열 | 변환 [A 결정] |
 |---|---|---|
 | `er_percent` | `gdc_er_status_ihc_Percent_Positive`(구간), `gdc_er_status_by_ihc`(판정) | 구간과 판정을 모두 넣는다. 판정 `Low Positive` → `low_positive`. **점수 열(`gdc_er_ihc_score`)은 쓰지 않는다** |
-| `pr_percent` | `gdc_pr_status_ihc_percent_positive`, `gdc_pr_status_by_ihc` | ER과 같음. 점수 열(`gdc_pr_positivity_ihc_intensity_score`)은 쓰지 않는다 |
+| `pr_percent` | `gdc_pr_status_ihc_percent_positive`, `gdc_pr_status_by_ihc` | ER과 같음. 단 저발현 범주가 없다 (`1-9%`도 `positive`). 점수 열(`gdc_pr_positivity_ihc_intensity_score`)은 쓰지 않는다 |
 | `her2_ihc` | `gdc_her2_ihc_score`, `gdc_her2_status_by_ihc`, `gdc_her2_fish_status` | 점수와 판정을 함께 표기. 점수 없는 Equivocal은 `2+`로 채움. 2+ 또는 Equivocal이면 FISH로 `result` 보정 (Negative → negative, Positive → positive, 그 밖에 Equivocal이면 unknown) |
 | `her2_ish` | `gdc_her2_fish_status` | `{result, method: "FISH"}`. Positive → amplified, Negative → not_amplified, Equivocal → equivocal. `[Not Evaluated]` 590건 → `not_done`. 복제수·비율 열은 넣지 않는다 |
 
-원본 구간 `<10%`는 크롭 스크립트가 판정에 따라 둘로 나눴다: `<10%` + Positive → 판정 `Low Positive`, 구간 `1-9%` (ER 17명, PR 53명) / `<10%` + Negative → 구간 `<1%` (ER 54명, PR 84명, 1% 기준 음성으로 가정. 2010년 이전 진단은 10% 기준이었을 수 있음). 재발 병소 칸도 같은 규칙. ER 저발현 경계 사례 테스트에는 `1-9%` 환자를 쓴다.
+원본 구간 `<10%`는 크롭 스크립트가 판정에 따라 둘로 나눴다: `<10%` + Positive → 구간 `1-9%`, ER만 판정 `Low Positive` (ER 17명, PR 53명은 `Positive` 유지) / `<10%` + Negative → 구간 `<1%` (ER 54명, PR 84명, 1% 기준 음성으로 가정. 2010년 이전 진단은 10% 기준이었을 수 있음). 재발 병소 칸도 같은 규칙. ER 저발현 경계 사례 테스트에는 `1-9%` 환자를 쓴다.
 
 ### 3.4 증식 (`fields.proliferation`)
 
