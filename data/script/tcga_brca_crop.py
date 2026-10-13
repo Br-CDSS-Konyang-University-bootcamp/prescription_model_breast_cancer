@@ -389,6 +389,18 @@ def recurrence_status(df):
     df["recurrence_status"] = [status(f, t) for f, t in zip(flags, types)]
 
 
+NEW_COLS = ["stage_disease_extent", "recurrence_status", "current_disease_extent"]
+# 정리 기준을 바꿀 때마다 한 줄씩 추가한다 (변경 내역 txt의 0번 항목)
+HISTORY = [
+    ("2026-10-07", "남성 환자와 불필요한 열 삭제, ER·PR <10% + Positive를 Negative로 바꿈"),
+    ("2026-10-12", "ER·PR <10%를 판정에 따라 1-9% / <1%로 나눔. ER만 Low Positive (PR은 Positive 유지)"),
+    ("2026-10-13", "진단 시 병기 범주(stage_disease_extent) 추가: I~II 조기, III 국소 진행성(심평원 급여 조건), IV 전이성"),
+    ("2026-10-13", "A 정답 세트 규칙(병기 [Discrepancy]·[Not Available]·빈칸) 우선 적용, 범주를 정할 수 없는 Stage X와 "
+                   "조직형 NOS·기록 없음 삭제 (여성 1,086명 → 1,061명)"),
+    ("2026-10-13", "재발 상태(recurrence_status)와 현재 범주(current_disease_extent) 추가. 새 원발암만 있거나 재발 정보가 "
+                   "불명확한 환자 삭제, 진단 시 전이성과 재생검 기록 환자는 unclear로 남김. 국소 재발은 현재 범주 "
+                   "indeterminate (1,061명 → 842명)"),
+]
 NTE_RECEPTOR_COLS = ["gdc_nte_er_status", "gdc_nte_pr_status_by_ihc", "gdc_nte_her2_status"]
 
 
@@ -472,7 +484,12 @@ def write_columns_txt(df):
 def write_changes_txt(before, after, males, recoded, to_iv, by_tnm, dropped, df, rec_kept):
     lines = [f"TCGA-BRCA 정리본 변경 내역 ({OUT_CSV.name})", f"작성일 {date.today()}", "",
              f"원본: {SRC.name} (수정하지 않음)",
-             f"결과: 환자 {before[0]:,}명 × {before[1]}열  →  {after[0]:,}명 × {after[1]}열", ""]
+             f"결과: 환자 {before[0]:,}명 × {before[1]}열  →  {after[0]:,}명 × {after[1]}열",
+             f"  열: 원본 {before[1]}열 − 삭제 {sum(len(v) for v in DROP.values())}열 + 새로 만든 {len(NEW_COLS)}열 ({', '.join(NEW_COLS)})", ""]
+
+    lines += ["=" * 78, "0. 정리 기준 변경 이력", "=" * 78]
+    lines += [f"  {d}  {what}" for d, what in HISTORY]
+    lines.append("")
 
     drop_ids = set().union(*(set(d["patient_id"]) for d in dropped.values()))
     lines += ["=" * 78, "1. 삭제한 행", "=" * 78,
@@ -520,12 +537,17 @@ def write_changes_txt(before, after, males, recoded, to_iv, by_tnm, dropped, df,
               "주의: 1% 기준은 2010년 ASCO/CAP 지침부터다. 2010년 이전 진단 환자의 음성 판정은 10% 기준이었을 수 있어,",
               "      <1%로 바꾼 값 중 일부는 실제로 1-9%였을 수 있다",
               "이력: 2026-10-07에는 <10% + Positive를 Negative로 바꿨고, 2026-10-12 오전에는 PR도 Low Positive로 바꿨다", ""]
+    final = set(df["patient_id"])
+    lines += ["아래 인원은 여성 전체(행 삭제 전) 기준이다. 정리본에 남은 인원은 [정리본 n명]으로 함께 적는다"]
     for (marker, pct_col, status_col, relabel) in RECODE:
         r = recoded[marker]
+        low_kept = [p for p in r["low"] if p in final]
+        neg_kept = [p for p in r["neg"] if p in final]
         change = f"{status_col}: Positive → Low Positive, " if relabel else f"{status_col}: Positive 유지, "
-        lines += [f"[{marker}] {change}{pct_col}: <10% → 1-9%  {len(r['low'])}명",
+        lines += [f"[{marker}] {change}{pct_col}: <10% → 1-9%  {len(r['low'])}명 [정리본 {len(low_kept)}명]",
                   "  " + (", ".join(r["low"]) or "없음"),
-                  f"[{marker}] {pct_col}: <10% → <1% (판정 Negative)  {len(r['neg'])}명, 이 중 2010년 이전 진단 {r['neg_before_2010']}명",
+                  f"[{marker}] {pct_col}: <10% → <1% (판정 Negative)  {len(r['neg'])}명 [정리본 {len(neg_kept)}명], "
+                  f"이 중 2010년 이전 진단 {r['neg_before_2010']}명",
                   "  " + (", ".join(r["neg"]) or "없음")]
     lines.append("")
 
