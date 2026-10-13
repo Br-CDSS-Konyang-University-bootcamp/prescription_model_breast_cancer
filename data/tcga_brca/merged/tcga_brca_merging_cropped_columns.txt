@@ -1,5 +1,5 @@
 ﻿TCGA-BRCA 정리본 열 설명 (tcga_brca_merging_cropped.csv)
-작성일 2026-10-13 · 환자 1,061명 × 114열
+작성일 2026-10-13 · 환자 842명 × 116열
 
 GDC 결측 코드 (지우지 않고 그대로 둠)
   [Not Available]   값이 기록되지 않음 → 입력 모듈 '기록 없음'
@@ -34,11 +34,11 @@ has_drug
 
 gdc_tissue_source_site
     의미: 검체 수집 기관 코드 (2글자). v0.2 기관 단위 분할에 사용
-    실제 값 비율: 100.0%   예시: BH; A2; E2
+    실제 값 비율: 100.0%   예시: A2; E2; BH
 
 cbio_sample_sampleId
     의미: 종양 샘플 ID (환자 ID + -01). 01은 원발 종양
-    실제 값 비율: 98.7%   예시: TCGA-3C-AALI-01; TCGA-3C-AALJ-01; TCGA-3C-AALK-01
+    실제 값 비율: 98.5%   예시: TCGA-3C-AALI-01; TCGA-3C-AALJ-01; TCGA-3C-AALK-01
 
 ==============================================================================
 [환자 정보]
@@ -53,23 +53,23 @@ gdc_gender
 
 gdc_menopause_status
     의미: 폐경 상태. Pre(폐경 전) / Peri(폐경 이행기) / Post(폐경 후) / Indeterminate(판단 불가)
-    실제 값 비율: 92.8%   예시: Post (prior bilateral ovariect; Pre (<6 months since LMP AND n; Peri (6-12 months since last m
+    실제 값 비율: 93.8%   예시: Post (prior bilateral ovariect; Pre (<6 months since LMP AND n; Peri (6-12 months since last m
 
 gdc_race
     의미: 인종
-    실제 값 비율: 91.5%   예시: WHITE; BLACK OR AFRICAN AMERICAN; ASIAN
+    실제 값 비율: 93.5%   예시: WHITE; BLACK OR AFRICAN AMERICAN; ASIAN
 
 gdc_ethnicity
     의미: 히스패닉 여부
-    실제 값 비율: 84.3%   예시: NOT HISPANIC OR LATINO; HISPANIC OR LATINO
+    실제 값 비율: 89.1%   예시: NOT HISPANIC OR LATINO; HISPANIC OR LATINO
 
 gdc_initial_pathologic_dx_year
     의미: 첫 병리 진단 연도
-    실제 값 비율: 99.8%   예시: 2010; 2009; 2011
+    실제 값 비율: 99.8%   예시: 2010; 2011; 2009
 
 gdc_history_other_malignancy
     의미: 다른 암 병력 여부 (Yes/No)
-    실제 값 비율: 99.9%   예시: No; Yes
+    실제 값 비율: 100.0%   예시: No; Yes
 
 ==============================================================================
 [진단·조직형]
@@ -80,11 +80,11 @@ gdc_histological_type
 
 gdc_histologic_diagnosis_other
     의미: 주 조직형이 Other 또는 Mixed일 때만 적는 구체적 조직형. 그 외는 [Not Applicable]
-    실제 값 비율: 6.7%   예시: Infiltrating ductal and lobula; infiltrating ductal and mucino; lobular/ductal
+    실제 값 비율: 6.9%   예시: Infiltrating ductal and lobula; infiltrating ductal and mucino; lobular/ductal
 
 gdc_icd_10
     의미: ICD-10 진단 코드 (C50.x = 유방암, 소수점 아래는 부위)
-    실제 값 비율: 100.0%   예시: C50.9; C50.3; C50.2
+    실제 값 비율: 100.0%   예시: C50.9; C50.2; C50.919
 
 gdc_icd_o_3_histology
     의미: ICD-O-3 조직형 코드 (8500/3 = 침윤성 관암, 8520/3 = 소엽암)
@@ -92,26 +92,26 @@ gdc_icd_o_3_histology
 
 gdc_icd_o_3_site
     의미: ICD-O-3 부위 코드
-    실제 값 비율: 100.0%   예시: C50.9; C50.3; C50.2
+    실제 값 비율: 100.0%   예시: C50.9; C50.2; C50.5
 
 cbio_sample_CANCER_TYPE_DETAILED
     의미: cBioPortal 세부 암종 이름
-    실제 값 비율: 98.7%   예시: Breast Invasive Ductal Carcino; Breast Invasive Lobular Carcin; Breast Invasive Carcinoma (NOS
+    실제 값 비율: 98.5%   예시: Breast Invasive Ductal Carcino; Breast Invasive Lobular Carcin; Breast Invasive Carcinoma (NOS
 
 cbio_sample_ONCOTREE_CODE
     의미: OncoTree 암종 코드 (IDC, ILC 등). OncoKB 조회에 사용
-    실제 값 비율: 98.7%   예시: IDC; ILC; BRCNOS
+    실제 값 비율: 98.5%   예시: IDC; ILC; BRCNOS
 
 cbio_SUBTYPE
     의미: PAM50 유전자 발현 아형 (LumA, LumB, Her2, Basal, Normal). IHC 아형과 다를 수 있음
-    실제 값 비율: 90.3%   예시: BRCA_LumA; BRCA_LumB; BRCA_Basal
+    실제 값 비율: 89.3%   예시: BRCA_LumA; BRCA_LumB; BRCA_Basal
 
 ==============================================================================
 [병기 (AJCC 병리 병기)]
 ==============================================================================
 gdc_ajcc_staging_edition
     의미: AJCC 병기 판 (3rd~7th). 판마다 기준이 다름
-    실제 값 비율: 87.1%   예시: 6th; 7th; 5th
+    실제 값 비율: 91.2%   예시: 7th; 6th; 5th
 
 gdc_ajcc_tumor_pathologic_pt
     의미: 병리 T 병기 (원발 종양 크기·침범)
@@ -135,97 +135,97 @@ stage_disease_extent
 
 gdc_lymph_nodes_examined_count
     의미: 검사한 림프절 개수
-    실제 값 비율: 89.0%   예시: 2; 1; 3
+    실제 값 비율: 90.9%   예시: 2; 1; 4
 
 gdc_lymph_nodes_examined_he_count
     의미: H&E 염색으로 확인한 양성 림프절 개수 (이름과 달리 양성 개수). 심평원 abemaciclib 기준(4개)에 사용
-    실제 값 비율: 85.4%   예시: 0; 1; 2
+    실제 값 비율: 86.7%   예시: 0; 1; 2
 
 gdc_lymph_nodes_examined_ihc_count
     의미: 면역염색으로 확인한 양성 림프절 개수
-    실제 값 비율: 32.0%   예시: 0; 1; 2
+    실제 값 비율: 33.7%   예시: 0; 1; 2
 
 gdc_metastatic_tumor_indicator
     의미: 진단 시 원격 전이 여부
-    실제 값 비율: 36.5%   예시: NO; YES
+    실제 값 비율: 41.1%   예시: NO; YES
 
 gdc_metastasis_site
     의미: 원격 전이 부위 (Bone, Liver 등, 여러 곳이면 | 로 구분)
-    실제 값 비율: 2.1%   예시: Bone; Other, specify; Bone|Liver
+    실제 값 비율: 2.6%   예시: Bone; Other, specify; Bone|Liver
 
 gdc_metastasis_site_other
     의미: 원격 전이 부위 기타 자유 기재
-    실제 값 비율: 0.7%   예시: skin; Ovary; Abdomen
+    실제 값 비율: 0.8%   예시: skin; Ovary; Abdomen
 
 ==============================================================================
 [수용체 (진단 시 원발 종양)]
 ==============================================================================
 gdc_er_status_by_ihc
     의미: ER 면역염색 판정 (Positive/Low Positive/Negative/Indeterminate). 비율이 <10%인데 Positive였던 값은 Low Positive(저발현)로 바꿈
-    실제 값 비율: 95.5%   예시: Positive; Negative; Low Positive
+    실제 값 비율: 95.1%   예시: Positive; Negative; Low Positive
 
 gdc_er_status_ihc_Percent_Positive
     의미: ER 양성 세포 비율 구간 (<1%, 1-9%, 10-19% … 90-99%). 원본 <10%는 판정에 따라 1-9%(Low Positive) 또는 <1%(Negative)로 나눔
-    실제 값 비율: 43.3%   예시: 90-99%; <1%; 70-79%
+    실제 값 비율: 45.6%   예시: 90-99%; <1%; 70-79%
 
 gdc_er_ihc_score
     의미: ER 염색 강도 점수 (1+~4+)
-    실제 값 비율: 19.8%   예시: 3+; 2+; 4+
+    실제 값 비율: 18.4%   예시: 3+; 2+; 4+
 
 gdc_pr_status_by_ihc
     의미: PR 면역염색 판정 (Positive/Negative/Indeterminate). PR에는 저발현 범주가 없다 (ASCO/CAP Low Positive는 ER만 해당)
-    실제 값 비율: 95.4%   예시: Positive; Negative; Indeterminate
+    실제 값 비율: 95.0%   예시: Positive; Negative; Indeterminate
 
 gdc_pr_status_ihc_percent_positive
     의미: PR 양성 세포 비율 구간 (<1%, 1-9%, 10-19% … 90-99%). 원본 <10%는 판정에 따라 1-9%(Positive) 또는 <1%(Negative)로 나눔
-    실제 값 비율: 39.8%   예시: 90-99%; <1%; 1-9%
+    실제 값 비율: 41.7%   예시: 90-99%; <1%; 1-9%
 
 gdc_pr_positivity_ihc_intensity_score
     의미: PR 염색 강도 점수
-    실제 값 비율: 19.2%   예시: 3+; 2+; 1+
+    실제 값 비율: 17.6%   예시: 3+; 2+; 1+
 
 gdc_her2_status_by_ihc
     의미: HER2 면역염색 판정 (Positive/Equivocal/Negative). Equivocal = IHC 2+
-    실제 값 비율: 84.4%   예시: Negative; Equivocal; Positive
+    실제 값 비율: 84.7%   예시: Negative; Equivocal; Positive
 
 gdc_her2_ihc_score
     의미: HER2 IHC 점수 (0, 1+, 2+, 3+). HER2 저발현(1+, 2+/ISH 음성) 판정에 사용
-    실제 값 비율: 57.1%   예시: 1+; 2+; 3+
+    실제 값 비율: 56.2%   예시: 1+; 2+; 3+
 
 gdc_her2_ihc_percent_positive
     의미: HER2 막 염색 세포 비율 구간
-    실제 값 비율: 19.3%   예시: <10%; 10-19%; 90-99%
+    실제 값 비율: 20.3%   예시: <10%; 10-19%; 90-99%
 
 gdc_her2_fish_status
     의미: HER2 FISH 판정 (Positive = 증폭)
-    실제 값 비율: 38.5%   예시: Negative; Positive; Equivocal
+    실제 값 비율: 38.8%   예시: Negative; Positive; Equivocal
 
 gdc_her2_copy_number
     의미: 세포당 평균 HER2 신호 수 (FISH)
-    실제 값 비율: 10.4%   예시: not amplified; 3.2; 2.4
+    실제 값 비율: 10.7%   예시: not amplified; 3.2; 2.6
 
 gdc_cent17_copy_number
     의미: 세포당 평균 17번 염색체 중심체(CEP17) 신호 수
-    실제 값 비율: 9.7%   예시: 1.8; 1.7; 2.2
+    실제 값 비율: 9.9%   예시: 1.7; 1.8; 2.2
 
 gdc_her2_cent17_ratio
     의미: HER2/CEP17 비율. 2.0 이상이면 증폭
-    실제 값 비율: 21.6%   예시: 1.1; 1.3; 1.0
+    실제 값 비율: 22.9%   예시: 1.1; 1.0; 1.2
 
 ==============================================================================
 [재발 시 정보]
 ==============================================================================
 gdc_new_tumor_event_dx_indicator
     의미: 재발 또는 새 종양 발생 여부 (등록 양식 기준)
-    실제 값 비율: 17.9%   예시: NO; YES
+    실제 값 비율: 22.4%   예시: NO; YES
 
 gdc_nte_er_status
     의미: 재발 병소 ER 판정. 비율이 <10%인데 Positive였던 값은 Low Positive로 바꿈
-    실제 값 비율: 1.0%   예시: Positive; Negative
+    실제 값 비율: 1.3%   예시: Positive; Negative
 
 gdc_nte_er_status_ihc__positive
     의미: 재발 병소 ER 양성 세포 비율 구간. 원본 <10%는 1-9% 또는 <1%로 나눔
-    실제 값 비율: 0.5%   예시: 90-99%; <1%; 70-79%
+    실제 값 비율: 0.6%   예시: 90-99%; <1%; 70-79%
 
 gdc_nte_er_ihc_intensity_score
     의미: 재발 병소 ER 염색 강도
@@ -233,11 +233,11 @@ gdc_nte_er_ihc_intensity_score
 
 gdc_nte_pr_status_by_ihc
     의미: 재발 병소 PR 판정 (저발현 범주 없음)
-    실제 값 비율: 0.9%   예시: Negative; Positive
+    실제 값 비율: 1.2%   예시: Negative; Positive
 
 gdc_nte_pr_status_ihc__positive
     의미: 재발 병소 PR 양성 세포 비율 구간. 원본 <10%는 1-9% 또는 <1%로 나눔
-    실제 값 비율: 0.3%   예시: <1%
+    실제 값 비율: 0.4%   예시: <1%
 
 gdc_nte_pr_ihc_intensity_score
     의미: 재발 병소 PR 염색 강도
@@ -245,19 +245,19 @@ gdc_nte_pr_ihc_intensity_score
 
 gdc_nte_her2_status
     의미: 재발 병소 HER2 판정
-    실제 값 비율: 0.8%   예시: Negative; Equivocal
+    실제 값 비율: 1.0%   예시: Negative; Equivocal
 
 gdc_nte_her2_status_ihc__positive
     의미: 재발 병소 HER2 양성 세포 비율 구간
-    실제 값 비율: 0.3%   예시: <10%
+    실제 값 비율: 0.4%   예시: <10%
 
 gdc_nte_her2_positivity_ihc_score
     의미: 재발 병소 HER2 IHC 점수
-    실제 값 비율: 0.4%   예시: 1+; 2+
+    실제 값 비율: 0.5%   예시: 1+; 2+
 
 gdc_nte_her2_fish_status
     의미: 재발 병소 HER2 FISH 판정
-    실제 값 비율: 0.3%   예시: Negative
+    실제 값 비율: 0.4%   예시: Negative
 
 gdc_nte_cent_17_her2_ratio
     의미: 재발 병소 HER2/CEP17 비율
@@ -265,210 +265,218 @@ gdc_nte_cent_17_her2_ratio
 
 cbio_NEW_TUMOR_EVENT_AFTER_INITIAL_TREATMENT
     의미: 첫 치료 후 재발·새 종양 여부 (cBioPortal 정리값)
-    실제 값 비율: 80.5%   예시: No; Yes
+    실제 값 비율: 94.9%   예시: No; Yes
 
 nte_n_records
     의미: 재발·새 종양 기록 수
-    실제 값 비율: 14.0%   예시: 1; 2; 3
+    실제 값 비율: 10.9%   예시: 1; 2; 3
 
 nte_types
     의미: 사건 종류 (Distant Metastasis = 원격 전이, Locoregional Recurrence = 국소 재발, New Primary Tumor = 새 원발암)
-    실제 값 비율: 4.6%   예시: Distant Metastasis; New Primary Tumor; Locoregional Recurrence
+    실제 값 비율: 4.8%   예시: Distant Metastasis; Locoregional Recurrence; Locoregional Recurrence; Dista
 
 nte_sites
     의미: 재발 부위
-    실제 값 비율: 4.3%   예시: Other, specify; Bone; Bone; Liver
+    실제 값 비율: 4.4%   예시: Bone; Other, specify; Bone; Liver
 
 nte_sites_other
     의미: 재발 부위 기타 자유 기재
-    실제 값 비율: 2.2%   예시: Axilla; LEFT BREAST; Left Chest Wall
+    실제 값 비율: 1.8%   예시: Axilla; Left Chest Wall; Breast recurrence; Chest wall;
 
 nte_first_dx_days
     의미: 첫 재발 진단일 (진단 후 일수)
-    실제 값 비율: 5.4%   예시: 102; 1364; 1353
+    실제 값 비율: 5.0%   예시: 102; 1353; 1290
+
+recurrence_status
+    의미: 재발 상태. none(재발 없음) / distant(원격 전이 재발) / locoregional(국소 재발만) / unclear. 환자·추적 관찰 파일의 재발 여부를 모두 보고 정함. 새 원발암만 있거나 재발 정보가 불명확한 환자는 삭제했고, 진단 시 전이성이거나 재발 병소 재생검 기록이 있으면 남기고 unclear로 둠
+    실제 값 비율: 100.0%   예시: none; distant; unclear
+
+current_disease_extent
+    의미: 현재 치료 상황의 병기 범주 (biomarker_record.setting.disease 정답). 진단 시 전이성 또는 원격 전이 재발 → metastatic, 재발 없음 → 진단 시 범주, 국소 재발 또는 재발 정보 불명확 → indeterminate
+    실제 값 비율: 100.0%   예시: early; locally_advanced; metastatic
 
 ==============================================================================
 [치료 이력]
 ==============================================================================
 gdc_history_neoadjuvant_treatment
     의미: 수술 전 선행요법 여부
-    실제 값 비율: 99.8%   예시: No; Yes
+    실제 값 비율: 99.9%   예시: No; Yes
 
 gdc_pharmaceutical_tx_adjuvant
     의미: 보조 약물치료 여부 (등록 양식 기준, 입력 적음)
-    실제 값 비율: 15.2%   예시: YES; NO
+    실제 값 비율: 18.9%   예시: YES; NO
 
 gdc_radiation_treatment_adjuvant
     의미: 보조 방사선치료 여부 (등록 양식 기준, 입력 적음)
-    실제 값 비율: 15.3%   예시: NO; YES
+    실제 값 비율: 18.9%   예시: NO; YES
 
 cbio_RADIATION_THERAPY
     의미: 방사선치료 여부 (cBioPortal 정리값)
-    실제 값 비율: 89.6%   예시: Yes; No
+    실제 값 비율: 96.4%   예시: Yes; No
 
 drug_n_records
     의미: 투약 기록 수
-    실제 값 비율: 71.6%   예시: 1; 4; 3
+    실제 값 비율: 78.6%   예시: 1; 4; 3
 
 drug_names
     의미: 투약한 약제 성분명 목록 (시작일 순). 상품명·오타는 성분명으로 통일
-    실제 값 비율: 71.6%   예시: anastrozole; tamoxifen; doxorubicin; cyclophosphamide
+    실제 값 비율: 78.6%   예시: anastrozole; tamoxifen; doxorubicin; cyclophosphamide
 
 drug_therapy_types
     의미: 치료 종류 목록 (Chemotherapy, Hormone Therapy, HER2-targeted Therapy 등). 약제 성분 기준으로 다시 분류
-    실제 값 비율: 71.5%   예시: Chemotherapy; Hormone Therapy; Chemotherapy; Hormone Therapy
+    실제 값 비율: 78.5%   예시: Chemotherapy; Hormone Therapy; Chemotherapy; Hormone Therapy
 
 drug_best_responses
     의미: 약물치료 최선 반응 (Complete Response, Stable Disease, Clinical Progressive Disease 등)
-    실제 값 비율: 20.4%   예시: Complete Response; Stable Disease; Clinical Progressive Disease
+    실제 값 비율: 24.9%   예시: Complete Response; Stable Disease; Clinical Progressive Disease
 
 drug_first_start_days
     의미: 첫 약물치료 시작일 (진단 후 일수)
-    실제 값 비율: 69.7%   예시: 31; 61; 62
+    실제 값 비율: 76.6%   예시: 31; 61; 62
 
 drug_timeline
     의미: 투약 타임라인. '성분명 [치료 종류] d시작~d종료 (최선 반응)', 종료일 모르면 ?
-    실제 값 비율: 71.6%   예시: anastrozole [Hormone Therapy] ; tamoxifen [Hormone Therapy] d6; tamoxifen [Hormone Therapy] d9
+    실제 값 비율: 78.6%   예시: anastrozole [Hormone Therapy] ; tamoxifen [Hormone Therapy] d6; tamoxifen [Hormone Therapy] d9
 
 drug_names_raw
     의미: 원본 약제명 (정규화 전, 대조용)
-    실제 값 비율: 71.2%   예시: Tamoxifen; Arimidex; Anastrozole
+    실제 값 비율: 78.4%   예시: Tamoxifen; Arimidex; Anastrozole
 
 drug_therapy_types_raw
     의미: 원본 치료 종류 (정규화 전, 대조용)
-    실제 값 비율: 71.4%   예시: Chemotherapy; Hormone Therapy; Chemotherapy; Hormone Therapy
+    실제 값 비율: 78.4%   예시: Chemotherapy; Hormone Therapy; Chemotherapy; Hormone Therapy
 
 ==============================================================================
 [추적 관찰·생존]
 ==============================================================================
 fu_n_records
     의미: 추적 관찰 기록 수
-    실제 값 비율: 91.2%   예시: 1; 2; 3
+    실제 값 비율: 97.5%   예시: 1; 2; 3
 
 fu_last_days
     의미: 마지막 추적일 (진단 후 일수, 연락일과 사망일 중 늦은 값)
-    실제 값 비율: 91.1%   예시: 10; 0; 385
+    실제 값 비율: 97.4%   예시: 0; 385; 575
 
 fu_last_vital_status
     의미: 마지막 추적 시 생존 여부 (Alive/Dead)
-    실제 값 비율: 90.2%   예시: Alive; Dead
+    실제 값 비율: 96.3%   예시: Alive; Dead
 
 fu_last_tumor_status
     의미: 마지막 추적 시 종양 상태 (TUMOR FREE / WITH TUMOR)
-    실제 값 비율: 85.5%   예시: TUMOR FREE; WITH TUMOR
+    실제 값 비율: 91.6%   예시: TUMOR FREE; WITH TUMOR
 
 fu_death_days
     의미: 사망일 (진단 후 일수)
-    실제 값 비율: 9.0%   예시: 792; 991; 385
+    실제 값 비율: 7.5%   예시: 792; 548; 1468
 
 cbio_OS_MONTHS
     의미: 전체 생존 기간 (개월)
-    실제 값 비율: 98.7%   예시: 0.32876352; 0; 12.65739554
+    실제 값 비율: 98.5%   예시: 12.65739554; 18.90390242; 18.21349903
 
 cbio_OS_STATUS
     의미: 전체 생존 사건 (0:LIVING, 1:DECEASED)
-    실제 값 비율: 98.7%   예시: 0:LIVING; 1:DECEASED
+    실제 값 비율: 98.5%   예시: 0:LIVING; 1:DECEASED
 
 cbio_DSS_MONTHS
     의미: 질병 특이 생존 기간 (개월)
-    실제 값 비율: 98.6%   예시: 0.32876352; 0; 12.65739554
+    실제 값 비율: 98.3%   예시: 12.65739554; 18.90390242; 18.21349903
 
 cbio_DSS_STATUS
     의미: 질병 특이 생존 사건 (1 = 암으로 사망)
-    실제 값 비율: 97.1%   예시: 0:ALIVE OR DEAD TUMOR FREE; 1:DEAD WITH TUMOR
+    실제 값 비율: 97.7%   예시: 0:ALIVE OR DEAD TUMOR FREE; 1:DEAD WITH TUMOR
 
 cbio_DFS_MONTHS
     의미: 무병 생존 기간 (개월)
-    실제 값 비율: 86.1%   예시: 0.32876352; 0; 18.21349903
+    실제 값 비율: 88.1%   예시: 18.90390242; 18.21349903; 13.01903541
 
 cbio_DFS_STATUS
     의미: 무병 생존 사건 (1 = 재발·진행)
-    실제 값 비율: 86.1%   예시: 0:DiseaseFree; 1:Recurred/Progressed
+    실제 값 비율: 88.2%   예시: 0:DiseaseFree; 1:Recurred/Progressed
 
 cbio_PFS_MONTHS
     의미: 무진행 생존 기간 (개월)
-    실제 값 비율: 98.6%   예시: 0.32876352; 0; 13.01903541
+    실제 값 비율: 98.3%   예시: 13.01903541; 12.65739554; 18.90390242
 
 cbio_PFS_STATUS
     의미: 무진행 생존 사건 (1 = 진행)
-    실제 값 비율: 98.7%   예시: 0:CENSORED; 1:PROGRESSION
+    실제 값 비율: 98.5%   예시: 0:CENSORED; 1:PROGRESSION
 
 ==============================================================================
 [다른 암 병력]
 ==============================================================================
 omf_n_records
     의미: 다른 암 기록 수
-    실제 값 비율: 7.0%   예시: 1; 2
+    실제 값 비율: 7.1%   예시: 1; 2
 
 omf_malignancy_types
     의미: 다른 암 시기 (Prior = 이전, Synchronous = 동시)
-    실제 값 비율: 7.0%   예시: Prior Malignancy; Synchronous Malignancy; Prior Malignancy; Synchronous 
+    실제 값 비율: 7.1%   예시: Synchronous Malignancy; Prior Malignancy; Prior Malignancy; Synchronous 
 
 omf_sites
     의미: 다른 암 부위
-    실제 값 비율: 6.9%   예시: Breast; Colon; Cervix
+    실제 값 비율: 7.1%   예시: Breast; Cervix; Colon
 
 ==============================================================================
 [유전체 검사 여부·종양 비특이 바이오마커]
 ==============================================================================
 mut_sequenced
     의미: 체세포 변이 검사(엑솜) 대상이면 True
-    실제 값 비율: 98.7%   예시: True; False
+    실제 값 비율: 98.5%   예시: True; False
 
 cna_profiled
     의미: 복제수 검사 대상이면 True
-    실제 값 비율: 98.7%   예시: True; False
+    실제 값 비율: 98.5%   예시: True; False
 
 mut_n_total
     의미: 체세포 변이 총개수. 검사 안 했으면 빈칸
-    실제 값 비율: 97.0%   예시: 0; 27; 28
+    실제 값 비율: 96.4%   예시: 0; 27; 21
 
 cbio_sample_TMB_NONSYNONYMOUS
     의미: 종양 변이 부담 (100만 염기당 비동의 변이 수). 10 이상이면 TMB-high
-    실제 값 비율: 97.0%   예시: 0; 0.933333333; 0.866666667
+    실제 값 비율: 96.4%   예시: 0; 0.933333333; 0.7
 
 cbio_sample_MSI_SCORE_MANTIS
     의미: MSI 점수 (MANTIS). 0.4 이상이면 MSI-H로 봄
-    실제 값 비율: 94.3%   예시: 0.2894; 0.2846; 0.2932
+    실제 값 비율: 94.3%   예시: 0.2795; 0.3153; 0.2784
 
 cbio_sample_MSI_SENSOR_SCORE
     의미: MSI 점수 (MSIsensor). 10 이상이면 MSI-H로 봄
-    실제 값 비율: 98.0%   예시: 0; 0.01; 0.02
+    실제 값 비율: 97.7%   예시: 0; 0.01; 0.02
 
 ==============================================================================
 [바이오마커 유전자 체세포 변이 (단백질 변화 (변이 종류, VAF))]
 ==============================================================================
 mut_ERBB2
     의미: ERBB2 체세포 변이. 검사했는데 없으면 '변이 없음', 검사 안 했으면 빈칸
-    실제 값 비율: 97.0%   예시: 변이 없음; V777L (Missense_Mutation, VAF ; L755M (Missense_Mutation, VAF 
+    실제 값 비율: 96.4%   예시: 변이 없음; V777L (Missense_Mutation, VAF ; L755M (Missense_Mutation, VAF 
 
 mut_ESR1
     의미: ESR1 체세포 변이. 검사했는데 없으면 '변이 없음', 검사 안 했으면 빈칸
-    실제 값 비율: 97.0%   예시: 변이 없음; A593D (Missense_Mutation, VAF ; E523Q (Missense_Mutation, VAF 
+    실제 값 비율: 96.4%   예시: 변이 없음; E523Q (Missense_Mutation, VAF ; E380Q (Missense_Mutation, VAF 
 
 mut_PIK3CA
     의미: PIK3CA 체세포 변이. 검사했는데 없으면 '변이 없음', 검사 안 했으면 빈칸
-    실제 값 비율: 97.0%   예시: 변이 없음; E542K (Missense_Mutation, VAF ; E542K (Missense_Mutation, VAF 
+    실제 값 비율: 96.4%   예시: 변이 없음; H1047R (Missense_Mutation, VAF; H1047R (Missense_Mutation, VAF
 
 mut_AKT1
     의미: AKT1 체세포 변이. 검사했는데 없으면 '변이 없음', 검사 안 했으면 빈칸
-    실제 값 비율: 97.0%   예시: 변이 없음; E17K (Missense_Mutation, VAF 0; E17K (Missense_Mutation, VAF 0
+    실제 값 비율: 96.4%   예시: 변이 없음; E17K (Missense_Mutation, VAF 0; E17K (Missense_Mutation, VAF 0
 
 mut_PTEN
     의미: PTEN 체세포 변이. 검사했는데 없으면 '변이 없음', 검사 안 했으면 빈칸
-    실제 값 비율: 97.0%   예시: 변이 없음; R130* (Nonsense_Mutation, VAF ; V166Sfs*14 (Frame_Shift_Ins, V
+    실제 값 비율: 96.4%   예시: 변이 없음; V166Sfs*14 (Frame_Shift_Ins, V; V217A (Missense_Mutation, VAF 
 
 mut_BRCA1
     의미: BRCA1 체세포 변이. 검사했는데 없으면 '변이 없음', 검사 안 했으면 빈칸
-    실제 값 비율: 97.0%   예시: 변이 없음; Q934* (Nonsense_Mutation, VAF ; E9Q (Missense_Mutation, VAF 0.
+    실제 값 비율: 96.4%   예시: 변이 없음; E720* (Nonsense_Mutation, VAF ; C903Wfs*97 (Frame_Shift_Del, V
 
 mut_BRCA2
     의미: BRCA2 체세포 변이. 검사했는데 없으면 '변이 없음', 검사 안 했으면 빈칸
-    실제 값 비율: 97.0%   예시: 변이 없음; Q3206E (Missense_Mutation, VAF; Y3308* (Nonsense_Mutation, VAF
+    실제 값 비율: 96.4%   예시: 변이 없음; Q3206E (Missense_Mutation, VAF; Y3308* (Nonsense_Mutation, VAF
 
 mut_PALB2
     의미: PALB2 체세포 변이. 검사했는데 없으면 '변이 없음', 검사 안 했으면 빈칸
-    실제 값 비율: 97.0%   예시: 변이 없음; L381V (Missense_Mutation, VAF ; G115E (Missense_Mutation, VAF 
+    실제 값 비율: 96.4%   예시: 변이 없음; L381V (Missense_Mutation, VAF ; G115E (Missense_Mutation, VAF 
 
 ==============================================================================
 [바이오마커 유전자 복제수 (GISTIC: -2 깊은 결실, -1 얕은 결실, 0 정상, 1 증가, 2 증폭)]

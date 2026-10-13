@@ -1,6 +1,7 @@
 """합친 TCGA-BRCA 파일에서 v0.1에 필요 없는 열과 남성 환자 행을 뺀 정리본을 만든다.
 
 입력: data/tcga_brca/merged/tcga_brca_merged.csv (tcga_brca_merge.py 결과, 수정하지 않음)
+      data/tcga_brca/gdc_clinical/ 환자·추적 관찰 파일 (재발 여부 new_tumor_event_dx_indicator만 읽음)
 출력 (data/tcga_brca/merged/):
 - tcga_brca_merging_cropped.csv           정리본 (Excel용 UTF-8 BOM)
 - tcga_brca_merging_cropped_columns.txt   남은 열별 의미
@@ -22,6 +23,8 @@ OUT_CSV = MERGED_DIR / "tcga_brca_merging_cropped.csv"
 OUT_COLS = MERGED_DIR / "tcga_brca_merging_cropped_columns.txt"
 OUT_CHANGES = MERGED_DIR / "tcga_brca_merging_cropped_changes.txt"
 CORRECTIONS = MERGED_DIR / "drug_corrections.csv"
+GDC_DIR = DATA_ROOT / "tcga_brca" / "gdc_clinical"
+RECURRENCE_FILES = ["patient", "follow_up_v1.5", "follow_up_v2.1", "follow_up_v4.0"]
 
 # ---------------------------------------------------------------------------
 # 삭제할 열: {묶음: {열: 한 줄 사유}}
@@ -233,6 +236,11 @@ DESCRIPTIONS = {
         "nte_sites": "재발 부위",
         "nte_sites_other": "재발 부위 기타 자유 기재",
         "nte_first_dx_days": "첫 재발 진단일 (진단 후 일수)",
+        "recurrence_status": "재발 상태. none(재발 없음) / distant(원격 전이 재발) / locoregional(국소 재발만) / unclear. "
+                             "환자·추적 관찰 파일의 재발 여부를 모두 보고 정함. 새 원발암만 있거나 재발 정보가 불명확한 "
+                             "환자는 삭제했고, 진단 시 전이성이거나 재발 병소 재생검 기록이 있으면 남기고 unclear로 둠",
+        "current_disease_extent": "현재 치료 상황의 병기 범주 (biomarker_record.setting.disease 정답). 진단 시 전이성 또는 "
+                                  "원격 전이 재발 → metastatic, 재발 없음 → 진단 시 범주, 국소 재발 또는 재발 정보 불명확 → indeterminate",
     },
     "치료 이력": {
         "gdc_history_neoadjuvant_treatment": "수술 전 선행요법 여부",
@@ -326,6 +334,9 @@ def recode_low_percent(df):
 #   Stage X는 AJCC 규칙으로 III만 정한다: M0·MX이면서 T4 또는 N2~N3 → III.
 #     그 밖은 범주를 정할 수 없어 행을 삭제한다
 #   GDC 임상 기록이 없는 환자(재발 상태 기록 없음)와 조직형이 NOS·기록 없음·빈칸인 환자도 삭제한다
+#   진단 시 전이성이 아니면서 새 원발암만 있거나 재발 정보가 불명확한 환자도 삭제한다.
+#     진단 시 전이성(재발 정보와 관계없이 현재도 전이성)과 재발 병소 재생검 기록이 있는 환자는 남긴다
+#   현재 범주(current_disease_extent): 국소 재발과 재발 정보 불명확은 indeterminate
 EXTENT_BY_STAGE = [("Stage IV", "metastatic"), ("Stage III", "locally_advanced"),
                    ("Stage II", "early"), ("Stage I", "early")]
 STAGE_EXCLUDED = {"[Discrepancy]", "[Not Available]", ""}
@@ -354,6 +365,69 @@ def stage_excluded(df):
     """A의 정답 세트 규칙: 종합 병기가 [Discrepancy]·[Not Available]·빈칸인 환자."""
     stage = df["gdc_ajcc_pathologic_tumor_stage"].fillna("")
     return df.loc[stage.isin(STAGE_EXCLUDED), ["patient_id", "gdc_ajcc_pathologic_tumor_stage"]]
+
+
+def recurrence_status(df):
+    """환자·추적 관찰 파일의 재발 여부와 nte_types로 재발 상태를 정한다."""
+    frames = []
+    for name in RECURRENCE_FILES:
+        f = pd.read_csv(GDC_DIR / f"nationwidechildrens.org_clinical_{name}_brca.txt", sep="	", skiprows=[1, 2], dtype=str)
+        if "new_tumor_event_dx_indicator" in f:
+            frames.append(f[["bcr_patient_barcode", "new_tumor_event_dx_indicator"]])
+    ind = pd.concat(frames).groupby("bcr_patient_barcode")["new_tumor_event_dx_indicator"].agg(set)
+    flags = df["patient_id"].map(ind)
+    types = df["nte_types"].fillna("")
+
+    def status(flag, t):
+        if isinstance(flag, set) and "YES" in flag:
+            if "Distant" in t:
+                return "distant"
+            if "Locoregional" in t:
+                return "locoregional"
+            return "new_primary" if "New Primary" in t else "type_unknown"
+        return "none" if isinstance(flag, set) and "NO" in flag else "unknown"
+    df["recurrence_status"] = [status(f, t) for f, t in zip(flags, types)]
+
+
+NTE_RECEPTOR_COLS = ["gdc_nte_er_status", "gdc_nte_pr_status_by_ihc", "gdc_nte_her2_status"]
+
+
+def recurrence_drops(df):
+    """새 원발암만 있거나 재발 정보가 불명확한 환자를 삭제 대상으로 고른다.
+
+    예외로 남기고 recurrence_status를 unclear로 바꾸는 환자:
+      진단 시 전이성 (재발 정보와 관계없이 현재도 전이성)
+      재발 병소 재생검 수용체 기록이 있음 (재발은 확실하고 종류만 모름. IN-4 테스트에 필요)
+    """
+    metastatic = df["stage_disease_extent"] == "metastatic"
+    rebiopsy = pd.concat([~df[c].fillna("").str.match(r"^(\[.*\])?$") for c in NTE_RECEPTOR_COLS], axis=1).any(axis=1)
+    keep = metastatic | rebiopsy
+    unclear = df["recurrence_status"].isin(["type_unknown", "unknown"])
+    new_primary = df["recurrence_status"] == "new_primary"
+    cols = ["patient_id", "recurrence_status"]
+    drops = {
+        "새 원발암만 있음 (진단 시 전이성 아님)": df.loc[new_primary & ~keep, cols],
+        "재발 정보 불명확: 재발 있으나 종류 불명 (진단 시 전이성 아님, 재생검 없음)":
+            df.loc[(df["recurrence_status"] == "type_unknown") & ~keep, cols],
+        "재발 정보 불명확: 재발 여부 알 수 없음 (진단 시 전이성 아님, 재생검 없음)":
+            df.loc[(df["recurrence_status"] == "unknown") & ~keep, cols],
+    }
+    kept = {"진단 시 전이성": sorted(df.loc[metastatic & (unclear | new_primary), "patient_id"]),
+            "재생검 기록 있음": sorted(df.loc[~metastatic & rebiopsy & (unclear | new_primary), "patient_id"])}
+    df.loc[keep & (unclear | new_primary), "recurrence_status"] = "unclear"
+    return drops, kept
+
+
+def current_extent(df):
+    """현재 치료 상황의 병기 범주 (biomarker_record.setting.disease의 정답).
+
+    진단 시 전이성 또는 원격 전이 재발 → metastatic, 재발 없음 → 진단 시 범주,
+    국소 재발 또는 재발 정보 불명확 → indeterminate (사용자 결정, 2026-10-13)
+    """
+    rec = df["recurrence_status"]
+    cur = df["stage_disease_extent"].where(rec == "none", "indeterminate")
+    cur[(df["stage_disease_extent"] == "metastatic") | (rec == "distant")] = "metastatic"
+    df["current_disease_extent"] = cur
 
 
 def drop_rows(df):
@@ -395,7 +469,7 @@ def write_columns_txt(df):
     OUT_COLS.write_text("\n".join(lines), encoding="utf-8-sig")
 
 
-def write_changes_txt(before, after, males, recoded, to_iv, by_tnm, dropped, df):
+def write_changes_txt(before, after, males, recoded, to_iv, by_tnm, dropped, df, rec_kept):
     lines = [f"TCGA-BRCA 정리본 변경 내역 ({OUT_CSV.name})", f"작성일 {date.today()}", "",
              f"원본: {SRC.name} (수정하지 않음)",
              f"결과: 환자 {before[0]:,}명 × {before[1]}열  →  {after[0]:,}명 × {after[1]}열", ""]
@@ -404,7 +478,7 @@ def write_changes_txt(before, after, males, recoded, to_iv, by_tnm, dropped, df)
     lines += ["=" * 78, "1. 삭제한 행", "=" * 78,
               f"남성 환자 {len(males)}명 (gdc_gender = MALE). 설계서 범위에서 남성 유방암은 제외",
               "  " + ", ".join(males), "",
-              f"병기·기록·조직형 사유 {len(drop_ids)}명 (사용자 결정, 2026-10-13). 첫 사유(A 정답 세트 규칙)로 뺀 환자는 뒤 사유에 다시 적지 않음.",
+              f"병기·기록·조직형·재발 정보 사유 {len(drop_ids)}명 (사용자 결정, 2026-10-13). 첫 사유(A 정답 세트 규칙)로 뺀 환자는 뒤 사유에 다시 적지 않음.",
               "뒤 사유끼리는 한 환자가 여러 사유에 걸리면 사유마다 적음"]
     for reason, rows in dropped.items():
         lines.append(f"[{reason}] {len(rows)}명")
@@ -420,6 +494,23 @@ def write_changes_txt(before, after, males, recoded, to_iv, by_tnm, dropped, df)
               f"종합 병기가 없어 AJCC 규칙(M0·MX이면서 T4 또는 N2~3 → III)으로 국소 진행성으로 정한 {len(by_tnm)}명 (병기 값은 그대로 둠)",
               "  " + (", ".join(by_tnm) or "없음"),
               "결과: " + ", ".join(f"{k} {v}명" for k, v in counts.items()), ""]
+
+    rec = df["recurrence_status"].value_counts()
+    lines += ["=" * 78, "1-0-1. 새 열: 재발 상태 (recurrence_status)", "=" * 78,
+              "사용자 결정 (2026-10-13). 환자·추적 관찰 파일의 재발 여부(new_tumor_event_dx_indicator)와 nte_types로 정함",
+              "  none = 재발 없음 (마지막 추적 시점까지) / distant = 원격 전이 재발 / locoregional = 국소 재발만",
+              "새 원발암만 있거나 재발 정보가 불명확한 환자는 삭제했다 (1. 삭제한 행). 다음은 남기고 unclear로 표시했다",
+              "  진단 시 전이성: 재발 정보와 관계없이 현재도 전이성",
+              "  재발 병소 재생검 기록 있음: 재발은 확실하고 종류만 모름. 재생검 우선 규칙(IN-4) 테스트에 필요"]
+    lines += [f"  남긴 {k} {len(v)}명: " + (", ".join(v) or "없음") for k, v in rec_kept.items()]
+    lines += ["결과: " + ", ".join(f"{k} {v}명" for k, v in rec.items()), ""]
+
+    cur = df["current_disease_extent"].value_counts()
+    lines += ["=" * 78, "1-0-2. 새 열: 현재 병기 범주 (current_disease_extent)", "=" * 78,
+              "사용자 결정 (2026-10-13). biomarker_record.setting.disease의 정답으로 쓴다",
+              "  진단 시 전이성 또는 원격 전이 재발 → metastatic / 재발 없음 → 진단 시 범주 그대로",
+              "  국소 재발 또는 재발 정보 불명확 → indeterminate",
+              "결과: " + ", ".join(f"{k} {v}명" for k, v in cur.items()), ""]
 
     lines += ["=" * 78, "1-1. 바꾼 값: ER·PR 양성 세포 비율 <10%를 판정에 따라 둘로 나눔", "=" * 78,
               "사용자 결정 (2026-10-12). 원래 값은 tcga_brca_merged.csv에 그대로 있음",
@@ -501,20 +592,27 @@ def main():
     excluded = stage_excluded(df)
     df = df[~df["patient_id"].isin(excluded["patient_id"])].copy()
     to_iv, by_tnm = stage_extent(df)
+    recurrence_status(df)
     dropped = {"종합 병기 [Discrepancy]·[Not Available]·빈칸 (A 정답 세트 규칙, 우선 적용)": excluded, **drop_rows(df)}
+    rec_drops, rec_kept = recurrence_drops(df)
+    dropped.update(rec_drops)
+    current_extent(df)
     drop_ids = set().union(*(set(d["patient_id"]) for d in dropped.values()))
     df = df[~df["patient_id"].isin(drop_ids)]
     df = df[[c for c in df.columns if c in keep_cols]]  # 원래 열 순서 유지, 새 열은 끝에
 
     df.to_csv(OUT_CSV, index=False, encoding="utf-8-sig")
     write_columns_txt(df)
-    write_changes_txt(before, df.shape, males, recoded, to_iv, by_tnm, dropped, df)
+    write_changes_txt(before, df.shape, males, recoded, to_iv, by_tnm, dropped, df, rec_kept)
 
     print(f"환자 {before[0]:,}명 × {before[1]}열 → {df.shape[0]:,}명 × {df.shape[1]}열")
     print(f"  남성 {len(males)}명 행 삭제, 열 {len(drop_cols)}개 삭제")
-    print(f"  병기·기록·조직형 사유로 {len(drop_ids)}명 행 삭제: " + ", ".join(f"{k} {len(v)}명" for k, v in dropped.items()))
+    print(f"  병기·기록·조직형·재발 정보 사유로 {len(drop_ids)}명 행 삭제: " + ", ".join(f"{k} {len(v)}명" for k, v in dropped.items()))
     print(f"  Stage IV로 바꿈 {len(to_iv)}명, 병기 없이 TNM으로 국소 진행성 {len(by_tnm)}명")
     print("  병기 범주: " + ", ".join(f"{k} {v}" for k, v in df["stage_disease_extent"].value_counts().items()))
+    print("  재발 상태: " + ", ".join(f"{k} {v}" for k, v in df["recurrence_status"].value_counts().items())
+          + " (남긴 unclear: " + ", ".join(f"{k} {len(v)}명" for k, v in rec_kept.items()) + ")")
+    print("  현재 범주: " + ", ".join(f"{k} {v}" for k, v in df["current_disease_extent"].value_counts().items()))
     print("  <10% → 1-9%(Positive, ER은 Low Positive) / <1%(Negative): " + ", ".join(f"{k} {len(v['low'])}/{len(v['neg'])}명" for k, v in recoded.items()))
     for p in (OUT_CSV, OUT_COLS, OUT_CHANGES):
         print(f"  {p}")

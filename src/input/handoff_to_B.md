@@ -22,7 +22,7 @@
 | 개발 중 | 파일로 전달: `tests/fixtures/patient_state/<patient_ref>.json` (예정. 공용 폴더라 4명 합의 후 생성) |
 | 연결 후 | 함수 반환값: A의 `run(chart_text) → patient_state` 결과를 B의 `assess(patient_state) → biomarker_record`가 받는다 |
 | 검증 | A가 보내기 전에 검증한다. B도 받을 때 검증하면 버전 불일치를 바로 알 수 있다 (`schema_version` = `"0.1-draft4"`) |
-| 첫 전달 예정 | TCGA-BRCA 정답 세트 1,061명 (§5) 중 경계 사례 5건부터 |
+| 첫 전달 예정 | TCGA-BRCA 정답 세트 842명 (§5) 중 경계 사례 5건부터 |
 
 검증 코드:
 
@@ -183,7 +183,7 @@ ASCO/CAP 2020은 PR에 저발현 범주를 두지 않는다: 1% 이상 양성, 1
 | 조건 | 예 | 결과 |
 |---|---|---|
 | `percent` 1~10 | `{"percent": 5}` | `positive` + `PR-low` |
-| `range` 최소 ≥1, 최대 ≤10 | `{"range": [1, 9]}` (TCGA 53명) | `positive` + `PR-low` |
+| `range` 최소 ≥1, 최대 ≤10 | `{"range": [1, 9]}` (TCGA 47명) | `positive` + `PR-low` |
 | `allred.ps` = 2 | `{"allred": {"total": 4, "ps": 2, "is": 2}}` | `positive` + `PR-low` |
 | `result`만, 또는 `allred.total`만 | `{"result": "positive"}` | `positive` (태그 없음. 비율을 알 수 없음) |
 | 10% 초과 | `{"range": [10, 19]}` | `positive` (태그 없음) |
@@ -213,7 +213,7 @@ ASCO/CAP 2020은 PR에 저발현 범주를 두지 않는다: 1% 이상 양성, 1
 | 없음 | `result`만 `negative` | `indeterminate` (0과 저발현을 구분할 수 없음) + IHC 점수 확인 권고 |
 | 없음 | `result`만 `unknown` | `indeterminate` |
 
-B가 정할 경계 사례: TCGA에 `score 2+`, 원래 판정 Positive, ISH 결과 없음이 6명 있다. A는 Equivocal이 아니므로 `{"score":"2+","result":"positive"}`로 넘긴다. 위 표대로면 `indeterminate`인데, 검사실 판정(양성)을 따를지 정해야 한다.
+B가 정할 경계 사례: TCGA에 `score 2+`, 원래 판정 Positive, ISH 결과 없음이 2명 있다. A는 Equivocal이 아니므로 `{"score":"2+","result":"positive"}`로 넘긴다. 위 표대로면 `indeterminate`인데, 검사실 판정(양성)을 따를지 정해야 한다.
 
 ### 4.5 재발 환자
 
@@ -241,18 +241,18 @@ B의 규칙은 "ESR1 결과가 마지막 내분비요법 진행 **이전**이면
 
 | 항목 | 내용 |
 |---|---|
-| 규모 | **1,061명** (2026-10-13 크롭본). 병기 `[Discrepancy]` 6명, `[Not Available]` 5명, 전부 빈칸 1명, 범주를 정할 수 없는 Stage X 11명, 조직형 NOS·기록 없음 2명을 뺌. 아래 건수는 1,061명 기준 (2026-10-13 재집계) |
+| 규모 | **842명** (2026-10-13 크롭본). 병기 `[Discrepancy]` 6명, `[Not Available]` 5명, 전부 빈칸 1명, 범주를 정할 수 없는 Stage X 11명, 조직형 NOS·기록 없음 2명, 새 원발암 9명, 재발 정보 불명확 210명(진단 시 전이성 12명과 재생검 기록이 있는 7명은 남김)을 뺌. 아래 건수는 842명 기준 (2026-10-13 재집계) |
 | 날짜 | 모두 비움 (`not_recorded` 또는 `null`). 순서는 치료 이력 배열 순서와 `duration_days`(투여 기간)로만 알 수 있음 |
 | ER·PR 점수 | 넣지 않음. TCGA 점수 열은 입력이 적고(약 19%) 척도가 섞여 있어 잘못 해석될 수 있음 |
-| ER 저발현 | 원본 구간 `<10%` + 판정 Positive → `{"range":[1,9],"result":"low_positive"}` **17명** |
-| PR 1~9% | 원본 구간 `<10%` + 판정 Positive → `{"range":[1,9],"result":"positive"}` **53명** (저발현 범주 없음, B가 `PR-low` 태그를 붙일 대상) |
-| ER·PR `<1%` | 원본 구간 `<10%` + 판정 Negative → `{"range":[0,0],"result":"negative"}` ER 53명, PR 84명. **가정이 들어간 값**: 1% 기준은 2010년부터라, 2010년 이전 진단(ER 44명, PR 60명)은 10% 기준 음성이었을 수 있음. ER 저발현 경계 사례 테스트에는 `[1,9]` 환자만 쓰기를 권함 |
-| HER2 | score 2+ 또는 Equivocal 207명에 §3.3 보정 적용. 결과: `{"score":"2+","result":"negative"}` 141명(저발현 후보) / `{"score":"2+","result":"positive"}` 40명 / `{"score":"2+","result":"unknown"}` 21명 / `{"score":"1+","result":"negative"}` 4명 / `{"score":"3+","result":"negative"}` 1명(원자료끼리 어긋남) |
+| ER 저발현 | 원본 구간 `<10%` + 판정 Positive → `{"range":[1,9],"result":"low_positive"}` **15명** |
+| PR 1~9% | 원본 구간 `<10%` + 판정 Positive → `{"range":[1,9],"result":"positive"}` **47명** (저발현 범주 없음, B가 `PR-low` 태그를 붙일 대상) |
+| ER·PR `<1%` | 원본 구간 `<10%` + 판정 Negative → `{"range":[0,0],"result":"negative"}` ER 45명, PR 71명. **가정이 들어간 값**: 1% 기준은 2010년부터라, 2010년 이전 진단(ER 38명, PR 53명)은 10% 기준 음성이었을 수 있음. ER 저발현 경계 사례 테스트에는 `[1,9]` 환자만 쓰기를 권함 |
+| HER2 | score 2+ 또는 Equivocal 166명에 §3.3 보정 적용. 결과: `{"score":"2+","result":"negative"}` 115명(저발현 후보) / `{"score":"2+","result":"positive"}` 26명 / `{"score":"2+","result":"unknown"}` 20명 / `{"score":"1+","result":"negative"}` 4명 / `{"score":"3+","result":"negative"}` 1명(원자료끼리 어긋남) |
 | 재발 재생검 | 11명 (ER 11, PR 10, HER2 8). 모두 원격 전이 재발이거나 사건 종류 미기록 |
 | 유전자 | 체세포 엑솜. gBRCA 정보 없음. ESR1은 모두 원발 조직 결과 |
 | 없는 칸 | 등급, Ki-67, ECOG, cTNM, pCR/RCB, PD-L1. 경계 사례가 필요하면 A가 합성값으로 만들고 `synthetic` 표시 |
 
-HER2 건수도 정답 세트(1,061명) 기준이다.
+HER2 건수도 정답 세트(842명) 기준이다.
 
 ## 6. 전체 예시 (입력과 기대 출력)
 
@@ -361,7 +361,7 @@ B의 기대 출력 (§4 조건을 따른 경우):
 - [ ] §4.4 HER2 판정 조건 확정
 - [ ] 수치 기준 전체의 종양내과·병리과 검토. 바뀌면 A의 정답과 가상 차트도 바꿔야 한다
 - [ ] ER·PR 수치와 적힌 판정이 어긋날 때의 처리 (§4.3)
-- [ ] HER2 score 2+ + 판정 Positive + ISH 없음(TCGA 6명)을 양성으로 볼지 불확정으로 볼지 (§4.4)
+- [ ] HER2 score 2+ + 판정 Positive + ISH 없음(TCGA 2명)을 양성으로 볼지 불확정으로 볼지 (§4.4)
 - [ ] 날짜가 없을 때 ESR1 재검을 검체·치료 순서로 판단하는 규칙 (§4.6)
 - [ ] gBRCA `not_recorded`일 때 검사 권고를 낼지 (§4.7)
 - [ ] ER 저발현(`low`) 환자의 아형 표기: HR+로 둘지, 별도 표시할지 (`rag_tags`에 `ER-low` 등)
