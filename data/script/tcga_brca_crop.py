@@ -189,7 +189,9 @@ DESCRIPTIONS = {
         "gdc_ajcc_tumor_pathologic_pt": "병리 T 병기 (원발 종양 크기·침범)",
         "gdc_ajcc_nodes_pathologic_pn": "병리 N 병기 (림프절 전이)",
         "gdc_ajcc_metastasis_pathologic_pm": "병리 M 병기 (원격 전이). MX = 평가 안 됨",
-        "gdc_ajcc_pathologic_tumor_stage": "종합 병기 (Stage I~IV)",
+        "gdc_ajcc_pathologic_tumor_stage": "종합 병기 (Stage I~IV). M1인데 [Discrepancy]였던 2명은 Stage IV로 바꿈",
+        "stage_disease_extent": "진단 시 병기 기준 범주. early(조기, I~II) / locally_advanced(국소 진행성, III) / metastatic(전이성, IV). "
+                                "III 기준은 심평원 급여 조건. 병기가 없으면 AJCC 규칙(M0·MX이면서 T4 또는 N2~3 → III)으로 정함",
         "gdc_lymph_nodes_examined_count": "검사한 림프절 개수",
         "gdc_lymph_nodes_examined_he_count": "H&E 염색으로 확인한 양성 림프절 개수 (이름과 달리 양성 개수). 심평원 abemaciclib 기준(4개)에 사용",
         "gdc_lymph_nodes_examined_ihc_count": "면역염색으로 확인한 양성 림프절 개수",
@@ -317,6 +319,53 @@ def recode_low_percent(df):
     return changed
 
 
+# 진단 시 병기 범주와 삭제할 행 (사용자 결정, 2026-10-13)
+#   I~II → early, III → locally_advanced (심평원 급여 조건의 "3기"), IV → metastatic
+#   먼저 A의 정답 세트 규칙으로 종합 병기가 [Discrepancy]·[Not Available]·빈칸인 환자를 삭제한다 (우선 적용)
+#   M1인데 종합 병기가 Stage IV가 아닌 환자는 Stage IV로 바꾼다
+#   Stage X는 AJCC 규칙으로 III만 정한다: M0·MX이면서 T4 또는 N2~N3 → III.
+#     그 밖은 범주를 정할 수 없어 행을 삭제한다
+#   GDC 임상 기록이 없는 환자(재발 상태 기록 없음)와 조직형이 NOS·기록 없음·빈칸인 환자도 삭제한다
+EXTENT_BY_STAGE = [("Stage IV", "metastatic"), ("Stage III", "locally_advanced"),
+                   ("Stage II", "early"), ("Stage I", "early")]
+STAGE_EXCLUDED = {"[Discrepancy]", "[Not Available]", ""}
+HISTOLOGY_UNKNOWN = {"Infiltrating Carcinoma NOS", "[Not Available]", ""}
+
+
+def stage_extent(df):
+    stage = df["gdc_ajcc_pathologic_tumor_stage"].fillna("")
+    m1 = df["gdc_ajcc_metastasis_pathologic_pm"].fillna("") == "M1"
+    to_iv = sorted(df.loc[m1 & (stage != "Stage IV"), "patient_id"])
+    df.loc[m1 & (stage != "Stage IV"), "gdc_ajcc_pathologic_tumor_stage"] = "Stage IV"
+    stage = df["gdc_ajcc_pathologic_tumor_stage"].fillna("")
+
+    extent = pd.Series(pd.NA, index=df.index, dtype="object")
+    for prefix, value in EXTENT_BY_STAGE:  # IV, III을 먼저 확인해야 II, I과 섞이지 않음
+        extent[extent.isna() & stage.str.startswith(prefix)] = value
+    t = df["gdc_ajcc_tumor_pathologic_pt"].fillna("")
+    n = df["gdc_ajcc_nodes_pathologic_pn"].fillna("")
+    by_tnm = extent.isna() & (t.str.startswith("T4") | n.str.match(r"N[23]"))
+    extent[by_tnm] = "locally_advanced"
+    df["stage_disease_extent"] = extent
+    return to_iv, sorted(df.loc[by_tnm, "patient_id"])
+
+
+def stage_excluded(df):
+    """A의 정답 세트 규칙: 종합 병기가 [Discrepancy]·[Not Available]·빈칸인 환자."""
+    stage = df["gdc_ajcc_pathologic_tumor_stage"].fillna("")
+    return df.loc[stage.isin(STAGE_EXCLUDED), ["patient_id", "gdc_ajcc_pathologic_tumor_stage"]]
+
+
+def drop_rows(df):
+    """stage_excluded 다음에 삭제할 환자를 사유별로 돌려준다. 한 환자가 여러 사유에 걸릴 수 있다."""
+    return {
+        "병기 범주를 정할 수 없음": df.loc[df["stage_disease_extent"].isna(), ["patient_id", "gdc_ajcc_pathologic_tumor_stage"]],
+        "GDC 임상 기록 없음 (재발 상태 기록 없음)": df.loc[df["has_gdc_clinical"] != "True", ["patient_id", "has_gdc_clinical"]],
+        "조직형 NOS·기록 없음·빈칸": df.loc[df["gdc_histological_type"].fillna("").isin(HISTOLOGY_UNKNOWN),
+                                       ["patient_id", "gdc_histological_type"]],
+    }
+
+
 CODES = """GDC 결측 코드 (지우지 않고 그대로 둠)
   [Not Available]   값이 기록되지 않음 → 입력 모듈 '기록 없음'
   [Not Evaluated]   검사·평가를 하지 않음 → '미시행'
@@ -346,14 +395,31 @@ def write_columns_txt(df):
     OUT_COLS.write_text("\n".join(lines), encoding="utf-8-sig")
 
 
-def write_changes_txt(before, after, males, recoded):
+def write_changes_txt(before, after, males, recoded, to_iv, by_tnm, dropped, df):
     lines = [f"TCGA-BRCA 정리본 변경 내역 ({OUT_CSV.name})", f"작성일 {date.today()}", "",
              f"원본: {SRC.name} (수정하지 않음)",
              f"결과: 환자 {before[0]:,}명 × {before[1]}열  →  {after[0]:,}명 × {after[1]}열", ""]
 
+    drop_ids = set().union(*(set(d["patient_id"]) for d in dropped.values()))
     lines += ["=" * 78, "1. 삭제한 행", "=" * 78,
               f"남성 환자 {len(males)}명 (gdc_gender = MALE). 설계서 범위에서 남성 유방암은 제외",
-              "  " + ", ".join(males), ""]
+              "  " + ", ".join(males), "",
+              f"병기·기록·조직형 사유 {len(drop_ids)}명 (사용자 결정, 2026-10-13). 첫 사유(A 정답 세트 규칙)로 뺀 환자는 뒤 사유에 다시 적지 않음.",
+              "뒤 사유끼리는 한 환자가 여러 사유에 걸리면 사유마다 적음"]
+    for reason, rows in dropped.items():
+        lines.append(f"[{reason}] {len(rows)}명")
+        lines += [f"  {r.iloc[0]}  ({'빈칸' if pd.isna(r.iloc[1]) or r.iloc[1] == '' else r.iloc[1]})" for _, r in rows.iterrows()]
+    lines.append("")
+
+    counts = df["stage_disease_extent"].value_counts()
+    lines += ["=" * 78, "1-0. 바꾼 값과 새 열: 진단 시 병기 범주 (stage_disease_extent)", "=" * 78,
+              "사용자 결정 (2026-10-13). I~II → early(조기), III → locally_advanced(국소 진행성, 심평원 급여 조건의 3기),",
+              "IV → metastatic(전이성)",
+              f"M1인데 종합 병기가 Stage IV가 아니던 {len(to_iv)}명 → gdc_ajcc_pathologic_tumor_stage를 Stage IV로 바꿈",
+              "  " + (", ".join(to_iv) or "없음"),
+              f"종합 병기가 없어 AJCC 규칙(M0·MX이면서 T4 또는 N2~3 → III)으로 국소 진행성으로 정한 {len(by_tnm)}명 (병기 값은 그대로 둠)",
+              "  " + (", ".join(by_tnm) or "없음"),
+              "결과: " + ", ".join(f"{k} {v}명" for k, v in counts.items()), ""]
 
     lines += ["=" * 78, "1-1. 바꾼 값: ER·PR 양성 세포 비율 <10%를 판정에 따라 둘로 나눔", "=" * 78,
               "사용자 결정 (2026-10-12). 원래 값은 tcga_brca_merged.csv에 그대로 있음",
@@ -432,14 +498,23 @@ def main():
     males = sorted(df.loc[df["gdc_gender"] == "MALE", "patient_id"])
     df = df[df["gdc_gender"] != "MALE"].copy()
     recoded = recode_low_percent(df)
-    df = df[[c for c in df.columns if c in keep_cols]]  # 원래 열 순서 유지
+    excluded = stage_excluded(df)
+    df = df[~df["patient_id"].isin(excluded["patient_id"])].copy()
+    to_iv, by_tnm = stage_extent(df)
+    dropped = {"종합 병기 [Discrepancy]·[Not Available]·빈칸 (A 정답 세트 규칙, 우선 적용)": excluded, **drop_rows(df)}
+    drop_ids = set().union(*(set(d["patient_id"]) for d in dropped.values()))
+    df = df[~df["patient_id"].isin(drop_ids)]
+    df = df[[c for c in df.columns if c in keep_cols]]  # 원래 열 순서 유지, 새 열은 끝에
 
     df.to_csv(OUT_CSV, index=False, encoding="utf-8-sig")
     write_columns_txt(df)
-    write_changes_txt(before, df.shape, males, recoded)
+    write_changes_txt(before, df.shape, males, recoded, to_iv, by_tnm, dropped, df)
 
     print(f"환자 {before[0]:,}명 × {before[1]}열 → {df.shape[0]:,}명 × {df.shape[1]}열")
     print(f"  남성 {len(males)}명 행 삭제, 열 {len(drop_cols)}개 삭제")
+    print(f"  병기·기록·조직형 사유로 {len(drop_ids)}명 행 삭제: " + ", ".join(f"{k} {len(v)}명" for k, v in dropped.items()))
+    print(f"  Stage IV로 바꿈 {len(to_iv)}명, 병기 없이 TNM으로 국소 진행성 {len(by_tnm)}명")
+    print("  병기 범주: " + ", ".join(f"{k} {v}" for k, v in df["stage_disease_extent"].value_counts().items()))
     print("  <10% → 1-9%(Positive, ER은 Low Positive) / <1%(Negative): " + ", ".join(f"{k} {len(v['low'])}/{len(v['neg'])}명" for k, v in recoded.items()))
     for p in (OUT_CSV, OUT_COLS, OUT_CHANGES):
         print(f"  {p}")

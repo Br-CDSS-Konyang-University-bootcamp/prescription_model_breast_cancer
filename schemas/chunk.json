@@ -19,7 +19,7 @@
     "chunk_kind": {"enum": ["recommendation", "section", "algorithm", "table_row", "reimbursement_condition", "offlabel_regimen"]},
     "parent_id": {"type": ["string", "null"], "description": "부모 소단원 청크 ID. LLM에는 부모 전체를 함께 넘긴다."},
     "text": {"type": "string"},
-    "setting": {"type": "array", "items": {"enum": ["early", "metastatic"]}, "minItems": 1},
+    "setting": {"type": "array", "items": {"enum": ["early", "locally_advanced", "metastatic"]}, "minItems": 1, "description": "early = I~II기, locally_advanced = III기 (심평원 급여 조건), metastatic = IV기·원격 전이 재발"},
     "subtype": {"type": "array", "items": {"enum": ["HR+/HER2-", "HR+/HER2+", "HR-/HER2+", "TNBC", "any"]}, "minItems": 1},
     "line": {"type": "array", "items": {"enum": ["neoadjuvant", "adjuvant", "1L", "2L", ">=3L", "any"]}, "minItems": 1},
     "biomarker_tags": {"type": "array", "items": {"type": "string"}},

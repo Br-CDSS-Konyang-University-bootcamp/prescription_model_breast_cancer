@@ -1,6 +1,6 @@
 # A → B 전달 문서: patient_state 사용 안내와 BM-2 판정 조건 제안
 
-> 작성: 담당 A · 2026-10-12 · 기준 스키마: `schemas/patient_state.json` **0.1-draft3**
+> 작성: 담당 A · 2026-10-12 · 기준 스키마: `schemas/patient_state.json` **0.1-draft4** (2026-10-13 `stage.disease_extent` 추가)
 > 받는 사람: 담당 B ([2] 바이오마커 모듈, [4] LLM 추천 모듈)
 > 관련 문서: [schema_fields.md](schema_fields.md) (필드별 상세), [tcga_mapping.md](tcga_mapping.md) (TCGA 정답 규칙), [schemas/README.md](../../schemas/README.md)
 
@@ -21,8 +21,8 @@
 | 형식 | `schemas/patient_state.json` (JSON Schema 2020-12). 환자 1명 = JSON 1개 |
 | 개발 중 | 파일로 전달: `tests/fixtures/patient_state/<patient_ref>.json` (예정. 공용 폴더라 4명 합의 후 생성) |
 | 연결 후 | 함수 반환값: A의 `run(chart_text) → patient_state` 결과를 B의 `assess(patient_state) → biomarker_record`가 받는다 |
-| 검증 | A가 보내기 전에 검증한다. B도 받을 때 검증하면 버전 불일치를 바로 알 수 있다 (`schema_version` = `"0.1-draft3"`) |
-| 첫 전달 예정 | TCGA-BRCA 정답 세트 1,074명 (§5) 중 경계 사례 5건부터 |
+| 검증 | A가 보내기 전에 검증한다. B도 받을 때 검증하면 버전 불일치를 바로 알 수 있다 (`schema_version` = `"0.1-draft4"`) |
+| 첫 전달 예정 | TCGA-BRCA 정답 세트 1,061명 (§5) 중 경계 사례 5건부터 |
 
 검증 코드:
 
@@ -241,7 +241,7 @@ B의 규칙은 "ESR1 결과가 마지막 내분비요법 진행 **이전**이면
 
 | 항목 | 내용 |
 |---|---|
-| 규모 | 1,086명 중 병기 `[Discrepancy]` 6명, `[Not Available]` 5명, 전부 빈칸 1명을 빼고 **1,074명** |
+| 규모 | **1,061명** (2026-10-13 크롭본). 병기 `[Discrepancy]` 6명, `[Not Available]` 5명, 전부 빈칸 1명, 범주를 정할 수 없는 Stage X 11명, 조직형 NOS·기록 없음 2명을 뺌. 아래 세부 건수는 이전 1,074명 기준이라 재집계 필요 |
 | 날짜 | 모두 비움 (`not_recorded` 또는 `null`). 순서는 치료 이력 배열 순서와 `duration_days`(투여 기간)로만 알 수 있음 |
 | ER·PR 점수 | 넣지 않음. TCGA 점수 열은 입력이 적고(약 19%) 척도가 섞여 있어 잘못 해석될 수 있음 |
 | ER 저발현 | 원본 구간 `<10%` + 판정 Positive → `{"range":[1,9],"result":"low_positive"}` **17명** |
@@ -261,7 +261,7 @@ HER2 건수는 정답 세트 제외 전(1,086명) 기준이다.
 <!-- validate:patient_state -->
 ```json
 {
-  "schema_version": "0.1-draft3",
+  "schema_version": "0.1-draft4",
   "patient_ref": "TCGA-XX-0001",
   "created_at": "2026-10-12T19:00:00+09:00",
   "documents": [
@@ -366,4 +366,4 @@ B의 기대 출력 (§4 조건을 따른 경우):
 - [ ] gBRCA `not_recorded`일 때 검사 권고를 낼지 (§4.7)
 - [ ] ER 저발현(`low`) 환자의 아형 표기: HR+로 둘지, 별도 표시할지 (`rag_tags`에 `ER-low` 등)
 - [ ] `biomarker_record`에서 PR은 `low` 상태값을 쓰지 않는다는 점 반영 (B의 스키마·규칙)
-- [ ] `patient_state` 0.1-draft3 검토 의견. 문제가 없으면 `0.1`로 확정한다
+- [ ] `patient_state` 0.1-draft4 검토 의견. 문제가 없으면 `0.1`로 확정한다

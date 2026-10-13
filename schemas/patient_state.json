@@ -2,12 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "patient_state.json",
   "title": "patient_state",
-  "description": "[1] 입력 모듈(A)의 출력. 비식별화된 차트에서 추출한 환자 상태. 모든 값에 원문 근거 위치를 붙인다. 필드 설명은 src/input/schema_fields.md. 초안 v0.1-draft3 (2026-10-12, ER만 저발현, Allred 객체).",
+  "description": "[1] 입력 모듈(A)의 출력. 비식별화된 차트에서 추출한 환자 상태. 모든 값에 원문 근거 위치를 붙인다. 필드 설명은 src/input/schema_fields.md. 초안 v0.1-draft4 (2026-10-13, stage.disease_extent 추가).",
   "type": "object",
   "required": ["schema_version", "patient_ref", "created_at", "documents", "fields", "conflicts"],
   "additionalProperties": false,
   "properties": {
-    "schema_version": {"const": "0.1-draft3"},
+    "schema_version": {"const": "0.1-draft4"},
     "patient_ref": {"type": "string", "description": "가명 ID. 실제 이름·등록번호를 넣지 않는다."},
     "created_at": {"type": "string", "format": "date-time"},
     "documents": {
@@ -57,6 +57,9 @@
                 "positive": {"anyOf": [{"type": "integer", "minimum": 0}, {"const": "[Not Available]"}]},
                 "examined": {"anyOf": [{"type": "integer", "minimum": 0}, {"const": "[Not Available]"}]}
               }}}}]},
+            "disease_extent": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {
+              "enum": ["early", "locally_advanced", "metastatic"],
+              "description": "진단 시 병기 범주 (IN-3). I~II → early(조기), III → locally_advanced(국소 진행성, 심평원 급여 조건의 3기), IV → metastatic(전이성). 병기군이 없으면 TNM으로 정한다 (M1 → metastatic, M0·MX이면서 T4 또는 N2~3 → locally_advanced). 재발 후 상태는 biomarker_record.setting.disease"}}}]},
             "metastatic_sites": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"anyOf": [
               {"type": "array", "items": {"type": "string"}, "description": "bone, liver, lung, brain, distant_ln, skin, other: <자유 기재>"},
               {"enum": ["[Not Applicable]", "[Not Available]"]}

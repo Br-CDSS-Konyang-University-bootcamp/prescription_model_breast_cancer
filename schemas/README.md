@@ -1,6 +1,6 @@
 # schemas/ — 모듈 간 데이터 형식 (공용, 4명 합의)
 
-모듈끼리 주고받는 JSON 형식을 [JSON Schema 2020-12](https://json-schema.org/)로 정의한다. 지금 파일은 **0단계 검토용 초안**이다 (`patient_state`는 `0.1-draft3`, 나머지는 `0.1-draft`). 4명 검토가 끝나면 `"0.1"`로 올린다.
+모듈끼리 주고받는 JSON 형식을 [JSON Schema 2020-12](https://json-schema.org/)로 정의한다. 지금 파일은 **0단계 검토용 초안**이다 (`patient_state`는 `0.1-draft4`, 나머지는 `0.1-draft`). 4명 검토가 끝나면 `"0.1"`로 올린다.
 
 바꿀 때는 4명이 모두 검토한다. 필드를 추가·삭제하면 이 README의 표와 예시도 함께 고친다.
 
@@ -16,7 +16,7 @@
 
 | 파일 | 내용 | 만드는 쪽 | 쓰는 쪽 | 초안 검토 |
 |---|---|---|---|---|
-| [patient_state.json](patient_state.json) (0.1-draft3) | 차트에서 추출한 환자 상태 | [1] 입력 (A) | [2], [4] | B, C, D |
+| [patient_state.json](patient_state.json) (0.1-draft4) | 차트에서 추출한 환자 상태 | [1] 입력 (A) | [2], [4] | B, C, D |
 | [biomarker_record.json](biomarker_record.json) | 바이오마커 상태값, 아형, 치료 상황, 검사 공백 | [2] 바이오마커 (B) | [3] 필터, [4] | A, C, D |
 | [chunk.json](chunk.json) | 검색 색인 청크 (지침·급여 공용) | [3] (C), [5] (D) | [3] 색인, [4] | D 필수, A, B |
 | [recommendation.json](recommendation.json) | 처방 후보, 급여 분류, 검사 권고 | [4] 추천 (B) | 출력 화면 | A, C, D |
@@ -45,7 +45,7 @@
 
 ## 3. patient_state.json — [1] 입력 → [2], [4]
 
-버전 `0.1-draft3` (2026-10-12). 필드별 표준값, 정규화 예시, TCGA 정답 규칙은 [src/input/schema_fields.md](../src/input/schema_fields.md)에 있다.
+버전 `0.1-draft4` (2026-10-13, `stage.disease_extent` 추가). 필드별 표준값, 정규화 예시, TCGA 정답 규칙은 [src/input/schema_fields.md](../src/input/schema_fields.md)에 있다.
 
 추출값 하나는 모두 같은 틀(`$defs/extracted`)이고, `value`의 형태만 필드마다 다르다.
 
@@ -67,6 +67,7 @@
 | diagnosis | `diagnosis_date`, `histology`, `grade` | 날짜 / `IDC`·`ILC`·`mucinous`·`metaplastic`·`invasive_NOS`·`other` / `1`·`2`·`3` |
 | stage | `ctnm`, `ptnm` | `{t, n, m, edition}`. X값은 `not_assessed` |
 | | `group` | `IIA`, `IIIC`, `IV` … 또는 `not_assessed` |
+| | `disease_extent` | `early`(I~II기) / `locally_advanced`(III기, 심평원 급여 조건) / `metastatic`(IV기). 진단 시 기준 |
 | | `positive_ln_count` | `{positive, examined}`. 각각 정수 또는 `"[Not Available]"` |
 | | `metastatic_sites` | 부위 목록 또는 `"[Not Applicable]"` / `"[Not Available]"` |
 | receptors | `er_percent`, `pr_percent` | `{percent, range, score, allred, result}` 중 있는 것 모두. `allred`는 `{total, ps, is}`. `result`: `positive`·`negative`·`indeterminate`, ER만 `low_positive` 추가 |
@@ -85,7 +86,7 @@ TCGA 정답은 실제 날짜가 없으므로, 날짜 칸은 추출값이면 `sta
 
 ```json
 {
-  "schema_version": "0.1-draft3",
+  "schema_version": "0.1-draft4",
   "patient_ref": "VC-0001",
   "created_at": "2026-10-12T09:00:00+09:00",
   "documents": [
@@ -101,7 +102,9 @@ TCGA 정답은 실제 날짜가 없으므로, 날짜 칸은 추출값이면 `sta
       "ptnm": {"status": "present", "value": {"t": "T2", "n": "N1a", "m": "M0", "edition": "8th"}, "raw": "pT2 pN1a M0",
                "source": {"doc_id": "D1", "quote": "pT2 pN1a M0"}},
       "positive_ln_count": {"status": "present", "value": {"positive": 2, "examined": 15}, "raw": "LN 2/15 (+)",
-                            "source": {"doc_id": "D1", "quote": "LN 2/15 (+)"}}
+                            "source": {"doc_id": "D1", "quote": "LN 2/15 (+)"}},
+      "disease_extent": {"status": "present", "value": "early", "raw": "pT2 pN1a M0",
+                         "source": {"doc_id": "D1", "quote": "pT2 pN1a M0"}}
     },
     "receptors": {
       "er_percent": {"status": "present", "value": {"percent": 95, "result": "positive"}, "raw": "ER(+) 95%", "specimen": "primary",
@@ -142,7 +145,7 @@ TCGA 정답은 실제 날짜가 없으므로, 날짜 칸은 추출값이면 `sta
 |---|---|
 | `records[]` | 마커별 판정 결과. `marker`, `status`, `reason`, `rule_id`, `evidence`, `source_span`, `rag_tags` |
 | `subtype` | `HR+/HER2-` / `HR+/HER2+` / `HR-/HER2+` / `TNBC` / `indeterminate`. RAG 하드 필터 |
-| `setting` | `disease`(early / metastatic), `line`(neoadjuvant / adjuvant / 1L / 2L / >=3L), 이전 약제 계열. RAG 하드 필터 |
+| `setting` | `disease`(early / locally_advanced / metastatic), `line`(neoadjuvant / adjuvant / 1L / 2L / >=3L), 이전 약제 계열. RAG 하드 필터 |
 | `tests_needed[]` | BM-4 검사 공백. `test`, `reason`, `rule_id` |
 
 마커별 허용 상태값 (BM-2 판정 기준표, PROJECT.md §5):
@@ -190,7 +193,7 @@ TCGA 정답은 실제 날짜가 없으므로, 날짜 칸은 추출값이면 `sta
 | `chunk_id`, `doc_type`, `source`, `version`, `section`, `page_start`, `page_end`, `url`, `text` | 출처와 본문 |
 | `chunk_kind` | recommendation / section / algorithm / table_row / reimbursement_condition / offlabel_regimen |
 | `parent_id` | 부모 소단원 청크. LLM에는 부모 전체를 함께 넘긴다 |
-| `setting`, `subtype`, `line` | 하드 필터. 해당 없으면 `any` |
+| `setting`, `subtype`, `line` | 하드 필터. `setting`은 early(I~II기) / locally_advanced(III기) / metastatic. `subtype`·`line`은 해당 없으면 `any` |
 | `biomarker_tags`, `drugs` | 가중치, 키워드 검색 |
 | `evidence` | LoE, GoR, ESMO-MCBS, ESCAT |
 | `superseded_by` | 후속 개정 청크 ID. 대체된 청크는 지우지 않는다 |

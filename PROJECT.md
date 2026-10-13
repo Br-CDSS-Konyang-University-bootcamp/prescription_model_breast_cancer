@@ -60,7 +60,7 @@ LLM이 처방 후보와 각 후보의 급여 분류를 함께 제시하는 데�
 | 그룹 | 필드 | 원문 예시 | 주 출처 |
 |---|---|---|---|
 | 진단 | 진단일, 조직형, 등급 | IDC, grade 3 | 병리 |
-| 병기 | cTNM, pTNM, 전이 부위 | cT2N1M0 | 경과기록 |
+| 병기 | cTNM, pTNM, 병기군, 병기 범주(조기 / 국소 진행성 / 전이성), 전이 부위 | cT2N1M0 | 경과기록 |
 | 수용체 | ER %, PR %, HER2 IHC, HER2 ISH | ER 90%, HER2 2+, SISH neg | 병리 |
 | 증식 | Ki-67 % | Ki-67 30% | 병리 |
 | 환자 | 나이, 폐경 여부, ECOG | postmenopausal, ECOG 1 | 경과기록 |
@@ -465,6 +465,7 @@ H&E에서 ER/PR/HER2를 예측해 차트 값과의 불일치를 표시하는 QC 
 - [x] TCGA-BRCA 임상·체세포 변이 데이터 다운로드와 구조 파악 (2026-10-07, `data/script/tcga_brca_download.py`, `data/script/tcga_brca_explore.py`)
 - [x] TCGA-BRCA 테이블을 환자 ID로 합친 환자 1명 = 1행 파일 (2026-10-07, `data/script/tcga_brca_merge.py`). GDC 결측 코드는 `[Not Available]` = 기록 없음, `[Not Evaluated]` = 미시행으로 해석한다. 변이 검사를 받았는데 변이가 없으면 "변이 없음"으로 쓴다
 - [x] TCGA 투약 기록의 약제명·치료 종류 정규화 사전 (`data/dictionaries/drug_names.csv`, `drug_classes.csv`). IN-3 약어 사전의 출발점으로 쓴다
+- [x] 병기 범주 (2026-10-13 결정): I~II기 = 조기, III기 = 국소 진행성 (심평원 급여 조건 기준), IV기 = 전이성. `patient_state.stage.disease_extent`(진단 시), `biomarker_record.setting.disease`·`chunk.setting`(현재 치료 상황)에 `locally_advanced`를 추가했다. TCGA 크롭본에 `stage_disease_extent` 열을 만들었다. A의 정답 세트 규칙(병기 `[Discrepancy]` 6명, `[Not Available]` 5명, 전부 빈칸 1명 제외)을 먼저 적용하고, 범주를 정할 수 없는 Stage X 11명과 조직형 NOS·기록 없음 2명을 더 뺐다 (25명, 1,086명 → 1,061명). 크롭본이 곧 정답 세트다
 - [ ] TCGA 필드를 v0.1 추출 스키마에 대응시키고 가상 차트 작성 방법 정하기
 - [ ] ESMO 치료 알고리즘 도식의 텍스트 변환과 검수
 - [x] ESMO 사용 조건 확인 (2026-10-07): ESMO 웹사이트 약관은 개인·비영리 사용을 허가 없이 허용하고, AI 관련 조항은 없다. 비영리 프로젝트이므로 ESMO로 진행한다

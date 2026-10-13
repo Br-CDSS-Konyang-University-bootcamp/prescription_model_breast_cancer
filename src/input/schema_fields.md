@@ -1,6 +1,6 @@
 # patient_state 필드 정리와 정규화 예시
 
-> 담당 A · 2026-10-12 · 기준 스키마: `schemas/patient_state.json` (0.1-draft3)
+> 담당 A · 2026-10-12 (2026-10-13 `stage.disease_extent` 추가) · 기준 스키마: `schemas/patient_state.json` (0.1-draft4)
 
 입력 모듈(A)이 만드는 `patient_state`의 필드, 표준값 형태, 정규화 방식, 예시, TCGA 정답 생성 규칙을 정리한다. TCGA 열 변환의 세부 규칙은 [tcga_mapping.md](tcga_mapping.md)에 있다.
 
@@ -84,6 +84,7 @@ Mixed·Other의 자유 기재(`gdc_histologic_diagnosis_other`, 예: "infiltrati
 | `ptnm` | 병리 TNM | `{t, n, m, edition}` | 해석 | `pT2 pNX M0, AJCC 7th` → `{"t":"T2","n":"not_assessed","m":"M0","edition":"7th"}` | [A 결정] 아래 |
 | `group` [합의 예정] | 병기군 | `I`, `IA`, `IIA` … `IV` / `not_assessed` | 해석 | `Stage IIA` → `"IIA"` / `Stage X` → `"not_assessed"` | [A 결정] 아래 |
 | `positive_ln_count` [합의 예정] | 양성 림프절 수 / 검사한 수 | `{positive, examined}` | 해석 | `LN 2/15 (+)` → `{"positive":2,"examined":15}` | [A 결정] 아래 |
+| `disease_extent` | 진단 시 병기 범주 | `early` / `locally_advanced` / `metastatic` | 규칙 | `Stage IIB` → `"early"`, `Stage IIIA` → `"locally_advanced"`, `pT2N1M1` → `"metastatic"` | 아래 |
 | `metastatic_sites` | 진단 시 원격 전이 부위 | `bone` / `liver` / `lung` / `brain` / `distant_ln` / `skin` / `other` 목록, 또는 `[Not Applicable]` | 사전 | `간과 뼈에 다발성 전이` → `["liver","bone"]` | [A 결정] 아래 |
 
 `ptnm` TCGA 규칙 [A 결정]:
@@ -96,10 +97,17 @@ Mixed·Other의 자유 기재(`gdc_histologic_diagnosis_other`, 예: "infiltrati
 `group` TCGA 규칙 [A 결정]:
 
 - 출처: `gdc_ajcc_pathologic_tumor_stage`
-- `Stage X` → `not_assessed` (평가 안됨). 13명
+- `Stage X` → `not_assessed` (평가 안됨). 크롭본 2명 (원래 13명 중 범주를 정할 수 없는 11명은 크롭 단계에서 삭제, 2026-10-13)
 - `Stage` 뒤의 로마숫자와 A~C를 그대로 쓴다: `Stage IIA` → `IIA`, `Stage IIIC` → `IIIC`
 - 알파벳이 없으면 로마숫자만 쓴다: `Stage I` → `I`, `Stage IV` → `IV`
-- `[Discrepancy]`(6명)와 `[Not Available]`(5명)인 환자는 **정답 세트에서 행 전체를 제외한다** [A 결정]. 모든 값이 빈칸인 1명도 제외한다. 정답 세트는 1,086명 → 1,074명
+- `[Discrepancy]`(6명)와 `[Not Available]`(5명)인 환자는 **정답 세트에서 행 전체를 제외한다** [A 결정]. 모든 값이 빈칸인 1명도 제외한다. 이 규칙은 2026-10-13부터 크롭 스크립트(`data/script/tcga_brca_crop.py`)가 먼저 적용한다. 크롭본 1,061명이 곧 정답 세트다
+
+`disease_extent` 규칙 (사용자 결정, 2026-10-13):
+
+- 병기군 I~II → `early`(조기), III → `locally_advanced`(국소 진행성, 심평원 급여 조건의 3기), IV → `metastatic`(전이성)
+- 병기군이 없거나 `not_assessed`이면 TNM으로 정한다: M1 → `metastatic`, M0·MX이면서 T4 또는 N2~N3 → `locally_advanced` (AJCC 규칙). 그 밖은 정할 수 없으므로 `not_recorded`
+- TCGA 값은 크롭본의 `stage_disease_extent` 열을 그대로 쓴다 (`data/script/tcga_brca_crop.py`가 위 규칙으로 만든다)
+- 진단 시 범주다. 재발 후 현재 상태는 B의 `biomarker_record.setting.disease`가 정한다
 
 `positive_ln_count` TCGA 규칙 [A 결정]:
 
@@ -152,7 +160,7 @@ Mixed·Other의 자유 기재(`gdc_histologic_diagnosis_other`, 예: "infiltrati
   - `<10%` + Negative → 구간 `<1%` → `{"range":[0,0],"result":"negative"}` (ER 54명, PR 84명)
   - 가정: Negative를 1% 기준 음성으로 본다. 1% 기준은 2010년 ASCO/CAP 지침부터라, 2010년 이전 진단(ER 44명, PR 60명)의 음성 판정은 10% 기준이었을 수 있다. 변경 기록 `tcga_brca_merging_cropped_changes.txt`에 환자 목록이 있다.
 
-정답 세트(1,074명) 건수:
+정답 세트 건수 (2026-10-12 기준 1,074명으로 센 값. 1,061명 기준 재집계 필요):
 
 | 경우 | ER | PR | 정답 value |
 |---|---|---|---|
@@ -301,5 +309,6 @@ A가 받아들인 제안과 A 결정이다. 2026-10-12에 `schemas/patient_state
 | 특수 표기값 `not_assessed`, `[Not Available]`, `[Not Applicable]`을 `value`에 허용 | A 결정 (평가 안됨·불가 통합) |
 | `stop_reason` 표준값 목록 | 스키마 반영 (0.1-draft3) |
 | 부분 날짜(`YYYY-MM`, `YYYY`) 허용 | 스키마 반영 (0.1-draft3) |
+| `stage.disease_extent` 추가 (I~II 조기, III 국소 진행성, IV 전이성) | 사용자 결정 (2026-10-13), 스키마 반영 (0.1-draft4) |
 | TCGA 정답의 모든 날짜를 비움 (가상 날짜를 만들지 않음) | A 결정 (2026-10-12) |
 | 점수 없는 HER2 Equivocal 7명에 `score: "2+"` 채우기 | A 결정 |

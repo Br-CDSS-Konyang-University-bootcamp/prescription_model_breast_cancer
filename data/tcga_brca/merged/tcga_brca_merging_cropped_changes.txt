@@ -1,14 +1,57 @@
 ﻿TCGA-BRCA 정리본 변경 내역 (tcga_brca_merging_cropped.csv)
-작성일 2026-10-12
+작성일 2026-10-13
 
 원본: tcga_brca_merged.csv (수정하지 않음)
-결과: 환자 1,098명 × 219열  →  1,086명 × 113열
+결과: 환자 1,098명 × 219열  →  1,061명 × 114열
 
 ==============================================================================
 1. 삭제한 행
 ==============================================================================
 남성 환자 12명 (gdc_gender = MALE). 설계서 범위에서 남성 유방암은 제외
   TCGA-A1-A0SM, TCGA-A8-A085, TCGA-AC-A62V, TCGA-AO-A1KQ, TCGA-AQ-A54O, TCGA-AR-A1AV, TCGA-BH-A0B4, TCGA-BH-A0DD, TCGA-D8-A1XS, TCGA-E2-A14W, TCGA-EW-A1PD, TCGA-EW-A6SA
+
+병기·기록·조직형 사유 25명 (사용자 결정, 2026-10-13). 첫 사유(A 정답 세트 규칙)로 뺀 환자는 뒤 사유에 다시 적지 않음.
+뒤 사유끼리는 한 환자가 여러 사유에 걸리면 사유마다 적음
+[종합 병기 [Discrepancy]·[Not Available]·빈칸 (A 정답 세트 규칙, 우선 적용)] 12명
+  TCGA-A8-A08Z  ([Discrepancy])
+  TCGA-A8-A09T  ([Discrepancy])
+  TCGA-AR-A0TZ  ([Discrepancy])
+  TCGA-B6-A0RP  ([Discrepancy])
+  TCGA-B6-A0X1  ([Discrepancy])
+  TCGA-BH-A0B2  (빈칸)
+  TCGA-BH-A1F6  ([Not Available])
+  TCGA-D8-A13Z  ([Not Available])
+  TCGA-D8-A141  ([Not Available])
+  TCGA-D8-A147  ([Not Available])
+  TCGA-D8-A1JA  ([Not Available])
+  TCGA-EW-A1J2  ([Discrepancy])
+[병기 범주를 정할 수 없음] 11명
+  TCGA-3C-AAAU  (Stage X)
+  TCGA-A8-A09A  (Stage X)
+  TCGA-A8-A09C  (Stage X)
+  TCGA-B6-A0I8  (Stage X)
+  TCGA-B6-A0IC  (Stage X)
+  TCGA-B6-A0IN  (Stage X)
+  TCGA-B6-A0RE  (Stage X)
+  TCGA-B6-A0RM  (Stage X)
+  TCGA-B6-A0WS  (Stage X)
+  TCGA-B6-A0WW  (Stage X)
+  TCGA-B6-A0X7  (Stage X)
+[GDC 임상 기록 없음 (재발 상태 기록 없음)] 0명
+[조직형 NOS·기록 없음·빈칸] 2명
+  TCGA-A7-A5ZV  (Infiltrating Carcinoma NOS)
+  TCGA-BH-A0WA  ([Not Available])
+
+==============================================================================
+1-0. 바꾼 값과 새 열: 진단 시 병기 범주 (stage_disease_extent)
+==============================================================================
+사용자 결정 (2026-10-13). I~II → early(조기), III → locally_advanced(국소 진행성, 심평원 급여 조건의 3기),
+IV → metastatic(전이성)
+M1인데 종합 병기가 Stage IV가 아니던 0명 → gdc_ajcc_pathologic_tumor_stage를 Stage IV로 바꿈
+  없음
+종합 병기가 없어 AJCC 규칙(M0·MX이면서 T4 또는 N2~3 → III)으로 국소 진행성으로 정한 2명 (병기 값은 그대로 둠)
+  TCGA-A8-A07E, TCGA-A8-A099
+결과: early 794명, locally_advanced 248명, metastatic 19명
 
 ==============================================================================
 1-1. 바꾼 값: ER·PR 양성 세포 비율 <10%를 판정에 따라 둘로 나눔

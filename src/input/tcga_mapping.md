@@ -1,6 +1,6 @@
 # TCGA-BRCA → patient_state 대응표 (초안)
 
-> 담당 A · 2026-10-12 초안, 같은 날 A 결정 규칙 반영 (§3.1 조직형, §3.2 병기·림프절·전이, §3.5 성별, §3.6 투여일) · 입력: `data/tcga_brca/merged/tcga_brca_merging_cropped.csv` (환자 1,086명 × 113열) · 출력: `schemas/patient_state.json` 형식의 **정답 값**
+> 담당 A · 2026-10-12 초안, 같은 날 A 결정 규칙 반영 (§3.1 조직형, §3.2 병기·림프절·전이, §3.5 성별, §3.6 투여일) · 입력: `data/tcga_brca/merged/tcga_brca_merging_cropped.csv` (환자 1,061명 × 114열, 2026-10-13 기준) · 출력: `schemas/patient_state.json` 형식의 **정답 값**
 
 ## 1. 목적
 
@@ -38,7 +38,7 @@ TCGA 한 행 ──(1) 이 대응표로 변환──▶ 정답 값
 | `gdc_ajcc_pathologic_tumor_stage`가 `[Not Available]` | 5 |
 | 모든 값이 빈칸인 행 | 1 |
 
-정답 세트는 1,086명 → 1,074명이다.
+2026-10-13부터 이 제외 규칙은 크롭 스크립트가 먼저 적용한다 (사용자 결정). 크롭 단계에서 Stage X 중 범주를 정할 수 없는 11명, 조직형 NOS·기록 없음 2명도 함께 빠져 크롭본 1,061명이 곧 정답 세트다.
 
 ### 2.3 날짜 [A 결정, 2026-10-12]
 
@@ -86,7 +86,7 @@ Other·Mixed의 자유 기재(`gdc_histologic_diagnosis_other`, 예: "infiltrati
 | 필드 | TCGA 열 | 변환 | 주의 |
 |---|---|---|---|
 | `ptnm` | T = `gdc_ajcc_tumor_pathologic_pt`, N = `gdc_ajcc_nodes_pathologic_pn`, M = `gdc_ajcc_metastasis_pathologic_pm`, 판 = `gdc_ajcc_staging_edition` | `{"t": "T2", "n": "N1a", "m": "M0", "edition": "7th"}`. X값(TX·NX·MX)은 `not_assessed` (평가 안됨) [A 결정] | TX 3, NX 20, MX 162. AJCC 판(3rd~7th)마다 기준이 다르므로 판을 함께 저장 |
-| `group` [합의 예정] | `gdc_ajcc_pathologic_tumor_stage` | `Stage IIA` → `IIA`, `Stage I` → `I`. `Stage X` → `not_assessed` (평가 안됨·불가 통합) [A 결정] | Stage X 13명 |
+| `group` [합의 예정] | `gdc_ajcc_pathologic_tumor_stage` | `Stage IIA` → `IIA`, `Stage I` → `I`. `Stage X` → `not_assessed` (평가 안됨·불가 통합) [A 결정] | Stage X 2명 (2026-10-13 크롭 후) |
 | `positive_ln_count` [제안] | positive = `gdc_lymph_nodes_examined_he_count` (이름과 달리 양성 개수), examined = `gdc_lymph_nodes_examined_count` | 아래 표 [A 결정] | 심평원 abemaciclib 기준(4개)에 사용 |
 | `ctnm` | 없음 | `not_recorded` | TCGA는 병리 병기만 있음. TCGA 값은 `ctnm`이 아니라 `ptnm`에 넣고, 가상 차트에는 `pT2N1M0`처럼 p를 붙인다 |
 | `metastatic_sites` | `gdc_metastatic_tumor_indicator`, `gdc_metastasis_site`, `gdc_metastasis_site_other` | 아래 규칙 [A 결정]. 진단 시 전이만 | 재발 후 전이 부위는 `recurrence` 쪽 (§3.7) |
