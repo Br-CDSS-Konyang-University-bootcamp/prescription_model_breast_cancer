@@ -65,13 +65,13 @@ TCGA 정답에서 아래 표기는 `value` 안에 그대로 쓴다. 칸 전체�
 
 | 출처 값 | 표준값 | 건수 |
 |---|---|---|
-| `gdc_histological_type` = Infiltrating Ductal Carcinoma | `IDC` | 773 |
-| `gdc_histological_type` = Infiltrating Lobular Carcinoma | `ILC` | 203 |
+| `gdc_histological_type` = Infiltrating Ductal Carcinoma | `IDC` | 758 |
+| `gdc_histological_type` = Infiltrating Lobular Carcinoma | `ILC` | 200 |
 | `gdc_histological_type` = Mucinous Carcinoma | `mucinous` | 17 |
 | `gdc_histological_type` = Metaplastic Carcinoma | `metaplastic` | 9 |
-| `gdc_histological_type` = Infiltrating Carcinoma NOS | `invasive_NOS` | 1 |
+| `gdc_histological_type` = Infiltrating Carcinoma NOS | `invasive_NOS` | 0 (크롭 단계에서 삭제) |
 | ONCOTREE = `IMMC` | `mucinous` | 1번 대상 행 중 0 |
-| ONCOTREE = `BRCNOS` | `invasive_NOS` | Other 45 + Mixed 30 = 75 |
+| ONCOTREE = `BRCNOS` | `invasive_NOS` | Other 43 + Mixed 28 = 71 |
 | ONCOTREE = `IDC` | `IDC` | Medullary 6 (WHO 2019에서 수질암은 IDC/NST의 한 형태) |
 
 Mixed·Other의 자유 기재(`gdc_histologic_diagnosis_other`, 예: "infiltrating ductal and mucinous")는 `raw`에 남긴다.
@@ -90,7 +90,7 @@ Mixed·Other의 자유 기재(`gdc_histologic_diagnosis_other`, 예: "infiltrati
 `ptnm` TCGA 규칙 [A 결정]:
 
 - T = `gdc_ajcc_tumor_pathologic_pt`, N = `gdc_ajcc_nodes_pathologic_pn`, M = `gdc_ajcc_metastasis_pathologic_pm`, 판 = `gdc_ajcc_staging_edition`
-- 값이 X(TX, NX, MX)이면 `not_assessed` (평가 안됨). 건수: TX 3, NX 20, MX 162
+- 값이 X(TX, NX, MX)이면 `not_assessed` (평가 안됨). 건수: TX 0, NX 11, MX 151
 - TCGA 값은 병리 병기이므로 `ctnm`이 아니라 `ptnm`에 넣는다. 가상 차트에는 `pT2N1M0`처럼 p를 붙여 쓴다
 - 세부 표기는 공백만 지우고 그대로 둔다 [합의 예정]: `N0 (i-)` → `N0(i-)`, `N0 (i+)` → `N0(i+)`, `N1mi`, `N0 (mol+)` → `N0(mol+)`, `cM0 (i+)` → `cM0(i+)`
 
@@ -115,18 +115,18 @@ Mixed·Other의 자유 기재(`gdc_histologic_diagnosis_other`, 예: "infiltrati
 
 | 경우 | 건수 | 정답 value |
 |---|---|---|
-| 둘 다 있음 | 918 | `LN 2/15 (+)` → `{"positive":2,"examined":15}` |
+| 둘 다 있음 | 905 | `LN 2/15 (+)` → `{"positive":2,"examined":15}` |
 | examined만 `[Not Available]` | 1 | `LN 4/[Not Available] (+)` → `{"positive":4,"examined":"[Not Available]"}` |
-| positive만 `[Not Available]` | 42 | `{"positive":"[Not Available]","examined":15}` |
-| 둘 다 `[Not Available]` [합의 예정] | 125 | 칸 전체 `status: not_recorded` |
+| positive만 `[Not Available]` | 39 | `{"positive":"[Not Available]","examined":15}` |
+| 둘 다 `[Not Available]` [합의 예정] | 116 | 칸 전체 `status: not_recorded` |
 
 `metastatic_sites` TCGA 규칙 [A 결정]:
 
 1. `gdc_metastatic_tumor_indicator`를 먼저 본다.
-2. `NO`이면 `[Not Applicable]` (해당 없음). 376명
-3. `YES`(12명) 또는 `[Not Available]`(697명)이면 `gdc_metastasis_site`를 쓴다 (`|`로 나눠 목록).
+2. `NO`이면 `[Not Applicable]` (해당 없음). 375명
+3. `YES`(12명) 또는 `[Not Available]`(674명)이면 `gdc_metastasis_site`를 쓴다 (`|`로 나눠 목록).
 4. `gdc_metastasis_site`가 `[Not Available]`이면 `gdc_metastasis_site_other`를 쓴다. 이것도 `[Not Available]`이면 `[Not Available]`.
-5. [합의 예정] `gdc_metastasis_site` 안의 `Other, specify` 항목은 `gdc_metastasis_site_other`의 내용으로 바꾼다 (예: `Lung|Other, specify` + `left adrenal gland` → `["lung","other: left adrenal gland"]`). 해당 7명
+5. [합의 예정] `gdc_metastasis_site` 안의 `Other, specify` 항목은 `gdc_metastasis_site_other`의 내용으로 바꾼다 (예: `Lung|Other, specify` + `left adrenal gland` → `["lung","other: left adrenal gland"]`). 해당 6명
 
 ## 5. 수용체 (`fields.receptors`)
 
@@ -157,18 +157,18 @@ Mixed·Other의 자유 기재(`gdc_histologic_diagnosis_other`, 예: "infiltrati
 - 원본 구간 `<10%`는 크롭 스크립트(`data/script/tcga_brca_crop.py`)가 판정에 따라 둘로 나눴다 (2026-10-12). 그래서 정답에는 `<10%`가 없다.
   - ER: `<10%` + Positive → 판정 `Low Positive`, 구간 `1-9%` → `{"range":[1,9],"result":"low_positive"}` (17명)
   - PR: `<10%` + Positive → 판정 `Positive` 유지, 구간 `1-9%` → `{"range":[1,9],"result":"positive"}` (53명)
-  - `<10%` + Negative → 구간 `<1%` → `{"range":[0,0],"result":"negative"}` (ER 54명, PR 84명)
+  - `<10%` + Negative → 구간 `<1%` → `{"range":[0,0],"result":"negative"}` (ER 53명, PR 84명)
   - 가정: Negative를 1% 기준 음성으로 본다. 1% 기준은 2010년 ASCO/CAP 지침부터라, 2010년 이전 진단(ER 44명, PR 60명)의 음성 판정은 10% 기준이었을 수 있다. 변경 기록 `tcga_brca_merging_cropped_changes.txt`에 환자 목록이 있다.
 
-정답 세트 건수 (2026-10-12 기준 1,074명으로 센 값. 1,061명 기준 재집계 필요):
+정답 세트(1,061명, 2026-10-13 재집계) 건수:
 
 | 경우 | ER | PR | 정답 value |
 |---|---|---|---|
-| 구간 + 판정 | 460 | 423 | `{"range":[90,99],"result":"positive"}` |
-| 판정만 | 565 | 601 | `{"result":"positive"}` |
-| 판정 `[Not Evaluated]` | 49 | 50 | `status: not_done` |
+| 구간 + 판정 | 459 | 422 | `{"range":[90,99],"result":"positive"}` |
+| 판정만 | 554 | 590 | `{"result":"positive"}` |
+| 판정 `[Not Evaluated]` | 48 | 49 | `status: not_done` |
 
-판정값 분포: ER positive 773 / negative 233 / low_positive 17 / indeterminate 2, PR positive 683 (이 중 1-9% 53) / negative 337 / indeterminate 4.
+판정값 분포: ER positive 764 / negative 230 / low_positive 17 / indeterminate 2, PR positive 675 (이 중 1-9% 53) / negative 333 / indeterminate 4.
 
 ### HER2 IHC 규칙 [A 결정]
 
@@ -184,7 +184,7 @@ TCGA 건수 (score 2+ 또는 Equivocal):
 
 | score | 원래 판정 | FISH | 정답 value | 건수 |
 |---|---|---|---|---|
-| 2+ | Equivocal | Negative | `{"score":"2+","result":"negative"}` | 129 |
+| 2+ | Equivocal | Negative | `{"score":"2+","result":"negative"}` | 127 |
 | 2+ | Equivocal | Positive | `{"score":"2+","result":"positive"}` | 17 |
 | 2+ | Equivocal | Equivocal / [Not Available] / [Not Evaluated] | `{"score":"2+","result":"unknown"}` | 2 / 2 / 15 |
 | 2+ | Positive | Negative | `{"score":"2+","result":"negative"}` (판정이 바뀜) | 6 |
@@ -197,7 +197,7 @@ TCGA 건수 (score 2+ 또는 Equivocal):
 | 없음 → 2+ | Equivocal | Negative | `{"score":"2+","result":"negative"}` | 5 |
 | 없음 → 2+ | Equivocal | Equivocal / [Not Evaluated] | `{"score":"2+","result":"unknown"}` | 1 / 1 |
 
-건수는 정답 세트 제외(§4) 전 기준이다.
+건수는 정답 세트(1,061명) 기준이다 (2026-10-13 재집계).
 
 참고:
 
@@ -238,7 +238,7 @@ TCGA 건수 (score 2+ 또는 Equivocal):
 
 | 필드 | 의미 | 표준값 형태 | 정규화 방식 | 원문 → 정규화 예시 | TCGA 열 |
 |---|---|---|---|---|---|
-| `gender` [제안, A 결정] | 성별 | `FEMALE` / `MALE` | 사전 | `F/62` → `"FEMALE"` | `gdc_gender` (정리본은 FEMALE 1,085명, 빈칸 1명) |
+| `gender` [제안, A 결정] | 성별 | `FEMALE` / `MALE` | 사전 | `F/62` → `"FEMALE"` | `gdc_gender` (정리본은 FEMALE 1,061명) |
 | `age` | 진단 시 나이 | 정수 | 해석 | `F/62` → `62` | `gdc_age_at_diagnosis` |
 | `menopausal_status` | 폐경 여부 | `premenopausal` / `perimenopausal` / `postmenopausal` / `indeterminate` | 사전 | `폐경 후 상태` → `"postmenopausal"` | `gdc_menopause_status` |
 | `ecog` | 전신 수행 상태 | `0`~`4` | 해석 | `ECOG PS 1` → `1` | 없음 (합성) |
@@ -266,9 +266,9 @@ TCGA 건수 (score 2+ 또는 Equivocal):
 
 | `drug_timeline` 항목 형태 | 건수 | 정답 |
 |---|---|---|
-| `d63~d126` (시작·종료 있음) | 1,745 | `126 − 63 = 63` |
-| `d1828~?` (종료 모름) | 519 | `null` |
-| `날짜 없음` | 118 | `null` |
+| `d63~d126` (시작·종료 있음) | 1,722 | `126 − 63 = 63` |
+| `d1828~?` (종료 모름) | 514 | `null` |
+| `날짜 없음` | 109 | `null` |
 
 - 종료일이 시작일보다 앞선 항목은 없다 (0건).
 - 상대 일수(d시작)는 출력에는 넣지 않고, 정답 생성 코드 안에서 요법 순서 정렬과 `setting` 유도에만 쓴다.

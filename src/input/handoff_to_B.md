@@ -241,18 +241,18 @@ B의 규칙은 "ESR1 결과가 마지막 내분비요법 진행 **이전**이면
 
 | 항목 | 내용 |
 |---|---|
-| 규모 | **1,061명** (2026-10-13 크롭본). 병기 `[Discrepancy]` 6명, `[Not Available]` 5명, 전부 빈칸 1명, 범주를 정할 수 없는 Stage X 11명, 조직형 NOS·기록 없음 2명을 뺌. 아래 세부 건수는 이전 1,074명 기준이라 재집계 필요 |
+| 규모 | **1,061명** (2026-10-13 크롭본). 병기 `[Discrepancy]` 6명, `[Not Available]` 5명, 전부 빈칸 1명, 범주를 정할 수 없는 Stage X 11명, 조직형 NOS·기록 없음 2명을 뺌. 아래 건수는 1,061명 기준 (2026-10-13 재집계) |
 | 날짜 | 모두 비움 (`not_recorded` 또는 `null`). 순서는 치료 이력 배열 순서와 `duration_days`(투여 기간)로만 알 수 있음 |
 | ER·PR 점수 | 넣지 않음. TCGA 점수 열은 입력이 적고(약 19%) 척도가 섞여 있어 잘못 해석될 수 있음 |
 | ER 저발현 | 원본 구간 `<10%` + 판정 Positive → `{"range":[1,9],"result":"low_positive"}` **17명** |
 | PR 1~9% | 원본 구간 `<10%` + 판정 Positive → `{"range":[1,9],"result":"positive"}` **53명** (저발현 범주 없음, B가 `PR-low` 태그를 붙일 대상) |
-| ER·PR `<1%` | 원본 구간 `<10%` + 판정 Negative → `{"range":[0,0],"result":"negative"}` ER 54명, PR 84명. **가정이 들어간 값**: 1% 기준은 2010년부터라, 2010년 이전 진단(ER 44명, PR 60명)은 10% 기준 음성이었을 수 있음. ER 저발현 경계 사례 테스트에는 `[1,9]` 환자만 쓰기를 권함 |
-| HER2 | score 2+ 또는 Equivocal 209명에 §3.3 보정 적용. 결과: `{"score":"2+","result":"negative"}` 143명(저발현 후보) / `{"score":"2+","result":"positive"}` 40명 / `{"score":"2+","result":"unknown"}` 21명 / `{"score":"1+","result":"negative"}` 4명 / `{"score":"3+","result":"negative"}` 1명(원자료끼리 어긋남) |
+| ER·PR `<1%` | 원본 구간 `<10%` + 판정 Negative → `{"range":[0,0],"result":"negative"}` ER 53명, PR 84명. **가정이 들어간 값**: 1% 기준은 2010년부터라, 2010년 이전 진단(ER 44명, PR 60명)은 10% 기준 음성이었을 수 있음. ER 저발현 경계 사례 테스트에는 `[1,9]` 환자만 쓰기를 권함 |
+| HER2 | score 2+ 또는 Equivocal 207명에 §3.3 보정 적용. 결과: `{"score":"2+","result":"negative"}` 141명(저발현 후보) / `{"score":"2+","result":"positive"}` 40명 / `{"score":"2+","result":"unknown"}` 21명 / `{"score":"1+","result":"negative"}` 4명 / `{"score":"3+","result":"negative"}` 1명(원자료끼리 어긋남) |
 | 재발 재생검 | 11명 (ER 11, PR 10, HER2 8). 모두 원격 전이 재발이거나 사건 종류 미기록 |
 | 유전자 | 체세포 엑솜. gBRCA 정보 없음. ESR1은 모두 원발 조직 결과 |
 | 없는 칸 | 등급, Ki-67, ECOG, cTNM, pCR/RCB, PD-L1. 경계 사례가 필요하면 A가 합성값으로 만들고 `synthetic` 표시 |
 
-HER2 건수는 정답 세트 제외 전(1,086명) 기준이다.
+HER2 건수도 정답 세트(1,061명) 기준이다.
 
 ## 6. 전체 예시 (입력과 기대 출력)
 
