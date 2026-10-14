@@ -46,7 +46,7 @@ SOURCES = {
     "cbio_": "cBioPortal clinical_patient (원본 그대로)",
     "drug_": "GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 data/dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",
     "rad_": "GDC clinical_radiation 환자별 요약",
-    "nte_": "GDC clinical_nte + follow_up_v4.0_nte 환자별 요약",
+    "nte_": "GDC clinical_nte + follow_up_v4.0_nte + follow_up_v2.1(재발 기록 행) 환자별 요약",
     "fu_": "GDC follow_up v1.5·v2.1·v4.0 환자별 요약",
     "omf_": "GDC clinical_omf_v4.0 (다른 암 병력) 환자별 요약",
     "mut_": "cBioPortal mutations 환자별 요약",
@@ -191,11 +191,17 @@ def radiation_summary():
 
 
 def nte_summary():
-    """재발·새 종양: 두 사건 테이블을 합친다."""
+    """재발·새 종양: 두 사건 테이블과 follow_up_v2.1의 재발 기록 행을 합친다.
+
+    follow_up_v2.1은 추적 관찰 1회 = 1행이고, 재발이 있었던 행(new_tumor_event_dx_indicator = YES)에만
+    사건 종류·부위가 적혀 있다. 이 파일을 빼면 46명의 재발 종류가 비게 된다 (2026-10-13 확인).
+    """
     cols = ["bcr_patient_barcode", "new_tumor_event_type", "new_tumor_event_site",
             "new_tumor_event_site_other", "new_tumor_event_dx_days_to"]
+    fu21 = read_gdc("clinical_follow_up_v2.1")
+    fu21 = fu21.loc[fu21["new_tumor_event_dx_indicator"] == "YES", cols]
     n = pd.concat([read_gdc("clinical_nte")[cols],
-                   read_gdc("clinical_follow_up_v4.0_nte")[cols]], ignore_index=True)
+                   read_gdc("clinical_follow_up_v4.0_nte")[cols], fu21], ignore_index=True)
     n = n.rename(columns={"bcr_patient_barcode": "patient_id"})
     g = n.groupby("patient_id")
     return pd.DataFrame({

@@ -186,11 +186,11 @@ rad_n_records,GDC clinical_radiation 환자별 요약,,48.1,5,1; 2; 3
 rad_types,GDC clinical_radiation 환자별 요약,,46.4,6,EXTERNAL BEAM; External; EXTERNAL BEAM; External
 rad_sites,GDC clinical_radiation 환자별 요약,,46.4,11,Primary Tumor Field; Regional site; Primary Tumor Field; Regional site
 rad_first_start_days,GDC clinical_radiation 환자별 요약,,46.1,248,153; 181; 218
-nte_n_records,GDC clinical_nte + follow_up_v4.0_nte 환자별 요약,,14.1,6,1; 2; 3
-nte_types,GDC clinical_nte + follow_up_v4.0_nte 환자별 요약,,4.6,5,Distant Metastasis; New Primary Tumor; Locoregional Recurrence
-nte_sites,GDC clinical_nte + follow_up_v4.0_nte 환자별 요약,,4.3,13,"Other, specify; Bone; Lung"
-nte_sites_other,GDC clinical_nte + follow_up_v4.0_nte 환자별 요약,,2.1,23,Axilla; LEFT BREAST; Left Chest Wall
-nte_first_dx_days,GDC clinical_nte + follow_up_v4.0_nte 환자별 요약,,5.4,59,1808; 102; 1364
+nte_n_records,GDC clinical_nte + follow_up_v4.0_nte + follow_up_v2.1(재발 기록 행) 환자별 요약,,17.9,6,1; 2; 3
+nte_types,GDC clinical_nte + follow_up_v4.0_nte + follow_up_v2.1(재발 기록 행) 환자별 요약,,9.5,7,Distant Metastasis; New Primary Tumor; Locoregional Disease
+nte_sites,GDC clinical_nte + follow_up_v4.0_nte + follow_up_v2.1(재발 기록 행) 환자별 요약,,8.7,15,"Other, specify; Bone; Lung"
+nte_sites_other,GDC clinical_nte + follow_up_v4.0_nte + follow_up_v2.1(재발 기록 행) 환자별 요약,,4.1,40,Liver; Breast; Chest Wall
+nte_first_dx_days,GDC clinical_nte + follow_up_v4.0_nte + follow_up_v2.1(재발 기록 행) 환자별 요약,,9.9,109,1808; 102; 1364
 fu_n_records,GDC follow_up v1.5·v2.1·v4.0 환자별 요약,,91.0,4,1; 2; 3
 fu_last_days,GDC follow_up v1.5·v2.1·v4.0 환자별 요약,,90.9,774,10; 0; 385
 fu_last_vital_status,GDC follow_up v1.5·v2.1·v4.0 환자별 요약,,90.0,2,Alive; Dead

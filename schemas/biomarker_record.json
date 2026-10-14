@@ -20,7 +20,7 @@
       "required": ["disease", "line"],
       "additionalProperties": false,
       "properties": {
-        "disease": {"enum": ["early", "locally_advanced", "metastatic", "indeterminate"], "description": "현재 치료 상황의 병기 범주. 진단 시 범주(patient_state stage.disease_extent)에서 시작하고, 원격 전이 재발이 있으면 metastatic, 국소 재발(첫 치료 후 유방·흉벽·주변 림프절 재발)이나 재발 정보가 불명확하면 indeterminate. locally_advanced = 진단 시 III기 (심평원 급여 조건)"},
+        "disease": {"enum": ["early", "locally_advanced", "metastatic", "indeterminate"], "description": "현재 치료 상황의 병기 범주. 진단 시 범주(patient_state stage.disease_extent)에서 시작하고, 진단 시 전이성(Stage IV·M1)이거나 원격 전이 재발이 있으면 metastatic. 그 밖(재발 없음, 국소 재발, 재발 정보 불명확)은 진단 시 범주 그대로. indeterminate는 진단 시 병기를 알 수 없을 때만. locally_advanced = 진단 시 III기 (심평원 급여 조건)"},
         "line": {"enum": ["neoadjuvant", "adjuvant", "1L", "2L", ">=3L", "indeterminate"]},
         "prior_drug_classes": {"type": "array", "items": {"type": "string"}, "description": "예: CDK4/6 inhibitor, aromatase inhibitor"},
         "reason": {"type": "string"}

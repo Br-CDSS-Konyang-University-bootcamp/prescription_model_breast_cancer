@@ -145,7 +145,7 @@ TCGA 정답은 실제 날짜가 없으므로, 날짜 칸은 추출값이면 `sta
 |---|---|
 | `records[]` | 마커별 판정 결과. `marker`, `status`, `reason`, `rule_id`, `evidence`, `source_span`, `rag_tags` |
 | `subtype` | `HR+/HER2-` / `HR+/HER2+` / `HR-/HER2+` / `TNBC` / `indeterminate`. RAG 하드 필터 |
-| `setting` | `disease`(early / locally_advanced / metastatic / indeterminate. 원격 전이 재발 → metastatic, 국소 재발·재발 정보 불명확 → indeterminate), `line`(neoadjuvant / adjuvant / 1L / 2L / >=3L), 이전 약제 계열. RAG 하드 필터 |
+| `setting` | `disease`(early / locally_advanced / metastatic / indeterminate. 진단 시 전이성 또는 원격 전이 재발 → metastatic, 그 밖은 진단 시 범주. indeterminate는 진단 시 병기를 모를 때만), `line`(neoadjuvant / adjuvant / 1L / 2L / >=3L), 이전 약제 계열. RAG 하드 필터 |
 | `tests_needed[]` | BM-4 검사 공백. `test`, `reason`, `rule_id` |
 
 마커별 허용 상태값 (BM-2 판정 기준표, PROJECT.md §5):
