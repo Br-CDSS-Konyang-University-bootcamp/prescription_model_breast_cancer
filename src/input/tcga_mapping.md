@@ -162,7 +162,7 @@ TNM 세부 표기 [합의 예정]: 공백만 지우고 그대로 둔다. `N0 (i-
 | `setting` | 유도 | 아래 규칙 (유도값이라는 표시를 남긴다) |
 | `start_day`, `end_day` [draft5] | `d시작`, `d종료` | 정수. 종료 모름(`?`)이면 `end_day: null`, `날짜 없음`이면 둘 다 `null` |
 | `progression_day` [draft5] | 없음 | `null` |
-| `cycles` [draft5] | `drug_cycles`, `d시작`·`d종료`, `data/dictionaries/drug_cycle_days.csv` | 아래 규칙 |
+| `cycles` [draft5] | `drug_cycles`, `d시작`·`d종료`, `data/dictionaries/drug_classes.csv`의 `cycle_days` | 아래 규칙 |
 
 주기 수 `cycles` 규칙 [사용자 결정, 2026-10-15]:
 
@@ -244,7 +244,7 @@ TNM 세부 표기 [합의 예정]: 공백만 지우고 그대로 둔다. `N0 (i-
 | `mut_sequenced`, `cna_profiled` | False 또는 빈칸이면 보고서를 만들지 않는다 |
 
 - 검체(`specimen`)는 "원발 조직"으로 쓴다. TCGA는 원발 종양 샘플(01)이다.
-- [변경, 사용자 결정 2026-10-15] TCGA 변이는 종양 조직 엑솜 결과지만, 정답 세트에서는 `mut_BRCA1/2`를 gBRCA 측정 결과로 가정한다. A는 BRCA1·BRCA2 값을 그대로 넘기고 B가 positive / negative / vus를 판정한다. 모델 한계로 기록한다 (협의 완료, `handoff_to_B.md` §3.5·§4.7).
+- [변경, 사용자 결정 2026-10-15] TCGA 변이는 종양 조직 엑솜 결과지만, 정답 세트에서는 `mut_BRCA1/2`를 gBRCA 측정 결과로 가정한다. A는 BRCA1·BRCA2 값을 그대로 넘기고 B가 positive / negative / vus를 판정한다. 모델 한계로 기록한다 (협의 완료, `handoff_to_B.md` §4.7).
 - 바이오마커 상태 판정의 정답은 B가 BM-2 기준으로 만든다. A는 보고서 원문만 책임진다.
 
 ## 4. TCGA에 없어서 합성값이 필요한 필드

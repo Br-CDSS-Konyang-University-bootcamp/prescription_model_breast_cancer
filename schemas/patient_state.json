@@ -282,7 +282,7 @@
         "value": {"type": "integer", "minimum": 0},
         "basis": {"enum": ["recorded", "estimated"], "description": "recorded = 기록값 (TCGA drug_cycles), estimated = 투여 일수 ÷ 주기 길이 + 1"},
         "interval_days": {"type": ["integer", "null"], "minimum": 1, "description": "주기 길이 (일). 예: 21 = 3주, 7 = 매주"},
-        "interval_basis": {"enum": ["recorded", "derived", "standard", null], "description": "recorded = 차트에 적힘, derived = 투여 일수 ÷ (기록 주기 수 − 1), standard = 약제별 기본값 (data/dictionaries/drug_cycle_days.csv)"}
+        "interval_basis": {"enum": ["recorded", "derived", "standard", null], "description": "recorded = 차트에 적힘, derived = 투여 일수 ÷ (기록 주기 수 − 1), standard = 약제별 기본값 (data/dictionaries/drug_classes.csv의 cycle_days)"}
       }
     },
     "dose_or_novalue": {

@@ -45,7 +45,7 @@
 
 ## 3. patient_state.json — [1] 입력 → [2], [4]
 
-버전 `0.1-draft5` (2026-10-15, 진단일 기준 일수·투여 주기·재발·전이·PD-L1·유전자 변이·anthracycline 용량 추가. B 전달 문서: [src/input/handoff_to_B_draft5.md](../src/input/handoff_to_B_draft5.md)). 필드별 표준값, 정규화 예시, TCGA 정답 규칙은 [src/input/schema_fields.md](../src/input/schema_fields.md)에 있다.
+버전 `0.1-draft5` (2026-10-15, 진단일 기준 일수·투여 주기·재발·전이·PD-L1·유전자 변이·anthracycline 용량 추가. B 전달 문서: [src/input/handoff_to_B.md](../src/input/handoff_to_B.md)). 필드별 표준값, 정규화 예시, TCGA 정답 규칙은 [src/input/schema_fields.md](../src/input/schema_fields.md)에 있다.
 
 추출값 하나는 모두 같은 틀(`$defs/extracted`)이고, `value`의 형태만 필드마다 다르다.
 

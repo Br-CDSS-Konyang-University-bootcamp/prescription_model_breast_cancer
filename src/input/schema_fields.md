@@ -320,8 +320,8 @@ A가 받아들인 제안과 A 결정이다. 2026-10-12에 `schemas/patient_state
 | `receptors.pdl1` (발현: 검사법, 점수 종류, 점수. 판정은 B) | 사용자 결정 (2026-10-15), 스키마 반영 (0.1-draft5) |
 | `molecular.mutations` 유전자별 (ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2): 변이 있음 / 변이 없음 / 미시행 | 사용자 결정 (2026-10-15), 스키마 반영 (0.1-draft5) |
 | `stage.operable`, `patient.menopausal_basis` (TCGA에 없음, 가상 차트용) | 사용자 결정 (2026-10-15), 스키마 반영 (0.1-draft5) |
-| TCGA 정답에서 BRCA1/2 체세포 결과를 gBRCA 측정으로 가정. B가 positive / negative / vus 판정 | 협의 완료 (2026-10-15). handoff_to_B.md §3.5·§4.7, handoff_to_B_draft5.md §3.4 |
-| 차수(line)는 정답에 넣지 않고 B가 `start_day`·`metastasis_day`로 판단 | 협의 완료 (2026-10-15). handoff_to_B_draft5.md §3.2 |
+| TCGA 정답에서 BRCA1/2 체세포 결과를 gBRCA 측정으로 가정. B가 positive / negative / vus 판정 | 협의 완료 (2026-10-15). handoff_to_B.md §4.7 |
+| 차수(line)는 정답에 넣지 않고 B가 `start_day`·`metastasis_day`로 판단 | 협의 완료 (2026-10-15). handoff_to_B.md §6.2 |
 | 진단 시 M0(`cM0(i+)` 포함)이면 `stage.metastatic_sites`를 `[Not Applicable]`로 (원본 전이 여부가 `[Not Available]`이어도) | 사용자 결정 (2026-10-15). tcga_mapping.md §3.2 |
 
 draft5 필드의 TCGA 변환 규칙은 [tcga_mapping.md](tcga_mapping.md) §3.6·§3.7·§3.7a·§3.8에 있다.
