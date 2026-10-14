@@ -180,6 +180,8 @@ drug_therapy_types,"GDC clinical_drug 환자별 요약. 약제명은 성분명, 
 drug_best_responses,"GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 data/dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",,20.0,8,Complete Response; Stable Disease; Clinical Progressive Disease
 drug_first_start_days,"GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 data/dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",,69.1,206,31; 61; 62
 drug_timeline,"GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 data/dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",,71.0,754,anastrozole [Hormone Therapy] d31~?; tamoxifen [Hormone Therapy] d66~?; tamoxifen [Hormone Therapy] d98~?
+drug_start_days,"GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 data/dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",,69.1,667,111; 31; 61
+drug_end_days,"GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 data/dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",,53.8,564,148 | 148 | [Not Available]; 234 | 234 | 234; 177 | 177 | 177 | [Not Available]
 drug_total_dose,"GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 data/dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",,25.0,245,1; 240 | [Not Available]; 240+2400
 drug_total_dose_units,"GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 data/dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",,28.6,70,mg | mg | mg | [Not Available]; mg; mg | mg | mg
 drug_prescribed_dose,"GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 data/dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",,35.6,262,1; 20; 60+600
@@ -192,6 +194,8 @@ rad_types,GDC clinical_radiation 환자별 요약,,46.4,6,EXTERNAL BEAM; Externa
 rad_sites,GDC clinical_radiation 환자별 요약,,46.4,11,Primary Tumor Field; Regional site; Primary Tumor Field; Regional site
 rad_first_start_days,GDC clinical_radiation 환자별 요약,,46.1,248,153; 181; 218
 nte_n_records,GDC clinical_nte + follow_up_v4.0_nte + follow_up_v2.1(재발 기록 행) 환자별 요약,,17.9,6,1; 2; 3
+nte_event_types,GDC clinical_nte + follow_up_v4.0_nte + follow_up_v2.1(재발 기록 행) 환자별 요약,,9.4,22,Distant Metastasis; New Primary Tumor; Distant Metastasis | [Not Available]
+nte_dx_days,GDC clinical_nte + follow_up_v4.0_nte + follow_up_v2.1(재발 기록 행) 환자별 요약,,9.9,109,1808; 102 | 179 | 180 | 313 | [Not Available]; 1364
 nte_types,GDC clinical_nte + follow_up_v4.0_nte + follow_up_v2.1(재발 기록 행) 환자별 요약,,9.5,7,Distant Metastasis; New Primary Tumor; Locoregional Disease
 nte_sites,GDC clinical_nte + follow_up_v4.0_nte + follow_up_v2.1(재발 기록 행) 환자별 요약,,8.7,15,"Other, specify; Bone; Lung"
 nte_sites_other,GDC clinical_nte + follow_up_v4.0_nte + follow_up_v2.1(재발 기록 행) 환자별 요약,,4.1,40,Liver; Breast; Chest Wall

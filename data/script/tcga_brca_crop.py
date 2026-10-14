@@ -236,6 +236,8 @@ DESCRIPTIONS = {
         "nte_sites": "재발 부위",
         "nte_sites_other": "재발 부위 기타 자유 기재",
         "nte_first_dx_days": "첫 재발 진단일 (진단 후 일수)",
+        "nte_event_types": "재발·새 종양 사건별 종류. nte_dx_days와 같은 순서 (진단일 순). 재발 기록 파일 3개(nte, follow_up_v4.0_nte, follow_up_v2.1)에서 모음",
+        "nte_dx_days": "재발·새 종양 사건별 진단일 (new_tumor_event_dx_days_to, 진단 후 일수). nte_event_types와 같은 순서. metastasis_dx_days는 이 중 Distant Metastasis의 가장 이른 값",
         "nte_surgery": "재발 후 수술 여부 (new_tumor_event_surgery: YES / NO). 재발 기록 파일과 추적 관찰 v1.5·v2.1에서 모음. 값이 여럿이면 '; '로 이음",
         "nte_surgery_days": "재발 후 수술일 (진단 후 일수, 가장 이른 값). 기록이 적음",
         "recurrence_status": "재발 상태. none(재발 없음) / distant(원격 전이 재발, 국소 재발이 함께 있어도 distant) / "
@@ -264,6 +266,8 @@ DESCRIPTIONS = {
         "drug_prescribed_dose": "투약별 1회 처방 용량. '60+600'처럼 병용 약 용량이 합쳐진 값이 있음. drug_timeline과 같은 순서",
         "drug_dose_units": "투약별 1회 용량 단위 (mg, mg/m2 등). drug_timeline과 같은 순서",
         "drug_cycles": "투약별 주기 수 (pharma_adjuvant_cycles_count). drug_timeline과 같은 순서",
+        "drug_start_days": "투약별 시작일 (pharmaceutical_tx_started_days_to, 진단 후 일수). drug_timeline과 같은 순서. patient_state의 treatment_history[].start_day",
+        "drug_end_days": "투약별 종료일 (pharmaceutical_tx_ended_days_to, 진단 후 일수). drug_timeline과 같은 순서. patient_state의 treatment_history[].end_day",
         "drug_names_raw": "원본 약제명 (정규화 전, 대조용)",
         "drug_therapy_types_raw": "원본 치료 종류 (정규화 전, 대조용)",
     },
@@ -425,6 +429,8 @@ HISTORY = [
                    "수술 기록이 있는 환자는 nte_surgery·nte_surgery_days를 빈칸(기록 없음)으로 바꿈"),
     ("2026-10-15", "anthracycline 병용 기록의 용량을 약별로 나눌 수 없는 4명 삭제 (약·용량 개수 다름, 용량에 약 이름, "
                    "순서 불일치). 첫 국소 재발 진단일(locoregional_dx_days) 열 추가"),
+    ("2026-10-15", "투약별 시작일·종료일(drug_start_days, drug_end_days)과 재발 사건별 종류·진단일(nte_event_types, nte_dx_days) 열 추가. "
+                   "재발했지만 부위를 알 수 없는 환자(site_unknown) 삭제 (992명 → 985명)"),
 ]
 
 # anthracycline 병용 기록('+')의 용량을 약 순서대로 나눌 수 없는 환자 (사용자 결정, 2026-10-15)
@@ -507,9 +513,12 @@ def surgery_cleanup(df):
 
 
 def recurrence_drops(df):
-    """진단 시 전이성이 아니면서 새 원발암만 있는 환자 (사용자 결정, 2026-10-13)."""
+    """진단 시 전이성이 아니면서 새 원발암만 있는 환자 (사용자 결정, 2026-10-13),
+    재발했지만 부위(원격·국소)를 알 수 없는 환자 (사용자 결정, 2026-10-15)."""
     new_primary = (df["recurrence_status"] == "new_primary") & (df["stage_disease_extent"] != "metastatic")
-    return {"새 원발암만 있음 (진단 시 전이성 아님)": df.loc[new_primary, ["patient_id", "recurrence_status"]]}
+    site_unknown = df["recurrence_status"] == "site_unknown"
+    return {"새 원발암만 있음 (진단 시 전이성 아님)": df.loc[new_primary, ["patient_id", "recurrence_status"]],
+            "재발했지만 부위 모름 (site_unknown)": df.loc[site_unknown, ["patient_id", "recurrence_status"]]}
 
 
 def current_extent(df):

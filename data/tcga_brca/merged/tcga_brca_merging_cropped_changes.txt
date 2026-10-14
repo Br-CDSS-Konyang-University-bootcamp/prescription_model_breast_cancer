@@ -2,8 +2,8 @@
 작성일 2026-10-14
 
 원본: tcga_brca_merged.csv (수정하지 않음)
-결과: 환자 1,098명 × 226열  →  992명 × 125열
-  열: 원본 226열 − 삭제 106열 + 새로 만든 5열 (stage_disease_extent, recurrence_status, current_disease_extent, metastasis_dx_days, locoregional_dx_days)
+결과: 환자 1,098명 × 230열  →  985명 × 129열
+  열: 원본 230열 − 삭제 106열 + 새로 만든 5열 (stage_disease_extent, recurrence_status, current_disease_extent, metastasis_dx_days, locoregional_dx_days)
 
 ==============================================================================
 0. 정리 기준 변경 이력
@@ -20,6 +20,7 @@
   2026-10-14  재발 후 수술 여부(nte_surgery)와 수술일(nte_surgery_days) 열 추가. 행 수는 그대로
   2026-10-14  재발 기록과 맞지 않는 수술 기록 정리: 재발 없음인데 수술 YES인 환자 삭제, 재발 여부를 모르는데 수술 기록이 있는 환자는 nte_surgery·nte_surgery_days를 빈칸(기록 없음)으로 바꿈
   2026-10-15  anthracycline 병용 기록의 용량을 약별로 나눌 수 없는 4명 삭제 (약·용량 개수 다름, 용량에 약 이름, 순서 불일치). 첫 국소 재발 진단일(locoregional_dx_days) 열 추가
+  2026-10-15  투약별 시작일·종료일(drug_start_days, drug_end_days)과 재발 사건별 종류·진단일(nte_event_types, nte_dx_days) 열 추가. 재발했지만 부위를 알 수 없는 환자(site_unknown) 삭제 (992명 → 985명)
 
 ==============================================================================
 1. 삭제한 행
@@ -27,7 +28,7 @@
 남성 환자 12명 (gdc_gender = MALE). 설계서 범위에서 남성 유방암은 제외
   TCGA-A1-A0SM, TCGA-A8-A085, TCGA-AC-A62V, TCGA-AO-A1KQ, TCGA-AQ-A54O, TCGA-AR-A1AV, TCGA-BH-A0B4, TCGA-BH-A0DD, TCGA-D8-A1XS, TCGA-E2-A14W, TCGA-EW-A1PD, TCGA-EW-A6SA
 
-병기·기록·조직형·재발 정보 사유 94명 (사용자 결정, 2026-10-13). 첫 사유(A 정답 세트 규칙)로 뺀 환자는 뒤 사유에 다시 적지 않음.
+병기·기록·조직형·재발 정보 사유 101명 (사용자 결정, 2026-10-13). 첫 사유(A 정답 세트 규칙)로 뺀 환자는 뒤 사유에 다시 적지 않음.
 뒤 사유끼리는 한 환자가 여러 사유에 걸리면 사유마다 적음
 [종합 병기 [Discrepancy]·[Not Available]·빈칸 (A 정답 세트 규칙, 우선 적용)] 12명
   TCGA-A8-A08Z  ([Discrepancy])
@@ -78,6 +79,15 @@
   TCGA-E2-A10B  (new_primary)
   TCGA-E2-A14R  (new_primary)
   TCGA-E2-A1L7  (new_primary)
+[재발했지만 부위 모름 (site_unknown)] 8명
+  TCGA-A2-A0ST  (site_unknown)
+  TCGA-A8-A06Y  (site_unknown)
+  TCGA-A8-A08O  (site_unknown)
+  TCGA-A8-A08T  (site_unknown)
+  TCGA-A8-A08X  (site_unknown)
+  TCGA-A8-A091  (site_unknown)
+  TCGA-AR-A0TW  (site_unknown)
+  TCGA-AR-A24O  (site_unknown)
 [재발 없음인데 재발 후 수술 YES] 1명
   TCGA-A2-A0SX  (YES)
 [전이성: 원격 전이 진단일 기록 없음] 2명
@@ -146,7 +156,7 @@ M1인데 종합 병기가 Stage IV가 아니던 0명 → gdc_ajcc_pathologic_tum
   없음
 종합 병기가 없어 AJCC 규칙(M0·MX이면서 T4 또는 N2~3 → III)으로 국소 진행성으로 정한 2명 (병기 값은 그대로 둠)
   TCGA-A8-A07E, TCGA-A8-A099
-결과: early 759명, locally_advanced 223명, metastatic 10명
+결과: early 756명, locally_advanced 220명, metastatic 9명
 
 ==============================================================================
 1-0-1. 새 열: 재발 상태 (recurrence_status)
@@ -155,7 +165,7 @@ M1인데 종합 병기가 Stage IV가 아니던 0명 → gdc_ajcc_pathologic_tum
   none = 재발 없음 (마지막 추적 시점까지) / distant = 원격 전이 재발 (국소 재발이 함께 있어도 distant)
   locoregional = 국소 재발만 / site_unknown = 재발했으나 부위 기록 없음 / unknown = 재발 여부 기록 없음
   new_primary = 새 원발암만. 진단 시 전이성이 아니면 삭제했다 (1. 삭제한 행)
-결과: none 776명, unknown 170명, distant 24명, locoregional 15명, site_unknown 7명
+결과: none 776명, unknown 170명, distant 24명, locoregional 15명
 
 ==============================================================================
 1-0-2. 새 열: 현재 병기 범주 (current_disease_extent)
@@ -166,7 +176,7 @@ M1인데 종합 병기가 Stage IV가 아니던 0명 → gdc_ajcc_pathologic_tum
   급여·처방 기준에서 필요한 것은 전이가 됐는지뿐이다. 국소 재발은 전이가 아니다
 현재 전이성 환자 중 전이 후 항암 투약 기록이 없는 환자는 삭제했다 (2026-10-14, 1. 삭제한 행).
 차수는 정답에 넣지 않는다. B 모듈이 drug_timeline과 metastasis_dx_days(전이 기준일)로 판단한다
-결과: early 745명, locally_advanced 215명, metastatic 32명
+결과: early 742명, locally_advanced 212명, metastatic 31명
 
 ==============================================================================
 1-0-3. 바꾼 값: 재발 후 수술 기록 (nte_surgery)

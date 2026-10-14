@@ -125,8 +125,8 @@
               "start_date": {"$ref": "#/$defs/date"},
               "end_date": {"$ref": "#/$defs/date"},
               "duration_days": {"type": ["integer", "null"], "minimum": 0, "description": "투여일. TCGA 정답에서는 d종료 − d시작"},
-              "start_day": {"$ref": "#/$defs/day", "description": "투약 시작일 (진단일 = 0). TCGA는 drug_timeline의 d시작"},
-              "end_day": {"$ref": "#/$defs/day", "description": "투약 종료일 (진단일 = 0). TCGA는 drug_timeline의 d종료, 종료 모름(?)이면 null"},
+              "start_day": {"$ref": "#/$defs/day", "description": "투약 시작일 (진단일 = 0). TCGA는 크롭본 drug_start_days (원본 pharmaceutical_tx_started_days_to)"},
+              "end_day": {"$ref": "#/$defs/day", "description": "투약 종료일 (진단일 = 0). TCGA는 크롭본 drug_end_days (원본 pharmaceutical_tx_ended_days_to), 기록이 없으면 null"},
               "progression_day": {"$ref": "#/$defs/day", "description": "이 요법 중 또는 후 진행일 (공고 p.57 '종료 후 1달 이내 진행'). TCGA에는 없음"},
               "cycles": {
                 "anyOf": [
@@ -385,7 +385,7 @@
       "additionalProperties": false,
       "properties": {
         "score": {"enum": ["0", "1+", "2+", "3+"]},
-        "faint": {"type": "boolean", "description": "IHC 0 중 미약한 막 염색 (초저발현 판정용)"},
+        "faint": {"type": "boolean", "description": "IHC 0이면서 10% 이하 세포에 희미한 불완전 막 염색이 있으면 true. B는 score 0 + faint true를 HER2 초저발현(ultralow)으로 판정한다"},
         "result": {"enum": ["positive", "negative", "equivocal", "indeterminate", "unknown"]}
       }
     },

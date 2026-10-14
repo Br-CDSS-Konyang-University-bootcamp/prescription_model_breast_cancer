@@ -146,6 +146,11 @@ DOSE_COLS = {
     "pharmaceutical_tx_dose_units": "drug_dose_units",
     "pharma_adjuvant_cycles_count": "drug_cycles",
 }
+# 투약별 시작일·종료일 (진단 후 일수) → 병합본 열 이름. drug_timeline의 d시작~d종료와 같은 값을 따로 둔다 (2026-10-15 추가)
+DAY_COLS = {
+    "pharmaceutical_tx_started_days_to": "drug_start_days",
+    "pharmaceutical_tx_ended_days_to": "drug_end_days",
+}
 
 
 def drug_summary():
@@ -175,8 +180,8 @@ def drug_summary():
         return out + (f" ({resp})" if pd.notna(resp) and not GDC_CODE.match(str(resp)) else "")
 
     d["_line"] = d.apply(line, axis=1)
-    # 용량·주기: drug_timeline과 같은 순서로 " | "로 잇는다. 값이 없으면 "-" (GDC 결측 코드는 그대로)
-    for col in DOSE_COLS:
+    # 용량·주기·시작일·종료일: drug_timeline과 같은 순서로 " | "로 잇는다. 값이 없으면 "-" (GDC 결측 코드는 그대로)
+    for col in {**DAY_COLS, **DOSE_COLS}:
         d[col] = d[col].fillna("-").astype(str).str.strip()
     g = d.groupby("patient_id")
     split_uniq = lambda s, sep: uniq(s.str.split(sep, regex=False).explode())
@@ -187,6 +192,7 @@ def drug_summary():
         "drug_best_responses": g["treatment_best_response"].agg(uniq),
         "drug_first_start_days": g["_start"].min(),
         "drug_timeline": g["_line"].agg(" | ".join),
+        **{name: g[col].agg(" | ".join) for col, name in DAY_COLS.items()},
         **{name: g[col].agg(" | ".join) for col, name in DOSE_COLS.items()},
         "drug_names_raw": g["pharmaceutical_therapy_drug_name"].agg(uniq),
         "drug_therapy_types_raw": g["pharmaceutical_therapy_type"].agg(uniq),
@@ -218,8 +224,14 @@ def nte_summary():
                    read_gdc("clinical_follow_up_v4.0_nte")[cols], fu21], ignore_index=True)
     n = n.rename(columns={"bcr_patient_barcode": "patient_id"})
     g = n.groupby("patient_id")
+    # 사건별 진단일 (new_tumor_event_dx_days_to): 같은 사건이 여러 파일에 중복되면 하나만 남기고 진단일 순으로 정렬 (2026-10-15 추가)
+    ev = n[["patient_id", "new_tumor_event_type", "new_tumor_event_dx_days_to"]].fillna("-").drop_duplicates()
+    ev = ev.assign(_day=to_num(ev["new_tumor_event_dx_days_to"])).sort_values(["patient_id", "_day"], na_position="last")
+    ge = ev.groupby("patient_id")
     return pd.DataFrame({
         "nte_n_records": g.size(),
+        "nte_event_types": ge["new_tumor_event_type"].agg(" | ".join),
+        "nte_dx_days": ge["new_tumor_event_dx_days_to"].agg(" | ".join),
         "nte_types": g["new_tumor_event_type"].agg(uniq),
         "nte_sites": g["new_tumor_event_site"].agg(uniq),
         "nte_sites_other": g["new_tumor_event_site_other"].agg(uniq),
@@ -387,9 +399,10 @@ def main():
         else:
             merged.insert(i, flag, merged[col].notna())
 
-    # 개수·일수 열은 정수로 저장 (빈칸은 빈칸 그대로)
+    # 개수·일수 열은 정수로 저장 (빈칸은 빈칸 그대로). 약·사건별 값을 " | "로 이은 열은 문자열 그대로 둔다
+    multi = {*DAY_COLS.values(), "nte_dx_days"}
     for c in merged.columns:
-        if c.endswith(("_n_records", "_n_total", "_days")):
+        if c.endswith(("_n_records", "_n_total", "_days")) and c not in multi:
             merged[c] = pd.to_numeric(merged[c], errors="coerce").round().astype("Int64")
 
     csv_path = OUT_DIR / "tcga_brca_merged.csv"

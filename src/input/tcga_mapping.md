@@ -38,7 +38,7 @@ TCGA 한 행 ──(1) 이 대응표로 변환──▶ 정답 값
 | `gdc_ajcc_pathologic_tumor_stage`가 `[Not Available]` | 5 |
 | 모든 값이 빈칸인 행 | 1 |
 
-2026-10-13부터 이 제외 규칙은 크롭 스크립트가 먼저 적용한다 (사용자 결정). 크롭 단계에서 Stage X 중 범주를 정할 수 없는 11명, 조직형 NOS·기록 없음 2명, 진단 시 전이성이 아니면서 새 원발암만 있는 18명, 현재 전이성인데 전이 후 항암 투약 기록이 없는 46명도 함께 빠진다. 2026-10-15에는 anthracycline 병용 기록의 용량을 약별로 나눌 수 없는 4명(TCGA-D8-A27N, D8-A1XL, D8-A140, D8-A1JM)도 뺐다 (사용자 결정). 크롭본 992명이 곧 정답 세트다.
+2026-10-13부터 이 제외 규칙은 크롭 스크립트가 먼저 적용한다 (사용자 결정). 크롭 단계에서 Stage X 중 범주를 정할 수 없는 11명, 조직형 NOS·기록 없음 2명, 진단 시 전이성이 아니면서 새 원발암만 있는 18명, 현재 전이성인데 전이 후 항암 투약 기록이 없는 46명도 함께 빠진다. 2026-10-15에는 anthracycline 병용 기록의 용량을 약별로 나눌 수 없는 4명(TCGA-D8-A27N, D8-A1XL, D8-A140, D8-A1JM)과 재발했지만 부위를 알 수 없는 7명(`recurrence_status = site_unknown`)도 뺐다 (사용자 결정). 크롭본 985명이 곧 정답 세트다.
 
 ### 2.3 날짜 [A 결정, 2026-10-12]
 
@@ -111,8 +111,8 @@ TNM 세부 표기 [합의 예정]: 공백만 지우고 그대로 둔다. `N0 (i-
 
 1. `gdc_metastatic_tumor_indicator`를 먼저 본다.
 2. `NO`이면 `[Not Applicable]` (해당 없음). 357명
-3. [사용자 결정, 2026-10-15] `[Not Available]`이어도 병리 M이 `M0`·`cM0(i+)`이면 진단 시 전이가 없으므로 `[Not Applicable]`. 532명 (992명 기준). B가 기록 없음을 전이 가능성으로 읽지 않게 하려는 것이다
-4. `YES`(4명) 또는 남은 `[Not Available]`(MX·M1 99명)이면 `gdc_metastasis_site`를 `|`로 나눠 쓴다.
+3. [사용자 결정, 2026-10-15] `[Not Available]`이어도 병리 M이 `M0`·`cM0(i+)`이면 진단 시 전이가 없으므로 `[Not Applicable]`. 526명 (985명 기준). B가 기록 없음을 전이 가능성으로 읽지 않게 하려는 것이다
+4. `YES`(4명) 또는 남은 `[Not Available]`(MX·M1 98명)이면 `gdc_metastasis_site`를 `|`로 나눠 쓴다.
 5. `gdc_metastasis_site`가 `[Not Available]`이면 `gdc_metastasis_site_other`를 쓴다. 이것도 `[Not Available]`이면 `[Not Available]`.
 6. [합의 예정] `gdc_metastasis_site` 안의 `Other, specify` 항목은 `gdc_metastasis_site_other` 내용으로 바꾼다. 해당 4명.
 
@@ -160,7 +160,7 @@ TNM 세부 표기 [합의 예정]: 공백만 지우고 그대로 둔다. `N0 (i-
 | `best_response` | 괄호 안 반응 | Complete Response → `CR`, Partial Response → `PR`, Stable Disease → `SD`, Clinical Progressive Disease → `PD`, 없으면 `unknown` |
 | `stop_reason` | 없음 | `null` |
 | `setting` | 유도 | 아래 규칙 (유도값이라는 표시를 남긴다) |
-| `start_day`, `end_day` [draft5] | `d시작`, `d종료` | 정수. 종료 모름(`?`)이면 `end_day: null`, `날짜 없음`이면 둘 다 `null` |
+| `start_day`, `end_day` [draft5] | `drug_start_days`, `drug_end_days` (2026-10-15 추가. 원본 `pharmaceutical_tx_started_days_to`, `pharmaceutical_tx_ended_days_to`를 `drug_timeline`과 같은 순서로 ` \| `로 이은 열) | 정수. 괄호 코드·`-`이면 `null`. `drug_timeline`은 시작일이 없으면 종료일도 버리지만, 이 열은 종료일을 남긴다 (31건) |
 | `progression_day` [draft5] | 없음 | `null` |
 | `cycles` [draft5] | `drug_cycles`, `d시작`·`d종료`, `data/dictionaries/drug_classes.csv`의 `cycle_days` | 아래 규칙 |
 

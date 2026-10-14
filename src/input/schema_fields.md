@@ -134,7 +134,7 @@ Mixed·Other의 자유 기재(`gdc_histologic_diagnosis_other`, 예: "infiltrati
 |---|---|---|---|---|---|
 | `er_percent` | ER 결과 | `percent`, `range`, `score`, `allred`, `result` 중 **있는 것을 모두** 한 객체에 | 해석 + 사전 | `ER 강양성 (90-99%), 3+` → `{"range":[90,99],"score":"3+","result":"positive"}` / `ER Allred 6/8 (PS 4, IS 2)` → `{"allred":{"total":6,"ps":4,"is":2}}` | `gdc_er_status_ihc_Percent_Positive`, `gdc_er_status_by_ihc` (점수 열은 쓰지 않음) |
 | `pr_percent` | PR 결과 | ER과 같음. 단 `result`에 `low_positive` 없음 | 해석 + 사전 | `PR 0%` → `{"percent":0}` / `PR 5%, positive` → `{"percent":5,"result":"positive"}` | `gdc_pr_status_ihc_percent_positive`, `gdc_pr_status_by_ihc` (점수 열은 쓰지 않음) |
-| `her2_ihc` | HER2 면역염색 | `score`(+`faint`)와 `result`를 **있는 것 모두** | 해석 + 사전 | `c-erbB2 2+, SISH 음성` → `{"score":"2+","result":"negative"}` | `gdc_her2_ihc_score`, `gdc_her2_status_by_ihc`, `gdc_her2_fish_status` |
+| `her2_ihc` | HER2 면역염색 | `score`(+`faint`: IHC 0이면서 10% 이하 세포에 희미한 불완전 막 염색 → `true`, 초저발현)와 `result`를 **있는 것 모두** | 해석 + 사전 | `c-erbB2 2+, SISH 음성` → `{"score":"2+","result":"negative"}` | `gdc_her2_ihc_score`, `gdc_her2_status_by_ihc`, `gdc_her2_fish_status` |
 | `her2_ish` | HER2 ISH (FISH/SISH/DISH) | `{result, method}` | 해석 + 사전 | `SISH: not amplified` → `{"result":"not_amplified","method":"SISH"}` | `gdc_her2_fish_status` |
 
 `result` 표준값: `positive` / `low_positive` (저발현, **ER만**, 1–10%) / `negative` / `indeterminate` / `unknown` (HER2만)
