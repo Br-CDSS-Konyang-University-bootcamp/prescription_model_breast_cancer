@@ -11,13 +11,13 @@
 - **[A 결정]**: 담당 A가 정한 TCGA 정답 생성 규칙 (2026-10-12)
 - **[합의 예정]**: A가 받아들인 제안. 스키마 반영 전에 B와 확인한다
 
-A는 원칙적으로 표기만 정리한다. 예외: HER2 IHC의 `result`는 ISH 결과로 보정한다 (§5, A 결정). 양성·음성·저발현 같은 최종 판정은 B가 한다.
+A는 원칙적으로 표기만 정리한다. 예외: HER2 IHC의 `result`는 ISH 결과로 보정한다 (§5, A 결정). TCGA 정답의 ER `low_positive`는 크롭 단계에서 원본 구간 `<10%`와 판정 Positive를 나눠 만든 값이다 (§5). 양성·음성·저발현 같은 최종 판정은 B가 한다. B에게 전달하는 내용은 [handoff_to_B.md](handoff_to_B.md)에 있다.
 
 ## 1. 최상위 구조
 
 | 항목 | 의미 | 형태 | 정규화 방식 | 원문 → 정규화 예시 |
 |---|---|---|---|---|
-| `schema_version` | 스키마 버전 | 문자열 | 고정 | → `"0.1-draft"` |
+| `schema_version` | 스키마 버전 | 문자열 | 고정 | → `"0.1-draft5"` |
 | `patient_ref` | 가명 ID | 문자열 | 비식별화(IN-0). 실제 값은 내부 대응표에만 | `홍길동 (등록번호 12345678)` → `"VC-0001"` |
 | `created_at` | 생성 시각 | ISO 8601 | 자동 | → `"2026-10-12T09:00:00+09:00"` |
 | `documents[]` | 문서 목록 (IN-1) | `{doc_id, doc_type, doc_date}` | 해석 + 사전 | `[병리결과보고서] 2024.03.05` → `{"doc_id":"D1","doc_type":"pathology","doc_date":"2024-03-05"}` |
@@ -25,7 +25,7 @@ A는 원칙적으로 표기만 정리한다. 예외: HER2 IHC의 `result`는 ISH
 
 ## 2. 추출값 공통 틀
 
-아래 3~9의 모든 칸은 이 틀에 담긴다.
+아래 3~9의 칸은 대부분 이 틀에 담긴다. 예외: `treatment_history[]`, `anthracycline_drug_dose`, `molecular.mutations.*`, `genomic_reports[]`는 각자의 키를 그대로 쓴다.
 
 | 항목 | 의미 | 예시 (원문 "ER(+) 95%") |
 |---|---|---|
@@ -46,7 +46,8 @@ TCGA 정답에서 아래 표기는 `value` 안에 그대로 쓴다. 칸 전체�
 |---|---|---|
 | `not_assessed` (평가 안됨) | 평가하지 않았거나 평가할 수 없음 | TNM의 TX·NX·MX, 병기군 `Stage X` |
 | `[Not Available]` | 그 항목만 기록 없음 | 림프절 수의 한쪽 값 |
-| `[Not Applicable]` (해당 없음) | 해당 사항 없음 | 진단 시 전이 없음(NO)일 때 전이 부위 |
+| `[Not Applicable]` (해당 없음) | 해당 사항 없음 | 진단 시 전이 없음(전이 여부 NO 또는 M0)일 때 전이 부위 |
+| `No value` | 값 없음 | `anthracycline_drug_dose`의 투여 여부·용량·주기 |
 
 평가 안됨·평가 불가는 `not_assessed` 하나로 통합한다 [A 결정].
 
@@ -65,13 +66,13 @@ TCGA 정답에서 아래 표기는 `value` 안에 그대로 쓴다. 칸 전체�
 
 | 출처 값 | 표준값 | 건수 |
 |---|---|---|
-| `gdc_histological_type` = Infiltrating Ductal Carcinoma | `IDC` | 720 |
+| `gdc_histological_type` = Infiltrating Ductal Carcinoma | `IDC` | 709 |
 | `gdc_histological_type` = Infiltrating Lobular Carcinoma | `ILC` | 186 |
 | `gdc_histological_type` = Mucinous Carcinoma | `mucinous` | 14 |
 | `gdc_histological_type` = Metaplastic Carcinoma | `metaplastic` | 9 |
 | `gdc_histological_type` = Infiltrating Carcinoma NOS | `invasive_NOS` | 0 (크롭 단계에서 삭제) |
 | ONCOTREE = `IMMC` | `mucinous` | 1번 대상 행 중 0 |
-| ONCOTREE = `BRCNOS` | `invasive_NOS` | Other 37 + Mixed 26 = 63 |
+| ONCOTREE = `BRCNOS` | `invasive_NOS` | Other 37 + Mixed 25 = 62 |
 | ONCOTREE = `IDC` | `IDC` | Medullary 5 (WHO 2019에서 수질암은 IDC/NST의 한 형태) |
 
 Mixed·Other의 자유 기재(`gdc_histologic_diagnosis_other`, 예: "infiltrating ductal and mucinous")는 `raw`에 남긴다.
@@ -85,12 +86,13 @@ Mixed·Other의 자유 기재(`gdc_histologic_diagnosis_other`, 예: "infiltrati
 | `group` [합의 예정] | 병기군 | `I`, `IA`, `IIA` … `IV` / `not_assessed` | 해석 | `Stage IIA` → `"IIA"` / `Stage X` → `"not_assessed"` | [A 결정] 아래 |
 | `positive_ln_count` [합의 예정] | 양성 림프절 수 / 검사한 수 | `{positive, examined}` | 해석 | `LN 2/15 (+)` → `{"positive":2,"examined":15}` | [A 결정] 아래 |
 | `disease_extent` | 진단 시 병기 범주 | `early` / `locally_advanced` / `metastatic` | 규칙 | `Stage IIB` → `"early"`, `Stage IIIA` → `"locally_advanced"`, `pT2N1M1` → `"metastatic"` | 아래 |
-| `metastatic_sites` | 진단 시 원격 전이 부위 | `bone` / `liver` / `lung` / `brain` / `distant_ln` / `skin` / `other` 목록, 또는 `[Not Applicable]` | 사전 | `간과 뼈에 다발성 전이` → `["liver","bone"]` | [A 결정] 아래 |
+| `metastatic_sites` | 진단 시 원격 전이 부위 | `bone` / `liver` / `lung` / `brain` / `distant_ln` / `skin` / `other` 목록, 또는 `[Not Applicable]` / `[Not Available]` | 사전 | `간과 뼈에 다발성 전이` → `["liver","bone"]` | [A 결정] 아래 |
+| `operable` [draft5] | 수술 가능 여부 | `yes` / `no` / `unknown` | 사전 | `inoperable, locally advanced` → `"no"` | 없음 (`not_recorded`) |
 
 `ptnm` TCGA 규칙 [A 결정]:
 
 - T = `gdc_ajcc_tumor_pathologic_pt`, N = `gdc_ajcc_nodes_pathologic_pn`, M = `gdc_ajcc_metastasis_pathologic_pm`, 판 = `gdc_ajcc_staging_edition`
-- 값이 X(TX, NX, MX)이면 `not_assessed` (평가 안됨). 건수: TX 0, NX 10, MX 143
+- 값이 X(TX, NX, MX)이면 `not_assessed` (평가 안됨). 건수: TX 0, NX 10, MX 142
 - TCGA 값은 병리 병기이므로 `ctnm`이 아니라 `ptnm`에 넣는다. 가상 차트에는 `pT2N1M0`처럼 p를 붙여 쓴다
 - 세부 표기는 공백만 지우고 그대로 둔다 [합의 예정]: `N0 (i-)` → `N0(i-)`, `N0 (i+)` → `N0(i+)`, `N1mi`, `N0 (mol+)` → `N0(mol+)`, `cM0 (i+)` → `cM0(i+)`
 
@@ -100,7 +102,7 @@ Mixed·Other의 자유 기재(`gdc_histologic_diagnosis_other`, 예: "infiltrati
 - `Stage X` → `not_assessed` (평가 안됨). 크롭본 2명 (원래 13명 중 범주를 정할 수 없는 11명은 크롭 단계에서 삭제, 2026-10-13)
 - `Stage` 뒤의 로마숫자와 A~C를 그대로 쓴다: `Stage IIA` → `IIA`, `Stage IIIC` → `IIIC`
 - 알파벳이 없으면 로마숫자만 쓴다: `Stage I` → `I`, `Stage IV` → `IV`
-- `[Discrepancy]`(6명)와 `[Not Available]`(5명)인 환자는 **정답 세트에서 행 전체를 제외한다** [A 결정]. 모든 값이 빈칸인 1명도 제외한다. 이 규칙은 2026-10-13부터 크롭 스크립트(`data/script/tcga_brca_crop.py`)가 먼저 적용한다. 같은 날 진단 시 전이성이 아니면서 새 원발암만 있는 18명, 현재 전이성인데 전이 후 항암 투약 기록이 없는 46명도 크롭 단계에서 뺐다. 크롭본 997명이 곧 정답 세트다
+- `[Discrepancy]`(6명)와 `[Not Available]`(5명)인 환자는 **정답 세트에서 행 전체를 제외한다** [A 결정]. 모든 값이 빈칸인 1명도 제외한다. 이 규칙은 2026-10-13부터 크롭 스크립트(`data/script/tcga_brca_crop.py`)가 먼저 적용한다. 크롭 단계에서 빠진 다른 환자는 tcga_mapping.md §2.2에 있다. 크롭본 985명이 곧 정답 세트다
 
 `disease_extent` 규칙 (사용자 결정, 2026-10-13):
 
@@ -115,18 +117,19 @@ Mixed·Other의 자유 기재(`gdc_histologic_diagnosis_other`, 예: "infiltrati
 
 | 경우 | 건수 | 정답 value |
 |---|---|---|
-| 둘 다 있음 | 848 | `LN 2/15 (+)` → `{"positive":2,"examined":15}` |
+| 둘 다 있음 | 840 | `LN 2/15 (+)` → `{"positive":2,"examined":15}` |
 | examined만 `[Not Available]` | 1 | `LN 4/[Not Available] (+)` → `{"positive":4,"examined":"[Not Available]"}` |
 | positive만 `[Not Available]` | 38 | `{"positive":"[Not Available]","examined":15}` |
-| 둘 다 `[Not Available]` [합의 예정] | 110 | 칸 전체 `status: not_recorded` |
+| 둘 다 `[Not Available]` [합의 예정] | 106 | 칸 전체 `status: not_recorded` |
 
 `metastatic_sites` TCGA 규칙 [A 결정]:
 
 1. `gdc_metastatic_tumor_indicator`를 먼저 본다.
-2. `NO`이면 `[Not Applicable]` (해당 없음). 359명
-3. `YES`(4명) 또는 `[Not Available]`(634명)이면 `gdc_metastasis_site`를 쓴다 (`|`로 나눠 목록).
-4. `gdc_metastasis_site`가 `[Not Available]`이면 `gdc_metastasis_site_other`를 쓴다. 이것도 `[Not Available]`이면 `[Not Available]`.
-5. [합의 예정] `gdc_metastasis_site` 안의 `Other, specify` 항목은 `gdc_metastasis_site_other`의 내용으로 바꾼다 (예: `Lung|Other, specify` + `left adrenal gland` → `["lung","other: left adrenal gland"]`). 해당 4명
+2. `NO`이면 `[Not Applicable]` (해당 없음). 357명
+3. [사용자 결정, 2026-10-15] `[Not Available]`이어도 병리 M이 `M0`·`cM0(i+)`이면 `[Not Applicable]`. 526명
+4. `YES`(4명) 또는 남은 `[Not Available]`(MX·M1 98명)이면 `gdc_metastasis_site`를 쓴다 (`|`로 나눠 목록).
+5. `gdc_metastasis_site`가 `[Not Available]`이면 `gdc_metastasis_site_other`를 쓴다. 이것도 `[Not Available]`이면 `[Not Available]`.
+6. [합의 예정] `gdc_metastasis_site` 안의 `Other, specify` 항목은 `gdc_metastasis_site_other`의 내용으로 바꾼다 (예: `Lung|Other, specify` + `left adrenal gland` → `["lung","other: left adrenal gland"]`). 해당 4명
 
 ## 5. 수용체 (`fields.receptors`)
 
@@ -136,6 +139,7 @@ Mixed·Other의 자유 기재(`gdc_histologic_diagnosis_other`, 예: "infiltrati
 | `pr_percent` | PR 결과 | ER과 같음. 단 `result`에 `low_positive` 없음 | 해석 + 사전 | `PR 0%` → `{"percent":0}` / `PR 5%, positive` → `{"percent":5,"result":"positive"}` | `gdc_pr_status_ihc_percent_positive`, `gdc_pr_status_by_ihc` (점수 열은 쓰지 않음) |
 | `her2_ihc` | HER2 면역염색 | `score`(+`faint`: IHC 0이면서 10% 이하 세포에 희미한 불완전 막 염색 → `true`, 초저발현)와 `result`를 **있는 것 모두** | 해석 + 사전 | `c-erbB2 2+, SISH 음성` → `{"score":"2+","result":"negative"}` | `gdc_her2_ihc_score`, `gdc_her2_status_by_ihc`, `gdc_her2_fish_status` |
 | `her2_ish` | HER2 ISH (FISH/SISH/DISH) | `{result, method}` | 해석 + 사전 | `SISH: not amplified` → `{"result":"not_amplified","method":"SISH"}` | `gdc_her2_fish_status` |
+| `pdl1` [draft5] | PD-L1 발현 (면역염색) | `{assay, score_type, score}` | 해석 + 사전 | `PD-L1 (22C3) CPS 12` → `{"assay":"22C3","score_type":"CPS","score":12}` | 없음 (`not_recorded`). 판정은 B가 약제별로 |
 
 `result` 표준값: `positive` / `low_positive` (저발현, **ER만**, 1–10%) / `negative` / `indeterminate` / `unknown` (HER2만)
 
@@ -155,20 +159,20 @@ Mixed·Other의 자유 기재(`gdc_histologic_diagnosis_other`, 예: "infiltrati
 - 구간과 판정이 있으면 둘 다 넣는다.
 - ER 판정 `Low Positive`는 `low_positive`로 바꾼다. PR에는 `Low Positive`가 없다.
 - 원본 구간 `<10%`는 크롭 스크립트(`data/script/tcga_brca_crop.py`)가 판정에 따라 둘로 나눴다 (2026-10-12). 그래서 정답에는 `<10%`가 없다.
-  - ER: `<10%` + Positive → 판정 `Low Positive`, 구간 `1-9%` → `{"range":[1,9],"result":"low_positive"}` (16명)
-  - PR: `<10%` + Positive → 판정 `Positive` 유지, 구간 `1-9%` → `{"range":[1,9],"result":"positive"}` (53명)
+  - ER: `<10%` + Positive → 판정 `Low Positive`, 구간 `1-9%` → `{"range":[1,9],"result":"low_positive"}` (15명)
+  - PR: `<10%` + Positive → 판정 `Positive` 유지, 구간 `1-9%` → `{"range":[1,9],"result":"positive"}` (52명)
   - `<10%` + Negative → 구간 `<1%` → `{"range":[0,0],"result":"negative"}` (ER 48명, PR 76명)
   - 가정: Negative를 1% 기준 음성으로 본다. 1% 기준은 2010년 ASCO/CAP 지침부터라, 2010년 이전 진단(ER 40명, PR 55명)의 음성 판정은 10% 기준이었을 수 있다. 변경 기록 `tcga_brca_merging_cropped_changes.txt`에 환자 목록이 있다.
 
-정답 세트(997명, 2026-10-14 재집계) 건수:
+정답 세트(985명, 2026-10-15 재집계) 건수:
 
 | 경우 | ER | PR | 정답 value |
 |---|---|---|---|
-| 구간 + 판정 | 436 | 404 | `{"range":[90,99],"result":"positive"}` |
-| 판정만 | 517 | 548 | `{"result":"positive"}` |
+| 구간 + 판정 | 435 | 403 | `{"range":[90,99],"result":"positive"}` |
+| 판정만 | 506 | 537 | `{"result":"positive"}` |
 | 판정 `[Not Evaluated]` | 44 | 45 | `status: not_done` |
 
-판정값 분포: ER positive 728 / negative 208 / low_positive 16 / indeterminate 1, PR positive 648 (이 중 1-9% 53) / negative 300 / indeterminate 4.
+판정값 분포: ER positive 720 / negative 205 / low_positive 15 / indeterminate 1, PR positive 641 (이 중 1-9% 52) / negative 295 / indeterminate 4.
 
 ### HER2 IHC 규칙 [A 결정]
 
@@ -184,7 +188,7 @@ TCGA 건수 (score 2+ 또는 Equivocal):
 
 | score | 원래 판정 | FISH | 정답 value | 건수 |
 |---|---|---|---|---|
-| 2+ | Equivocal | Negative | `{"score":"2+","result":"negative"}` | 120 |
+| 2+ | Equivocal | Negative | `{"score":"2+","result":"negative"}` | 118 |
 | 2+ | Equivocal | Positive | `{"score":"2+","result":"positive"}` | 17 |
 | 2+ | Equivocal | Equivocal / [Not Available] / [Not Evaluated] | `{"score":"2+","result":"unknown"}` | 2 / 1 / 15 |
 | 2+ | Positive | Negative | `{"score":"2+","result":"negative"}` (판정이 바뀜) | 6 |
@@ -197,7 +201,7 @@ TCGA 건수 (score 2+ 또는 Equivocal):
 | 없음 → 2+ | Equivocal | Negative | `{"score":"2+","result":"negative"}` | 5 |
 | 없음 → 2+ | Equivocal | Equivocal / [Not Evaluated] | `{"score":"2+","result":"unknown"}` | 1 / 1 |
 
-건수는 정답 세트(997명) 기준이다 (2026-10-13 재집계).
+건수는 정답 세트(985명) 기준이다 (2026-10-15 재집계).
 
 참고:
 
@@ -240,10 +244,11 @@ TCGA 건수 (score 2+ 또는 Equivocal):
 
 | 필드 | 의미 | 표준값 형태 | 정규화 방식 | 원문 → 정규화 예시 | TCGA 열 |
 |---|---|---|---|---|---|
-| `gender` [제안, A 결정] | 성별 | `FEMALE` / `MALE` | 사전 | `F/62` → `"FEMALE"` | `gdc_gender` (정리본은 FEMALE 997명) |
+| `gender` [제안, A 결정] | 성별 | `FEMALE` / `MALE` | 사전 | `F/62` → `"FEMALE"` | `gdc_gender` (정리본은 FEMALE 985명) |
 | `age` | 진단 시 나이 | 정수 | 해석 | `F/62` → `62` | `gdc_age_at_diagnosis` |
 | `menopausal_status` | 폐경 여부 | `premenopausal` / `perimenopausal` / `postmenopausal` / `indeterminate` | 사전 | `폐경 후 상태` → `"postmenopausal"` | `gdc_menopause_status` |
 | `ecog` | 전신 수행 상태 | `0`~`4` | 해석 | `ECOG PS 1` → `1` | 없음 (합성) |
+| `menopausal_basis` [draft5] | 폐경 판정 근거 | `age_amenorrhea` / `fsh` / `oophorectomy` / `unknown` | 사전 | `양측 난소절제술 후` → `"oophorectomy"` | 없음 (`not_recorded`) |
 
 - 성별은 범위 외 판정(남성 유방암)에 쓰인다
 - 폐경 여부는 적힌 것만 옮긴다. 마지막 생리일(LMP)만 있으면 계산하지 않고 `raw`에 남긴다
@@ -251,7 +256,7 @@ TCGA 건수 (score 2+ 또는 Equivocal):
 
 ## 8. 치료 이력 (`fields.treatment_history[]`)
 
-항목 하나가 요법 하나다.
+항목 하나가 투약 기록 하나다. 원본 한 기록에 약이 여러 개면(AC 등) 한 항목에 여러 약이 들어간다. 여러 기록을 한 요법으로 묶는 판단은 B가 한다 (handoff_to_B.md §6.2) [2026-10-15 변경].
 
 | 필드 | 의미 | 표준값 형태 | 정규화 방식 | 원문 → 정규화 예시 | TCGA 정답 규칙 |
 |---|---|---|---|---|---|
@@ -259,21 +264,24 @@ TCGA 건수 (score 2+ 또는 Equivocal):
 | `setting` | 치료 단계 | `neoadjuvant` / `adjuvant` / `metastatic` / `unknown` | 사전 | `수술 전 항암` → `"neoadjuvant"` | 유도 규칙 (tcga_mapping.md §3.6) |
 | `start_date` | 시작일 | `YYYY-MM-DD` | 해석 | `'25.1.10부터` → `"2025-01-10"` | [A 결정] TCGA에는 날짜가 없으므로 `null` |
 | `end_date` | 종료일 | `YYYY-MM-DD` 또는 `null` | 해석 | `2026.6.20 중단` → `"2026-06-20"` | [A 결정] TCGA에는 날짜가 없으므로 `null` |
-| `duration_days` [제안, A 결정] | 투여일 (일) | 정수 또는 `null` | 해석 | `2025.1.10 ~ 2025.3.10` → `59` | [A 결정] TCGA에서만 `d종료 − d시작` |
-| `stop_reason` | 중단 사유 | `progression` / `toxicity` / `completed` / `other` [제안] | 사전 | `PD로 중단` → `"progression"` | 없음 |
+| `start_day`, `end_day` [draft5] | 시작일·종료일 (진단일 = 0) | 정수 또는 `null` | 해석 (날짜 → 진단일 기준 일수) | 진단 2024-03-05, 시작 2024-04-04 → `30` | 크롭본 `drug_start_days`, `drug_end_days` |
+| `duration_days` [제안, A 결정] | 투여일 (일) | 정수 또는 `null` | 해석 | `2025.1.10 ~ 2025.3.10` → `59` | `end_day − start_day` |
+| `cycles` [draft5] | 주기 수와 주기 길이 | `{value, basis, interval_days, interval_basis}` 또는 `null` | 해석 | `AC q3w #4` → `{"value":4,"basis":"recorded","interval_days":21,"interval_basis":"recorded"}` | tcga_mapping.md §3.6 |
+| `progression_day` [draft5] | 진행일 (진단일 = 0) | 정수 또는 `null` | 해석 | `2026.3 CT상 PD` → 진단일 기준 일수 | 없음 (`null`) |
+| `stop_reason` | 중단 사유 | `progression` / `toxicity` / `completed` / `planned_switch` / `maintenance` / `other` | 사전 | `PD로 중단` → `"progression"` | 없음 |
 | `best_response` | 최선 반응 | `CR` / `PR` / `SD` / `PD` / `unknown` | 사전 | `완전관해` → `"CR"` | 괄호 안 반응 |
 | `source` | 원문 근거 | 공통 틀과 같음 | — | `{"doc_id":"D3","quote":"AI + palbociclib, PD"}` | 가상 차트 생성 시 채움 |
 
 `duration_days` TCGA 규칙 [A 결정]:
 
-| `drug_timeline` 항목 형태 | 건수 | 정답 |
+| 시작일·종료일 (`drug_start_days`, `drug_end_days`) | 건수 | 정답 |
 |---|---|---|
-| `d63~d126` (시작·종료 있음) | 1,652 | `126 − 63 = 63` |
-| `d1828~?` (종료 모름) | 494 | `null` |
-| `날짜 없음` | 88 | `null` |
+| 둘 다 있음 (예: 63, 126) | 1,615 | `126 − 63 = 63` |
+| 종료 모름 | 482 | `null` |
+| 시작 모름 (그중 종료만 있는 31건) | 84 | `null` |
 
-- 종료일이 시작일보다 앞선 항목은 없다 (0건).
-- 상대 일수(d시작)는 출력에는 넣지 않고, 정답 생성 코드 안에서 요법 순서 정렬과 `setting` 유도에만 쓴다.
+- 투약 기록 2,181건 기준 (성분명 `unknown` 제외).
+- [변경, 2026-10-15, draft5] 상대 일수는 `start_day`·`end_day`로 정답에 넣는다. 이전 결정("출력에 넣지 않음")은 폐기.
 
 ## 9. 선행요법 반응, 재발, 유전자 보고서
 
@@ -281,13 +289,16 @@ TCGA 건수 (score 2+ 또는 Equivocal):
 |---|---|---|---|---|---|
 | `neoadjuvant_response.pcr` | 병리적 완전관해 | `yes` / `no` | 사전 | `pCR 달성` → `"yes"` | 없음 (합성) |
 | `neoadjuvant_response.rcb` | 잔존암 부담 등급 | `RCB-0` / `RCB-I` / `RCB-II` / `RCB-III` | 사전 + 해석 | `RCB class II (index 2.1)` → `"RCB-II"` | 없음 (합성) |
-| `recurrence.recurrence_date` | 재발일 | 날짜 | 해석 | `2026년 6월 간 전이로 재발` → `"2026-06"` [제안: 부분 날짜] | `nte_first_dx_days` |
-| `recurrence.adjuvant_endocrine_end_date` | 보조 내분비요법 종료일 | 날짜 | 해석 | `타목시펜 5년 복용 후 2023.3 종료` → `"2023-03"` | `drug_timeline`에서 유도 |
+| `recurrence.recurrence_date` | 재발일 | 날짜 | 해석 | `2026년 6월 간 전이로 재발` → `"2026-06"` [제안: 부분 날짜] | `not_recorded` (전이 기준일은 `metastasis_day`) |
+| `recurrence.adjuvant_endocrine_end_date` | 보조 내분비요법 종료일 | 날짜 | 해석 | `타목시펜 5년 복용 후 2023.3 종료` → `"2023-03"` | `not_recorded` (B가 `end_day`로 계산) |
+| `recurrence.status`, `metastatic_sites`, `metastasis_day`, `surgery`, `surgery_intent`, `later_distant` [draft5] | 재발 상태, 재발 전이 부위, 전이 기준일, 재발 후 수술 | handoff_to_B.md §3.1 | 사전 + 해석 | `2026.6 간 전이 재발` → `status: distant`, `metastatic_sites: ["liver"]` | tcga_mapping.md §3.7 |
+| `anthracycline_drug_dose` [draft5] | anthracycline 투여 여부와 약별 용량 | `{administered, drugs[]}` | 해석 | `doxorubicin 60 mg/m2 #4` → `{"drug":"doxorubicin","dose_per_admin":{"value":60,"unit":"mg/m2"}, …}` | tcga_mapping.md §3.7a |
+| `molecular.mutations.{유전자}` [draft5] | 유전자별 변이 (ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2) | `{status, result, variants[], specimen}` | 해석 | `PIK3CA H1047R, VAF 31%` → `{"status":"present","result":"detected","variants":[…]}` | `mut_*` (tcga_mapping.md §3.8) |
 | `genomic_reports[].specimen` | 검체 | `primary` / `metastasis` / `cfDNA` / `unknown` | 사전 | `혈장 cfDNA NGS` → `"cfDNA"` | 원발(01) 고정 |
 | `genomic_reports[].report_date` | 보고일 | `YYYY-MM-DD` | 해석 | `보고일 2026-07-01` → `"2026-07-01"` | `null` |
 | `genomic_reports[].raw_text` | 보고서 원문 | 문자열 | **그대로** | `ESR1 p.Y537S detected, VAF 4.2%` → 그대로 | `mut_*`, `cna_*`로 가상 보고서 |
 
-- 유전자 보고서는 검체와 날짜만 정리하고 변이 내용은 손대지 않는다 (B의 BM-1~3)
+- 유전자 보고서(`genomic_reports`)는 검체와 날짜만 정리하고 원문은 손대지 않는다. TCGA 정답은 유전자별 값을 `molecular.mutations`에도 넣는다. 변이의 의미 판정은 B의 BM-2·BM-3
 - pCR은 명시된 경우만 옮긴다. `ypT0 ypN0`처럼 병기만 있으면 병기만 저장한다
 
 ## 10. B와 합의할 항목
@@ -323,6 +334,8 @@ A가 받아들인 제안과 A 결정이다. 2026-10-12에 `schemas/patient_state
 | TCGA 정답에서 BRCA1/2 체세포 결과를 gBRCA 측정으로 가정. B가 positive / negative / vus 판정 | 협의 완료 (2026-10-15). handoff_to_B.md §4.7 |
 | 차수(line)는 정답에 넣지 않고 B가 `start_day`·`metastasis_day`로 판단 | 협의 완료 (2026-10-15). handoff_to_B.md §6.2 |
 | 진단 시 M0(`cM0(i+)` 포함)이면 `stage.metastatic_sites`를 `[Not Applicable]`로 (원본 전이 여부가 `[Not Available]`이어도) | 사용자 결정 (2026-10-15). tcga_mapping.md §3.2 |
+| 점수 없는 HER2 Equivocal 7명에 `score: "2+"` 채우기 | A 결정 |
+| `treatment_history`는 투약 기록 하나 = 항목 하나. 같은 날 시작한 별도 기록·중복 기록을 묶지 않음 (요법 묶음은 B) | 사용자 결정 (2026-10-15) |
+| ER 판정: Allred 총점 우선 (0~2 음성, 3~4 저발현, 5는 비율로 가름, 6~8 양성). HER2 `faint` = IHC 0 + 10% 이하 세포의 희미한 불완전 막 염색 | 사용자 결정 (2026-10-15). handoff_to_B.md §4.1·§4.4 |
 
 draft5 필드의 TCGA 변환 규칙은 [tcga_mapping.md](tcga_mapping.md) §3.6·§3.7·§3.7a·§3.8에 있다.
-| 점수 없는 HER2 Equivocal 7명에 `score: "2+"` 채우기 | A 결정 |
