@@ -28,7 +28,7 @@
 ## 0. 요약
 
 1. A는 환자마다 `patient_state` JSON 하나를 넘긴다. 형식은 `schemas/patient_state.json`(0.1-draft5)이고, 스키마 검증을 통과한 것만 보낸다.
-2. A는 **적힌 값을 표준 표기로 정리**만 한다. 양성·음성·저발현 판정은 B가 한다. 예외는 하나: HER2 IHC의 `result`는 A가 ISH 결과로 보정해서 넘긴다 (§3.4). 그래서 **HER2는 `result`보다 `score`를 먼저 읽어야** 저발현을 놓치지 않는다.
+2. A는 **적힌 값을 표준 표기로 정리**만 한다. 양성·음성·저발현 판정은 B가 한다. 예외는 둘이다. HER2 IHC의 `result`는 A가 ISH 결과로 보정해서 넘긴다 (§3.4). 그래서 **HER2는 `result`보다 `score`를 먼저 읽어야** 저발현을 놓치지 않는다. 또 TCGA 정답의 ER `low_positive`·PR `[1, 9]` 구간은 원본에 적힌 판정이 아니라, A가 크롭 단계에서 원본 구간 `<10%`와 판정 Positive를 나눠 만든 값이다 (§7).
 3. 저발현 판정값(`low_positive`)은 **ER에만** 있다 (ASCO/CAP 2020). PR은 양성/음성 두 범주만 쓴다 (§4.2).
 4. 재발 환자는 **재생검(재발 병소) 결과가 `value`**이고, 원발 결과는 `history[]`에 있다 (§3.5). 가상 차트·실제 차트에만 해당하고, **TCGA 정답은 원발 결과만** 쓴다.
 5. `not_done`(미시행)과 `not_recorded`(기록 없음)는 다르다. 미시행만 검사 권고 대상이다.
@@ -125,7 +125,7 @@ patient_state.json
 │   │       ├── dose_per_admin   {value, unit} 또는 "No value"
 │   │       ├── cycles           cycles 형식 또는 "No value"
 │   │       ├── total_dose       {value, unit} 또는 "No value"
-│   │       └── raw
+│   │       └── raw, source
 │   ├── neoadjuvant_response
 │   │   ├── pcr               yes / no
 │   │   └── rcb               RCB-0 ~ RCB-III
@@ -140,7 +140,7 @@ patient_state.json
 │   ├── molecular
 │   │   └── mutations
 │   │       └── ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2
-│   │           ├── status    present / not_done
+│   │           ├── status    present / not_done / not_recorded
 │   │           ├── result    detected / not_detected
 │   │           ├── variants[]  {protein_change, variant_type, vaf, raw}
 │   │           └── specimen
@@ -380,7 +380,7 @@ ASCO/CAP 2020은 PR에 저발현 범주를 두지 않는다: 1% 이상 양성, 1
 
 예: `{"percent": 5, "result": "positive"}`, `{"range": [0,0], "result": "positive"}`.
 
-- 제안: 수치(`percent` → `range` → `allred.ps` → `allred.total`)로 판정하고, 적힌 판정과 다르면 `reason`에 둘 다 적고 확인이 필요하다고 표시한다.
+- 제안: 수치로 판정하고(ER은 §4.1 순서: Allred 총점 → 비율, PR은 §4.2 순서: `percent` → `range` → `allred.ps` → `allred.total`), 적힌 판정과 다르면 `reason`에 둘 다 적고 확인이 필요하다고 표시한다.
 - TCGA 정답에서는 이런 경우가 없도록 크롭 단계에서 맞췄다.
 
 ### 4.4 HER2 (score를 먼저 읽음)
@@ -555,6 +555,9 @@ PROJECT.md §5 판정 기준표의 "OncoKB 발암성 변이"를 아래로 바꾸
 | sacituzumab govitecan: 선행·보조요법 중 또는 종료 후 **1년** 이내 재발이면 1차로 간주 | p.63 |
 | pembrolizumab + 항암 1차 (TNBC): 보조요법 종료 후 **6개월 이후** 재발 포함 | p.58 |
 | bevacizumab + paclitaxel 1차: paclitaxel 보조요법 종료 후 **1년 이후** 재발만 | p.58 |
+| lapatinib + letrozole 1차 (HER2+, HR+): AI 보조요법 종료 후 **1년 이후** 재발만 | p.58 |
+| trastuzumab + anastrozole (HER2+, HR+): trastuzumab·AI 보조요법 종료 후 **1년 이후** 재발만 | p.60 |
+| ribociclib + AI 1차, 폐경 전: AI 외 내분비요법·항암화학요법 보조요법 중 또는 종료 후 **1년 이내** 재발, 또는 고식적 항암화학요법 1차 실패도 급여 | p.55 |
 
 기간 계산은 보조요법의 `end_day`와 `recurrence.metastasis_day`의 차이로 한다.
 
@@ -603,7 +606,7 @@ A는 판정하지 않는다. B가 약제별로 판정한다.
 | 범주 | 현재 범주: 조기 742, 국소 진행성 212, 전이성 31 |
 | 날짜 | 모두 비움 (`not_recorded` 또는 `null`). 대신 진단일 기준 일수(`start_day`, `end_day`, `metastasis_day`)를 넣음 |
 | ER·PR 점수 | 넣지 않음. TCGA 점수 열은 입력이 적고(약 19%) 척도가 섞여 있어 잘못 해석될 수 있음 |
-| ER 저발현 | 원본 구간 `<10%` + 판정 Positive → `{"range":[1,9],"result":"low_positive"}` **15명** |
+| ER 저발현 | 원본 구간 `<10%` + 판정 Positive → `{"range":[1,9],"result":"low_positive"}` **15명**. 원본에는 `Low Positive`라는 판정이 없고, A가 크롭 단계에서 만든 값이다 |
 | PR 1~9% | 원본 구간 `<10%` + 판정 Positive → `{"range":[1,9],"result":"positive"}` **52명** (B가 `PR-low` 태그를 붙일 대상) |
 | ER·PR `<1%` | 원본 구간 `<10%` + 판정 Negative → `{"range":[0,0],"result":"negative"}` ER 48명, PR 76명. **가정이 들어간 값**: 1% 기준은 2010년부터라, 2010년 이전 진단(ER 40명, PR 55명)은 10% 기준 음성이었을 수 있음. ER 저발현 경계 사례 테스트에는 `[1,9]` 환자만 쓰기를 권함 |
 | HER2 | score 2+ 또는 Equivocal 194명에 §3.4 보정 적용 (점수 없는 Equivocal 7명은 `2+` 채움). 결과: `{"score":"2+","result":"negative"}` 132명(저발현 후보) / `{"score":"2+","result":"positive"}` 39명 / `{"score":"2+","result":"unknown"}` 20명 / `{"score":"1+","result":"negative"}` 2명 / `{"score":"3+","result":"negative"}` 1명(원자료끼리 어긋남) |
@@ -619,7 +622,7 @@ A는 판정하지 않는다. B가 약제별로 판정한다.
 | 범주 | 파일 | 특징 |
 |---|---|---|
 | 조기 | `src/input/examples/patient_state_early_TCGA-5L-AAT0.json` | IIA기, ILC, ER+/HER2 1+(저발현 후보), PIK3CA H1047L, tamoxifen 보조요법 |
-| 국소 진행성 | `src/input/examples/patient_state_locally_advanced_TCGA-A2-A0YG.json` | IIIC기, HR+/HER2 3+, AC(21일 간격) → paclitaxel(매주) + trastuzumab → anastrozole |
+| 국소 진행성 | `src/input/examples/patient_state_locally_advanced_TCGA-A2-A0YG.json` | IIIC기, HR+/HER2 3+, AC(21일 간격) → paclitaxel(매주) + trastuzumab, docetaxel 1회(173일) → anastrozole(날짜 없음) |
 | 전이성 | `src/input/examples/patient_state_metastatic_TCGA-A2-A0EW.json` | IIIC기 → 1,353일째 뼈 전이 재발. 보조 AC → T → AI(exemestane 투여 중 진행). 전이 후 fulvestrant → tamoxifen → liposomal doxorubicin. doxorubicin 범위 용량(115-116 → 116) |
 
 전이성 예시의 차수 판단: `metastasis_day` 1,353 이후 시작한 fulvestrant(1,366일) = 1L, tamoxifen(1,618일) = 2L, liposomal doxorubicin(1,696일) = 3L. 급여 기준으로는 고식적 내분비요법 1·2차, 고식적 항암화학요법 1차. 골 보호제(zoledronic acid, denosumab)는 차수에서 뺀다.
@@ -632,7 +635,7 @@ A는 판정하지 않는다. B가 약제별로 판정한다.
 ```json
 {
   "schema_version": "0.1-draft5",
-  "patient_ref": "TCGA-XX-0001",
+  "patient_ref": "VC-0001",
   "created_at": "2026-10-12T19:00:00+09:00",
   "documents": [
     {"doc_id": "D1", "doc_type": "pathology", "doc_date": null},
@@ -646,8 +649,10 @@ A는 판정하지 않는다. B가 약제별로 판정한다.
                     "source": {"doc_id": "D1", "quote": "invasive ductal carcinoma"}}
     },
     "stage": {
-      "metastatic_sites": {"status": "present", "value": ["bone", "liver"], "raw": "뼈, 간 전이",
-                           "source": {"doc_id": "D2", "quote": "뼈, 간 전이"}}
+      "disease_extent": {"status": "present", "value": "early", "raw": "pT2 pN1a M0",
+                         "source": {"doc_id": "D1", "quote": "pT2 pN1a M0"}},
+      "metastatic_sites": {"status": "present", "value": "[Not Applicable]", "raw": "M0",
+                           "source": {"doc_id": "D1", "quote": "pT2 pN1a M0"}}
     },
     "receptors": {
       "er_percent": {"status": "present", "value": {"range": [70, 79], "result": "positive"}, "specimen": "metastasis",
@@ -679,7 +684,8 @@ A는 판정하지 않는다. B가 약제별로 판정한다.
     "neoadjuvant_response": {},
     "recurrence": {"recurrence_date": {"status": "not_recorded"},
                    "status": {"status": "present", "value": "distant"},
-                   "metastatic_sites": {"status": "present", "value": ["bone", "liver"]},
+                   "metastatic_sites": {"status": "present", "value": ["bone", "liver"], "raw": "뼈, 간 전이",
+                                        "source": {"doc_id": "D2", "quote": "뼈, 간 전이"}},
                    "metastasis_day": {"status": "present", "value": 1480}},
     "molecular": {"mutations": {
       "PIK3CA": {"status": "present", "result": "detected", "specimen": "primary",
@@ -702,7 +708,7 @@ B의 기대 출력 (§4 조건을 따른 경우). `oncokb` 칸은 현재 스키�
 ```json
 {
   "schema_version": "0.1-draft",
-  "patient_ref": "TCGA-XX-0001",
+  "patient_ref": "VC-0001",
   "records": [
     {"marker": "ER", "status": "positive", "reason": "재발 병소 70-79% (10% 초과). 원발 90-99%에서 유지",
      "rule_id": "BM2-ER-RANGE", "evidence": {"specimen": "metastasis"},
