@@ -1,6 +1,6 @@
 # schemas/ — 모듈 간 데이터 형식 (공용, 4명 합의)
 
-모듈끼리 주고받는 JSON 형식을 [JSON Schema 2020-12](https://json-schema.org/)로 정의한다. 지금 파일은 **0단계 검토용 초안**이다 (`patient_state`는 `0.1-draft4`, 나머지는 `0.1-draft`). 4명 검토가 끝나면 `"0.1"`로 올린다.
+모듈끼리 주고받는 JSON 형식을 [JSON Schema 2020-12](https://json-schema.org/)로 정의한다. 지금 파일은 **0단계 검토용 초안**이다 (`patient_state`는 `0.1-draft5`, 나머지는 `0.1-draft`). 4명 검토가 끝나면 `"0.1"`로 올린다.
 
 바꿀 때는 4명이 모두 검토한다. 필드를 추가·삭제하면 이 README의 표와 예시도 함께 고친다.
 
@@ -16,7 +16,7 @@
 
 | 파일 | 내용 | 만드는 쪽 | 쓰는 쪽 | 초안 검토 |
 |---|---|---|---|---|
-| [patient_state.json](patient_state.json) (0.1-draft4) | 차트에서 추출한 환자 상태 | [1] 입력 (A) | [2], [4] | B, C, D |
+| [patient_state.json](patient_state.json) (0.1-draft5) | 차트에서 추출한 환자 상태 | [1] 입력 (A) | [2], [4] | B, C, D |
 | [biomarker_record.json](biomarker_record.json) | 바이오마커 상태값, 아형, 치료 상황, 검사 공백 | [2] 바이오마커 (B) | [3] 필터, [4] | A, C, D |
 | [chunk.json](chunk.json) | 검색 색인 청크 (지침·급여 공용) | [3] (C), [5] (D) | [3] 색인, [4] | D 필수, A, B |
 | [recommendation.json](recommendation.json) | 처방 후보, 급여 분류, 검사 권고 | [4] 추천 (B) | 출력 화면 | A, C, D |
@@ -45,7 +45,7 @@
 
 ## 3. patient_state.json — [1] 입력 → [2], [4]
 
-버전 `0.1-draft4` (2026-10-13, `stage.disease_extent` 추가). 필드별 표준값, 정규화 예시, TCGA 정답 규칙은 [src/input/schema_fields.md](../src/input/schema_fields.md)에 있다.
+버전 `0.1-draft5` (2026-10-15, 진단일 기준 일수·투여 주기·재발·전이·PD-L1·유전자 변이·anthracycline 용량 추가. B 전달 문서: [src/input/handoff_to_B_draft5.md](../src/input/handoff_to_B_draft5.md)). 필드별 표준값, 정규화 예시, TCGA 정답 규칙은 [src/input/schema_fields.md](../src/input/schema_fields.md)에 있다.
 
 추출값 하나는 모두 같은 틀(`$defs/extracted`)이고, `value`의 형태만 필드마다 다르다.
 
@@ -70,23 +70,30 @@
 | | `disease_extent` | `early`(I~II기) / `locally_advanced`(III기, 심평원 급여 조건) / `metastatic`(IV기). 진단 시 기준 |
 | | `positive_ln_count` | `{positive, examined}`. 각각 정수 또는 `"[Not Available]"` |
 | | `metastatic_sites` | 부위 목록 또는 `"[Not Applicable]"` / `"[Not Available]"` |
+| | `operable` | `yes` / `no` / `unknown` (수술 가능 여부) |
 | receptors | `er_percent`, `pr_percent` | `{percent, range, score, allred, result}` 중 있는 것 모두. `allred`는 `{total, ps, is}`. `result`: `positive`·`negative`·`indeterminate`, ER만 `low_positive` 추가 |
 | | `her2_ihc` | `{score, faint, result}` 중 있는 것 모두. `result`는 ISH로 보정한 값 (`unknown` 포함) |
 | | `her2_ish` | `{result, method}` |
+| | `pdl1` | `{assay, score_type, score}`. 발현 점수. 판정은 B가 약제별로 (22C3 CPS ≥ 10 등) |
 | proliferation | `ki67_percent` | `{percent, range, result}` |
-| patient | `gender`, `age`, `menopausal_status`, `ecog` | `FEMALE`·`MALE` / 정수 / 폐경 4종 / `0`~`4` |
-| treatment_history[] | 요법 하나 | `drugs`, `setting`, `start_date`, `end_date`, `duration_days`, `stop_reason`, `best_response`, `source` |
+| patient | `gender`, `age`, `menopausal_status`, `menopausal_basis`, `ecog` | `FEMALE`·`MALE` / 정수 / 폐경 4종 / `age_amenorrhea`·`fsh`·`oophorectomy`·`unknown` / `0`~`4` |
+| treatment_history[] | 투약 기록 하나 | `drugs`, `setting`, `start_date`, `end_date`, `start_day`, `end_day`, `duration_days`, `cycles` (`{value, basis, interval_days, interval_basis}`), `progression_day`, `stop_reason`, `best_response`, `source` |
+| anthracycline_drug_dose | `administered`, `drugs[]` | `positive`·`negative`·`No value` / 약별 `dose_per_admin`, `cycles`, `total_dose` (`{value, unit}` 또는 `"No value"`) |
 | neoadjuvant_response | `pcr`, `rcb` | `yes`·`no` / `RCB-0`~`RCB-III` |
 | recurrence | `recurrence_date`, `adjuvant_endocrine_end_date` | 날짜 |
+| | `status` | `none`·`distant`·`locoregional`·`site_unknown`·`unknown` |
+| | `metastatic_sites`, `metastasis_day` | 재발 전이 부위 목록 / 전이 기준일 (진단일 = 0, 진단 시 IV기 = 0) |
+| | `surgery`, `surgery_intent`, `later_distant` | 재발 후 수술 `yes`·`no`·`unknown` / `curative`·`palliative`·`unknown` / 국소 재발 후 원격 전이 `yes`·`no`·`unknown` |
+| molecular | `mutations.{ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2}` | `{status, result, variants[], specimen}`. 변이 있음 = `detected`, 변이 없음 = `not_detected`, 미시행 = `status: not_done` |
 | genomic_reports[] | 보고서 하나 | `doc_id`, `report_date`, `specimen`, `raw_text` (해석하지 않음) |
 
-TCGA 정답은 실제 날짜가 없으므로, 날짜 칸은 추출값이면 `status: not_recorded`, 치료 이력·보고서의 날짜는 `null`이다.
+TCGA 정답은 실제 날짜가 없으므로, 날짜 칸은 추출값이면 `status: not_recorded`, 치료 이력·보고서의 날짜는 `null`이다. 대신 진단일 기준 일수(`*_day`)를 넣는다. 차수(line)는 정답에 넣지 않고 B가 `start_day`와 `metastasis_day`로 판단한다 (2026-10-15 협의).
 
 예시 (가상 차트에서 추출한 경우):
 
 ```json
 {
-  "schema_version": "0.1-draft4",
+  "schema_version": "0.1-draft5",
   "patient_ref": "VC-0001",
   "created_at": "2026-10-12T09:00:00+09:00",
   "documents": [
@@ -122,13 +129,18 @@ TCGA 정답은 실제 날짜가 없으므로, 날짜 칸은 추출값이면 `sta
     },
     "treatment_history": [
       {"drugs": ["letrozole", "palbociclib"], "setting": "metastatic", "start_date": "2025-01-10", "end_date": "2026-06-20",
-       "duration_days": 526, "stop_reason": "progression", "best_response": "PR",
+       "duration_days": 526, "start_day": 300, "end_day": 826, "cycles": null,
+       "stop_reason": "progression", "best_response": "PR",
        "source": {"doc_id": "D1", "quote": "AI + palbociclib, PD"}}
     ],
+    "anthracycline_drug_dose": {"administered": "negative", "drugs": []},
     "neoadjuvant_response": {},
     "recurrence": {
-      "recurrence_date": {"status": "not_recorded"}
+      "recurrence_date": {"status": "not_recorded"},
+      "status": {"status": "present", "value": "distant"},
+      "metastasis_day": {"status": "present", "value": 290}
     },
+    "molecular": {"mutations": {}},
     "genomic_reports": [
       {"doc_id": "D2", "report_date": "2026-07", "specimen": "cfDNA", "raw_text": "ESR1 p.Y537S detected, VAF 4.2%"}
     ]
@@ -155,7 +167,7 @@ TCGA 정답은 실제 날짜가 없으므로, 날짜 칸은 추출값이면 `sta
 | HER2 | positive, low, ultralow, zero, indeterminate, not_done, not_recorded |
 | ER | positive, low, negative, not_done, not_recorded |
 | PR, Ki-67 | positive, negative, not_done, not_recorded (Ki-67은 `evidence.percent` 사용) |
-| gBRCA1, gBRCA2, PALB2 | positive, negative, vus, not_done, not_recorded |
+| gBRCA1, gBRCA2, PALB2 | positive, negative, vus, not_done, not_recorded. TCGA 정답 세트에서는 `molecular.mutations.BRCA1/2`를 gBRCA 측정으로 가정해 판정 (2026-10-15 협의) |
 | sBRCA1, sBRCA2, PIK3CA, AKT1, PTEN | positive, negative, not_done, not_recorded |
 | ESR1 | positive, negative, retest_needed, not_done, not_recorded |
 | PD-L1 | positive, negative, not_done, not_recorded (`evidence.assay`, `evidence.score` 함께 저장) |
@@ -289,7 +301,7 @@ Draft202012Validator(schema).validate(data)  # 실패하면 ValidationError
 
 ## 8. 0단계에서 정할 것
 
-- [ ] `biomarker_record.setting`(치료 단계·차수)을 누가 산출하나: 입력 모듈(A)의 치료 이력 정리 vs 바이오마커 모듈(B). 초안은 B 출력에 둠
+- [x] `biomarker_record.setting`(치료 단계·차수)을 누가 산출하나 → B (2026-10-15 협의). A는 `treatment_history[].start_day`와 `recurrence.metastasis_day`를 넘긴다
 - [ ] 마커별 허용 상태값을 스키마로 강제할지 (B)
 - [ ] `chunk.reimbursement.conditions` 세부 키 목록 (D 초안, B 검토)
 - [ ] 검색 API 반환 형식: chunk 목록 + 점수 + 부모 청크. 별도 스키마(`search_result.json`)로 만들지 (C)

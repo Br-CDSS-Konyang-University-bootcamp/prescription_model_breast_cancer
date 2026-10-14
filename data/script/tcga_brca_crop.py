@@ -236,6 +236,8 @@ DESCRIPTIONS = {
         "nte_sites": "재발 부위",
         "nte_sites_other": "재발 부위 기타 자유 기재",
         "nte_first_dx_days": "첫 재발 진단일 (진단 후 일수)",
+        "nte_surgery": "재발 후 수술 여부 (new_tumor_event_surgery: YES / NO). 재발 기록 파일과 추적 관찰 v1.5·v2.1에서 모음. 값이 여럿이면 '; '로 이음",
+        "nte_surgery_days": "재발 후 수술일 (진단 후 일수, 가장 이른 값). 기록이 적음",
         "recurrence_status": "재발 상태. none(재발 없음) / distant(원격 전이 재발, 국소 재발이 함께 있어도 distant) / "
                              "locoregional(국소 재발만) / site_unknown(재발했으나 부위 기록 없음) / unknown(재발 여부 기록 없음) / "
                              "new_primary(새 원발암만, 진단 시 전이성인 경우만 남음). 환자·추적 관찰 파일의 재발 여부와 nte_types로 정함",
@@ -243,6 +245,8 @@ DESCRIPTIONS = {
                                   "원격 전이 재발 → metastatic, 그 밖은 진단 시 범주 그대로",
         "metastasis_dx_days": "전이 기준일 (진단 후 일수). 진단 시 전이성 = 0, 원격 전이 재발 = 가장 이른 원격 전이 진단일. "
                               "전이성이 아니면 빈칸. drug_timeline의 시작일과 비교해 전이 전·후 처방을 나누고 차수를 판단하는 재료",
+        "locoregional_dx_days": "첫 국소 재발 진단일 (진단 후 일수). 국소 재발 기록이 없으면 빈칸. metastasis_dx_days와 비교해 "
+                                "국소 재발 이후 원격 전이가 있었는지 판단 (국소 재발 후 수술후보조요법 인정, 공고 p.48)",
     },
     "치료 이력": {
         "gdc_history_neoadjuvant_treatment": "수술 전 선행요법 여부",
@@ -255,6 +259,11 @@ DESCRIPTIONS = {
         "drug_best_responses": "약물치료 최선 반응 (Complete Response, Stable Disease, Clinical Progressive Disease 등)",
         "drug_first_start_days": "첫 약물치료 시작일 (진단 후 일수)",
         "drug_timeline": "투약 타임라인. '성분명 [치료 종류] d시작~d종료 (최선 반응)', 종료일 모르면 ?",
+        "drug_total_dose": "투약별 총 투여량. drug_timeline과 같은 순서로 ' | '로 이음. 값이 없으면 -",
+        "drug_total_dose_units": "투약별 총 투여량 단위 (mg, mg/m2 등). drug_timeline과 같은 순서",
+        "drug_prescribed_dose": "투약별 1회 처방 용량. '60+600'처럼 병용 약 용량이 합쳐진 값이 있음. drug_timeline과 같은 순서",
+        "drug_dose_units": "투약별 1회 용량 단위 (mg, mg/m2 등). drug_timeline과 같은 순서",
+        "drug_cycles": "투약별 주기 수 (pharma_adjuvant_cycles_count). drug_timeline과 같은 순서",
         "drug_names_raw": "원본 약제명 (정규화 전, 대조용)",
         "drug_therapy_types_raw": "원본 치료 종류 (정규화 전, 대조용)",
     },
@@ -391,7 +400,8 @@ def recurrence_status(df):
     df["recurrence_status"] = [status(f, t) for f, t in zip(flags, types)]
 
 
-NEW_COLS = ["stage_disease_extent", "recurrence_status", "current_disease_extent", "metastasis_dx_days"]
+NEW_COLS = ["stage_disease_extent", "recurrence_status", "current_disease_extent", "metastasis_dx_days",
+            "locoregional_dx_days"]
 # 정리 기준을 바꿀 때마다 한 줄씩 추가한다 (변경 내역 txt의 0번 항목)
 HISTORY = [
     ("2026-10-07", "남성 환자와 불필요한 열 삭제, ER·PR <10% + Positive를 Negative로 바꿈"),
@@ -408,29 +418,58 @@ HISTORY = [
     ("2026-10-14", "현재 전이성 환자 중 전이 후 항암 투약 기록이 없는 환자 삭제. 차수는 정답에 넣지 않고 B 모듈이 판단하도록 "
                    "차수 판단 재료인 전이 기준일(metastasis_dx_days)을 추가 (1,043명 → 997명)"),
     ("2026-10-14", "TCGA 정답은 진단 시(원발 종양) 병리 병기·수용체만 쓴다. 재발 병소 수용체(gdc_nte_*)는 정답에 쓰지 않고 "
-                   "참고용으로만 남긴다 (재발 기록과 맞는 환자 1명뿐). 재발 병소 결과 우선 규칙(IN-4)은 가상 차트 등 다른 입력에만 적용"),
+                   "참고용으로만 남긴다 (재발 기록과 맞는 환자 1명뿐). 재발 병소 결과 우선 규칙(IN-4)은 가상 차트 등 다른 입력에만 적용"),    ("2026-10-14", "투약별 용량·주기 열 5개(drug_total_dose, drug_total_dose_units, drug_prescribed_dose, drug_dose_units, "
+                   "drug_cycles) 추가. anthracycline 누적 용량(심평원 기준 mg/m2) 확인용. 행 수는 그대로"),
+    ("2026-10-14", "재발 후 수술 여부(nte_surgery)와 수술일(nte_surgery_days) 열 추가. 행 수는 그대로"),
+    ("2026-10-14", "재발 기록과 맞지 않는 수술 기록 정리: 재발 없음인데 수술 YES인 환자 삭제, 재발 여부를 모르는데 "
+                   "수술 기록이 있는 환자는 nte_surgery·nte_surgery_days를 빈칸(기록 없음)으로 바꿈"),
+    ("2026-10-15", "anthracycline 병용 기록의 용량을 약별로 나눌 수 없는 4명 삭제 (약·용량 개수 다름, 용량에 약 이름, "
+                   "순서 불일치). 첫 국소 재발 진단일(locoregional_dx_days) 열 추가"),
 ]
+
+# anthracycline 병용 기록('+')의 용량을 약 순서대로 나눌 수 없는 환자 (사용자 결정, 2026-10-15)
+ANTHRACYCLINE_DOSE_UNSPLITTABLE = {
+    "TCGA-D8-A27N": "약 4개(paclitaxel+doxorubicin+cyclophosphamide+trastuzumab), 용량 2개(60+600)",
+    "TCGA-D8-A1XL": "약 3개(doxorubicin+cyclophosphamide+tamoxifen), 용량 2개",
+    "TCGA-D8-A140": "용량에 약 이름이 적힘 (60 doxorubicin+ 600 CPH)",
+    "TCGA-D8-A1JM": "약과 용량 순서가 다름 (doxorubicin+cyclophosphamide+tamoxifen, 1200+120+20)",
+}
 
 
 ANTICANCER = {"Chemotherapy", "Hormone Therapy", "HER2-targeted Therapy", "Other Targeted Therapy", "Immunotherapy"}
 TIMELINE_ITEM = r"\[(.*?)\] d(\d+)~"
 
 
-def metastasis_day(df):
-    """전이 기준일: 진단 시 전이성 = 0, 원격 전이 재발 = 원격 전이 기록 중 가장 이른 진단일."""
+def first_event_day(kind):
+    """재발 기록 3개 파일에서 사건 종류(kind 포함)별 가장 이른 진단일 (환자별)."""
     frames = []
     for name, need_yes in [("nte", False), ("follow_up_v4.0_nte", False), ("follow_up_v2.1", True)]:
         f = pd.read_csv(GDC_DIR / f"nationwidechildrens.org_clinical_{name}_brca.txt", sep="\t", skiprows=[1, 2],
                         dtype=str).fillna("")
         if need_yes:
             f = f[f["new_tumor_event_dx_indicator"] == "YES"]
-        frames.append(f.loc[f["new_tumor_event_type"].str.contains("Distant"),
+        frames.append(f.loc[f["new_tumor_event_type"].str.contains(kind),
                             ["bcr_patient_barcode", "new_tumor_event_dx_days_to"]])
     d = pd.concat(frames)
-    first = pd.to_numeric(d["new_tumor_event_dx_days_to"], errors="coerce").groupby(d["bcr_patient_barcode"]).min()
-    day = df["patient_id"].map(first).where(df["recurrence_status"] == "distant")
+    return pd.to_numeric(d["new_tumor_event_dx_days_to"], errors="coerce").groupby(d["bcr_patient_barcode"]).min()
+
+
+def metastasis_day(df):
+    """전이 기준일: 진단 시 전이성 = 0, 원격 전이 재발 = 원격 전이 기록 중 가장 이른 진단일."""
+    day = df["patient_id"].map(first_event_day("Distant")).where(df["recurrence_status"] == "distant")
     day[df["stage_disease_extent"] == "metastatic"] = 0
     df["metastasis_dx_days"] = day.astype("Int64")
+
+
+def locoregional_day(df):
+    """첫 국소 재발 진단일. 국소 재발 기록이 없으면 빈칸."""
+    df["locoregional_dx_days"] = df["patient_id"].map(first_event_day("Locoregional")).astype("Int64")
+
+
+def anthracycline_dose_drops(df):
+    """anthracycline 병용 기록의 용량을 나눌 수 없는 환자 (사용자 결정, 2026-10-15)."""
+    hit = df["patient_id"].isin(ANTHRACYCLINE_DOSE_UNSPLITTABLE)
+    return {"anthracycline 병용 용량을 약별로 나눌 수 없음": df.loc[hit, ["patient_id", "drug_prescribed_dose"]]}
 
 
 def post_metastasis_drops(df):
@@ -450,6 +489,21 @@ def post_metastasis_drops(df):
     return {"전이성: 원격 전이 진단일 기록 없음": df.loc[no_day, cols],
             "전이성: 투약 기록 없음": df.loc[no_drug, cols],
             "전이성: 전이 후 항암 투약 없음": df.loc[no_post, cols]}
+
+
+def surgery_cleanup(df):
+    """재발 기록과 맞지 않는 재발 후 수술 기록 (사용자 결정, 2026-10-14).
+
+    재발 없음인데 수술 YES → 삭제 대상으로 돌려준다.
+    재발 여부를 모르는데 수술 기록이 있음 → 수술 열을 빈칸(기록 없음)으로 바꾸고 환자 목록을 돌려준다.
+    """
+    surgery = df["nte_surgery"].fillna("")
+    contradict = (df["recurrence_status"] == "none") & surgery.str.contains("YES")
+    blank = (df["recurrence_status"] == "unknown") & (surgery != "")
+    blanked = sorted(df.loc[blank, "patient_id"])
+    df.loc[blank, ["nte_surgery", "nte_surgery_days"]] = pd.NA
+    drops = {"재발 없음인데 재발 후 수술 YES": df.loc[contradict, ["patient_id", "nte_surgery"]]}
+    return drops, blanked
 
 
 def recurrence_drops(df):
@@ -508,7 +562,7 @@ def write_columns_txt(df):
     OUT_COLS.write_text("\n".join(lines), encoding="utf-8-sig")
 
 
-def write_changes_txt(before, after, males, recoded, to_iv, by_tnm, dropped, df):
+def write_changes_txt(before, after, males, recoded, to_iv, by_tnm, dropped, df, surgery_blanked):
     lines = [f"TCGA-BRCA 정리본 변경 내역 ({OUT_CSV.name})", f"작성일 {date.today()}", "",
              f"원본: {SRC.name} (수정하지 않음)",
              f"결과: 환자 {before[0]:,}명 × {before[1]}열  →  {after[0]:,}명 × {after[1]}열",
@@ -556,6 +610,12 @@ def write_changes_txt(before, after, males, recoded, to_iv, by_tnm, dropped, df)
               "현재 전이성 환자 중 전이 후 항암 투약 기록이 없는 환자는 삭제했다 (2026-10-14, 1. 삭제한 행).",
               "차수는 정답에 넣지 않는다. B 모듈이 drug_timeline과 metastasis_dx_days(전이 기준일)로 판단한다",
               "결과: " + ", ".join(f"{k} {v}명" for k, v in cur.items()), ""]
+
+    lines += ["=" * 78, "1-0-3. 바꾼 값: 재발 후 수술 기록 (nte_surgery)", "=" * 78,
+              "사용자 결정 (2026-10-14). 재발 기록과 맞지 않는 수술 기록을 정리했다",
+              "  재발 없음인데 수술 YES → 행 삭제 (1. 삭제한 행)",
+              f"  재발 여부를 모르는데 수술 기록(NO)이 있음 → nte_surgery·nte_surgery_days를 빈칸(기록 없음)으로 바꿈 {len(surgery_blanked)}명",
+              "  " + (", ".join(surgery_blanked) or "없음"), ""]
 
     lines += ["=" * 78, "1-1. 바꾼 값: ER·PR 양성 세포 비율 <10%를 판정에 따라 둘로 나눔", "=" * 78,
               "사용자 결정 (2026-10-12). 원래 값은 tcga_brca_merged.csv에 그대로 있음",
@@ -645,16 +705,20 @@ def main():
     recurrence_status(df)
     dropped = {"종합 병기 [Discrepancy]·[Not Available]·빈칸 (A 정답 세트 규칙, 우선 적용)": excluded, **drop_rows(df)}
     dropped.update(recurrence_drops(df))
+    surgery_drops, surgery_blanked = surgery_cleanup(df)
+    dropped.update(surgery_drops)
     current_extent(df)
     metastasis_day(df)
+    locoregional_day(df)
     dropped.update(post_metastasis_drops(df))
+    dropped.update(anthracycline_dose_drops(df))
     drop_ids = set().union(*(set(d["patient_id"]) for d in dropped.values()))
     df = df[~df["patient_id"].isin(drop_ids)]
     df = df[[c for c in df.columns if c in keep_cols]]  # 원래 열 순서 유지, 새 열은 끝에
 
     df.to_csv(OUT_CSV, index=False, encoding="utf-8-sig")
     write_columns_txt(df)
-    write_changes_txt(before, df.shape, males, recoded, to_iv, by_tnm, dropped, df)
+    write_changes_txt(before, df.shape, males, recoded, to_iv, by_tnm, dropped, df, surgery_blanked)
 
     print(f"환자 {before[0]:,}명 × {before[1]}열 → {df.shape[0]:,}명 × {df.shape[1]}열")
     print(f"  남성 {len(males)}명 행 삭제, 열 {len(drop_cols)}개 삭제")

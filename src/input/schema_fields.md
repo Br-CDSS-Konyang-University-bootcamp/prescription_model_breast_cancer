@@ -1,6 +1,6 @@
 # patient_state 필드 정리와 정규화 예시
 
-> 담당 A · 2026-10-12 (2026-10-13 `stage.disease_extent` 추가) · 기준 스키마: `schemas/patient_state.json` (0.1-draft4)
+> 담당 A · 2026-10-12 (2026-10-13 `stage.disease_extent` 추가, 2026-10-15 draft5 필드 추가) · 기준 스키마: `schemas/patient_state.json` (0.1-draft5)
 
 입력 모듈(A)이 만드는 `patient_state`의 필드, 표준값 형태, 정규화 방식, 예시, TCGA 정답 생성 규칙을 정리한다. TCGA 열 변환의 세부 규칙은 [tcga_mapping.md](tcga_mapping.md)에 있다.
 
@@ -313,4 +313,16 @@ A가 받아들인 제안과 A 결정이다. 2026-10-12에 `schemas/patient_state
 | 부분 날짜(`YYYY-MM`, `YYYY`) 허용 | 스키마 반영 (0.1-draft3) |
 | `stage.disease_extent` 추가 (I~II 조기, III 국소 진행성, IV 전이성) | 사용자 결정 (2026-10-13), 스키마 반영 (0.1-draft4) |
 | TCGA 정답의 모든 날짜를 비움 (가상 날짜를 만들지 않음) | A 결정 (2026-10-12) |
+| 상대 일수(진단일 = 0) `start_day`·`end_day`·`metastasis_day`를 정답에 넣음. 날짜 칸은 계속 비움 | 사용자 결정 (2026-10-15), 스키마 반영 (0.1-draft5) |
+| `treatment_history[].cycles` (`value`, `basis`, `interval_days`, `interval_basis`), `progression_day`, `stop_reason`에 `planned_switch`·`maintenance` | 사용자 결정 (2026-10-15), 스키마 반영 (0.1-draft5) |
+| `anthracycline_drug_dose` (투여 여부, 약별 1회 용량·주기·총 투여량. 범위 용량은 최대값, 값이 없으면 `No value`) | 사용자 결정 (2026-10-15), 스키마 반영 (0.1-draft5) |
+| `recurrence.status`, `metastatic_sites`, `metastasis_day`, `surgery`, `surgery_intent`, `later_distant` | 사용자 결정 (2026-10-15), 스키마 반영 (0.1-draft5) |
+| `receptors.pdl1` (발현: 검사법, 점수 종류, 점수. 판정은 B) | 사용자 결정 (2026-10-15), 스키마 반영 (0.1-draft5) |
+| `molecular.mutations` 유전자별 (ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2): 변이 있음 / 변이 없음 / 미시행 | 사용자 결정 (2026-10-15), 스키마 반영 (0.1-draft5) |
+| `stage.operable`, `patient.menopausal_basis` (TCGA에 없음, 가상 차트용) | 사용자 결정 (2026-10-15), 스키마 반영 (0.1-draft5) |
+| TCGA 정답에서 BRCA1/2 체세포 결과를 gBRCA 측정으로 가정. B가 positive / negative / vus 판정 | 협의 완료 (2026-10-15). handoff_to_B.md §3.5·§4.7, handoff_to_B_draft5.md §3.4 |
+| 차수(line)는 정답에 넣지 않고 B가 `start_day`·`metastasis_day`로 판단 | 협의 완료 (2026-10-15). handoff_to_B_draft5.md §3.2 |
+| 진단 시 M0(`cM0(i+)` 포함)이면 `stage.metastatic_sites`를 `[Not Applicable]`로 (원본 전이 여부가 `[Not Available]`이어도) | 사용자 결정 (2026-10-15). tcga_mapping.md §3.2 |
+
+draft5 필드의 TCGA 변환 규칙은 [tcga_mapping.md](tcga_mapping.md) §3.6·§3.7·§3.7a·§3.8에 있다.
 | 점수 없는 HER2 Equivocal 7명에 `score: "2+"` 채우기 | A 결정 |

@@ -180,6 +180,11 @@ drug_therapy_types,"GDC clinical_drug 환자별 요약. 약제명은 성분명, 
 drug_best_responses,"GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 data/dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",,20.0,8,Complete Response; Stable Disease; Clinical Progressive Disease
 drug_first_start_days,"GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 data/dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",,69.1,206,31; 61; 62
 drug_timeline,"GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 data/dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",,71.0,754,anastrozole [Hormone Therapy] d31~?; tamoxifen [Hormone Therapy] d66~?; tamoxifen [Hormone Therapy] d98~?
+drug_total_dose,"GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 data/dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",,25.0,245,1; 240 | [Not Available]; 240+2400
+drug_total_dose_units,"GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 data/dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",,28.6,70,mg | mg | mg | [Not Available]; mg; mg | mg | mg
+drug_prescribed_dose,"GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 data/dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",,35.6,262,1; 20; 60+600
+drug_dose_units,"GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 data/dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",,35.9,101,mg/day; mg | mg | mg; mg | mg | mg | mg
+drug_cycles,"GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 data/dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",,27.7,145,4 | 4 | 4 | [Not Available]; 4 | 4 | [Not Available]; 4 | 4 | 4
 drug_names_raw,"GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 data/dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",,70.6,482,Tamoxifen; Arimidex; Anastrozole
 drug_therapy_types_raw,"GDC clinical_drug 환자별 요약. 약제명은 성분명, 치료 종류는 data/dictionaries/ 사전으로 바로잡은 값 (_raw 열은 원본)",,70.9,42,Chemotherapy; Hormone Therapy; Chemotherapy; Hormone Therapy
 rad_n_records,GDC clinical_radiation 환자별 요약,,48.1,5,1; 2; 3
@@ -191,6 +196,8 @@ nte_types,GDC clinical_nte + follow_up_v4.0_nte + follow_up_v2.1(재발 기록 �
 nte_sites,GDC clinical_nte + follow_up_v4.0_nte + follow_up_v2.1(재발 기록 행) 환자별 요약,,8.7,15,"Other, specify; Bone; Lung"
 nte_sites_other,GDC clinical_nte + follow_up_v4.0_nte + follow_up_v2.1(재발 기록 행) 환자별 요약,,4.1,40,Liver; Breast; Chest Wall
 nte_first_dx_days,GDC clinical_nte + follow_up_v4.0_nte + follow_up_v2.1(재발 기록 행) 환자별 요약,,9.9,109,1808; 102; 1364
+nte_surgery,GDC clinical_nte + follow_up_v4.0_nte + follow_up_v2.1(재발 기록 행) 환자별 요약,,8.7,4,NO; YES; YES; NO
+nte_surgery_days,GDC clinical_nte + follow_up_v4.0_nte + follow_up_v2.1(재발 기록 행) 환자별 요약,,1.7,19,179; 1409; 3024
 fu_n_records,GDC follow_up v1.5·v2.1·v4.0 환자별 요약,,91.0,4,1; 2; 3
 fu_last_days,GDC follow_up v1.5·v2.1·v4.0 환자별 요약,,90.9,774,10; 0; 385
 fu_last_vital_status,GDC follow_up v1.5·v2.1·v4.0 환자별 요약,,90.0,2,Alive; Dead

@@ -1,0 +1,264 @@
+{
+  "schema_version": "0.1-draft5",
+  "patient_ref": "TCGA-5L-AAT0",
+  "created_at": "2026-10-15T00:00:00+09:00",
+  "documents": [
+    {
+      "doc_id": "D1",
+      "doc_type": "molecular",
+      "doc_date": null
+    }
+  ],
+  "fields": {
+    "diagnosis": {
+      "diagnosis_date": {
+        "status": "not_recorded"
+      },
+      "histology": {
+        "status": "present",
+        "value": "ILC",
+        "raw": "Infiltrating Lobular Carcinoma",
+        "source": null
+      },
+      "grade": {
+        "status": "not_recorded"
+      }
+    },
+    "stage": {
+      "ctnm": {
+        "status": "not_recorded"
+      },
+      "ptnm": {
+        "status": "present",
+        "value": {
+          "t": "T2",
+          "n": "N0",
+          "m": "M0",
+          "edition": "7th"
+        },
+        "raw": "T2 N0 M0",
+        "source": null
+      },
+      "group": {
+        "status": "present",
+        "value": "IIA",
+        "raw": "Stage IIA",
+        "source": null
+      },
+      "positive_ln_count": {
+        "status": "present",
+        "value": {
+          "positive": 0,
+          "examined": 8
+        },
+        "raw": "0/8",
+        "source": null
+      },
+      "disease_extent": {
+        "status": "present",
+        "value": "early",
+        "raw": "Stage IIA",
+        "source": null
+      },
+      "metastatic_sites": {
+        "status": "present",
+        "value": "[Not Applicable]",
+        "raw": "[Not Available]",
+        "source": null
+      },
+      "operable": {
+        "status": "not_recorded"
+      }
+    },
+    "receptors": {
+      "er_percent": {
+        "status": "present",
+        "value": {
+          "range": [
+            70,
+            79
+          ],
+          "result": "positive"
+        },
+        "raw": "Positive (70-79%)",
+        "specimen": "primary",
+        "observed_date": null,
+        "source": null
+      },
+      "pr_percent": {
+        "status": "present",
+        "value": {
+          "range": [
+            50,
+            59
+          ],
+          "result": "positive"
+        },
+        "raw": "Positive (50-59%)",
+        "specimen": "primary",
+        "observed_date": null,
+        "source": null
+      },
+      "her2_ihc": {
+        "status": "present",
+        "value": {
+          "score": "1+",
+          "result": "negative"
+        },
+        "raw": "IHC 1+, Negative",
+        "specimen": "primary",
+        "source": null
+      },
+      "her2_ish": {
+        "status": "not_done"
+      },
+      "pdl1": {
+        "status": "not_recorded"
+      }
+    },
+    "proliferation": {
+      "ki67_percent": {
+        "status": "not_recorded"
+      }
+    },
+    "patient": {
+      "gender": {
+        "status": "present",
+        "value": "FEMALE",
+        "raw": "FEMALE",
+        "source": null
+      },
+      "age": {
+        "status": "present",
+        "value": 42,
+        "raw": "42",
+        "observed_date": null,
+        "source": null
+      },
+      "menopausal_status": {
+        "status": "present",
+        "value": "postmenopausal",
+        "raw": "Post (prior bilateral ovariectomy OR >12 mo since LMP with no prior hysterectomy)",
+        "source": null
+      },
+      "menopausal_basis": {
+        "status": "not_recorded"
+      },
+      "ecog": {
+        "status": "not_recorded"
+      }
+    },
+    "treatment_history": [
+      {
+        "drugs": [
+          "tamoxifen"
+        ],
+        "setting": "adjuvant",
+        "start_date": null,
+        "end_date": null,
+        "start_day": 322,
+        "end_day": null,
+        "duration_days": null,
+        "cycles": null,
+        "progression_day": null,
+        "stop_reason": null,
+        "best_response": "unknown",
+        "source": null
+      }
+    ],
+    "anthracycline_drug_dose": {
+      "administered": "negative",
+      "drugs": []
+    },
+    "neoadjuvant_response": {
+      "pcr": {
+        "status": "not_recorded"
+      },
+      "rcb": {
+        "status": "not_recorded"
+      }
+    },
+    "recurrence": {
+      "recurrence_date": {
+        "status": "not_recorded"
+      },
+      "adjuvant_endocrine_end_date": {
+        "status": "not_recorded"
+      },
+      "status": {
+        "status": "present",
+        "value": "none",
+        "source": null
+      }
+    },
+    "molecular": {
+      "mutations": {
+        "ESR1": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": null
+        },
+        "PIK3CA": {
+          "status": "present",
+          "result": "detected",
+          "variants": [
+            {
+              "protein_change": "H1047L",
+              "variant_type": "Missense_Mutation",
+              "vaf": 0.222,
+              "raw": "H1047L (Missense_Mutation, VAF 0.222)"
+            }
+          ],
+          "specimen": "primary",
+          "source": null
+        },
+        "AKT1": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": null
+        },
+        "PTEN": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": null
+        },
+        "BRCA1": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": null
+        },
+        "BRCA2": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": null
+        },
+        "PALB2": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": null
+        }
+      }
+    },
+    "genomic_reports": [
+      {
+        "doc_id": "D1",
+        "report_date": null,
+        "specimen": "primary",
+        "raw_text": "종양 조직 엑솜 검사 (원발 조직). PIK3CA p.H1047L (Missense_Mutation), VAF 22.2%. ERBB2, ESR1, AKT1, PTEN, BRCA1, BRCA2, PALB2: 검출되지 않음."
+      }
+    ]
+  },
+  "conflicts": []
+}

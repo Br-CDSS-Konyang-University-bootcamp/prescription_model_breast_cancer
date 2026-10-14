@@ -1,0 +1,38 @@
+﻿generic_name,cycle_days,note
+doxorubicin,21,AC 3주 기본값 (dose-dense는 14일)
+epirubicin,21,EC·FEC 3주
+liposomal doxorubicin,28,4주
+cyclophosphamide,21,AC·EC·TC 3주 기본값 (고전 CMF는 28일)
+docetaxel,21,3주
+paclitaxel,7,매주 기본값 (3주 요법은 21일)
+nab-paclitaxel,21,3주 기본값 (매주 요법도 있음)
+taxane nos,21,3주 기본값
+capecitabine,21,2주 복용 1주 휴약
+carboplatin,21,3주
+cisplatin,21,3주
+fluorouracil,21,FEC 3주 기본값 (CMF는 28일)
+methotrexate,21,3주 기본값 (CMF는 28일)
+gemcitabine,21,1·8일 투여 3주
+vinorelbine,21,1·8일 투여 3주
+eribulin,21,1·8일 투여 3주
+ixabepilone,21,3주
+etoposide,21,3주
+ifosfamide,21,3주
+mitomycin,42,6주
+mitoxantrone,21,3주
+pemetrexed,21,3주
+tesetaxel,21,3주
+trabectedin,21,3주
+vinblastine,21,3주 기본값
+vincristine,21,3주 기본값
+chemotherapy nos,21,알 수 없는 항암제 3주 기본값
+trastuzumab,21,3주 기본값 (항암제 병용 중 매주 요법도 인정)
+pertuzumab,21,3주
+trastuzumab emtansine,21,3주
+trastuzumab deruxtecan,21,3주
+bevacizumab,14,paclitaxel 병용 2주
+rituximab,21,3주
+fulvestrant,28,4주 (첫 달은 2주 간격 추가)
+goserelin,28,4주 (공고: 4주 간격만 인정)
+leuprolide,28,4주 (공고: 4주 간격만 인정)
+triptorelin,28,4주

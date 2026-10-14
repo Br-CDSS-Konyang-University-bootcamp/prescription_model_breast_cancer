@@ -16,7 +16,7 @@
     },
     "setting": {
       "type": "object",
-      "description": "치료 상황. RAG 하드 필터(setting, line)에 쓴다. 산출 담당은 0단계에서 확정 (README 참고).",
+      "description": "치료 상황. RAG 하드 필터(setting, line)에 쓴다. B가 산출한다 (2026-10-15 협의): disease는 patient_state의 stage.disease_extent와 recurrence.status로, line은 treatment_history[].start_day와 recurrence.metastasis_day로 판단한다. 심평원 투여단계는 고식적 내분비요법과 고식적 항암화학요법을 따로 센다 (src/input/handoff_to_B_draft5.md §3).",
       "required": ["disease", "line"],
       "additionalProperties": false,
       "properties": {

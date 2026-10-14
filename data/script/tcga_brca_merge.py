@@ -138,6 +138,16 @@ def normalize_drugs(d):
     return d
 
 
+# 투약 기록의 용량·주기 열 → 병합본 열 이름 (anthracycline 누적 용량 계산용, 2026-10-14 추가)
+DOSE_COLS = {
+    "total_dose": "drug_total_dose",
+    "pharmaceutical_tx_total_dose_units": "drug_total_dose_units",
+    "prescribed_dose": "drug_prescribed_dose",
+    "pharmaceutical_tx_dose_units": "drug_dose_units",
+    "pharma_adjuvant_cycles_count": "drug_cycles",
+}
+
+
 def drug_summary():
     """투약 기록: 약제명·치료 종류를 바로잡고, 시작일 순으로 정렬해 요약과 타임라인을 만든다."""
     d = read_gdc("clinical_drug").rename(columns={"bcr_patient_barcode": "patient_id"})
@@ -165,6 +175,9 @@ def drug_summary():
         return out + (f" ({resp})" if pd.notna(resp) and not GDC_CODE.match(str(resp)) else "")
 
     d["_line"] = d.apply(line, axis=1)
+    # 용량·주기: drug_timeline과 같은 순서로 " | "로 잇는다. 값이 없으면 "-" (GDC 결측 코드는 그대로)
+    for col in DOSE_COLS:
+        d[col] = d[col].fillna("-").astype(str).str.strip()
     g = d.groupby("patient_id")
     split_uniq = lambda s, sep: uniq(s.str.split(sep, regex=False).explode())
     return pd.DataFrame({
@@ -174,6 +187,7 @@ def drug_summary():
         "drug_best_responses": g["treatment_best_response"].agg(uniq),
         "drug_first_start_days": g["_start"].min(),
         "drug_timeline": g["_line"].agg(" | ".join),
+        **{name: g[col].agg(" | ".join) for col, name in DOSE_COLS.items()},
         "drug_names_raw": g["pharmaceutical_therapy_drug_name"].agg(uniq),
         "drug_therapy_types_raw": g["pharmaceutical_therapy_type"].agg(uniq),
     }).reset_index()
@@ -210,7 +224,23 @@ def nte_summary():
         "nte_sites": g["new_tumor_event_site"].agg(uniq),
         "nte_sites_other": g["new_tumor_event_site_other"].agg(uniq),
         "nte_first_dx_days": g["new_tumor_event_dx_days_to"].agg(lambda s: to_num(s).min()),
+    }).reset_index().merge(nte_surgery_summary(), on="patient_id", how="outer")
+
+
+def nte_surgery_summary():
+    """재발 후 수술 여부(new_tumor_event_surgery)와 수술일. follow_up_v1.5에도 수술 여부가 있어 함께 읽는다 (2026-10-14 추가)."""
+    cols = ["bcr_patient_barcode", "new_tumor_event_surgery", "new_tumor_event_surgery_days_to"]
+    frames = []
+    for name in ("clinical_nte", "clinical_follow_up_v4.0_nte", "clinical_follow_up_v2.1", "clinical_follow_up_v1.5"):
+        f = read_gdc(name)
+        frames.append(f.reindex(columns=cols))
+    s = pd.concat(frames, ignore_index=True).rename(columns={"bcr_patient_barcode": "patient_id"})
+    g = s.groupby("patient_id")
+    out = pd.DataFrame({
+        "nte_surgery": g["new_tumor_event_surgery"].agg(uniq),
+        "nte_surgery_days": g["new_tumor_event_surgery_days_to"].agg(lambda x: to_num(x).min()),
     }).reset_index()
+    return out.dropna(subset=["nte_surgery", "nte_surgery_days"], how="all")
 
 
 def followup_summary():
