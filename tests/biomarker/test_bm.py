@@ -19,7 +19,7 @@ from src.input.script.tcga_to_patient_state import convert, load_rows
 ROOT = Path(__file__).resolve().parents[2]
 
 # BM 파일 이름에 괄호·쉼표가 있어 import 문으로 불러올 수 없으므로 파일 경로로 불러온다
-BM_PATH = ROOT / "src" / "biomarker" / "BM(ER,PR,HER2,Ki_67,subtype).py"
+BM_PATH = ROOT / "src" / "biomarker" / "BM1_ER,PR,HER2,Ki_67,subtype.py"
 _spec = importlib.util.spec_from_file_location("bm", BM_PATH)
 bm = importlib.util.module_from_spec(_spec)
 sys.modules["bm"] = bm
