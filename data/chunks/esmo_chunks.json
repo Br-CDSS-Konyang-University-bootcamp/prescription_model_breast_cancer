@@ -1,0 +1,1297 @@
+[
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-hrposher2neg-r01",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "HR-positive, HER2-negative EBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "- \u000f All luminal-like cancers should be treated with ET [I, A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-hrposher2neg-r02",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "HR-positive, HER2-negative EBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "Most luminal A-like tumours do not require ChT, except those with high disease burden [I, A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-hrposher2neg-r03",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "HR-positive, HER2-negative EBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "In cases of uncertainty about indications for adjuvant ChT (after consideration of all clinical and pathological factors), gene expression assays or endocrine response assessment can be used to guide decisions on adjuvant ChT [I, A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-hrposher2neg-r04",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "HR-positive, HER2-negative EBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "Luminal B-like HR-positive, HER2-negative tumours should be treated with ChT followed by ET. ChT should be considered in cases of high clinical risk (e.g. multinode positive, premenopausal node positive, locally advanced) and 0-3 involved LNs with high-risk features (e.g. high-risk gene expression assay result) [I, A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-hrposher2neg-r05",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "HR-positive, HER2-negative EBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "Premenopausal patients should receive either tamoxifen alone (luminal A like, stage I) [I, A], or in case of a high risk of recurrence, ovarian suppression with either OFSetamoxifen [I, A] or OFSeAI [I, A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-hrposher2neg-r06",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "HR-positive, HER2-negative EBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "Postmenopausal patients should receive an AI or tamoxifen followed by an AI [I, A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-hrposher2neg-r07",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "HR-positive, HER2-negative EBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "o Tamoxifen can be given for lower-risk tumours or if AIs are not tolerated [I, A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-hrposher2neg-r08",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "HR-positive, HER2-negative EBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "Bisphosphonates (up to 5 years) are recommended in women without ovarian function (postmenopausal or undergoing OFS), especially if at high risk of relapse [I, A] or treatment-related bone loss [I, A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-hrposher2neg-r09",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "HR-positive, HER2-negative EBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "Abemaciclib for 2 years in addition to ET after completion of locoregional therapy should be considered in patients with stage III or high-risk stage II EBC [I, A; ESMOMagnitude of Clinical Benefit Scale (ESMO-MCBS) v1.1 score: A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "abemaciclib"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": "A",
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-hrposher2neg-r10",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "HR-positive, HER2-negative EBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "Extended ET beyond 5 years should be considered in high-risk EBC [I, A]; 7-8 years' treatment duration seems sufficient for most patients at high risk [I, A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-hrposher2neg-r11",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "HR-positive, HER2-negative EBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "Following completion of (neo)adjuvant and locoregional therapy, 1 year of adjuvant olaparib is recommended for patients with gBRCA1/2m and HER2-negative, HRpositive EBC with multiple positive LNs after primary surgery or residual high-risk EBC after neoadjuvant ChT [I, A; ESMO-MCBS v1.1 score: A; ESCAT: I-A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "olaparib"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": "A",
+      "escat": "I-A"
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-hrposher2neg-r12",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "HR-positive, HER2-negative EBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "ET should be given concomitantly with adjuvant olaparib in gBRCA1/2m carriers [I, A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "olaparib"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-hrposher2neg-r13",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "HR-positive, HER2-negative EBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "Olaparib and abemaciclib should not be combined due to overlapping toxicities but may be considered sequentially with olaparib first [V, A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "abemaciclib",
+      "olaparib"
+    ],
+    "evidence": {
+      "loe": "V",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-r01",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "HER2-positive EBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "- \u000f HER2-directed therapy (with initial concurrent ChT) should be given for 12 months, covering both the neoadjuvant and/or adjuvant phases of treatment [I, A; ESCAT score: I-A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "HER2+"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": "I-A"
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-r02",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "HER2-positive EBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "o Administration can be combineddif indicateddwith RT and ET [I, A]. In selected low-risk situations, 6 months of anti-HER2 therapy may be non-inferior.",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "HER2+"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-r03",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "HER2-positive EBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "o Regular cardiac assessments are recommended (before, during and following therapy) with the option of additional assessments before the start of any ChT treatment [II, B].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "HER2+"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "II",
+      "gor": "B",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-r04",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "HER2-positive EBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "For patients with clinical stage II-III HER2-positive breast cancer (e.g. T &gt;2 cm or node positive), neoadjuvant systemic ChT with anti-HER2 therapy comprising HP is the preferred option [I, A; ESCAT score: I-A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "HER2+"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": "I-A"
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-r05",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "HER2-positive EBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "For the ChT backbone, a regimen of anthracyclinee taxane or taxaneecarboplatin is evidence-based independent of neoadjuvant or adjuvant use [I, A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "HER2+"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-r06",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "HER2-positive EBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "Dual blockade with HP (versus trastuzumab alone) combined with ChT achieves higher pCR rates and is recommended for neoadjuvant therapy [I, A; ESMO-MCBS v1.1 score: C; ESCAT score: I-A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "HER2+"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "trastuzumab"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": "A",
+      "escat": "I-A"
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-r07",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "HER2-positive EBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "Patients with residual invasive disease (non-pCR after neoadjuvant ChT and anti-HER2 therapy) should receive adjuvant treatment with T-DM1 for up to 14 cycles [I, A; ESMO-MCBS v1.1 score: A; ESCAT score: I-A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "HER2+"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "t-dm1"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": "A",
+      "escat": "I-A"
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-r08",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "HER2-positive EBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "For patients with stage I (T1a-b N0) HER2-positive EBC, primary surgery may be carried out [III, B], followed by adjuvant administration of 12 weeks of paclitaxel plus 1 year of trastuzumab if clinical stage is confirmed by pathology [III, B; ESMO-MCBS v1.1 score: A; ESCAT score: I-A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "HER2+"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "trastuzumab"
+    ],
+    "evidence": {
+      "loe": "III",
+      "gor": "B",
+      "esmo_mcbs": "A",
+      "escat": "I-A"
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-r09",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "HER2-positive EBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "For patients with pathological stage II or III cancer treated with initial surgery, adjuvant ChT combined with 1 year of anti-HER2 therapy should be given [I, A; trastuzumab ESMO-MCBS v1.1 score: A; HP ESMOMCBS v1.1 score: A; ESCAT score: I-A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "HER2+"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "trastuzumab"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": "A",
+      "escat": "I-A"
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-r10",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "HER2-positive EBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "In patients with node-positive disease, the addition of pertuzumab to trastuzumab should be strongly considered in the adjuvant setting irrespective of HR status [I, A; ESMO-MCBS v1.1 score: A; ESCAT score: I-A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "HER2+"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "trastuzumab",
+      "pertuzumab"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": "A",
+      "escat": "I-A"
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-r11",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "HER2-positive EBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "Patients with high-risk HR-positive tumours may be considered for extended treatment with neratinib (concurrent with ET) for 1 year after completion of 1 year of trastuzumab or trastuzumab-based therapy [I, B; ESMO-MCBS v1.1 score: no evaluable benefit; ESCAT score: I-A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "HER2+"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "trastuzumab"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "B",
+      "esmo_mcbs": "A",
+      "escat": "I-A"
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-r01",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "TNBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "- \u000f HER2-negative tumours with 1%-9% ER and/or PgR expression (ER-/PgR-low) are a heterogenous group, some of which behave biologically similarly to TNBCs; therapeutic strategies should be adjusted to this specific situation since this might lead to a higher response to ChT and to reduced efficacy of ET compared with classical HR-positive breast cancer [II, B].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "II",
+      "gor": "B",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-r02",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "TNBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "TNBC tumours should be treated with ChT with or without an ICI (pembrolizumab) [I, A], except for some node-negative special histological subtypes such as secretory or adenoid cystic carcinomas or very low clinical risk (pT1a pN0) tumours [II, B].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "pembrolizumab"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-r03",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "TNBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "ChT should be administered for 12-24 weeks (4-8 cycles) depending on the stage of the disease, type of selected regimen and regardless of whether an ICI is added [I, A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-r04",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "TNBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "The use of dose-dense schedules of ChT, with granulocyte colony-stimulating factor support, should be considered given their documented benefit over non-dosedense schedules [I, A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-r05",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "TNBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "For cT1c-4 N0, or any N-positive TNBC, neoadjuvant treatment is preferred [I, A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-r06",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "TNBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "cT2-4 N0 or any N-positive (stage II-III) TNBC should be treated with neoadjuvant ChT plus pembrolizumab unless there are risk factors for excessive ICI-associated immune toxicity [I, A; ESMO-MCBS v1.1 score: A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "pembrolizumab"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": "A",
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-r07",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "TNBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "Pembrolizumab should be administered every 3 weeks throughout the neoadjuvant phase [I, A] and for nine 3-week cycles during the adjuvant phase, regardless of pCR status [I, A; ESMO-MCBS v1.1 score: A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "pembrolizumab"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": "A",
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-r08",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "TNBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "Patients receiving pembrolizumab should be monitored very closely for the risk of immune-related adverse events throughout treatment and following the ESMO CPG for the management of toxicities from immunotherapy [V, A]. 107",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "pembrolizumab"
+    ],
+    "evidence": {
+      "loe": "V",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-r09",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "TNBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "An ICI should not be given solely in the adjuvant setting without prior neoadjuvant ICI treatment [V, D].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "V",
+      "gor": "D",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-r10",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "TNBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "In patients with gBRCA1/2m and high-risk TNBC (nonpCR or pathological stage II-III), 1 year of adjuvant olaparib should be administered [I, A; ESMO-MCBS v1.1 score: A; ESCAT: I-A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "olaparib"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": "A",
+      "escat": "I-A"
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-r11",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "TNBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "o The combination of ICIs and olaparib may be considered on an individual basis [V, C].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "olaparib"
+    ],
+    "evidence": {
+      "loe": "V",
+      "gor": "C",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-r12",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "TNBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "Patients with residual disease who did not receive ICIs should be offered adjuvant capecitabine for 6-8 cycles [I, A].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "capecitabine"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-r13",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "TNBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "o The combination of olaparib and capecitabine in patients with gBRCAm should not be used [V, C].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "olaparib",
+      "capecitabine"
+    ],
+    "evidence": {
+      "loe": "V",
+      "gor": "C",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-r14",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "TNBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "o The combination of ICI and capecitabine may be considered on an individual basis [V, C].",
+    "setting": [
+      "early"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "capecitabine"
+    ],
+    "evidence": {
+      "loe": "V",
+      "gor": "C",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  }
+]
