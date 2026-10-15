@@ -11,7 +11,7 @@
     "patient_ref": {"type": "string"},
     "records": {"type": "array", "items": {"$ref": "#/$defs/record"}},
     "subtype": {
-      "enum": ["HR+/HER2-", "HR+/HER2+", "HR-/HER2+", "TNBC", "indeterminate"],
+      "enum": ["HR+/HER2-", "HR+/HER2+", "HR-/HER2+", "TNBC", "unknown"],
       "description": "HR+ = ER 또는 PR 양성. RAG 하드 필터에 쓴다."
     },
     "setting": {
@@ -20,8 +20,8 @@
       "required": ["disease", "line"],
       "additionalProperties": false,
       "properties": {
-        "disease": {"enum": ["early", "locally_advanced", "metastatic", "indeterminate"], "description": "현재 치료 상황의 병기 범주. 진단 시 범주(patient_state stage.disease_extent)에서 시작하고, 진단 시 전이성(Stage IV·M1)이거나 원격 전이 재발이 있으면 metastatic. 그 밖(재발 없음, 국소 재발, 재발 정보 불명확)은 진단 시 범주 그대로. indeterminate는 진단 시 병기를 알 수 없을 때만. locally_advanced = 진단 시 III기 (심평원 급여 조건)"},
-        "line": {"enum": ["neoadjuvant", "adjuvant", "1L", "2L", ">=3L", "indeterminate"]},
+        "disease": {"enum": ["early", "locally_advanced", "metastatic", "unknown"], "description": "현재 치료 상황의 병기 범주. 진단 시 범주(patient_state stage.disease_extent)에서 시작하고, 진단 시 전이성(Stage IV·M1)이거나 원격 전이 재발이 있으면 metastatic. 그 밖(재발 없음, 국소 재발, 재발 정보 불명확)은 진단 시 범주 그대로. unknown은 진단 시 병기를 알 수 없을 때만 (2026-10-15 indeterminate에서 바꿈). locally_advanced = 진단 시 III기 (심평원 급여 조건)"},
+        "line": {"enum": ["neoadjuvant", "adjuvant", "1L", "2L", ">=3L", "unknown"]},
         "prior_drug_classes": {"type": "array", "items": {"type": "string"}, "description": "예: CDK4/6 inhibitor, aromatase inhibitor"},
         "reason": {"type": "string"}
       }
@@ -49,8 +49,8 @@
       "properties": {
         "marker": {"enum": ["ER", "PR", "HER2", "Ki-67", "gBRCA1", "gBRCA2", "PALB2", "sBRCA1", "sBRCA2", "PIK3CA", "AKT1", "PTEN", "ESR1", "PD-L1"]},
         "status": {
-          "enum": ["positive", "negative", "low", "ultralow", "zero", "vus", "indeterminate", "not_done", "retest_needed", "not_recorded"],
-          "description": "마커별 허용 값은 README의 판정 표를 따른다."
+          "enum": ["positive", "negative", "low", "ultralow", "intermediate", "vus", "unknown", "not_done", "retest_needed", "not_recorded"],
+          "description": "마커별 허용 값은 README의 판정 표를 따른다. unknown = 값은 있지만 판정에 쓸 수 있는 값이 없음 (indeterminate는 쓰지 않는다, 2026-10-15). zero는 쓰지 않는다: HER2 IHC 0은 negative (2026-10-15). intermediate = Ki-67 중간 (구간이 기준에 걸치거나 적힌 판정이 intermediate, 2026-10-15)"
         },
         "reason": {"type": "string", "description": "판정 이유. 예: IHC 2+, ISH 비증폭 → HER2 저발현"},
         "rule_id": {"type": ["string", "null"], "description": "적용한 BM-2 규칙 ID"},
@@ -61,7 +61,7 @@
             "test_date": {"type": ["string", "null"], "format": "date"},
             "specimen": {"type": ["string", "null"], "description": "원발 조직 / 전이 병소 / cfDNA"},
             "assay": {"type": ["string", "null"], "description": "예: 4B5, 22C3, SP142, NGS 패널명"},
-            "ihc_score": {"type": ["string", "null"], "description": "예: 0, 0 with faint staining, 1+, 2+, 3+"},
+            "ihc_score": {"type": ["string", "null"], "description": "예: 0, 0 with faint staining, 1+, 2+, 3+. HER2 레코드는 2026-10-15부터 채우지 않는다"},
             "percent": {"type": ["number", "null"], "description": "ER/PR/Ki-67 %"},
             "ish_result": {"enum": ["amplified", "not_amplified", "equivocal", null]},
             "ish_ratio": {"type": ["number", "null"]},

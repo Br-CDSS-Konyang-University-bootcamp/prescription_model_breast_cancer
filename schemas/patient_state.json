@@ -354,26 +354,24 @@
     },
     "er_value": {
       "type": "object",
-      "description": "ER. 있는 것을 모두 담는다 (A 결정). TCGA 정답에는 score를 넣지 않는다.",
+      "description": "ER. 있는 것을 모두 담는다 (A 결정). ER·PR에는 강도 점수(score) 키를 두지 않는다 (2026-10-15 결정): Allred 총점은 allred.total, 강도는 allred.is만 쓴다.",
       "minProperties": 1,
       "additionalProperties": false,
       "properties": {
         "percent": {"type": "number", "minimum": 0, "maximum": 100},
         "range": {"$ref": "#/$defs/range"},
-        "score": {"enum": ["0", "1+", "2+", "3+", "4+"], "description": "염색 강도 점수. 강도만으로는 양성 여부를 정할 수 없다"},
         "allred": {"$ref": "#/$defs/allred"},
         "result": {"enum": ["positive", "low_positive", "negative", "indeterminate"], "description": "low_positive는 ER에만 있다 (ASCO/CAP 2020 ER Low Positive)"}
       }
     },
     "pr_value": {
       "type": "object",
-      "description": "PR. ER과 같은 형태지만 저발현 범주가 없다 (ASCO/CAP Low Positive는 ER만 해당). TCGA 정답에는 score를 넣지 않는다.",
+      "description": "PR. ER과 같은 형태지만 저발현 범주가 없다 (ASCO/CAP Low Positive는 ER만 해당). score 키는 없다 (2026-10-15).",
       "minProperties": 1,
       "additionalProperties": false,
       "properties": {
         "percent": {"type": "number", "minimum": 0, "maximum": 100},
         "range": {"$ref": "#/$defs/range"},
-        "score": {"enum": ["0", "1+", "2+", "3+", "4+"], "description": "염색 강도 점수. 강도만으로는 양성 여부를 정할 수 없다"},
         "allred": {"$ref": "#/$defs/allred"},
         "result": {"enum": ["positive", "negative", "indeterminate"]}
       }
