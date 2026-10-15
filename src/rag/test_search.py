@@ -1,0 +1,22 @@
+# tests/rag/test_search.py
+from src.rag.searcher import search_guidelines
+
+def test_search_asco_guideline():
+    results = search_guidelines(
+        query_text="sacituzumab govitecan metastatic breast cancer endocrine refractory",
+        source="ASCO",
+        setting="metastatic",
+        top_k=2
+    )
+    assert len(results) > 0
+    assert results[0]["source"] == "ASCO"
+
+def test_search_esmo_guideline():
+    results = search_guidelines(
+        query_text="adjuvant abemaciclib stage III early breast cancer",
+        source="ESMO-EBC",
+        setting="early",
+        top_k=2
+    )
+    assert len(results) > 0
+    assert results[0]["source"] == "ESMO-EBC"
