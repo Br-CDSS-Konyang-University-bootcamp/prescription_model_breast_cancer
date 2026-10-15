@@ -6,16 +6,29 @@
 메모가 있는 케이스는 설계서에 없거나 팀 확인이 필요한 부분이다.
 """
 
+import importlib.util
 import json
 import re
+import sys
 from pathlib import Path
 
 from jsonschema import Draft202012Validator
 
-from src.biomarker.BM import (VALID_MARKERS, VALID_STATUS, assess, assess_receptors, judge_er,
-                              judge_her2, judge_ki67, judge_pr, molecular_subtype_of, subtype_of)
+from src.input.script.tcga_to_patient_state import convert, load_rows
 
 ROOT = Path(__file__).resolve().parents[2]
+
+# BM 파일 이름에 괄호·쉼표가 있어 import 문으로 불러올 수 없으므로 파일 경로로 불러온다
+BM_PATH = ROOT / "src" / "biomarker" / "BM(ER,PR,HER2,Ki_67,subtype).py"
+_spec = importlib.util.spec_from_file_location("bm", BM_PATH)
+bm = importlib.util.module_from_spec(_spec)
+sys.modules["bm"] = bm
+_spec.loader.exec_module(bm)
+
+VALID_MARKERS, VALID_STATUS = bm.VALID_MARKERS, bm.VALID_STATUS
+assess, assess_receptors = bm.assess, bm.assess_receptors
+judge_er, judge_pr, judge_her2, judge_ki67 = bm.judge_er, bm.judge_pr, bm.judge_her2, bm.judge_ki67
+subtype_of, molecular_subtype_of = bm.subtype_of, bm.molecular_subtype_of
 
 
 def f(value, specimen="primary"):
@@ -35,7 +48,7 @@ ER_PR_CASES = [
     ("ER04", "ER", f({"percent": 10}), "low", ["ER-low"], "경계: 10% (PROJECT.md 기준 1~10)"),
     ("ER05", "ER", f({"percent": 11}), "positive", [], ""),
     ("ER06", "ER", f({"percent": 0}), "negative", [], ""),
-    ("ER07", "ER", f({"range": [1, 9], "result": "low_positive"}), "low", ["ER-low"], "TCGA 16명 유형"),
+    ("ER07", "ER", f({"range": [1, 9], "result": "low_positive"}), "low", ["ER-low"], "TCGA 14명 유형"),
     ("ER08", "ER", f({"range": [10, 19], "result": "positive"}), "positive", [], ""),
     ("ER09", "ER", f({"range": [90, 99], "result": "positive"}), "positive", [], ""),
     ("ER10", "ER", f({"range": [0, 0], "result": "negative"}), "negative", [], "TCGA 48명 유형"),
@@ -74,7 +87,7 @@ ER_PR_CASES = [
     ("PR17", "PR", f({"allred": {"total": 2}, "percent": 50}), "negative", [], "총점이 있으면 percent보다 총점"),
     ("PR08", "PR", f({"range": [0, 0], "result": "negative"}), "negative", [], "2단계 [0,0] -> 음성 (TCGA 75명)"),
     ("PR07", "PR", f({"range": [10, 19], "result": "positive"}), "positive", [], "최대값 19 >= 10 -> 양성"),
-    ("PR06", "PR", f({"range": [1, 9], "result": "positive"}), "positive", [], "경계: 최대값 9 >= 9 -> 양성 (TCGA 52명)"),
+    ("PR06", "PR", f({"range": [1, 9], "result": "positive"}), "positive", [], "경계: 최대값 9 >= 9 -> 양성 (TCGA 49명)"),
     ("PR22", "PR", f({"range": [1, 8]}), "negative", [], "최대값 8 < 9 -> 음성"),
     ("PR18", "PR", f({"range": [0, 15]}), "positive", [], "0부터 시작해도 최대값 15 >= 10 -> 양성"),
     ("PR19", "PR", f({"range": [1, 10]}), "positive", [], "최대값 10 -> 양성"),
@@ -369,12 +382,10 @@ def main():
     report("HAND", ok, "ER·PR·HER2·아형·현재 범주만 비교 (유전자·차수는 아직 없음)",
            f"전달 문서 8.2절 {want} -> {({m: got.get(m) for m in want})}, {out['subtype']}, {out['setting']['disease']}")
 
-    # TCGA 정답 세트 전체가 스키마를 통과하는지 (data/truth/가 있을 때만)
-    truth = sorted((ROOT / "data" / "truth").glob("TCGA-*.json"))
-    if truth:
-        bad = [p.stem for p in truth
-               if list(validator.iter_errors(assess(json.loads(p.read_text(encoding="utf-8")))))]
-        report("TCGA", not bad, "", f"TCGA 정답 {len(truth)}명 중 스키마 검증 실패 {len(bad)}명 {bad[:3]}")
+    # TCGA 크롭본 전체: patient_state로 변환(파일 없이)한 뒤 BM 출력이 스키마를 통과하는지
+    docs = convert(load_rows())
+    bad = [pid for pid, doc in docs.items() if list(validator.iter_errors(assess(doc)))]
+    report("TCGA", not bad, "", f"TCGA 크롭본 {len(docs)}명 중 BM 출력 스키마 검증 실패 {len(bad)}명 {bad[:3]}")
 
     print()
     print(f"통과 {passed}  실패 {failed}")

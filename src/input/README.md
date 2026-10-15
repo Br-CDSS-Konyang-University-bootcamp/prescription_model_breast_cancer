@@ -20,16 +20,19 @@
 | 경로 | 내용 |
 |---|---|
 | `common/vocab.py` | 표준값 사전(`data/dictionaries/field_vocab.csv`) 조회. 정답 생성과 IN-3 정규화가 같은 사전을 쓴다 |
-| `truth/tcga_truth.py` | TCGA 크롭본 → `patient_state` 정답 874명. 규칙 명세는 tcga_mapping.md |
+| `script/tcga_to_patient_state.py` | TCGA 크롭본 → `patient_state` 874명 (2026-10-15). 변환만 하고 기본은 파일을 만들지 않는다. 규칙 명세는 tcga_mapping.md |
+| `truth/tcga_truth.py` | 이전 정답 생성기 (같은 변환 + 파일 저장·스키마 검증·보고서). `tests/input/test_tcga_truth.py`가 쓴다 |
 
-정답 생성 (team_project 폴더에서, `team_project` conda 환경):
+patient_state 변환 (team_project 폴더에서, `team_project` conda 환경):
 
 ```bash
-python -m src.input.truth.tcga_truth
-python -m src.input.truth.tcga_truth --ids TCGA-A2-A0EW TCGA-5L-AAT0
+python -m src.input.script.tcga_to_patient_state                         # 변환만 하고 인원 수 출력
+python -m src.input.script.tcga_to_patient_state --ids TCGA-A2-A0EW --show  # 한 명 결과를 화면에 출력
+python -m src.input.script.tcga_to_patient_state --out <폴더>            # 파일로 저장
 ```
 
-- 출력: `data/truth/<patient_id>.json` (git 제외, 언제든 다시 생성), `data/truth/truth_report.txt` (규칙별 적용 건수, git에 올림)
+- 다른 코드에서는 `convert(load_rows())`로 `{patient_id: patient_state}`를 바로 받는다 (BM 테스트가 이렇게 쓴다)
+- `data/truth/`(이전 생성기의 출력 폴더)는 2026-10-15에 지웠다. 이전 생성기(`truth/tcga_truth.py`)는 남아 있고, 실행하면 `data/truth/`에 파일과 보고서를 다시 만든다
 - 사전에 없는 값이 나오면 멈춘다. `field_vocab.csv`에 표현을 추가한다
 - 모든 정답을 `schemas/patient_state.json`으로 검증하고, 하나라도 실패하면 종료 코드 1
 
