@@ -1,0 +1,529 @@
+{
+  "schema_version": "0.1-draft5",
+  "patient_ref": "TCGA-A2-A0EW",
+  "created_at": "2026-10-15T00:00:00+09:00",
+  "documents": [
+    {
+      "doc_id": "D1",
+      "doc_type": "molecular",
+      "doc_date": null
+    }
+  ],
+  "fields": {
+    "diagnosis": {
+      "diagnosis_date": {
+        "status": "not_recorded"
+      },
+      "histology": {
+        "status": "present",
+        "value": "ILC",
+        "raw": "Infiltrating Lobular Carcinoma",
+        "source": null
+      },
+      "grade": {
+        "status": "not_recorded"
+      }
+    },
+    "stage": {
+      "ctnm": {
+        "status": "not_recorded"
+      },
+      "ptnm": {
+        "status": "present",
+        "value": {
+          "t": "T1b",
+          "n": "N3a",
+          "m": "M0",
+          "edition": "6th"
+        },
+        "raw": "T1b N3a M0",
+        "source": null
+      },
+      "group": {
+        "status": "present",
+        "value": "IIIC",
+        "raw": "Stage IIIC",
+        "source": null
+      },
+      "positive_ln_count": {
+        "status": "present",
+        "value": {
+          "positive": 26,
+          "examined": "[Not Available]"
+        },
+        "raw": "26/None",
+        "source": null
+      },
+      "disease_extent": {
+        "status": "present",
+        "value": "locally_advanced",
+        "raw": "Stage IIIC",
+        "source": null
+      },
+      "metastatic_sites": {
+        "status": "present",
+        "value": "[Not Applicable]",
+        "raw": "[Not Available]",
+        "source": null
+      },
+      "operable": {
+        "status": "not_recorded"
+      }
+    },
+    "receptors": {
+      "er_percent": {
+        "status": "present",
+        "value": {
+          "range": [
+            90,
+            99
+          ],
+          "result": "positive"
+        },
+        "raw": "Positive (90-99%)",
+        "specimen": "primary",
+        "observed_date": null,
+        "source": null
+      },
+      "pr_percent": {
+        "status": "present",
+        "value": {
+          "range": [
+            10,
+            19
+          ],
+          "result": "positive"
+        },
+        "raw": "Positive (10-19%)",
+        "specimen": "primary",
+        "observed_date": null,
+        "source": null
+      },
+      "her2_ihc": {
+        "status": "present",
+        "value": {
+          "score": "0",
+          "result": "negative"
+        },
+        "raw": "IHC 0, Negative",
+        "specimen": "primary",
+        "source": null
+      },
+      "her2_ish": {
+        "status": "present",
+        "value": {
+          "result": "not_amplified",
+          "method": "FISH"
+        },
+        "raw": "FISH Negative",
+        "specimen": "primary",
+        "source": null
+      },
+      "pdl1": {
+        "status": "not_recorded"
+      }
+    },
+    "proliferation": {
+      "ki67_percent": {
+        "status": "not_recorded"
+      }
+    },
+    "patient": {
+      "gender": {
+        "status": "present",
+        "value": "FEMALE",
+        "raw": "FEMALE",
+        "source": null
+      },
+      "age": {
+        "status": "present",
+        "value": 53,
+        "raw": "53",
+        "observed_date": null,
+        "source": null
+      },
+      "menopausal_status": {
+        "status": "present",
+        "value": "postmenopausal",
+        "raw": "Post (prior bilateral ovariectomy OR >12 mo since LMP with no prior hysterectomy)",
+        "source": null
+      },
+      "menopausal_basis": {
+        "status": "not_recorded"
+      },
+      "ecog": {
+        "status": "not_recorded"
+      }
+    },
+    "treatment_history": [
+      {
+        "drugs": [
+          "doxorubicin"
+        ],
+        "setting": "adjuvant",
+        "start_date": null,
+        "end_date": null,
+        "start_day": 85,
+        "end_day": 127,
+        "duration_days": 42,
+        "cycles": {
+          "value": 4,
+          "basis": "recorded",
+          "interval_days": 14,
+          "interval_basis": "derived"
+        },
+        "progression_day": null,
+        "stop_reason": null,
+        "best_response": "unknown",
+        "source": null
+      },
+      {
+        "drugs": [
+          "cyclophosphamide"
+        ],
+        "setting": "adjuvant",
+        "start_date": null,
+        "end_date": null,
+        "start_day": 85,
+        "end_day": 127,
+        "duration_days": 42,
+        "cycles": {
+          "value": 4,
+          "basis": "recorded",
+          "interval_days": 14,
+          "interval_basis": "derived"
+        },
+        "progression_day": null,
+        "stop_reason": null,
+        "best_response": "unknown",
+        "source": null
+      },
+      {
+        "drugs": [
+          "paclitaxel"
+        ],
+        "setting": "adjuvant",
+        "start_date": null,
+        "end_date": null,
+        "start_day": 141,
+        "end_day": 184,
+        "duration_days": 43,
+        "cycles": {
+          "value": 4,
+          "basis": "recorded",
+          "interval_days": 14,
+          "interval_basis": "derived"
+        },
+        "progression_day": null,
+        "stop_reason": null,
+        "best_response": "unknown",
+        "source": null
+      },
+      {
+        "drugs": [
+          "anastrozole"
+        ],
+        "setting": "adjuvant",
+        "start_date": null,
+        "end_date": null,
+        "start_day": 221,
+        "end_day": 812,
+        "duration_days": 591,
+        "cycles": null,
+        "progression_day": null,
+        "stop_reason": null,
+        "best_response": "unknown",
+        "source": null
+      },
+      {
+        "drugs": [
+          "letrozole"
+        ],
+        "setting": "adjuvant",
+        "start_date": null,
+        "end_date": null,
+        "start_day": 813,
+        "end_day": 903,
+        "duration_days": 90,
+        "cycles": null,
+        "progression_day": null,
+        "stop_reason": null,
+        "best_response": "CR",
+        "source": null
+      },
+      {
+        "drugs": [
+          "anastrozole"
+        ],
+        "setting": "adjuvant",
+        "start_date": null,
+        "end_date": null,
+        "start_day": 904,
+        "end_day": 1001,
+        "duration_days": 97,
+        "cycles": null,
+        "progression_day": null,
+        "stop_reason": null,
+        "best_response": "CR",
+        "source": null
+      },
+      {
+        "drugs": [
+          "exemestane"
+        ],
+        "setting": "adjuvant",
+        "start_date": null,
+        "end_date": null,
+        "start_day": 1002,
+        "end_day": 1365,
+        "duration_days": 363,
+        "cycles": null,
+        "progression_day": null,
+        "stop_reason": null,
+        "best_response": "PD",
+        "source": null
+      },
+      {
+        "drugs": [
+          "zoledronic acid"
+        ],
+        "setting": "adjuvant",
+        "start_date": null,
+        "end_date": null,
+        "start_day": 1158,
+        "end_day": 1422,
+        "duration_days": 264,
+        "cycles": null,
+        "progression_day": null,
+        "stop_reason": null,
+        "best_response": "PD",
+        "source": null
+      },
+      {
+        "drugs": [
+          "fulvestrant"
+        ],
+        "setting": "metastatic",
+        "start_date": null,
+        "end_date": null,
+        "start_day": 1366,
+        "end_day": 1562,
+        "duration_days": 196,
+        "cycles": {
+          "value": 8,
+          "basis": "estimated",
+          "interval_days": 28,
+          "interval_basis": "standard"
+        },
+        "progression_day": null,
+        "stop_reason": null,
+        "best_response": "PD",
+        "source": null
+      },
+      {
+        "drugs": [
+          "denosumab"
+        ],
+        "setting": "metastatic",
+        "start_date": null,
+        "end_date": null,
+        "start_day": 1425,
+        "end_day": 1718,
+        "duration_days": 293,
+        "cycles": null,
+        "progression_day": null,
+        "stop_reason": null,
+        "best_response": "PD",
+        "source": null
+      },
+      {
+        "drugs": [
+          "tamoxifen"
+        ],
+        "setting": "metastatic",
+        "start_date": null,
+        "end_date": null,
+        "start_day": 1618,
+        "end_day": 1722,
+        "duration_days": 104,
+        "cycles": null,
+        "progression_day": null,
+        "stop_reason": null,
+        "best_response": "PD",
+        "source": null
+      },
+      {
+        "drugs": [
+          "liposomal doxorubicin"
+        ],
+        "setting": "metastatic",
+        "start_date": null,
+        "end_date": null,
+        "start_day": 1696,
+        "end_day": 1787,
+        "duration_days": 91,
+        "cycles": {
+          "value": 4,
+          "basis": "estimated",
+          "interval_days": 28,
+          "interval_basis": "standard"
+        },
+        "progression_day": null,
+        "stop_reason": null,
+        "best_response": "PD",
+        "source": null
+      }
+    ],
+    "anthracycline_drug_dose": {
+      "administered": "positive",
+      "drugs": [
+        {
+          "drug": "doxorubicin",
+          "timeline_index": 0,
+          "combined_with": [],
+          "dose_per_admin": {
+            "value": 116.0,
+            "unit": "mg"
+          },
+          "cycles": {
+            "value": 4,
+            "basis": "recorded",
+            "interval_days": 14,
+            "interval_basis": "derived"
+          },
+          "total_dose": {
+            "value": 463.0,
+            "unit": "mg"
+          },
+          "raw": "doxorubicin [Chemotherapy] d85~d127",
+          "source": null
+        },
+        {
+          "drug": "liposomal doxorubicin",
+          "timeline_index": 11,
+          "combined_with": [],
+          "dose_per_admin": "No value",
+          "cycles": "No value",
+          "total_dose": "No value",
+          "raw": "liposomal doxorubicin [Chemotherapy] d1696~d1787 (Clinical Progressive Disease)",
+          "source": null
+        }
+      ]
+    },
+    "neoadjuvant_response": {
+      "pcr": {
+        "status": "not_recorded"
+      },
+      "rcb": {
+        "status": "not_recorded"
+      }
+    },
+    "recurrence": {
+      "recurrence_date": {
+        "status": "not_recorded"
+      },
+      "adjuvant_endocrine_end_date": {
+        "status": "not_recorded"
+      },
+      "status": {
+        "status": "present",
+        "value": "distant",
+        "raw": "Distant Metastasis",
+        "source": null
+      },
+      "metastatic_sites": {
+        "status": "present",
+        "value": [
+          "bone"
+        ],
+        "raw": "Bone",
+        "source": null
+      },
+      "metastasis_day": {
+        "status": "present",
+        "value": 1353,
+        "source": null
+      },
+      "surgery": {
+        "status": "present",
+        "value": "no",
+        "raw": "NO",
+        "source": null
+      },
+      "surgery_intent": {
+        "status": "present",
+        "value": "unknown",
+        "source": null
+      }
+    },
+    "molecular": {
+      "mutations": {
+        "ESR1": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": null
+        },
+        "PIK3CA": {
+          "status": "present",
+          "result": "detected",
+          "variants": [
+            {
+              "protein_change": "Q546R",
+              "variant_type": "Missense_Mutation",
+              "vaf": 0.226,
+              "raw": "Q546R (Missense_Mutation, VAF 0.226)"
+            }
+          ],
+          "specimen": "primary",
+          "source": null
+        },
+        "AKT1": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": null
+        },
+        "PTEN": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": null
+        },
+        "BRCA1": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": null
+        },
+        "BRCA2": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": null
+        },
+        "PALB2": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": null
+        }
+      }
+    },
+    "genomic_reports": [
+      {
+        "doc_id": "D1",
+        "report_date": null,
+        "specimen": "primary",
+        "raw_text": "종양 조직 엑솜 검사 (원발 조직). PIK3CA p.Q546R (Missense_Mutation), VAF 22.6%. ERBB2, ESR1, AKT1, PTEN, BRCA1, BRCA2, PALB2: 검출되지 않음."
+      }
+    ]
+  },
+  "conflicts": []
+}

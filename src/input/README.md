@@ -13,4 +13,24 @@
 - [schema_fields.md](schema_fields.md): `patient_state` 필드별 표준값 형태, 정규화 방식과 예시, B와 합의할 제안
 - [tcga_mapping.md](tcga_mapping.md): TCGA-BRCA 정리본 → `patient_state` 정답 대응표 (평가용 정답과 가상 차트 생성의 기준)
 - [handoff_to_B.md](handoff_to_B.md): B에게 전달하는 문서 (하나로 통합). JSON 구조, B가 받는 값과 정규화, BM-2 판정 조건, BM-3 출처 제안, 치료 상황 규칙(차수, 급여 투여단계), 정답 세트 특성, 예시, 모델 한계, B가 정할 것
-- [examples/](examples/): 범주별(조기, 국소 진행성, 전이성) TCGA 정답 `patient_state` 예시 1명씩
+- [patient_state_structure.md](patient_state_structure.md): `patient_state` JSON 구조 그림
+
+코드:
+
+| 경로 | 내용 |
+|---|---|
+| `common/vocab.py` | 표준값 사전(`data/dictionaries/field_vocab.csv`) 조회. 정답 생성과 IN-3 정규화가 같은 사전을 쓴다 |
+| `truth/tcga_truth.py` | TCGA 크롭본 → `patient_state` 정답 874명. 규칙 명세는 tcga_mapping.md |
+
+정답 생성 (team_project 폴더에서, `team_project` conda 환경):
+
+```bash
+python -m src.input.truth.tcga_truth
+python -m src.input.truth.tcga_truth --ids TCGA-A2-A0EW TCGA-5L-AAT0
+```
+
+- 출력: `data/truth/<patient_id>.json` (git 제외, 언제든 다시 생성), `data/truth/truth_report.txt` (규칙별 적용 건수, git에 올림)
+- 사전에 없는 값이 나오면 멈춘다. `field_vocab.csv`에 표현을 추가한다
+- 모든 정답을 `schemas/patient_state.json`으로 검증하고, 하나라도 실패하면 종료 코드 1
+
+테스트: `python -m pytest tests/input`. 예시 3명(`tests/input/expected/`)과 생성 결과가 같은지, 정답 전체가 스키마를 통과하는지, tcga_mapping.md에 적힌 건수와 맞는지 확인한다. 규칙을 바꾸면 문서·코드·테스트 건수를 함께 고친다.

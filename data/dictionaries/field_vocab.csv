@@ -1,0 +1,39 @@
+field,canonical,expression,lang,source,note
+diagnosis.histology,IDC,Infiltrating Ductal Carcinoma,en,tcga,
+diagnosis.histology,ILC,Infiltrating Lobular Carcinoma,en,tcga,
+diagnosis.histology,mucinous,Mucinous Carcinoma,en,tcga,
+diagnosis.histology,metaplastic,Metaplastic Carcinoma,en,tcga,
+diagnosis.histology,invasive_NOS,Infiltrating Carcinoma NOS,en,tcga,
+diagnosis.histology.oncotree,mucinous,IMMC,en,tcga,"gdc_histological_type이 Other, Mixed, Medullary일 때 ONCOTREE 코드로 대신 판정"
+diagnosis.histology.oncotree,invasive_NOS,BRCNOS,en,tcga,
+diagnosis.histology.oncotree,IDC,IDC,en,tcga,수질암(Medullary)은 WHO 2019에서 IDC/NST의 한 형태
+diagnosis.histology.oncotree,ILC,ILC,en,tcga,
+patient.menopausal_status,postmenopausal,Post (prior bilateral ovariectomy OR >12 mo since LMP with no prior hysterectomy),en,tcga,
+patient.menopausal_status,premenopausal,Pre (<6 months since LMP AND no prior bilateral ovariectomy AND not on estrogen replacement),en,tcga,
+patient.menopausal_status,perimenopausal,Peri (6-12 months since last menstrual period),en,tcga,
+patient.menopausal_status,indeterminate,Indeterminate (neither Pre or Postmenopausal),en,tcga,기록된 판단이므로 status present
+receptors.er_percent.result,positive,Positive,en,tcga,
+receptors.er_percent.result,low_positive,Low Positive,en,tcga,크롭 스크립트가 <10% + Positive에 붙인 값 (ER만)
+receptors.er_percent.result,negative,Negative,en,tcga,
+receptors.er_percent.result,indeterminate,Indeterminate,en,tcga,
+receptors.pr_percent.result,positive,Positive,en,tcga,PR에는 저발현 범주가 없다
+receptors.pr_percent.result,negative,Negative,en,tcga,
+receptors.pr_percent.result,indeterminate,Indeterminate,en,tcga,
+receptors.her2_ihc.result,positive,Positive,en,tcga,
+receptors.her2_ihc.result,negative,Negative,en,tcga,
+receptors.her2_ihc.result,equivocal,Equivocal,en,tcga,TCGA 정답에서는 FISH로 보정되어 남지 않는다
+receptors.her2_ihc.result,indeterminate,Indeterminate,en,tcga,
+receptors.her2_ish.result,amplified,Positive,en,tcga,
+receptors.her2_ish.result,not_amplified,Negative,en,tcga,
+receptors.her2_ish.result,equivocal,Equivocal,en,tcga,
+treatment_history.best_response,CR,Complete Response,en,tcga,
+treatment_history.best_response,PR,Partial Response,en,tcga,
+treatment_history.best_response,SD,Stable Disease,en,tcga,
+treatment_history.best_response,PD,Clinical Progressive Disease,en,tcga,
+metastatic_sites,bone,Bone,en,tcga,stage.metastatic_sites와 recurrence.metastatic_sites 공용
+metastatic_sites,liver,Liver,en,tcga,
+metastatic_sites,lung,Lung,en,tcga,
+metastatic_sites,brain,Brain,en,tcga,
+metastatic_sites,skin,Skin,en,tcga,
+metastatic_sites,distant_ln,Lymph Node(s),en,tcga,
+metastatic_sites,distant_ln,Lymph Node,en,tcga,

@@ -16,8 +16,8 @@ patient_state.json
 │   │   ├── metastatic_sites  진단 시 전이 부위 (M0이면 [Not Applicable])
 │   │   └── operable          yes / no / unknown
 │   ├── receptors
-│   │   ├── er_percent        {percent, range, score, allred, result}
-│   │   ├── pr_percent        {percent, range, score, allred, result}
+│   │   ├── er_percent        {percent, range, allred, result}
+│   │   ├── pr_percent        {percent, range, allred, result}
 │   │   ├── her2_ihc          {score, faint, result}
 │   │   ├── her2_ish          {result, method}
 │   │   └── pdl1              {assay, score_type, score}

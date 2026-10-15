@@ -1,0 +1,85 @@
+TCGA-BRCA 정답 세트 요약 (src/input/truth/tcga_truth.py)
+작성일 2026-10-15 · 환자 874명 · 스키마 0.1-draft5 · 입력 data/tcga_brca/merged/tcga_brca_merging_cropped.csv
+스키마 검증 실패: 0명
+
+규칙별 적용 건수. '(유도)'는 TCGA에 직접 없는 값을 규칙으로 정한 것이다 (tcga_mapping.md).
+
+[anthracycline]
+     313  anthracycline: negative
+     348  anthracycline: positive
+     213  anthracycline: 투약 기록 없음 → No value
+
+[er_percent]
+     422  er_percent: 구간+판정
+     452  er_percent: 판정만
+
+[her2_ihc]
+       2  her2_ihc 보정: score 1+ / 판정 Equivocal / FISH Negative → negative
+     123  her2_ihc 보정: score 2+ / 판정 Equivocal / FISH Negative → negative
+      17  her2_ihc 보정: score 2+ / 판정 Equivocal / FISH Positive → positive
+       2  her2_ihc 보정: score 2+ / 판정 Indeterminate / FISH Negative → negative
+       2  her2_ihc 보정: score 2+ / 판정 Indeterminate / FISH Positive → positive
+       1  her2_ihc 보정: score 2+ / 판정 Negative / FISH Negative → negative
+       6  her2_ihc 보정: score 2+ / 판정 Positive / FISH Negative → negative
+      14  her2_ihc 보정: score 2+ / 판정 Positive / FISH Positive → positive
+       1  her2_ihc 보정: score 2+ / 판정 Positive / FISH [Not Available] → positive
+       4  her2_ihc 보정: score 2+ / 판정 Positive / FISH [Not Evaluated] → positive
+       1  her2_ihc 보정: score 3+ / 판정 Equivocal / FISH Negative → negative
+       5  her2_ihc: 점수 없는 Equivocal → score 2+
+
+[her2_ish]
+       4  her2_ish: 'Indeterminate'는 표준값이 없어 not_recorded
+
+[histology]
+     636  histology = IDC
+     167  histology = ILC
+      49  histology = invasive_NOS
+       9  histology = metaplastic
+      13  histology = mucinous
+       2  histology: Medullary Carcinoma → ONCOTREE IDC → IDC
+      20  histology: Mixed Histology (please specify) → ONCOTREE BRCNOS → invasive_NOS
+      29  histology: Other, specify → ONCOTREE BRCNOS → invasive_NOS
+
+[positive_ln_count]
+     100  positive_ln_count: 둘 다 없음 → not_recorded
+      29  positive_ln_count: 양성 없음 / 검사 있음
+       1  positive_ln_count: 양성 있음 / 검사 없음
+     744  positive_ln_count: 양성 있음 / 검사 있음
+
+[pr_percent]
+     391  pr_percent: 구간+판정
+     483  pr_percent: 판정만
+
+[ptnm]
+     133  ptnm: MX → not_assessed
+      10  ptnm: NX → not_assessed
+
+[recurrence]
+      22  recurrence.status = distant
+      12  recurrence.status = locoregional
+     688  recurrence.status = none
+     152  recurrence.status = unknown
+
+[stage]
+       4  stage.metastatic_sites: Other, specify → 기타 부위 열 내용
+     313  stage.metastatic_sites: 전이 여부 NO → [Not Applicable]
+       2  stage.metastatic_sites: 전이 여부 YES → 부위 없음
+       2  stage.metastatic_sites: 전이 여부 YES → 부위 있음
+      81  stage.metastatic_sites: 전이 여부 [Not Available] → 부위 없음
+       8  stage.metastatic_sites: 전이 여부 [Not Available] → 부위 있음
+     468  stage.metastatic_sites: 전이 여부 기록 없음 + M0 → [Not Applicable]
+
+[treatment]
+     661  treatment.cycles: estimated/standard
+     652  treatment.cycles: null
+       9  treatment.cycles: recorded/None
+     640  treatment.cycles: recorded/derived
+      71  treatment.cycles: recorded/standard
+     526  treatment.duration_days: null
+   1,507  treatment.duration_days: 있음
+   1,928  treatment.setting (유도): 나머지 → adjuvant
+       8  treatment.setting (유도): 선행요법 이력 Yes + 첫 요법 → neoadjuvant
+      97  treatment.setting (유도): 시작일 ≥ 전이 기준일 → metastatic
+      14  treatment: 성분명 unknown 항목 제외
+   2,033  treatment: 항목
+
