@@ -583,7 +583,7 @@
         "rule_id": "DEEM-SG-1Y",
         "category": "chemo",
         "status": "met",
-        "basis": "선행·보조요법 exemestane 종료 후 -12일 뒤 전이 (기준 365일 이내)",
+        "basis": "선행·보조요법 exemestane 투여 중 전이 (종료 12일 전) (기준 365일 이내)",
         "regimen_refs": [
           6
         ],
@@ -603,7 +603,7 @@
         "rule_id": "DEEM-ENDO-ADJ-1Y",
         "category": "endocrine",
         "status": "met",
-        "basis": "보조 내분비요법 exemestane 종료 후 -12일 뒤 전이 (기준 365일 이내)",
+        "basis": "보조 내분비요법 exemestane 투여 중 전이 (종료 12일 전) (기준 365일 이내)",
         "regimen_refs": [
           6
         ],

@@ -149,7 +149,12 @@ def _within(rule_id: str, cands: list[tuple[int, dict]], mday: int, limit: int, 
     if inside:
         i, t = max(inside, key=lambda c: bound(c[1]))
         gap = mday - bound(t)
-        how = f"종료 후 {gap}일 뒤 전이" if t.get("end_day") is not None else f"종료일 없음, 시작 후 {gap}일 뒤 전이"
+        if t.get("end_day") is None:
+            how = f"종료일 없음, 시작 후 {gap}일 뒤 전이"
+        elif gap < 0:
+            how = f"투여 중 전이 (종료 {-gap}일 전)"
+        else:
+            how = f"종료 후 {gap}일 뒤 전이"
         return _deem(rule_id, "met", f"{what} {'+'.join(t['drugs'])} {how} (기준 {limit}일 이내)", [i], gap)
     if any(c[1].get("end_day") is None for c in cands):
         return _deem(rule_id, "unknown", f"{what} 중 종료일 없는 투약이 있어 기간을 알 수 없음",
