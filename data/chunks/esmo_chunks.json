@@ -11,7 +11,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "- \u000f All luminal-like cancers should be treated with ET [I, A].",
+    "text": "-  All luminal-like cancers should be treated with ET [I, A].",
     "setting": [
       "early"
     ],
@@ -21,7 +21,9 @@
     "line": [
       "adjuvant"
     ],
-    "biomarker_tags": [],
+    "biomarker_tags": [
+      "HR+"
+    ],
     "drugs": [],
     "evidence": {
       "loe": "I",
@@ -54,7 +56,9 @@
     "line": [
       "adjuvant"
     ],
-    "biomarker_tags": [],
+    "biomarker_tags": [
+      "HR+"
+    ],
     "drugs": [],
     "evidence": {
       "loe": "I",
@@ -87,7 +91,9 @@
     "line": [
       "adjuvant"
     ],
-    "biomarker_tags": [],
+    "biomarker_tags": [
+      "HR+"
+    ],
     "drugs": [],
     "evidence": {
       "loe": "I",
@@ -120,7 +126,9 @@
     "line": [
       "adjuvant"
     ],
-    "biomarker_tags": [],
+    "biomarker_tags": [
+      "HR+"
+    ],
     "drugs": [],
     "evidence": {
       "loe": "I",
@@ -153,7 +161,9 @@
     "line": [
       "adjuvant"
     ],
-    "biomarker_tags": [],
+    "biomarker_tags": [
+      "HR+"
+    ],
     "drugs": [],
     "evidence": {
       "loe": "I",
@@ -186,7 +196,9 @@
     "line": [
       "adjuvant"
     ],
-    "biomarker_tags": [],
+    "biomarker_tags": [
+      "HR+"
+    ],
     "drugs": [],
     "evidence": {
       "loe": "I",
@@ -219,7 +231,9 @@
     "line": [
       "adjuvant"
     ],
-    "biomarker_tags": [],
+    "biomarker_tags": [
+      "HR+"
+    ],
     "drugs": [],
     "evidence": {
       "loe": "I",
@@ -252,7 +266,9 @@
     "line": [
       "adjuvant"
     ],
-    "biomarker_tags": [],
+    "biomarker_tags": [
+      "HR+"
+    ],
     "drugs": [],
     "evidence": {
       "loe": "I",
@@ -285,7 +301,9 @@
     "line": [
       "adjuvant"
     ],
-    "biomarker_tags": [],
+    "biomarker_tags": [
+      "HR+"
+    ],
     "drugs": [
       "abemaciclib"
     ],
@@ -320,7 +338,9 @@
     "line": [
       "adjuvant"
     ],
-    "biomarker_tags": [],
+    "biomarker_tags": [
+      "HR+"
+    ],
     "drugs": [],
     "evidence": {
       "loe": "I",
@@ -353,7 +373,10 @@
     "line": [
       "adjuvant"
     ],
-    "biomarker_tags": [],
+    "biomarker_tags": [
+      "gBRCA",
+      "HR+"
+    ],
     "drugs": [
       "olaparib"
     ],
@@ -388,7 +411,10 @@
     "line": [
       "adjuvant"
     ],
-    "biomarker_tags": [],
+    "biomarker_tags": [
+      "gBRCA",
+      "HR+"
+    ],
     "drugs": [
       "olaparib"
     ],
@@ -423,7 +449,10 @@
     "line": [
       "adjuvant"
     ],
-    "biomarker_tags": [],
+    "biomarker_tags": [
+      "gBRCA",
+      "HR+"
+    ],
     "drugs": [
       "abemaciclib",
       "olaparib"
@@ -439,7 +468,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r01",
+    "chunk_id": "esmo-ebc-2024-02-hrposher2pos-r01",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -449,12 +478,13 @@
     "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "- \u000f HER2-directed therapy (with initial concurrent ChT) should be given for 12 months, covering both the neoadjuvant and/or adjuvant phases of treatment [I, A; ESCAT score: I-A].",
+    "text": "-  HER2-directed therapy (with initial concurrent ChT) should be given for 12 months, covering both the neoadjuvant and/or adjuvant phases of treatment [I, A; ESCAT score: I-A].",
     "setting": [
       "early"
     ],
     "subtype": [
-      "HER2+"
+      "HR+/HER2+",
+      "HR-/HER2+"
     ],
     "line": [
       "adjuvant"
@@ -472,7 +502,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r02",
+    "chunk_id": "esmo-ebc-2024-02-hrposher2pos-r02",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -487,7 +517,8 @@
       "early"
     ],
     "subtype": [
-      "HER2+"
+      "HR+/HER2+",
+      "HR-/HER2+"
     ],
     "line": [
       "adjuvant"
@@ -505,7 +536,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r03",
+    "chunk_id": "esmo-ebc-2024-02-hrposher2pos-r03",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -520,7 +551,8 @@
       "early"
     ],
     "subtype": [
-      "HER2+"
+      "HR+/HER2+",
+      "HR-/HER2+"
     ],
     "line": [
       "adjuvant"
@@ -538,7 +570,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r04",
+    "chunk_id": "esmo-ebc-2024-02-hrposher2pos-r04",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -553,7 +585,8 @@
       "early"
     ],
     "subtype": [
-      "HER2+"
+      "HR+/HER2+",
+      "HR-/HER2+"
     ],
     "line": [
       "adjuvant"
@@ -571,7 +604,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r05",
+    "chunk_id": "esmo-ebc-2024-02-hrposher2pos-r05",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -586,7 +619,8 @@
       "early"
     ],
     "subtype": [
-      "HER2+"
+      "HR+/HER2+",
+      "HR-/HER2+"
     ],
     "line": [
       "adjuvant"
@@ -604,7 +638,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r06",
+    "chunk_id": "esmo-ebc-2024-02-hrposher2pos-r06",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -619,7 +653,8 @@
       "early"
     ],
     "subtype": [
-      "HER2+"
+      "HR+/HER2+",
+      "HR-/HER2+"
     ],
     "line": [
       "adjuvant"
@@ -639,7 +674,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r07",
+    "chunk_id": "esmo-ebc-2024-02-hrposher2pos-r07",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -654,7 +689,8 @@
       "early"
     ],
     "subtype": [
-      "HER2+"
+      "HR+/HER2+",
+      "HR-/HER2+"
     ],
     "line": [
       "adjuvant"
@@ -674,7 +710,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r08",
+    "chunk_id": "esmo-ebc-2024-02-hrposher2pos-r08",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -689,7 +725,8 @@
       "early"
     ],
     "subtype": [
-      "HER2+"
+      "HR+/HER2+",
+      "HR-/HER2+"
     ],
     "line": [
       "adjuvant"
@@ -709,7 +746,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r09",
+    "chunk_id": "esmo-ebc-2024-02-hrposher2pos-r09",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -724,7 +761,8 @@
       "early"
     ],
     "subtype": [
-      "HER2+"
+      "HR+/HER2+",
+      "HR-/HER2+"
     ],
     "line": [
       "adjuvant"
@@ -744,7 +782,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r10",
+    "chunk_id": "esmo-ebc-2024-02-hrposher2pos-r10",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -759,7 +797,8 @@
       "early"
     ],
     "subtype": [
-      "HER2+"
+      "HR+/HER2+",
+      "HR-/HER2+"
     ],
     "line": [
       "adjuvant"
@@ -780,7 +819,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r11",
+    "chunk_id": "esmo-ebc-2024-02-hrposher2pos-r11",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -795,7 +834,8 @@
       "early"
     ],
     "subtype": [
-      "HER2+"
+      "HR+/HER2+",
+      "HR-/HER2+"
     ],
     "line": [
       "adjuvant"
@@ -825,7 +865,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "- \u000f HER2-negative tumours with 1%-9% ER and/or PgR expression (ER-/PgR-low) are a heterogenous group, some of which behave biologically similarly to TNBCs; therapeutic strategies should be adjusted to this specific situation since this might lead to a higher response to ChT and to reduced efficacy of ET compared with classical HR-positive breast cancer [II, B].",
+    "text": "-  HER2-negative tumours with 1%-9% ER and/or PgR expression (ER-/PgR-low) are a heterogenous group, some of which behave biologically similarly to TNBCs; therapeutic strategies should be adjusted to this specific situation since this might lead to a higher response to ChT and to reduced efficacy of ET compared with classical HR-positive breast cancer [II, B].",
     "setting": [
       "early"
     ],
@@ -1140,7 +1180,9 @@
     "line": [
       "adjuvant"
     ],
-    "biomarker_tags": [],
+    "biomarker_tags": [
+      "gBRCA"
+    ],
     "drugs": [
       "olaparib"
     ],
@@ -1175,7 +1217,9 @@
     "line": [
       "adjuvant"
     ],
-    "biomarker_tags": [],
+    "biomarker_tags": [
+      "gBRCA"
+    ],
     "drugs": [
       "olaparib"
     ],
@@ -1245,7 +1289,9 @@
     "line": [
       "adjuvant"
     ],
-    "biomarker_tags": [],
+    "biomarker_tags": [
+      "gBRCA"
+    ],
     "drugs": [
       "olaparib",
       "capecitabine"

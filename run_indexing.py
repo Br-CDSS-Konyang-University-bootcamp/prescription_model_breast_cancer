@@ -9,7 +9,7 @@ def main():
     chunks_dir = base_dir / "data" / "chunks"  # <- data/chunks/ 지정
 
     # 1. 컬렉션 초기화
-    init_collection(force_recreate=True)
+    init_collection(force_recreate=False)
 
     all_chunks = []
 
