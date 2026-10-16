@@ -1,6 +1,6 @@
 # A → B 전달 문서: patient_state 사용 안내, BM-2 판정 조건, BM-3 출처, 치료 상황 규칙
 
-> 작성: 담당 A · 기준 스키마: `schemas/patient_state.json` **0.1-draft5**
+> 작성: 담당 A · 기준 스키마: `schemas/patient_state.json` **0.1-draft6**
 > 받는 사람: 담당 B ([2] 바이오마커 모듈, [4] LLM 추천 모듈)
 > 관련 문서: [schema_fields.md](schema_fields.md) (필드별 상세), [tcga_mapping.md](tcga_mapping.md) (TCGA 정답 규칙), [schemas/README.md](../../schemas/README.md), PROJECT.md §5·§10
 > 이 문서는 아래 세 문서를 합친 것이다 (2026-10-15). 이전 문서는 git 이력에 있다.
@@ -12,6 +12,7 @@
 | 2026-10-15 | draft5: 차수 재료, 재발·전이, PD-L1, 유전자 변이, anthracycline 용량, gBRCA 규칙 (기존 `handoff_to_B_draft5.md`) | **협의 완료** |
 | 2026-10-16 | B 진행 현황과 남은 작업 순서 정리 (§10). 차수·투여단계·누적 용량 계산은 A로, 국소 재발 후 보조요법은 B로 담당 변경 (§6) | **정리** |
 | 2026-10-16 | §10 갱신: 유전자 7개 BM-2·BM-4 완료(PR #2) 반영, A의 차수 계산 함수(`src/input/common/lines.py`)와 약제 사전 추가 | **정리** |
+| 2026-10-16 | draft6: 판정 기준일 `index_day`, 첫 재발일 `recurrence.recurrence_day`, 투약별 차수 `line`·`endocrine_line`·`chemo_line`, 차수 간주 규칙 `deemed_lines` (§6.2·§6.3a). 차수 칸 위치 결정 (§10.4) | **제안** (4명 검토) |
 
 ## 목차
 
@@ -29,12 +30,12 @@
 
 ## 0. 요약
 
-1. A는 환자마다 `patient_state` JSON 하나를 넘긴다. 형식은 `schemas/patient_state.json`(0.1-draft5)이고, 스키마 검증을 통과한 것만 보낸다.
+1. A는 환자마다 `patient_state` JSON 하나를 넘긴다. 형식은 `schemas/patient_state.json`(0.1-draft6)이고, 스키마 검증을 통과한 것만 보낸다.
 2. A는 **적힌 값을 표준 표기로 정리**만 한다. 양성·음성·저발현 판정은 B가 한다. 예외는 둘이다. HER2 IHC의 `result`는 A가 ISH 결과로 보정해서 넘긴다 (§3.4). 그래서 **HER2는 `result`보다 `score`를 먼저 읽어야** 저발현을 놓치지 않는다. 또 TCGA 정답의 ER `low_positive`·PR `[1, 9]` 구간은 원본에 적힌 판정이 아니라, A가 크롭 단계에서 원본 구간 `<10%`와 판정 Positive를 나눠 만든 값이다 (§7).
 3. 저발현 판정값(`low_positive`)은 **ER에만** 있다 (ASCO/CAP 2020). PR은 양성/음성 두 범주만 쓴다 (§4.2).
 4. 재발 환자는 **재생검(재발 병소) 결과가 `value`**이고, 원발 결과는 `history[]`에 있다 (§3.5). 가상 차트·실제 차트에만 해당하고, **TCGA 정답은 원발 결과만** 쓴다.
 5. `not_done`(미시행)과 `not_recorded`(기록 없음)는 다르다. 미시행만 검사 권고 대상이다.
-6. **차수(line)와 심평원 투여단계는 A가 `patient_state`로 옮길 때 계산한다** (2026-10-16 담당 변경. 2026-10-15에는 B가 판단하기로 했었다). 결과를 어느 칸에 넣을지는 정해야 한다 (§10). 재료는 투약 시작·종료일(`treatment_history[].start_day`, `end_day`)과 전이 기준일(`recurrence.metastasis_day`)이다. 모두 진단일 = 0인 정수다 (§6.2).
+6. **차수(line)와 심평원 투여단계는 A가 `patient_state`로 옮길 때 계산한다** (2026-10-16 담당 변경. 2026-10-15에는 B가 판단하기로 했었다). 결과는 `treatment_history[]`의 `line`·`endocrine_line`·`chemo_line`과 `fields.deemed_lines`에 넣는다 (draft6, §6.2·§6.3a). 재료는 투약 시작·종료일(`treatment_history[].start_day`, `end_day`)과 전이 기준일(`recurrence.metastasis_day`)이다. 모두 진단일 = 0인 정수다 (§6.2).
 7. **현재 범주**: 진단 시 IV기이거나 원격 전이 재발이면 전이성. 국소 재발은 전이가 아니다 (§6.1). **국소 재발 후 수술**(이후 원격 전이 없음)이면 이후 요법은 수술후보조요법이다 (§6.4, 차트를 보고 판단해야 해서 B 담당).
 8. **gBRCA**: TCGA 정답 세트에서는 BRCA1·BRCA2 결과를 gBRCA 측정으로 가정한다. B가 positive / negative / vus를 판정한다 (§4.7).
 9. **PD-L1은 발현 점수**다 (변이 아님). 검사법·점수만 넘기고 약제별 판정은 B가 한다 (§6.5).
@@ -51,7 +52,7 @@
 | 개발 중 | 파일로 전달: `tests/fixtures/patient_state/<patient_ref>.json` (예정. 공용 폴더라 4명 합의 후 생성). 지금은 범주별 예시 3명이 `src/input/examples/`에 있다 (§8.1) |
 | TCGA 변환 | `src/input/script/tcga_to_patient_state.py`의 `convert(load_rows())`가 크롭본 874명을 `{patient_id: patient_state}`로 바로 돌려준다. 기본은 파일을 만들지 않는다 (`--out`을 줄 때만 저장). `data/truth/`는 2026-10-16에 지웠다 |
 | 연결 후 | 함수 반환값: A의 `run(chart_text) → patient_state` 결과를 B의 `assess(patient_state) → biomarker_record`가 받는다. B 코드는 `src/biomarker/BM1_ER,PR,HER2,Ki_67,subtype.py`이고, 파일 이름에 쉼표가 있어 `importlib`로 경로를 지정해 불러온다 (`tests/biomarker/test_bm.py` 참고) |
-| 검증 | A가 보내기 전에 검증한다. B도 받을 때 검증하면 버전 불일치를 바로 알 수 있다 (`schema_version` = `"0.1-draft5"`) |
+| 검증 | A가 보내기 전에 검증한다. B도 받을 때 검증하면 버전 불일치를 바로 알 수 있다 (`schema_version` = `"0.1-draft6"`) |
 | TCGA 정답 세트 | 874명 (§7). 변환 결과를 B에 넣으면 874명 전원 `patient_state`·`biomarker_record` 스키마를 통과한다 (2026-10-16 확인) |
 
 ```python
@@ -84,9 +85,10 @@ Draft202012Validator(schema).validate(patient_state)  # 실패하면 ValidationE
 
 ```
 patient_state.json
-├── schema_version            "0.1-draft5"
+├── schema_version            "0.1-draft6"
 ├── patient_ref               가명 ID (TCGA는 바코드)
 ├── created_at                생성 시각
+├── index_day                 판정 기준일 (진단일 = 0) [draft6]
 ├── documents[]               {doc_id, doc_type, doc_date}
 ├── fields
 │   ├── diagnosis
@@ -120,7 +122,9 @@ patient_state.json
 │   │   ├── cycles            {value, basis, interval_days, interval_basis}
 │   │   ├── progression_day
 │   │   ├── stop_reason, best_response
+│   │   ├── line, endocrine_line, chemo_line   전이 후 차수 (전이 전 null) [draft6]
 │   │   └── source
+│   ├── deemed_lines[]        차수 간주 규칙 4개 {rule_id, category, status, basis, regimen_refs, gap_days, notice_page} [draft6]
 │   ├── anthracycline_drug_dose
 │   │   ├── administered      positive / negative / No value
 │   │   └── drugs[]
@@ -137,6 +141,7 @@ patient_state.json
 │   │   ├── status            none / distant / locoregional / site_unknown / unknown
 │   │   ├── metastatic_sites  재발 전이 부위
 │   │   ├── metastasis_day    전이 기준일 (진단일 = 0)
+│   │   ├── recurrence_day    첫 재발일 (국소·원격, 진단일 = 0) [draft6]
 │   │   ├── surgery           재발 후 수술 yes / no / unknown
 │   │   ├── surgery_intent    curative / palliative / unknown
 │   │   └── later_distant     국소 재발 후 원격 전이 yes / no / unknown
@@ -235,7 +240,7 @@ patient_state.json
 
 | 경로 | 값 형태 | TCGA 정답 값 | B 정규화·주의 |
 |---|---|---|---|
-| `schema_version` | `"0.1-draft5"` | 고정 | 버전이 다르면 거부 |
+| `schema_version` | `"0.1-draft6"` | 고정 | 버전이 다르면 거부 |
 | `patient_ref` | 문자열 | TCGA 바코드 | 그대로 |
 | `documents[]` | `{doc_id, doc_type, doc_date}` | `doc_date`는 모두 `null` | |
 | `conflicts[]` | `{field, candidates[], note}` | 대부분 빈 배열 | 자동 선택하지 말고 확인 요청 |
@@ -537,15 +542,30 @@ PROJECT.md §5 판정 기준표에 반영했다 (2026-10-15). 위에서부터 �
 | `stage.disease_extent = metastatic` 또는 `recurrence.status = distant` | `metastatic` |
 | 그 밖 (재발 없음, 국소 재발, 부위 모름, 재발 여부 모름) | `stage.disease_extent` 그대로 |
 
-### 6.2 차수 (`setting.line`)
+### 6.2 차수 (`treatment_history[].line`, `endocrine_line`, `chemo_line`) [draft6]
 
-차수는 정답에 없다. B가 아래 재료로 판단한다.
+A가 변환할 때 계산해 투약마다 넣는다 (`src/input/common/lines.py`의 `palliative_lines`, 2026-10-16). 전이 전 투약·보조약·골 보호제·시작일 없는 투약은 `null`. B는 이 값으로 `setting.line`을 채운다. 규칙:
 
 1. `treatment_history`를 `start_day` 순으로 정렬한다 (`start_day` null은 순서를 알 수 없음).
 2. `start_day ≥ recurrence.metastasis_day`인 기록이 전이 이후 요법이다. 그 전은 선행·보조요법이다.
 3. 보조약(supportive care)과 골 보호제는 차수를 정하지 않는다.
-4. 시작일이 가까운 기록은 한 요법으로 묶는다 (A 분석에서는 28일 이내를 같은 요법으로 봤다. 기준은 B가 정한다).
-5. 진행(`best_response = PD`, `stop_reason = progression`)으로 바뀐 요법만 다음 차수로 센다. `planned_switch`(AC→T 같은 계획된 순차)와 `maintenance`는 같은 차수다.
+4. 묶음 첫 투약에서 시작일이 28일 이내인 기록은 한 요법으로 묶는다.
+4a. 요법 종류: 항암·HER2 표적·면역항암제가 하나라도 있으면 항암, 없고 내분비요법이 있으면 내분비, 그 밖의 표적치료만 있으면 항암. 내분비 차수와 항암 차수를 따로 센다 (§6.3).
+5. 진행(`best_response = PD`, `stop_reason = progression`)으로 바뀐 요법만 다음 차수로 센다. `planned_switch`(AC→T 같은 계획된 순차)·`maintenance`·`toxicity`는 같은 차수다. 끝난 이유를 모르면 다음 차수로 센다 (TCGA는 대부분 이 경우).
+
+### 6.3a 차수 간주 규칙 (`fields.deemed_lines`) [draft6]
+
+공고는 선행·보조요법을 고식적 요법 1회로 간주하는 경우가 있다. 약마다 기간이 달라 차수를 하나로 낼 수 없으므로, **실제 차수는 그대로 두고 규칙 4개의 충족 여부를 따로 낸다.** 급여 판정은 행마다 맞는 규칙을 골라 "실제 차수 + (그 규칙이 `met`이면 1)"로 투여단계와 비교한다.
+
+| 규칙 | 공고 | 올리는 차수 | 조건 | 쓰는 요법 |
+|---|---|---|---|---|
+| `DEEM-ANTHRA-TAXANE` | p.61~62 | 항암 | 선행·보조에 anthracycline과 taxane이 모두 있음 (기간 제한 없음) | gemcitabine·vinorelbine 등 2차 이상, 40장 pembrolizumab + gemcitabine + carboplatin |
+| `DEEM-SG-1Y` | p.63 | 항암 | 선행·보조 종료 후 365일 이내 전이 | sacituzumab govitecan |
+| `DEEM-HER2ADC-6M` | p.62~63 | 항암 | trastuzumab 포함 보조요법 종료 후 183일 이내 전이 | T-DM1, T-DXd |
+| `DEEM-ENDO-ADJ-1Y` | p.57 | 내분비 | 보조 내분비요법 종료 후 365일 이내 전이 | AI·exemestane + LHRH, CDK4/6 + fulvestrant (2차 이상) |
+
+- `status`: `met` / `not_met` / `unknown`(종료일이 없어 기간을 알 수 없음) / `not_applicable`(전이성 아님). 기간은 종료일부터 전이 기준일까지 세고, 종료일이 없으면 시작일을 하한으로 쓴다.
+- 기준 시점은 첫 재발일이 아니라 전이 기준일이다.
 
 ### 6.3 심평원 급여 투여단계 (공고 p.48~63, A 확인)
 
@@ -641,7 +661,7 @@ A는 판정하지 않는다. B가 약제별로 판정한다.
 <!-- validate:patient_state -->
 ```json
 {
-  "schema_version": "0.1-draft5",
+  "schema_version": "0.1-draft6",
   "patient_ref": "VC-0001",
   "created_at": "2026-10-12T19:00:00+09:00",
   "documents": [
@@ -797,7 +817,7 @@ B의 기대 출력 (§4 조건을 따른 경우). `oncokb` 칸은 현재 스키�
 
 | 작업 | 담당 | 비고 |
 |---|---|---|
-| §6.2 차수 계산 | **A** (변환 단계) | 2026-10-15에는 B였다. 계산 함수 `src/input/common/lines.py`의 `palliative_lines` (전체·고식적 내분비·고식적 항암 차수를 따로 셈, 2026-10-16). 결과를 넣을 칸은 §10.4에서 정함 |
+| §6.2 차수 계산 | **A** (변환 단계) | 2026-10-15에는 B였다. 계산 함수 `src/input/common/lines.py`의 `palliative_lines` (전체·고식적 내분비·고식적 항암 차수를 따로 셈, 2026-10-16). 결과는 draft6의 `treatment_history[].line` 등과 `deemed_lines` (§6.2·§6.3a) |
 | §6.3 심평원 투여단계 | **A** (변환 단계) | |
 | §6.7 anthracycline 누적 용량 | **A** (변환 단계) | `anthracycline_drug_dose`에 넣는다. 지금 `total_dose`는 TCGA에 적힌 값을 그대로 옮긴 것 |
 | 약제명 사전 | **A** | 차트마다 다른 표기를 같은 약으로 묶기. `drug_classes.csv`에 `drug_subclass` 열 추가됨. 2026-10-16: CDK4/6 억제제·면역관문억제제·지침 약제 18개, 상품명·공고 요법 약어(EC, FEC, CMF, TAC, TCHP, DA, ED, GT) 추가 |
@@ -816,8 +836,8 @@ B의 기대 출력 (§4 조건을 따른 경우). `oncokb` 칸은 현재 스키�
 
 ### 10.4 정할 것
 
-- [ ] A가 계산한 차수·투여단계를 어느 칸에 넣을지. `patient_state.json`은 더 바꾸기 어려우므로 `biomarker_record.setting`(`line`, `reason`)에 넣는 방안을 검토한다. `SET-LOCAL-ADJ`(5번)도 같은 칸을 쓴다
+- [x] A가 계산한 차수·투여단계를 어느 칸에 넣을지 (2026-10-16 A 제안, draft6): `patient_state.treatment_history[]`의 `line`·`endocrine_line`·`chemo_line`과 `fields.deemed_lines`. B는 이 값으로 `setting.line`을 채운다. `SET-LOCAL-ADJ`(3번) 결과 칸은 따로 정한다
 - [ ] `evidence.oncokb` → `annotation` 스키마 변경 (4명 합의)
 - [ ] 분자 아형을 `biomarker_record` 출력에 넣을지 (넣으려면 스키마 칸 추가)
 - [ ] 수치 기준 전체의 종양내과·병리과 검토. 바뀌면 A의 정답과 가상 차트도 바꿔야 한다
-- [ ] `patient_state` 0.1-draft5 검토 의견. 문제가 없으면 `0.1`로 확정한다
+- [ ] `patient_state` 0.1-draft6 검토 의견. 문제가 없으면 `0.1`로 확정한다

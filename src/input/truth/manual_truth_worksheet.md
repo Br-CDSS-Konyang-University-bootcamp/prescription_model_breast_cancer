@@ -1,6 +1,8 @@
 # 정답 직접 작성 작업표
 
-> 담당 A · 2026-10-15 · 대상 4명 · 기준: 스키마 `0.1-draft5`, 규칙 `src/input/tcga_mapping.md`
+> 담당 A · 2026-10-15 · 대상 4명 · 기준: 스키마 `0.1-draft6`, 규칙 `src/input/tcga_mapping.md`
+>
+> draft6(2026-10-16) 계산 칸인 `treatment_history[].line`·`endocrine_line`·`chemo_line`과 `fields.deemed_lines`는 직접 쓰지 않는다. 비교 테스트에서 빼고, 계산은 `tests/input/test_lines.py`에서 검사한다. `recurrence.recurrence_day`(첫 재발일)는 원본 열로 직접 채운다 (tcga_mapping.md §3.7).
 
 ## 1. 왜 직접 쓰나
 

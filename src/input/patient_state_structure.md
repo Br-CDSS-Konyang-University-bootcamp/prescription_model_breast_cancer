@@ -1,7 +1,8 @@
 patient_state.json
-├── schema_version            "0.1-draft5"
+├── schema_version            "0.1-draft6"
 ├── patient_ref               가명 ID (TCGA는 바코드)
 ├── created_at
+├── index_day                 판정 기준일 (진단일 = 0) [draft6]
 ├── documents[]               {doc_id, doc_type, doc_date}
 ├── fields
 │   ├── diagnosis
@@ -35,7 +36,9 @@ patient_state.json
 │   │   ├── cycles            {value, basis, interval_days, interval_basis}
 │   │   ├── progression_day
 │   │   ├── stop_reason, best_response
+│   │   ├── line, endocrine_line, chemo_line   전이 후 차수 (전이 전 null) [draft6]
 │   │   └── source
+│   ├── deemed_lines[]        차수 간주 규칙 4개 {rule_id, category, status, basis, regimen_refs, gap_days, notice_page} [draft6]
 │   ├── anthracycline_drug_dose
 │   │   ├── administered      positive / negative / No value
 │   │   └── drugs[]
@@ -52,6 +55,7 @@ patient_state.json
 │   │   ├── status            none / distant / locoregional / site_unknown / unknown
 │   │   ├── metastatic_sites  재발 전이 부위
 │   │   ├── metastasis_day    전이 기준일 (진단일 = 0)
+│   │   ├── recurrence_day    첫 재발일 (국소·원격, 진단일 = 0) [draft6]
 │   │   ├── surgery           yes / no / unknown
 │   │   ├── surgery_intent    curative / palliative / unknown
 │   │   └── later_distant     yes / no / unknown
