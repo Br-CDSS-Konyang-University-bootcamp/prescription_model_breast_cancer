@@ -196,6 +196,21 @@ KI67_CASES = [
     ("K10", ND, "not_done", [], ""),
 ]
 
+PDL1_CASES = [
+    # (id, 칸, 정답 상태, 정답 태그, 메모) - 전달 문서 6.5절
+    ("P01", f({"assay": "22C3", "score_type": "CPS", "score": 12}), "positive", ["PD-L1-CPS10"], "pembrolizumab 기준"),
+    ("P02", f({"assay": "22C3", "score_type": "CPS", "score": 10}), "positive", ["PD-L1-CPS10"], "경계: CPS 10은 양성"),
+    ("P03", f({"assay": "22C3", "score_type": "CPS", "score": 5}), "negative", [], ""),
+    ("P04", f({"assay": "SP142", "score_type": "IC", "score": 2}), "positive", ["PD-L1-SP142"], "atezolizumab 기준"),
+    ("P05", f({"assay": "SP142", "score_type": "IC", "score": 1}), "positive", ["PD-L1-SP142"], "경계: IC 1%는 양성"),
+    ("P06", f({"assay": "SP142", "score_type": "IC", "score": 0}), "negative", [], ""),
+    ("P07", f({"assay": "SP263", "score_type": "TPS", "score": 50}), "unknown", [], "기준 검사법이 아니면 판정 안 함"),
+    ("P08", f({"assay": "22C3", "score_type": "TPS", "score": 50}), "unknown", [], "22C3여도 CPS가 아니면 판정 안 함"),
+    ("P09", f({"assay": "22C3", "score_type": "CPS"}), "unknown", [], "점수 없음"),
+    ("P10", ND, "not_done", [], ""),
+    ("P11", NR, "not_recorded", [], "TCGA는 모두 이 경우"),
+]
+
 MOLECULAR_CASES = [
     # (id, 아형, Ki-67 상태값, 정답 분자 아형)
     ("M01", "HR+/HER2-", "negative", "Luminal A"),
@@ -424,6 +439,8 @@ def main():
 
     for case_id, field, exp_status, exp_tags, note in KI67_CASES:
         judged(case_id, judge_ki67(field), exp_status, exp_tags, note)
+    for case_id, field, exp_status, exp_tags, note in PDL1_CASES:
+        judged(case_id, bm.judge_pdl1(field), exp_status, exp_tags, note)
     for case_id, er, pr, h2, expected in SUBTYPE_CASES:
         got = subtype_of(er, pr, h2)
         report(case_id, got == expected, "",

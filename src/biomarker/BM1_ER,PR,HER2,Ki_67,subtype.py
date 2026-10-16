@@ -14,7 +14,8 @@
 재발 환자는 value(재생검 결과)로 판정하고, history[]의 원발 결과와 비교한 설명을 reason 끝에 붙인다.
 유전자 변이(ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2)는 허가 변이 목록(actionable_variants.csv)과
 절단 변이만으로 판정하는 1차 규칙이다 (2026-10-16). 유전자 검사 공백(BM-4)은 미시행만 권고한다 (2026-10-16). 아직 다루지 않는 것:
-차수(setting.line, 6.2절), BM-1 보고서 파싱, BM-3 근거 주석, PD-L1 약제별 판정(6.5절), 심평원 투여단계(6.3절)
+차수(setting.line, 6.2절), BM-1 보고서 파싱, BM-3 근거 주석, 심평원 투여단계(6.3절).
+PD-L1은 약제별 기준(22C3 CPS ≥ 10, SP142 IC ≥ 1%)으로 판정한다 (6.5절, 2026-10-16)
 """
 
 import csv
@@ -37,6 +38,10 @@ PR_POSITIVE_MIN = 9            # range 최대값·percent가 이 값(%) 이상�
 
 # Ki-67: 이 값(%) 이상이면 positive(고증식) (팀 결정 2026-10-15)
 KI67_HIGH_MIN = 20
+
+# PD-L1 약제별 기준 (전달 문서 6.5절). 검사법과 점수 종류가 기준과 다르면 판정하지 않는다
+PDL1_22C3_CPS_MIN = 10         # pembrolizumab + 항암 (TNBC 1차): 22C3 CPS 이 값 이상 양성 (공고 p.58~59)
+PDL1_SP142_IC_MIN = 1          # atezolizumab + nab-paclitaxel: SP142 IC 이 값(%) 이상 양성 (ESMO MBC)
 
 # 이전 약제 계열에서 뺄 계열 (차수에 들어가지 않는 약)
 NON_ANTICANCER_CLASSES = {"Supportive Care", "Bone-modifying Agent", "Unknown", "Other"}
@@ -447,6 +452,38 @@ def molecular_subtype_of(subtype, ki67):
     return "unknown"
 
 
+# ------------------------------------------------------------------- PD-L1
+# (검사법, 점수 종류) -> (양성 최소값, 약, 근거, 태그). 전달 문서 6.5절, PROJECT.md 5절
+PDL1_RULES = {
+    ("22C3", "CPS"): (PDL1_22C3_CPS_MIN, "pembrolizumab", "심평원 공고 p.58~59", "PD-L1-CPS10"),
+    ("SP142", "IC"): (PDL1_SP142_IC_MIN, "atezolizumab", "ESMO MBC", "PD-L1-SP142"),
+}
+
+
+def judge_pdl1(field):
+    """PD-L1 발현 점수. 검사법·점수 종류에 맞는 약제 기준으로만 판정하고, 맞는 기준이 없으면 unknown."""
+    gate = _gate("PD-L1", field, "BM2-PDL1")
+    if gate:
+        return gate
+    value = field.get("value") or {}
+    assay, score_type, score = value.get("assay"), value.get("score_type"), value.get("score")
+    evidence = {"assay": assay, "score": score}
+    rule = PDL1_RULES.get((assay, score_type))
+    if rule is None:
+        return _record("PD-L1", "unknown",
+                       f"PD-L1 {assay} {score_type} {score}: 검사법·점수 종류가 약제 기준(22C3 CPS, SP142 IC)과 "
+                       "달라 판정에 쓰지 않음", "BM2-PDL1-ASSAY", field, evidence)
+    cutoff, drug, source, tag = rule
+    if score is None:
+        return _record("PD-L1", "unknown", f"PD-L1 {assay} {score_type} 점수 없음",
+                       f"BM2-PDL1-{assay}-NOSCORE", field, evidence)
+    if score >= cutoff:
+        return _record("PD-L1", "positive", f"PD-L1 {assay} {score_type} {score} ≥ {cutoff} → {drug} 기준 양성 ({source})",
+                       f"BM2-PDL1-{assay}", field, evidence, [tag])
+    return _record("PD-L1", "negative", f"PD-L1 {assay} {score_type} {score} < {cutoff} → {drug} 기준 음성 ({source})",
+                   f"BM2-PDL1-{assay}", field, evidence)
+
+
 # ------------------------------------------------------------ 유전자 변이
 # 전달 문서 3.6절(입력), 4.6절(ESR1 재검), 4.7절(BRCA), 5.4절(판정 순서). BM-3 로컬 조회(ClinVar, CIViC)가
 # 생기기 전 1차 규칙이다: 허가 변이 목록 또는 절단 변이만 양성으로 보고, 나머지 검출 변이는 VUS로 남긴다.
@@ -658,6 +695,7 @@ def assess(patient_state):
 
     records = assess_receptors(patient_state)
     records.append(judge_ki67((fields.get("proliferation") or {}).get("ki67_percent")))
+    records.append(judge_pdl1((fields.get("receptors") or {}).get("pdl1")))
     records.extend(assess_genes(patient_state))
     by = {r["marker"]: r for r in records}
 
