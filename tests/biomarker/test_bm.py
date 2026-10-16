@@ -260,6 +260,52 @@ ASSESS_CASES = [
 ]
 
 
+def gene(*variants, specimen="primary"):
+    """유전자 칸 (전달 문서 3.6절). variants는 (단백질 변화, 변이 종류). 비우면 변이 없음."""
+    return {"status": "present", "result": "detected" if variants else "not_detected", "specimen": specimen,
+            "variants": [{"protein_change": p, "variant_type": t, "vaf": 0.3, "raw": p} for p, t in variants],
+            "source": None}
+
+
+MIS, NON, FS = "Missense_Mutation", "Nonsense_Mutation", "Frame_Shift_Del"
+
+GENE_CASES = [
+    # (id, 유전자, patient_ref, 칸, 정답 marker, 정답 상태, 정답 태그, 메모)
+    ("G01", "PIK3CA", "VC-1", gene(("H1047R", MIS)), "PIK3CA", "positive", ["PIK3CA-mut"], "알펠리십 동반진단 변이"),
+    ("G02", "PIK3CA", "VC-1", gene(("N345K", MIS)), "PIK3CA", "vus", [], "목록에 없는 변이 -> VUS (BM-3에서 다시 판정)"),
+    ("G03", "PIK3CA", "VC-1", gene(("M1004I", MIS), ("E542K", MIS)), "PIK3CA", "positive", ["PIK3CA-mut"],
+     "여러 변이 중 하나라도 목록에 있으면 양성"),
+    ("G04", "PIK3CA", "VC-1", gene(), "PIK3CA", "negative", [], ""),
+    ("G05", "PIK3CA", "VC-1", ND, "PIK3CA", "not_done", [], ""),
+    ("G06", "PIK3CA", "VC-1", NR, "PIK3CA", "not_recorded", [], ""),
+    ("G07", "AKT1", "VC-1", gene(("E17K", MIS)), "AKT1", "positive", ["AKT1-mut"], "변이 목록 원문 확인 필요"),
+    ("G08", "AKT1", "VC-1", gene(("L52R", MIS)), "AKT1", "vus", [], ""),
+    ("G09", "PTEN", "VC-1", gene(("R130*", NON)), "PTEN", "positive", ["PTEN-loss"], "절단 변이"),
+    ("G10", "PTEN", "VC-1", gene(("K267Rfs*9", "Frame_Shift_Ins")), "PTEN", "positive", ["PTEN-loss"], ""),
+    ("G11", "PTEN", "VC-1", gene(("R130Q", MIS)), "PTEN", "vus", [], "미스센스는 ClinVar 조회 전까지 VUS"),
+    ("G12", "BRCA1", "TCGA-XX-0001", gene(("Q934*", NON)), "gBRCA1", "positive", ["gBRCA"],
+     "TCGA는 gBRCA로 가정 (전달 문서 4.7절)"),
+    ("G13", "BRCA1", "TCGA-XX-0001", gene(("E9Q", MIS)), "gBRCA1", "vus", [], "전달 문서 4.7절 예시"),
+    ("G14", "BRCA2", "TCGA-XX-0001", gene(("X2602_splice", "Splice_Site")), "gBRCA2", "positive", ["gBRCA"], ""),
+    ("G15", "BRCA2", "VC-1", gene(), "sBRCA2", "negative", [], "TCGA가 아니면 종양 검사로 보고 sBRCA"),
+    ("G16", "PALB2", "VC-1", gene(("L381V", MIS)), "PALB2", "vus", [], ""),
+    ("G17", "PALB2", "VC-1", gene(("T1030Ifs*13", FS)), "PALB2", "positive", ["PALB2-mut"], ""),
+    ("G18", "ESR1", "VC-1", gene(("D538G", MIS)), "ESR1", "positive", ["ESR1-mut"], "변이 목록 원문 확인 필요"),
+]
+
+# ESR1 재검 (전달 문서 4.6절): (id, ESR1 칸, treatment_history, 정답 상태)
+_AI_PD = [{"drugs": ["letrozole"], "start_day": 1500, "best_response": "PD", "stop_reason": None}]
+_AI_CR = [{"drugs": ["letrozole"], "start_day": 300, "best_response": "CR", "stop_reason": None}]
+_CHEMO_PD = [{"drugs": ["docetaxel"], "start_day": 1500, "best_response": "PD", "stop_reason": None}]
+ESR1_CASES = [
+    ("E01", gene(), _AI_PD, "retest_needed", "원발 음성 + 내분비요법 진행"),
+    ("E02", gene(), _AI_CR, "negative", "진행 없음"),
+    ("E03", gene(), _CHEMO_PD, "negative", "항암화학요법 진행은 해당 없음"),
+    ("E04", gene(specimen="cfDNA"), _AI_PD, "negative", "진행 후 cfDNA 결과는 그대로 씀"),
+    ("E05", ND, _AI_PD, "not_done", "미시행은 미시행 그대로 (검사 권고는 BM-4)"),
+]
+
+
 def handoff_example():
     """전달 문서 8.2절의 가상 차트 입력과 기대 출력."""
     text = (ROOT / "src" / "input" / "handoff_to_B.md").read_text(encoding="utf-8")
@@ -333,6 +379,20 @@ def main():
     for case_id, reason, needle in extra_checks:
         report(case_id, needle in reason, "", f"reason에 '{needle}' 포함")
 
+    # 유전자 7개 (전달 문서 3.6·4.6·4.7·5.4절)
+    for case_id, g, ref, field, exp_marker, exp_status, exp_tags, note in GENE_CASES:
+        rec = bm.judge_gene(g, field, ref)
+        ok = (rec["marker"] == exp_marker and rec["status"] == exp_status and rec["rag_tags"] == exp_tags
+              and not check_shape(rec))
+        detail = f"{rec['marker']} {rec['status']} {rec['rag_tags']}"
+        if not ok:
+            detail += f"  / 정답: {exp_marker} {exp_status} {exp_tags}  / {rec['reason']} {check_shape(rec)}"
+        report(case_id, ok, note, detail)
+    for case_id, field, history, exp_status, note in ESR1_CASES:
+        rec = bm.judge_esr1(field, {"treatment_history": history})
+        ok = rec["status"] == exp_status and not check_shape(rec)
+        report(case_id, ok, note, f"ESR1 {rec['status']}" + ("" if ok else f"  / 정답: {exp_status} / {rec['reason']}"))
+
     # A의 예시 환자 한 명 전체
     records = assess_receptors(SAMPLE_PATIENT)
     got = {r["marker"]: r["status"] for r in records}
@@ -376,10 +436,10 @@ def main():
     out = assess(ps)
     got = {r["marker"]: r["status"] for r in out["records"]}
     want = {r["marker"]: r["status"] for r in expected["records"]
-            if r["marker"] in ("ER", "PR", "HER2")}
+            if r["marker"] in ("ER", "PR", "HER2", "PIK3CA", "ESR1")}
     ok = (all(got.get(m) == s for m, s in want.items()) and out["subtype"] == expected["subtype"]
           and out["setting"]["disease"] == expected["setting"]["disease"] and not list(validator.iter_errors(out)))
-    report("HAND", ok, "ER·PR·HER2·아형·현재 범주만 비교 (유전자·차수는 아직 없음)",
+    report("HAND", ok, "ER·PR·HER2·PIK3CA·ESR1·아형·현재 범주만 비교 (보고서 원문 파싱(BRCA)·차수는 아직 없음)",
            f"전달 문서 8.2절 {want} -> {({m: got.get(m) for m in want})}, {out['subtype']}, {out['setting']['disease']}")
 
     # TCGA 크롭본 전체: patient_state로 변환(파일 없이)한 뒤 BM 출력이 스키마를 통과하는지

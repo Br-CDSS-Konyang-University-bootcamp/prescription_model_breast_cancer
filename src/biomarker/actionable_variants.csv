@@ -1,0 +1,22 @@
+gene,protein_change,drug,source,verified,note
+PIK3CA,C420R,alpelisib,"therascreen PIK3CA RGQ PCR Kit (QIAGEN 사용설명서, AccessGUDID 04053228034223)",yes,exon 7
+PIK3CA,E542K,alpelisib,"therascreen PIK3CA RGQ PCR Kit (QIAGEN 사용설명서)",yes,exon 9
+PIK3CA,E545A,alpelisib,"therascreen PIK3CA RGQ PCR Kit (QIAGEN 사용설명서)",yes,exon 9
+PIK3CA,E545D,alpelisib,"therascreen PIK3CA RGQ PCR Kit (QIAGEN 사용설명서)",yes,exon 9. 키트는 c.1635G>T로 생긴 E545D만 검출
+PIK3CA,E545G,alpelisib,"therascreen PIK3CA RGQ PCR Kit (QIAGEN 사용설명서)",yes,exon 9
+PIK3CA,E545K,alpelisib,"therascreen PIK3CA RGQ PCR Kit (QIAGEN 사용설명서)",yes,exon 9
+PIK3CA,Q546E,alpelisib,"therascreen PIK3CA RGQ PCR Kit (QIAGEN 사용설명서)",yes,exon 9
+PIK3CA,Q546R,alpelisib,"therascreen PIK3CA RGQ PCR Kit (QIAGEN 사용설명서)",yes,exon 9
+PIK3CA,H1047L,alpelisib,"therascreen PIK3CA RGQ PCR Kit (QIAGEN 사용설명서)",yes,exon 20
+PIK3CA,H1047R,alpelisib,"therascreen PIK3CA RGQ PCR Kit (QIAGEN 사용설명서)",yes,exon 20
+PIK3CA,H1047Y,alpelisib,"therascreen PIK3CA RGQ PCR Kit (QIAGEN 사용설명서)",yes,exon 20
+AKT1,E17K,capivasertib,"TRUQAP(capivasertib) FDA 라벨 2023, FoundationOne CDx",no,원문 확인 필요
+ESR1,E380Q,elacestrant,"ORSERDU(elacestrant) FDA 라벨 2023, Guardant360 CDx",no,원문 확인 필요
+ESR1,S463P,elacestrant,"ORSERDU(elacestrant) FDA 라벨 2023, Guardant360 CDx",no,원문 확인 필요
+ESR1,L536H,elacestrant,"ORSERDU(elacestrant) FDA 라벨 2023, Guardant360 CDx",no,원문 확인 필요
+ESR1,L536P,elacestrant,"ORSERDU(elacestrant) FDA 라벨 2023, Guardant360 CDx",no,원문 확인 필요
+ESR1,L536R,elacestrant,"ORSERDU(elacestrant) FDA 라벨 2023, Guardant360 CDx",no,원문 확인 필요
+ESR1,Y537C,elacestrant,"ORSERDU(elacestrant) FDA 라벨 2023, Guardant360 CDx",no,원문 확인 필요
+ESR1,Y537N,elacestrant,"ORSERDU(elacestrant) FDA 라벨 2023, Guardant360 CDx",no,원문 확인 필요
+ESR1,Y537S,elacestrant,"ORSERDU(elacestrant) FDA 라벨 2023, Guardant360 CDx",no,원문 확인 필요
+ESR1,D538G,elacestrant,"ORSERDU(elacestrant) FDA 라벨 2023, Guardant360 CDx",no,원문 확인 필요

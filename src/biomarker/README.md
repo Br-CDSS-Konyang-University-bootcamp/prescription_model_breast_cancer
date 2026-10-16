@@ -14,8 +14,9 @@
 | 파일 | 내용 |
 |---|---|
 | `BM1_ER,PR,HER2,Ki_67,subtype.py` | BM-2 ~ BM-4를 한 파일에 둔다. 진입점 `assess(patient_state)` → `biomarker_record` 전체 |
+| `actionable_variants.csv` | 허가 동반진단 변이 목록 (PIK3CA, AKT1, ESR1). 약, 출처, 원문 확인 여부(`verified`) |
 
-`BM1_ER,PR,HER2,Ki_67,subtype.py`가 만드는 레코드 (환자 1명당 4개):
+`BM1_ER,PR,HER2,Ki_67,subtype.py`가 만드는 레코드 (환자 1명당 11개):
 
 | 마커 | 입력 (`patient_state.fields`) | 판정 |
 |---|---|---|
@@ -24,6 +25,21 @@
 
 분자 아형(Luminal A, Luminal B(HER2 negative), Luminal B(HER2 positive), HER2_enriched, Basal_like)은 `molecular_subtype_of(아형, Ki-67 상태값)` 규칙 함수로만 있고 출력에는 넣지 않는다 (PROJECT.md §5).
 
-유전자 변이(ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2)와 그에 걸린 BM-4 검사 공백 규칙(gBRCA, PIK3CA·AKT1·PTEN, ESR1)은 2026-10-15에 코드에서 뺐다. 따로 다시 작성한다.
+유전자 7개 판정 (2026-10-16, 1차 규칙. 전달 문서 3.6·4.6·4.7·5.4절). 위에서부터 처음 맞는 줄로 판정한다:
+
+| 순서 | 조건 | 상태값 | 규칙 ID |
+|---|---|---|---|
+| 1 | 미시행 / 기록 없음 | `not_done` / `not_recorded` | `BM2-<유전자>-NOTDONE` / `-NOTRECORDED` |
+| 2 | 변이 없음 | `negative` | `BM2-<유전자>-NOTDETECTED` |
+| 3 | PIK3CA·AKT1·ESR1: 변이 중 하나라도 `actionable_variants.csv`에 있음 | `positive` | `BM2-<유전자>-LABEL` |
+| 3 | PTEN·BRCA1·BRCA2·PALB2: 절단 변이(nonsense, frameshift, 스플라이스 부위) | `positive` | `BM2-<유전자>-TRUNC` |
+| 4 | 그 밖의 검출 변이 | `vus` (음성 처리, 표시 유지) | `BM2-<유전자>-VUS` |
+| ESR1 | 원발 조직 결과인데 이후 내분비요법 진행(PD, progression)이 있음 | `retest_needed` | `BM2-ESR1-RETEST` |
+
+- BRCA1/2 레코드 이름: patient_ref가 `TCGA-`로 시작하면 `gBRCA1/2`(종양 엑솜을 생식세포 검사로 가정), 아니면 `sBRCA1/2`.
+- VUS는 BM-3(ClinVar·CIViC 로컬 조회)이 생기면 다시 가른다. 미스센스 병원성 변이(예: BRCA1 C61G)는 지금 VUS로 나온다.
+- `actionable_variants.csv`의 PIK3CA 11개는 therascreen PIK3CA 키트 문서로 확인했다. AKT1·ESR1 목록은 `verified = no`이고, 판정 이유에 "원문 확인 필요"가 붙는다. FDA 라벨·SSED 원문으로 확인하면 `yes`로 바꾼다.
+- TCGA 874명 결과: PIK3CA 양성 211 / VUS 69, AKT1 양성 21, PTEN 양성 34, gBRCA1 양성 9, gBRCA2 양성 6, PALB2 VUS 6, ESR1 양성 2 / 재검 필요 9. 미시행은 유전자마다 28명.
+- 유전자 검사 공백(BM-4: gBRCA, PIK3CA·AKT1·PTEN, ESR1)은 아직 넣지 않았다. 다음 작업이다.
 
 테스트 실행 (`team_project` 폴더에서): `python -m pytest tests/biomarker` 또는 케이스별 출력은 `python -m tests.biomarker.test_bm`

@@ -1,4 +1,4 @@
-"""바이오마커 모듈 BM-2 ~ BM-4 (상태 판정, 검사 공백). 지금은 ER, PR, HER2, Ki-67과 아형·치료 상황만 다룬다.
+"""바이오마커 모듈 BM-2 ~ BM-4 (상태 판정, 검사 공백). ER, PR, HER2, Ki-67, 유전자 7개와 아형·치료 상황을 다룬다.
 
 기준 문서
 - PROJECT.md 5절 (판정 기준표, ER·PR·HER2 세부 판정 규칙, BM-3 출처, 검사 공백 규칙)
@@ -12,7 +12,8 @@
 
 이 파일은 규칙만 쓴다. LLM은 쓰지 않는다.
 재발 환자는 value(재생검 결과)로 판정하고, history[]의 원발 결과와 비교한 설명을 reason 끝에 붙인다.
-아직 다루지 않는 것: 유전자 변이(ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2 - 따로 다시 작성, 2026-10-15),
+유전자 변이(ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2)는 허가 변이 목록(actionable_variants.csv)과
+절단 변이만으로 판정하는 1차 규칙이다 (2026-10-16). 아직 다루지 않는 것: 유전자 검사 공백(BM-4 유전자),
 차수(setting.line, 6.2절), BM-1 보고서 파싱, BM-3 근거 주석, PD-L1 약제별 판정(6.5절), 심평원 투여단계(6.3절)
 """
 
@@ -446,6 +447,123 @@ def molecular_subtype_of(subtype, ki67):
     return "unknown"
 
 
+# ------------------------------------------------------------ 유전자 변이
+# 전달 문서 3.6절(입력), 4.6절(ESR1 재검), 4.7절(BRCA), 5.4절(판정 순서). BM-3 로컬 조회(ClinVar, CIViC)가
+# 생기기 전 1차 규칙이다: 허가 변이 목록 또는 절단 변이만 양성으로 보고, 나머지 검출 변이는 VUS로 남긴다.
+GENES = ("ESR1", "PIK3CA", "AKT1", "PTEN", "BRCA1", "BRCA2", "PALB2")
+# 허가 동반진단 변이 목록이 있는 유전자 (actionable_variants.csv)
+LABEL_GENES = {"PIK3CA", "AKT1", "ESR1"}
+# 절단 변이(nonsense, frameshift, 필수 스플라이스 부위)를 기능 소실 양성으로 보는 유전자
+TRUNCATING_GENES = {"PTEN", "BRCA1", "BRCA2", "PALB2"}
+TRUNCATING_TYPES = {"Nonsense_Mutation", "Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site"}
+ACTIONABLE_CSV = Path(__file__).resolve().parent / "actionable_variants.csv"
+GENE_TAGS = {"PIK3CA": "PIK3CA-mut", "AKT1": "AKT1-mut", "PTEN": "PTEN-loss", "ESR1": "ESR1-mut",
+             "PALB2": "PALB2-mut", "gBRCA1": "gBRCA", "gBRCA2": "gBRCA", "sBRCA1": "sBRCA", "sBRCA2": "sBRCA"}
+
+
+def _actionable():
+    """{유전자: {단백질 변화: 행}} (actionable_variants.csv)."""
+    if not hasattr(_actionable, "cache"):
+        table = {}
+        with open(ACTIONABLE_CSV, encoding="utf-8-sig") as fh:
+            for r in csv.DictReader(fh):
+                table.setdefault(r["gene"], {})[r["protein_change"]] = r
+        _actionable.cache = table
+    return _actionable.cache
+
+
+def _is_truncating(variant):
+    change = variant.get("protein_change") or ""
+    return (variant.get("variant_type") in TRUNCATING_TYPES
+            or change.endswith("*") or "fs" in change or change.endswith("_splice"))
+
+
+def _gene_marker(gene, patient_ref):
+    """BRCA1/2 레코드 이름. patient_state에 생식세포/체세포 구분 칸이 없어, TCGA는 gBRCA로 가정하고
+    (전달 문서 4.7절) 그 밖은 종양 검사로 보고 sBRCA로 둔다 (PROJECT.md 남은 과제의 origin 칸 검토)."""
+    if gene in ("BRCA1", "BRCA2"):
+        return ("g" if patient_ref.startswith("TCGA-") else "s") + gene
+    return gene
+
+
+def _variant_text(variants):
+    return ", ".join(v.get("protein_change") or v.get("raw") or "?" for v in variants)
+
+
+def judge_gene(gene, field, patient_ref=""):
+    """유전자 한 개 -> biomarker_record 레코드. 위에서부터 처음 맞는 규칙으로 판정한다."""
+    marker = _gene_marker(gene, patient_ref)
+    gate = _gate(marker, field, f"BM2-{gene}")
+    if gate:
+        return gate
+    if field.get("result") == "not_detected":
+        return _record(marker, "negative", f"{gene} 변이 없음", f"BM2-{gene}-NOTDETECTED", field)
+
+    variants = field.get("variants") or []
+    if field.get("result") != "detected" or not variants:
+        return _record(marker, "unknown", f"{gene} 결과를 읽을 수 없음 (result={field.get('result')})",
+                       f"BM2-{gene}-UNKNOWN", field)
+
+    hit, rule_id, why = None, None, ""
+    if gene in LABEL_GENES:
+        table = _actionable().get(gene, {})
+        hit = next((v for v in variants if v.get("protein_change") in table), None)
+        if hit:
+            row = table[hit["protein_change"]]
+            rule_id = f"BM2-{gene}-LABEL"
+            why = f"{row['drug']} 허가 동반진단 변이 ({row['source']})"
+            if row["verified"] != "yes":
+                why += ", 변이 목록 원문 확인 필요"
+    if gene in TRUNCATING_GENES:
+        hit = next((v for v in variants if _is_truncating(v)), None)
+        if hit:
+            rule_id, why = f"BM2-{gene}-TRUNC", "절단 변이 (기능 소실)"
+
+    picked = hit or variants[0]
+    evidence = {"variant": f"p.{picked['protein_change']}" if picked.get("protein_change") else None,
+                "vaf": picked.get("vaf")}
+    if hit:
+        return _record(marker, "positive", f"{gene} {_variant_text(variants)} → 양성: {why}",
+                       rule_id, field, evidence, [GENE_TAGS[marker]])
+    return _record(marker, "vus",
+                   f"{gene} {_variant_text(variants)} → 의미 불명 변이(VUS). 음성으로 처리하되 표시 유지. "
+                   "BM-3(ClinVar·CIViC) 조회로 다시 판정 예정", f"BM2-{gene}-VUS", field, evidence)
+
+
+def _endocrine_progressed(fields):
+    """내분비요법 중·후 진행 기록이 있는지 (전달 문서 4.6절)."""
+    classes = _drug_class_map()
+    for t in fields.get("treatment_history") or []:
+        endocrine = any(classes.get(d) == "Hormone Therapy" for d in t.get("drugs") or [])
+        progressed = (t.get("best_response") == "PD" or t.get("stop_reason") == "progression"
+                      or t.get("progression_day") is not None)
+        if endocrine and progressed:
+            return True
+    return False
+
+
+def judge_esr1(field, fields):
+    """ESR1: 판정 후, 원발 조직 결과인데 이후 내분비요법 진행이 있으면 재검 필요 (전달 문서 4.6절).
+    진행 뒤에 새로 생기는 ESR1 변이는 원발 조직 결과로 알 수 없기 때문이다."""
+    rec = judge_gene("ESR1", field)
+    if rec["status"] in ("not_done", "not_recorded", "unknown"):
+        return rec
+    if field.get("specimen") == "primary" and _endocrine_progressed(fields):
+        rec["reason"] = (f"원발 조직 결과({rec['status']})이고 이후 내분비요법 진행이 있어 재검 필요 "
+                         f"(cfDNA·재생검) / 원래 판정: {rec['reason']}")
+        rec["status"], rec["rule_id"] = "retest_needed", "BM2-ESR1-RETEST"
+    return rec
+
+
+def assess_genes(patient_state):
+    """patient_state 한 명 -> 유전자 7개 레코드 목록."""
+    fields = (patient_state or {}).get("fields") or {}
+    patient_ref = (patient_state or {}).get("patient_ref", "")
+    mutations = (fields.get("molecular") or {}).get("mutations") or {}
+    return [judge_esr1(mutations.get("ESR1"), fields) if g == "ESR1"
+            else judge_gene(g, mutations.get(g), patient_ref) for g in GENES]
+
+
 # ---------------------------------------------------------------- 치료 상황
 def _drug_class_map():
     if not hasattr(_drug_class_map, "cache"):
@@ -524,8 +642,9 @@ def assess(patient_state):
 
     records = assess_receptors(patient_state)
     records.append(judge_ki67((fields.get("proliferation") or {}).get("ki67_percent")))
-
     by = {r["marker"]: r for r in records}
+    records.extend(assess_genes(patient_state))
+
     subtype = subtype_of(by["ER"]["status"], by["PR"]["status"], by["HER2"]["status"])
     setting = setting_of(fields)
     return {
