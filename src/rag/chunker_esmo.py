@@ -114,7 +114,7 @@ def parse_esmo_chunks(md_path: Path) -> list[dict]:
 
 
 if __name__ == "__main__":
-    current_dir = Path(__file__).resolve().parent
+    current_dir = Path(__file__).resolve().parent.parent.parent
     md_files = list((current_dir / "data" / "parsed_md" / "esmo").glob("*.md"))
 
     all_esmo_chunks = []

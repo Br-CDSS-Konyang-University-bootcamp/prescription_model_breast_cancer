@@ -5,7 +5,7 @@ from src.rag.indexer import init_collection, index_chunks, close_indexer
 
 
 def main():
-    base_dir = Path(__file__).resolve().parent
+    base_dir = Path(__file__).resolve().parent.parent.parent
     chunks_dir = base_dir / "data" / "chunks"  # <- data/chunks/ 지정
 
     # 1. 컬렉션 초기화

@@ -175,7 +175,7 @@ def extract_chunks_from_asco_md(md_path: Path) -> list[dict]:
 
 
 def process_all_asco():
-    base_dir = Path(__file__).resolve().parent
+    base_dir = Path(__file__).resolve().parent.parent.parent
     asco_md_dir = base_dir / "data" / "parsed_md" / "asco"
 
     all_chunks = []
