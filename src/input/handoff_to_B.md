@@ -10,6 +10,7 @@
 | 2026-10-12 | patient_state 사용 안내와 BM-2 판정 조건 (기존 `handoff_to_B.md`, draft4) | ER·PR 결정, 나머지 A 제안 |
 | 2026-10-13 | BM-3 근거 주석에서 OncoKB를 빼고 대체 출처를 쓰는 제안 (기존 `handoff_to_B_bm3.md`) | **결정** (2026-10-15, 스키마 변경만 4명 합의 필요) |
 | 2026-10-15 | draft5: 차수 재료, 재발·전이, PD-L1, 유전자 변이, anthracycline 용량, gBRCA 규칙 (기존 `handoff_to_B_draft5.md`) | **협의 완료** |
+| 2026-10-16 | B 진행 현황과 남은 작업 순서 정리 (§10). 차수·투여단계·누적 용량 계산은 A로, 국소 재발 후 보조요법은 B로 담당 변경 (§6) | **정리** |
 
 ## 목차
 
@@ -23,7 +24,7 @@
 7. TCGA-BRCA 정답 세트의 특성
 8. 예시
 9. 넘기지 않는 정보 (모델 한계)
-10. B가 정할 것과 할 일
+10. B 진행 현황과 남은 작업 순서
 
 ## 0. 요약
 
@@ -32,14 +33,14 @@
 3. 저발현 판정값(`low_positive`)은 **ER에만** 있다 (ASCO/CAP 2020). PR은 양성/음성 두 범주만 쓴다 (§4.2).
 4. 재발 환자는 **재생검(재발 병소) 결과가 `value`**이고, 원발 결과는 `history[]`에 있다 (§3.5). 가상 차트·실제 차트에만 해당하고, **TCGA 정답은 원발 결과만** 쓴다.
 5. `not_done`(미시행)과 `not_recorded`(기록 없음)는 다르다. 미시행만 검사 권고 대상이다.
-6. **차수(line)는 정답에 넣지 않는다. B가 직접 판단한다** (협의 완료, 2026-10-15). 재료는 투약 시작·종료일(`treatment_history[].start_day`, `end_day`)과 전이 기준일(`recurrence.metastasis_day`)이다. 모두 진단일 = 0인 정수다 (§6.2).
-7. **현재 범주**: 진단 시 IV기이거나 원격 전이 재발이면 전이성. 국소 재발은 전이가 아니다 (§6.1). **국소 재발 후 수술**(이후 원격 전이 없음)이면 이후 요법은 수술후보조요법이다 (§6.4).
+6. **차수(line)와 심평원 투여단계는 A가 `patient_state`로 옮길 때 계산한다** (2026-10-16 담당 변경. 2026-10-15에는 B가 판단하기로 했었다). 결과를 어느 칸에 넣을지는 정해야 한다 (§10). 재료는 투약 시작·종료일(`treatment_history[].start_day`, `end_day`)과 전이 기준일(`recurrence.metastasis_day`)이다. 모두 진단일 = 0인 정수다 (§6.2).
+7. **현재 범주**: 진단 시 IV기이거나 원격 전이 재발이면 전이성. 국소 재발은 전이가 아니다 (§6.1). **국소 재발 후 수술**(이후 원격 전이 없음)이면 이후 요법은 수술후보조요법이다 (§6.4, 차트를 보고 판단해야 해서 B 담당).
 8. **gBRCA**: TCGA 정답 세트에서는 BRCA1·BRCA2 결과를 gBRCA 측정으로 가정한다. B가 positive / negative / vus를 판정한다 (§4.7).
 9. **PD-L1은 발현 점수**다 (변이 아님). 검사법·점수만 넘기고 약제별 판정은 B가 한다 (§6.5).
 10. **유전자 변이**는 `molecular.mutations`에 유전자별로 넘긴다: 변이 있음 / 변이 없음 / 미시행 (§3.6).
-11. **anthracycline 투약 용량**과 **주기 길이가 붙은 투여 주기**를 넘긴다 (§6.6·§6.7).
+11. **anthracycline 투약 용량**과 **주기 길이가 붙은 투여 주기**를 넘긴다 (§6.6·§6.7). 누적 용량은 A가 변환할 때 `anthracycline_drug_dose`에 계산해 넣는다 (2026-10-16 담당 변경).
 12. BM-3(변이 근거 주석)은 OncoKB 대신 허가사항·CIViC·ClinVar·VEP를 쓴다 (§5, 2026-10-15 결정).
-13. §4.1 ER, §4.2 PR 판정 규칙은 2026-10-12 결정이다 (2026-10-15에 ER은 Allred 총점 우선, PR은 Allred 총점 우선 + 9% 기준으로 변경, PR-low 태그 삭제). §4의 나머지 조건은 A의 제안이고, 수치 기준은 종양내과·병리과 검토로 확정한다. §10에 B가 정할 것을 모았다.
+13. §4.1 ER, §4.2 PR 판정 규칙은 2026-10-12 결정이다 (2026-10-15에 ER은 Allred 총점 우선, PR은 Allred 총점 우선 + 9% 기준으로 변경, PR-low 태그 삭제). HER2·Ki-67·아형 규칙도 2026-10-15에 확정했다 (PROJECT.md §5). 유전자 판정 규칙(§4.6·§4.7·§5.4)은 B가 다시 작성한다. 진행 현황과 남은 순서는 §10.
 
 ## 1. 전달 방식
 
@@ -47,9 +48,10 @@
 |---|---|
 | 형식 | `schemas/patient_state.json` (JSON Schema 2020-12). 환자 1명 = JSON 1개 |
 | 개발 중 | 파일로 전달: `tests/fixtures/patient_state/<patient_ref>.json` (예정. 공용 폴더라 4명 합의 후 생성). 지금은 범주별 예시 3명이 `src/input/examples/`에 있다 (§8.1) |
-| 연결 후 | 함수 반환값: A의 `run(chart_text) → patient_state` 결과를 B의 `assess(patient_state) → biomarker_record`가 받는다 |
+| TCGA 변환 | `src/input/script/tcga_to_patient_state.py`의 `convert(load_rows())`가 크롭본 874명을 `{patient_id: patient_state}`로 바로 돌려준다. 기본은 파일을 만들지 않는다 (`--out`을 줄 때만 저장). `data/truth/`는 2026-10-16에 지웠다 |
+| 연결 후 | 함수 반환값: A의 `run(chart_text) → patient_state` 결과를 B의 `assess(patient_state) → biomarker_record`가 받는다. B 코드는 `src/biomarker/BM1_ER,PR,HER2,Ki_67,subtype.py`이고, 파일 이름에 쉼표가 있어 `importlib`로 경로를 지정해 불러온다 (`tests/biomarker/test_bm.py` 참고) |
 | 검증 | A가 보내기 전에 검증한다. B도 받을 때 검증하면 버전 불일치를 바로 알 수 있다 (`schema_version` = `"0.1-draft5"`) |
-| 첫 전달 예정 | TCGA-BRCA 정답 세트 874명 (§7) 중 경계 사례 5건부터 |
+| TCGA 정답 세트 | 874명 (§7). 변환 결과를 B에 넣으면 874명 전원 `patient_state`·`biomarker_record` 스키마를 통과한다 (2026-10-16 확인) |
 
 ```python
 import json
@@ -523,7 +525,9 @@ PROJECT.md §5 판정 기준표에 반영했다 (2026-10-15). 위에서부터 �
 
 채택하면 함께 고칠 PROJECT.md 항목: §5 BM-3 표("DB 조회 (OncoKB, ClinVar)" → "로컬 조회 (허가사항 목록, CIViC, ClinVar, VEP)"), §5 판정 기준표 PIK3CA/AKT1/PTEN 줄, §9 유전체 도구의 OncoKB annotator 삭제, §10 데이터셋 표의 OncoKB 행. 결정 날짜와 이유(§5.2)를 함께 적는다.
 
-## 6. 치료 상황 규칙 [협의 완료 2026-10-15]
+## 6. 치료 상황 규칙 [협의 완료 2026-10-15, 담당 변경 2026-10-16]
+
+담당 (2026-10-16): §6.2 차수, §6.3 심평원 투여단계, §6.7 누적 용량은 **A가 변환 단계에서 계산**한다. §6.4 국소 재발 후 보조요법은 차트를 보고 판단해야 해서 **B**가 맡는다. §6.5 PD-L1은 B가 유전자 판정과 함께 한다. 약제명 사전(차트마다 다른 표기를 같은 약으로 묶기)은 A가 만든다.
 
 ### 6.1 현재 범주 (`setting.disease`)
 
@@ -757,33 +761,60 @@ B의 기대 출력 (§4 조건을 따른 경우). `oncokb` 칸은 현재 스키�
 | gBRCA | TCGA는 종양 엑솜을 gBRCA로 가정 | 실제 생식세포 결과와 다를 수 있음 |
 | 투여 주기 (추정값) | 투여 일수로 계산 | 독성으로 연기된 경우 반영 안 됨 |
 
-## 10. B가 정할 것과 할 일
+## 10. B 진행 현황과 남은 작업 순서
 
-결정된 것:
+2026-10-16 기준. B 작업물은 main에 병합했다 (`b7362c2`).
 
-- [x] §4.1 ER, §4.2 PR 판정 규칙 (2026-10-12, PROJECT.md §5). ER은 2026-10-15에 Allred 총점 우선으로 변경. PR은 2026-10-15에 Allred 총점 → range → percent 순서, 9% 기준으로 변경하고 `PR-low` 태그를 없앰
-- [x] 차수 산출 담당: B (2026-10-15 협의). 재료는 `start_day`, `metastasis_day`
-- [x] TCGA 정답의 BRCA1/2를 gBRCA 측정으로 가정 (2026-10-15 협의)
+### 10.1 완료
 
-B가 정해서 A에게 알려줄 것:
+| 항목 | 내용 | 위치 |
+|---|---|---|
+| BM-2 ER·PR·HER2·Ki-67 판정 | PROJECT.md §5 세부 규칙 (2026-10-15 확정) | `src/biomarker/BM1_ER,PR,HER2,Ki_67,subtype.py` |
+| 아형 | HR+/HER2-, HR+/HER2+, HR-/HER2+, TNBC, 정할 수 없으면 `unknown`. ER low와 ER 음성·PR 양성은 HR+ | 같음 (`subtype_of`) |
+| 분자 아형 | Luminal A / Luminal B(HER2 negative) / Luminal B(HER2 positive) / HER2_enriched / Basal_like / unknown. 규칙 함수만 있고 출력에는 넣지 않음 | 같음 (`molecular_subtype_of`) |
+| BM-4 수용체 검사 공백 | ER·PR·HER2 미시행, HER2 ISH 권고(2+), 전이성 HER2 재판정, 전이성 TNBC PD-L1 미시행 | 같음 (`tests_needed_of`) |
+| TCGA 정답 세트 | 판정할 수 없는 환자를 크롭 단계에서 빼서 874명. ER·PR·HER2·아형이 전원 판정됨 | `data/script/tcga_brca_crop.py` |
+| patient_state 변환 | 크롭본 → patient_state (파일 저장 없이) | `src/input/script/tcga_to_patient_state.py` |
+| 테스트 | 판정 규칙 케이스 + TCGA 874명 변환 → BM 출력 스키마 확인 | `tests/biomarker/test_bm.py` |
 
-- [ ] §4.4 HER2 판정 조건 확정
-- [ ] 수치 기준 전체의 종양내과·병리과 검토. 바뀌면 A의 정답과 가상 차트도 바꿔야 한다
-- [x] ER·PR 수치와 적힌 판정이 어긋나면 수치를 따르고 `reason`에 확인 필요를 적는다 (§4.3, BM.py 반영)
-- [x] HER2 score 2+ + 판정 Positive + ISH 없음은 양성 + ISH 검사 권고. TCGA 해당 5명은 정답 세트에서 뺌 (2026-10-15, §4.4)
-- [ ] 날짜 없이 ESR1 재검을 검체·치료 순서로 판단하는 규칙 (§4.6)
-- [x] 기록 없음(`not_recorded`)이면 검사 권고를 내지 않고 기록 없음으로만 표기 (2026-10-15, gBRCA 포함)
-- [x] ER 저발현(`low`)은 아형에서 HR+로 본다 (2026-10-15 확정). TCGA ER low 14명은 모두 원본 `<10%` + Positive를 크롭 단계에서 `1-9%` + Low Positive로 바꾼 값
-- [x] 아형을 정할 수 없으면 `unknown` (2026-10-15, `indeterminate`는 쓰지 않음). ER 음성·PR 양성은 HR+
-- [ ] `biomarker_record`에서 PR은 `low` 상태값을 쓰지 않는다는 점 반영
-- [x] §5 BM-3 대체 출처 채택 (2026-10-15, PROJECT.md 반영 완료)
+결정 사항 (2026-10-15):
+
+- [x] §4.1 ER: Allred 총점 → 비율(percent → range → ps) → 적힌 판정. 0부터 시작하는 구간은 최대값을 percent로 본다. 쓸 값이 없으면 `unknown`
+- [x] §4.2 PR: Allred 총점(0~2 음성, 3 이상 양성) → range(최대값 ≥ 9 양성) → percent(≥ 9 양성) → ps → 적힌 판정. `PR-low` 태그는 쓰지 않는다
+- [x] §4.3 수치와 적힌 판정이 어긋나면 수치를 따르고 `reason`에 확인 필요를 적는다
+- [x] §4.4 HER2: 3+ 양성 / 2+는 ISH로 가르고, ISH가 없으면 적힌 판정(positive·negative)을 따름 / 1+ 저발현 / 0은 음성, 미약한 막 염색이면 초저발현(심평원 기준 최종 음성). `zero`·`indeterminate`·HER2-low 태그는 쓰지 않는다
+- [x] Ki-67: 20% 이상 positive, 미만 negative, 20%에 걸치는 구간·적힌 판정 intermediate는 `intermediate`, 쓸 값 없으면 `unknown`
+- [x] 결과값에 `indeterminate`를 쓰지 않는다. 판정 불가는 `unknown` (바이오마커, 아형, `setting`)
+- [x] 기록 없음(`not_recorded`)은 검사 권고 없이 기록 없음으로만 표기. 검사 권고는 미시행(`not_done`)일 때만
+- [x] 재생검 결과가 있으면 그 결과로 판정한다
+- [x] §5 BM-3 출처: OncoKB 대신 허가사항·CIViC·ClinVar·VEP
+- [x] TCGA 정답의 BRCA1/2를 gBRCA 측정으로 가정 (유전자 판정을 다시 쓸 때 적용)
+
+### 10.2 담당 변경 (2026-10-16)
+
+| 작업 | 담당 | 비고 |
+|---|---|---|
+| §6.2 차수 계산 | **A** (변환 단계) | 2026-10-15에는 B였다 |
+| §6.3 심평원 투여단계 | **A** (변환 단계) | |
+| §6.7 anthracycline 누적 용량 | **A** (변환 단계) | `anthracycline_drug_dose`에 넣는다. 지금 `total_dose`는 TCGA에 적힌 값을 그대로 옮긴 것 |
+| 약제명 사전 | **A** | 차트마다 다른 표기를 같은 약으로 묶기. `drug_classes.csv`에 `drug_subclass` 열 추가됨 |
+| §6.4 국소 재발 후 보조요법 | **B** | 차트를 보고 판단 |
+| §6.5 PD-L1 약제별 판정 | **B** | 유전자 판정과 함께 |
+
+### 10.3 남은 B 작업 순서
+
+1. **유전자 바이오마커 BM-2 다시 작성** (§4.6·§4.7·§5.4): ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2. ER·PR·HER2처럼 규칙을 하나씩 정한다 (변이 표기 → 양성·음성·VUS, TCGA BRCA의 gBRCA 가정, ESR1 재검 조건). TCGA 변이 데이터로 바로 시작할 수 있다
+2. **PD-L1 약제별 판정** (§6.5): 22C3 CPS ≥ 10, SP142 IC ≥ 1%. TCGA는 모두 기록 없음이라 규칙과 테스트 케이스만 만든다
+3. **BM-4 유전자 검사 공백 다시 넣기**: gBRCA·PALB2, PIK3CA·AKT1·PTEN 미시행 권고, ESR1 재검. 1번 다음
+4. **BM-3 근거 주석 (로컬 조회)** (§5): 허가사항 원문에서 변이 목록 규칙표 작성(출처 기록), CIViC·ClinVar 다운로드 스크립트(`data/script/`), 로컬 조회 코드(외부 API 호출 없음). 1번에서 VUS로 남는 변이를 다시 가른다
+5. **국소 재발 후 수술 → 보조요법 (`SET-LOCAL-ADJ`)** (§6.4): 결과를 넣을 칸을 먼저 정한다 (아래 10.4)
+6. **BM-1 보고서 파싱 (로컬 LLM)**: `llm/` 공통 인터페이스와 가상 차트가 생긴 뒤
+7. **[4] LLM 추천 모듈**: 프롬프트, `recommendation.json` 검증, 환각 방지 후처리, 급여 분류. C의 검색 API(`src/rag/`)는 main에 있다. D의 급여 청크가 준비되면 본격 진행
+
+### 10.4 정할 것
+
+- [ ] A가 계산한 차수·투여단계를 어느 칸에 넣을지. `patient_state.json`은 더 바꾸기 어려우므로 `biomarker_record.setting`(`line`, `reason`)에 넣는 방안을 검토한다. `SET-LOCAL-ADJ`(5번)도 같은 칸을 쓴다
 - [ ] `evidence.oncokb` → `annotation` 스키마 변경 (4명 합의)
+- [ ] 분자 아형을 `biomarker_record` 출력에 넣을지 (넣으려면 스키마 칸 추가)
+- [ ] 수치 기준 전체의 종양내과·병리과 검토. 바뀌면 A의 정답과 가상 차트도 바꿔야 한다
 - [ ] `patient_state` 0.1-draft5 검토 의견. 문제가 없으면 `0.1`로 확정한다
-
-B가 할 일:
-
-- [ ] §6.2 차수 계산 구현 (요법 묶음 기준일, 진행 판단)과 §6.3 심평원 투여단계 별도 계산
-- [ ] §6.4 `SET-LOCAL-ADJ` 규칙 추가
-- [ ] §4.7 gBRCA 판정 (ClinVar 대조 방법 포함)
-- [ ] §6.5 PD-L1 약제별 판정
-- [ ] §5 채택 시: 허가사항 원문에서 변이 목록 규칙표 작성(출처 기록), CIViC·ClinVar 다운로드 스크립트(`data/script/`), 로컬 조회 코드(`src/biomarker/`, 외부 API 호출 없음), 테스트(`tests/biomarker/`에 허가 목록 변이, CIViC 전용 변이, PTEN 절단형, ClinVar 상충 변이 각 1건)
