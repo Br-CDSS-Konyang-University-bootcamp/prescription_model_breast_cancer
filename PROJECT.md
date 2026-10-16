@@ -176,9 +176,9 @@ HER2 (**팀 결정 2026-10-15**. A가 `result`를 ISH로 보정해서 넘기므�
 | HR- | HER2- | `TNBC` |
 | 위로 정할 수 없음 (ER·PR·HER2 중 unknown·미시행·기록 없음) | | `unknown` (`indeterminate`는 쓰지 않음) |
 
-ER 음성·PR 양성도 HR+로 본다 (2026-10-15 결정). ER low를 HR+로 볼지는 확인 중이다 (지금은 HR+, `BM1_ER,PR,HER2,Ki_67,subtype.py`의 `ER_LOW_IS_HR_POSITIVE`).
+ER 음성·PR 양성도 HR+로 본다 (2026-10-15 결정). ER low를 HR+로 볼지는 확인 중이다 (지금은 HR+, `BM.py`의 `ER_LOW_IS_HR_POSITIVE`).
 
-분자 아형 (2026-10-15 결정. 쓸 곳이 정해지지 않아 규칙만 정해 두고 `biomarker_record` 출력에는 아직 넣지 않는다. `BM1_ER,PR,HER2,Ki_67,subtype.py`의 `molecular_subtype_of`):
+분자 아형 (2026-10-15 결정. 쓸 곳이 정해지지 않아 규칙만 정해 두고 `biomarker_record` 출력에는 아직 넣지 않는다. `BM.py`의 `molecular_subtype_of`):
 
 | 분자 아형 | 아형 | Ki-67 |
 |---|---|---|
@@ -520,11 +520,11 @@ H&E에서 ER/PR/HER2를 예측해 차트 값과의 불일치를 표시하는 QC 
 - [x] HER2 경계 사례 (2026-10-15, B 결정, §5 HER2 세부 표): IHC 2+ + 적힌 판정 positive + ISH 없음(미시행·기록 없음)은 양성 + ISH 검사 권고 (TCGA 5명). IHC 0 + ISH 증폭은 데이터 오류 가능성이 있어 HER2 값을 판정에서 제외하고 불확정 + 원자료 확인 (TCGA 0명). A에게 알려 정답·가상 차트 기준을 맞춘다
 - [x] BM-3 출처 (2026-10-15 결정): OncoKB를 쓰지 않고 허가사항 변이 목록 → CIViC → ClinVar·VEP를 로컬로 조회한다 (`src/input/handoff_to_B.md` §5). `schemas/biomarker_record.json`의 `evidence.oncokb`를 출처 중립 `annotation`으로 바꾸는 스키마 변경은 4명 검토 후 반영
 - [ ] BM-2 수치 기준을 종양내과·병리과 검토로 확정 (HER2 세부 조건 포함)
-- [x] Ki-67 판정 기준 (2026-10-15 확정): 20% 이상 고증식(positive), 미만 negative, 20%에 걸치는 구간·적힌 판정 intermediate는 intermediate, 쓸 값 없으면 unknown (`BM1_ER,PR,HER2,Ki_67,subtype.py`의 `KI67_HIGH_MIN`). TCGA는 Ki-67이 모두 기록 없음이라 정답 영향 없음
+- [x] Ki-67 판정 기준 (2026-10-15 확정): 20% 이상 고증식(positive), 미만 negative, 20%에 걸치는 구간·적힌 판정 intermediate는 intermediate, 쓸 값 없으면 unknown (`BM.py`의 `KI67_HIGH_MIN`). TCGA는 Ki-67이 모두 기록 없음이라 정답 영향 없음
 - [x] ER low는 아형에서 HR+로 본다 (2026-10-15 확정). TCGA ER low 14명은 원본 `<10%` + Positive를 크롭 단계에서 `1-9%` + Low Positive로 나눈 값
 - [x] 기록 없음(`not_recorded`)은 검사 권고를 내지 않고 기록 없음으로만 표기한다 (2026-10-15 확정). 검사 권고(BM-4)는 미시행(`not_done`)일 때만 낸다
 - [x] `setting.disease`·`setting.line`과 바이오마커 상태값에서 `indeterminate`를 없애고 `unknown`을 쓴다 (2026-10-15). 차수는 아직 계산하지 않아 `line`은 모두 `unknown`
-- [ ] 생식세포/체세포 구분: `patient_state`의 유전자 칸에 출처 구분이 없어 `BM1_ER,PR,HER2,Ki_67,subtype.py`는 patient_ref가 `TCGA-`로 시작하면 gBRCA, 아니면 sBRCA로 본다. 가상·실제 차트를 위해 `molecular.mutations`에 `origin`(germline / somatic) 칸 추가를 검토 (공용 스키마, 4명 합의)
+- [ ] 생식세포/체세포 구분: `patient_state`의 유전자 칸에 출처 구분이 없어 `BM.py`는 patient_ref가 `TCGA-`로 시작하면 gBRCA, 아니면 sBRCA로 본다. 가상·실제 차트를 위해 `molecular.mutations`에 `origin`(germline / somatic) 칸 추가를 검토 (공용 스키마, 4명 합의)
 - [ ] ESR1 테스트 범위 확인 (2026-10-15 기록): TCGA 정답 874명 중 ESR1 변이가 있는 환자는 9명뿐이다 (모두 원발 조직 결과). 재검 필요 규칙(원발 결과 + 이후 내분비요법 진행)은 전이성 28명으로 시험할 수 있지만, ESR1 양성 판정(허가 동반진단 변이 목록)은 사례가 적다. MSK-IMPACT는 쓰지 않기로 했으므로(2026-10-15) 부족하면 가상 차트로 사례를 만든다. 지금은 확인만 해 두고 넘어간다
 - [ ] 로컬 LLM 선정 (Qwen 계열, EXAONE, snuh/hari-q3-8b 비교)
 - [ ] 최종 출력 형식 (CLI, 웹 UI, 리포트 등)
@@ -687,12 +687,12 @@ python data/script/tcga_brca_crop.py
 | 작업 | 내용 |
 |---|---|
 | BM-1 보고서 정규화기 | 가상·실제 차트의 유전자 보고서 원문(`genomic_reports[].raw_text`)을 로컬 LLM으로 파싱 (모듈 안의 유일한 LLM 단계). `molecular.mutations`에 같은 정보가 있으면 그쪽을 우선 |
-| BM-2 상태 판정기 | §5 판정 기준표를 규칙 코드로 작성. 상태값: 양성 / 음성 / 저발현 / 초저발현 / 0 / VUS / 불확정 / 미시행 / 재검 필요 / 기록 없음. BM-2 ~ BM-4는 한 파일 `src/biomarker/BM1_ER,PR,HER2,Ki_67,subtype.py`에 둔다 (진입점 `assess(patient_state)`, 2026-10-15: ER·PR·HER2·Ki-67 판정, 아형, 현재 범주, 검사 공백. 유전자 7개는 2026-10-16에 1차 규칙(허가 변이 목록·절단 변이, `src/biomarker/README.md`)으로 작성, 유전자 검사 공백도 같은 날 추가, 차수는 아직). 재발 환자는 재생검 결과로 판정하고 원발 대비 변화를 `reason`에 적음 |
+| BM-2 상태 판정기 | §5 판정 기준표를 규칙 코드로 작성. 상태값: 양성 / 음성 / 저발현 / 초저발현 / 0 / VUS / 불확정 / 미시행 / 재검 필요 / 기록 없음. BM-2 ~ BM-4는 한 파일 `src/biomarker/BM.py`에 둔다 (진입점 `assess(patient_state)`, 2026-10-15: ER·PR·HER2·Ki-67 판정, 아형, 현재 범주, 검사 공백. 유전자 7개는 따로 다시 작성, 차수는 아직). 재발 환자는 재생검 결과로 판정하고 원발 대비 변화를 `reason`에 적음 |
 | BM-3 근거 주석기 | 허가사항 변이 목록 규칙표(원문에서 작성, 출처 기록), CIViC·ClinVar 다운로드 스크립트(`data/script/`), VEP 로컬 실행. 외부 API 호출 없음. OncoKB는 쓰지 않음 |
 | BM-4 검사 공백 탐지기 | §5 검사 공백 규칙 (gBRCA, PIK3CA·AKT1·PTEN, ESR1 재검, PD-L1, HER2 재판정, IHC 2+ ISH 검사) |
 | 아형 | ER·PR·HER2 상태로 HR+/HER2-, HR+/HER2+, HR-/HER2+, TNBC. 재발 환자는 재생검 결과 기준 |
-| 치료 상황 (2026-10-16 담당 변경) | B: 현재 범주(`setting.disease`), 국소 재발 후 수술이면 수술후보조요법(`SET-LOCAL-ADJ`), PD-L1 약제별 판정. A(변환 단계): 차수, 심평원 투여단계(고식적 내분비요법과 고식적 항암화학요법을 따로 셈), anthracycline 누적 용량. 규칙은 `src/input/handoff_to_B.md` §6·§10.2 |
-| 테스트 | 경계 사례(HER2 IHC 2+/ISH 미시행, ER 5%, gBRCA VUS, 진행 전 ESR1 결과 등)는 직접 만든 입력으로 시험한다. 실제 데이터 검증은 TCGA-BRCA 정답 세트(874명, `src/input/script/tcga_to_patient_state.py`의 `convert(load_rows())`)로 한다. MSK-IMPACT는 테스트 범위가 너무 커져 쓰지 않는다 (2026-10-15 결정). TCGA에 ESR1 변이가 9명뿐이라 ESR1 양성 판정은 시험할 사례가 적다 (§14에 확인 항목으로 남김) |
+| 치료 상황 (2026-10-15 협의로 B 담당) | 현재 범주(`setting.disease`), 차수(`setting.line`, `start_day`와 `metastasis_day`로 계산), 이전 약제 계열. 심평원 투여단계는 고식적 내분비요법과 고식적 항암화학요법을 따로 셈. 국소 재발 후 수술이면 수술후보조요법(`SET-LOCAL-ADJ`). anthracycline 누적 용량(liposomal doxorubicin 급여 조건). 규칙은 `src/input/handoff_to_B.md` §6 |
+| 테스트 | 경계 사례(HER2 IHC 2+/ISH 미시행, ER 5%, gBRCA VUS, 진행 전 ESR1 결과 등)는 직접 만든 입력으로 시험한다. 실제 데이터 검증은 TCGA-BRCA 정답 세트(874명, `data/truth/`)로 한다. MSK-IMPACT는 테스트 범위가 너무 커져 쓰지 않는다 (2026-10-15 결정). TCGA에 ESR1 변이가 9명뿐이라 ESR1 양성 판정은 시험할 사례가 적다 (§14에 확인 항목으로 남김) |
 | 기준 확정 | BM-2 수치 기준을 종양내과·병리과 검토로 확정 |
 
 2단계 — LLM 추천 (§7):
