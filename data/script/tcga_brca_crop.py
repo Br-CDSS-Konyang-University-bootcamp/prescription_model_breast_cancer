@@ -431,6 +431,16 @@ HISTORY = [
                    "순서 불일치). 첫 국소 재발 진단일(locoregional_dx_days) 열 추가"),
     ("2026-10-15", "투약별 시작일·종료일(drug_start_days, drug_end_days)과 재발 사건별 종류·진단일(nte_event_types, nte_dx_days) 열 추가. "
                    "재발했지만 부위를 알 수 없는 환자(site_unknown) 삭제 (992명 → 985명)"),
+    ("2026-10-15", "HER2 IHC 2+인데 ISH 결과 없이 판정만 Positive인 환자 삭제 (985명 → 980명). "
+                   "IHC 0인데 FISH 양성인 환자도 삭제 규칙에 넣음 (해당 0명)"),
+    ("2026-10-15", "PR 판정이 Indeterminate로만 적힌 4명과 ER·PR·HER2(IHC·FISH)가 모두 미시행인 43명 삭제 "
+                   "(980명 → 933명)"),
+    ("2026-10-15", "ER 또는 PR이 미시행인 환자 삭제 (HR 평가 불가, 남은 수용체도 적힌 판정뿐). "
+                   "TCGA-C8-A9FZ, TCGA-E9-A1N8 (933명 → 931명)"),
+    ("2026-10-15", "HER2 판정 불가 환자 삭제: IHC 2+(점수 없는 Equivocal 포함)인데 ISH가 equivocal·미시행·기록 없음, "
+                   "또는 IHC 점수 없이 판정이 Indeterminate·미시행·기록 없음이고 ISH도 없음 (931명 → 869명)"),
+    ("2026-10-15", "HER2 IHC 2+이고 ISH가 없을 때 판정이 Positive·Negative면 그 판정을 따르기로 해 "
+                   "앞서 뺀 2+·판정 Positive·ISH 없음 5명을 되살림 (869명 → 874명)"),
 ]
 
 # anthracycline 병용 기록('+')의 용량을 약 순서대로 나눌 수 없는 환자 (사용자 결정, 2026-10-15)
@@ -476,6 +486,44 @@ def anthracycline_dose_drops(df):
     """anthracycline 병용 기록의 용량을 나눌 수 없는 환자 (사용자 결정, 2026-10-15)."""
     hit = df["patient_id"].isin(ANTHRACYCLINE_DOSE_UNSPLITTABLE)
     return {"anthracycline 병용 용량을 약별로 나눌 수 없음": df.loc[hit, ["patient_id", "drug_prescribed_dose"]]}
+
+
+def her2_drops(df):
+    """HER2를 판정할 수 없거나 원자료를 믿기 어려운 환자 (사용자 결정, 2026-10-15).
+    BM-2 HER2 규칙(PROJECT.md 5절)으로 판정이 나오지 않는 경우를 뺀다."""
+    score = df["gdc_her2_ihc_score"].fillna("")
+    fish = df["gdc_her2_fish_status"].fillna("")
+    status = df["gdc_her2_status_by_ihc"].fillna("")
+    ish_ok = fish.isin(["Positive", "Negative"])
+    no_ish = ~fish.isin(["Positive", "Negative", "Equivocal", "Indeterminate"])  # 미시행·기록 없음
+    has_score = score.isin(["0", "1+", "2+", "3+"])
+    zero_amp = (score == "0") & (fish == "Positive")
+    # IHC 2+(점수 없는 Equivocal도 2+로 채움)인데 ISH가 증폭·비증폭이 아님.
+    # 단 ISH가 없고(미시행·기록 없음) 판정이 Positive·Negative이면 그 판정을 따르므로 남긴다
+    is_2plus = (score == "2+") | (~has_score & (status == "Equivocal"))
+    two_no_ish = is_2plus & ~ish_ok & ~(no_ish & status.isin(["Positive", "Negative"]))
+    # IHC 점수가 없고 판정도 Positive·Negative가 아니며 ISH도 없음 (판정 Indeterminate, 미시행, 기록 없음)
+    no_her2 = ~has_score & ~status.isin(["Positive", "Negative", "Equivocal"]) & ~ish_ok
+    cols = ["patient_id", "gdc_her2_ihc_score", "gdc_her2_status_by_ihc", "gdc_her2_fish_status"]
+    return {"HER2 IHC 0인데 FISH 양성": df.loc[zero_amp, cols],
+            "HER2 IHC 2+인데 ISH equivocal·미시행·기록 없음 (판정 Positive·Negative 제외)": df.loc[two_no_ish, cols],
+            "HER2 점수 없음, 판정 Indeterminate·미시행·기록 없음, ISH 없음": df.loc[no_her2, cols]}
+
+
+def receptor_drops(df):
+    """수용체 판정을 믿기 어렵거나 할 수 없는 환자 (사용자 결정, 2026-10-15).
+    PR 판정이 Indeterminate로만 적힌 환자와, ER·PR·HER2(IHC·FISH)가 모두 미시행인 환자."""
+    ne = "[Not Evaluated]"
+    pr_ind = df["gdc_pr_status_by_ihc"] == "Indeterminate"
+    no_fish = ~df["gdc_her2_fish_status"].fillna("").isin(["Positive", "Negative", "Equivocal", "Indeterminate"])
+    all_ne = ((df["gdc_er_status_by_ihc"] == ne) & (df["gdc_pr_status_by_ihc"] == ne)
+              & (df["gdc_her2_status_by_ihc"] == ne) & no_fish)
+    # ER 또는 PR이 미시행이면 HR 상태를 믿고 정할 수 없다 (나머지 수용체도 적힌 판정뿐인 경우)
+    er_or_pr_ne = ((df["gdc_er_status_by_ihc"] == ne) | (df["gdc_pr_status_by_ihc"] == ne)) & ~all_ne
+    cols = ["patient_id", "gdc_er_status_by_ihc", "gdc_pr_status_by_ihc", "gdc_her2_status_by_ihc"]
+    return {"PR 판정 Indeterminate만 있음": df.loc[pr_ind, cols],
+            "ER·PR·HER2 모두 미시행 (수용체 판정 불가)": df.loc[all_ne, cols],
+            "ER 또는 PR 미시행 (HR 평가 불가)": df.loc[er_or_pr_ne, cols]}
 
 
 def post_metastasis_drops(df):
@@ -721,6 +769,8 @@ def main():
     locoregional_day(df)
     dropped.update(post_metastasis_drops(df))
     dropped.update(anthracycline_dose_drops(df))
+    dropped.update(her2_drops(df))
+    dropped.update(receptor_drops(df))
     drop_ids = set().union(*(set(d["patient_id"]) for d in dropped.values()))
     df = df[~df["patient_id"].isin(drop_ids)]
     df = df[[c for c in df.columns if c in keep_cols]]  # 원래 열 순서 유지, 새 열은 끝에

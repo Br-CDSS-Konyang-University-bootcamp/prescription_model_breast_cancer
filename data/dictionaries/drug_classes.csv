@@ -1,60 +1,60 @@
-﻿generic_name,drug_class,drug_class_ko,cycle_days,cycle_note
-ae-37 vaccine,Vaccine,백신(임상시험),,
-anastrozole,Hormone Therapy,내분비요법,,
-bevacizumab,Other Targeted Therapy,기타 표적치료,14,paclitaxel 병용 2주
-capecitabine,Chemotherapy,항암화학요법,21,2주 복용 1주 휴약
-carboplatin,Chemotherapy,항암화학요법,21,3주
-chemotherapy nos,Chemotherapy,항암화학요법,21,알 수 없는 항암제 3주 기본값
-cisplatin,Chemotherapy,항암화학요법,21,3주
-clodronate,Bone-modifying Agent,골 보호제,,
-cyclophosphamide,Chemotherapy,항암화학요법,21,AC·EC·TC 3주 기본값 (고전 CMF는 28일)
-denosumab,Bone-modifying Agent,골 보호제,,
-docetaxel,Chemotherapy,항암화학요법,21,3주
-doxorubicin,Chemotherapy,항암화학요법,21,AC 3주 기본값 (dose-dense는 14일)
-endocrine therapy nos,Hormone Therapy,내분비요법,,
-epirubicin,Chemotherapy,항암화학요법,21,EC·FEC 3주
-eribulin,Chemotherapy,항암화학요법,21,1·8일 투여 3주
-etoposide,Chemotherapy,항암화학요법,21,3주
-everolimus,Other Targeted Therapy,기타 표적치료,,
-exemestane,Hormone Therapy,내분비요법,,
-fluorouracil,Chemotherapy,항암화학요법,21,FEC 3주 기본값 (CMF는 28일)
-fulvestrant,Hormone Therapy,내분비요법,28,4주 (첫 달은 2주 간격 추가)
-gemcitabine,Chemotherapy,항암화학요법,21,1·8일 투여 3주
-goserelin,Hormone Therapy,내분비요법,28,4주 (공고: 4주 간격만 인정)
-ibandronate,Bone-modifying Agent,골 보호제,,
-ifosfamide,Chemotherapy,항암화학요법,21,3주
-ixabepilone,Chemotherapy,항암화학요법,21,3주
-lapatinib,HER2-targeted Therapy,HER2 표적치료,,
-letrozole,Hormone Therapy,내분비요법,,
-leuprolide,Hormone Therapy,내분비요법,28,4주 (공고: 4주 간격만 인정)
-liposomal doxorubicin,Chemotherapy,항암화학요법,28,4주
-megestrol,Hormone Therapy,내분비요법,,
-mesna,Supportive Care,보조요법,,
-metformin,Other,기타,,
-methotrexate,Chemotherapy,항암화학요법,21,3주 기본값 (CMF는 28일)
-mitomycin,Chemotherapy,항암화학요법,42,6주
-mitoxantrone,Chemotherapy,항암화학요법,21,3주
-nab-paclitaxel,Chemotherapy,항암화학요법,21,3주 기본값 (매주 요법도 있음)
-nelipepimut-s (e75) vaccine,Vaccine,백신(임상시험),,
-paclitaxel,Chemotherapy,항암화학요법,7,매주 기본값 (3주 요법은 21일)
-palonosetron,Supportive Care,보조요법,,
-pamidronate,Bone-modifying Agent,골 보호제,,
-pegfilgrastim,Supportive Care,보조요법,,
-pemetrexed,Chemotherapy,항암화학요법,21,3주
-pertuzumab,HER2-targeted Therapy,HER2 표적치료,21,3주
-prednisone,Supportive Care,보조요법,,
-rituximab,Other Targeted Therapy,기타 표적치료,21,3주
-tamoxifen,Hormone Therapy,내분비요법,,
-taxane nos,Chemotherapy,항암화학요법,21,3주 기본값
-tesetaxel,Chemotherapy,항암화학요법,21,3주
-toremifene,Hormone Therapy,내분비요법,,
-trabectedin,Chemotherapy,항암화학요법,21,3주
-trastuzumab,HER2-targeted Therapy,HER2 표적치료,21,3주 기본값 (항암제 병용 중 매주 요법도 인정)
-trastuzumab deruxtecan,HER2-targeted Therapy,HER2 표적치료,21,3주
-trastuzumab emtansine,HER2-targeted Therapy,HER2 표적치료,21,3주
-triptorelin,Hormone Therapy,내분비요법,28,4주
-unknown,Unknown,알 수 없음,,
-vinblastine,Chemotherapy,항암화학요법,21,3주 기본값
-vincristine,Chemotherapy,항암화학요법,21,3주 기본값
-vinorelbine,Chemotherapy,항암화학요법,21,1·8일 투여 3주
-zoledronic acid,Bone-modifying Agent,골 보호제,,
+﻿generic_name,drug_class,drug_class_ko,cycle_days,cycle_note,drug_subclass
+ae-37 vaccine,Vaccine,백신(임상시험),,,
+anastrozole,Hormone Therapy,내분비요법,,,AI_nonsteroidal
+bevacizumab,Other Targeted Therapy,기타 표적치료,14,paclitaxel 병용 2주,
+capecitabine,Chemotherapy,항암화학요법,21,2주 복용 1주 휴약,
+carboplatin,Chemotherapy,항암화학요법,21,3주,
+chemotherapy nos,Chemotherapy,항암화학요법,21,알 수 없는 항암제 3주 기본값,
+cisplatin,Chemotherapy,항암화학요법,21,3주,
+clodronate,Bone-modifying Agent,골 보호제,,,
+cyclophosphamide,Chemotherapy,항암화학요법,21,AC·EC·TC 3주 기본값 (고전 CMF는 28일),
+denosumab,Bone-modifying Agent,골 보호제,,,
+docetaxel,Chemotherapy,항암화학요법,21,3주,taxane
+doxorubicin,Chemotherapy,항암화학요법,21,AC 3주 기본값 (dose-dense는 14일),anthracycline
+endocrine therapy nos,Hormone Therapy,내분비요법,,,
+epirubicin,Chemotherapy,항암화학요법,21,EC·FEC 3주,anthracycline
+eribulin,Chemotherapy,항암화학요법,21,1·8일 투여 3주,
+etoposide,Chemotherapy,항암화학요법,21,3주,
+everolimus,Other Targeted Therapy,기타 표적치료,,,
+exemestane,Hormone Therapy,내분비요법,,,AI_steroidal
+fluorouracil,Chemotherapy,항암화학요법,21,FEC 3주 기본값 (CMF는 28일),
+fulvestrant,Hormone Therapy,내분비요법,28,4주 (첫 달은 2주 간격 추가),SERD
+gemcitabine,Chemotherapy,항암화학요법,21,1·8일 투여 3주,
+goserelin,Hormone Therapy,내분비요법,28,4주 (공고: 4주 간격만 인정),LHRH_agonist
+ibandronate,Bone-modifying Agent,골 보호제,,,
+ifosfamide,Chemotherapy,항암화학요법,21,3주,
+ixabepilone,Chemotherapy,항암화학요법,21,3주,
+lapatinib,HER2-targeted Therapy,HER2 표적치료,,,
+letrozole,Hormone Therapy,내분비요법,,,AI_nonsteroidal
+leuprolide,Hormone Therapy,내분비요법,28,4주 (공고: 4주 간격만 인정),LHRH_agonist
+liposomal doxorubicin,Chemotherapy,항암화학요법,28,4주,anthracycline
+megestrol,Hormone Therapy,내분비요법,,,progestin
+mesna,Supportive Care,보조요법,,,
+metformin,Other,기타,,,
+methotrexate,Chemotherapy,항암화학요법,21,3주 기본값 (CMF는 28일),
+mitomycin,Chemotherapy,항암화학요법,42,6주,
+mitoxantrone,Chemotherapy,항암화학요법,21,3주,
+nab-paclitaxel,Chemotherapy,항암화학요법,21,3주 기본값 (매주 요법도 있음),taxane
+nelipepimut-s (e75) vaccine,Vaccine,백신(임상시험),,,
+paclitaxel,Chemotherapy,항암화학요법,7,매주 기본값 (3주 요법은 21일),taxane
+palonosetron,Supportive Care,보조요법,,,
+pamidronate,Bone-modifying Agent,골 보호제,,,
+pegfilgrastim,Supportive Care,보조요법,,,
+pemetrexed,Chemotherapy,항암화학요법,21,3주,
+pertuzumab,HER2-targeted Therapy,HER2 표적치료,21,3주,
+prednisone,Supportive Care,보조요법,,,
+rituximab,Other Targeted Therapy,기타 표적치료,21,3주,
+tamoxifen,Hormone Therapy,내분비요법,,,SERM
+taxane nos,Chemotherapy,항암화학요법,21,3주 기본값,taxane
+tesetaxel,Chemotherapy,항암화학요법,21,3주,taxane
+toremifene,Hormone Therapy,내분비요법,,,SERM
+trabectedin,Chemotherapy,항암화학요법,21,3주,
+trastuzumab,HER2-targeted Therapy,HER2 표적치료,21,3주 기본값 (항암제 병용 중 매주 요법도 인정),
+trastuzumab deruxtecan,HER2-targeted Therapy,HER2 표적치료,21,3주,
+trastuzumab emtansine,HER2-targeted Therapy,HER2 표적치료,21,3주,
+triptorelin,Hormone Therapy,내분비요법,28,4주,LHRH_agonist
+unknown,Unknown,알 수 없음,,,
+vinblastine,Chemotherapy,항암화학요법,21,3주 기본값,
+vincristine,Chemotherapy,항암화학요법,21,3주 기본값,
+vinorelbine,Chemotherapy,항암화학요법,21,1·8일 투여 3주,
+zoledronic acid,Bone-modifying Agent,골 보호제,,,

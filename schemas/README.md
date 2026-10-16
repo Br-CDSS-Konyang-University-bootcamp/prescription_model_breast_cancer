@@ -36,8 +36,8 @@
 | 추출 상태 (IN-6) | `present` / `not_done` / `not_recorded` | 값 있음 / 미시행 / 기록 없음 |
 | 수용체 판정 (A가 옮긴 값) | `positive` / `low_positive` (ER만) / `negative` / `indeterminate` / `unknown` (HER2만) | 양성 / 저발현 / 음성 / 판정 불가 / 알 수 없음 |
 | 특수 표기 | `not_assessed` / `[Not Available]` / `[Not Applicable]` | 평가 안됨 / 기록 없음 / 해당 없음 |
-| 바이오마커 상태 | `positive` / `negative` / `indeterminate` / `not_done` / `retest_needed` / `not_recorded` | 양성 / 음성 / 불확정 / 미시행 / 재검 필요 / 기록 없음 |
-| 바이오마커 세부 | `low` / `ultralow` / `zero` / `vus` | 저발현 / 초저발현 / 0 / VUS |
+| 바이오마커 상태 | `positive` / `negative` / `intermediate` / `unknown` / `not_done` / `retest_needed` / `not_recorded` | 양성 / 음성 / 중간 (Ki-67) / 판정 불가 / 미시행 / 재검 필요 / 기록 없음 (`indeterminate`는 쓰지 않음, 2026-10-15) |
+| 바이오마커 세부 | `low` / `ultralow` / `vus` | 저발현 / 초저발현 / VUS (`zero`는 2026-10-15 삭제, HER2 IHC 0은 `negative`) |
 | 급여 분류 | `covered` | 급여 (조건 충족) |
 | | `covered_conditions_unverified` | 급여 (조건 확인 필요) |
 | | `offlabel_approved` | 허가초과 인정 |
@@ -71,7 +71,7 @@
 | | `positive_ln_count` | `{positive, examined}`. 각각 정수 또는 `"[Not Available]"` |
 | | `metastatic_sites` | 부위 목록 또는 `"[Not Applicable]"` / `"[Not Available]"` |
 | | `operable` | `yes` / `no` / `unknown` (수술 가능 여부) |
-| receptors | `er_percent`, `pr_percent` | `{percent, range, score, allred, result}` 중 있는 것 모두. `allred`는 `{total, ps, is}`. `result`: `positive`·`negative`·`indeterminate`, ER만 `low_positive` 추가 |
+| receptors | `er_percent`, `pr_percent` | `{percent, range, allred, result}` 중 있는 것 모두. `allred`는 `{total, ps, is}` (강도 점수는 `allred.is`. 별도 `score` 키 없음, 2026-10-15). `result`: `positive`·`negative`·`indeterminate`, ER만 `low_positive` 추가 |
 | | `her2_ihc` | `{score, faint, result}` 중 있는 것 모두. `result`는 ISH로 보정한 값 (`unknown` 포함) |
 | | `her2_ish` | `{result, method}` |
 | | `pdl1` | `{assay, score_type, score}`. 발현 점수. 판정은 B가 약제별로 (22C3 CPS ≥ 10 등) |
@@ -156,17 +156,18 @@ TCGA 정답은 실제 날짜가 없으므로, 날짜 칸은 추출값이면 `sta
 | 필드 | 설명 |
 |---|---|
 | `records[]` | 마커별 판정 결과. `marker`, `status`, `reason`, `rule_id`, `evidence`, `source_span`, `rag_tags` |
-| `subtype` | `HR+/HER2-` / `HR+/HER2+` / `HR-/HER2+` / `TNBC` / `indeterminate`. RAG 하드 필터 |
-| `setting` | `disease`(early / locally_advanced / metastatic / indeterminate. 진단 시 전이성 또는 원격 전이 재발 → metastatic, 그 밖은 진단 시 범주. indeterminate는 진단 시 병기를 모를 때만), `line`(neoadjuvant / adjuvant / 1L / 2L / >=3L), 이전 약제 계열. RAG 하드 필터 |
+| `subtype` | `HR+/HER2-` / `HR+/HER2+` / `HR-/HER2+` / `TNBC` / `unknown` (ER·PR·HER2 판정이 없어 정할 수 없음. `indeterminate`는 쓰지 않음, 2026-10-15). RAG 하드 필터 |
+| `setting` | `disease`(early / locally_advanced / metastatic / unknown. 진단 시 전이성 또는 원격 전이 재발 → metastatic, 그 밖은 진단 시 범주. unknown은 진단 시 병기를 모를 때만), `line`(neoadjuvant / adjuvant / 1L / 2L / >=3L / unknown), 이전 약제 계열. RAG 하드 필터 |
 | `tests_needed[]` | BM-4 검사 공백. `test`, `reason`, `rule_id` |
 
 마커별 허용 상태값 (BM-2 판정 기준표, PROJECT.md §5):
 
 | 마커 | 허용 status |
 |---|---|
-| HER2 | positive, low, ultralow, zero, indeterminate, not_done, not_recorded |
-| ER | positive, low, negative, not_done, not_recorded |
-| PR, Ki-67 | positive, negative, not_done, not_recorded (Ki-67은 `evidence.percent` 사용) |
+| HER2 | positive, low, ultralow, negative, unknown, not_done, not_recorded (IHC 0 → negative, `zero`·`indeterminate`는 쓰지 않음. ultralow는 심평원 기준 최종 음성, 2026-10-15) |
+| ER | positive, low, negative, unknown, not_done, not_recorded (unknown = 값은 있지만 percent·range·Allred·적힌 판정 중 판정에 쓸 값이 없음. indeterminate는 쓰지 않음, 2026-10-15) |
+| PR | positive, negative, unknown, not_done, not_recorded (indeterminate는 쓰지 않음, 2026-10-15) |
+| Ki-67 | positive (기준 이상, 고증식), negative, intermediate (구간이 기준에 걸치거나 적힌 판정이 intermediate), unknown (쓸 값 없음), not_done, not_recorded (`evidence.percent` 사용. 기준값 20%, 2026-10-15 확정) |
 | gBRCA1, gBRCA2, PALB2 | positive, negative, vus, not_done, not_recorded. TCGA 정답 세트에서는 `molecular.mutations.BRCA1/2`를 gBRCA 측정으로 가정해 판정 (2026-10-15 협의) |
 | sBRCA1, sBRCA2, PIK3CA, AKT1, PTEN | positive, negative, not_done, not_recorded |
 | ESR1 | positive, negative, retest_needed, not_done, not_recorded |
@@ -179,8 +180,8 @@ TCGA 정답은 실제 날짜가 없으므로, 날짜 칸은 추출값이면 `sta
   "schema_version": "0.1-draft",
   "patient_ref": "VC-0001",
   "records": [
-    {"marker": "HER2", "status": "indeterminate", "reason": "IHC 2+, ISH 미시행 → 불확정", "rule_id": "BM2-HER2-04",
-     "evidence": {"test_date": "2024-03-05", "assay": "4B5", "ihc_score": "2+", "ish_result": null},
+    {"marker": "HER2", "status": "unknown", "reason": "IHC 2+ 인데 ISH 미시행, 적힌 판정 unknown. 판정 불가, ISH 검사 권고", "rule_id": "BM2-HER2-2PLUS-NOISH",
+     "evidence": {"test_date": "2024-03-05", "assay": "4B5"},
      "source_span": {"doc_id": "D1", "quote": "HER2 (4B5) 2+"}, "rag_tags": []},
     {"marker": "ESR1", "status": "positive", "reason": "cfDNA에서 활성화 변이 검출, 마지막 진행(2026-06) 이후 검사", "rule_id": "BM2-ESR1-01",
      "evidence": {"test_date": "2026-07-01", "specimen": "cfDNA", "variant": "p.Y537S", "vaf": 0.042},
