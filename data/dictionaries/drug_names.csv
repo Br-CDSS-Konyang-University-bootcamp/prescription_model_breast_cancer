@@ -5,6 +5,7 @@
 5-fu,fluorouracil,
 [not available],unknown,
 [unknown],unknown,
+abemaciclib,abemaciclib,
 abraxane,nab-paclitaxel,
 ac,doxorubicin+cyclophosphamide,요법 약어: doxorubicin(Adriamycin)+cyclophosphamide
 adriamicin,doxorubicin,
@@ -20,6 +21,7 @@ adrimycin+cyclophosphamide,doxorubicin+cyclophosphamide,
 ae-37,ae-37 vaccine,
 albumin-bound paclitaxel,nab-paclitaxel,
 aloxi,palonosetron,
+alpelisib,alpelisib,
 anastrazole,anastrozole,
 anastrozole,anastrozole,
 anastrozole (arimidex),anastrozole,
@@ -29,17 +31,20 @@ arimidex (anastrozole),anastrozole,
 aromasin,exemestane,
 aromasin (exemestane),exemestane,
 aromatase exemestane,exemestane,
+atezolizumab,atezolizumab,
 avastin,bevacizumab,
 bevacizumab,bevacizumab,
 bevacizumab (avastin)/placebo provided by study,bevacizumab,이중맹검 임상시험. 실제 투약 여부 불명
 bevacizumab or placebo,bevacizumab,이중맹검 임상시험. 실제 투약 여부 불명
 capecetabine,capecitabine,
 capecitabine,capecitabine,
+capivasertib,capivasertib,
 carboplatin,carboplatin,
 "chemo, nos",chemotherapy nos,
 cisplatin,cisplatin,
 clodronate,clodronate,
 clodronic acid,clodronate,
+cmf,cyclophosphamide+methotrexate+fluorouracil,요법 약어
 cyclophasphamide,cyclophosphamide,
 cyclophospamide,cyclophosphamide,
 cyclophosphamid,cyclophosphamide,
@@ -51,6 +56,8 @@ cyotxan,cyclophosphamide,
 cytoxan,cyclophosphamide,
 cytoxan and taxotere,docetaxel+cyclophosphamide,
 cytoxen,cyclophosphamide,
+da,docetaxel+doxorubicin,요법 약어
+datopotamab deruxtecan,datopotamab deruxtecan,
 denosumab,denosumab,
 docetaxel,docetaxel,
 doxetaxel,docetaxel,
@@ -66,13 +73,19 @@ doxorubicine+cyclophosphamide,doxorubicin+cyclophosphamide,
 doxorubicine+cyclophosphamide+tamoxifen,doxorubicin+cyclophosphamide+tamoxifen,
 doxorubicinum,doxorubicin,
 e-75,nelipepimut-s (e75) vaccine,
+ec,epirubicin+cyclophosphamide,요법 약어
+ed,docetaxel+epirubicin,요법 약어
+elacestrant,elacestrant,
+enhertu,trastuzumab deruxtecan,상품명
 epirubicin,epirubicin,
 epirubicoin,epirubicin,
+eribulin,eribulin,
 everolimus,everolimus,
 exemestane,exemestane,
 exemestane (aromasin),exemestane,
 fareston,toremifene,
 faslodex,fulvestrant,
+fec,fluorouracil+epirubicin+cyclophosphamide,요법 약어
 femara,letrozole,
 femara (letrozole),letrozole,
 flourouracil,fluorouracil,
@@ -82,11 +95,19 @@ fulvestrant (faslodex),fulvestrant,
 gemcitabine,gemcitabine,
 gemzar,gemcitabine,
 goserelin,goserelin,
+gt,gemcitabine+paclitaxel,요법 약어
+halaven,eribulin,상품명
 herceptin,trastuzumab,
 "hormone, nos",endocrine therapy nos,
 ibandronate,ibandronate,
+ibrance,palbociclib,상품명
 ifosfamide,ifosfamide,
+imlunestrant,imlunestrant,
+inavolisib,inavolisib,
 ixabepilone,ixabepilone,
+kadcyla,trastuzumab emtansine,상품명
+keytruda,pembrolizumab,상품명
+kisqali,ribociclib,상품명
 lapatinib,lapatinib,
 letrozol,letrozole,
 letrozole,letrozole,
@@ -96,7 +117,11 @@ leuprolide,leuprolide,
 leuprolide acetate (lupron),leuprolide,
 leuprorelin,leuprolide,
 lupron,leuprolide,
+lynparza,olaparib,상품명
+margetuximab,margetuximab,
 megace,megestrol,
+megestrol,megestrol,
+megestrol acetate,megestrol,
 mesna-1,mesna,
 mesna-2,mesna,
 metformin,metformin,항암 목적 임상시험 약제로 추정
@@ -106,18 +131,38 @@ metotreksat,methotrexate,
 mitomycin,mitomycin,
 mitoxantrone,mitoxantrone,
 navelbine,vinorelbine,
+neratinib,neratinib,
+nerlynx,neratinib,상품명
 neulasta,pegfilgrastim,
+nivolumab,nivolumab,
 nolvadex,tamoxifen,
 not otherwise specified,unknown,
+olaparib,olaparib,
+opdivo,nivolumab,상품명
+orserdu,elacestrant,상품명
 paclitaxel,paclitaxel,
 paclitaxel (protein-bound),nab-paclitaxel,
 paclitaxelum,paclitaxel,
+palbociclib,palbociclib,
 pamidronate,pamidronate,
 pamidronic acid,pamidronate,
+pembroiizumab,pembrolizumab,공고 원문 오타 (40. 병용요법 연번 20)
+pembrolizumab,pembrolizumab,
 pemetrexed,pemetrexed,
+perjeta,pertuzumab,상품명
+pertuzumab,pertuzumab,
+phesgo,pertuzumab+trastuzumab,상품명: pertuzumab+trastuzumab 고정용량 피하주사 복합제
+piqray,alpelisib,상품명
 poly e,unknown,의미 불명. 원본 메모 확인 필요
 prednisone,prednisone,유방암에서는 전처치·보조 목적
+ribociclib,ribociclib,
 rituximab,rituximab,
+sacituzumab govitecan,sacituzumab govitecan,
+t-dm1,trastuzumab emtansine,약어
+t-dxd,trastuzumab deruxtecan,약어
+tac,docetaxel+doxorubicin+cyclophosphamide,요법 약어
+talazoparib,talazoparib,
+talzenna,talazoparib,상품명
 tamoxifen,tamoxifen,
 tamoxifen (novadex),tamoxifen,
 tamoxifen citrate,tamoxifen,
@@ -132,10 +177,19 @@ taxotere,docetaxel,
 taxotere/cytoxan,docetaxel+cyclophosphamide,
 tc,docetaxel+cyclophosphamide,요법 약어: docetaxel(Taxotere)+cyclophosphamide
 tch,docetaxel+carboplatin+trastuzumab,요법 약어: docetaxel+carboplatin+trastuzumab(Herceptin)
+tchp,docetaxel+carboplatin+trastuzumab+pertuzumab,요법 약어
+tecentriq,atezolizumab,상품명
 tesetaxel,tesetaxel,
 trastuzumab,trastuzumab,
+trastuzumab deruxtecan,trastuzumab deruxtecan,
+trastuzumab emtansine,trastuzumab emtansine,
 triptorelin,triptorelin,
+trodelvy,sacituzumab govitecan,상품명
+truqap,capivasertib,상품명
 trustuzumab,trastuzumab,
+tucatinib,tucatinib,
+tukysa,tucatinib,상품명
+verzenio,abemaciclib,상품명
 vinblastine,vinblastine,
 vincristine,vincristine,
 vinorelbine,vinorelbine,
@@ -147,3 +201,5 @@ yondelis,trabectedin,
 zoladex,goserelin,
 zoledronic acid,zoledronic acid,
 zometa,zoledronic acid,
+버제니오정,abemaciclib,상품명 (공고 p.54 표기)
+타목시펜,tamoxifen,공고 본문 한글 표기
