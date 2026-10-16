@@ -1,11 +1,12 @@
-# run_indexing.py
+# src/rag/run_indexing.py
+# 실행: team_project 폴더에서 python -m src.rag.run_indexing
 import json
 from pathlib import Path
 from src.rag.indexer import init_collection, index_chunks, close_indexer
 
 
 def main():
-    base_dir = Path(__file__).resolve().parent
+    base_dir = Path(__file__).resolve().parents[2]  # team_project
     chunks_dir = base_dir / "data" / "chunks"  # <- data/chunks/ 지정
 
     # 1. 컬렉션 초기화

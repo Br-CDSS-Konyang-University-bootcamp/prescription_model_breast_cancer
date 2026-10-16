@@ -6,6 +6,8 @@ data/**
 !data/**/*.csv
 !data/**/*.txt
 !data/**/*.py
+# 검색 색인용 청크 JSON (data/truth/ 등 다른 JSON은 계속 제외)
+!data/chunks/*.json
 # 스프레드시트 프로그램이 파일을 열 때 만드는 잠금 파일
 .~lock.*#
 *.h5
