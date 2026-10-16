@@ -47,6 +47,7 @@ TCGA에는 실제 날짜가 없고 "진단 후 일수(d77)"만 있다. **가상 
 - 추출값 날짜 칸(`diagnosis_date`, `recurrence_date`, `adjuvant_endocrine_end_date`): `{"status": "not_recorded"}`
 - 날짜 속성(`observed_date`, 치료 이력의 `start_date`·`end_date`, 보고서의 `report_date`, 문서의 `doc_date`): `null`
 - [변경, 2026-10-15, 스키마 0.1-draft5] 상대 일수(진단일 = 0인 정수)는 실제 날짜가 아니므로 정답에 넣는다: `treatment_history[].start_day`·`end_day`, `recurrence.metastasis_day`. B가 처방 시작일과 전이 기준일을 비교해 차수를 정하는 데 쓴다. 날짜 칸은 위 규칙대로 비운다.
+- [변경, 2026-10-16, 스키마 0.1-draft6] 판정 기준일 `index_day`(최상위)는 마지막 추적일 `fu_last_days`로 채운다. 802명은 값이 있고 72명은 `null`. 6명은 마지막 추적일보다 늦게 시작한 투약 기록이 있다 (원자료끼리 어긋남, 고치지 않고 둔다). 첫 재발일 `recurrence.recurrence_day`는 §3.7.
 - 가상 차트에도 실제 날짜를 쓰지 않는다. 정답과 맞지 않게 되기 때문이다. 순서는 "수술 후", "재발 후" 같은 표현으로 나타낸다.
 
 ### 2.4 구간 값
@@ -154,7 +155,7 @@ TNM 세부 표기 [합의 예정]: 공백만 지우고 그대로 둔다. `N0 (i-
 
 | 필드 | 출처 | 변환 |
 |---|---|---|
-| `drugs` | 성분명 | `drug_timeline` 항목 하나 = `treatment_history` 원소 하나. 원본 한 기록에 약이 여러 개면(`doxorubicin+cyclophosphamide`) 한 원소에 여러 약. 같은 날 시작한 별도 기록은 묶지 않는다 (요법 묶음은 B가 판단, handoff_to_B.md §6.2) [2026-10-15 변경] |
+| `drugs` | 성분명 | `drug_timeline` 항목 하나 = `treatment_history` 원소 하나. 원본 한 기록에 약이 여러 개면(`doxorubicin+cyclophosphamide`) 한 원소에 여러 약. 같은 날 시작한 별도 기록은 묶지 않는다. 요법 묶음과 차수는 아래 `line` 칸에서 계산한다 [2026-10-16 변경] |
 | `start_date`, `end_date` | — | [A 결정] TCGA에는 실제 날짜가 없으므로 `null` |
 | `duration_days` [제안, A 결정] | `drug_start_days`, `drug_end_days` | `end_day − start_day` (일). 투약 기록 2,033건 중 시작·종료가 모두 있는 1,507건만 값이 있다. 종료 모름 442건, 시작 모름 84건(그중 종료만 있는 31건)은 `null` |
 | `best_response` | 괄호 안 반응 | Complete Response → `CR`, Partial Response → `PR`, Stable Disease → `SD`, Clinical Progressive Disease → `PD`, 없으면 `unknown` |
@@ -163,6 +164,7 @@ TNM 세부 표기 [합의 예정]: 공백만 지우고 그대로 둔다. `N0 (i-
 | `start_day`, `end_day` [draft5] | `drug_start_days`, `drug_end_days` (2026-10-15 추가. 원본 `pharmaceutical_tx_started_days_to`, `pharmaceutical_tx_ended_days_to`를 `drug_timeline`과 같은 순서로 ` \| `로 이은 열) | 정수. 괄호 코드·`-`이면 `null`. `drug_timeline`은 시작일이 없으면 종료일도 버리지만, 이 열은 종료일을 남긴다 (31건) |
 | `progression_day` [draft5] | 없음 | `null` |
 | `cycles` [draft5] | `drug_cycles`, `d시작`·`d종료`, `data/dictionaries/drug_classes.csv`의 `cycle_days` | 아래 규칙 |
+| `line`, `endocrine_line`, `chemo_line` [draft6] | `start_day`, `setting`, `best_response`, `recurrence.metastasis_day`, `drug_classes.csv`의 `drug_class` | `src/input/common/lines.py`의 `palliative_lines` (규칙은 handoff_to_B.md §6.2). 전이 전 투약·보조약·골 보호제·시작일 없는 투약은 `null`. 정답 세트에서 값이 있는 투약 90건, 환자 28명 |
 
 주기 수 `cycles` 규칙 [사용자 결정, 2026-10-15]:
 
@@ -187,6 +189,20 @@ TNM 세부 표기 [합의 예정]: 공백만 지우고 그대로 둔다. `N0 (i-
 
 투약 기록이 없는 환자(213명, 24.4%)는 빈 배열이다. "치료를 안 했다"가 아니라 "기록이 없다"이다.
 
+### 3.6b 차수 간주 규칙 (`fields.deemed_lines`) [draft6, 2026-10-16]
+
+`src/input/common/lines.py`의 `deemed_lines`. 규칙 4개를 환자마다 모두 적는다. 기간은 근거 투약 종료일부터 전이 기준일까지 세고, 종료일이 없으면 시작일을 하한으로 쓴다.
+
+| 규칙 | 공고 | 조건 | met | not_met | unknown | not_applicable |
+|---|---|---|---|---|---|---|
+| `DEEM-ANTHRA-TAXANE` | p.61~62 | 선행·보조요법에 anthracycline과 taxane이 모두 있음 (기간 제한 없음) | 8 | 20 | 0 | 846 |
+| `DEEM-SG-1Y` | p.63 | 선행·보조요법 종료 후 365일 이내 전이 | 13 | 14 | 1 | 846 |
+| `DEEM-HER2ADC-6M` | p.62~63 | trastuzumab 포함 보조요법 종료 후 183일 이내 전이 | 1 | 27 | 0 | 846 |
+| `DEEM-ENDO-ADJ-1Y` | p.57 | 보조 내분비요법 종료 후 365일 이내 전이 | 8 | 19 | 1 | 846 |
+
+- `not_applicable` 846명 = 전이 기준일이 없는 환자 (전이성 아님). 전이성 28명만 판정한다.
+- 재발 시점은 첫 재발일이 아니라 전이 기준일을 쓴다. 간주 규칙은 고식적 요법의 차수에 관한 것이라 원격 전이가 기준이다.
+
 ### 3.7 선행요법 반응, 재발
 
 | 필드 | TCGA 열 | 변환 |
@@ -197,6 +213,7 @@ TNM 세부 표기 [합의 예정]: 공백만 지우고 그대로 둔다. `N0 (i-
 | `recurrence.status` [draft5] | `recurrence_status` | 그대로: `none` / `distant` / `locoregional` / `unknown`. `site_unknown`은 크롭 단계에서 뺐다 (2026-10-15) |
 | `recurrence.metastatic_sites` [draft5] | `nte_sites`, `nte_sites_other` | `status = distant`일 때만. Bone → `bone`, Liver → `liver`, Lung → `lung`, Brain → `brain`, `Other, specify` → `other: <nte_sites_other 항목>`. 여러 개 나열. 국소 부위(Axilla, Chest wall 등)가 섞일 수 있으나 처방·급여 판정에는 영향이 없다고 봄 (사용자 결정) |
 | `recurrence.metastasis_day` [draft5] | `metastasis_dx_days` | 정수 (진단 시 IV기 = 0). 값이 없으면 칸을 만들지 않음 |
+| `recurrence.recurrence_day` [draft6] | `locoregional_dx_days`, `metastasis_dx_days` | `status`가 `distant`·`locoregional`일 때만. 국소 재발일과 원격 전이 재발일(`distant`일 때) 중 이른 값. 진단 시 IV기는 재발이 아니므로 넣지 않음. 34명 (distant 22, locoregional 12) |
 | `recurrence.surgery` [draft5] | `nte_surgery` | `status`가 `none`·`unknown`이 아닐 때만. YES가 하나라도 있으면 `yes`, NO만 있으면 `no`, 빈칸이면 `unknown` |
 | `recurrence.surgery_intent` [draft5] | 없음 | `surgery`를 만들 때 항상 `unknown` |
 | `recurrence.later_distant` [draft5] | `locoregional_dx_days`, `metastasis_dx_days` | `status = locoregional` → `no`. `status = distant`이고 국소 재발일이 있으면 국소 재발일 < 전이 기준일 → `yes`, 아니면 `no`. 그 밖은 칸을 만들지 않음 |

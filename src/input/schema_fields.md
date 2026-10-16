@@ -1,6 +1,6 @@
 # patient_state 필드 정리와 정규화 예시
 
-> 담당 A · 2026-10-12 (2026-10-13 `stage.disease_extent` 추가, 2026-10-15 draft5 필드 추가) · 기준 스키마: `schemas/patient_state.json` (0.1-draft5)
+> 담당 A · 2026-10-12 (2026-10-13 `stage.disease_extent` 추가, 2026-10-15 draft5 필드 추가, 2026-10-16 draft6 필드 추가) · 기준 스키마: `schemas/patient_state.json` (0.1-draft6)
 
 입력 모듈(A)이 만드는 `patient_state`의 필드, 표준값 형태, 정규화 방식, 예시, TCGA 정답 생성 규칙을 정리한다. TCGA 열 변환의 세부 규칙은 [tcga_mapping.md](tcga_mapping.md)에 있다.
 
@@ -17,9 +17,10 @@ A는 원칙적으로 표기만 정리한다. 예외: HER2 IHC의 `result`는 ISH
 
 | 항목 | 의미 | 형태 | 정규화 방식 | 원문 → 정규화 예시 |
 |---|---|---|---|---|
-| `schema_version` | 스키마 버전 | 문자열 | 고정 | → `"0.1-draft5"` |
+| `schema_version` | 스키마 버전 | 문자열 | 고정 | → `"0.1-draft6"` |
 | `patient_ref` | 가명 ID | 문자열 | 비식별화(IN-0). 실제 값은 내부 대응표에만 | `홍길동 (등록번호 12345678)` → `"VC-0001"` |
 | `created_at` | 생성 시각 | ISO 8601 | 자동 | → `"2026-10-12T09:00:00+09:00"` |
+| `index_day` [draft6] | 판정 기준일 (진단일 = 0). 추천·급여 판정을 하는 '지금' 시점 | 정수 또는 `null` | 해석 (차트 작성일 → 진단일 기준 일수) | 진단 2024-03-05, 진료일 2026-10-16 → `955` |
 | `documents[]` | 문서 목록 (IN-1) | `{doc_id, doc_type, doc_date}` | 해석 + 사전 | `[병리결과보고서] 2024.03.05` → `{"doc_id":"D1","doc_type":"pathology","doc_date":"2024-03-05"}` |
 | `conflicts[]` | 같은 시점에 값이 다른 경우 (IN-5) | `{field, candidates[], note}` | 규칙 | `암 3기` vs `cT2N1M0` → `{"field":"stage.group","candidates":[…III…, …IIB…],"note":"적힌 병기와 TNM 계산 병기가 다름"}` |
 
@@ -254,7 +255,7 @@ TCGA 건수 (score 2+ 또는 Equivocal):
 
 ## 8. 치료 이력 (`fields.treatment_history[]`)
 
-항목 하나가 투약 기록 하나다. 원본 한 기록에 약이 여러 개면(AC 등) 한 항목에 여러 약이 들어간다. 여러 기록을 한 요법으로 묶는 판단은 B가 한다 (handoff_to_B.md §6.2) [2026-10-15 변경].
+항목 하나가 투약 기록 하나다. 원본 한 기록에 약이 여러 개면(AC 등) 한 항목에 여러 약이 들어간다. 여러 기록을 한 요법으로 묶고 차수를 매기는 일은 A가 변환할 때 한다 (`src/input/common/lines.py`, handoff_to_B.md §6.2) [2026-10-16 변경, draft6].
 
 | 필드 | 의미 | 표준값 형태 | 정규화 방식 | 원문 → 정규화 예시 | TCGA 정답 규칙 |
 |---|---|---|---|---|---|
@@ -268,6 +269,7 @@ TCGA 건수 (score 2+ 또는 Equivocal):
 | `progression_day` [draft5] | 진행일 (진단일 = 0) | 정수 또는 `null` | 해석 | `2026.3 CT상 PD` → 진단일 기준 일수 | 없음 (`null`) |
 | `stop_reason` | 중단 사유 | `progression` / `toxicity` / `completed` / `planned_switch` / `maintenance` / `other` | 사전 | `PD로 중단` → `"progression"` | 없음 |
 | `best_response` | 최선 반응 | `CR` / `PR` / `SD` / `PD` / `unknown` | 사전 | `완전관해` → `"CR"` | 괄호 안 반응 |
+| `line`, `endocrine_line`, `chemo_line` [draft6] | 전이 후 전체 차수, 고식적 내분비 차수, 고식적 항암 차수 (간주 규칙 없음) | 정수 또는 `null` | 계산 (`lines.py`) | 전이 후 letrozole → paclitaxel → `1/1/null`, `2/null/1` | `lines.py` 계산 (tcga_mapping.md §3.6) |
 | `source` | 원문 근거 | 공통 틀과 같음 | — | `{"doc_id":"D3","quote":"AI + palbociclib, PD"}` | 가상 차트 생성 시 채움 |
 
 `duration_days` TCGA 규칙 [A 결정]:
@@ -290,6 +292,8 @@ TCGA 건수 (score 2+ 또는 Equivocal):
 | `recurrence.recurrence_date` | 재발일 | 날짜 | 해석 | `2026년 6월 간 전이로 재발` → `"2026-06"` [제안: 부분 날짜] | `not_recorded` (전이 기준일은 `metastasis_day`) |
 | `recurrence.adjuvant_endocrine_end_date` | 보조 내분비요법 종료일 | 날짜 | 해석 | `타목시펜 5년 복용 후 2023.3 종료` → `"2023-03"` | `not_recorded` (B가 `end_day`로 계산) |
 | `recurrence.status`, `metastatic_sites`, `metastasis_day`, `surgery`, `surgery_intent`, `later_distant` [draft5] | 재발 상태, 재발 전이 부위, 전이 기준일, 재발 후 수술 | handoff_to_B.md §3.1 | 사전 + 해석 | `2026.6 간 전이 재발` → `status: distant`, `metastatic_sites: ["liver"]` | tcga_mapping.md §3.7 |
+| `recurrence.recurrence_day` [draft6] | 첫 재발일 (국소·원격, 진단일 = 0). 진단 시 IV기는 넣지 않음 | 정수 | 해석 | `2026.6 흉벽 재발` → 진단일 기준 일수 | tcga_mapping.md §3.7 |
+| `deemed_lines[]` [draft6] | 심평원 차수 간주 규칙 4개의 충족 여부 | `{rule_id, category, status, basis, regimen_refs, gap_days, notice_page}` | 계산 (`lines.py`) | 보조 AC → paclitaxel 후 전이 → `DEEM-ANTHRA-TAXANE: met` | tcga_mapping.md §3.6b |
 | `anthracycline_drug_dose` [draft5] | anthracycline 투여 여부와 약별 용량 | `{administered, drugs[]}` | 해석 | `doxorubicin 60 mg/m2 #4` → `{"drug":"doxorubicin","dose_per_admin":{"value":60,"unit":"mg/m2"}, …}` | tcga_mapping.md §3.7a |
 | `molecular.mutations.{유전자}` [draft5] | 유전자별 변이 (ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2) | `{status, result, variants[], specimen}` | 해석 | `PIK3CA H1047R, VAF 31%` → `{"status":"present","result":"detected","variants":[…]}` | `mut_*` (tcga_mapping.md §3.8) |
 | `genomic_reports[].specimen` | 검체 | `primary` / `metastasis` / `cfDNA` / `unknown` | 사전 | `혈장 cfDNA NGS` → `"cfDNA"` | 원발(01) 고정 |
