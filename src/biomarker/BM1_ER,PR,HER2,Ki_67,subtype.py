@@ -13,7 +13,7 @@
 이 파일은 규칙만 쓴다. LLM은 쓰지 않는다.
 재발 환자는 value(재생검 결과)로 판정하고, history[]의 원발 결과와 비교한 설명을 reason 끝에 붙인다.
 유전자 변이(ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2)는 허가 변이 목록(actionable_variants.csv)과
-절단 변이만으로 판정하는 1차 규칙이다 (2026-10-16). 아직 다루지 않는 것: 유전자 검사 공백(BM-4 유전자),
+절단 변이만으로 판정하는 1차 규칙이다 (2026-10-16). 유전자 검사 공백(BM-4)은 미시행만 권고한다 (2026-10-16). 아직 다루지 않는 것:
 차수(setting.line, 6.2절), BM-1 보고서 파싱, BM-3 근거 주석, PD-L1 약제별 판정(6.5절), 심평원 투여단계(6.3절)
 """
 
@@ -620,6 +620,22 @@ def tests_needed_of(by, subtype, disease, fields):
         pdl1 = (fields.get("receptors") or {}).get("pdl1") or {}
         if pdl1.get("status") == "not_done":
             add("PD-L1 (22C3 CPS, SP142 IC)", "전이성 TNBC인데 PD-L1 미시행", "BM4-PDL1")
+
+    # 유전자 (PROJECT.md 5절 검사 공백 규칙). 미시행만 권고한다. 생식세포 BRCA가 기록 없음이거나
+    # 레코드가 sBRCA뿐이면(TCGA가 아닌 차트) 권고하지 않는다 (전달 문서 4.7절, B 결정 2026-10-16)
+    if subtype in ("HR+/HER2-", "TNBC"):
+        for m in ("gBRCA1", "gBRCA2", "PALB2"):
+            if by.get(m, {}).get("status") == "not_done":
+                add(f"{m} (생식세포 검사)", f"전이성 HER2 음성인데 {m} 미시행. PARP 억제제 대상 확인", f"BM4-{m.upper()}")
+    if subtype == "HR+/HER2-":
+        for m in ("PIK3CA", "AKT1", "PTEN"):
+            if by.get(m, {}).get("status") == "not_done":
+                add(m, f"전이성 HR+/HER2-인데 {m} 미시행. PI3K·AKT 억제제 대상 확인", f"BM4-{m}")
+        esr1 = by.get("ESR1", {})
+        if esr1.get("status") == "not_done":
+            add("ESR1 (cfDNA)", "전이성 HR+/HER2-인데 ESR1 미시행. 경구 SERD 대상 확인", "BM4-ESR1")
+        elif esr1.get("status") == "retest_needed":
+            add("ESR1 (cfDNA)", esr1["reason"], "BM4-ESR1-RETEST")
     return out
 
 
@@ -642,8 +658,8 @@ def assess(patient_state):
 
     records = assess_receptors(patient_state)
     records.append(judge_ki67((fields.get("proliferation") or {}).get("ki67_percent")))
-    by = {r["marker"]: r for r in records}
     records.extend(assess_genes(patient_state))
+    by = {r["marker"]: r for r in records}
 
     subtype = subtype_of(by["ER"]["status"], by["PR"]["status"], by["HER2"]["status"])
     setting = setting_of(fields)

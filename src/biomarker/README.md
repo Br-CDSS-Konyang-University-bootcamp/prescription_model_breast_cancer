@@ -40,6 +40,16 @@
 - VUS는 BM-3(ClinVar·CIViC 로컬 조회)이 생기면 다시 가른다. 미스센스 병원성 변이(예: BRCA1 C61G)는 지금 VUS로 나온다.
 - `actionable_variants.csv`의 PIK3CA 11개는 therascreen PIK3CA 키트의 QIAGEN 제품 페이지와 AccessGUDID 등록 정보로 확인했다 (사용설명서 원본은 아직 대조하지 않음). AKT1·ESR1 목록은 `verified = no`이고, 판정 이유에 "원문 확인 필요"가 붙는다. FDA 라벨·SSED 원문으로 확인하면 `yes`로 바꾼다.
 - TCGA 874명 결과: PIK3CA 양성 211 / VUS 69, AKT1 양성 21, PTEN 양성 34, gBRCA1 양성 9, gBRCA2 양성 6, PALB2 VUS 6, ESR1 양성 2 / 재검 필요 9. 미시행은 유전자마다 28명.
-- 유전자 검사 공백(BM-4: gBRCA, PIK3CA·AKT1·PTEN, ESR1)은 아직 넣지 않았다. 다음 작업이다.
+
+유전자 검사 공백 (BM-4, 2026-10-16). 현재 전이성 환자만, 미시행(`not_done`)일 때만 `tests_needed`에 넣는다:
+
+| 아형 | 권고 | 규칙 ID |
+|---|---|---|
+| HR+/HER2-, TNBC | gBRCA1·gBRCA2·PALB2 미시행 → 생식세포 검사 | `BM4-GBRCA1`, `BM4-GBRCA2`, `BM4-PALB2` |
+| HR+/HER2- | PIK3CA·AKT1·PTEN 미시행 → 검사 | `BM4-PIK3CA`, `BM4-AKT1`, `BM4-PTEN` |
+| HR+/HER2- | ESR1 미시행 → 검사 / ESR1 재검 필요 → cfDNA 재검 | `BM4-ESR1` / `BM4-ESR1-RETEST` |
+
+- 생식세포 BRCA가 기록 없음이면 권고하지 않는다 (전달 문서 4.7절의 열린 질문, B 결정 2026-10-16). TCGA가 아닌 차트는 BRCA 레코드가 sBRCA라 생식세포 BRCA 권고가 나오지 않는다.
+- TCGA 874명 결과: 현재 전이성 환자는 유전자 검사가 모두 시행돼 미시행 권고는 0명, ESR1 재검 권고 3명.
 
 테스트 실행 (`team_project` 폴더에서): `python -m pytest tests/biomarker` 또는 케이스별 출력은 `python -m tests.biomarker.test_bm`

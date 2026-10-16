@@ -240,9 +240,14 @@ def patient(ref="TCGA-XX-0001", extent="metastatic", recurrence="none", er=None,
 
 TNBC = dict(er=f({"percent": 0}), pr=f({"percent": 0}), ihc=f({"score": "0"}))
 
+
+def genes_with(field):
+    """유전자 7개를 모두 같은 칸(미시행·기록 없음 등)으로 채운 molecular.mutations."""
+    return {g: dict(field) for g in ("ESR1", "PIK3CA", "AKT1", "PTEN", "BRCA1", "BRCA2", "PALB2")}
+
 ASSESS_CASES = [
     # (id, patient_state, 정답 subtype, 정답 disease, 정답 tests_needed rule_id 모음, 메모)
-    ("A01", patient(), "HR+/HER2-", "metastatic", set(), "HR+/HER2- 전이성 (유전자 공백 규칙은 유전자 코드와 함께 나중에)"),
+    ("A01", patient(), "HR+/HER2-", "metastatic", set(), "HR+/HER2- 전이성, 유전자 검사 모두 시행"),
     ("A02", patient(extent="early"), "HR+/HER2-", "early", set(), "조기"),
     ("A03", patient(extent="early", recurrence="distant"), "HR+/HER2-", "metastatic", set(), "원격 전이 재발 -> 전이성"),
     ("A04", patient(extent="locally_advanced", recurrence="locoregional"), "HR+/HER2-", "locally_advanced", set(),
@@ -257,14 +262,25 @@ ASSESS_CASES = [
      "판정만 negative: 아형은 HER2-, 전이성이라 재판정 확인"),
     ("A09", patient(er={"status": "not_done"}), "HR+/HER2-", "metastatic", {"BM4-ER"},
      "ER 미시행이어도 PR 양성이면 HR+"),
+    # 유전자 검사 공백 (PROJECT.md 5절, 2026-10-16)
+    ("A11", patient(mutations=genes_with(ND)), "HR+/HER2-", "metastatic",
+     {"BM4-GBRCA1", "BM4-GBRCA2", "BM4-PALB2", "BM4-PIK3CA", "BM4-AKT1", "BM4-PTEN", "BM4-ESR1"},
+     "전이성 HR+/HER2-, 유전자 7개 모두 미시행"),
+    ("A12", patient(mutations=genes_with(ND), **TNBC), "TNBC", "metastatic",
+     {"BM4-GBRCA1", "BM4-GBRCA2", "BM4-PALB2", "BM4-HER2-REASSESS"},
+     "전이성 TNBC: BRCA·PALB2만 권고 (PIK3CA·ESR1은 HR+/HER2- 대상)"),
+    ("A13", patient(mutations=genes_with(NR)), "HR+/HER2-", "metastatic", set(),
+     "기록 없음은 권고하지 않음 (B 결정 2026-10-16, 선택지 가)"),
+    ("A14", patient(extent="early", mutations=genes_with(ND)), "HR+/HER2-", "early", set(), "조기는 유전자 권고 없음"),
+    ("A15", patient(ref="VC-0001", mutations=genes_with(ND)), "HR+/HER2-", "metastatic",
+     {"BM4-PALB2", "BM4-PIK3CA", "BM4-AKT1", "BM4-PTEN", "BM4-ESR1"},
+     "TCGA가 아니면 BRCA 레코드가 sBRCA라 생식세포 BRCA 권고 없음"),
+    ("A16", patient(ihc=f({"score": "3+"}), mutations=genes_with(ND)), "HR+/HER2+", "metastatic", set(),
+     "HER2 양성은 유전자 권고 대상 아님"),
+    ("A17", patient(treatments=[{"drugs": ["letrozole"], "start_day": 1500, "best_response": "PD",
+                                 "stop_reason": None}]), "HR+/HER2-", "metastatic", {"BM4-ESR1-RETEST"},
+     "원발 ESR1 결과 + 내분비요법 진행 -> 재검 권고"),
 ]
-
-
-def gene(*variants, specimen="primary"):
-    """유전자 칸 (전달 문서 3.6절). variants는 (단백질 변화, 변이 종류). 비우면 변이 없음."""
-    return {"status": "present", "result": "detected" if variants else "not_detected", "specimen": specimen,
-            "variants": [{"protein_change": p, "variant_type": t, "vaf": 0.3, "raw": p} for p, t in variants],
-            "source": None}
 
 
 MIS, NON, FS = "Missense_Mutation", "Nonsense_Mutation", "Frame_Shift_Del"
