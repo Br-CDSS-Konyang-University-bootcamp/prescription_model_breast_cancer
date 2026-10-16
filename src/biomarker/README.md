@@ -13,9 +13,9 @@
 
 | 파일 | 내용 |
 |---|---|
-| `BM.py` | BM-2 ~ BM-4를 한 파일에 둔다. 진입점 `assess(patient_state)` → `biomarker_record` 전체 |
+| `BM1_ER,PR,HER2,Ki_67,subtype.py` | BM-2 ~ BM-4를 한 파일에 둔다. 진입점 `assess(patient_state)` → `biomarker_record` 전체 |
 
-`BM.py`가 만드는 레코드 (환자 1명당 4개):
+`BM1_ER,PR,HER2,Ki_67,subtype.py`가 만드는 레코드 (환자 1명당 4개):
 
 | 마커 | 입력 (`patient_state.fields`) | 판정 |
 |---|---|---|
