@@ -8,7 +8,8 @@
   - 근거 방향 Supports, 상태 accepted
 
 저장 위치: <프로젝트>/data/civic/
-- civic_bm3_evidence.csv: gene, protein_change, evidence_level(A~E), evidence_type, significance, disease, therapies,
+- civic_bm3_evidence_<받은 날>.csv (예: civic_bm3_evidence_2026-10-19.csv. 전달 문서 5.6절 "파일명에 받은 날짜를
+  넣는다". CC0라 git에 올린다. 다시 받으면 예전 날짜 파일은 지운다): gene, protein_change, evidence_level(A~E), evidence_type, significance, disease, therapies,
   evidence_id, citation, last_review_date
 - civic_version.txt: 받은 날, 원본 주소
 
@@ -46,7 +47,9 @@ def main():
     resp = requests.get(URL, timeout=300)
     resp.raise_for_status()
     rows = csv.DictReader(io.StringIO(resp.content.decode("utf-8")), delimiter="\t")
-    out_csv = OUT / "civic_bm3_evidence.csv"
+    for old in OUT.glob("civic_bm3_evidence*.csv"):
+        old.unlink()
+    out_csv = OUT / f"civic_bm3_evidence_{date.today().isoformat()}.csv"
     kept = 0
     with open(out_csv, "w", newline="", encoding="utf-8") as dst:
         writer = csv.DictWriter(dst, fieldnames=FIELDS)
