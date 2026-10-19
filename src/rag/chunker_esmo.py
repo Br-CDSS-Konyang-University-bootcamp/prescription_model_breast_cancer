@@ -158,8 +158,10 @@ def _section_items(lines: list[str]) -> list[tuple[str, str]]:
         if body.endswith(":") and not has_evidence and not is_sub and not body[0].islower():
             context, options_open = body, False
             continue
-        if items and body[0].islower() and not is_sub:
-            _continue_sentence(items[-1], body)  # 소문자로 시작 = 끊긴 문장
+        if items and body[0].islower() and not is_sub and not items[-1][2].rstrip().endswith((".", "!", "?")):
+            # 소문자로 시작하고 앞 권고가 마침표로 끝나지 않음 = 끊긴 문장.
+            # 앞이 마침표로 끝났으면 "cT2-4 N0 ..."처럼 소문자로 시작하는 새 권고다
+            _continue_sentence(items[-1], body)
             continue
         if items and (is_sub or (options_open and not has_evidence)
                       or (not has_evidence and body.startswith("Options include"))):

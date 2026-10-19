@@ -490,10 +490,10 @@
     ],
     "biomarker_tags": [],
     "drugs": [
-      "carboplatin",
       "trastuzumab",
-      "paclitaxel",
+      "carboplatin",
       "pertuzumab",
+      "paclitaxel",
       "neratinib",
       "trastuzumab emtansine"
     ],
@@ -918,7 +918,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
     "chunk_kind": "section",
     "parent_id": null,
-    "text": "TNBC\n\nHER2-negative tumours with 1%-9% ER and/or PgR expression (ER-/PgR-low) are a heterogenous group, some of which behave biologically similarly to TNBCs; therapeutic strategies should be adjusted to this specific situation since this might lead to a higher response to ChT and to reduced efficacy of ET compared with classical HR-positive breast cancer [II, B].\n\nTNBC tumours should be treated with ChT with or without an ICI (pembrolizumab) [I, A], except for some node-negative special histological subtypes such as secretory or adenoid cystic carcinomas or very low clinical risk (pT1a pN0) tumours [II, B].\n\nChT should be administered for 12-24 weeks (4-8 cycles) depending on the stage of the disease, type of selected regimen and regardless of whether an ICI is added [I, A].\n\nThe use of dose-dense schedules of ChT, with granulocyte colony-stimulating factor support, should be considered given their documented benefit over non-dosedense schedules [I, A].\n\nFor cT1c-4 N0, or any N-positive TNBC, neoadjuvant treatment is preferred [I, A]. cT2-4 N0 or any N-positive (stage II-III) TNBC should be treated with neoadjuvant ChT plus pembrolizumab unless there are risk factors for excessive ICI-associated immune toxicity [I, A; ESMO-MCBS v1.1 score: A].\n\nPembrolizumab should be administered every 3 weeks throughout the neoadjuvant phase [I, A] and for nine 3-week cycles during the adjuvant phase, regardless of pCR status [I, A; ESMO-MCBS v1.1 score: A].\n\nPatients receiving pembrolizumab should be monitored very closely for the risk of immune-related adverse events throughout treatment and following the ESMO CPG for the management of toxicities from immunotherapy [V, A].\n\nAn ICI should not be given solely in the adjuvant setting without prior neoadjuvant ICI treatment [V, D].\n\nIn patients with gBRCA1/2m and high-risk TNBC (nonpCR or pathological stage II-III), 1 year of adjuvant olaparib should be administered [I, A; ESMO-MCBS v1.1 score: A; ESCAT: I-A].\n\nThe combination of ICIs and olaparib may be considered on an individual basis [V, C].\n\nPatients with residual disease who did not receive ICIs should be offered adjuvant capecitabine for 6-8 cycles [I, A].\n\nThe combination of olaparib and capecitabine in patients with gBRCAm should not be used [V, C].\n\nThe combination of ICI and capecitabine may be considered on an individual basis [V, C].",
+    "text": "TNBC\n\nHER2-negative tumours with 1%-9% ER and/or PgR expression (ER-/PgR-low) are a heterogenous group, some of which behave biologically similarly to TNBCs; therapeutic strategies should be adjusted to this specific situation since this might lead to a higher response to ChT and to reduced efficacy of ET compared with classical HR-positive breast cancer [II, B].\n\nTNBC tumours should be treated with ChT with or without an ICI (pembrolizumab) [I, A], except for some node-negative special histological subtypes such as secretory or adenoid cystic carcinomas or very low clinical risk (pT1a pN0) tumours [II, B].\n\nChT should be administered for 12-24 weeks (4-8 cycles) depending on the stage of the disease, type of selected regimen and regardless of whether an ICI is added [I, A].\n\nThe use of dose-dense schedules of ChT, with granulocyte colony-stimulating factor support, should be considered given their documented benefit over non-dosedense schedules [I, A].\n\nFor cT1c-4 N0, or any N-positive TNBC, neoadjuvant treatment is preferred [I, A].\n\ncT2-4 N0 or any N-positive (stage II-III) TNBC should be treated with neoadjuvant ChT plus pembrolizumab unless there are risk factors for excessive ICI-associated immune toxicity [I, A; ESMO-MCBS v1.1 score: A].\n\nPembrolizumab should be administered every 3 weeks throughout the neoadjuvant phase [I, A] and for nine 3-week cycles during the adjuvant phase, regardless of pCR status [I, A; ESMO-MCBS v1.1 score: A].\n\nPatients receiving pembrolizumab should be monitored very closely for the risk of immune-related adverse events throughout treatment and following the ESMO CPG for the management of toxicities from immunotherapy [V, A].\n\nAn ICI should not be given solely in the adjuvant setting without prior neoadjuvant ICI treatment [V, D].\n\nIn patients with gBRCA1/2m and high-risk TNBC (nonpCR or pathological stage II-III), 1 year of adjuvant olaparib should be administered [I, A; ESMO-MCBS v1.1 score: A; ESCAT: I-A].\n\nThe combination of ICIs and olaparib may be considered on an individual basis [V, C].\n\nPatients with residual disease who did not receive ICIs should be offered adjuvant capecitabine for 6-8 cycles [I, A].\n\nThe combination of olaparib and capecitabine in patients with gBRCAm should not be used [V, C].\n\nThe combination of ICI and capecitabine may be considered on an individual basis [V, C].",
     "setting": [
       "early",
       "locally_advanced"
@@ -1093,7 +1093,41 @@
     "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
     "chunk_kind": "recommendation",
     "parent_id": "esmo-ebc-2024-02-tnbc",
-    "text": "For cT1c-4 N0, or any N-positive TNBC, neoadjuvant treatment is preferred [I, A]. cT2-4 N0 or any N-positive (stage II-III) TNBC should be treated with neoadjuvant ChT plus pembrolizumab unless there are risk factors for excessive ICI-associated immune toxicity [I, A; ESMO-MCBS v1.1 score: A].",
+    "text": "For cT1c-4 N0, or any N-positive TNBC, neoadjuvant treatment is preferred [I, A].",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "neoadjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-777c34",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "TNBC",
+    "page_start": 173,
+    "page_end": 173,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": "esmo-ebc-2024-02-tnbc",
+    "text": "cT2-4 N0 or any N-positive (stage II-III) TNBC should be treated with neoadjuvant ChT plus pembrolizumab unless there are risk factors for excessive ICI-associated immune toxicity [I, A; ESMO-MCBS v1.1 score: A].",
     "setting": [
       "early",
       "locally_advanced"
@@ -1111,7 +1145,7 @@
     "evidence": {
       "loe": "I",
       "gor": "A",
-      "esmo_mcbs": null,
+      "esmo_mcbs": "A",
       "escat": null
     },
     "superseded_by": null,
@@ -1437,10 +1471,10 @@
     ],
     "drugs": [
       "palbociclib",
-      "fulvestrant",
       "abemaciclib",
-      "ribociclib",
-      "inavolisib"
+      "fulvestrant",
+      "inavolisib",
+      "ribociclib"
     ],
     "evidence": null,
     "superseded_by": null,
@@ -1543,8 +1577,8 @@
     ],
     "drugs": [
       "palbociclib",
-      "fulvestrant",
       "abemaciclib",
+      "fulvestrant",
       "ribociclib"
     ],
     "evidence": {
@@ -1622,8 +1656,8 @@
     ],
     "drugs": [
       "palbociclib",
-      "fulvestrant",
       "abemaciclib",
+      "fulvestrant",
       "ribociclib"
     ],
     "evidence": {
@@ -1733,8 +1767,8 @@
     "drugs": [
       "imlunestrant",
       "capivasertib",
-      "talazoparib",
       "elacestrant",
+      "talazoparib",
       "fulvestrant",
       "everolimus",
       "exemestane",
@@ -2694,11 +2728,11 @@
       "vinorelbine",
       "palbociclib",
       "trastuzumab",
-      "paclitaxel",
       "pertuzumab",
+      "paclitaxel",
+      "tucatinib",
       "lapatinib",
       "docetaxel",
-      "tucatinib",
       "trastuzumab deruxtecan"
     ],
     "evidence": null,
@@ -2959,8 +2993,8 @@
     "drugs": [
       "trastuzumab",
       "pertuzumab",
-      "docetaxel",
-      "tucatinib"
+      "tucatinib",
+      "docetaxel"
     ],
     "evidence": {
       "loe": "I",
@@ -3255,8 +3289,8 @@
       "capecitabine",
       "trastuzumab",
       "tucatinib",
-      "trastuzumab emtansine",
-      "trastuzumab deruxtecan"
+      "trastuzumab deruxtecan",
+      "trastuzumab emtansine"
     ],
     "evidence": null,
     "superseded_by": null,
@@ -3363,8 +3397,8 @@
     "biomarker_tags": [],
     "drugs": [
       "trastuzumab",
-      "trastuzumab emtansine",
-      "trastuzumab deruxtecan"
+      "trastuzumab deruxtecan",
+      "trastuzumab emtansine"
     ],
     "evidence": {
       "loe": "I",
@@ -3437,8 +3471,8 @@
       "capecitabine",
       "trastuzumab",
       "tucatinib",
-      "trastuzumab emtansine",
-      "trastuzumab deruxtecan"
+      "trastuzumab deruxtecan",
+      "trastuzumab emtansine"
     ],
     "evidence": null,
     "superseded_by": null,
@@ -3472,8 +3506,8 @@
       "capecitabine",
       "trastuzumab",
       "tucatinib",
-      "trastuzumab emtansine",
-      "trastuzumab deruxtecan"
+      "trastuzumab deruxtecan",
+      "trastuzumab emtansine"
     ],
     "evidence": {
       "loe": "II",
@@ -3546,9 +3580,9 @@
       "margetuximab",
       "capecitabine",
       "trastuzumab",
-      "lapatinib",
       "neratinib",
       "tucatinib",
+      "lapatinib",
       "trastuzumab emtansine"
     ],
     "evidence": null,
@@ -3618,8 +3652,8 @@
     "drugs": [
       "capecitabine",
       "trastuzumab",
-      "lapatinib",
-      "tucatinib"
+      "tucatinib",
+      "lapatinib"
     ],
     "evidence": {
       "loe": "I",
@@ -3768,12 +3802,12 @@
       "sacituzumab govitecan",
       "nab-paclitaxel",
       "pembrolizumab",
-      "atezolizumab",
       "capecitabine",
+      "atezolizumab",
       "talazoparib",
-      "bevacizumab",
-      "gemcitabine",
       "carboplatin",
+      "gemcitabine",
+      "bevacizumab",
       "paclitaxel",
       "datopotamab deruxtecan",
       "olaparib"
@@ -3848,8 +3882,8 @@
     "drugs": [
       "nab-paclitaxel",
       "pembrolizumab",
-      "gemcitabine",
       "carboplatin",
+      "gemcitabine",
       "paclitaxel"
     ],
     "evidence": {
@@ -5460,11 +5494,11 @@
       "capecitabine",
       "fulvestrant",
       "trastuzumab",
-      "lapatinib",
       "neratinib",
       "tucatinib",
-      "trastuzumab emtansine",
-      "trastuzumab deruxtecan"
+      "lapatinib",
+      "trastuzumab deruxtecan",
+      "trastuzumab emtansine"
     ],
     "evidence": null,
     "superseded_by": null,
@@ -5608,9 +5642,9 @@
     "drugs": [
       "capecitabine",
       "trastuzumab",
-      "lapatinib",
       "neratinib",
       "tucatinib",
+      "lapatinib",
       "trastuzumab deruxtecan"
     ],
     "evidence": {

@@ -44,3 +44,10 @@ def test_bullet_broken_across_pdf_lines_is_one_recommendation():
     assert len(items) == 1
     assert items[0][1].endswith("after MDT discussion [III, C].")
     assert _ids(broken) == _ids(whole)
+
+
+def test_lowercase_bullet_after_full_stop_is_a_new_recommendation():
+    # "cT2-4 N0 ..."처럼 소문자로 시작하는 권고도, 앞 권고가 마침표로 끝났으면 따로 센다
+    lines = ["- For cT1c-4 N0, or any N-positive TNBC, neoadjuvant treatment is preferred [I, A].",
+             "- cT2-4 N0 or any N-positive (stage II-III) TNBC should be treated with neoadjuvant ChT plus pembrolizumab [I, A]."]
+    assert len(_section_items(lines)) == 2
