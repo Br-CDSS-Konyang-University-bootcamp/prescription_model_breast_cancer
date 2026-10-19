@@ -1456,7 +1456,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "section",
     "parent_id": null,
-    "text": "MANAGEMENT OF LUMINAL MBC > First-line treatment\n\nOvarian function suppression (OFS) or ovarian ablation is recommended in addition to all endocrine-based therapies in pre- and perimenopausal women [I, A].\n\nAI—CDK4/6 inhibitor is recommended for patients with ER-positive, HER2-negative MBC that is de novo or recurring > 12 months after the end of adjuvant endocrine therapy (ET) [I, A]. Options include (in order of preference): AI—ribociclib [ESMO-Magnitude of Clinical Benefit Scale (MCBS) v2.0 score: 4] AI—abemaciclib (ESMO-MCBS v2.0 score: 1) AI—palbociclib (ESMO-MCBS v2.0 score: 2).\n\nFulvestrant—CDK4/6 inhibitor is recommended for patients with ER-positive, HER2-negative, PIK3CA-wild type MBC recurring while receiving adjuvant ET or ≤12 months after the end of adjuvant ET [I, A]. Options include: Fulvestrant—palbociclib (ESMO-MCBS v2.0 score: 4) Fulvestrant—ribociclib (ESMO-MCBS v2.0 score: 4) Fulvestrant—abemaciclib (ESMO-MCBS v2.0 score: 3)\n\nFor patients with ER-positive, HER2-negative, PIK3CA-mutated MBC recurring while receiving adjuvant ET or ≤12 months after the end of adjuvant ET: Fulvestrant—palbociclib—inavolisib is recommended [I, A; ESMO-MCBS v2.0 score: 3].\n\nFor patients with ER-positive, HER2-negative, PIK3CA-mutated MBC recurring while receiving adjuvant ET or ≤12 months after the end of adjuvant ET: Fulvestrant—CDK4/6 inhibitor can also be recommended [I, B]. Options include: ■ Fulvestrant—palbociclib (ESMO-MCBS v2.0 score: 4) Fulvestrant—ribociclib (ESMO-MCBS v2.0 score: 4) Fulvestrant—abemaciclib (ESMO-MCBS v2.0 score: 3)\n\nET alone can be recommended for the small group of patients with comorbidities or a performance status that precludes the use of CDK4/6 inhibitor combinations [V, B].\n\nChemotherapy (ChT) can be recommended for patients with imminent organ failure at MBC diagnosis [V, B].",
+    "text": "MANAGEMENT OF LUMINAL MBC > First-line treatment\n\nOvarian function suppression (OFS) or ovarian ablation is recommended in addition to all endocrine-based therapies in pre- and perimenopausal women [I, A].\n\nAI—CDK4/6 inhibitor is recommended for patients with ER-positive, HER2-negative MBC that is de novo or recurring >12 months after the end of adjuvant endocrine therapy (ET) [I, A]. Options include (in order of preference): AI—ribociclib [ESMO-Magnitude of Clinical Benefit Scale (MCBS) v2.0 score: 4] AI—abemaciclib (ESMO-MCBS v2.0 score: 1) AI—palbociclib (ESMO-MCBS v2.0 score: 2).\n\nFulvestrant—CDK4/6 inhibitor is recommended for patients with ER-positive, HER2-negative, PIK3CA-wild type MBC recurring while receiving adjuvant ET or ≤12 months after the end of adjuvant ET [I, A]. Options include: Fulvestrant—palbociclib (ESMO-MCBS v2.0 score: 4) Fulvestrant—ribociclib (ESMO-MCBS v2.0 score: 4) Fulvestrant—abemaciclib (ESMO-MCBS v2.0 score: 3)\n\nFor patients with ER-positive, HER2-negative, PIK3CA-mutated MBC recurring while receiving adjuvant ET or ≤12 months after the end of adjuvant ET: Fulvestrant—palbociclib—inavolisib is recommended [I, A; ESMO-MCBS v2.0 score: 3].\n\nFor patients with ER-positive, HER2-negative, PIK3CA-mutated MBC recurring while receiving adjuvant ET or ≤12 months after the end of adjuvant ET: Fulvestrant—CDK4/6 inhibitor can also be recommended [I, B]. Options include: ■ Fulvestrant—palbociclib (ESMO-MCBS v2.0 score: 4) Fulvestrant—ribociclib (ESMO-MCBS v2.0 score: 4) Fulvestrant—abemaciclib (ESMO-MCBS v2.0 score: 3)\n\nET alone can be recommended for the small group of patients with comorbidities or a performance status that precludes the use of CDK4/6 inhibitor combinations [V, B].\n\nChemotherapy (ChT) can be recommended for patients with imminent organ failure at MBC diagnosis [V, B].",
     "setting": [
       "metastatic"
     ],
@@ -1473,8 +1473,8 @@
       "palbociclib",
       "abemaciclib",
       "fulvestrant",
-      "inavolisib",
-      "ribociclib"
+      "ribociclib",
+      "inavolisib"
     ],
     "evidence": null,
     "superseded_by": null,
@@ -1525,7 +1525,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": "esmo-mbc-2026-05-luminal-1l",
-    "text": "AI—CDK4/6 inhibitor is recommended for patients with ER-positive, HER2-negative MBC that is de novo or recurring > 12 months after the end of adjuvant endocrine therapy (ET) [I, A]. Options include (in order of preference): AI—ribociclib [ESMO-Magnitude of Clinical Benefit Scale (MCBS) v2.0 score: 4] AI—abemaciclib (ESMO-MCBS v2.0 score: 1) AI—palbociclib (ESMO-MCBS v2.0 score: 2).",
+    "text": "AI—CDK4/6 inhibitor is recommended for patients with ER-positive, HER2-negative MBC that is de novo or recurring >12 months after the end of adjuvant endocrine therapy (ET) [I, A]. Options include (in order of preference): AI—ribociclib [ESMO-Magnitude of Clinical Benefit Scale (MCBS) v2.0 score: 4] AI—abemaciclib (ESMO-MCBS v2.0 score: 1) AI—palbociclib (ESMO-MCBS v2.0 score: 2).",
     "setting": [
       "metastatic"
     ],
@@ -1747,7 +1747,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "section",
     "parent_id": null,
-    "text": "MANAGEMENT OF LUMINAL MBC > Second-line treatment\n\nOFS or ovarian ablation is recommended in addition to all endocrine-based therapies in pre- and perimenopausal women [I, A].\n\nSelection of second-line therapy (endocrine or nonendocrine) based on disease aggressiveness, disease extent, organ function, progression-free survival on prior ET, somatic and germline mutation status and the associated toxicity profile, can be recommended [V, B].\n\nFulvestrant—capivasertib is recommended for patients with tumours harbouring PIK3CA , AKT1 or PTEN alterations who experience relapse or disease progression during or after treatment with an AI with or without previous CDK4/6 inhibitor therapy [I, A; ESMO-MCBS v2.0 score: 2].\n\nFulvestrant—alpelisib can be recommended for patients with PIK3CA-mutated tumours (in exons 7, 9 or 20), prior exposure to an AI (with or without CDK4/6 inhibitors) and appropriate glycated haemoglobin levels [I, B; ESMO-MCBS v2.0 score: 1].\n\nElacestrant [I, A; ESMO-MCBS v2.0 score: 3] or imlunestrant [I, A; ESMO-MCBS v2.0 score: 3] are recommended for patients with ESR1-mutated MBC after at least one line of ET, who preferably had a prolonged response to previous CDK4/6 inhibitor therapy.\n\nPoly (ADP-ribose) polymerase inhibitor (PARPi) monotherapy is recommended for patients with a germline BRCA1/2 mutation [I, A]. Options include olaparib (ESMO-MCBS v2.0 score: 4) or talazoparib (ESMO-MCBS v2.0 score: 3).\n\nOlaparib or talazoparib can be recommended for patients with a germline PALB2 mutation [II, B; not European Medicines Agency (EMA) or Food and Drug Administration (FDA) approved].\n\nFor patients with tumours harbouring somatic pathogenic or likely pathogenic BRCA1/2 mutations, PARPi monotherapy can also be recommended [II, B].\n\nExemestane—everolimus [I, B; ESMO-MCBS v2.0 score: 1], fulvestrant—everolimus [II, B; not EMA or FDA approved] or tamoxifen—everolimus [II, B; not EMA or FDA approved] can be recommended in the absence of targetable alterations in patients suitable for everolimus.\n\nSteroid mouthwash is recommended for stomatitis prophylaxis in patients receiving everolimus [V, A].\n\nFulvestrant—CDK4/6 inhibitor switch [II, C] or fulvestrant monotherapy (to a lesser extent) [I, C; ESMO-MCBS v2.0 score: 1] may be considered in the absence of targetable alterations.",
+    "text": "MANAGEMENT OF LUMINAL MBC > Second-line treatment\n\nOFS or ovarian ablation is recommended in addition to all endocrine-based therapies in pre- and perimenopausal women [I, A].\n\nSelection of second-line therapy (endocrine or nonendocrine) based on disease aggressiveness, disease extent, organ function, progression-free survival on prior ET, somatic and germline mutation status and the associated toxicity profile, can be recommended [V, B].\n\nFulvestrant—capivasertib is recommended for patients with tumours harbouring PIK3CA, AKT1 or PTEN alterations who experience relapse or disease progression during or after treatment with an AI with or without previous CDK4/6 inhibitor therapy [I, A; ESMO-MCBS v2.0 score: 2].\n\nFulvestrant—alpelisib can be recommended for patients with PIK3CA-mutated tumours (in exons 7, 9 or 20), prior exposure to an AI (with or without CDK4/6 inhibitors) and appropriate glycated haemoglobin levels [I, B; ESMO-MCBS v2.0 score: 1].\n\nElacestrant [I, A; ESMO-MCBS v2.0 score: 3] or imlunestrant [I, A; ESMO-MCBS v2.0 score: 3] are recommended for patients with ESR1-mutated MBC after at least one line of ET, who preferably had a prolonged response to previous CDK4/6 inhibitor therapy.\n\nPoly (ADP-ribose) polymerase inhibitor (PARPi) monotherapy is recommended for patients with a germline BRCA1/2 mutation [I, A]. Options include olaparib (ESMO-MCBS v2.0 score: 4) or talazoparib (ESMO-MCBS v2.0 score: 3).\n\nOlaparib or talazoparib can be recommended for patients with a germline PALB2 mutation [II, B; not European Medicines Agency (EMA) or Food and Drug Administration (FDA) approved].\n\nFor patients with tumours harbouring somatic pathogenic or likely pathogenic BRCA1/2 mutations, PARPi monotherapy can also be recommended [II, B].\n\nExemestane—everolimus [I, B; ESMO-MCBS v2.0 score: 1], fulvestrant—everolimus [II, B; not EMA or FDA approved] or tamoxifen—everolimus [II, B; not EMA or FDA approved] can be recommended in the absence of targetable alterations in patients suitable for everolimus.\n\nSteroid mouthwash is recommended for stomatitis prophylaxis in patients receiving everolimus [V, A].\n\nFulvestrant—CDK4/6 inhibitor switch [II, C] or fulvestrant monotherapy (to a lesser extent) [I, C; ESMO-MCBS v2.0 score: 1] may be considered in the absence of targetable alterations.",
     "setting": [
       "metastatic"
     ],
@@ -1765,15 +1765,15 @@
       "PTEN-alt"
     ],
     "drugs": [
-      "imlunestrant",
       "capivasertib",
+      "imlunestrant",
       "elacestrant",
-      "talazoparib",
       "fulvestrant",
+      "talazoparib",
       "everolimus",
       "exemestane",
-      "alpelisib",
       "tamoxifen",
+      "alpelisib",
       "olaparib"
     ],
     "evidence": null,
@@ -1858,7 +1858,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": "esmo-mbc-2026-05-luminal-2l",
-    "text": "Fulvestrant—capivasertib is recommended for patients with tumours harbouring PIK3CA , AKT1 or PTEN alterations who experience relapse or disease progression during or after treatment with an AI with or without previous CDK4/6 inhibitor therapy [I, A; ESMO-MCBS v2.0 score: 2].",
+    "text": "Fulvestrant—capivasertib is recommended for patients with tumours harbouring PIK3CA, AKT1 or PTEN alterations who experience relapse or disease progression during or after treatment with an AI with or without previous CDK4/6 inhibitor therapy [I, A; ESMO-MCBS v2.0 score: 2].",
     "setting": [
       "metastatic"
     ],
@@ -2205,8 +2205,8 @@
     ],
     "drugs": [
       "nab-paclitaxel",
-      "datopotamab deruxtecan",
       "trastuzumab deruxtecan",
+      "datopotamab deruxtecan",
       "sacituzumab govitecan",
       "capecitabine",
       "bevacizumab"
@@ -2725,14 +2725,14 @@
       "trastuzumab emtansine",
       "nab-paclitaxel",
       "capecitabine",
-      "vinorelbine",
       "palbociclib",
       "trastuzumab",
+      "vinorelbine",
       "pertuzumab",
       "paclitaxel",
-      "tucatinib",
       "lapatinib",
       "docetaxel",
+      "tucatinib",
       "trastuzumab deruxtecan"
     ],
     "evidence": null,
@@ -2993,8 +2993,8 @@
     "drugs": [
       "trastuzumab",
       "pertuzumab",
-      "tucatinib",
-      "docetaxel"
+      "docetaxel",
+      "tucatinib"
     ],
     "evidence": {
       "loe": "I",
@@ -3577,12 +3577,12 @@
     ],
     "biomarker_tags": [],
     "drugs": [
-      "margetuximab",
       "capecitabine",
+      "margetuximab",
       "trastuzumab",
       "neratinib",
-      "tucatinib",
       "lapatinib",
+      "tucatinib",
       "trastuzumab emtansine"
     ],
     "evidence": null,
@@ -3652,8 +3652,8 @@
     "drugs": [
       "capecitabine",
       "trastuzumab",
-      "tucatinib",
-      "lapatinib"
+      "lapatinib",
+      "tucatinib"
     ],
     "evidence": {
       "loe": "I",
@@ -3689,8 +3689,8 @@
     ],
     "biomarker_tags": [],
     "drugs": [
-      "margetuximab",
       "capecitabine",
+      "margetuximab",
       "neratinib"
     ],
     "evidence": {
@@ -3804,13 +3804,13 @@
       "pembrolizumab",
       "capecitabine",
       "atezolizumab",
+      "gemcitabine",
       "talazoparib",
       "carboplatin",
-      "gemcitabine",
       "bevacizumab",
       "paclitaxel",
-      "datopotamab deruxtecan",
-      "olaparib"
+      "olaparib",
+      "datopotamab deruxtecan"
     ],
     "evidence": null,
     "superseded_by": null,
@@ -3882,8 +3882,8 @@
     "drugs": [
       "nab-paclitaxel",
       "pembrolizumab",
-      "carboplatin",
       "gemcitabine",
+      "carboplatin",
       "paclitaxel"
     ],
     "evidence": {
@@ -4147,9 +4147,9 @@
     "drugs": [
       "sacituzumab govitecan",
       "capecitabine",
-      "vinorelbine",
       "talazoparib",
       "carboplatin",
+      "vinorelbine",
       "olaparib",
       "eribulin",
       "trastuzumab deruxtecan"
@@ -5495,8 +5495,8 @@
       "fulvestrant",
       "trastuzumab",
       "neratinib",
-      "tucatinib",
       "lapatinib",
+      "tucatinib",
       "trastuzumab deruxtecan",
       "trastuzumab emtansine"
     ],
@@ -5643,8 +5643,8 @@
       "capecitabine",
       "trastuzumab",
       "neratinib",
-      "tucatinib",
       "lapatinib",
+      "tucatinib",
       "trastuzumab deruxtecan"
     ],
     "evidence": {

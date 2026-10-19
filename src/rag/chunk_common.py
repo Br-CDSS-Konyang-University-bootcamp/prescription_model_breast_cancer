@@ -37,6 +37,9 @@ def clean_text(text: str) -> str:
     text = text.replace("&gt;", ">").replace("&lt;", "<").replace("&amp;", "&")
     # 단어 사이 en dash는 하이픈으로 맞춘다 (receptor–positive → receptor-positive). 아형·태그 규칙이 하이픈을 찾는다
     text = re.sub(r"(?<=\w)–(?=\w)", "-", text)
+    text = re.sub(r"(?<=\w)\s?[–—]\s(?=(positive|negative)\b)", "-", text)  # "receptor– positive" (줄바꿈 자리)
+    text = re.sub(r"[ \t]+(?=[,;])", "", text)  # 기울임 표시를 지운 자리의 "PIK3CA , AKT1"
+    text = re.sub(r"(?<=[<>≤≥])[ \t]+(?=\d)", "", text)  # "> 12 months" → ">12 months"
     return text
 
 

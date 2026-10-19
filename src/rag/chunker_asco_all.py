@@ -50,7 +50,7 @@ QUESTION_HEADER = re.compile(r"^#+\s*Question:\s*(.+)$", re.IGNORECASE)
 # 권고 뒤에 이어 붙이는 문단
 REC_CONTINUATION = re.compile(r"^(- |Practical information|Qualifying statement|Note\b)", re.IGNORECASE)
 # 표, 그림 설명 등 권고가 아닌 문단
-NOT_TEXT = re.compile(r"^(TABLE|FIG|\||NOTE\.|Abbreviations|\(continued)", re.IGNORECASE)
+NOT_TEXT = re.compile(r"^(TABLE|FIG|\||NOTE\.|Abbreviations|\(continued|Accepted on)", re.IGNORECASE)
 EVIDENCE = re.compile(r"Evidence quality:\s*([A-Za-z/\-]+).*?Strength of recommendation:\s*([A-Za-z/\-]+)",
                       re.IGNORECASE | re.DOTALL)
 
@@ -178,6 +178,8 @@ def extract_chunks_from_asco_md(md_path: Path) -> list[dict]:
             close()
         else:
             current[2].append(para)
+            if current[0] == "rapid" and EVIDENCE.search(para):
+                close()  # rapid update 권고는 근거 수준 표시로 끝난다. 뒤 문단은 쪽 옆 칸의 글이 섞여 들 수 있다
     close()
 
     # 같은 권고가 요약 상자와 본문에 반복된다. 텍스트가 덜 깨진 쪽 하나만 쓴다
