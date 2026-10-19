@@ -10,13 +10,8 @@ PIK3CA,Q546R,alpelisib,"therascreen PIK3CA RGQ PCR Kit (QIAGEN 제품 페이지,
 PIK3CA,H1047L,alpelisib,"therascreen PIK3CA RGQ PCR Kit (QIAGEN 제품 페이지, AccessGUDID 04053228034223)",yes,exon 20
 PIK3CA,H1047R,alpelisib,"therascreen PIK3CA RGQ PCR Kit (QIAGEN 제품 페이지, AccessGUDID 04053228034223)",yes,exon 20
 PIK3CA,H1047Y,alpelisib,"therascreen PIK3CA RGQ PCR Kit (QIAGEN 제품 페이지, AccessGUDID 04053228034223)",yes,exon 20
-AKT1,E17K,capivasertib,"TRUQAP(capivasertib) FDA 라벨 2023, FoundationOne CDx",no,원문 확인 필요
-ESR1,E380Q,elacestrant,"ORSERDU(elacestrant) FDA 라벨 2023, Guardant360 CDx",no,원문 확인 필요
-ESR1,S463P,elacestrant,"ORSERDU(elacestrant) FDA 라벨 2023, Guardant360 CDx",no,원문 확인 필요
-ESR1,L536H,elacestrant,"ORSERDU(elacestrant) FDA 라벨 2023, Guardant360 CDx",no,원문 확인 필요
-ESR1,L536P,elacestrant,"ORSERDU(elacestrant) FDA 라벨 2023, Guardant360 CDx",no,원문 확인 필요
-ESR1,L536R,elacestrant,"ORSERDU(elacestrant) FDA 라벨 2023, Guardant360 CDx",no,원문 확인 필요
-ESR1,Y537C,elacestrant,"ORSERDU(elacestrant) FDA 라벨 2023, Guardant360 CDx",no,원문 확인 필요
-ESR1,Y537N,elacestrant,"ORSERDU(elacestrant) FDA 라벨 2023, Guardant360 CDx",no,원문 확인 필요
-ESR1,Y537S,elacestrant,"ORSERDU(elacestrant) FDA 라벨 2023, Guardant360 CDx",no,원문 확인 필요
-ESR1,D538G,elacestrant,"ORSERDU(elacestrant) FDA 라벨 2023, Guardant360 CDx",no,원문 확인 필요
+AKT1,E17K,capivasertib,handoff_to_B.md §5.4 예시 (카피바설팁),no,원문 확인 전
+ESR1,Y537C,elacestrant,handoff_to_B.md §5.4 예시 (엘라세스트란트 동반진단),no,원문 확인 전
+ESR1,Y537N,elacestrant,handoff_to_B.md §5.4 예시 (엘라세스트란트 동반진단),no,원문 확인 전
+ESR1,Y537S,elacestrant,handoff_to_B.md §5.4 예시 (엘라세스트란트 동반진단),no,원문 확인 전
+ESR1,D538G,elacestrant,handoff_to_B.md §5.4 예시 (엘라세스트란트 동반진단),no,원문 확인 전

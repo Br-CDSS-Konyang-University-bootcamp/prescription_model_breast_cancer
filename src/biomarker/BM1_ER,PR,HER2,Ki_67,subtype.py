@@ -13,9 +13,9 @@
 이 파일은 규칙만 쓴다. LLM은 쓰지 않는다.
 재발 환자는 value(재생검 결과)로 판정하고, history[]의 원발 결과와 비교한 설명을 reason 끝에 붙인다.
 유전자 변이(ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2)는 허가 변이 목록(actionable_variants.csv)과
-절단 변이로 판정하고, BRCA1·BRCA2·PALB2·PTEN은 BM-3 ClinVar로 다시 가른다 (2026-10-19). 유전자 검사 공백(BM-4)은
+절단 변이로 판정하고, BM-3로 BRCA1·BRCA2·PALB2·PTEN은 ClinVar, PIK3CA·AKT1·PTEN은 CIViC로 다시 가른다 (2026-10-19). 유전자 검사 공백(BM-4)은
 미시행만 권고한다. 차수(setting.line)는 A가 넘긴 treatment_history[].line으로 채운다 (6.2절, draft6, 2026-10-19).
-아직 다루지 않는 것: BM-1 보고서 파싱, BM-3 CIViC, 국소 재발 후 보조요법(SET-LOCAL-ADJ, 6.4절).
+아직 다루지 않는 것: BM-1 보고서 파싱, BM-3 VEP, 국소 재발 후 보조요법(SET-LOCAL-ADJ, 6.4절).
 PD-L1은 약제별 기준(22C3 CPS ≥ 10, SP142 IC ≥ 1%)으로 판정한다 (6.5절, 2026-10-16)
 """
 
@@ -80,12 +80,18 @@ def _record(marker, status, reason, rule_id, field=None, evidence=None, tags=Non
     }
 
 
+# 미시행 중 검사를 의뢰·예약한 경우 A가 raw에 넣는 고정 표기 (schema_fields.md 2절, draft6).
+# 이때는 검사 권고 대신 "결과 확인"으로 낸다 (전달 문서 0절 5번, B 결정 2026-10-19)
+PENDING_RAW = {"결과 대기": "PENDING", "예정": "SCHEDULED"}
+
+
 def _gate(marker, field, rule_prefix):
     """칸이 없거나 미시행/기록 없음이면 바로 그 상태를 돌려준다. 값이 있으면 None."""
     if not field or field.get("status") in (None, "not_recorded"):
         return _record(marker, "not_recorded", f"{marker} 기록 없음", f"{rule_prefix}-NOTRECORDED", field)
     if field.get("status") == "not_done":
-        return _record(marker, "not_done", f"{marker} 미시행", f"{rule_prefix}-NOTDONE", field)
+        note = f" ({field['raw']})" if field.get("raw") in PENDING_RAW else ""
+        return _record(marker, "not_done", f"{marker} 미시행{note}", f"{rule_prefix}-NOTDONE", field)
     return None
 
 
@@ -454,10 +460,11 @@ def molecular_subtype_of(subtype, ki67):
 
 
 # ------------------------------------------------------------------- PD-L1
-# (검사법, 점수 종류) -> (양성 최소값, 약, 근거, 태그). 전달 문서 6.5절, PROJECT.md 5절
+# (검사법, 점수 종류) -> (양성 최소값, 약, 근거, 태그). 전달 문서 6.5절, PROJECT.md 5절.
+# 태그는 C의 표준 태그 PD-L1+ (rag_guideline_chunking_design_update.md 3.5절)
 PDL1_RULES = {
-    ("22C3", "CPS"): (PDL1_22C3_CPS_MIN, "pembrolizumab", "심평원 공고 p.58~59", "PD-L1-CPS10"),
-    ("SP142", "IC"): (PDL1_SP142_IC_MIN, "atezolizumab", "ESMO MBC", "PD-L1-SP142"),
+    ("22C3", "CPS"): (PDL1_22C3_CPS_MIN, "pembrolizumab", "심평원 공고 p.58~59", "PD-L1+"),
+    ("SP142", "IC"): (PDL1_SP142_IC_MIN, "atezolizumab", "ESMO MBC", "PD-L1+"),
 }
 
 
@@ -491,12 +498,14 @@ def judge_pdl1(field):
 GENES = ("ESR1", "PIK3CA", "AKT1", "PTEN", "BRCA1", "BRCA2", "PALB2")
 # 허가 동반진단 변이 목록이 있는 유전자 (actionable_variants.csv)
 LABEL_GENES = {"PIK3CA", "AKT1", "ESR1"}
-# 절단 변이(nonsense, frameshift, 필수 스플라이스 부위)를 기능 소실 양성으로 보는 유전자
-TRUNCATING_GENES = {"PTEN", "BRCA1", "BRCA2", "PALB2"}
+# 절단 변이(nonsense, frameshift, 필수 스플라이스 부위)를 양성으로 보는 유전자. PTEN은 전달 문서 5.4절,
+# BRCA1/2는 4.7절 (TCGA: ClinVar 병원성 또는 절단 변이). PALB2는 5.4절에 ClinVar 기준만 있어 넣지 않는다
+TRUNCATING_GENES = {"PTEN", "BRCA1", "BRCA2"}
 TRUNCATING_TYPES = {"Nonsense_Mutation", "Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site"}
 ACTIONABLE_CSV = Path(__file__).resolve().parent / "actionable_variants.csv"
-GENE_TAGS = {"PIK3CA": "PIK3CA-mut", "AKT1": "AKT1-mut", "PTEN": "PTEN-loss", "ESR1": "ESR1-mut",
-             "PALB2": "PALB2-mut", "gBRCA1": "gBRCA", "gBRCA2": "gBRCA", "sBRCA1": "sBRCA", "sBRCA2": "sBRCA"}
+# rag_tags는 청크 biomarker_tags와 같은 어휘 (src/rag/rag_guideline_chunking_design_update.md 3.5절 표준 태그)
+GENE_TAGS = {"PIK3CA": "PIK3CA-mut", "AKT1": "AKT1-mut", "PTEN": "PTEN-alt", "ESR1": "ESR1-mut",
+             "PALB2": "gPALB2", "gBRCA1": "gBRCA", "gBRCA2": "gBRCA", "sBRCA1": "sBRCA", "sBRCA2": "sBRCA"}
 
 
 def _actionable():
@@ -511,11 +520,12 @@ def _actionable():
 
 
 # BM-3 ClinVar (전달 문서 5.4절). data/script/clinvar_download.py가 만든 표를 로컬에서만 조회한다
-CLINVAR_CSV = Path(__file__).resolve().parents[2] / "data" / "clinvar" / "clinvar_bm3_genes.csv"
+# git에 올리지 않는 파일 (전달 문서 5.6절). 없으면 ClinVar 조회 없이 VUS로 남는다
+CLINVAR_CSV = Path(__file__).resolve().parents[2] / "data" / "clinvar" / "clinvar_bm3_genes.tsv"
 CLINVAR_GENES = {"BRCA1", "BRCA2", "PALB2", "PTEN"}
-# 양성으로 볼 최소 리뷰 등급(별). gBRCA·PALB2는 2성 이상 (PROJECT.md 5절). PTEN은 문서에 등급 조건이 없어
-# 근거 기준이 없는 0성만 뺀다 (2026-10-19)
-CLINVAR_MIN_STARS = {"BRCA1": 2, "BRCA2": 2, "PALB2": 2, "PTEN": 1}
+# 양성으로 볼 최소 리뷰 등급(별). gBRCA·PALB2는 2성 이상 (PROJECT.md 5절, 전달 문서 5.4절).
+# PTEN은 문서에 등급 조건이 없다 ("ClinVar 병원성·병원성 가능")
+CLINVAR_MIN_STARS = {"BRCA1": 2, "BRCA2": 2, "PALB2": 2, "PTEN": 0}
 CLINVAR_PATHOGENIC = {"Pathogenic", "Likely pathogenic", "Pathogenic/Likely pathogenic"}
 
 
@@ -525,7 +535,7 @@ def _clinvar():
         table = {}
         if CLINVAR_CSV.exists():
             with open(CLINVAR_CSV, encoding="utf-8") as fh:
-                for r in csv.DictReader(fh):
+                for r in csv.DictReader(fh, delimiter="\t"):
                     r["stars"] = int(r["stars"])
                     table.setdefault((r["gene"], r["protein_change"]), []).append(r)
         _clinvar.cache = table
@@ -547,14 +557,52 @@ def _clinvar_best(gene, variants):
     return best[1], best[2], best[0][0]
 
 
+# BM-3 CIViC (전달 문서 5.4절 2순위). data/script/civic_download.py가 만든 표를 로컬에서만 조회한다.
+# 표에는 변이 하나를 지목한 발암성·예측(Sensitivity/Response) 근거만 들어 있다
+# 파일명에 받은 날짜가 붙는다 (전달 문서 5.6절). 가장 최근 파일을 쓴다
+CIVIC_DIR = Path(__file__).resolve().parents[2] / "data" / "civic"
+CIVIC_CSV = max(CIVIC_DIR.glob("civic_bm3_evidence_*.csv"), default=CIVIC_DIR / "civic_bm3_evidence_없음.csv")
+CIVIC_GENES = {"PIK3CA", "AKT1", "PTEN"}
+# 허가 목록에 없는데 CIViC 근거로 양성이면 붙이는 태그 (PTEN은 허가 목록 단계가 없어 붙이지 않는다)
+OFF_LABEL_TAG = "off-label-variant"
+
+
+def _civic():
+    """{(유전자, 단백질 변화): [행, ...]}. 파일이 없으면 빈 표."""
+    if not hasattr(_civic, "cache"):
+        table = {}
+        if CIVIC_CSV.exists():
+            with open(CIVIC_CSV, encoding="utf-8") as fh:
+                for r in csv.DictReader(fh):
+                    table.setdefault((r["gene"], r["protein_change"]), []).append(r)
+        _civic.cache = table
+    return _civic.cache
+
+
+def _civic_best(gene, variants):
+    """검출 변이 중 CIViC 근거 등급이 가장 높은 (변이, 행). 등급이 같으면 유방암 근거를 먼저. 없으면 (None, None)."""
+    best = None
+    for v in variants:
+        for r in _civic().get((gene, v.get("protein_change")), []):
+            key = (r["evidence_level"], "breast" not in r["disease"].lower())
+            if best is None or key < best[0]:
+                best = (key, v, r)
+    return (best[1], best[2]) if best else (None, None)
+
+
+def _civic_text(row):
+    therapy = f", {row['therapies']}" if row["therapies"] else ""
+    return (f"CIViC 근거 등급 {row['evidence_level']} ({row['evidence_type']} {row['significance']}, "
+            f"{row['disease']}{therapy}, EID{row['evidence_id']})")
+
+
 def _clinvar_text(row):
     return f"{row['clinical_significance']} ({row['stars']}성, VCV{row['variation_id']})"
 
 
 def _is_truncating(variant):
-    change = variant.get("protein_change") or ""
-    return (variant.get("variant_type") in TRUNCATING_TYPES
-            or change.endswith("*") or "fs" in change or change.endswith("_splice"))
+    """전달 문서 5.4절의 절단형 (nonsense, frameshift, 필수 스플라이스 부위). 변이 종류 칸으로만 판단한다."""
+    return variant.get("variant_type") in TRUNCATING_TYPES
 
 
 def _gene_marker(gene, patient_ref):
@@ -606,6 +654,21 @@ def judge_gene(gene, field, patient_ref=""):
             hit, rule_id = cv_variant, f"BM3-{gene}-CLINVAR"
             why = f"ClinVar {_clinvar_text(cv_row)}, 파일 {CLINVAR_CSV.name}"
 
+    # BM-3: 허가 목록·절단 변이·ClinVar로 양성이 아니면 CIViC 근거로 다시 가른다 (5.4절)
+    tags = [GENE_TAGS[marker]]
+    civic_note = ""
+    if not hit and gene in CIVIC_GENES:
+        cv2_variant, civic_row = _civic_best(gene, variants)
+        if civic_row:
+            hit, rule_id = cv2_variant, f"BM3-{gene}-CIVIC"
+            why = f"{_civic_text(civic_row)}, 파일 {CIVIC_CSV.name}"
+            if gene in LABEL_GENES:
+                why += ". 허가 동반진단 목록 밖 변이"
+                tags.append(OFF_LABEL_TAG)
+        else:
+            civic_note = " CIViC 근거 없음." if CIVIC_CSV.exists() else \
+                " CIViC 파일 없음 (data/script/civic_download.py 실행 필요)."
+
     picked = hit or cv_variant or variants[0]
     evidence = {"variant": f"p.{picked['protein_change']}" if picked.get("protein_change") else None,
                 "vaf": picked.get("vaf")}
@@ -613,17 +676,17 @@ def judge_gene(gene, field, patient_ref=""):
         evidence["clinvar"] = _clinvar_text(cv_row)
     if hit:
         return _record(marker, "positive", f"{gene} {_variant_text(variants)} → 양성: {why}",
-                       rule_id, field, evidence, [GENE_TAGS[marker]])
+                       rule_id, field, evidence, tags)
     if gene in CLINVAR_GENES:
         cv_note = (f"ClinVar {_clinvar_text(cv_row)}는 양성 기준(병원성·병원성 가능, "
                    f"{CLINVAR_MIN_STARS[gene]}성 이상)에 못 미침" if cv_row else "ClinVar에 없음")
         if not CLINVAR_CSV.exists():
             cv_note = "ClinVar 파일 없음 (data/script/clinvar_download.py 실행 필요)"
-        return _record(marker, "vus", f"{gene} {_variant_text(variants)} → 의미 불명 변이(VUS). {cv_note}. "
-                       "음성으로 처리하되 표시 유지", f"BM2-{gene}-VUS", field, evidence)
+        return _record(marker, "vus", f"{gene} {_variant_text(variants)} → 의미 불명 변이(VUS). {cv_note}."
+                       f"{civic_note} 음성으로 처리하되 표시 유지", f"BM2-{gene}-VUS", field, evidence)
     return _record(marker, "vus",
-                   f"{gene} {_variant_text(variants)} → 의미 불명 변이(VUS). 음성으로 처리하되 표시 유지. "
-                   "BM-3(CIViC) 조회로 다시 판정 예정", f"BM2-{gene}-VUS", field, evidence)
+                   f"{gene} {_variant_text(variants)} → 의미 불명 변이(VUS).{civic_note} 음성으로 처리하되 표시 유지",
+                   f"BM2-{gene}-VUS", field, evidence)
 
 
 def _endocrine_progressed(fields):
@@ -631,8 +694,7 @@ def _endocrine_progressed(fields):
     classes = _drug_class_map()
     for t in fields.get("treatment_history") or []:
         endocrine = any(classes.get(d) == "Hormone Therapy" for d in t.get("drugs") or [])
-        progressed = (t.get("best_response") == "PD" or t.get("stop_reason") == "progression"
-                      or t.get("progression_day") is not None)
+        progressed = t.get("best_response") == "PD" or t.get("stop_reason") == "progression"
         if endocrine and progressed:
             return True
     return False
@@ -679,15 +741,15 @@ def _line_label(n):
 def line_of(fields, disease):
     """setting.line (전달 문서 6.2절, draft6). 차수는 A가 treatment_history[].line에 계산해 넘긴다.
     전이성: 마지막 고식적 요법의 차수. 그 요법이 진행(PD, progression)으로 끝났으면 다음 차수를 추천 대상으로 본다
-    (전달 문서 8.2절 예시: 1차 letrozole + palbociclib 진행 -> 2L). 전이 후 투약이 없으면 1L.
-    전이성이 아니면 마지막 투약의 setting (neoadjuvant / adjuvant)."""
+    (전달 문서 8.2절 예시: 1차 letrozole + palbociclib 진행 -> 2L). 전이 후 투약이 없으면 unknown.
+    전이성이 아니면 마지막 선행·보조 투약에 A가 적은 setting (neoadjuvant / adjuvant)을 그대로 쓴다."""
     history = [t for t in fields.get("treatment_history") or [] if t.get("drugs")]
     if disease == "metastatic":
         lined = [t for t in history if t.get("line")]
         if not lined:
             if any(t.get("setting") == "metastatic" for t in history):
                 return "unknown", "전이 후 투약은 있지만 차수 정보(line)가 없음"
-            return "1L", "전이 후 투약 기록 없음 -> 1차 치료 대상"
+            return "unknown", "전이 후 투약 기록 없음 (전달 문서에 정해진 규칙 없음)"
         last = max(t["line"] for t in lined)
         regimen = [t for t in lined if t["line"] == last]
         drugs = " + ".join(sorted({d for t in regimen for d in t["drugs"]}))
@@ -739,16 +801,23 @@ def setting_of(fields):
 def tests_needed_of(by, subtype, disease, fields):
     """검사 공백 (PROJECT.md 5절). 미시행(not_done)만 권고하고, 기록 없음은 권고하지 않는다 (PROJECT.md 4절)."""
     out = []
+    receptors = fields.get("receptors") or {}
+    mutations = (fields.get("molecular") or {}).get("mutations") or {}
 
-    def add(test, reason, rule_id):
+    def add(test, reason, rule_id, field=None):
+        """field가 미시행이면서 raw가 "결과 대기"·"예정"이면 검사 권고 대신 결과 확인으로 바꾼다."""
+        raw = (field or {}).get("raw") if (field or {}).get("status") == "not_done" else None
+        if raw in PENDING_RAW:
+            test, rule_id = f"{test} 결과 확인", f"{rule_id}-{PENDING_RAW[raw]}"
+            reason = f"{reason} / 검사 {raw}: 새 검사 대신 결과 확인 필요"
         out.append({"test": test, "reason": reason, "rule_id": rule_id})
 
-    for m in ("ER", "PR", "HER2"):
+    for m, key in (("ER", "er_percent"), ("PR", "pr_percent"), ("HER2", "her2_ihc")):
         if by[m]["status"] == "not_done":
-            add(f"{m} IHC", f"{m} 미시행. 아형을 정할 수 없음", f"BM4-{m}")
+            add(f"{m} IHC", f"{m} 미시행. 아형을 정할 수 없음", f"BM4-{m}", receptors.get(key))
     her2 = by["HER2"]
     if her2["rule_id"] in ("BM2-HER2-2PLUS-NOISH", "BM2-HER2-2PLUS-RESULT-POS"):
-        add("HER2 ISH (FISH·SISH)", her2["reason"], "BM4-HER2-ISH")
+        add("HER2 ISH (FISH·SISH)", her2["reason"], "BM4-HER2-ISH", receptors.get("her2_ish"))
 
     if disease != "metastatic":
         return out
@@ -756,23 +825,25 @@ def tests_needed_of(by, subtype, disease, fields):
         add("HER2 IHC 재판정", f"전이성인데 HER2 {her2['status']} ({her2['reason']}). "
                             "0/초저발현/저발현까지 재판정했는지 확인", "BM4-HER2-REASSESS")
     if subtype == "TNBC":
-        pdl1 = (fields.get("receptors") or {}).get("pdl1") or {}
+        pdl1 = receptors.get("pdl1") or {}
         if pdl1.get("status") == "not_done":
-            add("PD-L1 (22C3 CPS, SP142 IC)", "전이성 TNBC인데 PD-L1 미시행", "BM4-PDL1")
+            add("PD-L1 (22C3 CPS, SP142 IC)", "전이성 TNBC인데 PD-L1 미시행", "BM4-PDL1", pdl1)
 
     # 유전자 (PROJECT.md 5절 검사 공백 규칙). 미시행만 권고한다. 생식세포 BRCA가 기록 없음이거나
     # 레코드가 sBRCA뿐이면(TCGA가 아닌 차트) 권고하지 않는다 (전달 문서 4.7절, B 결정 2026-10-16)
     if subtype in ("HR+/HER2-", "TNBC"):
         for m in ("gBRCA1", "gBRCA2", "PALB2"):
             if by.get(m, {}).get("status") == "not_done":
-                add(f"{m} (생식세포 검사)", f"전이성 HER2 음성인데 {m} 미시행. PARP 억제제 대상 확인", f"BM4-{m.upper()}")
+                add(f"{m} (생식세포 검사)", f"전이성 HER2 음성인데 {m} 미시행. PARP 억제제 대상 확인", f"BM4-{m.upper()}",
+                    mutations.get(m.lstrip("g")))
     if subtype == "HR+/HER2-":
         for m in ("PIK3CA", "AKT1", "PTEN"):
             if by.get(m, {}).get("status") == "not_done":
-                add(m, f"전이성 HR+/HER2-인데 {m} 미시행. PI3K·AKT 억제제 대상 확인", f"BM4-{m}")
+                add(m, f"전이성 HR+/HER2-인데 {m} 미시행. PI3K·AKT 억제제 대상 확인", f"BM4-{m}", mutations.get(m))
         esr1 = by.get("ESR1", {})
         if esr1.get("status") == "not_done":
-            add("ESR1 (cfDNA)", "전이성 HR+/HER2-인데 ESR1 미시행. 경구 SERD 대상 확인", "BM4-ESR1")
+            add("ESR1 (cfDNA)", "전이성 HR+/HER2-인데 ESR1 미시행. 경구 SERD 대상 확인", "BM4-ESR1",
+                mutations.get("ESR1"))
         elif esr1.get("status") == "retest_needed":
             add("ESR1 (cfDNA)", esr1["reason"], "BM4-ESR1-RETEST")
     return out
