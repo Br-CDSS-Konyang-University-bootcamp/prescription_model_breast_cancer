@@ -6,7 +6,7 @@ import json
 import re
 from pathlib import Path
 
-from .chunk_common import PARSED_MD_DIR, CHUNKS_DIR, clean_text, parse_version, make_chunk
+from .chunk_common import PARSED_MD_DIR, CHUNKS_DIR, clean_text, parse_version, make_chunk, stable_key
 
 COPYRIGHT = "Copyright © American Society of Clinical Oncology. All rights reserved"
 EBC = ["early", "locally_advanced"]
@@ -179,7 +179,6 @@ def extract_chunks_from_asco_md(md_path: Path) -> list[dict]:
                 best_rec[key] = i
 
     chunks = []
-    counters = {"rapid": 0, "qualifying": 0, "question": 0}
     for i, (kind, key, body) in enumerate(blocks):
         if kind == "rapid" and any(REC_START.match(p) for p in body):
             continue  # 번호 있는 권고는 rec 블록으로 이미 잡힘
@@ -194,14 +193,14 @@ def extract_chunks_from_asco_md(md_path: Path) -> list[dict]:
             section = f"Recommendation {key}"
             chunk_kind = "recommendation"
         else:
-            counters[kind] += 1
-            n = counters[kind]
+            # 번호가 없는 블록은 순서 번호 대신 문장 지문을 쓴다 (질문은 질문 제목, 나머지는 첫 문단)
+            fingerprint = stable_key(key if kind == "question" else body[0])
             if kind == "rapid":
-                chunk_id, section, chunk_kind = f"{id_prefix}-rapid-r{n:02d}", "UPDATED RECOMMENDATION", "recommendation"
+                chunk_id, section, chunk_kind = f"{id_prefix}-rapid-{fingerprint}", "UPDATED RECOMMENDATION", "recommendation"
             elif kind == "qualifying":
-                chunk_id, section, chunk_kind = f"{id_prefix}-qs{n:02d}", "QUALIFYING STATEMENT", "section"
+                chunk_id, section, chunk_kind = f"{id_prefix}-qs-{fingerprint}", "QUALIFYING STATEMENT", "section"
             else:
-                chunk_id, section, chunk_kind = f"{id_prefix}-q{n:02d}", f"Question: {key}", "section"
+                chunk_id, section, chunk_kind = f"{id_prefix}-q-{fingerprint}", f"Question: {key}", "section"
                 chunk_text = f"Question: {key}\n\n{chunk_text}"
 
         line = _line(chunk_text, setting, default_line)

@@ -1,7 +1,7 @@
 [
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-hrpos-r01",
+    "chunk_id": "esmo-ebc-2024-02-hrpos-5d1b15",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -35,7 +35,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-hrpos-r02",
+    "chunk_id": "esmo-ebc-2024-02-hrpos-941c55",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -69,7 +69,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-hrpos-r03",
+    "chunk_id": "esmo-ebc-2024-02-hrpos-6d44cc",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -103,7 +103,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-hrpos-r04",
+    "chunk_id": "esmo-ebc-2024-02-hrpos-ca0c8d",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -137,7 +137,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-hrpos-r05",
+    "chunk_id": "esmo-ebc-2024-02-hrpos-6308eb",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -173,7 +173,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-hrpos-r06",
+    "chunk_id": "esmo-ebc-2024-02-hrpos-0656d9",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -209,7 +209,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-hrpos-r07",
+    "chunk_id": "esmo-ebc-2024-02-hrpos-fca2a7",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -243,7 +243,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-hrpos-r08",
+    "chunk_id": "esmo-ebc-2024-02-hrpos-1f97a2",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -279,7 +279,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-hrpos-r09",
+    "chunk_id": "esmo-ebc-2024-02-hrpos-cca75c",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -313,7 +313,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-hrpos-r10",
+    "chunk_id": "esmo-ebc-2024-02-hrpos-7568e8",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -352,7 +352,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-hrpos-r11",
+    "chunk_id": "esmo-ebc-2024-02-hrpos-936c81",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -390,7 +390,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-hrpos-r12",
+    "chunk_id": "esmo-ebc-2024-02-hrpos-5b21e4",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -427,7 +427,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r01",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-16dd9e",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -463,7 +463,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r02",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-0055ec",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -498,7 +498,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r03",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-a5704e",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -533,7 +533,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r04",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-5bc4eb",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -568,7 +568,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r05",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-c8f4e5",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -606,7 +606,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r06",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-47fd3b",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -643,7 +643,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r07",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-ae367a",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -681,7 +681,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r08",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-d04f07",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -719,7 +719,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r09",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-3be6fb",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -756,7 +756,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r10",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-c58918",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -794,7 +794,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r11",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-b3b5b6",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -832,7 +832,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-tnbc-r01",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-253553",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -866,7 +866,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-tnbc-r02",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-725b0b",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -902,7 +902,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-tnbc-r03",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-4b300b",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -936,7 +936,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-tnbc-r04",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-012e20",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -970,7 +970,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-tnbc-r05",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-a8984f",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -1006,7 +1006,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-tnbc-r06",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-d13ffd",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -1043,7 +1043,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-tnbc-r07",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-c2424a",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -1079,7 +1079,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-tnbc-r08",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-2b961c",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -1114,7 +1114,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-tnbc-r09",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-83cc1d",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -1152,7 +1152,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-tnbc-r10",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-f57466",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -1188,7 +1188,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-tnbc-r11",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-cd090b",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -1224,7 +1224,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-tnbc-r12",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-84c5a9",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -1263,7 +1263,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-tnbc-r13",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-2f0fc4",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -1299,7 +1299,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-1l-r01",
+    "chunk_id": "esmo-mbc-2026-05-luminal-1l-c0c05b",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -1332,7 +1332,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-1l-r02",
+    "chunk_id": "esmo-mbc-2026-05-luminal-1l-02649c",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -1354,8 +1354,8 @@
     ],
     "biomarker_tags": [],
     "drugs": [
-      "abemaciclib",
       "palbociclib",
+      "abemaciclib",
       "ribociclib"
     ],
     "evidence": {
@@ -1369,7 +1369,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-1l-r03",
+    "chunk_id": "esmo-mbc-2026-05-luminal-1l-0fd38a",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -1393,9 +1393,9 @@
       "PIK3CA-mut"
     ],
     "drugs": [
-      "abemaciclib",
-      "fulvestrant",
       "palbociclib",
+      "fulvestrant",
+      "abemaciclib",
       "ribociclib"
     ],
     "evidence": {
@@ -1409,7 +1409,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-1l-r04",
+    "chunk_id": "esmo-mbc-2026-05-luminal-1l-05a4c0",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -1433,8 +1433,8 @@
       "PIK3CA-mut"
     ],
     "drugs": [
-      "fulvestrant",
       "palbociclib",
+      "fulvestrant",
       "inavolisib"
     ],
     "evidence": {
@@ -1448,7 +1448,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-1l-r05",
+    "chunk_id": "esmo-mbc-2026-05-luminal-1l-1b9047",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -1472,9 +1472,9 @@
       "PIK3CA-mut"
     ],
     "drugs": [
-      "abemaciclib",
-      "fulvestrant",
       "palbociclib",
+      "fulvestrant",
+      "abemaciclib",
       "ribociclib"
     ],
     "evidence": {
@@ -1488,7 +1488,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-1l-r06",
+    "chunk_id": "esmo-mbc-2026-05-luminal-1l-e03e88",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -1521,7 +1521,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-1l-r07",
+    "chunk_id": "esmo-mbc-2026-05-luminal-1l-5c55b4",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -1554,7 +1554,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-2l-r01",
+    "chunk_id": "esmo-mbc-2026-05-luminal-2l-7d39d5",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -1587,7 +1587,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-2l-r02",
+    "chunk_id": "esmo-mbc-2026-05-luminal-2l-160064",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -1620,7 +1620,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-2l-r03",
+    "chunk_id": "esmo-mbc-2026-05-luminal-2l-49918b",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -1660,7 +1660,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-2l-r04",
+    "chunk_id": "esmo-mbc-2026-05-luminal-2l-8d7349",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -1698,7 +1698,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-2l-r05",
+    "chunk_id": "esmo-mbc-2026-05-luminal-2l-6dc03f",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -1736,7 +1736,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-2l-r06",
+    "chunk_id": "esmo-mbc-2026-05-luminal-2l-58026a",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -1774,7 +1774,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-2l-r07",
+    "chunk_id": "esmo-mbc-2026-05-luminal-2l-41f625",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -1810,7 +1810,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-2l-r08",
+    "chunk_id": "esmo-mbc-2026-05-luminal-2l-d6eca5",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -1843,7 +1843,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-2l-r09",
+    "chunk_id": "esmo-mbc-2026-05-luminal-2l-455f68",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -1881,7 +1881,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-2l-r10",
+    "chunk_id": "esmo-mbc-2026-05-luminal-2l-02ac43",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -1916,7 +1916,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-2l-r11",
+    "chunk_id": "esmo-mbc-2026-05-luminal-2l-4bcee1",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -1951,7 +1951,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r01",
+    "chunk_id": "esmo-mbc-2026-05-luminal-3l-46be52",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -1984,7 +1984,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r02",
+    "chunk_id": "esmo-mbc-2026-05-luminal-3l-53ed83",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2017,7 +2017,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r03",
+    "chunk_id": "esmo-mbc-2026-05-luminal-3l-67b888",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2050,7 +2050,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r04",
+    "chunk_id": "esmo-mbc-2026-05-luminal-3l-593c2a",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2083,7 +2083,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r05",
+    "chunk_id": "esmo-mbc-2026-05-luminal-3l-219e18",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2116,7 +2116,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r06",
+    "chunk_id": "esmo-mbc-2026-05-luminal-3l-70f81f",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2149,7 +2149,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r07",
+    "chunk_id": "esmo-mbc-2026-05-luminal-3l-b023e3",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2185,7 +2185,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r08",
+    "chunk_id": "esmo-mbc-2026-05-luminal-3l-72f4e5",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2220,7 +2220,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r09",
+    "chunk_id": "esmo-mbc-2026-05-luminal-3l-044c33",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2258,7 +2258,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r10",
+    "chunk_id": "esmo-mbc-2026-05-luminal-3l-990d33",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2293,7 +2293,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r11",
+    "chunk_id": "esmo-mbc-2026-05-luminal-3l-b7dc93",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2328,7 +2328,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r12",
+    "chunk_id": "esmo-mbc-2026-05-luminal-3l-5f9ed9",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2365,7 +2365,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r13",
+    "chunk_id": "esmo-mbc-2026-05-luminal-3l-ae383b",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2400,7 +2400,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r14",
+    "chunk_id": "esmo-mbc-2026-05-luminal-3l-fc6c5d",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2433,7 +2433,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-her2-1l-r01",
+    "chunk_id": "esmo-mbc-2026-05-her2-1l-8cddda",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2471,7 +2471,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-her2-1l-r02",
+    "chunk_id": "esmo-mbc-2026-05-her2-1l-fcd2c7",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2507,7 +2507,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-her2-1l-r03",
+    "chunk_id": "esmo-mbc-2026-05-her2-1l-27772e",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2546,7 +2546,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-her2-1l-r04",
+    "chunk_id": "esmo-mbc-2026-05-her2-1l-6a166b",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2583,7 +2583,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-her2-1l-r05",
+    "chunk_id": "esmo-mbc-2026-05-her2-1l-eab0c1",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2606,8 +2606,8 @@
     ],
     "biomarker_tags": [],
     "drugs": [
-      "trastuzumab",
       "palbociclib",
+      "trastuzumab",
       "pertuzumab",
       "docetaxel"
     ],
@@ -2622,7 +2622,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-her2-1l-r06",
+    "chunk_id": "esmo-mbc-2026-05-her2-1l-4be7b0",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2660,7 +2660,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-her2-1l-r07",
+    "chunk_id": "esmo-mbc-2026-05-her2-1l-9ebcd3",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2699,7 +2699,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-her2-1l-r08",
+    "chunk_id": "esmo-mbc-2026-05-her2-1l-5a1ce0",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2737,7 +2737,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-her2-1l-r09",
+    "chunk_id": "esmo-mbc-2026-05-her2-1l-406dd2",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2775,7 +2775,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-her2-1l-r10",
+    "chunk_id": "esmo-mbc-2026-05-her2-1l-2cded5",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2809,7 +2809,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-her2-1l-r11",
+    "chunk_id": "esmo-mbc-2026-05-her2-1l-f39214",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2846,7 +2846,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-her2-1l-r12",
+    "chunk_id": "esmo-mbc-2026-05-her2-1l-58a1c0",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2883,7 +2883,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-her2-1l-r13",
+    "chunk_id": "esmo-mbc-2026-05-her2-1l-fc59a0",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2917,7 +2917,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-her2-1l-r14",
+    "chunk_id": "esmo-mbc-2026-05-her2-1l-b8e579",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2955,7 +2955,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-her2-2l-r01",
+    "chunk_id": "esmo-mbc-2026-05-her2-2l-585977",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2992,7 +2992,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-her2-2l-r02",
+    "chunk_id": "esmo-mbc-2026-05-her2-2l-081a81",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -3030,7 +3030,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-her2-2l-r03",
+    "chunk_id": "esmo-mbc-2026-05-her2-2l-95a804",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -3068,7 +3068,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-her2-2l-r04",
+    "chunk_id": "esmo-mbc-2026-05-her2-2l-d1dc37",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -3102,7 +3102,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-her2-3l-r01",
+    "chunk_id": "esmo-mbc-2026-05-her2-3l-e911e5",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -3142,7 +3142,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-her2-3l-r02",
+    "chunk_id": "esmo-mbc-2026-05-her2-3l-d1dc37",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -3176,7 +3176,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-her2-4l-r01",
+    "chunk_id": "esmo-mbc-2026-05-her2-4l-4950db",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -3212,7 +3212,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-her2-4l-r02",
+    "chunk_id": "esmo-mbc-2026-05-her2-4l-e0e96f",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -3237,8 +3237,8 @@
     "drugs": [
       "capecitabine",
       "trastuzumab",
-      "tucatinib",
-      "lapatinib"
+      "lapatinib",
+      "tucatinib"
     ],
     "evidence": {
       "loe": "I",
@@ -3251,7 +3251,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-her2-4l-r03",
+    "chunk_id": "esmo-mbc-2026-05-her2-4l-dfe152",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -3274,8 +3274,8 @@
     ],
     "biomarker_tags": [],
     "drugs": [
-      "capecitabine",
       "margetuximab",
+      "capecitabine",
       "neratinib"
     ],
     "evidence": {
@@ -3289,7 +3289,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-her2-4l-r04",
+    "chunk_id": "esmo-mbc-2026-05-her2-4l-4560b7",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -3323,7 +3323,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-her2-4l-r05",
+    "chunk_id": "esmo-mbc-2026-05-her2-4l-28d03f",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -3359,7 +3359,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-tnbc-1l-r01",
+    "chunk_id": "esmo-mbc-2026-05-tnbc-1l-3d718a",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -3397,7 +3397,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-tnbc-1l-r02",
+    "chunk_id": "esmo-mbc-2026-05-tnbc-1l-05095b",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -3438,7 +3438,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-tnbc-1l-r03",
+    "chunk_id": "esmo-mbc-2026-05-tnbc-1l-6280b3",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -3476,7 +3476,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-tnbc-1l-r04",
+    "chunk_id": "esmo-mbc-2026-05-tnbc-1l-015580",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -3501,8 +3501,8 @@
       "PD-L1+"
     ],
     "drugs": [
-      "talazoparib",
       "carboplatin",
+      "talazoparib",
       "olaparib"
     ],
     "evidence": {
@@ -3516,7 +3516,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-tnbc-1l-r05",
+    "chunk_id": "esmo-mbc-2026-05-tnbc-1l-2d012a",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -3555,7 +3555,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-tnbc-1l-r06",
+    "chunk_id": "esmo-mbc-2026-05-tnbc-1l-a2bd8f",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -3591,7 +3591,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-tnbc-1l-r07",
+    "chunk_id": "esmo-mbc-2026-05-tnbc-1l-961901",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -3624,7 +3624,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-tnbc-1l-r08",
+    "chunk_id": "esmo-mbc-2026-05-tnbc-1l-c75522",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -3660,7 +3660,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-tnbc-2l-r01",
+    "chunk_id": "esmo-mbc-2026-05-tnbc-2l-835b42",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -3698,7 +3698,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-tnbc-2l-r02",
+    "chunk_id": "esmo-mbc-2026-05-tnbc-2l-e9b4f6",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -3738,7 +3738,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-tnbc-2l-r03",
+    "chunk_id": "esmo-mbc-2026-05-tnbc-2l-0a2190",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -3777,7 +3777,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-tnbc-2l-r04",
+    "chunk_id": "esmo-mbc-2026-05-tnbc-2l-aa0873",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -3815,7 +3815,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-tnbc-2l-r05",
+    "chunk_id": "esmo-mbc-2026-05-tnbc-2l-a5e9d7",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -3851,7 +3851,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-tnbc-2l-r06",
+    "chunk_id": "esmo-mbc-2026-05-tnbc-2l-ea837e",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -3889,7 +3889,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-tnbc-2l-r07",
+    "chunk_id": "esmo-mbc-2026-05-tnbc-2l-ec3102",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -3927,7 +3927,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-denovo-r01",
+    "chunk_id": "esmo-mbc-2026-05-site-denovo-65f094",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -3960,7 +3960,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-denovo-r02",
+    "chunk_id": "esmo-mbc-2026-05-site-denovo-3a3e27",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -3993,7 +3993,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-denovo-r03",
+    "chunk_id": "esmo-mbc-2026-05-site-denovo-be7c24",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4026,7 +4026,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-denovo-r04",
+    "chunk_id": "esmo-mbc-2026-05-site-denovo-92cd50",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4059,7 +4059,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-omd-r01",
+    "chunk_id": "esmo-mbc-2026-05-site-omd-f05e55",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4092,7 +4092,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-omd-r02",
+    "chunk_id": "esmo-mbc-2026-05-site-omd-e40aca",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4125,7 +4125,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-omd-r03",
+    "chunk_id": "esmo-mbc-2026-05-site-omd-ca90ee",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4158,7 +4158,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-omd-r04",
+    "chunk_id": "esmo-mbc-2026-05-site-omd-a795c4",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4191,7 +4191,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bone-r01",
+    "chunk_id": "esmo-mbc-2026-05-site-bone-c396f1",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4224,7 +4224,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bone-r02",
+    "chunk_id": "esmo-mbc-2026-05-site-bone-ecd77f",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4257,7 +4257,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bone-r03",
+    "chunk_id": "esmo-mbc-2026-05-site-bone-2703bf",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4290,7 +4290,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bone-r04",
+    "chunk_id": "esmo-mbc-2026-05-site-bone-e065ab",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4323,7 +4323,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bone-r05",
+    "chunk_id": "esmo-mbc-2026-05-site-bone-cb9dd9",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4356,7 +4356,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bone-r06",
+    "chunk_id": "esmo-mbc-2026-05-site-bone-087674",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4391,7 +4391,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bone-r07",
+    "chunk_id": "esmo-mbc-2026-05-site-bone-6e2e1b",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4427,7 +4427,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bone-r08",
+    "chunk_id": "esmo-mbc-2026-05-site-bone-f5c25c",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4462,7 +4462,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bone-r09",
+    "chunk_id": "esmo-mbc-2026-05-site-bone-883195",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4495,7 +4495,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bone-r10",
+    "chunk_id": "esmo-mbc-2026-05-site-bone-092a8e",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4528,7 +4528,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bone-r11",
+    "chunk_id": "esmo-mbc-2026-05-site-bone-ddb76c",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4561,7 +4561,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bm-r01",
+    "chunk_id": "esmo-mbc-2026-05-site-bm-af4549",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4594,7 +4594,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bm-r02",
+    "chunk_id": "esmo-mbc-2026-05-site-bm-65abd9",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4627,7 +4627,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bm-r03",
+    "chunk_id": "esmo-mbc-2026-05-site-bm-830ab2",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4660,7 +4660,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bm-r04",
+    "chunk_id": "esmo-mbc-2026-05-site-bm-5a2757",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4693,7 +4693,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bm-lrt-r01",
+    "chunk_id": "esmo-mbc-2026-05-site-bm-lrt-ea0bbf",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4726,7 +4726,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bm-lrt-r02",
+    "chunk_id": "esmo-mbc-2026-05-site-bm-lrt-d53fc2",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4759,7 +4759,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bm-lrt-r03",
+    "chunk_id": "esmo-mbc-2026-05-site-bm-lrt-745bd3",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4792,7 +4792,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bm-lrt-r04",
+    "chunk_id": "esmo-mbc-2026-05-site-bm-lrt-39434c",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4825,7 +4825,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bm-her2-r01",
+    "chunk_id": "esmo-mbc-2026-05-site-bm-her2-25de20",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4861,7 +4861,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bm-her2-r02",
+    "chunk_id": "esmo-mbc-2026-05-site-bm-her2-666948",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4900,7 +4900,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bm-her2-r03",
+    "chunk_id": "esmo-mbc-2026-05-site-bm-her2-676e96",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4936,7 +4936,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bm-her2-r04",
+    "chunk_id": "esmo-mbc-2026-05-site-bm-her2-406560",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -4961,9 +4961,9 @@
     "drugs": [
       "capecitabine",
       "trastuzumab",
-      "neratinib",
-      "tucatinib",
       "lapatinib",
+      "tucatinib",
+      "neratinib",
       "trastuzumab deruxtecan"
     ],
     "evidence": {
@@ -4977,7 +4977,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bm-her2-r05",
+    "chunk_id": "esmo-mbc-2026-05-site-bm-her2-d0166f",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -5000,10 +5000,10 @@
     ],
     "biomarker_tags": [],
     "drugs": [
-      "fulvestrant",
       "trastuzumab",
-      "neratinib",
+      "fulvestrant",
       "tucatinib",
+      "neratinib",
       "trastuzumab deruxtecan"
     ],
     "evidence": {
@@ -5017,7 +5017,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bm-her2neg-r01",
+    "chunk_id": "esmo-mbc-2026-05-site-bm-her2neg-e9aebf",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -5027,7 +5027,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Local therapies are recommended for patients with",
+    "text": "Local therapies are recommended for patients with HER2-negative BC and BMs [V, A].",
     "setting": [
       "metastatic"
     ],
@@ -5040,13 +5040,18 @@
     ],
     "biomarker_tags": [],
     "drugs": [],
-    "evidence": null,
+    "evidence": {
+      "loe": "V",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
     "superseded_by": null,
     "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bm-her2neg-r02",
+    "chunk_id": "esmo-mbc-2026-05-site-bm-her2neg-9462ac",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -5080,7 +5085,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bm-her2neg-r03",
+    "chunk_id": "esmo-mbc-2026-05-site-bm-her2neg-a3c995",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -5114,7 +5119,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bm-her2neg-r04",
+    "chunk_id": "esmo-mbc-2026-05-site-bm-her2neg-b488ff",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -5152,7 +5157,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bm-her2neg-r05",
+    "chunk_id": "esmo-mbc-2026-05-site-bm-her2neg-d7b230",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -5188,7 +5193,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-bm-her2neg-r06",
+    "chunk_id": "esmo-mbc-2026-05-site-bm-her2neg-d72fd7",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -5224,7 +5229,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-lmd-r01",
+    "chunk_id": "esmo-mbc-2026-05-site-lmd-ce9d4b",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -5257,7 +5262,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-lmd-r02",
+    "chunk_id": "esmo-mbc-2026-05-site-lmd-e7828c",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -5290,7 +5295,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-lmd-r03",
+    "chunk_id": "esmo-mbc-2026-05-site-lmd-098012",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -5323,7 +5328,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-lmd-r04",
+    "chunk_id": "esmo-mbc-2026-05-site-lmd-942e1d",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -5333,35 +5338,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Intrathecal therapy may be considered in type I LMD",
-    "setting": [
-      "metastatic"
-    ],
-    "subtype": [
-      "any"
-    ],
-    "line": [
-      "any"
-    ],
-    "biomarker_tags": [],
-    "drugs": [],
-    "evidence": null,
-    "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
-  },
-  {
-    "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-lmd-r05",
-    "doc_type": "guideline",
-    "source": "ESMO-MBC",
-    "version": "2026-05",
-    "section": "SITE-SPECIFIC MANAGEMENT > LMD",
-    "page_start": null,
-    "page_end": null,
-    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
-    "chunk_kind": "recommendation",
-    "parent_id": null,
-    "text": "(positive cytology or biopsy) after MDT discussion [III, C].",
+    "text": "Intrathecal therapy may be considered in type I LMD (positive cytology or biopsy) after MDT discussion [III, C].",
     "setting": [
       "metastatic"
     ],
@@ -5384,7 +5361,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-lmd-r06",
+    "chunk_id": "esmo-mbc-2026-05-site-lmd-527b65",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -5417,7 +5394,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-lmd-r07",
+    "chunk_id": "esmo-mbc-2026-05-site-lmd-45a390",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -5455,7 +5432,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-lmd-r08",
+    "chunk_id": "esmo-mbc-2026-05-site-lmd-929b18",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",

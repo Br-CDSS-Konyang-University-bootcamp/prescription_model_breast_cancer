@@ -6,7 +6,7 @@ import json
 import re
 from pathlib import Path
 
-from .chunk_common import PARSED_MD_DIR, CHUNKS_DIR, clean_text, make_chunk
+from .chunk_common import PARSED_MD_DIR, CHUNKS_DIR, clean_text, make_chunk, stable_key
 
 COPYRIGHT = "Copyright © European Society for Medical Oncology. All rights reserved"
 HER2_POS = ["HR+/HER2+", "HR-/HER2+"]
@@ -79,6 +79,7 @@ ESCAT = re.compile(r"ESCAT(?: score)?:\s*([IVX]+-[A-C])")
 NEW_POPULATION = re.compile(r"\bpatients with\b|\bwomen\b|^(If|After progression|In the absence)\b")
 FOOTNOTE = re.compile(r"^[a-z] [A-Z]")
 # 이 권고 뒤의 근거 없는 불릿은 약제 선택지 목록이다 ("Options include: ■ Fulvestrant—palbociclib ...")
+SENTENCE_END = re.compile(r"[.:;!?)\]]\s*$")
 OPTIONS_OPEN = re.compile(r":\s*$|Options include", re.IGNORECASE)
 
 
@@ -117,11 +118,19 @@ def _ebc_line(text: str) -> list:
     return found or ["any"]
 
 
-def _section_items(lines: list[str]) -> list[str]:
-    """소단원 줄들을 권고 하나씩으로 묶는다. 그림·각주는 버리고, 하위 선택지와 끊긴 줄은 앞 권고에 붙인다."""
-    items = []
+def _continue_sentence(item: list, piece: str):
+    """끊긴 문장의 뒷부분을 본문과 ID용 문장 둘 다에 붙인다."""
+    item[0] += " " + piece
+    item[2] += " " + piece
+
+
+def _section_items(lines: list[str]) -> list[tuple[str, str]]:
+    """소단원 줄들을 권고 하나씩으로 묶는다. 그림·각주는 버리고, 하위 선택지와 끊긴 줄은 앞 권고에 붙인다.
+    (ID용 첫 불릿 문장, 청크 본문) 목록을 돌려준다. ID용 문장에는 문맥 접두어와 뒤에 붙는 선택지가 들어가지 않는다."""
+    items = []  # [첫 불릿 문장, 문맥, 본문]
     context = None  # "For patients who have previously received ChT:" 같은 문맥 불릿
     options_open = False  # 앞 권고가 "Options include:"처럼 ':'로 끝나 약제 목록을 받는 중
+    sentence_open = False  # 앞 불릿이 마침표·괄호 없이 끝남 = PDF 줄바꿈에서 끊긴 문장 (변환기가 불릿 두 개로 냄)
     for raw in lines:
         line = raw.strip()
         if not line:
@@ -129,7 +138,8 @@ def _section_items(lines: list[str]) -> list[str]:
         if not line.startswith("- "):
             # 그림 사이에서 끊긴 권고의 뒷부분만 붙인다 (소문자로 시작, 각주 아님)
             if items and line[0].islower() and not FOOTNOTE.match(line):
-                items[-1] += " " + line
+                _continue_sentence(items[-1], line)
+                sentence_open = not SENTENCE_END.search(line)
             continue
 
         body = line[2:].strip()
@@ -139,21 +149,39 @@ def _section_items(lines: list[str]) -> list[str]:
             continue
         has_evidence = bool(EVIDENCE.search(body))
 
+        if items and sentence_open and not is_sub:
+            _continue_sentence(items[-1], body)
+            sentence_open = not SENTENCE_END.search(body)
+            continue
+        sentence_open = not SENTENCE_END.search(body)
         if body.endswith(":") and not has_evidence and not is_sub and not body[0].islower():
             context, options_open = body, False
             continue
-        if items and (body[0].islower() or is_sub or (options_open and not has_evidence)
+        if items and body[0].islower() and not is_sub:
+            _continue_sentence(items[-1], body)  # 소문자로 시작 = 끊긴 문장
+            continue
+        if items and (is_sub or (options_open and not has_evidence)
                       or (not has_evidence and body.startswith("Options include"))):
-            # 끊긴 문장, 하위 선택지(■, o), 약제 목록은 앞 권고에 붙인다
-            items[-1] += " " + body
-            options_open = options_open or bool(OPTIONS_OPEN.search(items[-1]))
+            # 하위 선택지(■, o)와 약제 목록은 앞 권고 본문에만 붙인다 (ID용 문장에는 넣지 않음)
+            items[-1][2] += " " + body
+            options_open = options_open or bool(OPTIONS_OPEN.search(items[-1][2]))
             continue
 
         if context and NEW_POPULATION.search(body):
             context = None
-        items.append(f"{context} {body}" if context else body)
+        items.append([body, context, body])
         options_open = bool(OPTIONS_OPEN.search(body))
-    return [item.strip() for item in items if len(item.strip()) >= 40]
+
+    result = []
+    for head, ctx, text in items:
+        # ID용 문장은 첫 근거 등급 표시([I, A])까지만 쓴다. 그 뒤에 붙는 하위 선택지·인용 번호는 변환기마다 다르다
+        first_evidence = EVIDENCE.search(head)
+        if first_evidence:
+            head = head[:first_evidence.end()]
+        full = f"{ctx} {text}".strip() if ctx else text.strip()
+        if len(full) >= 40:
+            result.append((head, full))
+    return result
 
 
 def parse_esmo_chunks(md_path: Path) -> list[dict]:
@@ -200,9 +228,17 @@ def parse_esmo_chunks(md_path: Path) -> list[dict]:
         sec_slug, subtype, line = spec
         section = f"{parent} > {sub}" if parent and (parent, sub) in sections else sub
 
-        for idx, item in enumerate(_section_items(block_lines), 1):
+        used = set()
+        for head, item in _section_items(block_lines):
+            # 순서 번호 대신 권고 문장의 지문을 쓴다 (chunk_common.stable_key). 같은 소단원에 같은 문장이 또 있으면 -2를 붙인다
+            chunk_id = f"esmo-{doc['slug']}-{doc['version']}-{sec_slug}-{stable_key(head)}"
+            n = 2
+            while chunk_id in used:
+                chunk_id = f"esmo-{doc['slug']}-{doc['version']}-{sec_slug}-{stable_key(head)}-{n}"
+                n += 1
+            used.add(chunk_id)
             chunks.append(make_chunk(
-                chunk_id=f"esmo-{doc['slug']}-{doc['version']}-{sec_slug}-r{idx:02d}",
+                chunk_id=chunk_id,
                 source=doc["source"],
                 version=doc["version"],
                 section=section,

@@ -1,6 +1,7 @@
 # src/rag/chunk_common.py
 # 청커(chunker_asco_all.py, chunker_esmo.py)가 같이 쓰는 경로, 텍스트 정제, 태깅 함수
 import csv
+import hashlib
 import re
 import unicodedata
 from pathlib import Path
@@ -45,6 +46,14 @@ def parse_version(file_stem: str) -> str:
     if not match:
         raise ValueError(f"파일 이름에 발행 연월(YYYY-MM)이 없습니다: {file_stem}")
     return match.group(1)
+
+
+def stable_key(text: str, length: int = 6) -> str:
+    """권고 문장으로 만드는 짧은 지문. 순서 번호(r01, r02) 대신 chunk_id에 쓴다.
+    앞뒤 권고가 늘거나 줄어도, 대시·공백·마크다운 표기가 달라져도 같은 문장이면 같은 값이 나온다.
+    평가셋 정답과 추천 결과의 인용이 chunk_id를 가리키므로, 다시 청킹해도 ID가 바뀌면 안 된다."""
+    normalized = re.sub(r"[^a-z0-9]", "", unicodedata.normalize("NFKC", text).lower())[:200]
+    return hashlib.sha1(normalized.encode("utf-8")).hexdigest()[:length]
 
 
 def _load_drug_names() -> list[str]:

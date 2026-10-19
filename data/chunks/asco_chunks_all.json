@@ -1,7 +1,7 @@
 [
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "asco-ebc-2021-08-olaparib-rapid-r01",
+    "chunk_id": "asco-ebc-2021-08-olaparib-rapid-41eadf",
     "doc_type": "guideline",
     "source": "ASCO",
     "version": "2021-08",
@@ -134,7 +134,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "asco-ebc-2022-04-abema-q01",
+    "chunk_id": "asco-ebc-2022-04-abema-q-a667d9",
     "doc_type": "guideline",
     "source": "ASCO",
     "version": "2022-04",
@@ -165,7 +165,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "asco-ebc-2022-04-abema-q02",
+    "chunk_id": "asco-ebc-2022-04-abema-q-b344bc",
     "doc_type": "guideline",
     "source": "ASCO",
     "version": "2022-04",
@@ -196,7 +196,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "asco-ebc-2022-04-abema-q03",
+    "chunk_id": "asco-ebc-2022-04-abema-q-cf1c88",
     "doc_type": "guideline",
     "source": "ASCO",
     "version": "2022-04",
@@ -227,7 +227,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "asco-ebc-2022-04-abema-q04",
+    "chunk_id": "asco-ebc-2022-04-abema-q-f96bd6",
     "doc_type": "guideline",
     "source": "ASCO",
     "version": "2022-04",
@@ -261,7 +261,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "asco-ebc-2022-04-abema-q05",
+    "chunk_id": "asco-ebc-2022-04-abema-q-4ee7c9",
     "doc_type": "guideline",
     "source": "ASCO",
     "version": "2022-04",
@@ -292,7 +292,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "asco-ebc-2022-04-abema-q06",
+    "chunk_id": "asco-ebc-2022-04-abema-q-1ffb74",
     "doc_type": "guideline",
     "source": "ASCO",
     "version": "2022-04",
@@ -1393,7 +1393,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "asco-ebc-2022-04-pembro-rapid-r01",
+    "chunk_id": "asco-ebc-2022-04-pembro-rapid-227353",
     "doc_type": "guideline",
     "source": "ASCO",
     "version": "2022-04",
@@ -1430,7 +1430,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "asco-ebc-2022-04-pembro-qs01",
+    "chunk_id": "asco-ebc-2022-04-pembro-qs-7757ff",
     "doc_type": "guideline",
     "source": "ASCO",
     "version": "2022-04",
@@ -1949,12 +1949,12 @@
     "biomarker_tags": [],
     "drugs": [
       "trastuzumab emtansine",
-      "margetuximab",
       "capecitabine",
+      "margetuximab",
       "trastuzumab",
       "pertuzumab",
-      "lapatinib",
       "neratinib",
+      "lapatinib",
       "tucatinib",
       "trastuzumab deruxtecan"
     ],
@@ -2005,7 +2005,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "asco-mbc-2022-08-tdxd-rapid-r01",
+    "chunk_id": "asco-mbc-2022-08-tdxd-rapid-f896f0",
     "doc_type": "guideline",
     "source": "ASCO",
     "version": "2022-08",
@@ -2043,7 +2043,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "asco-mbc-2023-01-sg-rapid-r01",
+    "chunk_id": "asco-mbc-2023-01-sg-rapid-297fb8",
     "doc_type": "guideline",
     "source": "ASCO",
     "version": "2023-01",
@@ -2155,7 +2155,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "asco-mbc-2024-03-capi-qs01",
+    "chunk_id": "asco-mbc-2024-03-capi-qs-6a9b2f",
     "doc_type": "guideline",
     "source": "ASCO",
     "version": "2024-03",

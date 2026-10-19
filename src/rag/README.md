@@ -27,4 +27,5 @@ ESMO·ASCO 지침을 수집·청킹하고, 지침과 급여 청크가 함께 들
 
 - 지침 PDF와 변환한 md(`data/parsed_md/`)는 저작권 문서라 저장소에 올리지 않는다. 각자 PDF에서 만든다.
 - 청크 JSON은 `data/chunks/`에 커밋한다 (`.gitignore`에서 이 폴더의 `.json`만 허용). 커밋 전에 `tests/rag/test_chunks_schema.py`(스키마 검증, chunk_id 중복)가 통과해야 한다.
+- chunk_id는 다시 청킹해도 바뀌지 않아야 한다 (평가셋 정답과 추천 결과의 인용이 가리킨다). ASCO 권고는 원문 권고 번호(`asco-mbc-2021-07-endo-r3.2`), 번호가 없는 ESMO 권고·ASCO 질문·rapid update는 첫 근거 등급 표시까지의 문장으로 만든 지문(`esmo-mbc-2026-05-luminal-2l-3f2a9c`, `chunk_common.stable_key`)을 쓴다. 순서 번호(r01, r02)는 앞에 권고 하나만 늘어도 뒤가 모두 밀리므로 쓰지 않는다. `tests/rag/test_chunk_ids.py`가 이 성질을 검사한다.
 - 청킹하는 문서 목록은 각 청커의 `DOCS`에 있다. 제외한 문서와 이유는 `rag_non_prescription_docs.md`.
