@@ -1,12 +1,14 @@
 # src/rag/indexer.py
 import uuid
-from qdrant_client.models import Distance, VectorParams, PointStruct
+from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, FieldCondition, MatchValue, FilterSelector
 from .client import get_qdrant_client, get_embedding_model, close_client, COLLECTION_NAME
 
 
 def init_collection(force_recreate: bool = False):
     client = get_qdrant_client()
     collections = [c.name for c in client.get_collections().collections]
+
+    # 주의: 컬렉션을 지우면 D의 급여 청크도 사라진다. 지침만 다시 넣을 때는 delete_guideline_chunks()를 쓴다.
     if COLLECTION_NAME in collections and force_recreate:
         client.delete_collection(collection_name=COLLECTION_NAME)
         print(f"[RAG] 기존 컬렉션 '{COLLECTION_NAME}' 초기화 완료.")
@@ -34,7 +36,8 @@ def index_chunks(chunks: list[dict], batch_size: int = 32):
 
         points = []
         for item, vector in zip(batch, vectors):
-            point_id = str(uuid.uuid4())
+            # chunk_id로 고정 ID(uuid5)를 만들어, 같은 청크를 다시 넣으면 덮어쓴다
+            point_id = str(uuid.uuid5(uuid.NAMESPACE_URL, item["chunk_id"]))
             points.append(
                 PointStruct(
                     id=point_id,
@@ -45,6 +48,31 @@ def index_chunks(chunks: list[dict], batch_size: int = 32):
         client.upsert(collection_name=COLLECTION_NAME, points=points)
 
     print(f"[RAG Indexer] {total}개 청크 색인 완료.")
+
+
+DOC_TYPES = ("guideline", "reimbursement")  # schemas/chunk.json의 doc_type
+
+
+def delete_by_doc_type(doc_type: str):
+    """doc_type이 같은 점만 지운다. 지침(C)과 급여(D)는 한 컬렉션을 같이 쓰므로,
+    한쪽을 다시 색인할 때 다른 쪽 점은 남겨야 한다. D는 delete_by_doc_type("reimbursement")를 부른다."""
+    if doc_type not in DOC_TYPES:
+        raise ValueError(f"doc_type은 {DOC_TYPES} 중 하나여야 합니다: {doc_type!r}")
+    client = get_qdrant_client()
+    if COLLECTION_NAME not in [c.name for c in client.get_collections().collections]:
+        return
+    client.delete(
+        collection_name=COLLECTION_NAME,
+        points_selector=FilterSelector(
+            filter=Filter(must=[FieldCondition(key="doc_type", match=MatchValue(value=doc_type))])
+        ),
+    )
+    print(f"[RAG] '{COLLECTION_NAME}'에서 doc_type={doc_type} 청크 삭제 완료.")
+
+
+def delete_guideline_chunks():
+    """지침 청크만 지운다 (delete_by_doc_type("guideline")과 같다)."""
+    delete_by_doc_type("guideline")
 
 
 def close_indexer():
