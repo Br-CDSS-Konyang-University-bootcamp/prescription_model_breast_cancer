@@ -80,12 +80,18 @@ def _record(marker, status, reason, rule_id, field=None, evidence=None, tags=Non
     }
 
 
+# 미시행 중 검사를 의뢰·예약한 경우 A가 raw에 넣는 고정 표기 (schema_fields.md 2절, draft6).
+# 이때는 검사 권고 대신 "결과 확인"으로 낸다 (전달 문서 0절 5번, B 결정 2026-10-19)
+PENDING_RAW = {"결과 대기": "PENDING", "예정": "SCHEDULED"}
+
+
 def _gate(marker, field, rule_prefix):
     """칸이 없거나 미시행/기록 없음이면 바로 그 상태를 돌려준다. 값이 있으면 None."""
     if not field or field.get("status") in (None, "not_recorded"):
         return _record(marker, "not_recorded", f"{marker} 기록 없음", f"{rule_prefix}-NOTRECORDED", field)
     if field.get("status") == "not_done":
-        return _record(marker, "not_done", f"{marker} 미시행", f"{rule_prefix}-NOTDONE", field)
+        note = f" ({field['raw']})" if field.get("raw") in PENDING_RAW else ""
+        return _record(marker, "not_done", f"{marker} 미시행{note}", f"{rule_prefix}-NOTDONE", field)
     return None
 
 
@@ -739,16 +745,23 @@ def setting_of(fields):
 def tests_needed_of(by, subtype, disease, fields):
     """검사 공백 (PROJECT.md 5절). 미시행(not_done)만 권고하고, 기록 없음은 권고하지 않는다 (PROJECT.md 4절)."""
     out = []
+    receptors = fields.get("receptors") or {}
+    mutations = (fields.get("molecular") or {}).get("mutations") or {}
 
-    def add(test, reason, rule_id):
+    def add(test, reason, rule_id, field=None):
+        """field가 미시행이면서 raw가 "결과 대기"·"예정"이면 검사 권고 대신 결과 확인으로 바꾼다."""
+        raw = (field or {}).get("raw") if (field or {}).get("status") == "not_done" else None
+        if raw in PENDING_RAW:
+            test, rule_id = f"{test} 결과 확인", f"{rule_id}-{PENDING_RAW[raw]}"
+            reason = f"{reason} / 검사 {raw}: 새 검사 대신 결과 확인 필요"
         out.append({"test": test, "reason": reason, "rule_id": rule_id})
 
-    for m in ("ER", "PR", "HER2"):
+    for m, key in (("ER", "er_percent"), ("PR", "pr_percent"), ("HER2", "her2_ihc")):
         if by[m]["status"] == "not_done":
-            add(f"{m} IHC", f"{m} 미시행. 아형을 정할 수 없음", f"BM4-{m}")
+            add(f"{m} IHC", f"{m} 미시행. 아형을 정할 수 없음", f"BM4-{m}", receptors.get(key))
     her2 = by["HER2"]
     if her2["rule_id"] in ("BM2-HER2-2PLUS-NOISH", "BM2-HER2-2PLUS-RESULT-POS"):
-        add("HER2 ISH (FISH·SISH)", her2["reason"], "BM4-HER2-ISH")
+        add("HER2 ISH (FISH·SISH)", her2["reason"], "BM4-HER2-ISH", receptors.get("her2_ish"))
 
     if disease != "metastatic":
         return out
@@ -756,23 +769,25 @@ def tests_needed_of(by, subtype, disease, fields):
         add("HER2 IHC 재판정", f"전이성인데 HER2 {her2['status']} ({her2['reason']}). "
                             "0/초저발현/저발현까지 재판정했는지 확인", "BM4-HER2-REASSESS")
     if subtype == "TNBC":
-        pdl1 = (fields.get("receptors") or {}).get("pdl1") or {}
+        pdl1 = receptors.get("pdl1") or {}
         if pdl1.get("status") == "not_done":
-            add("PD-L1 (22C3 CPS, SP142 IC)", "전이성 TNBC인데 PD-L1 미시행", "BM4-PDL1")
+            add("PD-L1 (22C3 CPS, SP142 IC)", "전이성 TNBC인데 PD-L1 미시행", "BM4-PDL1", pdl1)
 
     # 유전자 (PROJECT.md 5절 검사 공백 규칙). 미시행만 권고한다. 생식세포 BRCA가 기록 없음이거나
     # 레코드가 sBRCA뿐이면(TCGA가 아닌 차트) 권고하지 않는다 (전달 문서 4.7절, B 결정 2026-10-16)
     if subtype in ("HR+/HER2-", "TNBC"):
         for m in ("gBRCA1", "gBRCA2", "PALB2"):
             if by.get(m, {}).get("status") == "not_done":
-                add(f"{m} (생식세포 검사)", f"전이성 HER2 음성인데 {m} 미시행. PARP 억제제 대상 확인", f"BM4-{m.upper()}")
+                add(f"{m} (생식세포 검사)", f"전이성 HER2 음성인데 {m} 미시행. PARP 억제제 대상 확인", f"BM4-{m.upper()}",
+                    mutations.get(m.lstrip("g")))
     if subtype == "HR+/HER2-":
         for m in ("PIK3CA", "AKT1", "PTEN"):
             if by.get(m, {}).get("status") == "not_done":
-                add(m, f"전이성 HR+/HER2-인데 {m} 미시행. PI3K·AKT 억제제 대상 확인", f"BM4-{m}")
+                add(m, f"전이성 HR+/HER2-인데 {m} 미시행. PI3K·AKT 억제제 대상 확인", f"BM4-{m}", mutations.get(m))
         esr1 = by.get("ESR1", {})
         if esr1.get("status") == "not_done":
-            add("ESR1 (cfDNA)", "전이성 HR+/HER2-인데 ESR1 미시행. 경구 SERD 대상 확인", "BM4-ESR1")
+            add("ESR1 (cfDNA)", "전이성 HR+/HER2-인데 ESR1 미시행. 경구 SERD 대상 확인", "BM4-ESR1",
+                mutations.get("ESR1"))
         elif esr1.get("status") == "retest_needed":
             add("ESR1 (cfDNA)", esr1["reason"], "BM4-ESR1-RETEST")
     return out
