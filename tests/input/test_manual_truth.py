@@ -15,6 +15,8 @@ import pytest
 
 from src.input.truth import tcga_truth as T
 
+COMPUTED_ITEM_KEYS = ("line", "endocrine_line", "chemo_line")  # draft6 계산 칸. 직접 쓰지 않고 test_lines.py에서 검사
+
 MANUAL = sorted(p for p in (Path(__file__).parent / "manual_truth").glob("*.json") if not p.name.endswith(".todo.json"))
 
 
@@ -52,5 +54,9 @@ def test_manual_truth_valid_and_matches_generator(path: Path, rows):
     errors = [f"{list(e.path)}: {e.message}" for e in T.validator().iter_errors(manual)]
     assert not errors, "스키마 오류:\n" + "\n".join(errors[:20])
     generated = T.build(rows.loc[manual["patient_ref"]])
+    generated["fields"].pop("deemed_lines")
+    for t in generated["fields"]["treatment_history"]:
+        for k in COMPUTED_ITEM_KEYS:
+            t.pop(k)
     found = diff(manual["fields"], generated["fields"], "fields") + diff(manual["documents"], generated["documents"], "documents")
     assert not found, f"{path.stem}: 다른 칸 {len(found)}개\n" + "\n".join(found)

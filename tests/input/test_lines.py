@@ -5,7 +5,9 @@
 import json
 from pathlib import Path
 
-from src.input.common.lines import palliative_lines
+import pytest
+
+from src.input.common.lines import annotate, deemed_lines, palliative_lines
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -88,3 +90,58 @@ def test_missing_start_day_is_dropped_with_note():
 def test_no_metastasis_day():
     r = palliative_lines(state([tx(["letrozole"], 10)], metastasis_day=None))
     assert r["counts"] is None
+
+
+# ---------- 간주 규칙 (deemed_lines) ----------
+
+
+def deem(history, metastasis_day=1000):
+    return {d["rule_id"]: d for d in deemed_lines(state(history, metastasis_day))}
+
+
+def test_tcga_example_deemed_rules():
+    """보조 AC → paclitaxel, 보조 AI 3종 후 exemestane 투여 중(1,365일 종료) 1,353일에 원격 전이."""
+    ps = json.loads((ROOT / "src/input/examples/patient_state_metastatic_TCGA-A2-A0EW.json").read_text(encoding="utf-8"))
+    d = {x["rule_id"]: x for x in deemed_lines(ps)}
+    assert (d["DEEM-ANTHRA-TAXANE"]["status"], d["DEEM-ANTHRA-TAXANE"]["regimen_refs"]) == ("met", [0, 2])
+    assert (d["DEEM-SG-1Y"]["status"], d["DEEM-SG-1Y"]["gap_days"]) == ("met", -12)  # 음수 = 투여 중 전이
+    assert d["DEEM-HER2ADC-6M"]["status"] == "not_met"
+    assert (d["DEEM-ENDO-ADJ-1Y"]["status"], d["DEEM-ENDO-ADJ-1Y"]["gap_days"]) == ("met", -12)
+
+
+def test_not_metastatic_all_not_applicable():
+    assert {x["status"] for x in deemed_lines(state([tx(["letrozole"], 10)], metastasis_day=None))} == {"not_applicable"}
+
+
+def test_anthracycline_without_taxane_not_met():
+    d = deem([tx(["doxorubicin", "cyclophosphamide"], 30, 100, setting="adjuvant")])
+    assert d["DEEM-ANTHRA-TAXANE"]["status"] == "not_met"
+    assert "taxane" in d["DEEM-ANTHRA-TAXANE"]["basis"]
+
+
+@pytest.mark.parametrize("end,expected,gap", [(900, "met", 100), (800, "not_met", 200)])
+def test_her2_adc_six_months(end, expected, gap):
+    d = deem([tx(["trastuzumab"], 300, end, setting="adjuvant")])
+    assert (d["DEEM-HER2ADC-6M"]["status"], d["DEEM-HER2ADC-6M"]["gap_days"]) == (expected, gap)
+
+
+def test_neoadjuvant_trastuzumab_not_counted_for_her2_adc():
+    """공고 문구는 '수술후보조요법'만 인정한다."""
+    assert deem([tx(["trastuzumab"], 300, 950, setting="neoadjuvant")])["DEEM-HER2ADC-6M"]["status"] == "not_met"
+
+
+def test_missing_end_uses_start_as_lower_bound():
+    assert deem([tx(["letrozole"], 700, None, setting="adjuvant")])["DEEM-ENDO-ADJ-1Y"]["status"] == "met"
+    assert deem([tx(["letrozole"], 100, None, setting="adjuvant")])["DEEM-ENDO-ADJ-1Y"]["status"] == "unknown"
+
+
+def test_supportive_only_adjuvant_is_not_a_regimen():
+    assert deem([tx(["zoledronic acid"], 900, 950, setting="adjuvant")])["DEEM-SG-1Y"]["status"] == "not_met"
+
+
+def test_annotate_fills_line_fields_and_rules():
+    ps = state([tx(["anastrozole"], 50, 300, setting="adjuvant"), tx(["letrozole"], 120, response="PD"),
+                tx(["paclitaxel"], 400)], metastasis_day=100)
+    th = annotate(ps)["fields"]["treatment_history"]
+    assert [(t["line"], t["endocrine_line"], t["chemo_line"]) for t in th] == [(None, None, None), (1, 1, None), (2, None, 1)]
+    assert len(ps["fields"]["deemed_lines"]) == 4

@@ -22,13 +22,14 @@ from pathlib import Path
 
 import pandas as pd
 
+from src.input.common.lines import annotate, load_drug_table
 from src.input.common.vocab import Vocab
 
 ROOT = Path(__file__).resolve().parents[3]
 CSV = ROOT / "data" / "tcga_brca" / "merged" / "tcga_brca_merging_cropped.csv"
 DRUG_CLASSES = ROOT / "data" / "dictionaries" / "drug_classes.csv"
 
-SCHEMA_VERSION = "0.1-draft5"
+SCHEMA_VERSION = "0.1-draft6"
 # 생성 시각. 실행할 때마다 바뀌지 않게 고정한다 (같은 입력 → 같은 출력)
 CREATED_AT = "2026-10-15T00:00:00+09:00"
 
@@ -49,6 +50,7 @@ def load_cycle_days(path: Path = DRUG_CLASSES) -> dict[str, int]:
 
 
 CYCLE_DAYS = load_cycle_days()
+DRUG_TABLE = load_drug_table(DRUG_CLASSES)
 
 
 # ---------- 공통 ----------
@@ -327,6 +329,11 @@ def recurrence(r) -> dict:
         rec["metastatic_sites"] = present(list(dict.fromkeys(sites)) or "[Not Available]", val(r.nte_sites))
     if val(r.metastasis_dx_days) is not None:
         rec["metastasis_day"] = present(int(r.metastasis_dx_days))
+    # 첫 재발일: 국소 재발일과 원격 전이 재발일 중 이른 값. 진단 시 IV기(재발 없음)는 넣지 않는다 (draft6)
+    days = [day(r.locoregional_dx_days)] + ([day(r.metastasis_dx_days)] if st == "distant" else [])
+    days = [d for d in days if d is not None]
+    if st in ("distant", "locoregional") and days:
+        rec["recurrence_day"] = present(min(days))
     if st in ("distant", "locoregional", "site_unknown"):
         s = val(r.nte_surgery) or ""
         rec["surgery"] = present("yes" if "YES" in s else "no" if "NO" in s else "unknown", s or None)
@@ -383,10 +390,11 @@ def genomic_report(r) -> list[dict]:
 def build(r) -> dict:
     th, items = treatment(r)
     reports = genomic_report(r)
-    return {
+    doc = {
         "schema_version": SCHEMA_VERSION,
         "patient_ref": r.patient_id,
         "created_at": CREATED_AT,
+        "index_day": day(r.fu_last_days),  # 판정 기준일 = 마지막 추적일 (draft6)
         "documents": [{"doc_id": "D1", "doc_type": "molecular", "doc_date": None}] if reports else [],
         "fields": {
             "diagnosis": diagnosis(r),
@@ -403,6 +411,7 @@ def build(r) -> dict:
         },
         "conflicts": [],
     }
+    return annotate(doc, DRUG_TABLE)  # 차수 3칸과 간주 규칙 (src/input/common/lines.py, draft6)
 
 
 def load_rows(csv: Path = CSV) -> pd.DataFrame:
