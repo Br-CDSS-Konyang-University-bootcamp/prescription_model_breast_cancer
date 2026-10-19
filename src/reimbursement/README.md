@@ -1,10 +1,109 @@
 # [5] 급여 기준 자동 업데이트 — 담당 D
 
-심평원 공고책자, 개정 공고, 공고예고, 허가초과 항암요법 목록을 수집해 조건 단위 급여 청크를 만든다.
+심평원 공고책자, 개정 공고, 공고예고를 수집해 조건 단위 급여 청크를 만든다.
+청킹 방식은 B의 설계 문서 `reimbursement_chunking_design.md`(2026-10-16)를 따른다.
 
-- 범위: PROJECT.md §8
-- 입력: 심평원 게시판
+- 범위: PROJECT.md §8. 책자의 일반원칙([별표] 앞), 9. 유방암, 40. 기타 항암제 병용요법의 유방암 행,
+  Ⅳ 기타 약제(G-CSF·zoledronic acid·denosumab·dexrazoxane의 유방암 줄 + 모든 암종 공통인 sodium thiosulfate, 설계 §10.2).
+  개정 공고 덧씌우기(설계 §6)는 아직 없다. 새 공고가 올라오면 실행해 보고 수정한다 (그때까지 책자 우선 방식).
+  허가초과 항암요법 목록은 범위 밖, 팀 결정 대기 (설계 §7 결정 4). 기본 실행에서는 받지도 청크로 만들지도 않는다.
+  읽는 코드는 꺼 둔 채로 남겨 두었다 (`--with-offlabel`로 켬)
+- 청크 계층 (설계 §0.2): L1 원칙(`section`) / L2 단계·소단원(`section`) / L3 요법 행·조건 묶음(`reimbursement_condition`).
+  chunk_id 예: `hira-booklet-20261001-bc-pal-endo-1l-r01`, `…-combo-r22`, `…-supp-zoledronic-b`
+- 설계가 제안한 새 칸(stage, line_rule, history, combination 등)은 공용 스키마에 아직 없다. 개정안: `schema_proposal.md`
+- 입력: 심평원 게시판 (항암화학요법, 공고, 공고예고)
 - 출력: `schemas/chunk.json` 형식의 급여 청크 (doc_type = reimbursement), SQLite 레지스트리
 - 색인 반영은 `src/rag/`의 색인 함수를 호출한다. 색인 코드를 이 폴더에 따로 만들지 않는다.
 - 공고 원문과 가공물은 외부에 공개하지 않는다.
 - 테스트: `tests/reimbursement/`
+
+## 필요 패키지
+
+`team_project` 환경에 `conda install -n team_project -c conda-forge pymupdf jsonschema pytest`를 설치한다.
+`pdfplumber`는 `--cross-check`에만 쓰고, `anthropic`은 Claude API로 투여 조건을 채울 때만 쓴다.
+
+## 실행
+
+```bash
+python -m src.reimbursement.pipeline              # 게시판 확인 -> 새 파일만 받기 -> 검증 -> 청크
+python -m src.reimbursement.pipeline --offline    # 이미 받은 파일(data/reimbursement/raw/)로만
+python -m src.reimbursement.pipeline --cross-check  # pdfplumber로 한 번 더 읽어 비교 (첫 실행 1분 남짓)
+python -m src.reimbursement.pipeline --no-llm     # Claude API 없이 (저장해 둔 투여 조건만)
+python -m src.reimbursement.pipeline --with-offlabel  # 허가초과 목록 청크도 만든다
+```
+
+공용 색인(C의 Qdrant)에 넣기는 따로 실행한다. 예전 급여 점을 지운 뒤 L3 청크만 넣는다 (설계 §0.1: L1·L2는 벡터 없이
+청크 파일에서 `parent_id`로 찾는다). 검토중 요법은 뺀다.
+C의 공개 함수(`src/rag/__init__.py`)를 부른다. 2026-10-17판에는 `index_chunks`, `init_collection`, `search_guidelines`만 있어서,
+`delete_by_doc_type(doc_type)`이 생기기 전에는 색인하지 않고 멈춘다. 성공하면 기록 장부의 그 책자를 indexed로, 예전 indexed 책자를 superseded로 바꾼다.
+Qdrant 로컬 모드는 한 프로세스만 열 수 있으니 검색·`run_indexing`과 동시에 돌리지 않는다.
+
+```bash
+python -m src.reimbursement.index --dry-run   # 넣을 청크 수만 확인
+python -m src.reimbursement.index
+```
+
+단계마다 검사하고, 오류가 하나라도 있으면 아무것도 바꾸지 않는다 (마지막 정상 청크 파일 유지).
+
+| 단계 | 하는 일 | 검사 |
+|---|---|---|
+| 1. 수집 | 항암화학요법 게시판 HEAD로 파일명 날짜 비교, 새 파일·같은 날짜 재업로드만 받기. 공고 1쪽, 공고예고 1쪽 | 파일 크기, PDF·xlsx 서명, 오류 페이지(HTML), 파일명 날짜 |
+| 2. 책자 검증 | 공고책자 읽기. 목차(Ⅰ~Ⅳ, 별첨) 순서대로 책자 전체를 섹션으로 나눠 `sections/`에 저장 | 목차 항목을 본문에서 모두 찾았는지, 목차 쪽 번호와 본문 위치, 섹션 밖 글자, 개정 이력, 변경 표시, 같은 번호 공고전문과 대조, 깨진 글자 |
+| 3. 유방암 추출 | 일반원칙, 유방암(주N 각주·연번 범위 규칙을 해당 행에, 병합 셀 물려받기 표시), 병용요법 유방암 행(추가 약제·기존 급여 요법 나누기), Ⅳ 기타 약제 유방암 줄 | 표 연번 연속성, 다른 섹션에 남은 '유방' 언급 (Ⅳ 기타 약제는 유방암 줄을 모두 넣었는지) |
+| 4. 허가초과 | (`--with-offlabel`일 때만) 유방암 인정 요법·검토중 요법 | 시트·건수·요법코드 |
+| 5. 청크 검사 | 청크 만들기, 요법 구조화(순차·선택 약제·제형·약제별 본인부담·복합제) | 스키마(+설계 제안 칸), 빠진 낱말(행 청크·소단원 청크·일반원칙 각각), 원문에 없는 낱말, 깨진 글자, 약제명 목록·오타, 이전 실행 대비 행 수 |
+| 6. 투여 조건 | `reimbursement.conditions`를 설계 §3.5 형식으로 채우기. 저장본(`conditions_cache.jsonl`)에 있으면 그대로 쓰고, 없는 청크만 Claude API(claude-sonnet-5-5)에 요청. 저장본은 손으로 쓴 조건을 `--import`로 넣어 채울 수도 있음. 사람 검수표(.tsv) 만들기 | 항목마다 원문 구절, field·op·값 어휘, 약 이름 사전. 하나라도 틀리면 그 청크 조건을 버림. API 키가 없으면 경고만 내고 조건 없이 진행 (`--no-llm`) |
+| 7. 반영 | 레지스트리 신설·변경·삭제, 청크 파일·`index_status.json` 저장 | 허가초과 변경대비표와 diff 대조 |
+
+Claude API를 쓰려면 `conda install -n team_project -c conda-forge anthropic` 후 저장소 루트 `.env`에 `ANTHROPIC_API_KEY=...`를 넣는다 (git 제외).
+조건 field 어휘와 환자 JSON 경로는 `conditions.py`의 `FIELDS` (설계 문서·`reimbursement_field_values.csv` 기준, B 검토).
+
+API 없이 손으로 쓴 조건도 같은 검사(형식·어휘·원문 구절)를 거쳐 저장본에 넣을 수 있다. 통과한 행만 들어가고, 이후 파이프라인은 그 결과를 그대로 쓴다.
+2026-10-01 책자의 L3 131행은 이렇게 넣었다 (`data/reimbursement/conditions_manual/batch_*.json`, 작성자 "claude (대화에서 직접 작성, 2026-10-19)"). 책자 본문이 바뀐 행은 다시 써야 한다.
+조건 JSON에는 공고 원문 구절이 들어 있어 git에 올리지 않는다 (D의 PC에만 있음). 다른 팀원이 조건이 채워진 청크를 쓰려면 D에게 청크 파일을 받는다.
+
+```bash
+python -m src.reimbursement.conditions --import data/reimbursement/conditions_manual/batch_01_neo.json --author "이름"
+```
+
+결과물 (git에 올리지 않음):
+
+- `data/reimbursement/chunks/reimbursement_chunks_current.jsonl` — 마지막 정상 청크 (C의 색인에 넣을 파일)
+- `data/reimbursement/sections/booklet_sections_<책자날짜>.jsonl` — 목차 단위로 나눈 책자 전체 (섹션 하나 = 한 줄: 키, 제목, 목차 쪽, 본문 쪽, 글자 수, '유방' 언급 수, 본문)
+- `data/reimbursement/reports/run_<시각>.json` — 단계별 검사 결과, `last_good.json` — 마지막 정상 실행
+- `data/reimbursement/registry.db` — 문서·항목 버전 기록
+- `data/reimbursement/index_status.json` — 화면 하단 요약과 예정·진행중 공고 목록 (B의 `recommendation.index_status`, `pending_notices`)
+- `data/reimbursement/conditions_cache.jsonl` — 조건 결과 저장본 (Claude API 또는 `--import`)
+- `data/reimbursement/conditions_manual/` — 손으로 쓴 조건 JSON (`--import` 입력)
+- `data/reimbursement/reports/conditions_review_<책자날짜>.tsv` — 투여 조건 사람 검수표 (엑셀로 연다. 원문이 들어 있어 git에 올라가는 .csv 대신 .tsv)
+
+## 파일
+
+| 파일 | 내용 |
+|---|---|
+| `pipeline.py` | 전체 흐름과 단계별 검사 묶음 |
+| `fetch.py` | 게시판 파싱, 수집 계획, 내려받기 (요청 수 제한) |
+| `booklet.py`, `notice.py`, `extract.py` | 공고책자·공고전문 PDF 읽기 |
+| `validate.py` | 공고책자 검증 |
+| `offlabel.py` | 허가초과 xlsx 읽기와 검증 |
+| `chunks.py` | 유방암·병용요법 표 읽기, Ⅳ 기타 약제, 요법 구조화, 청크 만들기, 스키마 검사(+설계 제안 칸) |
+| `conditions.py` | 투여 조건 어휘(FIELDS), Claude API 구조화, 원문 구절 검사, 결과 저장, 검수표 |
+| `schema_proposal.md` | `schemas/chunk.json` 개정안 (설계 문서의 새 칸) |
+| `index.py` | 급여 청크를 C의 공용 색인에 넣기 (src/rag 함수 호출만) |
+| `qc.py` | 단계별 품질 검사 함수 |
+| `vocab.py` | 약제명 목록(공용 사전 + 유방암 추가분), 오타 찾기 |
+| `registry.py` | SQLite 레지스트리 |
+| `dates.py`, `status.py` | 날짜 표기 통일, §8 날짜 규칙 |
+| `check_booklet.py` | 공고책자 하나만 검증하는 보조 실행 파일 |
+
+새 약제가 나와 "약제명 목록에 없는 영문 낱말" 경고가 뜨면 `vocab.py`의 `BREAST_EXTRA`에 추가한다.
+
+## 남은 일 (2026-10-19)
+
+| 할 일 | 누가 |
+|---|---|
+| 투여 조건 사람 검수 (`conditions_review_20261001.tsv`의 O/X 칸) | D, B 확인 |
+| `src/rag/` 공개 함수에 `delete_by_doc_type(doc_type)` 추가. 이 함수가 없으면 `index.py`는 색인하지 않고 멈춘다 | C |
+| `schemas/chunk.json` 개정 (`schema_proposal.md`) | 4명 검토 |
+| 판정 쪽에서 `any_of_exceptions`를 "any_of 묶음이 실패해도 예외 조건을 모두 만족하면 통과"로 읽는지 맞추기 | B, D |
+| 개정 공고 덧씌우기 (설계 §6). 새 공고가 올라오면 실행해 보고 만든다 | D |
