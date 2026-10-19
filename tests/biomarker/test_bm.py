@@ -295,6 +295,20 @@ ASSESS_CASES = [
     ("A17", patient(treatments=[{"drugs": ["letrozole"], "start_day": 1500, "best_response": "PD",
                                  "stop_reason": None}]), "HR+/HER2-", "metastatic", {"BM4-ESR1-RETEST"},
      "원발 ESR1 결과 + 내분비요법 진행 -> 재검 권고"),
+    # 미시행 + raw "결과 대기"·"예정" -> 검사 권고 대신 결과 확인 (전달 문서 0절 5번, B 결정 2026-10-19)
+    ("A18", patient(mutations=genes_with({"status": "not_done", "raw": "결과 대기"})), "HR+/HER2-", "metastatic",
+     {"BM4-GBRCA1-PENDING", "BM4-GBRCA2-PENDING", "BM4-PALB2-PENDING", "BM4-PIK3CA-PENDING", "BM4-AKT1-PENDING",
+      "BM4-PTEN-PENDING", "BM4-ESR1-PENDING"}, "유전자 검사 결과 대기"),
+    ("A19", patient(mutations=genes_with({"status": "not_done", "raw": "예정"})), "HR+/HER2-", "metastatic",
+     {"BM4-GBRCA1-SCHEDULED", "BM4-GBRCA2-SCHEDULED", "BM4-PALB2-SCHEDULED", "BM4-PIK3CA-SCHEDULED",
+      "BM4-AKT1-SCHEDULED", "BM4-PTEN-SCHEDULED", "BM4-ESR1-SCHEDULED"}, "유전자 검사 예약"),
+    ("A20", patient(pdl1={"status": "not_done", "raw": "예정"}, **TNBC), "TNBC", "metastatic",
+     {"BM4-PDL1-SCHEDULED", "BM4-HER2-REASSESS"}, "PD-L1 검사 예약"),
+    ("A21", patient(er={"status": "not_done", "raw": "결과 대기"}), "HR+/HER2-", "metastatic", {"BM4-ER-PENDING"},
+     "ER 결과 대기"),
+    ("A22", patient(mutations=genes_with({"status": "not_done", "raw": "시행하지 않음"})), "HR+/HER2-", "metastatic",
+     {"BM4-GBRCA1", "BM4-GBRCA2", "BM4-PALB2", "BM4-PIK3CA", "BM4-AKT1", "BM4-PTEN", "BM4-ESR1"},
+     "raw가 고정 표기가 아니면 그대로 검사 권고"),
 ]
 
 
@@ -527,6 +541,11 @@ def main():
         if not ok:
             detail += f"  / 정답: {exp_sub} {exp_disease} {sorted(exp_tests)} {errors[:1]}"
         report(case_id, ok, note, detail)
+
+    pending = assess(patient(mutations=genes_with({"status": "not_done", "raw": "결과 대기"})))["tests_needed"]
+    pik = next(t for t in pending if t["rule_id"] == "BM4-PIK3CA-PENDING")
+    report("A23", pik["test"] == "PIK3CA 결과 확인" and "결과 확인 필요" in pik["reason"], "결과 확인 문구",
+           f"{pik['test']} / {pik['reason']}")
 
     # 전달 문서 8.2절 가상 차트: 입력 -> 기대 출력 (차수와 보고서 원문 파싱은 아직 비교하지 않음)
     ps, expected = handoff_example()
