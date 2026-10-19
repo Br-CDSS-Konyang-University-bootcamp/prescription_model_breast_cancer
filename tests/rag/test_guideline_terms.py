@@ -19,6 +19,18 @@ def _enum(schema_file, *path):
     return set(node["enum"])
 
 
+def _enum_in(schema_file, *path):
+    """path 끝의 필드에서 value enum을 찾는다 (patient_state의 allOf 구조)."""
+    node = json.loads((BASE_DIR / "schemas" / schema_file).read_text(encoding="utf-8"))
+    for key in path:
+        node = node[key]
+    for part in node["allOf"]:
+        value = part.get("properties", {}).get("value", {})
+        if "enum" in value:
+            return set(value["enum"])
+    raise KeyError(path)
+
+
 def test_columns_and_no_duplicates():
     assert list(TERMS[0]) == ["field", "canonical", "expression", "lang", "source", "preferred", "note"]
     keys = Counter((t["field"], t["canonical"], t["expression"]) for t in TERMS)
@@ -33,6 +45,7 @@ def test_exactly_one_preferred_expression_per_value():
 
 
 def test_canonical_values_match_schemas_and_drug_dictionary():
+    # canonical은 B의 biomarker_record 값(과 A의 patient_state 값, 약 사전 값)으로 고정한다. C가 새 값을 만들지 않는다
     allowed = {
         "biomarker_record.subtype": _enum("biomarker_record.json", "properties", "subtype"),
         "biomarker_record.setting.disease": _enum("biomarker_record.json", "properties", "setting", "properties", "disease"),
@@ -44,11 +57,17 @@ def test_canonical_values_match_schemas_and_drug_dictionary():
         drug_rows = list(csv.DictReader(f))
     allowed["treatment_history.drug_subclass"] = {r["drug_subclass"] for r in drug_rows if r["drug_subclass"]}
     allowed["treatment_history.drug_class"] = {r["drug_class"] for r in drug_rows}
+    fields = ("properties", "fields", "properties")
+    for field in ("patient.menopausal_status", "patient.gender", "neoadjuvant_response.pcr"):
+        group, name = field.split(".")
+        allowed[field] = _enum_in("patient_state.json", *fields, group, "properties", name)
+    with open(BASE_DIR / "data" / "dictionaries" / "field_vocab.csv", encoding="utf-8-sig", newline="") as f:
+        allowed["metastatic_sites"] = {r["canonical"] for r in csv.DictReader(f) if r["field"] == "metastatic_sites"}
     for t in TERMS:
         if t["field"] == "biomarker_record.records":
             marker, status = t["canonical"].split(":")
             assert marker in markers and status in statuses, t
-        elif t["field"] in allowed:
+        else:
             assert t["canonical"] in allowed[t["field"]], t
 
 

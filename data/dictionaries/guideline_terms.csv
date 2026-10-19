@@ -49,6 +49,7 @@ biomarker_record.setting.line,>=3L,later lines,en,esmo,,
 biomarker_record.setting.line,>=3L,after at least two lines,en,esmo,,
 biomarker_record.setting.line,>=3L,at least two prior therapies,en,asco,,
 biomarker_record.records,HER2:positive,HER2-positive,en,both,1,
+biomarker_record.records,HER2:negative,HER2-negative,en,both,1,B 판정 negative. low·ultralow도 아형은 HER2 음성
 biomarker_record.records,HER2:low,HER2-low,en,both,1,아형은 HER2 음성이고 T-DXd 권고를 끌어온다
 biomarker_record.records,HER2:low,IHC 1+ or 2+ and ISH-negative,en,asco,,
 biomarker_record.records,HER2:low,HER2-low expressing,en,esmo,,
@@ -78,7 +79,8 @@ biomarker_record.records,PD-L1:positive,PD-L1-positive,en,both,1,
 biomarker_record.records,PD-L1:positive,CPS ≥10,en,both,,22C3
 biomarker_record.records,PD-L1:positive,immune cell PD-L1 positivity ≥1%,en,esmo,,SP142 (atezolizumab)
 biomarker_record.records,PD-L1:negative,PD-L1-negative,en,both,1,
-biomarker_record.records,Ki-67:positive,Ki-67,en,both,1,Ki-67 고발현의 B 판정값(positive 등)은 B와 확인 필요
+biomarker_record.records,Ki-67:positive,Ki-67,en,both,1,B 판정 positive = 20% 이상 (2026-10-15 확정)
+biomarker_record.records,Ki-67:intermediate,Ki-67,en,both,1,B는 20%에 걸친 구간을 intermediate로 내고 분자 아형에서 high로 본다
 treatment_history.drug_subclass,AI_nonsteroidal,aromatase inhibitor,en,both,1,canonical은 drug_classes.csv의 drug_subclass
 treatment_history.drug_subclass,AI_nonsteroidal,nonsteroidal AI,en,asco,,
 treatment_history.drug_subclass,AI_nonsteroidal,AI,en,both,,

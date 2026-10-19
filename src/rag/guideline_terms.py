@@ -1,5 +1,6 @@
 # src/rag/guideline_terms.py
 # 지침 표현 사전 (data/dictionaries/guideline_terms.csv): 환자 JSON의 코드 값 → 지침 원문에 쓰이는 영어 표현.
+# canonical은 B의 biomarker_record 값(과 A의 patient_state 값, 약 사전 값)으로 고정한다. C는 expression만 늘린다.
 # 검색 질의문과 평가용 키워드를 만들 때 쓴다. 청크 태깅(chunk_common)도 같은 사전으로 옮겨 갈 예정이다.
 # 실행: team_project 폴더에서 python -m src.rag.guideline_terms  → 표현마다 청크에 몇 번 나오는지 보여 준다
 import csv

@@ -18,7 +18,7 @@ ESMO·ASCO 지침을 수집·청킹하고, 지침과 급여 청크가 함께 들
 | `chunker_asco_all.py` | ASCO 처방 지침 11개 md → `data/chunks/asco_chunks_all.json`. 실행: `python -m src.rag.chunker_asco_all` |
 | `chunker_esmo.py` | ESMO EBC·MBC md → `data/chunks/esmo_chunks.json`. 실행: `python -m src.rag.chunker_esmo` |
 | `chunk_common.py` | 두 청커가 같이 쓰는 텍스트 정제, 약제·바이오마커 태깅, 청크 형식, 부모 청크(`attach_parent`) |
-| `guideline_terms.py` | 지침 표현 사전 `data/dictionaries/guideline_terms.csv`(환자 JSON 코드 값 → 지침 원문 표현)를 읽어 질의어를 만든다(`query_terms`). 실행하면 표현마다 청크에 몇 번 나오는지 보여 준다: `python -m src.rag.guideline_terms` |
+| `guideline_terms.py` | 지침 표현 사전 `data/dictionaries/guideline_terms.csv`(환자 JSON 코드 값 → 지침 원문 표현)를 읽어 질의어를 만든다(`query_terms`). `canonical`은 B의 `biomarker_record` 값(아형·치료 상황·`마커:상태값`)과 A의 `patient_state` 값, 약 사전 값으로 고정하고, C는 `expression`만 늘린다 (테스트가 스키마 밖 값을 막는다). 실행하면 표현마다 청크에 몇 번 나오는지 보여 준다: `python -m src.rag.guideline_terms` |
 | `chunk_store.py` | 청크 JSON을 읽어 `get_chunk(id)`, `get_parent(chunk)`로 찾는다. `select_index_chunks`는 색인할 청크(부모 제외)를 고른다 |
 | `client.py` | Qdrant 로컬 DB(`data/qdrant_db/`, git 제외)와 임베딩 모델(bge-m3) |
 | `indexer.py` | `init_collection()`, `index_chunks()`(chunk_id로 고정 ID), `delete_by_doc_type(doc_type)`(지침 또는 급여 청크만 삭제. D는 `"reimbursement"`로 부름), `delete_guideline_chunks()`, `close_indexer()`. D는 `src.rag`(`__init__.py`)로 공개한 `init_collection`·`index_chunks`·`delete_by_doc_type`·`close_indexer`만 부른다 |
