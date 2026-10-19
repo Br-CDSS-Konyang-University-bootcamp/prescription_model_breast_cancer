@@ -1,0 +1,48 @@
+gene,protein_change,evidence_level,evidence_type,significance,disease,therapies,evidence_id,citation,last_review_date
+AKT1,E17K,B,Predictive,Sensitivity/Response,Cancer,Capivasertib,3039,"Hyman et al., 2017",2023-01-09 21:46:24 UTC
+AKT1,E17K,C,Predictive,Sensitivity/Response,Breast Cancer,Capivasertib,709,"Davies et al., 2015",2023-01-09 21:46:24 UTC
+PIK3CA,C420R,A,Predictive,Sensitivity/Response,Breast Cancer,"Fulvestrant,Alpelisib",11275,"André et al., 2019",2024-11-27 23:13:45 UTC
+PIK3CA,C420R,D,Predictive,Sensitivity/Response,HER2 Positive Breast Cancer,Pictilisib,2078,"O'Brien et al., 2010",2023-01-09 21:46:40 UTC
+PIK3CA,E542K,A,Predictive,Sensitivity/Response,Breast Cancer,"Alpelisib,Fulvestrant",7315,"André et al., 2019",2023-01-09 21:46:27 UTC
+PIK3CA,E542K,C,Predictive,Sensitivity/Response,Head And Neck Squamous Cell Carcinoma,Apitolisib,1549,"Dolly et al., 2016",2023-01-09 21:46:27 UTC
+PIK3CA,E542K,D,Predictive,Sensitivity/Response,Breast Cancer,Izorlisib,310,"Tanaka et al., 2011",2023-01-09 21:46:27 UTC
+PIK3CA,E542K,D,Predictive,Sensitivity/Response,Breast Cancer,Sirolimus,311,"Kang et al., 2005",2023-01-09 21:46:27 UTC
+PIK3CA,E542K,D,Predictive,Sensitivity/Response,Thyroid Cancer,"Perifosine,Temsirolimus",1626,"Liu et al., 2009",2023-01-09 21:46:27 UTC
+PIK3CA,E542K,D,Predictive,Sensitivity/Response,HER2 Positive Breast Cancer,Pictilisib,2022,"O'Brien et al., 2010",2023-01-09 21:46:27 UTC
+PIK3CA,E542K,D,Predictive,Sensitivity/Response,Breast Cancer,Pictilisib,2026,"O'Brien et al., 2010",2023-01-09 21:46:27 UTC
+PIK3CA,E542K,D,Predictive,Sensitivity/Response,HER2 Positive Breast Cancer,PI-103,2058,"O'Brien et al., 2010",2023-01-09 21:46:27 UTC
+PIK3CA,E542K,D,Predictive,Sensitivity/Response,HER2 Positive Breast Cancer,PI3Ka/Di,8013,"O'Brien et al., 2010",2023-01-09 21:46:27 UTC
+PIK3CA,E542K,D,Predictive,Sensitivity/Response,Breast Cancer,PI3Ka/Di,8016,"O'Brien et al., 2010",2023-01-09 21:46:27 UTC
+PIK3CA,E545K,C,Predictive,Sensitivity/Response,Cancer,Apitolisib,1550,"Dolly et al., 2016",2023-01-09 21:46:27 UTC
+PIK3CA,E545K,D,Predictive,Sensitivity/Response,Breast Cancer,"Akt Inhibitor MK2206,Pictilisib",710,"Beaver et al., 2013",2023-01-09 21:46:27 UTC
+PIK3CA,E545K,D,Predictive,Sensitivity/Response,Breast Cancer,Pictilisib,2034,"O'Brien et al., 2010",2023-01-09 21:46:28 UTC
+PIK3CA,E545K,D,Predictive,Sensitivity/Response,Lung Non-small Cell Carcinoma,PI103,2040,"Zou et al., 2009",2023-01-09 21:46:27 UTC
+PIK3CA,E545K,D,Predictive,Sensitivity/Response,HER2 Positive Breast Cancer,Pictilisib,2062,"O'Brien et al., 2010",2023-01-09 21:46:28 UTC
+PIK3CA,E545K,D,Predictive,Sensitivity/Response,Cervix Carcinoma,"Pictilisib,Cisplatin",2984,"Arjumand et al., 2016",2023-01-09 21:46:27 UTC
+PIK3CA,E545K,D,Predictive,Sensitivity/Response,HER2 Positive Breast Cancer,PI3Ka/Di,8017,"O'Brien et al., 2010",2023-01-09 21:46:27 UTC
+PIK3CA,E545K,D,Predictive,Sensitivity/Response,Breast Cancer,PI3Ka/Di,8018,"O'Brien et al., 2010",2023-01-09 21:46:27 UTC
+PIK3CA,H1047L,D,Predictive,Sensitivity/Response,Breast Cancer,Pictilisib,2089,"O'Brien et al., 2010",2023-01-09 21:46:43 UTC
+PIK3CA,H1047L,D,Predictive,Sensitivity/Response,Breast Cancer,PI-103,8009,"O'Brien et al., 2010",2023-01-09 21:46:43 UTC
+PIK3CA,H1047L,D,Predictive,Sensitivity/Response,Breast Cancer,PI3Ka/Di,8019,"O'Brien et al., 2010",2023-01-09 21:46:43 UTC
+PIK3CA,H1047R,C,Predictive,Sensitivity/Response,HER2 Positive Breast Cancer,"Fulvestrant,Everolimus",1623,"Sun et al., 2016",2023-01-09 21:46:28 UTC
+PIK3CA,H1047R,D,Predictive,Sensitivity/Response,Breast Cancer,Izorlisib,314,"Tanaka et al., 2011",2023-01-09 21:46:28 UTC
+PIK3CA,H1047R,D,Predictive,Sensitivity/Response,Head And Neck Cancer,Dactolisib,1361,"Wirtz et al., 2015",2023-01-09 21:46:28 UTC
+PIK3CA,H1047R,D,Predictive,Sensitivity/Response,Head And Neck Cancer,Dactolisib,1362,"Lui et al., 2013",2023-01-09 21:46:28 UTC
+PIK3CA,H1047R,D,Predictive,Sensitivity/Response,Head And Neck Cancer,"Dactolisib,Cetuximab",1363,"Lui et al., 2013",2023-01-09 21:46:28 UTC
+PIK3CA,H1047R,D,Predictive,Sensitivity/Response,Head And Neck Cancer,Alpelisib,1401,"Keam et al., 2015",2023-01-09 21:46:28 UTC
+PIK3CA,H1047R,D,Predictive,Sensitivity/Response,Lung Adenocarcinoma,Dactolisib,1447,"Engelman et al., 2008",2023-01-09 21:46:28 UTC
+PIK3CA,H1047R,D,Predictive,Sensitivity/Response,Head And Neck Squamous Cell Carcinoma,Taselisib,1465,"Zumsteg et al., 2016",2023-01-09 21:46:28 UTC
+PIK3CA,H1047R,D,Predictive,Sensitivity/Response,HER2 Positive Breast Cancer,"Trastuzumab,Capivasertib",1505,"Davies et al., 2012",2023-01-09 21:46:28 UTC
+PIK3CA,H1047R,D,Predictive,Sensitivity/Response,HER2 Positive Breast Cancer,"Lapatinib,Capivasertib",1506,"Davies et al., 2012",2023-01-09 21:46:28 UTC
+PIK3CA,H1047R,D,Predictive,Sensitivity/Response,Thyroid Cancer,"Perifosine,Temsirolimus",1625,"Liu et al., 2009",2023-01-09 21:46:28 UTC
+PIK3CA,H1047R,D,Predictive,Sensitivity/Response,HER2 Positive Breast Cancer,Pictilisib,2096,"O'Brien et al., 2010",2023-01-09 21:46:28 UTC
+PIK3CA,H1047R,D,Predictive,Sensitivity/Response,Breast Cancer,Pictilisib,2102,"O'Brien et al., 2010",2023-01-09 21:46:28 UTC
+PIK3CA,H1047R,D,Predictive,Sensitivity/Response,Colorectal Cancer,"Akt Inhibitor MK2206,Vemurafenib",8364,"Yang et al., 2012",2023-01-09 21:46:28 UTC
+PIK3CA,K111N,D,Predictive,Sensitivity/Response,HER2 Positive Breast Cancer,Pictilisib,2085,"O'Brien et al., 2010",2023-01-09 21:46:43 UTC
+PIK3CA,K111N,D,Predictive,Sensitivity/Response,HER2 Positive Breast Cancer,PI-103,8011,"O'Brien et al., 2010",2023-01-09 21:46:43 UTC
+PIK3CA,K111N,D,Predictive,Sensitivity/Response,HER2 Positive Breast Cancer,PI3Ka/Di,8020,"O'Brien et al., 2010",2023-01-09 21:46:43 UTC
+PIK3CA,P471L,C,Predictive,Sensitivity/Response,Merkel Cell Carcinoma,Idelalisib,739,"Shiver et al., 2015",2023-01-09 21:46:31 UTC
+PIK3CA,R88Q,A,Predictive,Sensitivity/Response,HER2 Negative Breast Cancer,"Capivasertib,Fulvestrant",12034,"Turner et al., 2023",2024-10-30 16:47:22 UTC
+PTEN,R130*,D,Predictive,Sensitivity/Response,Thyroid Cancer,"Temsirolimus,Perifosine",1627,"Liu et al., 2009",2023-01-09 21:46:36 UTC
+PTEN,R173C,C,Oncogenic,Oncogenicity,Endometrial Hyperplasia,,1934,"Maxwell et al., 1998",2023-02-03 16:21:43 UTC
+PTEN,R233*,D,Predictive,Sensitivity/Response,Breast Cancer,MTOR Inhibitor,317,"Courtney et al., 2010",2023-01-09 21:46:28 UTC
