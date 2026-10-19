@@ -67,7 +67,7 @@ def _load_drug_names() -> list[str]:
             if name and "nos" not in name.split() and name != "unknown" and "vaccine" not in name:
                 names.add(name)
     # 긴 이름부터 찾아야 trastuzumab deruxtecan이 trastuzumab으로 잡히지 않는다
-    return sorted(names, key=len, reverse=True)
+    return sorted(names, key=lambda n: (-len(n), n))  # 길이가 같으면 이름 순 (실행마다 같은 순서)
 
 
 _DRUG_NAMES = None
@@ -90,15 +90,24 @@ def find_drugs(text: str) -> list[str]:
 
 
 def find_biomarker_tags(text: str) -> list[str]:
-    # 태그 이름은 B(biomarker)와 맞추기 전 임시값이다 (리뷰 6번, B와 협의 후 공용 파일로 옮긴다)
+    # 태그 이름은 B가 biomarker_record.records[].rag_tags에 붙이는 이름과 같다 (src/biomarker/README.md).
+    # HER2-low, HER2-ultralow는 B가 아직 태그로 내지 않는다 (B는 HER2 상태값 low, ultralow로 낸다)
     t = text.lower()
     tags = []
     if "her2-low" in t or "her2 low" in t or "ihc 1+" in t or "ihc 2+" in t:
         tags.append("HER2-low")
     if "her2-ultralow" in t or "ultralow" in t:
         tags.append("HER2-ultralow")
+    if re.search(r"\ber-low|er-/pgr-low|\ber low\b|1%-9% er\b", t):
+        tags.append("ER-low")
+    if re.search(r"ki-?67 (score|index|level)?\s*(of )?≥\s?\d|high ki-?67", t):
+        tags.append("Ki-67-high")
     if re.search(r"germline brca|gbrca|brca1/2m|brca1 or 2 mutation|brca1 or brca2", t):
         tags.append("gBRCA")
+    if re.search(r"somatic[^.]{0,40}brca|sbrca", t):
+        tags.append("sBRCA")
+    if "palb2" in t:
+        tags.append("gPALB2")
     if "pik3ca" in t:
         tags.append("PIK3CA-mut")
     if "esr1" in t:

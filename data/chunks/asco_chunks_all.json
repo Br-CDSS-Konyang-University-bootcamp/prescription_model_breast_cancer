@@ -284,6 +284,7 @@
       "adjuvant"
     ],
     "biomarker_tags": [
+      "Ki-67-high",
       "gBRCA"
     ],
     "drugs": [
@@ -318,7 +319,9 @@
     "line": [
       "adjuvant"
     ],
-    "biomarker_tags": [],
+    "biomarker_tags": [
+      "Ki-67-high"
+    ],
     "drugs": [
       "abemaciclib"
     ],
@@ -349,7 +352,9 @@
     "line": [
       "adjuvant"
     ],
-    "biomarker_tags": [],
+    "biomarker_tags": [
+      "Ki-67-high"
+    ],
     "drugs": [
       "abemaciclib"
     ],
@@ -513,6 +518,7 @@
       "neoadjuvant"
     ],
     "biomarker_tags": [
+      "Ki-67-high",
       "PD-L1+"
     ],
     "drugs": [
@@ -1159,7 +1165,9 @@
     "line": [
       "adjuvant"
     ],
-    "biomarker_tags": [],
+    "biomarker_tags": [
+      "Ki-67-high"
+    ],
     "drugs": [
       "abemaciclib"
     ],
@@ -1726,6 +1734,8 @@
     ],
     "biomarker_tags": [
       "gBRCA",
+      "sBRCA",
+      "gPALB2",
       "PD-L1+"
     ],
     "drugs": [
@@ -1872,7 +1882,9 @@
       "any"
     ],
     "biomarker_tags": [
-      "gBRCA"
+      "gBRCA",
+      "sBRCA",
+      "gPALB2"
     ],
     "drugs": [
       "talazoparib",
@@ -2033,7 +2045,9 @@
       "any"
     ],
     "biomarker_tags": [
-      "gBRCA"
+      "gBRCA",
+      "sBRCA",
+      "gPALB2"
     ],
     "drugs": [],
     "evidence": null,
@@ -2063,7 +2077,9 @@
       ">=3L"
     ],
     "biomarker_tags": [
-      "gBRCA"
+      "gBRCA",
+      "sBRCA",
+      "gPALB2"
     ],
     "drugs": [],
     "evidence": {
@@ -2203,7 +2219,9 @@
       ">=3L"
     ],
     "biomarker_tags": [
-      "gBRCA"
+      "gBRCA",
+      "sBRCA",
+      "gPALB2"
     ],
     "drugs": [],
     "evidence": null,
@@ -2234,7 +2252,9 @@
       ">=3L"
     ],
     "biomarker_tags": [
-      "gBRCA"
+      "gBRCA",
+      "sBRCA",
+      "gPALB2"
     ],
     "drugs": [],
     "evidence": {
@@ -2444,9 +2464,9 @@
       "margetuximab",
       "trastuzumab",
       "pertuzumab",
-      "tucatinib",
-      "neratinib",
       "lapatinib",
+      "neratinib",
+      "tucatinib",
       "trastuzumab deruxtecan"
     ],
     "evidence": null,
@@ -2483,9 +2503,9 @@
       "margetuximab",
       "trastuzumab",
       "pertuzumab",
-      "tucatinib",
-      "neratinib",
       "lapatinib",
+      "neratinib",
+      "tucatinib",
       "trastuzumab deruxtecan"
     ],
     "evidence": {

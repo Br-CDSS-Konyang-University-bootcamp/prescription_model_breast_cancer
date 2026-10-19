@@ -490,10 +490,10 @@
     ],
     "biomarker_tags": [],
     "drugs": [
-      "trastuzumab",
       "carboplatin",
-      "pertuzumab",
+      "trastuzumab",
       "paclitaxel",
+      "pertuzumab",
       "neratinib",
       "trastuzumab emtansine"
     ],
@@ -932,6 +932,7 @@
       "adjuvant"
     ],
     "biomarker_tags": [
+      "ER-low",
       "gBRCA"
     ],
     "drugs": [
@@ -966,7 +967,9 @@
     "line": [
       "any"
     ],
-    "biomarker_tags": [],
+    "biomarker_tags": [
+      "ER-low"
+    ],
     "drugs": [],
     "evidence": {
       "loe": "II",
@@ -1470,11 +1473,11 @@
       "PIK3CA-mut"
     ],
     "drugs": [
-      "palbociclib",
       "abemaciclib",
       "fulvestrant",
-      "ribociclib",
-      "inavolisib"
+      "palbociclib",
+      "inavolisib",
+      "ribociclib"
     ],
     "evidence": null,
     "superseded_by": null,
@@ -1537,8 +1540,8 @@
     ],
     "biomarker_tags": [],
     "drugs": [
-      "palbociclib",
       "abemaciclib",
+      "palbociclib",
       "ribociclib"
     ],
     "evidence": {
@@ -1576,9 +1579,9 @@
       "PIK3CA-mut"
     ],
     "drugs": [
-      "palbociclib",
       "abemaciclib",
       "fulvestrant",
+      "palbociclib",
       "ribociclib"
     ],
     "evidence": {
@@ -1616,8 +1619,8 @@
       "PIK3CA-mut"
     ],
     "drugs": [
-      "palbociclib",
       "fulvestrant",
+      "palbociclib",
       "inavolisib"
     ],
     "evidence": {
@@ -1655,9 +1658,9 @@
       "PIK3CA-mut"
     ],
     "drugs": [
-      "palbociclib",
       "abemaciclib",
       "fulvestrant",
+      "palbociclib",
       "ribociclib"
     ],
     "evidence": {
@@ -1759,6 +1762,8 @@
     ],
     "biomarker_tags": [
       "gBRCA",
+      "sBRCA",
+      "gPALB2",
       "PIK3CA-mut",
       "ESR1-mut",
       "AKT1-mut",
@@ -1772,8 +1777,8 @@
       "talazoparib",
       "everolimus",
       "exemestane",
-      "tamoxifen",
       "alpelisib",
+      "tamoxifen",
       "olaparib"
     ],
     "evidence": null,
@@ -2022,7 +2027,9 @@
     "line": [
       "2L"
     ],
-    "biomarker_tags": [],
+    "biomarker_tags": [
+      "gPALB2"
+    ],
     "drugs": [
       "talazoparib",
       "olaparib"
@@ -2058,7 +2065,9 @@
     "line": [
       "2L"
     ],
-    "biomarker_tags": [],
+    "biomarker_tags": [
+      "sBRCA"
+    ],
     "drugs": [],
     "evidence": {
       "loe": "II",
@@ -2205,8 +2214,8 @@
     ],
     "drugs": [
       "nab-paclitaxel",
-      "trastuzumab deruxtecan",
       "datopotamab deruxtecan",
+      "trastuzumab deruxtecan",
       "sacituzumab govitecan",
       "capecitabine",
       "bevacizumab"
@@ -2728,10 +2737,10 @@
       "palbociclib",
       "trastuzumab",
       "vinorelbine",
-      "pertuzumab",
       "paclitaxel",
-      "lapatinib",
+      "pertuzumab",
       "docetaxel",
+      "lapatinib",
       "tucatinib",
       "trastuzumab deruxtecan"
     ],
@@ -3289,8 +3298,8 @@
       "capecitabine",
       "trastuzumab",
       "tucatinib",
-      "trastuzumab deruxtecan",
-      "trastuzumab emtansine"
+      "trastuzumab emtansine",
+      "trastuzumab deruxtecan"
     ],
     "evidence": null,
     "superseded_by": null,
@@ -3397,8 +3406,8 @@
     "biomarker_tags": [],
     "drugs": [
       "trastuzumab",
-      "trastuzumab deruxtecan",
-      "trastuzumab emtansine"
+      "trastuzumab emtansine",
+      "trastuzumab deruxtecan"
     ],
     "evidence": {
       "loe": "I",
@@ -3471,8 +3480,8 @@
       "capecitabine",
       "trastuzumab",
       "tucatinib",
-      "trastuzumab deruxtecan",
-      "trastuzumab emtansine"
+      "trastuzumab emtansine",
+      "trastuzumab deruxtecan"
     ],
     "evidence": null,
     "superseded_by": null,
@@ -3506,8 +3515,8 @@
       "capecitabine",
       "trastuzumab",
       "tucatinib",
-      "trastuzumab deruxtecan",
-      "trastuzumab emtansine"
+      "trastuzumab emtansine",
+      "trastuzumab deruxtecan"
     ],
     "evidence": {
       "loe": "II",
@@ -3580,8 +3589,8 @@
       "capecitabine",
       "margetuximab",
       "trastuzumab",
-      "neratinib",
       "lapatinib",
+      "neratinib",
       "tucatinib",
       "trastuzumab emtansine"
     ],
@@ -3802,15 +3811,15 @@
       "sacituzumab govitecan",
       "nab-paclitaxel",
       "pembrolizumab",
-      "capecitabine",
       "atezolizumab",
+      "capecitabine",
+      "bevacizumab",
+      "carboplatin",
       "gemcitabine",
       "talazoparib",
-      "carboplatin",
-      "bevacizumab",
       "paclitaxel",
-      "olaparib",
-      "datopotamab deruxtecan"
+      "datopotamab deruxtecan",
+      "olaparib"
     ],
     "evidence": null,
     "superseded_by": null,
@@ -3882,8 +3891,8 @@
     "drugs": [
       "nab-paclitaxel",
       "pembrolizumab",
-      "gemcitabine",
       "carboplatin",
+      "gemcitabine",
       "paclitaxel"
     ],
     "evidence": {
@@ -3960,8 +3969,8 @@
       "PD-L1+"
     ],
     "drugs": [
-      "talazoparib",
       "carboplatin",
+      "talazoparib",
       "olaparib"
     ],
     "evidence": {
@@ -4142,16 +4151,17 @@
     ],
     "biomarker_tags": [
       "HER2-low",
-      "gBRCA"
+      "gBRCA",
+      "gPALB2"
     ],
     "drugs": [
       "sacituzumab govitecan",
       "capecitabine",
-      "talazoparib",
       "carboplatin",
+      "talazoparib",
       "vinorelbine",
-      "olaparib",
       "eribulin",
+      "olaparib",
       "trastuzumab deruxtecan"
     ],
     "evidence": null,
@@ -4260,7 +4270,8 @@
       ">=3L"
     ],
     "biomarker_tags": [
-      "gBRCA"
+      "gBRCA",
+      "gPALB2"
     ],
     "drugs": [
       "talazoparib",
@@ -4299,7 +4310,8 @@
       ">=3L"
     ],
     "biomarker_tags": [
-      "gBRCA"
+      "gBRCA",
+      "gPALB2"
     ],
     "drugs": [
       "carboplatin"
@@ -5494,11 +5506,11 @@
       "capecitabine",
       "fulvestrant",
       "trastuzumab",
-      "neratinib",
       "lapatinib",
+      "neratinib",
       "tucatinib",
-      "trastuzumab deruxtecan",
-      "trastuzumab emtansine"
+      "trastuzumab emtansine",
+      "trastuzumab deruxtecan"
     ],
     "evidence": null,
     "superseded_by": null,
@@ -5642,8 +5654,8 @@
     "drugs": [
       "capecitabine",
       "trastuzumab",
-      "neratinib",
       "lapatinib",
+      "neratinib",
       "tucatinib",
       "trastuzumab deruxtecan"
     ],
