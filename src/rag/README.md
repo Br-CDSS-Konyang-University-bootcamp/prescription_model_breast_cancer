@@ -13,9 +13,17 @@ ESMO·ASCO 지침을 수집·청킹하고, 지침과 급여 청크가 함께 들
 
 | 파일 | 내용 |
 |---|---|
+| `convert_pdf_to_md.py` | `data/guidelines/*.pdf`를 `data/parsed_md/{asco,esmo}/*.md`로 변환 (docling). 실행: `python -m src.rag.convert_pdf_to_md` |
+| `chunker_asco_all.py` | ASCO 처방 지침 11개 md → `data/chunks/asco_chunks_all.json`. 실행: `python -m src.rag.chunker_asco_all` |
+| `chunker_esmo.py` | ESMO EBC·MBC md → `data/chunks/esmo_chunks.json`. 실행: `python -m src.rag.chunker_esmo` |
+| `chunk_common.py` | 두 청커가 같이 쓰는 텍스트 정제, 약제·바이오마커 태깅, 청크 형식 |
 | `client.py` | Qdrant 로컬 DB(`data/qdrant_db/`, git 제외)와 임베딩 모델(bge-m3) |
-| `indexer.py` | `init_collection()`, `index_chunks()` |
+| `indexer.py` | `init_collection()`, `index_chunks()`(chunk_id로 고정 ID), `delete_guideline_chunks()`(지침 청크만 삭제) |
 | `searcher.py` | `search_guidelines()` |
-| `run_indexing.py` | `data/chunks/*.json`을 읽어 색인을 새로 만든다. 실행: `team_project` 폴더에서 `python -m src.rag.run_indexing` |
+| `run_indexing.py` | `data/chunks/*.json`을 스키마 검증하고, 지침 청크만 지운 뒤 다시 색인한다 (D의 급여 청크는 남김). 실행: `python -m src.rag.run_indexing` |
 
-청크 JSON은 `data/chunks/`에 둔다 (`.gitignore`에서 이 폴더의 `.json`만 허용).
+모든 명령은 `team_project` 폴더에서 실행한다. 순서: PDF 변환 → 청커 2개 → `python -m pytest tests/rag` → 색인.
+
+- 지침 PDF와 변환한 md(`data/parsed_md/`)는 저작권 문서라 저장소에 올리지 않는다. 각자 PDF에서 만든다.
+- 청크 JSON은 `data/chunks/`에 커밋한다 (`.gitignore`에서 이 폴더의 `.json`만 허용). 커밋 전에 `tests/rag/test_chunks_schema.py`(스키마 검증, chunk_id 중복)가 통과해야 한다.
+- 청킹하는 문서 목록은 각 청커의 `DOCS`에 있다. 제외한 문서와 이유는 `rag_non_prescription_docs.md`.

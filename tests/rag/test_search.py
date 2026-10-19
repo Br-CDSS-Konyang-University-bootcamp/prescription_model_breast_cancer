@@ -1,5 +1,10 @@
 # tests/rag/test_search.py
-from src.rag.searcher import search_guidelines
+import pytest
+
+pytest.importorskip("qdrant_client")
+pytest.importorskip("sentence_transformers")
+
+from src.rag.searcher import search_guidelines  # noqa: E402
 
 def test_search_asco_guideline():
     results = search_guidelines(
