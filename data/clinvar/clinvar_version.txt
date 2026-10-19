@@ -1,5 +1,0 @@
-source: https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/variant_summary.txt.gz
-last_modified: Mon, 12 Oct 2026 22:21:13 GMT
-downloaded: 2026-10-19
-genes: BRCA1, BRCA2, PALB2, PTEN (GRCh38)
-rows: 39773

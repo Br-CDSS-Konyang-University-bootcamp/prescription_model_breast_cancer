@@ -198,11 +198,11 @@ KI67_CASES = [
 
 PDL1_CASES = [
     # (id, 칸, 정답 상태, 정답 태그, 메모) - 전달 문서 6.5절
-    ("P01", f({"assay": "22C3", "score_type": "CPS", "score": 12}), "positive", ["PD-L1-CPS10"], "pembrolizumab 기준"),
-    ("P02", f({"assay": "22C3", "score_type": "CPS", "score": 10}), "positive", ["PD-L1-CPS10"], "경계: CPS 10은 양성"),
+    ("P01", f({"assay": "22C3", "score_type": "CPS", "score": 12}), "positive", ["PD-L1+"], "pembrolizumab 기준. 태그는 C 표준 태그"),
+    ("P02", f({"assay": "22C3", "score_type": "CPS", "score": 10}), "positive", ["PD-L1+"], "경계: CPS 10은 양성"),
     ("P03", f({"assay": "22C3", "score_type": "CPS", "score": 5}), "negative", [], ""),
-    ("P04", f({"assay": "SP142", "score_type": "IC", "score": 2}), "positive", ["PD-L1-SP142"], "atezolizumab 기준"),
-    ("P05", f({"assay": "SP142", "score_type": "IC", "score": 1}), "positive", ["PD-L1-SP142"], "경계: IC 1%는 양성"),
+    ("P04", f({"assay": "SP142", "score_type": "IC", "score": 2}), "positive", ["PD-L1+"], "atezolizumab 기준"),
+    ("P05", f({"assay": "SP142", "score_type": "IC", "score": 1}), "positive", ["PD-L1+"], "경계: IC 1%는 양성"),
     ("P06", f({"assay": "SP142", "score_type": "IC", "score": 0}), "negative", [], ""),
     ("P07", f({"assay": "SP263", "score_type": "TPS", "score": 50}), "unknown", [], "기준 검사법이 아니면 판정 안 함"),
     ("P08", f({"assay": "22C3", "score_type": "TPS", "score": 50}), "unknown", [], "22C3여도 CPS가 아니면 판정 안 함"),
@@ -325,9 +325,9 @@ GENE_CASES = [
     ("G06", "PIK3CA", "VC-1", NR, "PIK3CA", "not_recorded", [], ""),
     ("G07", "AKT1", "VC-1", gene(("E17K", MIS)), "AKT1", "positive", ["AKT1-mut"], "변이 목록 원문 확인 필요"),
     ("G08", "AKT1", "VC-1", gene(("L52R", MIS)), "AKT1", "vus", [], ""),
-    ("G09", "PTEN", "VC-1", gene(("R130*", NON)), "PTEN", "positive", ["PTEN-loss"], "절단 변이"),
-    ("G10", "PTEN", "VC-1", gene(("K267Rfs*9", "Frame_Shift_Ins")), "PTEN", "positive", ["PTEN-loss"], ""),
-    ("G11", "PTEN", "VC-1", gene(("R130Q", MIS)), "PTEN", "positive", ["PTEN-loss"],
+    ("G09", "PTEN", "VC-1", gene(("R130*", NON)), "PTEN", "positive", ["PTEN-alt"], "절단 변이. 태그는 C 표준 태그 (RAG 설계 3.5절)"),
+    ("G10", "PTEN", "VC-1", gene(("K267Rfs*9", "Frame_Shift_Ins")), "PTEN", "positive", ["PTEN-alt"], ""),
+    ("G11", "PTEN", "VC-1", gene(("R130Q", MIS)), "PTEN", "positive", ["PTEN-alt"],
      "미스센스지만 ClinVar Pathogenic 3성 (BM-3)"),
     ("G12", "BRCA1", "TCGA-XX-0001", gene(("Q934*", NON)), "gBRCA1", "positive", ["gBRCA"],
      "TCGA는 gBRCA로 가정 (전달 문서 4.7절)"),
@@ -336,7 +336,10 @@ GENE_CASES = [
     ("G14", "BRCA2", "TCGA-XX-0001", gene(("X2602_splice", "Splice_Site")), "gBRCA2", "positive", ["gBRCA"], ""),
     ("G15", "BRCA2", "VC-1", gene(), "sBRCA2", "negative", [], "TCGA가 아니면 종양 검사로 보고 sBRCA"),
     ("G16", "PALB2", "VC-1", gene(("L381V", MIS)), "PALB2", "vus", [], "ClinVar에 없음"),
-    ("G17", "PALB2", "VC-1", gene(("T1030Ifs*13", FS)), "PALB2", "positive", ["PALB2-mut"], ""),
+    ("G17", "PALB2", "VC-1", gene(("T1030Ifs*13", FS)), "PALB2", "vus", [],
+     "PALB2는 절단 변이 규칙이 없고 ClinVar 기준만 (전달 문서 5.4절). 이 이름은 ClinVar에 없음"),
+    ("G19", "ESR1", "VC-1", gene(("E380Q", MIS)), "ESR1", "vus", [],
+     "문서 예시(Y537S/N/C, D538G)에 없는 변이는 원문 확인 전까지 목록에 넣지 않음"),
     ("G18", "ESR1", "VC-1", gene(("D538G", MIS)), "ESR1", "positive", ["ESR1-mut"], "변이 목록 원문 확인 필요"),
 ]
 
@@ -344,13 +347,18 @@ GENE_CASES = [
 _AI_PD = [{"drugs": ["letrozole"], "start_day": 1500, "best_response": "PD", "stop_reason": None}]
 _AI_CR = [{"drugs": ["letrozole"], "start_day": 300, "best_response": "CR", "stop_reason": None}]
 _CHEMO_PD = [{"drugs": ["docetaxel"], "start_day": 1500, "best_response": "PD", "stop_reason": None}]
-# BM-3 ClinVar (전달 문서 5.4절, data/clinvar/clinvar_bm3_genes.csv): (id, 유전자, 칸, 정답 상태, 정답 규칙 ID, 메모)
+# ClinVar 표가 있어야 정답이 나오는 GENE_CASES (표는 git에 없음, 각자 받음)
+CLINVAR_DEPENDENT = {"G11"}
+
+# BM-3 ClinVar (전달 문서 5.4절, data/clinvar/clinvar_bm3_genes.tsv): (id, 유전자, 칸, 정답 상태, 정답 규칙 ID, 메모)
 CLINVAR_CASES = [
     ("C01", "BRCA1", gene(("C61G", MIS)), "positive", "BM3-BRCA1-CLINVAR", "Pathogenic, 전문가 패널 3성"),
     ("C02", "BRCA1", gene(("G1788V", MIS)), "positive", "BM3-BRCA1-CLINVAR", "TCGA-AN-A0XU"),
     ("C03", "BRCA1", gene(("E9Q", MIS)), "vus", "BM2-BRCA1-VUS", "Uncertain significance"),
-    ("C04", "PTEN", gene(("M198K", MIS)), "positive", "BM3-PTEN-CLINVAR", "Likely pathogenic 1성: PTEN은 1성 이상"),
+    ("C04", "PTEN", gene(("M198K", MIS)), "positive", "BM3-PTEN-CLINVAR", "Likely pathogenic 1성: PTEN은 등급 조건 없음 (전달 문서 5.4절)"),
     ("C05", "PALB2", gene(("L381V", MIS)), "vus", "BM2-PALB2-VUS", "ClinVar에 없음"),
+    ("C08", "PALB2", gene(("Y551*", "Nonsense_Mutation")), "positive", "BM3-PALB2-CLINVAR",
+     "PALB2 절단 변이도 ClinVar 기준으로만 양성 (Pathogenic/Likely pathogenic 2성)"),
     ("C06", "BRCA1", gene(("E9Q", MIS), ("C61G", MIS)), "positive", "BM3-BRCA1-CLINVAR",
      "여러 변이 중 하나라도 기준 충족이면 양성"),
 ]
@@ -368,7 +376,7 @@ LINE_CASES = [
     ("L03", "metastatic", [tx(["capecitabine"], "metastatic", 180, 1, chemo=1),
                            tx(["docetaxel"], "metastatic", 242, 2, chemo=2, stop="progression")], ">=3L",
      "2차에서 진행 -> 3차 이상"),
-    ("L04", "metastatic", [tx(["paclitaxel"], "adjuvant", 69)], "1L", "전이 후 투약 없음 -> 1차 대상"),
+    ("L04", "metastatic", [tx(["paclitaxel"], "adjuvant", 69)], "unknown", "전이 후 투약 없음: 문서에 규칙이 없어 unknown"),
     ("L05", "metastatic", [tx(["letrozole"], "metastatic", 1500)], "unknown", "전이 후 투약은 있는데 line 없음"),
     ("L06", "early", [tx(["doxorubicin"], "adjuvant", 30), tx(["zoledronic acid"], "adjuvant", 400)], "adjuvant",
      "골 보호제는 차수를 정하지 않음"),
@@ -376,7 +384,7 @@ LINE_CASES = [
     ("L08", "early", [], "unknown", "투약 기록 없음"),
 ]
 
-# BM-3 CIViC (전달 문서 5.4절 2순위, data/civic/civic_bm3_evidence.csv): (id, 유전자, 칸, 정답 상태, 정답 규칙 ID, 정답 태그, 메모)
+# BM-3 CIViC (전달 문서 5.4절 2순위, data/civic/civic_bm3_evidence_<받은 날>.csv): (id, 유전자, 칸, 정답 상태, 정답 규칙 ID, 정답 태그, 메모)
 CIVIC_CASES = [
     ("V01", "PIK3CA", gene(("R88Q", MIS)), "positive", "BM3-PIK3CA-CIVIC", ["PIK3CA-mut", "off-label-variant"],
      "허가 목록 밖, CIViC 근거 등급 A (TCGA-A2-A04P)"),
@@ -471,7 +479,13 @@ def main():
         report(case_id, needle in reason, "", f"reason에 '{needle}' 포함")
 
     # 유전자 7개 (전달 문서 3.6·4.6·4.7·5.4절)
+    clinvar_ready = bm.CLINVAR_CSV.exists()
+    if not clinvar_ready:
+        print("SKIP   ClinVar 케이스 (G11, C01~C08): data/clinvar/clinvar_bm3_genes.tsv 없음. "
+              "python data/script/clinvar_download.py 실행 후 다시 시험")
     for case_id, g, ref, field, exp_marker, exp_status, exp_tags, note in GENE_CASES:
+        if case_id in CLINVAR_DEPENDENT and not clinvar_ready:
+            continue
         rec = bm.judge_gene(g, field, ref)
         ok = (rec["marker"] == exp_marker and rec["status"] == exp_status and rec["rag_tags"] == exp_tags
               and not check_shape(rec))
@@ -479,7 +493,7 @@ def main():
         if not ok:
             detail += f"  / 정답: {exp_marker} {exp_status} {exp_tags}  / {rec['reason']} {check_shape(rec)}"
         report(case_id, ok, note, detail)
-    for case_id, g, field, exp_status, exp_rule, note in CLINVAR_CASES:
+    for case_id, g, field, exp_status, exp_rule, note in CLINVAR_CASES if clinvar_ready else []:
         rec = bm.judge_gene(g, field, "TCGA-XX-0001")
         ok = rec["status"] == exp_status and rec["rule_id"] == exp_rule and not check_shape(rec)
         report(case_id, ok, note, f"{rec['marker']} {rec['status']} {rec['rule_id']} {rec['evidence'].get('clinvar')}"

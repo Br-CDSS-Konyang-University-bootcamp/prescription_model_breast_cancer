@@ -5,10 +5,11 @@
 - 남기는 것: BRCA1, BRCA2, PALB2, PTEN의 GRCh38 변이 중 단백질 변화(p.)가 있는 행.
   유전자별로 BM-3가 ClinVar를 쓰는 곳은 src/input/handoff_to_B.md 5.4절 (gBRCA1/2, PALB2, PTEN 미스센스).
 
-저장 위치: <프로젝트>/data/clinvar/
-- clinvar_bm3_genes.csv: gene, protein_change(한 글자 표기, 예 C61G), clinical_significance, review_status,
+저장 위치: <프로젝트>/data/clinvar/  (git에 올리지 않음: 전달 문서 5.6절 "스크립트만 올린다".
+  .tsv·.log는 .gitignore의 data/ 규칙으로 제외된다. 팀원은 각자 이 스크립트를 실행한다)
+- clinvar_bm3_genes.tsv (탭 구분): gene, protein_change(한 글자 표기, 예 C61G), clinical_significance, review_status,
   stars(리뷰 등급 0~4), variation_id, last_evaluated, name(ClinVar 원래 이름)
-- clinvar_version.txt: 원본 파일의 날짜(Last-Modified)와 받은 날
+- clinvar_version.log: 원본 파일의 날짜(Last-Modified)와 받은 날
 
 외부로 보내는 정보는 없다. 파일을 통째로 받아 로컬에서만 조회한다 (PROJECT.md 5절 BM-3).
 ClinVar 이용 조건: NCBI 자료는 사용·배포 제한이 없다. 인용 시 NCBI ClinVar와 파일 날짜를 적는다.
@@ -59,7 +60,7 @@ def one_letter(p3):
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    out_csv = OUT / "clinvar_bm3_genes.csv"
+    out_csv = OUT / "clinvar_bm3_genes.tsv"
     kept = 0
     with requests.get(URL, stream=True, timeout=600) as resp:
         resp.raise_for_status()
@@ -67,7 +68,7 @@ def main():
         resp.raw.decode_content = True
         with gzip.open(resp.raw, "rt", encoding="utf-8") as src, \
                 open(out_csv, "w", newline="", encoding="utf-8") as dst:
-            writer = csv.DictWriter(dst, fieldnames=FIELDS)
+            writer = csv.DictWriter(dst, fieldnames=FIELDS, delimiter="\t")
             writer.writeheader()
             reader = csv.DictReader(src, delimiter="\t")
             for row in reader:
@@ -87,7 +88,7 @@ def main():
                     "name": row["Name"],
                 })
                 kept += 1
-    (OUT / "clinvar_version.txt").write_text(
+    (OUT / "clinvar_version.log").write_text(
         f"source: {URL}\nlast_modified: {modified}\ndownloaded: {date.today().isoformat()}\n"
         f"genes: {', '.join(sorted(GENES))} ({ASSEMBLY})\nrows: {kept}\n", encoding="utf-8")
     print(f"{out_csv} {kept}행 (원본 날짜 {modified})")

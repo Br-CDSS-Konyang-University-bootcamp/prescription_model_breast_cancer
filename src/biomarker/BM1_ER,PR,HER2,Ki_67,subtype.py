@@ -460,10 +460,11 @@ def molecular_subtype_of(subtype, ki67):
 
 
 # ------------------------------------------------------------------- PD-L1
-# (검사법, 점수 종류) -> (양성 최소값, 약, 근거, 태그). 전달 문서 6.5절, PROJECT.md 5절
+# (검사법, 점수 종류) -> (양성 최소값, 약, 근거, 태그). 전달 문서 6.5절, PROJECT.md 5절.
+# 태그는 C의 표준 태그 PD-L1+ (rag_guideline_chunking_design_update.md 3.5절)
 PDL1_RULES = {
-    ("22C3", "CPS"): (PDL1_22C3_CPS_MIN, "pembrolizumab", "심평원 공고 p.58~59", "PD-L1-CPS10"),
-    ("SP142", "IC"): (PDL1_SP142_IC_MIN, "atezolizumab", "ESMO MBC", "PD-L1-SP142"),
+    ("22C3", "CPS"): (PDL1_22C3_CPS_MIN, "pembrolizumab", "심평원 공고 p.58~59", "PD-L1+"),
+    ("SP142", "IC"): (PDL1_SP142_IC_MIN, "atezolizumab", "ESMO MBC", "PD-L1+"),
 }
 
 
@@ -497,12 +498,14 @@ def judge_pdl1(field):
 GENES = ("ESR1", "PIK3CA", "AKT1", "PTEN", "BRCA1", "BRCA2", "PALB2")
 # 허가 동반진단 변이 목록이 있는 유전자 (actionable_variants.csv)
 LABEL_GENES = {"PIK3CA", "AKT1", "ESR1"}
-# 절단 변이(nonsense, frameshift, 필수 스플라이스 부위)를 기능 소실 양성으로 보는 유전자
-TRUNCATING_GENES = {"PTEN", "BRCA1", "BRCA2", "PALB2"}
+# 절단 변이(nonsense, frameshift, 필수 스플라이스 부위)를 양성으로 보는 유전자. PTEN은 전달 문서 5.4절,
+# BRCA1/2는 4.7절 (TCGA: ClinVar 병원성 또는 절단 변이). PALB2는 5.4절에 ClinVar 기준만 있어 넣지 않는다
+TRUNCATING_GENES = {"PTEN", "BRCA1", "BRCA2"}
 TRUNCATING_TYPES = {"Nonsense_Mutation", "Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site"}
 ACTIONABLE_CSV = Path(__file__).resolve().parent / "actionable_variants.csv"
-GENE_TAGS = {"PIK3CA": "PIK3CA-mut", "AKT1": "AKT1-mut", "PTEN": "PTEN-loss", "ESR1": "ESR1-mut",
-             "PALB2": "PALB2-mut", "gBRCA1": "gBRCA", "gBRCA2": "gBRCA", "sBRCA1": "sBRCA", "sBRCA2": "sBRCA"}
+# rag_tags는 청크 biomarker_tags와 같은 어휘 (src/rag/rag_guideline_chunking_design_update.md 3.5절 표준 태그)
+GENE_TAGS = {"PIK3CA": "PIK3CA-mut", "AKT1": "AKT1-mut", "PTEN": "PTEN-alt", "ESR1": "ESR1-mut",
+             "PALB2": "gPALB2", "gBRCA1": "gBRCA", "gBRCA2": "gBRCA", "sBRCA1": "sBRCA", "sBRCA2": "sBRCA"}
 
 
 def _actionable():
@@ -517,11 +520,12 @@ def _actionable():
 
 
 # BM-3 ClinVar (전달 문서 5.4절). data/script/clinvar_download.py가 만든 표를 로컬에서만 조회한다
-CLINVAR_CSV = Path(__file__).resolve().parents[2] / "data" / "clinvar" / "clinvar_bm3_genes.csv"
+# git에 올리지 않는 파일 (전달 문서 5.6절). 없으면 ClinVar 조회 없이 VUS로 남는다
+CLINVAR_CSV = Path(__file__).resolve().parents[2] / "data" / "clinvar" / "clinvar_bm3_genes.tsv"
 CLINVAR_GENES = {"BRCA1", "BRCA2", "PALB2", "PTEN"}
-# 양성으로 볼 최소 리뷰 등급(별). gBRCA·PALB2는 2성 이상 (PROJECT.md 5절). PTEN은 문서에 등급 조건이 없어
-# 근거 기준이 없는 0성만 뺀다 (2026-10-19)
-CLINVAR_MIN_STARS = {"BRCA1": 2, "BRCA2": 2, "PALB2": 2, "PTEN": 1}
+# 양성으로 볼 최소 리뷰 등급(별). gBRCA·PALB2는 2성 이상 (PROJECT.md 5절, 전달 문서 5.4절).
+# PTEN은 문서에 등급 조건이 없다 ("ClinVar 병원성·병원성 가능")
+CLINVAR_MIN_STARS = {"BRCA1": 2, "BRCA2": 2, "PALB2": 2, "PTEN": 0}
 CLINVAR_PATHOGENIC = {"Pathogenic", "Likely pathogenic", "Pathogenic/Likely pathogenic"}
 
 
@@ -531,7 +535,7 @@ def _clinvar():
         table = {}
         if CLINVAR_CSV.exists():
             with open(CLINVAR_CSV, encoding="utf-8") as fh:
-                for r in csv.DictReader(fh):
+                for r in csv.DictReader(fh, delimiter="\t"):
                     r["stars"] = int(r["stars"])
                     table.setdefault((r["gene"], r["protein_change"]), []).append(r)
         _clinvar.cache = table
@@ -555,7 +559,9 @@ def _clinvar_best(gene, variants):
 
 # BM-3 CIViC (전달 문서 5.4절 2순위). data/script/civic_download.py가 만든 표를 로컬에서만 조회한다.
 # 표에는 변이 하나를 지목한 발암성·예측(Sensitivity/Response) 근거만 들어 있다
-CIVIC_CSV = Path(__file__).resolve().parents[2] / "data" / "civic" / "civic_bm3_evidence.csv"
+# 파일명에 받은 날짜가 붙는다 (전달 문서 5.6절). 가장 최근 파일을 쓴다
+CIVIC_DIR = Path(__file__).resolve().parents[2] / "data" / "civic"
+CIVIC_CSV = max(CIVIC_DIR.glob("civic_bm3_evidence_*.csv"), default=CIVIC_DIR / "civic_bm3_evidence_없음.csv")
 CIVIC_GENES = {"PIK3CA", "AKT1", "PTEN"}
 # 허가 목록에 없는데 CIViC 근거로 양성이면 붙이는 태그 (PTEN은 허가 목록 단계가 없어 붙이지 않는다)
 OFF_LABEL_TAG = "off-label-variant"
@@ -595,9 +601,8 @@ def _clinvar_text(row):
 
 
 def _is_truncating(variant):
-    change = variant.get("protein_change") or ""
-    return (variant.get("variant_type") in TRUNCATING_TYPES
-            or change.endswith("*") or "fs" in change or change.endswith("_splice"))
+    """전달 문서 5.4절의 절단형 (nonsense, frameshift, 필수 스플라이스 부위). 변이 종류 칸으로만 판단한다."""
+    return variant.get("variant_type") in TRUNCATING_TYPES
 
 
 def _gene_marker(gene, patient_ref):
@@ -689,8 +694,7 @@ def _endocrine_progressed(fields):
     classes = _drug_class_map()
     for t in fields.get("treatment_history") or []:
         endocrine = any(classes.get(d) == "Hormone Therapy" for d in t.get("drugs") or [])
-        progressed = (t.get("best_response") == "PD" or t.get("stop_reason") == "progression"
-                      or t.get("progression_day") is not None)
+        progressed = t.get("best_response") == "PD" or t.get("stop_reason") == "progression"
         if endocrine and progressed:
             return True
     return False
@@ -737,15 +741,15 @@ def _line_label(n):
 def line_of(fields, disease):
     """setting.line (전달 문서 6.2절, draft6). 차수는 A가 treatment_history[].line에 계산해 넘긴다.
     전이성: 마지막 고식적 요법의 차수. 그 요법이 진행(PD, progression)으로 끝났으면 다음 차수를 추천 대상으로 본다
-    (전달 문서 8.2절 예시: 1차 letrozole + palbociclib 진행 -> 2L). 전이 후 투약이 없으면 1L.
-    전이성이 아니면 마지막 투약의 setting (neoadjuvant / adjuvant)."""
+    (전달 문서 8.2절 예시: 1차 letrozole + palbociclib 진행 -> 2L). 전이 후 투약이 없으면 unknown.
+    전이성이 아니면 마지막 선행·보조 투약에 A가 적은 setting (neoadjuvant / adjuvant)을 그대로 쓴다."""
     history = [t for t in fields.get("treatment_history") or [] if t.get("drugs")]
     if disease == "metastatic":
         lined = [t for t in history if t.get("line")]
         if not lined:
             if any(t.get("setting") == "metastatic" for t in history):
                 return "unknown", "전이 후 투약은 있지만 차수 정보(line)가 없음"
-            return "1L", "전이 후 투약 기록 없음 -> 1차 치료 대상"
+            return "unknown", "전이 후 투약 기록 없음 (전달 문서에 정해진 규칙 없음)"
         last = max(t["line"] for t in lined)
         regimen = [t for t in lined if t["line"] == last]
         drugs = " + ".join(sorted({d for t in regimen for d in t["drugs"]}))
