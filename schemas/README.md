@@ -16,7 +16,7 @@
 
 | 파일 | 내용 | 만드는 쪽 | 쓰는 쪽 | 초안 검토 |
 |---|---|---|---|---|
-| [patient_state.json](patient_state.json) (0.1-draft5) | 차트에서 추출한 환자 상태 | [1] 입력 (A) | [2], [4] | B, C, D |
+| [patient_state.json](patient_state.json) (0.1-draft6) | 차트에서 추출한 환자 상태 | [1] 입력 (A) | [2], [4] | B, C, D |
 | [biomarker_record.json](biomarker_record.json) | 바이오마커 상태값, 아형, 치료 상황, 검사 공백 | [2] 바이오마커 (B) | [3] 필터, [4] | A, C, D |
 | [chunk.json](chunk.json) | 검색 색인 청크 (지침·급여 공용) | [3] (C), [5] (D) | [3] 색인, [4] | D 필수, A, B |
 | [recommendation.json](recommendation.json) | 처방 후보, 급여 분류, 검사 권고 | [4] 추천 (B) | 출력 화면 | A, C, D |
@@ -45,7 +45,16 @@
 
 ## 3. patient_state.json — [1] 입력 → [2], [4]
 
-버전 `0.1-draft5` (2026-10-15, 진단일 기준 일수·투여 주기·재발·전이·PD-L1·유전자 변이·anthracycline 용량 추가. B 전달 문서: [src/input/handoff_to_B.md](../src/input/handoff_to_B.md)). 필드별 표준값, 정규화 예시, TCGA 정답 규칙은 [src/input/schema_fields.md](../src/input/schema_fields.md)에 있다.
+버전 `0.1-draft6` (2026-10-16, 판정 기준일·첫 재발일·투약별 차수·차수 간주 규칙 추가. draft5는 2026-10-15, 진단일 기준 일수·투여 주기·재발·전이·PD-L1·유전자 변이·anthracycline 용량 추가. B 전달 문서: [src/input/handoff_to_B.md](../src/input/handoff_to_B.md)). 필드별 표준값, 정규화 예시, TCGA 정답 규칙은 [src/input/schema_fields.md](../src/input/schema_fields.md)에 있다.
+
+### 변경 이력 (patient_state)
+
+| 버전 | 날짜 | 추가 | 바뀜 | 제거 |
+|---|---|---|---|---|
+| 0.1-draft6 | 2026-10-16 (2026-10-19 보완) | 최상위 `index_day` (판정 기준일) · `recurrence.recurrence_day` (첫 재발일) · `treatment_history[].line`·`endocrine_line`·`chemo_line` (전이 후 차수) · `fields.deemed_lines[]` (심평원 차수 간주 규칙 4개) · `molecular.mutations.{유전자}.raw` | `schema_version` 상수 · `recurrence.metastasis_day` 설명 (차수는 A가 계산) · 추출값 `raw` 설명 (미시행일 때 "결과 대기"·"예정" 고정 표기) | 없음 |
+| 0.1-draft5 | 2026-10-15 | 진단일 기준 일수(`*_day`), 투여 주기 `cycles`, 재발·전이 정보, PD-L1, 유전자 변이 `molecular.mutations`, anthracycline 투약 용량 | | |
+
+draft6의 새 칸은 모두 선택 칸이다 (가상·실제 차트에서 비워도 검증 통과). TCGA 정답에는 항상 채운다. 자세한 설명: [src/input/handoff_to_B.md](../src/input/handoff_to_B.md) §6.2·§6.3a, [src/input/schema_fields.md](../src/input/schema_fields.md) §2.
 
 추출값 하나는 모두 같은 틀(`$defs/extracted`)이고, `value`의 형태만 필드마다 다르다.
 
@@ -87,13 +96,13 @@
 | molecular | `mutations.{ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2}` | `{status, result, variants[], specimen}`. 변이 있음 = `detected`, 변이 없음 = `not_detected`, 미시행 = `status: not_done` |
 | genomic_reports[] | 보고서 하나 | `doc_id`, `report_date`, `specimen`, `raw_text` (해석하지 않음) |
 
-TCGA 정답은 실제 날짜가 없으므로, 날짜 칸은 추출값이면 `status: not_recorded`, 치료 이력·보고서의 날짜는 `null`이다. 대신 진단일 기준 일수(`*_day`)를 넣는다. 차수(line)는 정답에 넣지 않고 B가 `start_day`와 `metastasis_day`로 판단한다 (2026-10-15 협의).
+TCGA 정답은 실제 날짜가 없으므로, 날짜 칸은 추출값이면 `status: not_recorded`, 치료 이력·보고서의 날짜는 `null`이다. 대신 진단일 기준 일수(`*_day`)를 넣는다. 차수는 A가 변환할 때 `start_day`와 `metastasis_day`로 계산해 `treatment_history[].line`·`endocrine_line`·`chemo_line`에 넣고, 심평원 간주 규칙 충족 여부는 `fields.deemed_lines`에 넣는다 (2026-10-16 draft6. 2026-10-15에는 B가 판단하기로 했었다).
 
 예시 (가상 차트에서 추출한 경우):
 
 ```json
 {
-  "schema_version": "0.1-draft5",
+  "schema_version": "0.1-draft6",
   "patient_ref": "VC-0001",
   "created_at": "2026-10-12T09:00:00+09:00",
   "documents": [
