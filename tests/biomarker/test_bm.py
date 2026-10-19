@@ -341,6 +341,27 @@ CLINVAR_CASES = [
      "여러 변이 중 하나라도 기준 충족이면 양성"),
 ]
 
+# 차수 setting.line (전달 문서 6.2절, draft6): (id, 현재 범주, treatment_history, 정답 line, 메모)
+def tx(drugs, setting, start, line=None, endo=None, chemo=None, resp="unknown", stop=None):
+    return {"drugs": drugs, "setting": setting, "start_day": start, "line": line, "endocrine_line": endo,
+            "chemo_line": chemo, "best_response": resp, "stop_reason": stop}
+
+
+LINE_CASES = [
+    ("L01", "metastatic", [tx(["letrozole", "palbociclib"], "metastatic", 1500, 1, endo=1)], "1L", "1차 진행 기록 없음"),
+    ("L02", "metastatic", [tx(["letrozole", "palbociclib"], "metastatic", 1500, 1, endo=1, resp="PD")], "2L",
+     "1차에서 진행 -> 2차 대상 (전달 문서 8.2절 예시)"),
+    ("L03", "metastatic", [tx(["capecitabine"], "metastatic", 180, 1, chemo=1),
+                           tx(["docetaxel"], "metastatic", 242, 2, chemo=2, stop="progression")], ">=3L",
+     "2차에서 진행 -> 3차 이상"),
+    ("L04", "metastatic", [tx(["paclitaxel"], "adjuvant", 69)], "1L", "전이 후 투약 없음 -> 1차 대상"),
+    ("L05", "metastatic", [tx(["letrozole"], "metastatic", 1500)], "unknown", "전이 후 투약은 있는데 line 없음"),
+    ("L06", "early", [tx(["doxorubicin"], "adjuvant", 30), tx(["zoledronic acid"], "adjuvant", 400)], "adjuvant",
+     "골 보호제는 차수를 정하지 않음"),
+    ("L07", "early", [tx(["anastrozole"], "neoadjuvant", 10)], "neoadjuvant", ""),
+    ("L08", "early", [], "unknown", "투약 기록 없음"),
+]
+
 ESR1_CASES = [
     ("E01", gene(), _AI_PD, "retest_needed", "원발 음성 + 내분비요법 진행"),
     ("E02", gene(), _AI_CR, "negative", "진행 없음"),
@@ -450,6 +471,17 @@ def main():
         bm._clinvar.cache = saved_cache
     elif hasattr(bm._clinvar, "cache"):
         del bm._clinvar.cache
+
+    for case_id, disease, history, exp_line, note in LINE_CASES:
+        got, why = bm.line_of({"treatment_history": history}, disease)
+        report(case_id, got == exp_line, note, f"{disease} -> {got}" + ("" if got == exp_line else f" / 정답 {exp_line} / {why}"))
+    deemed = {"treatment_history": [tx(["eribulin"], "metastatic", 900, 1, chemo=1)],
+              "deemed_lines": [{"rule_id": "DEEM-ANTHRA-TAXANE", "status": "met"},
+                               {"rule_id": "DEEM-SG-1Y", "status": "not_met"}],
+              "stage": {"disease_extent": {"status": "present", "value": "metastatic"}}}
+    reason = bm.setting_of(deemed)["reason"]
+    report("L09", "DEEM-ANTHRA-TAXANE" in reason and "DEEM-SG-1Y" not in reason, "충족(met)한 간주 규칙만 이유에 적음",
+           reason)
 
     for case_id, field, history, exp_status, note in ESR1_CASES:
         rec = bm.judge_esr1(field, {"treatment_history": history})
