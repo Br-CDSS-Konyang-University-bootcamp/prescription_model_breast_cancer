@@ -4,7 +4,7 @@
 
 TCGA로는 만들 수 없는 최신 치료(CDK4/6 억제제 이후 2차, 면역항암제, 보조 CDK4/6 등)의 지침·급여 경계 사례를 입력 모듈부터 추천까지(A → B → C/D → [4]) 끝까지 돌려 보기 위한 가상 환자다. 모두 가상 환자이고 실제 환자 정보는 없다.
 
-**지금 상태: 설계만 있다.** 사례마다 `scenario.md`(이야기, 시험 목적, 기대 결과 초안)만 있고, 차트 원문(`chart.txt`)과 정답(`expected/`)은 아직 없다. PR #6(draft6) 병합 뒤 VC-0103부터 만든다.
+**지금 상태: 차트 원문 초안까지 있다 (2026-10-19).** 사례마다 `scenario.md`(이야기, 시험 목적, 기대 결과 초안)와 `chart.txt`(`notes/report_templates.md` 틀로 작성한 초안)가 있고, 정답은 VC-0103의 `expected/patient_state.json`(A)만 있다 (2026-10-19). 나머지 정답은 이 형식을 따라 만든다.
 
 ## 1. 다른 데이터와의 관계
 
@@ -36,7 +36,7 @@ virtual_charts/
 ├── README.md                    이 파일
 └── VC-0101/
     ├── scenario.md              이야기, 시험 목적, 기대 결과 초안, 정답 근거 출처   [A, 있음]
-    ├── chart.txt                차트 원문 (문서 2~4개를 이어 붙인 텍스트 한 파일)     [A, 작성 예정]
+    ├── chart.txt                차트 원문 (문서 2~4개를 이어 붙인 텍스트 한 파일)     [A, 초안 있음]
     └── expected/                                                                   [작성 예정]
         ├── patient_state.json   A
         ├── biomarker_record.json B

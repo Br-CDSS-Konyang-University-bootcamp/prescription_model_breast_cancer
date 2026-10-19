@@ -1,0 +1,42 @@
+진료의뢰 회신서
+From: 가상의원 외과 (Dr. 최가상)   To: 가상대학교병원 종양내과
+Date: 2023.6.5
+Pt: 김가상, F/38, 주민번호 850101-2******, Tel 010-0000-0107
+
+Dx) Lt. breast ca., IDC, NG3
+    pT1c(1.8cm) N0(0/3) M0, stage IA
+    ER+ (95%), PR+ (90%), HER2 1+, Ki-67 40%
+s/p BCS & SLNB (2023.5.14)
+Premenopausal, regular menses.
+No systemic tx yet. Pls evaluate for adjuvant endocrine tx.
+
+
+<외래 초진 기록>   2023.6.11   종양내과
+환자명: 김가상   등록번호: 00000107   F/38
+병원: 가상대학교병원 종양내과   담당의: 이가상
+
+38세 여성. 2023년 5월 2일 가상의원에서 좌측 유방암 진단, 5월 14일 같은 병원에서 유방 부분절제 + 감시림프절 생검 시행 후
+보조요법 위해 회송됨. 월경은 28일 주기로 규칙적이며 마지막 월경 2023.5.28. 출산력 1회.
+병리: 침윤성 유관암, 등급 3, 1.8cm, 감시림프절 0/3, pT1cN0M0 IA기. ER 95%, PR 90%, HER2 1+, Ki-67 40%.
+ECOG 0. 아직 항암·내분비요법 시작 전.
+계획: 폐경 전, 40세 미만, 고위험(등급 3) → 난소기능억제(LHRH) + AI 또는 tamoxifen 보조요법 상담. 방사선치료 의뢰.
+
+
+[병리결과보고서] (외부 병원 사본)
+환자명: 김가상   F/38
+병원: 가상의원 병리과   보고일: 2023.5.18
+검체: Left breast, partial mastectomy & sentinel lymph node biopsy
+
+진단
+  Invasive ductal carcinoma
+  Histologic grade: 3 (3+3+2=8)
+  Tumor size: 1.8 cm
+  Sentinel lymph node: 0/3
+  Resection margin: negative
+  pT1c N0 M0
+
+IHC
+  ER : positive (95%)
+  PR : positive (90%)
+  HER2: 1+
+  Ki-67: 40%

@@ -1,0 +1,69 @@
+[병리결과보고서]
+환자명: TCGA가상   등록번호: 0000T11   성별/나이: F/46 (진단 시)
+병원: 가상대학교병원 병리과
+검체: 우측 유방 전절제술 및 액와림프절 곽청술
+
+진단
+  침윤성 유관암 (Infiltrating ductal carcinoma)
+  림프절: 2/13 (+)
+  pTNM: pT2 pN1b M0 (AJCC 4th)
+  병기: IIB
+
+면역조직화학
+  ER : positive (95%)
+  PR : positive (55%)
+  HER2: 2+ (equivocal)
+
+ISH
+  HER2 FISH: amplified (FISH Positive)
+
+판독의: 박가상
+
+
+<유전자 패널 검사 결과지>
+환자명: TCGA가상   등록번호: 0000T11
+검체: 원발 종양 조직   검사법: 종양 조직 엑솜 검사
+Copy number: ERBB2 amplification
+Not detected: ERBB2, ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2
+결과 요약: 종양 조직 엑솜 검사 (원발 조직). ERBB2 amplification. ERBB2, ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2: 검출되지 않음.
+
+
+<외래 경과기록>   D+6593   종양내과
+환자명: TCGA가상   등록번호: 0000T11   F/46 (진단 시)
+
+S) 폐경 후
+A) Rt. breast IDC, pT2N1b(2/13)M0, IIB, ER+ 95% / PR+ 55% / HER2 2+, FISH amplified
+   수술 후 보조 FAC → MV (methotrexate + vinblastine), 모두 CR 유지
+   D+3014 원격 전이 재발 (distant metastasis): 뼈, 간, 흉곽 내 림프절 (intrathoracic lymph node), 뇌
+   전이 병소 수술 시행한 적 있음
+   재발 후 내분비요법·항암·HER2 표적치료를 차례로 시행 (투약 기록 참조)
+   최근 vinorelbine + trastuzumab, lapatinib + capecitabine
+P) 다음 치료 논의
+
+
+[투약 기록]
+환자명: TCGA가상   등록번호: 0000T11
+구분   약제                       시작       종료       반응
+보조   fluorouracil               D+74       D+147      CR
+보조   doxorubicin                D+74       D+147      CR
+보조   cyclophosphamide           D+74       D+147      CR
+보조   methotrexate               D+203      D+276      CR
+보조   vinblastine                D+203      D+276      CR
+고식   tamoxifen                  D+3061     D+3131     PD
+고식   exemestane                 D+3061     D+3131     PD
+고식   docetaxel                  D+3141     D+3415     SD
+고식   letrozole                  D+3434     D+4307     PD
+고식   megestrol (Megace)         D+4347     D+4435     PD
+고식   capecitabine               D+4470     D+4494     PD
+고식   trabectedin                D+4470     D+4494     PD
+고식   capecitabine               D+4515     D+4720     SD
+고식   exemestane                 D+4721     D+5015     SD
+고식   capecitabine               D+5021     D+5455     SD
+고식   nab-paclitaxel (Abraxane)  D+5455     D+5678     SD
+고식   ixabepilone                D+5684     D+5797     PD
+고식   trastuzumab                D+5797     D+6028     SD
+고식   tamoxifen                  D+5909     D+6029     PD
+고식   capecitabine               D+6051     D+6213     SD
+고식   lapatinib                  D+6051     D+6536     SD
+고식   vinorelbine                D+6372     D+6422     PD
+고식   trastuzumab                D+6372     D+6536     SD

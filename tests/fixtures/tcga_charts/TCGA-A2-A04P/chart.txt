@@ -1,0 +1,59 @@
+[병리결과보고서]
+환자명: TCGA가상   등록번호: 0000T12   성별/나이: F/36 (진단 시)
+병원: 가상대학교병원 병리과
+검체: 좌측 유방 전절제술 및 액와·쇄골하 림프절 곽청술
+
+진단
+  침윤성 유관암 (IDC)
+  림프절: 전이 18개 / 검사 20개 (18/20)
+  pTNM: pT2 pN3c M0 (AJCC 6th)
+  병기: IIIC
+
+면역조직화학
+  ER : 음성 (<1%)
+  PR : 음성 (<1%)
+  HER2 IHC: 시행하지 않음
+
+ISH
+  HER2 FISH: 증폭 없음 (FISH Negative)
+
+판독의: 박가상
+
+
+[NGS 보고서]
+환자명: TCGA가상   등록번호: 0000T12
+검체: 원발 종양 조직   검사법: 종양 조직 엑솜 검사
+검출된 변이
+  PIK3CA   p.R88Q (Missense_Mutation)     VAF 98.2%
+  BRCA2    p.Q3206E (Missense_Mutation)   VAF 8.9%
+복제수 변이
+  ESR1 amplification
+  PIK3CA amplification
+검출되지 않음 (점 변이)
+  ERBB2, ESR1, AKT1, PTEN, BRCA1, PALB2
+결과 요약: 종양 조직 엑솜 검사 (원발 조직). PIK3CA p.R88Q (Missense_Mutation), VAF 98.2%. BRCA2 p.Q3206E (Missense_Mutation), VAF 8.9%. ESR1 amplification. PIK3CA amplification. ERBB2, ESR1, AKT1, PTEN, BRCA1, PALB2: 검출되지 않음.
+
+
+<외래 경과기록>   진단 후 548일   종양내과
+환자명: TCGA가상   등록번호: 0000T12   F/36 (진단 시)
+
+S) 폐경 전 (premenopausal)
+A) Lt. breast IDC, pT2N3c(18/20)M0, IIIC. ER(-) <1% / PR(-) <1% / HER2 IHC 미시행, FISH(-)
+   수술 후 보조 weekly paclitaxel #12 중 진단 후 102일에 재발:
+   국소 재발 (액와, axilla)과 원격 전이 (뼈, 폐, 간)가 동시에 확인됨 (Locoregional Recurrence; Distant Metastasis)
+   재발 병소 수술 시행
+   재발 후 capecitabine → docetaxel + gemcitabine → doxorubicin → exemestane, vinorelbine + cisplatin
+P) 경과 관찰
+
+
+[투약 기록]
+환자명: TCGA가상   등록번호: 0000T12
+구분   약제                 시작       종료        주기
+보조   paclitaxel           D+69       D+180       #12
+고식   capecitabine         D+180      D+242       -
+고식   docetaxel            D+242      D+303       -
+고식   gemcitabine (Gemzar) D+242      D+303       -
+고식   doxorubicin          D+303      D+424       -
+고식   exemestane           D+424      기록 없음   -
+고식   vinorelbine          D+424      D+424       #1
+고식   cisplatin            D+424      D+424       #1
