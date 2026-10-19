@@ -13,6 +13,11 @@ def index_chunks(*args, **kwargs):
     return _index_chunks(*args, **kwargs)
 
 
+def delete_by_doc_type(*args, **kwargs):
+    from .indexer import delete_by_doc_type as _delete_by_doc_type
+    return _delete_by_doc_type(*args, **kwargs)
+
+
 def delete_guideline_chunks(*args, **kwargs):
     from .indexer import delete_guideline_chunks as _delete_guideline_chunks
     return _delete_guideline_chunks(*args, **kwargs)
@@ -23,4 +28,4 @@ def search_guidelines(*args, **kwargs):
     return _search_guidelines(*args, **kwargs)
 
 
-__all__ = ["index_chunks", "init_collection", "delete_guideline_chunks", "search_guidelines"]
+__all__ = ["index_chunks", "init_collection", "delete_by_doc_type", "delete_guideline_chunks", "search_guidelines"]

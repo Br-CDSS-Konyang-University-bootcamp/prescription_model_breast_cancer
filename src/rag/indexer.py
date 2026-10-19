@@ -50,18 +50,29 @@ def index_chunks(chunks: list[dict], batch_size: int = 32):
     print(f"[RAG Indexer] {total}개 청크 색인 완료.")
 
 
-def delete_guideline_chunks():
-    """doc_type=guideline인 점만 지운다. 지침을 다시 색인할 때 옛 청크가 남지 않게 하고, D의 급여 청크는 남긴다."""
+DOC_TYPES = ("guideline", "reimbursement")  # schemas/chunk.json의 doc_type
+
+
+def delete_by_doc_type(doc_type: str):
+    """doc_type이 같은 점만 지운다. 지침(C)과 급여(D)는 한 컬렉션을 같이 쓰므로,
+    한쪽을 다시 색인할 때 다른 쪽 점은 남겨야 한다. D는 delete_by_doc_type("reimbursement")를 부른다."""
+    if doc_type not in DOC_TYPES:
+        raise ValueError(f"doc_type은 {DOC_TYPES} 중 하나여야 합니다: {doc_type!r}")
     client = get_qdrant_client()
     if COLLECTION_NAME not in [c.name for c in client.get_collections().collections]:
         return
     client.delete(
         collection_name=COLLECTION_NAME,
         points_selector=FilterSelector(
-            filter=Filter(must=[FieldCondition(key="doc_type", match=MatchValue(value="guideline"))])
+            filter=Filter(must=[FieldCondition(key="doc_type", match=MatchValue(value=doc_type))])
         ),
     )
-    print(f"[RAG] '{COLLECTION_NAME}'에서 지침 청크(doc_type=guideline) 삭제 완료.")
+    print(f"[RAG] '{COLLECTION_NAME}'에서 doc_type={doc_type} 청크 삭제 완료.")
+
+
+def delete_guideline_chunks():
+    """지침 청크만 지운다 (delete_by_doc_type("guideline")과 같다)."""
+    delete_by_doc_type("guideline")
 
 
 def close_indexer():

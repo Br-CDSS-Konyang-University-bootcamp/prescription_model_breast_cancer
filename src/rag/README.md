@@ -19,7 +19,7 @@ ESMO·ASCO 지침을 수집·청킹하고, 지침과 급여 청크가 함께 들
 | `chunker_esmo.py` | ESMO EBC·MBC md → `data/chunks/esmo_chunks.json`. 실행: `python -m src.rag.chunker_esmo` |
 | `chunk_common.py` | 두 청커가 같이 쓰는 텍스트 정제, 약제·바이오마커 태깅, 청크 형식 |
 | `client.py` | Qdrant 로컬 DB(`data/qdrant_db/`, git 제외)와 임베딩 모델(bge-m3) |
-| `indexer.py` | `init_collection()`, `index_chunks()`(chunk_id로 고정 ID), `delete_guideline_chunks()`(지침 청크만 삭제) |
+| `indexer.py` | `init_collection()`, `index_chunks()`(chunk_id로 고정 ID), `delete_by_doc_type(doc_type)`(지침 또는 급여 청크만 삭제. D는 `"reimbursement"`로 부름), `delete_guideline_chunks()` |
 | `searcher.py` | `search_guidelines()` |
 | `run_indexing.py` | `data/chunks/*.json`을 스키마 검증하고, 지침 청크만 지운 뒤 다시 색인한다 (D의 급여 청크는 남김). 실행: `python -m src.rag.run_indexing` |
 
