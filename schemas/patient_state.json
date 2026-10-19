@@ -347,6 +347,7 @@
       "additionalProperties": false,
       "properties": {
         "status": {"enum": ["present", "not_done", "not_recorded"]},
+        "raw": {"type": ["string", "null"], "description": "status가 not_done이고 검사가 진행 중이면 고정 표기 '결과 대기'(검사는 했고 결과를 기다림), 예약만 되고 아직 시행 전이면 '예정'을 넣는다. 이때 원문은 source.quote에 둔다 (draft6). TCGA에는 없음"},
         "result": {"enum": ["detected", "not_detected"]},
         "variants": {"type": "array", "items": {"$ref": "#/$defs/variant"}},
         "specimen": {"$ref": "#/$defs/specimen"},
@@ -458,7 +459,7 @@
       "properties": {
         "status": {"enum": ["present", "not_done", "not_recorded"]},
         "value": {"description": "표준값. 형태는 필드마다 다르다. status가 present일 때만 채운다."},
-        "raw": {"type": ["string", "null"], "description": "정규화 전 원문 표기"},
+        "raw": {"type": ["string", "null"], "description": "정규화 전 원문 표기. status가 not_done이고 검사가 진행 중이면 고정 표기 '결과 대기'(검사는 했고 결과를 기다림), 예약만 되고 아직 시행 전이면 '예정'을 넣는다. 이때 원문은 source.quote에 둔다 (draft6)"},
         "observed_date": {"$ref": "#/$defs/date"},
         "specimen": {"$ref": "#/$defs/specimen"},
         "confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},

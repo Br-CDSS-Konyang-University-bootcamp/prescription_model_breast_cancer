@@ -12,7 +12,7 @@
 | 2026-10-15 | draft5: 차수 재료, 재발·전이, PD-L1, 유전자 변이, anthracycline 용량, gBRCA 규칙 (기존 `handoff_to_B_draft5.md`) | **협의 완료** |
 | 2026-10-16 | B 진행 현황과 남은 작업 순서 정리 (§10). 차수·투여단계·누적 용량 계산은 A로, 국소 재발 후 보조요법은 B로 담당 변경 (§6) | **정리** |
 | 2026-10-16 | §10 갱신: 유전자 7개 BM-2·BM-4 완료(PR #2) 반영, A의 차수 계산 함수(`src/input/common/lines.py`)와 약제 사전 추가 | **정리** |
-| 2026-10-16 | draft6: 판정 기준일 `index_day`, 첫 재발일 `recurrence.recurrence_day`, 투약별 차수 `line`·`endocrine_line`·`chemo_line`, 차수 간주 규칙 `deemed_lines` (§6.2·§6.3a). 차수 칸 위치 결정 (§10.4) | **제안** (4명 검토) |
+| 2026-10-16 | draft6: 판정 기준일 `index_day`, 첫 재발일 `recurrence.recurrence_day`, 투약별 차수 `line`·`endocrine_line`·`chemo_line`, 차수 간주 규칙 `deemed_lines` (§6.2·§6.3a). 차수 칸 위치 결정 (§10.4). 2026-10-19: 미시행의 `raw` 고정 표기 "결과 대기"·"예정", 유전자 칸에 `raw` 추가 (§0 5번) | **제안** (4명 검토) |
 
 ## 목차
 
@@ -34,7 +34,7 @@
 2. A는 **적힌 값을 표준 표기로 정리**만 한다. 양성·음성·저발현 판정은 B가 한다. 예외는 둘이다. HER2 IHC의 `result`는 A가 ISH 결과로 보정해서 넘긴다 (§3.4). 그래서 **HER2는 `result`보다 `score`를 먼저 읽어야** 저발현을 놓치지 않는다. 또 TCGA 정답의 ER `low_positive`·PR `[1, 9]` 구간은 원본에 적힌 판정이 아니라, A가 크롭 단계에서 원본 구간 `<10%`와 판정 Positive를 나눠 만든 값이다 (§7).
 3. 저발현 판정값(`low_positive`)은 **ER에만** 있다 (ASCO/CAP 2020). PR은 양성/음성 두 범주만 쓴다 (§4.2).
 4. 재발 환자는 **재생검(재발 병소) 결과가 `value`**이고, 원발 결과는 `history[]`에 있다 (§3.5). 가상 차트·실제 차트에만 해당하고, **TCGA 정답은 원발 결과만** 쓴다.
-5. `not_done`(미시행)과 `not_recorded`(기록 없음)는 다르다. 미시행만 검사 권고 대상이다.
+5. `not_done`(미시행)과 `not_recorded`(기록 없음)는 다르다. 미시행만 검사 권고 대상이다. 미시행 중 검사를 의뢰·예약한 경우는 `raw`에 고정 표기 `"결과 대기"`(결과를 기다림) 또는 `"예정"`(아직 시행 전)이 들어간다 (draft6, schema_fields.md §2). 이때는 검사 권고 대신 "결과 확인 필요"로 내는 것을 제안한다 (B 결정).
 6. **차수(line)와 심평원 투여단계는 A가 `patient_state`로 옮길 때 계산한다** (2026-10-16 담당 변경. 2026-10-15에는 B가 판단하기로 했었다). 결과는 `treatment_history[]`의 `line`·`endocrine_line`·`chemo_line`과 `fields.deemed_lines`에 넣는다 (draft6, §6.2·§6.3a). 재료는 투약 시작·종료일(`treatment_history[].start_day`, `end_day`)과 전이 기준일(`recurrence.metastasis_day`)이다. 모두 진단일 = 0인 정수다 (§6.2).
 7. **현재 범주**: 진단 시 IV기이거나 원격 전이 재발이면 전이성. 국소 재발은 전이가 아니다 (§6.1). **국소 재발 후 수술**(이후 원격 전이 없음)이면 이후 요법은 수술후보조요법이다 (§6.4, 차트를 보고 판단해야 해서 B 담당).
 8. **gBRCA**: TCGA 정답 세트에서는 BRCA1·BRCA2 결과를 gBRCA 측정으로 가정한다. B가 positive / negative / vus를 판정한다 (§4.7).
