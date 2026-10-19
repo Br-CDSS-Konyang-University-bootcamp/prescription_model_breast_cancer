@@ -66,4 +66,18 @@ PD-L1 판정 (2026-10-16, 전달 문서 6.5절). 입력 `receptors.pdl1` (`assay
 - 생식세포 BRCA가 기록 없음이면 권고하지 않는다 (전달 문서 4.7절의 열린 질문, B 결정 2026-10-16). TCGA가 아닌 차트는 BRCA 레코드가 sBRCA라 생식세포 BRCA 권고가 나오지 않는다.
 - TCGA 874명 결과: 현재 전이성 환자는 유전자 검사가 모두 시행돼 미시행 권고는 0명, ESR1 재검 권고 3명.
 
+치료 상황 `setting` (전달 문서 6.1·6.2·6.3a절, draft6, 2026-10-19):
+
+| 현재 범주 | `line` | 규칙 |
+|---|---|---|
+| metastatic | `1L` / `2L` / `>=3L` | A가 넘긴 `treatment_history[].line` 중 마지막 고식적 요법의 차수. 그 요법이 진행(`best_response = PD`, `stop_reason = progression`)으로 끝났으면 다음 차수 (전달 문서 8.2절 예시: 1차 진행 → `2L`) |
+| metastatic | `1L` | 전이 후 투약 기록 없음 |
+| metastatic | `unknown` | 전이 후 투약은 있지만 `line` 값이 없음 |
+| early, locally_advanced | `neoadjuvant` / `adjuvant` | 마지막 선행·보조 투약의 `setting`. 보조약·골 보호제는 빼고 본다 (6.2절 규칙 3) |
+| early, locally_advanced | `unknown` | 선행·보조 투약 없음 |
+
+- 내분비·항암 차수(`endocrine_line`, `chemo_line`)와 충족한 심평원 차수 간주 규칙(`deemed_lines`의 `met`)은 `setting.reason`에 적는다. 급여 판정은 [4] 추천 모듈이 "실제 차수 + 간주 규칙"으로 한다 (6.3a절).
+- TCGA 874명: 전이성 28명 중 1L 8, 2L 6, >=3L 14. 조기·국소 진행성은 adjuvant 623, neoadjuvant 3, unknown 220.
+- 판정 기준일(`index_day`) 이후 투약을 빼는 처리는 아직 없다 (TCGA는 기준일이 마지막 추적일이라 영향 없음).
+
 테스트 실행 (`team_project` 폴더에서): `python -m pytest tests/biomarker` 또는 케이스별 출력은 `python -m tests.biomarker.test_bm`
