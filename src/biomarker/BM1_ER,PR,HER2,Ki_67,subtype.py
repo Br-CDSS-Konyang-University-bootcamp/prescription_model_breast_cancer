@@ -509,6 +509,47 @@ def _actionable():
     return _actionable.cache
 
 
+# BM-3 ClinVar (전달 문서 5.4절). data/script/clinvar_download.py가 만든 표를 로컬에서만 조회한다
+CLINVAR_CSV = Path(__file__).resolve().parents[2] / "data" / "clinvar" / "clinvar_bm3_genes.csv"
+CLINVAR_GENES = {"BRCA1", "BRCA2", "PALB2", "PTEN"}
+# 양성으로 볼 최소 리뷰 등급(별). gBRCA·PALB2는 2성 이상 (PROJECT.md 5절). PTEN은 문서에 등급 조건이 없어
+# 근거 기준이 없는 0성만 뺀다 (2026-10-19)
+CLINVAR_MIN_STARS = {"BRCA1": 2, "BRCA2": 2, "PALB2": 2, "PTEN": 1}
+CLINVAR_PATHOGENIC = {"Pathogenic", "Likely pathogenic", "Pathogenic/Likely pathogenic"}
+
+
+def _clinvar():
+    """{(유전자, 단백질 변화): [행, ...]}. 파일이 없으면 빈 표 (ClinVar 조회 없이 VUS로 남는다)."""
+    if not hasattr(_clinvar, "cache"):
+        table = {}
+        if CLINVAR_CSV.exists():
+            with open(CLINVAR_CSV, encoding="utf-8") as fh:
+                for r in csv.DictReader(fh):
+                    r["stars"] = int(r["stars"])
+                    table.setdefault((r["gene"], r["protein_change"]), []).append(r)
+        _clinvar.cache = table
+    return _clinvar.cache
+
+
+def _clinvar_best(gene, variants):
+    """검출 변이 중 ClinVar 근거가 가장 강한 (변이, 행)과 양성 여부. ClinVar에 없으면 (None, None, False)."""
+    best = None
+    for v in variants:
+        for r in _clinvar().get((gene, v.get("protein_change")), []):
+            ok = (r["clinical_significance"].split(";")[0] in CLINVAR_PATHOGENIC
+                  and r["stars"] >= CLINVAR_MIN_STARS[gene])
+            key = (ok, r["stars"])
+            if best is None or key > best[0]:
+                best = (key, v, r)
+    if best is None:
+        return None, None, False
+    return best[1], best[2], best[0][0]
+
+
+def _clinvar_text(row):
+    return f"{row['clinical_significance']} ({row['stars']}성, VCV{row['variation_id']})"
+
+
 def _is_truncating(variant):
     change = variant.get("protein_change") or ""
     return (variant.get("variant_type") in TRUNCATING_TYPES
@@ -556,15 +597,32 @@ def judge_gene(gene, field, patient_ref=""):
         if hit:
             rule_id, why = f"BM2-{gene}-TRUNC", "절단 변이 (기능 소실)"
 
-    picked = hit or variants[0]
+    # BM-3: 절단 변이가 아니면 ClinVar 병원성·병원성 가능 + 리뷰 등급으로 다시 가른다
+    cv_variant, cv_row, cv_ok = (None, None, False)
+    if not hit and gene in CLINVAR_GENES:
+        cv_variant, cv_row, cv_ok = _clinvar_best(gene, variants)
+        if cv_ok:
+            hit, rule_id = cv_variant, f"BM3-{gene}-CLINVAR"
+            why = f"ClinVar {_clinvar_text(cv_row)}, 파일 {CLINVAR_CSV.name}"
+
+    picked = hit or cv_variant or variants[0]
     evidence = {"variant": f"p.{picked['protein_change']}" if picked.get("protein_change") else None,
                 "vaf": picked.get("vaf")}
+    if cv_row:
+        evidence["clinvar"] = _clinvar_text(cv_row)
     if hit:
         return _record(marker, "positive", f"{gene} {_variant_text(variants)} → 양성: {why}",
                        rule_id, field, evidence, [GENE_TAGS[marker]])
+    if gene in CLINVAR_GENES:
+        cv_note = (f"ClinVar {_clinvar_text(cv_row)}는 양성 기준(병원성·병원성 가능, "
+                   f"{CLINVAR_MIN_STARS[gene]}성 이상)에 못 미침" if cv_row else "ClinVar에 없음")
+        if not CLINVAR_CSV.exists():
+            cv_note = "ClinVar 파일 없음 (data/script/clinvar_download.py 실행 필요)"
+        return _record(marker, "vus", f"{gene} {_variant_text(variants)} → 의미 불명 변이(VUS). {cv_note}. "
+                       "음성으로 처리하되 표시 유지", f"BM2-{gene}-VUS", field, evidence)
     return _record(marker, "vus",
                    f"{gene} {_variant_text(variants)} → 의미 불명 변이(VUS). 음성으로 처리하되 표시 유지. "
-                   "BM-3(ClinVar·CIViC) 조회로 다시 판정 예정", f"BM2-{gene}-VUS", field, evidence)
+                   "BM-3(CIViC) 조회로 다시 판정 예정", f"BM2-{gene}-VUS", field, evidence)
 
 
 def _endocrine_progressed(fields):
