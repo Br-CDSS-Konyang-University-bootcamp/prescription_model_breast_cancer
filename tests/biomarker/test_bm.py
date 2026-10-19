@@ -376,6 +376,18 @@ LINE_CASES = [
     ("L08", "early", [], "unknown", "투약 기록 없음"),
 ]
 
+# BM-3 CIViC (전달 문서 5.4절 2순위, data/civic/civic_bm3_evidence.csv): (id, 유전자, 칸, 정답 상태, 정답 규칙 ID, 정답 태그, 메모)
+CIVIC_CASES = [
+    ("V01", "PIK3CA", gene(("R88Q", MIS)), "positive", "BM3-PIK3CA-CIVIC", ["PIK3CA-mut", "off-label-variant"],
+     "허가 목록 밖, CIViC 근거 등급 A (TCGA-A2-A04P)"),
+    ("V02", "PIK3CA", gene(("H1047R", MIS)), "positive", "BM2-PIK3CA-LABEL", ["PIK3CA-mut"],
+     "허가 목록이 CIViC보다 먼저"),
+    ("V03", "PIK3CA", gene(("N345K", MIS)), "vus", "BM2-PIK3CA-VUS", [], "CIViC에 감수성 근거 없음"),
+    ("V04", "AKT1", gene(("Q79K", MIS)), "vus", "BM2-AKT1-VUS", [], "CIViC 근거가 내성(Resistance)뿐이라 양성 아님"),
+    ("V05", "PIK3CA", gene(("N345K", MIS), ("K111N", MIS)), "positive", "BM3-PIK3CA-CIVIC",
+     ["PIK3CA-mut", "off-label-variant"], "여러 변이 중 하나라도 CIViC 근거 있으면 양성"),
+]
+
 ESR1_CASES = [
     ("E01", gene(), _AI_PD, "retest_needed", "원발 음성 + 내분비요법 진행"),
     ("E02", gene(), _AI_CR, "negative", "진행 없음"),
@@ -496,6 +508,27 @@ def main():
     reason = bm.setting_of(deemed)["reason"]
     report("L09", "DEEM-ANTHRA-TAXANE" in reason and "DEEM-SG-1Y" not in reason, "충족(met)한 간주 규칙만 이유에 적음",
            reason)
+
+    for case_id, g, field, exp_status, exp_rule, exp_tags, note in CIVIC_CASES:
+        rec = bm.judge_gene(g, field, "TCGA-XX-0001")
+        ok = (rec["status"] == exp_status and rec["rule_id"] == exp_rule and rec["rag_tags"] == exp_tags
+              and not check_shape(rec))
+        report(case_id, ok, note, f"{rec['marker']} {rec['status']} {rec['rule_id']} {rec['rag_tags']}"
+               + ("" if ok else f"  / 정답: {exp_status} {exp_rule} {exp_tags} / {rec['reason']}"))
+    reason = bm.judge_gene("PIK3CA", gene(("R88Q", MIS)), "TCGA-XX-0001")["reason"]
+    report("V06", "등급 A" in reason and "EID" in reason, "근거 등급과 근거 번호를 이유에 남김", reason)
+    saved_path, saved_cache = bm.CIVIC_CSV, getattr(bm._civic, "cache", None)
+    bm.CIVIC_CSV = bm.CIVIC_CSV.with_name("없는_파일.csv")
+    if hasattr(bm._civic, "cache"):
+        del bm._civic.cache
+    rec = bm.judge_gene("PIK3CA", gene(("R88Q", MIS)), "TCGA-XX-0001")
+    report("V07", rec["status"] == "vus" and "civic_download.py" in rec["reason"], "CIViC 파일 없음",
+           f"{rec['status']} / {rec['reason']}")
+    bm.CIVIC_CSV = saved_path
+    if saved_cache is not None:
+        bm._civic.cache = saved_cache
+    elif hasattr(bm._civic, "cache"):
+        del bm._civic.cache
 
     for case_id, field, history, exp_status, note in ESR1_CASES:
         rec = bm.judge_esr1(field, {"treatment_history": history})
