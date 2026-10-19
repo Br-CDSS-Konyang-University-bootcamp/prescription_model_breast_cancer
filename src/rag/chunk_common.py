@@ -22,13 +22,20 @@ DRUG_ALIASES = {
 
 
 def clean_text(text: str) -> str:
-    """PDF 추출 텍스트 정제: 합자, 제어문자, 줄 끝 하이픈, 머리말(다운로드 정보) 제거."""
+    """PDF 추출 텍스트 정제: 합자, 제어문자, 줄 끝 하이픈, 머리말(다운로드 정보), 마크다운 꾸밈 제거."""
     text = unicodedata.normalize("NFKC", text)
+    # pymupdf4llm이 넣는 꾸밈: 인용 번호 위첨자, 굵게, 기울임, 밑줄, 표 안 줄바꿈
+    text = re.sub(r"<sup>[^<]*</sup>", "", text)
+    text = re.sub(r"</?u>", "", text).replace("<br>", " ").replace("**", "")
+    text = re.sub(r"(?<![\w/])_([^_\n]+?)_\s?-\s?(?=\w)", r"\1-", text)  # _PIK3CA_ -mutated → PIK3CA-mutated
+    text = re.sub(r"(?<![\w/])_([^_\n]+?)_(?![\w/])", r"\1", text)
     # PDF를 내려받은 사람의 정보가 담긴 줄은 청크에 넣지 않는다
     text = re.sub(r"^.*Downloaded from ascopubs\.org.*$", "", text, flags=re.MULTILINE | re.IGNORECASE)
     text = re.sub(r"[\x00-\x08\x0B-\x1F\x7F]", "", text)
     text = re.sub(r"(?<=[a-z])-\n\s*(?=[a-z])", "", text)
     text = text.replace("&gt;", ">").replace("&lt;", "<").replace("&amp;", "&")
+    # 단어 사이 en dash는 하이픈으로 맞춘다 (receptor–positive → receptor-positive). 아형·태그 규칙이 하이픈을 찾는다
+    text = re.sub(r"(?<=\w)–(?=\w)", "-", text)
     return text
 
 

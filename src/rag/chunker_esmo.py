@@ -57,7 +57,15 @@ SECTIONS = {
 # 쪽마다 반복되는 머리말. 소단원을 끊지 않는다.
 RUNNING_HEADERS = {"E. de Azambuja et al.", "S. Loibl et al.", "Annals of Oncology", "Recommendations"}
 
-# ESMO EBC에서 en dash가 e로 추출된 약제 조합 (설계 문서 §5)
+# 쪽 아래위 머리말 줄 (DOI와 쪽 번호, 권호, 저널 이름, 저자). 권고 문장 사이에 끼어 든다
+RUNNING_FOOTER = re.compile(
+    r"^\s*(\d+\s+)?https://doi\.org/10\.1016/j\.annonc\S*(\s+\d+)?\s*$"
+    r"|^\s*Volume \d+ \S+ Issue \d+ \S+ \d{4}\s*$"
+    r"|^\s*(E\. de Azambuja et al\.|S\. Loibl et al\.|#*\s*Annals of Oncology)\s*$",
+    re.MULTILINE,
+)
+
+# 예전 변환(docling)에서 en dash가 e로 추출된 약제 조합 (설계 문서 §5). 새 변환에서는 기호 폰트 표로 고쳐진다
 DASH_FIXES = {
     "OFSetamoxifen": "OFS-tamoxifen", "OFSeAI": "OFS-AI",
     "anthracyclinee taxane": "anthracycline-taxane", "taxaneecarboplatin": "taxane-carboplatin",
@@ -70,6 +78,8 @@ ESCAT = re.compile(r"ESCAT(?: score)?:\s*([IVX]+-[A-C])")
 # 새 환자군을 말하는 불릿이면 앞의 "For patients ...:" 문맥이 끝난 것으로 본다
 NEW_POPULATION = re.compile(r"\bpatients with\b|\bwomen\b|^(If|After progression|In the absence)\b")
 FOOTNOTE = re.compile(r"^[a-z] [A-Z]")
+# 이 권고 뒤의 근거 없는 불릿은 약제 선택지 목록이다 ("Options include: ■ Fulvestrant—palbociclib ...")
+OPTIONS_OPEN = re.compile(r":\s*$|Options include", re.IGNORECASE)
 
 
 def _evidence(text: str):
@@ -85,6 +95,13 @@ def _evidence(text: str):
         "esmo_mcbs": mcbs.group(1) if mcbs else None,
         "escat": escat.group(1) if escat else None,
     }
+
+
+def _norm_title(title: str) -> str:
+    """제목 비교용: 꾸밈 기호와 괄호 안쪽 공백을 지운다. 'Primary ( de novo ) stage IV BC' → 'Primary (de novo) stage IV BC'."""
+    title = re.sub(r"[*_#]", "", title)
+    title = re.sub(r"\(\s+", "(", re.sub(r"\s+\)", ")", title))
+    return re.sub(r"\s+", " ", title).strip()
 
 
 def _ebc_line(text: str) -> list:
@@ -129,13 +146,13 @@ def _section_items(lines: list[str]) -> list[str]:
                       or (not has_evidence and body.startswith("Options include"))):
             # 끊긴 문장, 하위 선택지(■, o), 약제 목록은 앞 권고에 붙인다
             items[-1] += " " + body
-            options_open = options_open or items[-1].endswith(":")
+            options_open = options_open or bool(OPTIONS_OPEN.search(items[-1]))
             continue
 
         if context and NEW_POPULATION.search(body):
             context = None
         items.append(f"{context} {body}" if context else body)
-        options_open = body.endswith(":")
+        options_open = bool(OPTIONS_OPEN.search(body))
     return [item.strip() for item in items if len(item.strip()) >= 40]
 
 
@@ -146,16 +163,23 @@ def parse_esmo_chunks(md_path: Path) -> list[dict]:
     text = clean_text(md_path.read_text(encoding="utf-8"))
     for broken, fixed in DASH_FIXES.items():
         text = text.replace(broken, fixed)
+    text = RUNNING_FOOTER.sub("", text)
+    text = re.sub(r"\s*—\s*(?=\w)", "—", text)  # 줄바꿈으로 생긴 'taxane— bevacizumab'
 
     # 제목 줄로 소단원을 나눈다. 대문자 제목이 상위 제목, 그 밖은 소제목.
+    # 변환기가 제목을 '#' 없이 굵은 글씨 줄로만 내는 경우가 있어, SECTIONS의 소제목과 같은 줄도 제목으로 본다.
+    known_subs = {_norm_title(sub) for _, sub in sections}
     blocks = []  # (상위 제목, 소제목, 줄 목록)
     parent, sub, lines = None, None, []
     for line in text.splitlines():
         header = re.match(r"^#+\s*(.+?)\s*$", line)
-        if not header:
+        if header:
+            title = _norm_title(header.group(1))
+        elif _norm_title(line) in known_subs:
+            title = _norm_title(line)
+        else:
             lines.append(line)
             continue
-        title = header.group(1)
         if title in RUNNING_HEADERS:
             continue
         blocks.append((parent, sub, lines))

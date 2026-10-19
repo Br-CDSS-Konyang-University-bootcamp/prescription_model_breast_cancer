@@ -106,7 +106,11 @@ def _text_quality(body: list[str]) -> tuple:
 
 
 def _paragraphs(text: str) -> list[str]:
-    return [p.strip() for p in re.split(r"\n\s*\n", text) if p.strip()]
+    paras = []
+    for p in re.split(r"\n\s*\n", text):
+        # 요약 상자에서는 권고 여러 개가 빈 줄 없이 이어져 나온다. "Recommendation 1.3. "이 새로 시작하는 곳에서 나눈다
+        paras.extend(re.split(r"(?<=[.)])\s+(?=Recommendation\s*\d+(?:\.\d+)+\.\s)", p.strip()))
+    return [p.strip() for p in paras if p.strip()]
 
 
 def extract_chunks_from_asco_md(md_path: Path) -> list[dict]:
@@ -117,10 +121,8 @@ def extract_chunks_from_asco_md(md_path: Path) -> list[dict]:
     id_prefix = f"asco-{stem.split('_')[1]}-{version}-{slug}"
 
     text = clean_text(md_path.read_text(encoding="utf-8"))
-    # ASCO 기호 폰트 깨짐 복원 (설계 문서 §5): $ = ≥, IHC 11 = IHC 1+
-    text = re.sub(r"\$\s?(?=\d)", "≥", text)
-    text = re.sub(r"IHC 11 or 21\b", "IHC 1+ or 2+", text)
-    text = text.replace("IHC 11", "IHC 1+").replace("IHC 00", "IHC 0")
+    # ≥, IHC 1+ 같은 기호 깨짐은 convert_pdf_to_md.py의 기호 폰트 표가 변환 때 고친다.
+    # 여기서 "$ 26"을 ≥로 바꾸면 비용 표의 진짜 달러 금액까지 바뀌므로 하지 않는다.
     # 권고·질문·단서 블록만 모으므로 문서 뒤쪽을 잘라 내지 않는다.
     # (Guideline Disclaimer, AFFILIATIONS 뒤에 본문 권고나 Qualifying Statement가 오는 파일이 있다)
     paras = _paragraphs(text)

@@ -13,7 +13,8 @@ ESMO·ASCO 지침을 수집·청킹하고, 지침과 급여 청크가 함께 들
 
 | 파일 | 내용 |
 |---|---|
-| `convert_pdf_to_md.py` | `data/guidelines/*.pdf`를 `data/parsed_md/{asco,esmo}/*.md`로 변환 (docling). 실행: `python -m src.rag.convert_pdf_to_md` |
+| `convert_pdf_to_md.py` | `data/guidelines/*.pdf`를 `data/parsed_md/{asco,esmo}/*.md`로 변환 (pymupdf4llm). PDF가 기호 전용 폰트에 넣어 둔 ≥, =, +, – 를 폰트 표로 되돌린다. 실행: `python -m src.rag.convert_pdf_to_md` |
+| `check_md_quality.py` | 변환한 md의 깨짐(기호, 제어문자, 붙은 단어, 그림 글자 등)을 세어 표로 보여 준다. 폴더 두 개를 주면 비교한다. 실행: `python -m src.rag.check_md_quality` |
 | `chunker_asco_all.py` | ASCO 처방 지침 11개 md → `data/chunks/asco_chunks_all.json`. 실행: `python -m src.rag.chunker_asco_all` |
 | `chunker_esmo.py` | ESMO EBC·MBC md → `data/chunks/esmo_chunks.json`. 실행: `python -m src.rag.chunker_esmo` |
 | `chunk_common.py` | 두 청커가 같이 쓰는 텍스트 정제, 약제·바이오마커 태깅, 청크 형식 |
@@ -22,7 +23,7 @@ ESMO·ASCO 지침을 수집·청킹하고, 지침과 급여 청크가 함께 들
 | `searcher.py` | `search_guidelines()` |
 | `run_indexing.py` | `data/chunks/*.json`을 스키마 검증하고, 지침 청크만 지운 뒤 다시 색인한다 (D의 급여 청크는 남김). 실행: `python -m src.rag.run_indexing` |
 
-모든 명령은 `team_project` 폴더에서 실행한다. 순서: PDF 변환 → 청커 2개 → `python -m pytest tests/rag` → 색인.
+모든 명령은 `team_project` 폴더에서 실행한다. 순서: PDF 변환 → 품질 검사 → 청커 2개 → `python -m pytest tests/rag` → 색인.
 
 - 지침 PDF와 변환한 md(`data/parsed_md/`)는 저작권 문서라 저장소에 올리지 않는다. 각자 PDF에서 만든다.
 - 청크 JSON은 `data/chunks/`에 커밋한다 (`.gitignore`에서 이 폴더의 `.json`만 허용). 커밋 전에 `tests/rag/test_chunks_schema.py`(스키마 검증, chunk_id 중복)가 통과해야 한다.

@@ -1,6 +1,7 @@
 # tests/rag/test_chunks_schema.py
 # 청크 JSON이 schemas/chunk.json을 통과하고 chunk_id가 겹치지 않는지 본다. qdrant·임베딩 모델 없이 돈다.
 import json
+import re
 from collections import Counter
 from pathlib import Path
 
@@ -38,3 +39,11 @@ def test_no_downloader_info_in_text():
     # ASCO PDF 머리말의 "Downloaded from ascopubs.org by ..."(내려받은 사람 정보)가 남으면 안 된다
     leaked = [c["chunk_id"] for path in CHUNK_FILES for c in _load(path) if "downloaded from" in c["text"].lower()]
     assert not leaked
+
+
+def test_no_pdf_glyph_corruption():
+    # PDF 기호 폰트가 그대로 남은 흔적: ≥ → $, IHC 1+ → IHC 11, n = 272 → n 5 272, 제어문자
+    patterns = {"$숫자": r"\$\s?\d", "IHC 11": r"\bIHC [0-3]1\b", "n 5": r"\bn 5 \d", "제어문자": r"[\x00-\x08\x0b-\x1f]"}
+    found = [(c["chunk_id"], name) for path in CHUNK_FILES for c in _load(path)
+             for name, p in patterns.items() if re.search(p, c["text"])]
+    assert not found, f"기호 깨짐: {found[:10]}"

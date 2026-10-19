@@ -183,7 +183,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Postmenopausal patients should receive an AI or tamoxifen followed by an AI [I, A]. Tamoxifen can be given for lower-risk tumours or if AIs are not tolerated [I, A].",
+    "text": "Postmenopausal patients should receive an AI or tamoxifen followed by an AI [I, A]. o Tamoxifen can be given for lower-risk tumours or if AIs are not tolerated [I, A].",
     "setting": [
       "early",
       "locally_advanced"
@@ -289,7 +289,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Extended ET beyond 5 years should be considered in high-risk EBC [I, A]; 7-8 years' treatment duration seems sufficient for most patients at high risk [I, A].",
+    "text": "Extended ET beyond 5 years should be considered in high-risk EBC [I, A]; 7-8 years’ treatment duration seems sufficient for most patients at high risk [I, A].",
     "setting": [
       "early",
       "locally_advanced"
@@ -323,7 +323,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Following completion of (neo)adjuvant and locoregional therapy, 1 year of adjuvant olaparib is recommended for patients with gBRCA1/2m and HER2-negative, HRpositive EBC with multiple positive LNs after primary surgery or residual high-risk EBC after neoadjuvant ChT [I, A; ESMO-MCBS v1.1 score: A; ESCAT: I-A].",
+    "text": "Following completion of (neo)adjuvant and locoregional therapy, 1 year of adjuvant olaparib is recommended for patients with gBRCA1/2m and HER2-negative, HR-positive EBC with multiple positive LNs after primary surgery or residual high-risk EBC after neoadjuvant ChT [I, A; ESMO-MCBS v1.1 score: A; ESCAT: I-A].",
     "setting": [
       "early",
       "locally_advanced"
@@ -437,7 +437,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "HER2-directed therapy (with initial concurrent ChT) should be given for 12 months, covering both the neoadjuvant and/or adjuvant phases of treatment [I, A; ESCAT score: I-A]. Administration can be combineddif indicateddwith RT and ET [I, A]. In selected low-risk situations, 6 months of anti-HER2 therapy may be non-inferior. Regular cardiac assessments are recommended (before, during and following therapy) with the option of additional assessments before the start of any ChT treatment [II, B].",
+    "text": "HER2-directed therapy (with initial concurrent ChT) should be given for 12 months, covering both the neoadjuvant and/or adjuvant phases of treatment [I, A; ESCAT score: I-A].",
     "setting": [
       "early",
       "locally_advanced"
@@ -473,6 +473,76 @@
     "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
     "chunk_kind": "recommendation",
     "parent_id": null,
+    "text": "Administration can be combined—if indicated—with RT and ET [I, A]. In selected low-risk situations, 6 months of anti-HER2 therapy may be non-inferior.",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "HR+/HER2+",
+      "HR-/HER2+"
+    ],
+    "line": [
+      "any"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-r03",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "HER2-positive EBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "Regular cardiac assessments are recommended (before, during and following therapy) with the option of additional assessments before the start of any ChT treatment [II, B].",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "HR+/HER2+",
+      "HR-/HER2+"
+    ],
+    "line": [
+      "any"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "II",
+      "gor": "B",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-r04",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "HER2-positive EBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
     "text": "For patients with clinical stage II-III HER2-positive breast cancer (e.g. T >2 cm or node positive), neoadjuvant systemic ChT with anti-HER2 therapy comprising HP is the preferred option [I, A; ESCAT score: I-A].",
     "setting": [
       "early",
@@ -498,7 +568,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r03",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-r05",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -508,7 +578,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "For the ChT backbone, a regimen of anthracycline-taxane or taxane-carboplatin is evidence-based independent of neoadjuvant or adjuvant use [I, A].",
+    "text": "For the ChT backbone, a regimen of anthracycline– taxane or taxane-carboplatin is evidence-based independent of neoadjuvant or adjuvant use [I, A].",
     "setting": [
       "early",
       "locally_advanced"
@@ -536,7 +606,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r04",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-r06",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -573,7 +643,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r05",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-r07",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -611,7 +681,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r06",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-r08",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -649,7 +719,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r07",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-r09",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -686,7 +756,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r08",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-r10",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -724,7 +794,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-ebc-2024-02-her2pos-r09",
+    "chunk_id": "esmo-ebc-2024-02-her2pos-r11",
     "doc_type": "guideline",
     "source": "ESMO-EBC",
     "version": "2024-02",
@@ -983,7 +1053,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Patients receiving pembrolizumab should be monitored very closely for the risk of immune-related adverse events throughout treatment and following the ESMO CPG for the management of toxicities from immunotherapy [V, A]. 107",
+    "text": "Patients receiving pembrolizumab should be monitored very closely for the risk of immune-related adverse events throughout treatment and following the ESMO CPG for the management of toxicities from immunotherapy [V, A].",
     "setting": [
       "early",
       "locally_advanced"
@@ -1054,7 +1124,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "In patients with gBRCA1/2m and high-risk TNBC (nonpCR or pathological stage II-III), 1 year of adjuvant olaparib should be administered [I, A; ESMO-MCBS v1.1 score: A; ESCAT: I-A]. The combination of ICIs and olaparib may be considered on an individual basis [V, C].",
+    "text": "In patients with gBRCA1/2m and high-risk TNBC (nonpCR or pathological stage II-III), 1 year of adjuvant olaparib should be administered [I, A; ESMO-MCBS v1.1 score: A; ESCAT: I-A].",
     "setting": [
       "early",
       "locally_advanced"
@@ -1092,7 +1162,43 @@
     "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Patients with residual disease who did not receive ICIs should be offered adjuvant capecitabine for 6-8 cycles [I, A]. The combination of olaparib and capecitabine in patients with gBRCAm should not be used [V, C]. The combination of ICI and capecitabine may be considered on an individual basis [V, C].",
+    "text": "The combination of ICIs and olaparib may be considered on an individual basis [V, C].",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "any"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "olaparib"
+    ],
+    "evidence": {
+      "loe": "V",
+      "gor": "C",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-r11",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "TNBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "Patients with residual disease who did not receive ICIs should be offered adjuvant capecitabine for 6-8 cycles [I, A].",
     "setting": [
       "early",
       "locally_advanced"
@@ -1103,6 +1209,42 @@
     "line": [
       "adjuvant"
     ],
+    "biomarker_tags": [],
+    "drugs": [
+      "capecitabine"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-r12",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "TNBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "The combination of olaparib and capecitabine in patients with gBRCAm should not be used [V, C].",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "any"
+    ],
     "biomarker_tags": [
       "gBRCA"
     ],
@@ -1111,8 +1253,44 @@
       "olaparib"
     ],
     "evidence": {
-      "loe": "I",
-      "gor": "A",
+      "loe": "V",
+      "gor": "C",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-tnbc-r13",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "TNBC",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "The combination of ICI and capecitabine may be considered on an individual basis [V, C].",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "any"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "capecitabine"
+    ],
+    "evidence": {
+      "loe": "V",
+      "gor": "C",
       "esmo_mcbs": null,
       "escat": null
     },
@@ -1164,7 +1342,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "AI-CDK4/6 inhibitor is recommended for patients with ER-positive, HER2-negative MBC that is de novo or recurring >12 months after the end of adjuvant endocrine therapy (ET) [I, A]. Options include (in order of preference): AI-ribociclib [ESMO-Magnitude of Clinical Benefit Scale (MCBS) v2.0 score: 4] AI-abemaciclib (ESMO-MCBS v2.0 score: 1) AI-palbociclib (ESMO-MCBS v2.0 score: 2).",
+    "text": "AI—CDK4/6 inhibitor is recommended for patients with ER-positive, HER2-negative MBC that is de novo or recurring > 12 months after the end of adjuvant endocrine therapy (ET) [I, A]. Options include (in order of preference): AI—ribociclib [ESMO-Magnitude of Clinical Benefit Scale (MCBS) v2.0 score: 4] AI—abemaciclib (ESMO-MCBS v2.0 score: 1) AI—palbociclib (ESMO-MCBS v2.0 score: 2).",
     "setting": [
       "metastatic"
     ],
@@ -1201,7 +1379,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Fulvestrant-CDK4/6 inhibitor is recommended for patients with ER-positive, HER2-negative, PIK3CA-wild type MBC recurring while receiving adjuvant ET or ≤12 months after the end of adjuvant ET [I, A]. Options include: Fulvestrant-palbociclib (ESMO-MCBS v2.0 score: 4) Fulvestrant-ribociclib (ESMO-MCBS v2.0 score: 4) Fulvestrant-abemaciclib (ESMO-MCBS v2.0 score: 3)",
+    "text": "Fulvestrant—CDK4/6 inhibitor is recommended for patients with ER-positive, HER2-negative, PIK3CA-wild type MBC recurring while receiving adjuvant ET or ≤12 months after the end of adjuvant ET [I, A]. Options include: Fulvestrant—palbociclib (ESMO-MCBS v2.0 score: 4) Fulvestrant—ribociclib (ESMO-MCBS v2.0 score: 4) Fulvestrant—abemaciclib (ESMO-MCBS v2.0 score: 3)",
     "setting": [
       "metastatic"
     ],
@@ -1216,8 +1394,8 @@
     ],
     "drugs": [
       "abemaciclib",
-      "palbociclib",
       "fulvestrant",
+      "palbociclib",
       "ribociclib"
     ],
     "evidence": {
@@ -1241,7 +1419,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "For patients with ER-positive, HER2-negative, PIK3CAmutated MBC recurring while receiving adjuvant ET or ≤12 months after the end of adjuvant ET: Fulvestrant-palbociclib-inavolisib is recommended [I, A; ESMO-MCBS v2.0 score: 3].",
+    "text": "For patients with ER-positive, HER2-negative, PIK3CA-mutated MBC recurring while receiving adjuvant ET or ≤12 months after the end of adjuvant ET: Fulvestrant—palbociclib—inavolisib is recommended [I, A; ESMO-MCBS v2.0 score: 3].",
     "setting": [
       "metastatic"
     ],
@@ -1255,8 +1433,8 @@
       "PIK3CA-mut"
     ],
     "drugs": [
-      "palbociclib",
       "fulvestrant",
+      "palbociclib",
       "inavolisib"
     ],
     "evidence": {
@@ -1280,7 +1458,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "For patients with ER-positive, HER2-negative, PIK3CAmutated MBC recurring while receiving adjuvant ET or ≤12 months after the end of adjuvant ET: Fulvestrant-CDK4/6 inhibitor can also be recommended [I, B]. Options include: Fulvestrant-palbociclib (ESMO-MCBS v2.0 score: 4) Fulvestrant-ribociclib (ESMO-MCBS v2.0 score: 4) Fulvestrant-abemaciclib (ESMO-MCBS v2.0 score: 3)",
+    "text": "For patients with ER-positive, HER2-negative, PIK3CA-mutated MBC recurring while receiving adjuvant ET or ≤12 months after the end of adjuvant ET: Fulvestrant—CDK4/6 inhibitor can also be recommended [I, B]. Options include: ■ Fulvestrant—palbociclib (ESMO-MCBS v2.0 score: 4) Fulvestrant—ribociclib (ESMO-MCBS v2.0 score: 4) Fulvestrant—abemaciclib (ESMO-MCBS v2.0 score: 3)",
     "setting": [
       "metastatic"
     ],
@@ -1295,8 +1473,8 @@
     ],
     "drugs": [
       "abemaciclib",
-      "palbociclib",
       "fulvestrant",
+      "palbociclib",
       "ribociclib"
     ],
     "evidence": {
@@ -1452,7 +1630,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Fulvestrant-capivasertib is recommended for patients with tumours harbouring PIK3CA, AKT1 or PTEN alterations who experience relapse or disease progression during or after treatment with an AI with or without previous CDK4/6 inhibitor therapy [I, A; ESMO-MCBS v2.0 score: 2].",
+    "text": "Fulvestrant—capivasertib is recommended for patients with tumours harbouring PIK3CA , AKT1 or PTEN alterations who experience relapse or disease progression during or after treatment with an AI with or without previous CDK4/6 inhibitor therapy [I, A; ESMO-MCBS v2.0 score: 2].",
     "setting": [
       "metastatic"
     ],
@@ -1492,7 +1670,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Fulvestrant-alpelisib can be recommended for patients with PIK3CA-mutated tumours (in exons 7, 9 or 20), prior exposure to an AI (with or without CDK4/6 inhibitors) and appropriate glycated haemoglobin levels [I, B; ESMO-MCBS v2.0 score: 1].",
+    "text": "Fulvestrant—alpelisib can be recommended for patients with PIK3CA-mutated tumours (in exons 7, 9 or 20), prior exposure to an AI (with or without CDK4/6 inhibitors) and appropriate glycated haemoglobin levels [I, B; ESMO-MCBS v2.0 score: 1].",
     "setting": [
       "metastatic"
     ],
@@ -1675,7 +1853,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Exemestane-everolimus [I, B; ESMO-MCBS v2.0 score: 1], fulvestrant-everolimus [II, B; not EMA or FDA approved] or tamoxifen-everolimus [II, B; not EMA or FDA approved] can be recommended in the absence of targetable alterations in patients suitable for everolimus.",
+    "text": "Exemestane—everolimus [I, B; ESMO-MCBS v2.0 score: 1], fulvestrant—everolimus [II, B; not EMA or FDA approved] or tamoxifen—everolimus [II, B; not EMA or FDA approved] can be recommended in the absence of targetable alterations in patients suitable for everolimus.",
     "setting": [
       "metastatic"
     ],
@@ -1688,8 +1866,8 @@
     "biomarker_tags": [],
     "drugs": [
       "fulvestrant",
-      "exemestane",
       "everolimus",
+      "exemestane",
       "tamoxifen"
     ],
     "evidence": {
@@ -1748,7 +1926,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Fulvestrant-CDK4/6 inhibitor switch [II, C] or fulvestrant monotherapy (to a lesser extent) [I, C; ESMO-MCBS v2.0 score: 1] may be considered in the absence of targetable alterations.",
+    "text": "Fulvestrant—CDK4/6 inhibitor switch [II, C] or fulvestrant monotherapy (to a lesser extent) [I, C; ESMO-MCBS v2.0 score: 1] may be considered in the absence of targetable alterations.",
     "setting": [
       "metastatic"
     ],
@@ -1849,7 +2027,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "ChT or antibody-drug conjugates (ADCs) can be recommended for patients with tumours considered endocrine-resistant or refractory when targeted agents have already been used or ruled out due to lack of therapeutically relevant molecular alterations [V, B].",
+    "text": "ChT or antibody—drug conjugates (ADCs) can be recommended for patients with tumours considered endocrine-resistant or refractory when targeted agents have already been used or ruled out due to lack of therapeutically relevant molecular alterations [V, B].",
     "setting": [
       "metastatic"
     ],
@@ -1882,7 +2060,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "For patients who have not previously received ChT: ChT can be recommended [I, B]. Sequential single-agent ChT is recommended over combination strategies [II, A]. Combination ChT is recommended when a rapid response is needed due to imminent organ failure [V, A].",
+    "text": "For patients who have not previously received ChT: ChT can be recommended [I, B].",
     "setting": [
       "metastatic"
     ],
@@ -1915,7 +2093,73 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "For patients who have not previously received ChT: Capecitabine, capecitabine-bevacizumab (not EMA or FDA approved in this line), taxane or taxanebevacizumab (not EMA or FDA approved in this line), may be considered [I, C]. If capecitabine is used, dihydropyrimidine dehydrogenase testing is recommended before treatment is initiated [V, A].",
+    "text": "For patients who have not previously received ChT: Sequential single-agent ChT is recommended over combination strategies [II, A].",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      ">=3L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "II",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r06",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "MANAGEMENT OF LUMINAL MBC > Third-line treatment and beyond",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "For patients who have not previously received ChT: Combination ChT is recommended when a rapid response is needed due to imminent organ failure [V, A].",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      ">=3L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "V",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r07",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "MANAGEMENT OF LUMINAL MBC > Third-line treatment and beyond",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "For patients who have not previously received ChT: Capecitabine, capecitabine—bevacizumab (not EMA or FDA approved in this line), taxane or taxane—bevacizumab (not EMA or FDA approved in this line), may be considered [I, C].",
     "setting": [
       "metastatic"
     ],
@@ -1941,7 +2185,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r06",
+    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r08",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -1951,7 +2195,42 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Trastuzumab deruxtecan (T-DXd) is recommended for patients with HER2-low or -ultralow disease after at least two lines of ET for MBC (or after one line of ET if progression occurred within 24 months of adjuvant ET or within 6 months of ET-CDK4/6 inhibitor for MBC) [I, A; ESMO-MCBS v2.0 score: 3].",
+    "text": "If capecitabine is used, dihydropyrimidine dehydrogenase testing is recommended before treatment is initiated [V, A].",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      ">=3L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "capecitabine"
+    ],
+    "evidence": {
+      "loe": "V",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r09",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "MANAGEMENT OF LUMINAL MBC > Third-line treatment and beyond",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "Trastuzumab deruxtecan (T-DXd) is recommended for patients with HER2-low or -ultralow disease after at least two lines of ET for MBC (or after one line of ET if progression occurred within 24 months of adjuvant ET or within 6 months of ET—CDK4/6 inhibitor for MBC) [I, A; ESMO-MCBS v2.0 score: 3].",
     "setting": [
       "metastatic"
     ],
@@ -1979,7 +2258,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r07",
+    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r10",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2014,7 +2293,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r08",
+    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r11",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2024,7 +2303,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Datopotamab deruxtecan (Dato-DXd) can also be recommended for patients with ER-positive, HER2negative MBC who have received at least one prior line of ChT [I, B; ESMO-MCBS v2.0 score: 3].",
+    "text": "Datopotamab deruxtecan (Dato-DXd) can also be recommended for patients with ER-positive, HER2-negative MBC who have received at least one prior line of ChT [I, B; ESMO-MCBS v2.0 score: 3].",
     "setting": [
       "metastatic"
     ],
@@ -2049,7 +2328,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r09",
+    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r12",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2086,7 +2365,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r10",
+    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r13",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2121,7 +2400,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r11",
+    "chunk_id": "esmo-mbc-2026-05-luminal-3l-r14",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -2164,7 +2443,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Docetaxel-pertuzumab-trastuzumab is recommended for patients with HER2-positive MBC, regardless of ER status [I, A; ESMO-MCBS v2.0 score: 4].",
+    "text": "Docetaxel—pertuzumab—trastuzumab is recommended for patients with HER2-positive MBC, regardless of ER status [I, A; ESMO-MCBS v2.0 score: 4].",
     "setting": [
       "metastatic"
     ],
@@ -2277,7 +2556,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "T-DXd-pertuzumab is also recommended for patients with HER2-positive MBC, regardless of ER status [I, A; ESMO-MCBS v2.0 score: 2; FDA approved, not EMA approved].",
+    "text": "T-DXd—pertuzumab is also recommended for patients with HER2-positive MBC, regardless of ER status [I, A; ESMO-MCBS v2.0 score: 2; FDA approved, not EMA approved].",
     "setting": [
       "metastatic"
     ],
@@ -2314,7 +2593,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "After completion of induction docetaxel-pertuzumabtrastuzumab: Maintenance pertuzumab-trastuzumab-ET-palbociclib may be considered for HER2-positive, ER-positive tumours (preferred) [I, C; not EMA or FDA approved].",
+    "text": "After completion of induction docetaxel—pertuzumab—trastuzumab: Maintenance pertuzumab—trastuzumab—ET—palbociclib may be considered for HER2-positive, ER-positive tumours (preferred) [I, C; not EMA or FDA approved].",
     "setting": [
       "metastatic"
     ],
@@ -2353,7 +2632,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "After completion of induction docetaxel-pertuzumabtrastuzumab: Maintenance pertuzumab-trastuzumab-ET is recommended for HER2-positive, ER-positive tumours [I, A; not EMA or FDA approved].",
+    "text": "After completion of induction docetaxel—pertuzumab—trastuzumab: Maintenance pertuzumab—trastuzumab—ET is recommended for HER2-positive, ER-positive tumours [I, A; not EMA or FDA approved].",
     "setting": [
       "metastatic"
     ],
@@ -2391,7 +2670,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "After completion of induction docetaxel-pertuzumabtrastuzumab: Maintenance pertuzumab-trastuzumab-tucatinib is recommended, regardless of ER status [I, A; not EMA or FDA approved].",
+    "text": "After completion of induction docetaxel—pertuzumab—trastuzumab: Maintenance pertuzumab—trastuzumab—tucatinib is recommended, regardless of ER status [I, A; not EMA or FDA approved].",
     "setting": [
       "metastatic"
     ],
@@ -2430,7 +2709,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "After completion of induction docetaxel-pertuzumabtrastuzumab: Maintenance pertuzumab-trastuzumab is recommended for HER2-positive, ER-negative tumours [I, A; ESMO-MCBS v2.0 score: 4].",
+    "text": "After completion of induction docetaxel—pertuzumab—trastuzumab: Maintenance pertuzumab—trastuzumab is recommended for HER2-positive, ER-negative tumours [I, A; ESMO-MCBS v2.0 score: 4].",
     "setting": [
       "metastatic"
     ],
@@ -2468,7 +2747,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "ET (e.g. an AI) can be recommended in combination with a HER2-targeted therapy such as trastuzumab [II, B; ESMO-MCBS v2.0 score: 3; EMA approved, not FDA approved], pertuzumab-trastuzumab [II, B; not EMA or FDA approved], lapatinib-trastuzumab [II, C; not EMA or FDA approved] or lapatinib [II, C; ESMO-MCBS v2.0 score: 3] for selected patients with HER2-positive, ER-positive MBC.",
+    "text": "ET (e.g. an AI) can be recommended in combination with a HER2-targeted therapy such as trastuzumab [II, B; ESMO-MCBS v2.0 score: 3; EMA approved, not FDA approved], pertuzumab—trastuzumab [II, B; not EMA or FDA approved], lapatinib—trastuzumab [II, C; not EMA or FDA approved] or lapatinib [II, C; ESMO-MCBS v2.0 score: 3] for selected patients with HER2-positive, ER-positive MBC.",
     "setting": [
       "metastatic"
     ],
@@ -2540,7 +2819,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "HER2-targeted therapy without ChT [e.g. pertuzumabtrastuzumab (not FDA or EMA approved) or trastuzumab monotherapy (not FDA or EMA approved)] may be considered in patients with HER2-positive, ERnegative MBC [III, C].",
+    "text": "HER2-targeted therapy without ChT [e.g. pertuzumab—trastuzumab (not FDA or EMA approved) or trastuzumab monotherapy (not FDA or EMA approved)] may be considered in patients with HER2-positive, ER-negative MBC [III, C].",
     "setting": [
       "metastatic"
     ],
@@ -2553,7 +2832,8 @@
     ],
     "biomarker_tags": [],
     "drugs": [
-      "trastuzumab"
+      "trastuzumab",
+      "pertuzumab"
     ],
     "evidence": {
       "loe": "III",
@@ -2647,7 +2927,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Second-line therapy options can be recommended for patients with metastatic recurrence within 6-12 months of completing adjuvant pertuzumab-trastuzumab or trastuzumab emtansine (T-DM1) [II, B].",
+    "text": "Second-line therapy options can be recommended for patients with metastatic recurrence within 6-12 months of completing adjuvant pertuzumab—trastuzumab or trastuzumab emtansine (T-DM1) [II, B].",
     "setting": [
       "metastatic"
     ],
@@ -2685,7 +2965,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "T-DXd is recommended (preferred option when available) after progression on taxane-trastuzumab irrespective of the presence of brain metastases (BMs), if not used in the first line [I, A; ESMO-MCBS v2.0 score: 4].",
+    "text": "T-DXd is recommended (preferred option when available) after progression on taxane—trastuzumab irrespective of the presence of brain metastases (BMs), if not used in the first line [I, A; ESMO-MCBS v2.0 score: 4].",
     "setting": [
       "metastatic"
     ],
@@ -2722,7 +3002,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Tucatinib-trastuzumab-capecitabine is also recommended in the second line [I, A; ESMO-MCBS v2.0 score: 4 for overall population, 3 for patients with BMs; FDA approved, not EMA approved in second line].",
+    "text": "Tucatinib—trastuzumab—capecitabine is also recommended in the second line [I, A; ESMO-MCBS v2.0 score: 4 for overall population, 3 for patients with BMs; FDA approved, not EMA approved in second line].",
     "setting": [
       "metastatic"
     ],
@@ -2760,7 +3040,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "T-DM1 is recommended after progression on taxanetrastuzumab if T-DXd is not available [I, A; ESMO-MCBS v2.0 score: 3].",
+    "text": "T-DM1 is recommended after progression on taxane—trastuzumab if T-DXd is not available [I, A; ESMO-MCBS v2.0 score: 3].",
     "setting": [
       "metastatic"
     ],
@@ -2773,8 +3053,9 @@
     ],
     "biomarker_tags": [],
     "drugs": [
-      "trastuzumab deruxtecan",
-      "trastuzumab emtansine"
+      "trastuzumab",
+      "trastuzumab emtansine",
+      "trastuzumab deruxtecan"
     ],
     "evidence": {
       "loe": "I",
@@ -2831,7 +3112,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "T-DXd [II, A; ESMO-MCBS v2.0 score: 4], tucatinibtrastuzumab-capecitabine [I, A; ESMO-MCBS v2.0 score: 4 for overall population, 3 for patients with BMs] and T-DM1 [I, A; ESMO-MCBS v2.0 score: 3] are recommended options in the third-line setting, if not already used.",
+    "text": "T-DXd [II, A; ESMO-MCBS v2.0 score: 4], tucatinib—trastuzumab—capecitabine [I, A; ESMO-MCBS v2.0 score: 4 for overall population, 3 for patients with BMs] and T-DM1 [I, A; ESMO-MCBS v2.0 score: 3] are recommended options in the third-line setting, if not already used.",
     "setting": [
       "metastatic"
     ],
@@ -2845,8 +3126,10 @@
     "biomarker_tags": [],
     "drugs": [
       "capecitabine",
-      "trastuzumab deruxtecan",
-      "trastuzumab emtansine"
+      "trastuzumab",
+      "tucatinib",
+      "trastuzumab emtansine",
+      "trastuzumab deruxtecan"
     ],
     "evidence": {
       "loe": "II",
@@ -2939,7 +3222,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Lapatinib-trastuzumab (ESMO-MCBS v2.0 score: 4; EMA approved, not FDA approved), lapatinib-capecitabine (ESMO-MCBS v2.0 score: 2) or lapatinib-ET (if ERpositive; ESMO-MCBS v2.0 score: 3) may be considered in later lines of therapy [I, C], noting that no data are available on the use of lapatinib after tucatinib-based therapy.",
+    "text": "Lapatinib—trastuzumab (ESMO-MCBS v2.0 score: 4; EMA approved, not FDA approved), lapatinib—capecitabine (ESMO-MCBS v2.0 score: 2) or lapatinib—ET (if ER-positive; ESMO-MCBS v2.0 score: 3) may be considered in later lines of therapy [I, C], noting that no data are available on the use of lapatinib after tucatinib-based therapy.",
     "setting": [
       "metastatic"
     ],
@@ -2954,8 +3237,8 @@
     "drugs": [
       "capecitabine",
       "trastuzumab",
-      "lapatinib",
-      "tucatinib"
+      "tucatinib",
+      "lapatinib"
     ],
     "evidence": {
       "loe": "I",
@@ -2978,7 +3261,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Margetuximab-ChT (ESMO-MCBS v2.0 score: 2; FDA approved, not EMA approved) or neratinibcapecitabine (ESMO-MCBS v2.0 score: 1; FDA approved, not EMA approved) may be considered in later lines of therapy [I, C].",
+    "text": "Margetuximab—ChT (ESMO-MCBS v2.0 score: 2; FDA approved, not EMA approved) or neratinib—capecitabine (ESMO-MCBS v2.0 score: 1; FDA approved, not EMA approved) may be considered in later lines of therapy [I, C].",
     "setting": [
       "metastatic"
     ],
@@ -2991,7 +3274,9 @@
     ],
     "biomarker_tags": [],
     "drugs": [
-      "margetuximab"
+      "capecitabine",
+      "margetuximab",
+      "neratinib"
     ],
     "evidence": {
       "loe": "I",
@@ -3084,7 +3369,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Pembrolizumab-sacituzumab govitecan is recommended for patients with PD-L1 combined positive score (CPS) ≥10 and DFI ≥6 months after adjuvant treatment, noting that limited data are available after neo(adjuvant) ICI therapy [I, A; FDA approved, not EMA approved].",
+    "text": "Pembrolizumab—sacituzumab govitecan is recommended for patients with PD-L1 combined positive score (CPS) ≥10 and DFI ≥6 months after adjuvant treatment, noting that limited data are available after neo(adjuvant) ICI therapy [I, A; FDA approved, not EMA approved].",
     "setting": [
       "metastatic"
     ],
@@ -3122,7 +3407,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Pembrolizumab-ChT (paclitaxel, nab-paclitaxel or carboplatin-gemcitabine) is also recommended for patients with PD-L1 CPS ≥10 and DFI ≥6 months after adjuvant treatment, noting that limited data are available after neo(adjuvant) ICI therapy [I, A; ESMO-MCBS v2.0 score: 4].",
+    "text": "Pembrolizumab—ChT (paclitaxel, nab-paclitaxel or carboplatin—gemcitabine) is also recommended for patients with PD-L1 CPS ≥10 and DFI ≥6 months after adjuvant treatment, noting that limited data are available after neo(adjuvant) ICI therapy [I, A; ESMO-MCBS v2.0 score: 4].",
     "setting": [
       "metastatic"
     ],
@@ -3163,7 +3448,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Atezolizumab-nab-paclitaxel is recommended for patients with immune cell PD-L1 positivity ≥1% and DFI ≥12 months after adjuvant treatment [II, A; ESMO-MCBS v2.0 score: 3; EMA approved, not FDA approved].",
+    "text": "Atezolizumab—nab-paclitaxel is recommended for patients with immune cell PD-L1 positivity ≥1% and DFI ≥12 months after adjuvant treatment [II, A; ESMO-MCBS v2.0 score: 3; EMA approved, not FDA approved].",
     "setting": [
       "metastatic"
     ],
@@ -3201,7 +3486,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Olaparib [I, A; not EMA or FDA approved in first line], talazoparib [I, A; not EMA or FDA approved in first line] or carboplatin-based ChT [II, A] are recommended for patients with germline BRCA1/2-mutated and PD-L1negative mTNBC.",
+    "text": "Olaparib [I, A; not EMA or FDA approved in first line], talazoparib [I, A; not EMA or FDA approved in first line] or carboplatin-based ChT [II, A] are recommended for patients with germline BRCA1/2-mutated and PD-L1-negative mTNBC.",
     "setting": [
       "metastatic"
     ],
@@ -3241,7 +3526,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Treatment options for patients with germline BRCA1/2wild type and PD-L1-negative mTNBC (or who are not candidates for ICIs) depend on previous treatment exposure, disease presentation, DFI and patient considerations: Dato-DXd [I, A; ESMO-MCBS v2.0 score: 4; EMA Committee for Medicinal Products for Human Use (CHMP) positive opinion, FDA approved] or sacituzumab govitecan [I, A; ESMO-MCBS v2.0 score: 2; EMA CHMP positive opinion, FDA approved] are recommended for most patients, if available. Dato-DXd is the preferred option for patients relapsing within 6 months of adjuvant therapy [I, A].",
+    "text": "Treatment options for patients with germline BRCA1/2- wild type and PD-L1-negative mTNBC (or who are not candidates for ICIs) depend on previous treatment exposure, disease presentation, DFI and patient considerations: Dato-DXd [I, A; ESMO-MCBS v2.0 score: 4; EMA Committee for Medicinal Products for Human Use (CHMP) positive opinion, FDA approved] or sacituzumab govitecan [I, A; ESMO-MCBS v2.0 score: 2; EMA CHMP positive opinion, FDA approved] are recommended for most patients, if available. Dato-DXd is the preferred option for patients relapsing within 6 months of adjuvant therapy [I, A].",
     "setting": [
       "metastatic"
     ],
@@ -3280,7 +3565,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Treatment options for patients with germline BRCA1/2wild type and PD-L1-negative mTNBC (or who are not candidates for ICIs) depend on previous treatment exposure, disease presentation, DFI and patient considerations: Taxane monotherapy is recommended for most patients [I, A].",
+    "text": "Treatment options for patients with germline BRCA1/2- wild type and PD-L1-negative mTNBC (or who are not candidates for ICIs) depend on previous treatment exposure, disease presentation, DFI and patient considerations: Taxane monotherapy is recommended for most patients [I, A].",
     "setting": [
       "metastatic"
     ],
@@ -3349,7 +3634,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Capecitabine, capecitabine-bevacizumab (ESMOMCBS v2.0 score: 3; EMA approved, not FDA approved), taxane or taxane-bevacizumab (ESMOMCBS v2.0 score: 2; EMA approved, not FDA approved) can be recommended for patients with imminent organ failure [I, B].",
+    "text": "Capecitabine, capecitabine—bevacizumab (ESMOMCBS v2.0 score: 3; EMA approved, not FDA approved), taxane or taxane—bevacizumab (ESMOMCBS v2.0 score: 2; EMA approved, not FDA approved) can be recommended for patients with imminent organ failure [I, B].",
     "setting": [
       "metastatic"
     ],
@@ -4319,7 +4604,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Treatment decisions should consider DS-GPA, presence of neurological symptoms, previous treatments and the patient's preferences [V, A].",
+    "text": "Treatment decisions should consider DS-GPA, presence of neurological symptoms, previous treatments and the patient’s preferences [V, A].",
     "setting": [
       "metastatic"
     ],
@@ -4385,7 +4670,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "BMs should be managed according to recommendations outlined in the European Association of Neuro-Oncology (EANO)-ESMO Clinical Practice Guideline (CPG) for the management of patients with BMs from solid tumours [V, A].",
+    "text": "BMs should be managed according to recommendations outlined in the European Association of Neuro-Oncology (EANO)—ESMO Clinical Practice Guideline (CPG) for the management of patients with BMs from solid tumours [V, A].",
     "setting": [
       "metastatic"
     ],
@@ -4586,7 +4871,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "If T-DXd is not available or not indicated, tucatinibtrastuzumab-capecitabine is recommended [II, A; ESMO-MCBS v2.0 score: 3; FDA approved, not EMA approved in this specific setting].",
+    "text": "If T-DXd is not available or not indicated, tucatinib—trastuzumab—capecitabine is recommended [II, A; ESMO-MCBS v2.0 score: 3; FDA approved, not EMA approved in this specific setting].",
     "setting": [
       "metastatic"
     ],
@@ -4600,6 +4885,8 @@
     "biomarker_tags": [],
     "drugs": [
       "capecitabine",
+      "trastuzumab",
+      "tucatinib",
       "trastuzumab deruxtecan"
     ],
     "evidence": {
@@ -4659,7 +4946,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Tucatinib-trastuzumab-capecitabine is recommended for patients progressing on T-DXd [I, A; ESMO-MCBS v2.0 score: 3]. If tucatinib is not available, lapatinibcapecitabine or neratinib-capecitabine can be recommended [III, B; neither of these regimens are EMA or FDA approved in this specific setting].",
+    "text": "Tucatinib—trastuzumab—capecitabine is recommended for patients progressing on T-DXd [I, A; ESMO-MCBS v2.0 score: 3]. If tucatinib is not available, lapatinib—capecitabine or neratinib—capecitabine can be recommended [III, B; neither of these regimens are EMA or FDA approved in this specific setting].",
     "setting": [
       "metastatic"
     ],
@@ -4674,8 +4961,9 @@
     "drugs": [
       "capecitabine",
       "trastuzumab",
-      "tucatinib",
       "neratinib",
+      "tucatinib",
+      "lapatinib",
       "trastuzumab deruxtecan"
     ],
     "evidence": {
@@ -4699,7 +4987,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "After progression, neratinib-trastuzumab-fulvestrant (in ER-positive disease), tucatinib or T-DXd can be recommended in HER2-mutated MBC with BMs [V, B; none of these regimens are EMA or FDA approved in this specific setting].",
+    "text": "After progression, neratinib—trastuzumab—fulvestrant (in ER-positive disease), tucatinib or T-DXd can be recommended in HER2-mutated MBC with BMs [V, B; none of these regimens are EMA or FDA approved in this specific setting].",
     "setting": [
       "metastatic"
     ],
@@ -4712,10 +5000,10 @@
     ],
     "biomarker_tags": [],
     "drugs": [
-      "trastuzumab",
       "fulvestrant",
-      "tucatinib",
+      "trastuzumab",
       "neratinib",
+      "tucatinib",
       "trastuzumab deruxtecan"
     ],
     "evidence": {
@@ -4739,7 +5027,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Local therapies are recommended for patients with HER2-negative BC and BMs [V, A].",
+    "text": "Local therapies are recommended for patients with",
     "setting": [
       "metastatic"
     ],
@@ -4752,12 +5040,7 @@
     ],
     "biomarker_tags": [],
     "drugs": [],
-    "evidence": {
-      "loe": "V",
-      "gor": "A",
-      "esmo_mcbs": null,
-      "escat": null
-    },
+    "evidence": null,
     "superseded_by": null,
     "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
   },
@@ -4807,7 +5090,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Clinical decisions on ChT should be based on disease subtype, previous treatments, patients' general condition and individual preferences, as no single regimen is preferred [V, A].",
+    "text": "Clinical decisions on ChT should be based on disease subtype, previous treatments, patients’ general condition and individual preferences, as no single regimen is preferred [V, A].",
     "setting": [
       "metastatic"
     ],
@@ -4951,7 +5234,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "LMD should be treated according to the recommendations outlined in the EANO-ESMO CPG for the management of patients with LMs from solid tumours [V, A].",
+    "text": "LMD should be treated according to the recommendations outlined in the EANO—ESMO CPG for the management of patients with LMs from solid tumours [V, A].",
     "setting": [
       "metastatic"
     ],
@@ -4984,7 +5267,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "All treatment decisions should consider patients' general condition and preferences, disease subtype and LMD type [V, A].",
+    "text": "All treatment decisions should consider patients’ general condition and preferences, disease subtype and LMD type [V, A].",
     "setting": [
       "metastatic"
     ],
@@ -5050,7 +5333,35 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "Intrathecal therapy may be considered in type I LMD (positive cytology or biopsy) after MDT discussion [III, C].",
+    "text": "Intrathecal therapy may be considered in type I LMD",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "any"
+    ],
+    "line": [
+      "any"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-site-lmd-r05",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "SITE-SPECIFIC MANAGEMENT > LMD",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "recommendation",
+    "parent_id": null,
+    "text": "(positive cytology or biopsy) after MDT discussion [III, C].",
     "setting": [
       "metastatic"
     ],
@@ -5073,7 +5384,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-lmd-r05",
+    "chunk_id": "esmo-mbc-2026-05-site-lmd-r06",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -5106,7 +5417,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-lmd-r06",
+    "chunk_id": "esmo-mbc-2026-05-site-lmd-r07",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
@@ -5116,7 +5427,7 @@
     "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
     "chunk_kind": "recommendation",
     "parent_id": null,
-    "text": "T-DXd and tucatinib-trastuzumab-capecitabine are recommended as systemic treatment options in HER2positive LMD [III, A; neither of these regimens is EMA or FDA approved in this specific setting].",
+    "text": "T-DXd and tucatinib—trastuzumab—capecitabine are recommended as systemic treatment options in HER2-positive LMD [III, A; neither of these regimens is EMA or FDA approved in this specific setting].",
     "setting": [
       "metastatic"
     ],
@@ -5144,7 +5455,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "esmo-mbc-2026-05-site-lmd-r07",
+    "chunk_id": "esmo-mbc-2026-05-site-lmd-r08",
     "doc_type": "guideline",
     "source": "ESMO-MBC",
     "version": "2026-05",
