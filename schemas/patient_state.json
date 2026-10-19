@@ -2,14 +2,15 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "patient_state.json",
   "title": "patient_state",
-  "description": "[1] 입력 모듈(A)의 출력. 비식별화된 차트에서 추출한 환자 상태. 모든 값에 원문 근거 위치를 붙인다. 필드 설명은 src/input/schema_fields.md. 초안 v0.1-draft5 (2026-10-15, 진단일 기준 일수, 투여 주기, 재발·전이 정보, PD-L1, 유전자 변이, anthracycline 투약 용량 추가). 상대 일수(*_day)는 진단일 = 0인 정수다. 실제 날짜가 아니므로 TCGA 정답에도 넣는다.",
+  "description": "[1] 입력 모듈(A)의 출력. 비식별화된 차트에서 추출한 환자 상태. 모든 값에 원문 근거 위치를 붙인다. 필드 설명은 src/input/schema_fields.md. 초안 v0.1-draft6 (2026-10-16, 판정 기준일 index_day, 첫 재발일 recurrence_day, 투약별 차수 line·endocrine_line·chemo_line, 심평원 차수 간주 규칙 deemed_lines 추가. draft5는 2026-10-15: 진단일 기준 일수, 투여 주기, 재발·전이 정보, PD-L1, 유전자 변이, anthracycline 투약 용량). 상대 일수(*_day)는 진단일 = 0인 정수다. 실제 날짜가 아니므로 TCGA 정답에도 넣는다.",
   "type": "object",
   "required": ["schema_version", "patient_ref", "created_at", "documents", "fields", "conflicts"],
   "additionalProperties": false,
   "properties": {
-    "schema_version": {"const": "0.1-draft5"},
+    "schema_version": {"const": "0.1-draft6"},
     "patient_ref": {"type": "string", "description": "가명 ID. 실제 이름·등록번호를 넣지 않는다."},
     "created_at": {"type": "string", "format": "date-time"},
+    "index_day": {"$ref": "#/$defs/day", "description": "판정 기준일 (진단일 = 0). 추천과 급여 판정을 하는 '지금' 시점. '최근 4주 이내 투여', 투여 시점 나이 같은 조건에 쓴다. TCGA는 마지막 추적일(fu_last_days)"},
     "documents": {
       "type": "array",
       "description": "IN-1 문서 분류 결과",
@@ -136,7 +137,29 @@
                 "description": "투여 주기 수 (trastuzumab 18주기, T-DM1 14주기 등 급여 조건). 매일 먹는 약(내분비요법 경구제 등)은 null"},
               "stop_reason": {"enum": ["progression", "toxicity", "completed", "planned_switch", "maintenance", "other", null], "description": "planned_switch = 계획된 순차 요법(AC→T 등), maintenance = 유지요법 전환. 둘 다 같은 차수로 센다"},
               "best_response": {"enum": ["CR", "PR", "SD", "PD", "unknown", null]},
+              "line": {"type": ["integer", "null"], "minimum": 1, "description": "전이 후 전체 차수 (지침용, 간주 규칙 없음). 전이 전 투약·보조약·골 보호제는 null. 계산 규칙은 src/input/common/lines.py, handoff_to_B.md §6.2"},
+              "endocrine_line": {"type": ["integer", "null"], "minimum": 1, "description": "고식적 내분비요법 차수 (심평원 투여단계, 간주 규칙 없음). 이 투약이 내분비요법이 아니면 null"},
+              "chemo_line": {"type": ["integer", "null"], "minimum": 1, "description": "고식적 항암화학요법 차수 (심평원 투여단계, 간주 규칙 없음). 항암·HER2 표적·면역항암제가 들어간 요법. 이 투약이 항암이 아니면 null"},
               "source": {"anyOf": [{"$ref": "#/$defs/source"}, {"type": "null"}]}
+            }
+          }
+        },
+        "deemed_lines": {
+          "type": "array",
+          "description": "심평원 차수 간주 규칙 판정 (공고 p.57, 61~63). 선행·보조요법을 고식적 요법 1회로 간주할지 규칙마다 따로 판정한다. 급여 판정은 '실제 차수(line·endocrine_line·chemo_line) + 해당 규칙이 met이면 1'로 투여단계와 비교한다. 규칙 4개를 항상 모두 적는다",
+          "items": {
+            "type": "object",
+            "required": ["rule_id", "category", "status", "basis", "regimen_refs", "gap_days", "notice_page"],
+            "additionalProperties": false,
+            "properties": {
+              "rule_id": {"enum": ["DEEM-ANTHRA-TAXANE", "DEEM-SG-1Y", "DEEM-HER2ADC-6M", "DEEM-ENDO-ADJ-1Y"],
+                "description": "DEEM-ANTHRA-TAXANE = anthracycline·taxane 포함 선행·보조요법은 기간 제한 없이 항암 1차로 간주 (p.61~62). DEEM-SG-1Y = 선행·보조요법 중·종료 후 1년 이내 재발이면 항암 1차로 간주 (sacituzumab govitecan, p.63). DEEM-HER2ADC-6M = trastuzumab 포함 보조요법 중·종료 후 6개월 이내 재발이면 trastuzumab 실패로 인정 (T-DM1·T-DXd, p.62~63). DEEM-ENDO-ADJ-1Y = 보조 내분비요법 중·종료 후 1년 이내 재발이면 '내분비요법 후 진행'으로 인정 (p.57)"},
+              "category": {"enum": ["chemo", "endocrine"], "description": "올리는 차수: chemo = chemo_line, endocrine = endocrine_line"},
+              "status": {"enum": ["met", "not_met", "unknown", "not_applicable"], "description": "unknown = 종료일·재발일이 없어 판정할 수 없음. not_applicable = 전이성이 아님 (전이 기준일 없음)"},
+              "basis": {"type": "string", "description": "판정 이유 (근거 투약과 일수)"},
+              "regimen_refs": {"type": "array", "items": {"type": "integer", "minimum": 0}, "description": "근거가 된 treatment_history 순번 (0부터)"},
+              "gap_days": {"type": ["integer", "null"], "description": "근거 투약 종료일부터 전이 기준일까지 일수. 음수면 투여 중에 전이. 종료일이 없으면 시작일 기준. 기간 조건이 없거나 계산할 수 없으면 null"},
+              "notice_page": {"type": "string", "description": "공고책자 쪽 (2026-10-01판)"}
             }
           }
         },
@@ -188,7 +211,9 @@
             "metastatic_sites": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"$ref": "#/$defs/sites_value"}}}],
               "description": "재발로 생긴 전이 부위. 여러 개 나열. TCGA는 nte_sites + nte_sites_other (국소 부위가 섞일 수 있음)"},
             "metastasis_day": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"type": "integer", "minimum": 0}}}],
-              "description": "전이 기준일 (진단일 = 0). 진단 시 IV기 = 0, 원격 전이 재발 = 첫 원격 전이 진단일. B가 treatment_history[].start_day와 비교해 차수를 정한다. TCGA는 metastasis_dx_days"},
+              "description": "전이 기준일 (진단일 = 0). 진단 시 IV기 = 0, 원격 전이 재발 = 첫 원격 전이 진단일. A가 treatment_history[].start_day와 비교해 차수를 정한다. TCGA는 metastasis_dx_days"},
+            "recurrence_day": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"type": "integer", "minimum": 0}}}],
+              "description": "첫 재발일 (진단일 = 0). 국소·원격 재발 모두. 진단 시 IV기는 재발이 아니므로 넣지 않는다. '보조요법 종료 후 1년 이내 재발' 같은 급여 조건에 쓴다. TCGA는 locoregional_dx_days, metastasis_dx_days(원격 전이 재발일 때) 중 이른 값"},
             "surgery": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {
               "enum": ["yes", "no", "unknown"],
               "description": "재발 후 수술 여부. TCGA는 nte_surgery (YES가 하나라도 있으면 yes)"}}}]},
@@ -322,6 +347,7 @@
       "additionalProperties": false,
       "properties": {
         "status": {"enum": ["present", "not_done", "not_recorded"]},
+        "raw": {"type": ["string", "null"], "description": "status가 not_done이고 검사가 진행 중이면 고정 표기 '결과 대기'(검사는 했고 결과를 기다림), 예약만 되고 아직 시행 전이면 '예정'을 넣는다. 이때 원문은 source.quote에 둔다 (draft6). TCGA에는 없음"},
         "result": {"enum": ["detected", "not_detected"]},
         "variants": {"type": "array", "items": {"$ref": "#/$defs/variant"}},
         "specimen": {"$ref": "#/$defs/specimen"},
@@ -433,7 +459,7 @@
       "properties": {
         "status": {"enum": ["present", "not_done", "not_recorded"]},
         "value": {"description": "표준값. 형태는 필드마다 다르다. status가 present일 때만 채운다."},
-        "raw": {"type": ["string", "null"], "description": "정규화 전 원문 표기"},
+        "raw": {"type": ["string", "null"], "description": "정규화 전 원문 표기. status가 not_done이고 검사가 진행 중이면 고정 표기 '결과 대기'(검사는 했고 결과를 기다림), 예약만 되고 아직 시행 전이면 '예정'을 넣는다. 이때 원문은 source.quote에 둔다 (draft6)"},
         "observed_date": {"$ref": "#/$defs/date"},
         "specimen": {"$ref": "#/$defs/specimen"},
         "confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},

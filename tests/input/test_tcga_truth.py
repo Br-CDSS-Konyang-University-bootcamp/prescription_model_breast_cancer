@@ -108,6 +108,30 @@ def test_neoadjuvant_setting_patients(truth):
     assert n == 8  # §3.6 setting 규칙 3: 실제로 붙는 환자 8명
 
 
+def test_index_day_and_recurrence_day_counts(truth):
+    """§2.3: index_day = fu_last_days (802명, 72명 null). §3.7: recurrence_day는 distant 22 + locoregional 12명."""
+    assert sum(doc["index_day"] is not None for doc in truth.values()) == 802
+    assert sum("recurrence_day" in doc["fields"]["recurrence"] for doc in truth.values()) == 34
+
+
+def test_line_counts(truth):
+    """§3.6: 차수가 붙은 투약 90건, 환자 28명."""
+    items = [t for doc in truth.values() for t in doc["fields"]["treatment_history"] if t["line"] is not None]
+    assert len(items) == 90
+    assert sum(any(t["line"] for t in doc["fields"]["treatment_history"]) for doc in truth.values()) == 28
+
+
+def test_deemed_lines_counts(truth):
+    """§3.6b 표."""
+    c = Counter((d["rule_id"], d["status"]) for doc in truth.values() for d in doc["fields"]["deemed_lines"])
+    assert {k: v for k, v in c.items() if k[1] != "not_applicable"} == {
+        ("DEEM-ANTHRA-TAXANE", "met"): 8, ("DEEM-ANTHRA-TAXANE", "not_met"): 20,
+        ("DEEM-SG-1Y", "met"): 13, ("DEEM-SG-1Y", "not_met"): 14, ("DEEM-SG-1Y", "unknown"): 1,
+        ("DEEM-HER2ADC-6M", "met"): 1, ("DEEM-HER2ADC-6M", "not_met"): 27,
+        ("DEEM-ENDO-ADJ-1Y", "met"): 8, ("DEEM-ENDO-ADJ-1Y", "not_met"): 19, ("DEEM-ENDO-ADJ-1Y", "unknown"): 1}
+    assert c[("DEEM-SG-1Y", "not_applicable")] == 846
+
+
 def test_er_low_positive_only_er(truth):
     er = Counter(doc["fields"]["receptors"]["er_percent"].get("value", {}).get("result") for doc in truth.values())
     pr = Counter(doc["fields"]["receptors"]["pr_percent"].get("value", {}).get("result") for doc in truth.values())

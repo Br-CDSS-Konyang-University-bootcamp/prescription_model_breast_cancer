@@ -1,7 +1,8 @@
 {
-  "schema_version": "0.1-draft5",
+  "schema_version": "0.1-draft6",
   "patient_ref": "TCGA-A2-A0YG",
   "created_at": "2026-10-15T00:00:00+09:00",
+  "index_day": 666,
   "documents": [
     {
       "doc_id": "D1",
@@ -168,7 +169,10 @@
         "progression_day": null,
         "stop_reason": null,
         "best_response": "unknown",
-        "source": null
+        "source": null,
+        "line": null,
+        "endocrine_line": null,
+        "chemo_line": null
       },
       {
         "drugs": [
@@ -189,7 +193,10 @@
         "progression_day": null,
         "stop_reason": null,
         "best_response": "unknown",
-        "source": null
+        "source": null,
+        "line": null,
+        "endocrine_line": null,
+        "chemo_line": null
       },
       {
         "drugs": [
@@ -210,7 +217,10 @@
         "progression_day": null,
         "stop_reason": null,
         "best_response": "unknown",
-        "source": null
+        "source": null,
+        "line": null,
+        "endocrine_line": null,
+        "chemo_line": null
       },
       {
         "drugs": [
@@ -226,7 +236,10 @@
         "progression_day": null,
         "stop_reason": null,
         "best_response": "unknown",
-        "source": null
+        "source": null,
+        "line": null,
+        "endocrine_line": null,
+        "chemo_line": null
       },
       {
         "drugs": [
@@ -247,7 +260,10 @@
         "progression_day": null,
         "stop_reason": null,
         "best_response": "unknown",
-        "source": null
+        "source": null,
+        "line": null,
+        "endocrine_line": null,
+        "chemo_line": null
       },
       {
         "drugs": [
@@ -263,7 +279,10 @@
         "progression_day": null,
         "stop_reason": null,
         "best_response": "unknown",
-        "source": null
+        "source": null,
+        "line": null,
+        "endocrine_line": null,
+        "chemo_line": null
       }
     ],
     "anthracycline_drug_dose": {
@@ -372,6 +391,44 @@
         "report_date": null,
         "specimen": "primary",
         "raw_text": "종양 조직 엑솜 검사 (원발 조직). ERBB2 amplification. ERBB2, ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2: 검출되지 않음."
+      }
+    ],
+    "deemed_lines": [
+      {
+        "rule_id": "DEEM-ANTHRA-TAXANE",
+        "category": "chemo",
+        "status": "not_applicable",
+        "basis": "전이 기준일 없음 (전이성 아님)",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "61-62"
+      },
+      {
+        "rule_id": "DEEM-SG-1Y",
+        "category": "chemo",
+        "status": "not_applicable",
+        "basis": "전이 기준일 없음 (전이성 아님)",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "63"
+      },
+      {
+        "rule_id": "DEEM-HER2ADC-6M",
+        "category": "chemo",
+        "status": "not_applicable",
+        "basis": "전이 기준일 없음 (전이성 아님)",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "62-63"
+      },
+      {
+        "rule_id": "DEEM-ENDO-ADJ-1Y",
+        "category": "endocrine",
+        "status": "not_applicable",
+        "basis": "전이 기준일 없음 (전이성 아님)",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "57"
       }
     ]
   },
