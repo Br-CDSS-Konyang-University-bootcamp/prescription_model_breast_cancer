@@ -76,6 +76,22 @@ def postprocess(markdown: str) -> str:
     return markdown
 
 
+def printed_page_range(metadata: dict):
+    """PDF 정보 칸(subject)의 실린 쪽 범위. 'J Clin Oncol 2021.39:2959-2961',
+    'Annals of Oncology, 37 (2026) 1203-1219. doi:...' → (2959, 2961). 없으면 (None, None)."""
+    m = re.search(r"[:)]\s*(\d+)\s*[-–]\s*(\d+)", metadata.get("subject") or "")
+    return (int(m.group(1)), int(m.group(2))) if m else (None, None)
+
+
+def page_marker(pdf_page: int, first_printed, last_printed) -> str:
+    """쪽마다 맨 앞에 넣는 표시. 청커가 이 표시로 청크의 page_start·page_end를 채운다.
+    printed는 학술지에 인쇄된 쪽 (PDF 1쪽 = 실린 첫 쪽). 실린 범위를 넘는 뒤쪽(부록 등)은 '-'."""
+    printed = "-"
+    if first_printed is not None and first_printed + pdf_page - 1 <= last_printed:
+        printed = str(first_printed + pdf_page - 1)
+    return f"\n<!-- page pdf={pdf_page} printed={printed} -->\n\n"
+
+
 def convert_all(pdf_dir: Path, out_dir: Path, overwrite: bool = False):
     import pymupdf
     import pymupdf4llm
@@ -94,7 +110,10 @@ def convert_all(pdf_dir: Path, out_dir: Path, overwrite: bool = False):
         if out_path.exists() and not overwrite:
             print(f"[있음] {out_path.name}")
             continue
-        markdown = pymupdf4llm.to_markdown(str(pdf), show_progress=False)
+        first_printed, last_printed = printed_page_range(pymupdf.open(str(pdf)).metadata)
+        pages = pymupdf4llm.to_markdown(str(pdf), page_chunks=True, show_progress=False)
+        markdown = "".join(page_marker(i, first_printed, last_printed) + page["text"]
+                           for i, page in enumerate(pages, 1))
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(postprocess(markdown), encoding="utf-8")
         print(f"[변환] {pdf.name} -> {out_path}")

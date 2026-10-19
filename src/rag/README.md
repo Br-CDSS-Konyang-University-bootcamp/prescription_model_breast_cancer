@@ -29,5 +29,6 @@ ESMO·ASCO 지침을 수집·청킹하고, 지침과 급여 청크가 함께 들
 - 지침 PDF와 변환한 md(`data/parsed_md/`)는 저작권 문서라 저장소에 올리지 않는다. 각자 PDF에서 만든다.
 - 청크 JSON은 `data/chunks/`에 커밋한다 (`.gitignore`에서 이 폴더의 `.json`만 허용). 커밋 전에 `tests/rag/test_chunks_schema.py`(스키마 검증, chunk_id 중복)가 통과해야 한다.
 - chunk_id는 다시 청킹해도 바뀌지 않아야 한다 (평가셋 정답과 추천 결과의 인용이 가리킨다). ASCO 권고는 원문 권고 번호(`asco-mbc-2021-07-endo-r3.2`), 번호가 없는 ESMO 권고·ASCO 질문·rapid update는 첫 근거 등급 표시까지의 문장으로 만든 지문(`esmo-mbc-2026-05-luminal-2l-3f2a9c`, `chunk_common.stable_key`)을 쓴다. 순서 번호(r01, r02)는 앞에 권고 하나만 늘어도 뒤가 모두 밀리므로 쓰지 않는다. `tests/rag/test_chunk_ids.py`가 이 성질을 검사한다.
+- 쪽 번호: 변환할 때 쪽마다 `<!-- page pdf=3 printed=1205 -->` 표시를 넣고 (인쇄 쪽은 PDF 정보 칸의 실린 쪽 범위에서 계산), 청커가 청크 본문을 이 md에서 찾아 `page_start`·`page_end`를 채운다. 기본은 학술지 인쇄 쪽(D의 급여 청크도 인쇄 쪽)이고, `chunk_common.PAGE_NUMBERING = "pdf"`로 바꾸면 PDF 쪽이 된다. 2026-10-19 이전에 만든 md에는 쪽 표시가 없으니 `--overwrite`로 다시 변환한다 (안 하면 테스트가 쪽 번호 없음으로 실패).
 - 부모-자식 청크: 권고 청크(자식)마다 `parent_id`로 소단원 청크(부모, `chunk_kind: section`)를 가리킨다. 부모 본문은 소단원 제목(ASCO는 Clinical Question 질문문) + 자식 권고 전체다. ESMO는 소단원(`esmo-mbc-2026-05-luminal-2l`), ASCO는 Clinical Question(`asco-mbc-2021-07-endo-cq3`)이나 문서(`...-doc`, 번호 없는 권고)가 부모다. 검색 색인에는 자식만 넣고, 부모는 JSON에 두고 `get_parent`로 찾는다 (D의 급여 청크와 같은 방식).
 - 청킹하는 문서 목록은 각 청커의 `DOCS`에 있다. 제외한 문서와 이유는 `rag_non_prescription_docs.md`.

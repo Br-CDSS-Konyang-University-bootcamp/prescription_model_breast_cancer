@@ -6,7 +6,8 @@ import json
 import re
 from pathlib import Path
 
-from .chunk_common import PARSED_MD_DIR, CHUNKS_DIR, attach_parent, clean_text, parse_version, make_chunk, stable_key
+from .chunk_common import (PARSED_MD_DIR, CHUNKS_DIR, attach_parent, clean_text, fill_pages, parse_version,
+                           make_chunk, stable_key, strip_page_markers)
 
 COPYRIGHT = "Copyright © American Society of Clinical Oncology. All rights reserved"
 EBC = ["early", "locally_advanced"]
@@ -120,7 +121,8 @@ def extract_chunks_from_asco_md(md_path: Path) -> list[dict]:
     url = f"https://doi.org/{doi}"
     id_prefix = f"asco-{stem.split('_')[1]}-{version}-{slug}"
 
-    text = clean_text(md_path.read_text(encoding="utf-8"))
+    raw = md_path.read_text(encoding="utf-8")
+    text = clean_text(strip_page_markers(raw))
     # ≥, IHC 1+ 같은 기호 깨짐은 convert_pdf_to_md.py의 기호 폰트 표가 변환 때 고친다.
     # 여기서 "$ 26"을 ≥로 바꾸면 비용 표의 진짜 달러 금액까지 바뀌므로 하지 않는다.
     # 권고·질문·단서 블록만 모으므로 문서 뒤쪽을 잘라 내지 않는다.
@@ -228,7 +230,9 @@ def extract_chunks_from_asco_md(md_path: Path) -> list[dict]:
             evidence=_evidence(chunk_text) if kind != "question" else None,
             copyright_notice=COPYRIGHT,
         ))
-    return _with_parents(chunks, id_prefix, questions)
+    chunks = _with_parents(chunks, id_prefix, questions)
+    fill_pages(chunks, raw)
+    return chunks
 
 
 def _with_parents(children: list[dict], id_prefix: str, questions: dict) -> list[dict]:

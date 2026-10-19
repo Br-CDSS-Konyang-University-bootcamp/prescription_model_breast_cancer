@@ -168,3 +168,69 @@ def attach_parent(children: list[dict], *, chunk_id: str, section: str, heading:
     for child in children:
         child["parent_id"] = chunk_id
     return parent
+
+
+# convert_pdf_to_md.page_marker가 쪽마다 넣는 표시
+PAGE_MARKER = re.compile(r"<!-- page pdf=(\d+) printed=(\d+|-) -->")
+# page_start·page_end에 넣을 쪽 번호: "printed"(학술지 인쇄 쪽, 인용에 쓰는 쪽) 또는 "pdf"(PDF 파일의 쪽).
+# D의 급여 청크는 공고책자의 인쇄 쪽을 쓴다. 팀에서 다르게 정하면 이 값만 바꾼다.
+PAGE_NUMBERING = "printed"
+
+
+def strip_page_markers(text: str) -> str:
+    return PAGE_MARKER.sub("", text)
+
+
+def _alnum(text: str) -> str:
+    return re.sub(r"[^a-z0-9]", "", text.lower())
+
+
+def fill_pages(chunks: list[dict], raw_markdown: str, numbering: str = PAGE_NUMBERING) -> None:
+    """청크 본문이 md의 어느 쪽에 있는지 찾아 page_start·page_end를 채운다.
+    본문 앞부분과 뒷부분을 쪽 표시가 든 md에서 찾는다 (영문자·숫자만 비교해서 정리 과정의 공백·기호 차이를 무시).
+    부모 청크는 자식들의 첫 쪽~끝 쪽이다. 못 찾으면 null로 둔다."""
+    flat, starts, pages = [], [], []  # 쪽마다 정규화한 본문과 그 시작 위치
+    pos = 0
+    parts = PAGE_MARKER.split(raw_markdown)
+    # split 결과: [표시 앞 글, pdf, printed, 글, pdf, printed, 글, ...]
+    for i in range(1, len(parts), 3):
+        pdf_page, printed, body = int(parts[i]), parts[i + 1], parts[i + 2]
+        norm = _alnum(clean_text(body))
+        page_no = pdf_page if numbering == "pdf" else (int(printed) if printed != "-" else None)
+        flat.append(norm)
+        starts.append(pos)
+        pages.append(page_no)
+        pos += len(norm)
+    if not flat:
+        return
+    haystack = "".join(flat)
+
+    def page_at(offset: int):
+        idx = 0
+        for j, s in enumerate(starts):
+            if s <= offset:
+                idx = j
+        return pages[idx]
+
+    parent_ids = {c["parent_id"] for c in chunks if c.get("parent_id")}
+    for c in chunks:
+        if c["chunk_id"] in parent_ids:
+            continue
+        norm = _alnum(c["text"])
+        head, tail = norm[:60], norm[-60:]
+        start = haystack.find(head)
+        if start < 0 and ": " in c["text"]:
+            # ESMO의 "For patients ...: 권고"는 원문에서 문맥 줄과 권고 사이에 다른 권고가 끼어 있다. 권고 본문으로 찾는다
+            head = _alnum(c["text"].split(": ", 1)[1])[:60]
+            start = haystack.find(head)
+        if start < 0:
+            continue
+        end = haystack.find(tail, start)
+        c["page_start"] = page_at(start)
+        c["page_end"] = page_at(end + len(tail) - 1) if end >= 0 else c["page_start"]
+    for parent in (c for c in chunks if c["chunk_id"] in parent_ids):
+        kids = [c for c in chunks if c.get("parent_id") == parent["chunk_id"]]
+        starts_ = [k["page_start"] for k in kids if k["page_start"] is not None]
+        ends_ = [k["page_end"] for k in kids if k["page_end"] is not None]
+        parent["page_start"] = min(starts_) if starts_ else None
+        parent["page_end"] = max(ends_) if ends_ else None

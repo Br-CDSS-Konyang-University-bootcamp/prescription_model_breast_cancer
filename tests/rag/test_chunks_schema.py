@@ -64,3 +64,11 @@ def test_parents_are_not_indexed_and_every_recommendation_has_a_parent():
     chunks = [c for path in CHUNK_FILES for c in _load(path)]
     to_index = select_index_chunks(chunks)
     assert to_index and all(c["parent_id"] for c in to_index)
+
+
+def test_every_chunk_has_page_numbers():
+    # 출처 인용에 쪽이 필요하다 (CLAUDE.md: 모든 출력에 문서·쪽 또는 섹션·날짜)
+    chunks = [c for path in CHUNK_FILES for c in _load(path)]
+    missing = [c["chunk_id"] for c in chunks if c["page_start"] is None or c["page_end"] is None]
+    assert not missing, f"쪽 번호 없음: {missing[:5]}"
+    assert all(c["page_start"] <= c["page_end"] for c in chunks)

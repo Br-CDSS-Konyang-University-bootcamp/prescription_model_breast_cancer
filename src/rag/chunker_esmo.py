@@ -6,7 +6,8 @@ import json
 import re
 from pathlib import Path
 
-from .chunk_common import PARSED_MD_DIR, CHUNKS_DIR, attach_parent, clean_text, make_chunk, stable_key
+from .chunk_common import (PARSED_MD_DIR, CHUNKS_DIR, attach_parent, clean_text, fill_pages, make_chunk,
+                           stable_key, strip_page_markers)
 
 COPYRIGHT = "Copyright © European Society for Medical Oncology. All rights reserved"
 HER2_POS = ["HR+/HER2+", "HR-/HER2+"]
@@ -188,7 +189,8 @@ def parse_esmo_chunks(md_path: Path) -> list[dict]:
     stem = md_path.stem
     doc = DOCS[stem]
     sections = SECTIONS[stem]
-    text = clean_text(md_path.read_text(encoding="utf-8"))
+    raw = md_path.read_text(encoding="utf-8")
+    text = clean_text(strip_page_markers(raw))
     for broken, fixed in DASH_FIXES.items():
         text = text.replace(broken, fixed)
     text = RUNNING_FOOTER.sub("", text)
@@ -257,6 +259,7 @@ def parse_esmo_chunks(md_path: Path) -> list[dict]:
             chunks.append(attach_parent(children, chunk_id=f"esmo-{doc['slug']}-{doc['version']}-{sec_slug}",
                                         section=section, heading=section))
             chunks.extend(children)
+    fill_pages(chunks, raw)
     return chunks
 
 
