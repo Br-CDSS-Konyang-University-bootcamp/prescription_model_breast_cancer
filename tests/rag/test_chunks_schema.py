@@ -47,3 +47,20 @@ def test_no_pdf_glyph_corruption():
     found = [(c["chunk_id"], name) for path in CHUNK_FILES for c in _load(path)
              for name, p in patterns.items() if re.search(p, c["text"])]
     assert not found, f"기호 깨짐: {found[:10]}"
+
+
+def test_every_parent_id_points_to_a_section_chunk():
+    by_id = {c["chunk_id"]: c for path in CHUNK_FILES for c in _load(path)}
+    missing = [c["chunk_id"] for c in by_id.values() if c["parent_id"] and c["parent_id"] not in by_id]
+    assert not missing, f"없는 부모를 가리킴: {missing[:5]}"
+    for c in by_id.values():
+        if c["parent_id"]:
+            parent = by_id[c["parent_id"]]
+            assert parent["chunk_kind"] == "section" and parent["parent_id"] is None
+
+
+def test_parents_are_not_indexed_and_every_recommendation_has_a_parent():
+    from src.rag.chunk_store import select_index_chunks
+    chunks = [c for path in CHUNK_FILES for c in _load(path)]
+    to_index = select_index_chunks(chunks)
+    assert to_index and all(c["parent_id"] for c in to_index)

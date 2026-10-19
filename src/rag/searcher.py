@@ -1,5 +1,6 @@
 # src/rag/searcher.py
 from qdrant_client.models import Filter, FieldCondition, MatchValue
+from .chunk_store import get_parent
 from .client import get_qdrant_client, get_embedding_model, close_client, COLLECTION_NAME
 
 LINE_MATCH_BONUS = 0.1  # 요청 차수와 청크 차수가 같을 때
@@ -13,8 +14,11 @@ def search_guidelines(
         line: str = None,
         source: str = None,
         biomarker_tags: list[str] = None,
-        top_k: int = 5
+        top_k: int = 5,
+        with_parent: bool = False,
 ) -> list[dict]:
+    """지침 권고 청크를 찾는다. with_parent=True면 각 결과에 부모(소단원) 청크를 "parent" 키로 붙인다
+    (LLM에는 소단원 전체를 함께 넘긴다, PROJECT.md §6)."""
     client = get_qdrant_client()
     model = get_embedding_model()
 
@@ -85,7 +89,10 @@ def search_guidelines(
 
     # 최종 점수로 내림차순 정렬
     scored_results.sort(key=lambda x: (x["score"], x["version"]), reverse=True)
-    return [item["data"] for item in scored_results[:top_k]]
+    results = [item["data"] for item in scored_results[:top_k]]
+    if with_parent:
+        results = [{**r, "parent": get_parent(r)} for r in results]
+    return results
 
 
 def close_searcher():

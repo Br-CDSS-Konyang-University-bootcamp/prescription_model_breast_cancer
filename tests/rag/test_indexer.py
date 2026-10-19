@@ -64,3 +64,19 @@ def test_delete_by_doc_type_rejects_unknown(memory_index):
     _, indexer = memory_index
     with pytest.raises(ValueError):
         indexer.delete_by_doc_type("guidelines")
+
+
+def test_search_returns_recommendations_with_parent(memory_index, monkeypatch):
+    rag_client, indexer = memory_index
+    from src.rag import searcher
+    from src.rag.chunk_store import load_guideline_chunks, select_index_chunks
+
+    indexer.index_chunks(select_index_chunks(load_guideline_chunks()))
+    results = searcher.search_guidelines("elacestrant ESR1", setting="metastatic", subtype="HR+/HER2-",
+                                         line="2L", top_k=5, with_parent=True)
+    assert results
+    for r in results:
+        assert r["parent_id"]  # 부모 청크(parent_id 없음)는 색인에 없다
+        assert "metastatic" in r["setting"]
+        assert "HR+/HER2-" in r["subtype"] or "any" in r["subtype"]
+        assert r["parent"]["chunk_id"] == r["parent_id"]

@@ -134,3 +134,37 @@ def make_chunk(*, chunk_id, source, version, section, url, chunk_kind, text, set
         "superseded_by": None,
         "copyright_notice": copyright_notice,
     }
+
+
+def _union(values_lists: list[list[str]]) -> list[str]:
+    out = []
+    for values in values_lists:
+        for v in values:
+            if v not in out:
+                out.append(v)
+    return out
+
+
+def attach_parent(children: list[dict], *, chunk_id: str, section: str, heading: str = "") -> dict:
+    """권고 청크들의 부모(소단원) 청크를 만들고, 자식의 parent_id를 채운다.
+    부모 본문은 소단원 제목(과 질문문) + 자식 권고 전체다. 검색은 자식으로 하고, LLM에는 부모를 함께 넘긴다.
+    부모는 청크 JSON에만 두고 색인하지 않는다 (run_indexing.select_index_chunks). D의 급여 청크도 같은 방식이다."""
+    first = children[0]
+    text = "\n\n".join(([heading] if heading else []) + [c["text"] for c in children])
+    parent = make_chunk(
+        chunk_id=chunk_id,
+        source=first["source"],
+        version=first["version"],
+        section=section,
+        url=first["url"],
+        chunk_kind="section",
+        text=text,
+        setting=_union([c["setting"] for c in children]),
+        subtype=_union([c["subtype"] for c in children]),
+        line=_union([c["line"] for c in children]),
+        evidence=None,
+        copyright_notice=first["copyright_notice"],
+    )
+    for child in children:
+        child["parent_id"] = chunk_id
+    return parent

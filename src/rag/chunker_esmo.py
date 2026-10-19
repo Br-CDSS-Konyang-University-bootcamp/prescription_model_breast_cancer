@@ -6,7 +6,7 @@ import json
 import re
 from pathlib import Path
 
-from .chunk_common import PARSED_MD_DIR, CHUNKS_DIR, clean_text, make_chunk, stable_key
+from .chunk_common import PARSED_MD_DIR, CHUNKS_DIR, attach_parent, clean_text, make_chunk, stable_key
 
 COPYRIGHT = "Copyright © European Society for Medical Oncology. All rights reserved"
 HER2_POS = ["HR+/HER2+", "HR-/HER2+"]
@@ -229,6 +229,7 @@ def parse_esmo_chunks(md_path: Path) -> list[dict]:
         section = f"{parent} > {sub}" if parent and (parent, sub) in sections else sub
 
         used = set()
+        children = []
         for head, item in _section_items(block_lines):
             # 순서 번호 대신 권고 문장의 지문을 쓴다 (chunk_common.stable_key). 같은 소단원에 같은 문장이 또 있으면 -2를 붙인다
             chunk_id = f"esmo-{doc['slug']}-{doc['version']}-{sec_slug}-{stable_key(head)}"
@@ -237,7 +238,7 @@ def parse_esmo_chunks(md_path: Path) -> list[dict]:
                 chunk_id = f"esmo-{doc['slug']}-{doc['version']}-{sec_slug}-{stable_key(head)}-{n}"
                 n += 1
             used.add(chunk_id)
-            chunks.append(make_chunk(
+            children.append(make_chunk(
                 chunk_id=chunk_id,
                 source=doc["source"],
                 version=doc["version"],
@@ -251,6 +252,11 @@ def parse_esmo_chunks(md_path: Path) -> list[dict]:
                 evidence=_evidence(item),
                 copyright_notice=COPYRIGHT,
             ))
+        if children:
+            # 부모 = 소단원 (예: esmo-mbc-2026-05-luminal-2l). 소단원 이름에서 만들어 바뀌지 않는다
+            chunks.append(attach_parent(children, chunk_id=f"esmo-{doc['slug']}-{doc['version']}-{sec_slug}",
+                                        section=section, heading=section))
+            chunks.extend(children)
     return chunks
 
 

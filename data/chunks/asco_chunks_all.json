@@ -1,7 +1,7 @@
 [
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "asco-ebc-2021-08-olaparib-rapid-41eadf",
+    "chunk_id": "asco-ebc-2021-08-olaparib-doc",
     "doc_type": "guideline",
     "source": "ASCO",
     "version": "2021-08",
@@ -9,7 +9,7 @@
     "page_start": null,
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.21.01532",
-    "chunk_kind": "recommendation",
+    "chunk_kind": "section",
     "parent_id": null,
     "text": "Tutt et al reported that, compared with placebo, one year of olaparib following the completion of local treatment and (neo)adjuvant chemotherapy was associated with significantly longer survival free of invasive or distant disease (interim analysis with a median follow-up of 2.5 years). Patients had completed at least six cycles of neoadjuvant or adjuvant chemotherapy; 95% of patients in the trial received\n\nThe updated recommendation for June 2021 is that for patients with early-stage, HER2-negative breast cancer with high risk of recurrence and germline BRCA1 or BRCA2 pathogenic or likely pathogenic variants, one year of adjuvant olaparib should be offered after completion of (neo)adjuvant chemotherapy and local treatment, including radiation. For those who had surgery first, 1 year of adjuvant olaparib should be\n\nVolume 39, Issue 26 2959\n\nRecommendation Update\n\noffered for patients with triple-negative breast cancer and tumor size > 2 cm or any involved axillary nodes. For those with hormone receptor-positive disease, 1 year of adjuvant olaparib should be offered to those with at least four involved axillary lymph nodes. For patients who had neoadjuvant chemotherapy, 1 year of adjuvant olaparib should be offered to patients with triple-negative breast cancer and any residual cancer; for patients with hormone receptor– positive disease, 1 year of adjuvant olaparib should be offered to patients with residual disease and a clinical stage, pathologic stage, estrogen receptor, and tumor grade score ≥ 3 (Table 1).",
     "setting": [
@@ -36,6 +36,74 @@
   },
   {
     "schema_version": "0.1-draft",
+    "chunk_id": "asco-ebc-2021-08-olaparib-rapid-41eadf",
+    "doc_type": "guideline",
+    "source": "ASCO",
+    "version": "2021-08",
+    "section": "UPDATED RECOMMENDATION",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1200/JCO.21.01532",
+    "chunk_kind": "recommendation",
+    "parent_id": "asco-ebc-2021-08-olaparib-doc",
+    "text": "Tutt et al reported that, compared with placebo, one year of olaparib following the completion of local treatment and (neo)adjuvant chemotherapy was associated with significantly longer survival free of invasive or distant disease (interim analysis with a median follow-up of 2.5 years). Patients had completed at least six cycles of neoadjuvant or adjuvant chemotherapy; 95% of patients in the trial received\n\nThe updated recommendation for June 2021 is that for patients with early-stage, HER2-negative breast cancer with high risk of recurrence and germline BRCA1 or BRCA2 pathogenic or likely pathogenic variants, one year of adjuvant olaparib should be offered after completion of (neo)adjuvant chemotherapy and local treatment, including radiation. For those who had surgery first, 1 year of adjuvant olaparib should be\n\nVolume 39, Issue 26 2959\n\nRecommendation Update\n\noffered for patients with triple-negative breast cancer and tumor size > 2 cm or any involved axillary nodes. For those with hormone receptor-positive disease, 1 year of adjuvant olaparib should be offered to those with at least four involved axillary lymph nodes. For patients who had neoadjuvant chemotherapy, 1 year of adjuvant olaparib should be offered to patients with triple-negative breast cancer and any residual cancer; for patients with hormone receptor– positive disease, 1 year of adjuvant olaparib should be offered to patients with residual disease and a clinical stage, pathologic stage, estrogen receptor, and tumor grade score ≥ 3 (Table 1).",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "HR+/HER2-",
+      "TNBC"
+    ],
+    "line": [
+      "neoadjuvant",
+      "adjuvant"
+    ],
+    "biomarker_tags": [
+      "gBRCA"
+    ],
+    "drugs": [
+      "olaparib"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © American Society of Clinical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "asco-ebc-2022-01-bma-cq2",
+    "doc_type": "guideline",
+    "source": "ASCO",
+    "version": "2022-01",
+    "section": "Clinical Question 2",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1200/JCO.21.02647",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Clinical Question 2. Which bisphosphonates are recommended for breast cancer adjuvant therapy and what doses, durations of administration, time to initiate treatment, and routes (intravenous or oral) are optimal? (This guideline does not address general bone health in patients with breast cancer; see the ASCO osteoporosis guideline. )\n\nRecommendation 2.1. The Panel supports starting bisphosphonate therapy early, consistent with the points outlined in the parent CCO-ASCO guideline. Many studies initiated bisphosphonate within 3 months of definitive surgery or within 2 months of completion of adjuvant chemotherapy; this is a consensus recommendation. The therapeutic options, listed alphabetically, with the strongest supporting data include:\n\n- oral clodronate (1,600 mg daily for 2-3 years)\n\n- oral ibandronate (50 mg daily for 3 years)\n\n- zoledronic acid; dosing regimens as per the protocols of the clinical trials (including the option of dosing 4 mg once every 6 months for 3 years or dosing 4 mg once every 3 months for 2 years)",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "any"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "zoledronic acid",
+      "ibandronate",
+      "clodronate"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © American Society of Clinical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
     "chunk_id": "asco-ebc-2022-01-bma-r2.1",
     "doc_type": "guideline",
     "source": "ASCO",
@@ -45,7 +113,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.21.02647",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-01-bma-cq2",
     "text": "Recommendation 2.1. The Panel supports starting bisphosphonate therapy early, consistent with the points outlined in the parent CCO-ASCO guideline. Many studies initiated bisphosphonate within 3 months of definitive surgery or within 2 months of completion of adjuvant chemotherapy; this is a consensus recommendation. The therapeutic options, listed alphabetically, with the strongest supporting data include:\n\n- oral clodronate (1,600 mg daily for 2-3 years)\n\n- oral ibandronate (50 mg daily for 3 years)\n\n- zoledronic acid; dosing regimens as per the protocols of the clinical trials (including the option of dosing 4 mg once every 6 months for 3 years or dosing 4 mg once every 3 months for 2 years)",
     "setting": [
       "early",
@@ -69,6 +137,37 @@
   },
   {
     "schema_version": "0.1-draft",
+    "chunk_id": "asco-ebc-2022-01-bma-cq3",
+    "doc_type": "guideline",
+    "source": "ASCO",
+    "version": "2022-01",
+    "section": "Clinical Question 3",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1200/JCO.21.02647",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Clinical Question 3. What is the role of the bone-modifying agent, denosumab, as an adjuvant therapy for primary breast cancer?\n\nRecommendation 3.1. The Panel does not recommend the use of adjuvant denosumab (type: evidence-based, benefits outweigh harms; evidence quality: intermediate; strength of recommendation: moderate).",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "any"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "denosumab"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © American Society of Clinical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
     "chunk_id": "asco-ebc-2022-01-bma-r3.1",
     "doc_type": "guideline",
     "source": "ASCO",
@@ -78,7 +177,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.21.02647",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-01-bma-cq3",
     "text": "Recommendation 3.1. The Panel does not recommend the use of adjuvant denosumab (type: evidence-based, benefits outweigh harms; evidence quality: intermediate; strength of recommendation: moderate).",
     "setting": [
       "early",
@@ -105,6 +204,35 @@
   },
   {
     "schema_version": "0.1-draft",
+    "chunk_id": "asco-ebc-2022-01-bma-cq1",
+    "doc_type": "guideline",
+    "source": "ASCO",
+    "version": "2022-01",
+    "section": "Clinical Question 1",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1200/JCO.21.02647",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Clinical Question 1. Which patients with primary breast cancer should be treated with bone-modifying agents?\n\nRecommendation 1.1. Adjuvant bisphosphonate therapy should be discussed with all postmenopausal patients (natural or therapy-induced) with primary breast cancer, irrespective of hormone receptor status and human epidermal growth factor receptor 2 (HER2) status, who are candidates to receive adjuvant systemic therapy. Adjuvant bisphosphonates, if used, are not substitutes for standard anticancer modalities.",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "any"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © American Society of Clinical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
     "chunk_id": "asco-ebc-2022-01-bma-r1.1",
     "doc_type": "guideline",
     "source": "ASCO",
@@ -114,7 +242,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.21.02647",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-01-bma-cq1",
     "text": "Recommendation 1.1. Adjuvant bisphosphonate therapy should be discussed with all postmenopausal patients (natural or therapy-induced) with primary breast cancer, irrespective of hormone receptor status and human epidermal growth factor receptor 2 (HER2) status, who are candidates to receive adjuvant systemic therapy. Adjuvant bisphosphonates, if used, are not substitutes for standard anticancer modalities.",
     "setting": [
       "early",
@@ -134,7 +262,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "asco-ebc-2022-04-abema-q-a667d9",
+    "chunk_id": "asco-ebc-2022-04-abema-doc",
     "doc_type": "guideline",
     "source": "ASCO",
     "version": "2022-04",
@@ -144,6 +272,41 @@
     "url": "https://doi.org/10.1200/OP.22.00140",
     "chunk_kind": "section",
     "parent_id": null,
+    "text": "Question: Whom Are You Prescribing Adjuvant Abemaciclib to in Clinical Practice?\n\nASCO’s rapid update (January 20, 2022) recommended that 2 years of adjuvant abemaciclib plus ET may be offered to patients with HR-positive, HER2-negative, node-positive early breast cancer with a high risk of recurrence, consistent with the monarchE study ITT population inclusion criteria, namely, patients with either ≥ 4 positive axillary lymph nodes or 1-3 positive axillary lymph nodes and either grade 3 disease, tumor size ≥ 5 cm, or Ki-67 index ≥ 20%. This recommendation was consistent with the trial design and was broader than the FDA indication, which was limited to a subset of patients from Cohort 1 (≥ 4 nodes or 1-3 nodes if tumor ≥ 5 cm or grade 3) with Ki-67 ≥ 20%.\n\nAlthough we acknowledge the rationale behind the FDA indication, the ASCO rapid recommendation update suggested broader consideration of abemaciclib for the entire ITT population, given the similar, statistically significant relative reduction in risk of relapse observed with abemaciclib in patients with both Ki-67-high and Ki-67-low tumors (despite different prognostic profiles and differences in absolute benefit for 3-year IDFS—7.1% among Ki-67-high cohort and 4.5% among Ki-67-low population) and because of the challenges in the universal clinical application of Ki-67. As follow-up data mature for patients on monarchE, we will update the ASCO guideline, as appropriate.\n\nQuestion: How Should We Be Using Ki-67 When Considering Abemaciclib?\n\nAt this time, the Ki-67 selection required by the FDA approval excludes a cohort of patients expected to\n\n516 Volume 18, Issue 7\n\nQ and A: Adjuvant Abemaciclib Plus Endocrine Therapy\n\nhave a particularly high anatomic risk of recurrence, namely, patients with ≥ 4 lymph nodes involved (N2 or N3 disease). These patients were particularly enriched in the Ki-67-low cohort, with 55% of all patients with ≥ 4 positive lymph nodes in monarchE being Ki-67-low. Although follow-up data remain incomplete for the ITT population, the improvement in IDFS to date was statistically apparent for the entire monarchE ITT population who received abemaciclib, including those with Ki-67-low and Ki-67-high tumors, as above. There are potential challenges in implementing Ki-67 testing into routine clinical practice because of the observed variability and limited standardization in Ki-67 scoring across centers. Consequently, the ASCO rapid recommendation update considered the full ITT population results that showed benefit of abemaciclib across patients with varying Ki-67 scores. We have recommended that adjuvant abemaciclib may be offered per monarchE in those with HR-positive breast cancer with either ≥ 4 positive lymph nodes (regardless of Ki-67 score) or 1-3 lymph nodes with high-risk features (grade 3 disease or tumor ≥ 5 cm or Ki-67 ≥ 20%), as per the study’s ITT inclusion criteria, recognizing Ki-67 may not be readily available or implemented.\n\nQuestion: What Is the Optimal Timing for Initiation of Adjuvant Abemaciclib and Can Abemaciclib Be Administered With Radiation?\n\nThe monarchE trial enrolled patients after a maximum of 16 months from surgery to random assignment, focusing on those who recently completed active therapy (> 95% received neo/adjuvant chemotherapy and radiation). monarchE eligibility also allowed up to 12 weeks of ET at the time of random assignment. This timing of abemaciclib initiation in the trial closely aligns with clinical practice, allowing sufficient time for patients to complete recommended adjuvant chemotherapy and radiation.\n\nIt is important to note that the monarchE trial does not evaluate the benefit of adding abemaciclib to ET for patients who are longer into their adjuvant ET course and who would not have been eligible for the study. In clinical practice, any administration of abemaciclib should ideally be offered in a similar context and timing to administration in the monarchE study. Patients receiving radiation and chemotherapy on monarchE all completed these treatments before random assignment and treatment with abemaciclib; for these reasons, and for toxicity concerns, all other therapies should be completed, and the only therapy offered concurrently with abemaciclib should be ET.\n\nQuestion: If a Patient Has BRCA1 or BRCA2 Mutation, Can We Combine Abemaciclib and Olaparib in HighRisk Patients?\n\nFor patients meeting criteria for monarchE but who also have a germline pathogenic or likely pathogenic variant (PV) in BRCA1 or BRCA2, dual or sequential therapy with olaparib was not examined in the trial. The OlympiA trial separately\n\nestablished the significant IDFS benefit of administering one year of adjuvant olaparib after surgery in those with BRCA1 or BRCA2 PVs and high-risk disease. Although outcome data are not available for patients in monarchE with germline BRCA1/2 PVs, the extent of IDFS benefit in OlympiA (8.8% at 3 years) appears higher than that observed in monarchE to date (5.4% in the ITT) and may be worth prioritizing; management of these patients should be decided on an individualized basis. The potential benefits and toxicities of sequential or concurrent therapy with olaparib and abemaciclib are not known, and there are no data available combining a cyclin-dependent kinase 4/6 inhibitor and Poly (ADP-ribose) polymerase inhibitors. Trials are ongoing (eg, ClinicalTrials.gov identifier: NCT03685331).\n\nQuestion: Should We Be Using Prophylaxis for Side Effects (eg, Diarrhea) in All Patients?\n\nOverall, nearly 20% of participants did not complete the planned 2 years of abemaciclib in monarchE. Diarrhea was\n\nQuestion: Is There a Preference for Which Endocrine Therapy Agent to Combine With Adjuvant Abemaciclib in Practice?\n\nIn the monarchE trial, the type of ET administrated was left to the treating clinician, with 68.3% of patients receiving aromatase inhibitor (AI) therapy and 31.4% receiving tamoxifen as initial therapy, including 14.2% and 7.6%, respectively, in combination with ovarian suppression. Although the benefits of differing ET partners was not a focus of monarchE, a notably higher risk of venous thromboembolism (VTE) was observed when abemaciclib was combined with tamoxifen (any-grade VTE = 4.1%, grade ≥ 3 VTE = 2.2%) compared with AIs (any-grade VTE = 1.7%, grade ≥ 3 VTE = 0.9%). Because of these observed events, clinicians should include VTE risk assessment when deciding on a treatment regimen with patients, perhaps favoring AI use in patients receiving abemaciclib if VTE is of concern.",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [
+      "gBRCA"
+    ],
+    "drugs": [
+      "abemaciclib",
+      "tamoxifen",
+      "olaparib"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © American Society of Clinical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "asco-ebc-2022-04-abema-q-a667d9",
+    "doc_type": "guideline",
+    "source": "ASCO",
+    "version": "2022-04",
+    "section": "Question: Whom Are You Prescribing Adjuvant Abemaciclib to in Clinical Practice?",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1200/OP.22.00140",
+    "chunk_kind": "section",
+    "parent_id": "asco-ebc-2022-04-abema-doc",
     "text": "Question: Whom Are You Prescribing Adjuvant Abemaciclib to in Clinical Practice?\n\nASCO’s rapid update (January 20, 2022) recommended that 2 years of adjuvant abemaciclib plus ET may be offered to patients with HR-positive, HER2-negative, node-positive early breast cancer with a high risk of recurrence, consistent with the monarchE study ITT population inclusion criteria, namely, patients with either ≥ 4 positive axillary lymph nodes or 1-3 positive axillary lymph nodes and either grade 3 disease, tumor size ≥ 5 cm, or Ki-67 index ≥ 20%. This recommendation was consistent with the trial design and was broader than the FDA indication, which was limited to a subset of patients from Cohort 1 (≥ 4 nodes or 1-3 nodes if tumor ≥ 5 cm or grade 3) with Ki-67 ≥ 20%.\n\nAlthough we acknowledge the rationale behind the FDA indication, the ASCO rapid recommendation update suggested broader consideration of abemaciclib for the entire ITT population, given the similar, statistically significant relative reduction in risk of relapse observed with abemaciclib in patients with both Ki-67-high and Ki-67-low tumors (despite different prognostic profiles and differences in absolute benefit for 3-year IDFS—7.1% among Ki-67-high cohort and 4.5% among Ki-67-low population) and because of the challenges in the universal clinical application of Ki-67. As follow-up data mature for patients on monarchE, we will update the ASCO guideline, as appropriate.",
     "setting": [
       "early",
@@ -174,7 +337,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/OP.22.00140",
     "chunk_kind": "section",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-abema-doc",
     "text": "Question: How Should We Be Using Ki-67 When Considering Abemaciclib?\n\nAt this time, the Ki-67 selection required by the FDA approval excludes a cohort of patients expected to\n\n516 Volume 18, Issue 7\n\nQ and A: Adjuvant Abemaciclib Plus Endocrine Therapy\n\nhave a particularly high anatomic risk of recurrence, namely, patients with ≥ 4 lymph nodes involved (N2 or N3 disease). These patients were particularly enriched in the Ki-67-low cohort, with 55% of all patients with ≥ 4 positive lymph nodes in monarchE being Ki-67-low. Although follow-up data remain incomplete for the ITT population, the improvement in IDFS to date was statistically apparent for the entire monarchE ITT population who received abemaciclib, including those with Ki-67-low and Ki-67-high tumors, as above. There are potential challenges in implementing Ki-67 testing into routine clinical practice because of the observed variability and limited standardization in Ki-67 scoring across centers. Consequently, the ASCO rapid recommendation update considered the full ITT population results that showed benefit of abemaciclib across patients with varying Ki-67 scores. We have recommended that adjuvant abemaciclib may be offered per monarchE in those with HR-positive breast cancer with either ≥ 4 positive lymph nodes (regardless of Ki-67 score) or 1-3 lymph nodes with high-risk features (grade 3 disease or tumor ≥ 5 cm or Ki-67 ≥ 20%), as per the study’s ITT inclusion criteria, recognizing Ki-67 may not be readily available or implemented.",
     "setting": [
       "early",
@@ -205,7 +368,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/OP.22.00140",
     "chunk_kind": "section",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-abema-doc",
     "text": "Question: What Is the Optimal Timing for Initiation of Adjuvant Abemaciclib and Can Abemaciclib Be Administered With Radiation?\n\nThe monarchE trial enrolled patients after a maximum of 16 months from surgery to random assignment, focusing on those who recently completed active therapy (> 95% received neo/adjuvant chemotherapy and radiation). monarchE eligibility also allowed up to 12 weeks of ET at the time of random assignment. This timing of abemaciclib initiation in the trial closely aligns with clinical practice, allowing sufficient time for patients to complete recommended adjuvant chemotherapy and radiation.\n\nIt is important to note that the monarchE trial does not evaluate the benefit of adding abemaciclib to ET for patients who are longer into their adjuvant ET course and who would not have been eligible for the study. In clinical practice, any administration of abemaciclib should ideally be offered in a similar context and timing to administration in the monarchE study. Patients receiving radiation and chemotherapy on monarchE all completed these treatments before random assignment and treatment with abemaciclib; for these reasons, and for toxicity concerns, all other therapies should be completed, and the only therapy offered concurrently with abemaciclib should be ET.",
     "setting": [
       "early",
@@ -236,7 +399,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/OP.22.00140",
     "chunk_kind": "section",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-abema-doc",
     "text": "Question: If a Patient Has BRCA1 or BRCA2 Mutation, Can We Combine Abemaciclib and Olaparib in HighRisk Patients?\n\nFor patients meeting criteria for monarchE but who also have a germline pathogenic or likely pathogenic variant (PV) in BRCA1 or BRCA2, dual or sequential therapy with olaparib was not examined in the trial. The OlympiA trial separately\n\nestablished the significant IDFS benefit of administering one year of adjuvant olaparib after surgery in those with BRCA1 or BRCA2 PVs and high-risk disease. Although outcome data are not available for patients in monarchE with germline BRCA1/2 PVs, the extent of IDFS benefit in OlympiA (8.8% at 3 years) appears higher than that observed in monarchE to date (5.4% in the ITT) and may be worth prioritizing; management of these patients should be decided on an individualized basis. The potential benefits and toxicities of sequential or concurrent therapy with olaparib and abemaciclib are not known, and there are no data available combining a cyclin-dependent kinase 4/6 inhibitor and Poly (ADP-ribose) polymerase inhibitors. Trials are ongoing (eg, ClinicalTrials.gov identifier: NCT03685331).",
     "setting": [
       "early",
@@ -270,7 +433,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/OP.22.00140",
     "chunk_kind": "section",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-abema-doc",
     "text": "Question: Should We Be Using Prophylaxis for Side Effects (eg, Diarrhea) in All Patients?\n\nOverall, nearly 20% of participants did not complete the planned 2 years of abemaciclib in monarchE. Diarrhea was",
     "setting": [
       "early",
@@ -301,7 +464,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/OP.22.00140",
     "chunk_kind": "section",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-abema-doc",
     "text": "Question: Is There a Preference for Which Endocrine Therapy Agent to Combine With Adjuvant Abemaciclib in Practice?\n\nIn the monarchE trial, the type of ET administrated was left to the treating clinician, with 68.3% of patients receiving aromatase inhibitor (AI) therapy and 31.4% receiving tamoxifen as initial therapy, including 14.2% and 7.6%, respectively, in combination with ovarian suppression. Although the benefits of differing ET partners was not a focus of monarchE, a notably higher risk of venous thromboembolism (VTE) was observed when abemaciclib was combined with tamoxifen (any-grade VTE = 4.1%, grade ≥ 3 VTE = 2.2%) compared with AIs (any-grade VTE = 1.7%, grade ≥ 3 VTE = 0.9%). Because of these observed events, clinicians should include VTE risk assessment when deciding on a treatment regimen with patients, perhaps favoring AI use in patients receiving abemaciclib if VTE is of concern.",
     "setting": [
       "early",
@@ -324,6 +487,44 @@
   },
   {
     "schema_version": "0.1-draft",
+    "chunk_id": "asco-ebc-2022-04-biomarkers-cq1",
+    "doc_type": "guideline",
+    "source": "ASCO",
+    "version": "2022-04",
+    "section": "Clinical Question 1",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1200/JCO.22.00069",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Clinical Question 1. For patients with early-stage ER-positive, HER2-negative breast cancer, which biomarkers should be used to guide decisions on adjuvant endocrine and chemotherapy for a newly diagnosed cancer or in the extended setting?\n\nRecommendation 1.1. If a patient has node-negative breast cancer, the clinician may use the Oncotype DX test to guide decisions for adjuvant endocrine and chemotherapy (Type: evidence-based; Evidence quality: high; Strength of recommendation: strong).\n\nRecommendation 1.3. In the group of patients in Recommendation 1.1 who are 50 years of age or younger with Oncotype DX recurrence score 16 to 25, the clinician may offer chemoendocrine therapy (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: moderate).\n\nRecommendation 1.5. In the group of patients in Recommendation 1.4, the clinician should offer chemoendocrine therapy for those whose Oncotype DX recurrence score is ≥ 26 (Type: evidence-based; Evidence quality: high; Strength of recommendation: strong).\n\nRecommendation 1.6. If a patient is premenopausal and has node-positive breast cancer with 1-3 positive nodes, the Oncotype DX test should not be offered to guide decisions for adjuvant systemic chemotherapy (Type: evidence-based; Evidence quality: high; Strength of recommendation: moderate).\n\nRecommendation 1.7. If a patient has node-positive breast cancer with ≥ 4 positive nodes, the evidence on the clinical utility of routine Oncotype DX test to guide decisions for adjuvant endocrine and chemotherapy is insufficient to recommend its use (Type: informal consensus; Evidence quality: insufficient; Strength of recommendation: moderate). Qualifying statement: The genomic assay is prognostic and may be used for shared patient-physician treatment decision making.\n\nRecommendation 1.8. If a patient is older than 50 and has high clinical risk breast cancer that is node-negative or node-positive with 1-3 positive nodes, the clinician may use the MammaPrint test to guide decisions for adjuvant endocrine and chemotherapy (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: strong).\n\nRecommendation 1.9. If a patient is 50 years of age or younger and has high clinical risk, node-negative or node-positive with 1-3 positive nodes breast cancer, the clinician should not use the MammaPrint test to guide decisions for adjuvant endocrine and chemotherapy (Type: evidence-based; Evidence quality: high; Strength of recommendation: strong).\n\nRecommendation 1.10. If a patient has low clinical risk, regardless of age, the evidence on clinical utility of routine MammaPrint test is insufficient to recommend its use (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: moderate).\n\nRecommendation 1.11. If a patient has node-positive breast cancer with ≥ 4 positive nodes, the evidence on the clinical utility of routine MammaPrint test to guide decisions for adjuvant endocrine and chemotherapy is insufficient to recommend its use (Type: informal consensus; Evidence quality: insufficient; Strength of recommendation: strong). Qualifying statement: The genomic assay is prognostic and may be used for shared patient-physician treatment decision making.\n\nRecommendation 1.12. If a patient is postmenopausal and has breast cancer that is node-negative or node-positive with 1-3 positive nodes, the clinician may use the EndoPredict test to guide decisions for adjuvant endocrine and chemotherapy (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: moderate).\n\nRecommendation 1.13. If a patient is premenopausal and has breast cancer that is node-negative or node-positive with 1-3 positive nodes, the clinician should not use the EndoPredict test to guide decisions for adjuvant endocrine and chemotherapy (Type: informal consensus; Evidence quality: insufficient; Strength of recommendation: moderate).\n\nRecommendation 1.14. If a patient has breast cancer with ≥ 4 positive nodes, evidence on the clinical utility of routine use of the EndoPredict test to guide decisions for adjuvant endocrine and chemotherapy is insufficient (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: moderate).\n\nRecommendation 1.15. If a patient is postmenopausal and has breast cancer that is node-negative, the clinician may use the Prosigna test to guide decisions for adjuvant systemic chemotherapy (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: moderate).\n\nRecommendation 1.16. If a patient is premenopausal and has node-negative or node-positive breast cancer, the clinician should not use the Prosigna test to guide decisions for adjuvant systemic chemotherapy (Type: informal consensus; Evidence quality: insufficient; Strength of recommendation: moderate).\n\nRecommendation 1.17. If a patient is postmenopausal and has node-positive breast cancer with 1-3 positive nodes, the evidence is inconclusive to recommend the use of the Prosigna test to guide decisions for adjuvant endocrine and chemotherapy (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: moderate).\n\nRecommendation 1.18. If a patient has node-positive breast cancer with ≥ 4 positive nodes, evidence on the clinical utility of routine use of the Prosigna test to guide decisions for adjuvant endocrine and chemotherapy is insufficient to recommend its use (Type: informal consensus; Evidence quality: insufficient; Strength of recommendation: strong). Ki67.\n\nRecommendation 1.19. If a patient is postmenopausal and has stage I-II breast cancer, the clinician may use Ki67 expression in conjunction with other clinical and pathologic parameters to guide decisions on adjuvant endocrine and chemotherapy when multigene assays are not available. Ki67 expression levels are most informative for prognosis when the level is < 5% (low proliferation) or > 30% (high proliferation) because technical reliability of distinguishing values within this range is limited (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: moderate).\n\nRecommendation 1.20. If a patient is postmenopausal and has breast cancer, there is insufficient evidence to use baseline Ki67 expression or Ki67 level after 2 weeks of neoadjuvant aromatase inhibitor (AI) therapy to guide decisions on adjuvant endocrine and chemotherapy (Type: informal consensus; Evidence quality: low; Strength of recommendation: weak).\n\nRecommendation 1.21. Despite the limitations associated with Ki67 testing, a patient with node-positive breast cancer with a high risk of recurrence and a Ki67 score of ≥ 20% as determined by a US Food and Drug Administration (FDA)–approved test may be offered 2 years of abemaciclib plus endocrine therapy (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: strong).\n\nRecommendation 1.23. If a patient has node-negative breast cancer and has had 5 years of endocrine therapy without evidence of recurrence, there is insufficient evidence to use Oncotype DX, EndoPredict, Prosigna, Ki67, or IHC4 scores to guide decisions about extended endocrine therapy (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: moderate).\n\nRecommendation 1.24. If a patient has node-negative or node-positive breast cancer with 1-3 positive nodes and has been treated with 5 years of primary endocrine therapy without evidence of recurrence, the clinician may offer the BCI test to guide decisions about extended endocrine therapy with either tamoxifen, an AI, or a sequence of tamoxifen followed by AI (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: moderate).\n\nRecommendation 1.25. If a patient has node-positive breast cancer with ≥ 4 positive nodes and has been treated with 5 years of primary endocrine therapy without evidence of recurrence, there is insufficient evidence to use the BCI test to guide decisions about extended endocrine therapy with either tamoxifen, an AI, or a sequence of tamoxifen followed by AI (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: strong).\n\nRecommendation 1.26. If a patient is postmenopausal and had invasive breast cancer and is recurrence-free after 5 years of adjuvant endocrine therapy, the clinical treatment score post-5 years (CTS5) web tool may be used to calculate the estimated risk of late recurrence (recurrence between years 5-10), which could assist in decisions about extended endocrine therapy (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: moderate).\n\nRecommendation 1.27. If a patient has HER2-positive breast cancer or TNBC, the clinician should not use multiparameter gene expression or protein assays (Oncotype DX, EndoPredict, MammaPrint, BCI, Prosigna, Ki67, or IHC4) to guide decisions for adjuvant endocrine and chemotherapy (Type: informal consensus; Evidence quality: insufficient; Strength of recommendation: strong).\n\nRecommendation 1.28. If a patient has node-negative or node-positive ER-positive, HER2-positive, or TNBC, the clinician should not use TILs to guide decisions for (neo)adjuvant endocrine and chemotherapy (Type: informal consensus; Evidence quality: insufficient; Strength of recommendation: strong).\n\nRecommendation 1.2. In the group of patients in Recommendation 1.1 with Oncotype DX recurrence score greater or equal to 26, the clinician should offer chemoendocrine therapy (Type: evidence-based; Evidence quality: high; Strength of recommendation: strong).\n\nRecommendation 1.4. If a patient is postmenopausal and has node-positive breast cancer with 1-3 positive nodes, the clinician may use the Oncotype DX test to guide decisions for adjuvant endocrine and chemotherapy (Type: evidencebased; Evidence quality: high; Strength of recommendation: strong).\n\nRecommendation 1.22. If a patient has node-negative or node-positive breast cancer with 1-3 positive nodes, the clinician may use IHC4 score to guide decisions for adjuvant endocrine and chemotherapy if the score has been validated in the performing laboratory and if multigene assays are not available (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: moderate).\n\nRecommendation 1.29. If a patient has node-negative or node-positive ER-positive, HER2-positive, or triple-negative breast cancer, the clinician should not use PD-L1 testing to guide decisions for (neo)adjuvant endocrine and chemotherapy (Type: evidence-based; Evidence quality: high; Strength of recommendation: strong).\n\nRecommendation 1.30. If a patient has node-negative or node-positive ER-positive, HER2-positive, or triple-negative breast cancer, the clinician should not use CTC test to guide decisions for adjuvant endocrine and chemotherapy (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: strong).\n\nRecommendation 1.31. If a patient has node-negative or node-positive ER-positive, HER2-positive, or TNBC, the clinician should not use ctDNA test to guide decisions for adjuvant endocrine and chemotherapy (Type: evidencebased; Evidence quality: intermediate; Strength of recommendation: strong).",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "HR+/HER2-",
+      "HR+/HER2+",
+      "HR-/HER2+",
+      "TNBC"
+    ],
+    "line": [
+      "adjuvant",
+      "neoadjuvant"
+    ],
+    "biomarker_tags": [
+      "PD-L1+"
+    ],
+    "drugs": [
+      "abemaciclib",
+      "tamoxifen"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © American Society of Clinical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
     "chunk_id": "asco-ebc-2022-04-biomarkers-r1.1",
     "doc_type": "guideline",
     "source": "ASCO",
@@ -333,7 +534,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.1. If a patient has node-negative breast cancer, the clinician may use the Oncotype DX test to guide decisions for adjuvant endocrine and chemotherapy (Type: evidence-based; Evidence quality: high; Strength of recommendation: strong).",
     "setting": [
       "early",
@@ -367,7 +568,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.3. In the group of patients in Recommendation 1.1 who are 50 years of age or younger with Oncotype DX recurrence score 16 to 25, the clinician may offer chemoendocrine therapy (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: moderate).",
     "setting": [
       "early",
@@ -401,7 +602,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.5. In the group of patients in Recommendation 1.4, the clinician should offer chemoendocrine therapy for those whose Oncotype DX recurrence score is ≥ 26 (Type: evidence-based; Evidence quality: high; Strength of recommendation: strong).",
     "setting": [
       "early",
@@ -435,7 +636,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.6. If a patient is premenopausal and has node-positive breast cancer with 1-3 positive nodes, the Oncotype DX test should not be offered to guide decisions for adjuvant systemic chemotherapy (Type: evidence-based; Evidence quality: high; Strength of recommendation: moderate).",
     "setting": [
       "early",
@@ -469,7 +670,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.7. If a patient has node-positive breast cancer with ≥ 4 positive nodes, the evidence on the clinical utility of routine Oncotype DX test to guide decisions for adjuvant endocrine and chemotherapy is insufficient to recommend its use (Type: informal consensus; Evidence quality: insufficient; Strength of recommendation: moderate). Qualifying statement: The genomic assay is prognostic and may be used for shared patient-physician treatment decision making.",
     "setting": [
       "early",
@@ -503,7 +704,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.8. If a patient is older than 50 and has high clinical risk breast cancer that is node-negative or node-positive with 1-3 positive nodes, the clinician may use the MammaPrint test to guide decisions for adjuvant endocrine and chemotherapy (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: strong).",
     "setting": [
       "early",
@@ -537,7 +738,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.9. If a patient is 50 years of age or younger and has high clinical risk, node-negative or node-positive with 1-3 positive nodes breast cancer, the clinician should not use the MammaPrint test to guide decisions for adjuvant endocrine and chemotherapy (Type: evidence-based; Evidence quality: high; Strength of recommendation: strong).",
     "setting": [
       "early",
@@ -571,7 +772,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.10. If a patient has low clinical risk, regardless of age, the evidence on clinical utility of routine MammaPrint test is insufficient to recommend its use (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: moderate).",
     "setting": [
       "early",
@@ -605,7 +806,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.11. If a patient has node-positive breast cancer with ≥ 4 positive nodes, the evidence on the clinical utility of routine MammaPrint test to guide decisions for adjuvant endocrine and chemotherapy is insufficient to recommend its use (Type: informal consensus; Evidence quality: insufficient; Strength of recommendation: strong). Qualifying statement: The genomic assay is prognostic and may be used for shared patient-physician treatment decision making.",
     "setting": [
       "early",
@@ -639,7 +840,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.12. If a patient is postmenopausal and has breast cancer that is node-negative or node-positive with 1-3 positive nodes, the clinician may use the EndoPredict test to guide decisions for adjuvant endocrine and chemotherapy (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: moderate).",
     "setting": [
       "early",
@@ -673,7 +874,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.13. If a patient is premenopausal and has breast cancer that is node-negative or node-positive with 1-3 positive nodes, the clinician should not use the EndoPredict test to guide decisions for adjuvant endocrine and chemotherapy (Type: informal consensus; Evidence quality: insufficient; Strength of recommendation: moderate).",
     "setting": [
       "early",
@@ -707,7 +908,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.14. If a patient has breast cancer with ≥ 4 positive nodes, evidence on the clinical utility of routine use of the EndoPredict test to guide decisions for adjuvant endocrine and chemotherapy is insufficient (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: moderate).",
     "setting": [
       "early",
@@ -741,7 +942,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.15. If a patient is postmenopausal and has breast cancer that is node-negative, the clinician may use the Prosigna test to guide decisions for adjuvant systemic chemotherapy (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: moderate).",
     "setting": [
       "early",
@@ -775,7 +976,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.16. If a patient is premenopausal and has node-negative or node-positive breast cancer, the clinician should not use the Prosigna test to guide decisions for adjuvant systemic chemotherapy (Type: informal consensus; Evidence quality: insufficient; Strength of recommendation: moderate).",
     "setting": [
       "early",
@@ -809,7 +1010,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.17. If a patient is postmenopausal and has node-positive breast cancer with 1-3 positive nodes, the evidence is inconclusive to recommend the use of the Prosigna test to guide decisions for adjuvant endocrine and chemotherapy (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: moderate).",
     "setting": [
       "early",
@@ -843,7 +1044,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.18. If a patient has node-positive breast cancer with ≥ 4 positive nodes, evidence on the clinical utility of routine use of the Prosigna test to guide decisions for adjuvant endocrine and chemotherapy is insufficient to recommend its use (Type: informal consensus; Evidence quality: insufficient; Strength of recommendation: strong). Ki67.",
     "setting": [
       "early",
@@ -877,7 +1078,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.19. If a patient is postmenopausal and has stage I-II breast cancer, the clinician may use Ki67 expression in conjunction with other clinical and pathologic parameters to guide decisions on adjuvant endocrine and chemotherapy when multigene assays are not available. Ki67 expression levels are most informative for prognosis when the level is < 5% (low proliferation) or > 30% (high proliferation) because technical reliability of distinguishing values within this range is limited (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: moderate).",
     "setting": [
       "early",
@@ -911,7 +1112,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.20. If a patient is postmenopausal and has breast cancer, there is insufficient evidence to use baseline Ki67 expression or Ki67 level after 2 weeks of neoadjuvant aromatase inhibitor (AI) therapy to guide decisions on adjuvant endocrine and chemotherapy (Type: informal consensus; Evidence quality: low; Strength of recommendation: weak).",
     "setting": [
       "early",
@@ -946,7 +1147,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.21. Despite the limitations associated with Ki67 testing, a patient with node-positive breast cancer with a high risk of recurrence and a Ki67 score of ≥ 20% as determined by a US Food and Drug Administration (FDA)–approved test may be offered 2 years of abemaciclib plus endocrine therapy (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: strong).",
     "setting": [
       "early",
@@ -982,7 +1183,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.23. If a patient has node-negative breast cancer and has had 5 years of endocrine therapy without evidence of recurrence, there is insufficient evidence to use Oncotype DX, EndoPredict, Prosigna, Ki67, or IHC4 scores to guide decisions about extended endocrine therapy (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: moderate).",
     "setting": [
       "early",
@@ -1016,7 +1217,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.24. If a patient has node-negative or node-positive breast cancer with 1-3 positive nodes and has been treated with 5 years of primary endocrine therapy without evidence of recurrence, the clinician may offer the BCI test to guide decisions about extended endocrine therapy with either tamoxifen, an AI, or a sequence of tamoxifen followed by AI (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: moderate).",
     "setting": [
       "early",
@@ -1052,7 +1253,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.25. If a patient has node-positive breast cancer with ≥ 4 positive nodes and has been treated with 5 years of primary endocrine therapy without evidence of recurrence, there is insufficient evidence to use the BCI test to guide decisions about extended endocrine therapy with either tamoxifen, an AI, or a sequence of tamoxifen followed by AI (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: strong).",
     "setting": [
       "early",
@@ -1088,7 +1289,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.26. If a patient is postmenopausal and had invasive breast cancer and is recurrence-free after 5 years of adjuvant endocrine therapy, the clinical treatment score post-5 years (CTS5) web tool may be used to calculate the estimated risk of late recurrence (recurrence between years 5-10), which could assist in decisions about extended endocrine therapy (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: moderate).",
     "setting": [
       "early",
@@ -1122,7 +1323,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.27. If a patient has HER2-positive breast cancer or TNBC, the clinician should not use multiparameter gene expression or protein assays (Oncotype DX, EndoPredict, MammaPrint, BCI, Prosigna, Ki67, or IHC4) to guide decisions for adjuvant endocrine and chemotherapy (Type: informal consensus; Evidence quality: insufficient; Strength of recommendation: strong).",
     "setting": [
       "early",
@@ -1158,7 +1359,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.28. If a patient has node-negative or node-positive ER-positive, HER2-positive, or TNBC, the clinician should not use TILs to guide decisions for (neo)adjuvant endocrine and chemotherapy (Type: informal consensus; Evidence quality: insufficient; Strength of recommendation: strong).",
     "setting": [
       "early",
@@ -1193,7 +1394,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.2. In the group of patients in Recommendation 1.1 with Oncotype DX recurrence score greater or equal to 26, the clinician should offer chemoendocrine therapy (Type: evidence-based; Evidence quality: high; Strength of recommendation: strong).",
     "setting": [
       "early",
@@ -1227,7 +1428,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.4. If a patient is postmenopausal and has node-positive breast cancer with 1-3 positive nodes, the clinician may use the Oncotype DX test to guide decisions for adjuvant endocrine and chemotherapy (Type: evidencebased; Evidence quality: high; Strength of recommendation: strong).",
     "setting": [
       "early",
@@ -1261,7 +1462,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.22. If a patient has node-negative or node-positive breast cancer with 1-3 positive nodes, the clinician may use IHC4 score to guide decisions for adjuvant endocrine and chemotherapy if the score has been validated in the performing laboratory and if multigene assays are not available (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: moderate).",
     "setting": [
       "early",
@@ -1295,7 +1496,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.29. If a patient has node-negative or node-positive ER-positive, HER2-positive, or triple-negative breast cancer, the clinician should not use PD-L1 testing to guide decisions for (neo)adjuvant endocrine and chemotherapy (Type: evidence-based; Evidence quality: high; Strength of recommendation: strong).",
     "setting": [
       "early",
@@ -1332,7 +1533,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.30. If a patient has node-negative or node-positive ER-positive, HER2-positive, or triple-negative breast cancer, the clinician should not use CTC test to guide decisions for adjuvant endocrine and chemotherapy (Type: evidence-based; Evidence quality: intermediate; Strength of recommendation: strong).",
     "setting": [
       "early",
@@ -1367,7 +1568,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00069",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-biomarkers-cq1",
     "text": "Recommendation 1.31. If a patient has node-negative or node-positive ER-positive, HER2-positive, or TNBC, the clinician should not use ctDNA test to guide decisions for adjuvant endocrine and chemotherapy (Type: evidencebased; Evidence quality: intermediate; Strength of recommendation: strong).",
     "setting": [
       "early",
@@ -1393,6 +1594,42 @@
   },
   {
     "schema_version": "0.1-draft",
+    "chunk_id": "asco-ebc-2022-04-pembro-doc",
+    "doc_type": "guideline",
+    "source": "ASCO",
+    "version": "2022-04",
+    "section": "UPDATED RECOMMENDATION",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1200/JCO.22.00503",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "For patients with T1cN1-2 or T2-4N0 (stage II or III), earlystage TNBC, the Panel recommends use of pembrolizumab (200 mg once every 3 weeks or 400 mg once every 6 weeks) in combination with neoadjuvant chemotherapy, followed by adjuvant pembrolizumab after surgery. Adjuvant pembrolizumab may be given either concurrent with or after completion of radiation therapy. Given that irAEs associated with pembrolizumab therapy can be severe and permanent, careful screening for and management of common toxicities are required. The ASCO guideline for management of irAEs in patients treated with immune checkpoint inhibitor therapy offers detailed practice recommendations and should be consulted by clinicians who prescribe pembrolizumab for patients with early-stage TNBC, https://ascopubs.org/doi/full/10.1200/ JCO.21.01440 (Type: Evidence based, benefits outweigh harms; Evidence quality: Intermediate; Strength of recommendation: Moderate).\n\nResults from KEYNOTE-522 are based on continued pembrolizumab in the adjuvant setting. There is uncertainty concerning the optimal adjuvant treatment given independent benefits of capecitabine in TNBC and olaparib in patients with germline BRCA mutations without pembrolizumab. There are no data to support the use of pembrolizumab in combination with either capecitabine or olaparib.",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "neoadjuvant",
+      "adjuvant"
+    ],
+    "biomarker_tags": [
+      "gBRCA"
+    ],
+    "drugs": [
+      "pembrolizumab",
+      "capecitabine",
+      "olaparib"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © American Society of Clinical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
     "chunk_id": "asco-ebc-2022-04-pembro-rapid-227353",
     "doc_type": "guideline",
     "source": "ASCO",
@@ -1402,7 +1639,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00503",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-pembro-doc",
     "text": "For patients with T1cN1-2 or T2-4N0 (stage II or III), earlystage TNBC, the Panel recommends use of pembrolizumab (200 mg once every 3 weeks or 400 mg once every 6 weeks) in combination with neoadjuvant chemotherapy, followed by adjuvant pembrolizumab after surgery. Adjuvant pembrolizumab may be given either concurrent with or after completion of radiation therapy. Given that irAEs associated with pembrolizumab therapy can be severe and permanent, careful screening for and management of common toxicities are required. The ASCO guideline for management of irAEs in patients treated with immune checkpoint inhibitor therapy offers detailed practice recommendations and should be consulted by clinicians who prescribe pembrolizumab for patients with early-stage TNBC, https://ascopubs.org/doi/full/10.1200/ JCO.21.01440 (Type: Evidence based, benefits outweigh harms; Evidence quality: Intermediate; Strength of recommendation: Moderate).",
     "setting": [
       "early",
@@ -1439,7 +1676,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00503",
     "chunk_kind": "section",
-    "parent_id": null,
+    "parent_id": "asco-ebc-2022-04-pembro-doc",
     "text": "Results from KEYNOTE-522 are based on continued pembrolizumab in the adjuvant setting. There is uncertainty concerning the optimal adjuvant treatment given independent benefits of capecitabine in TNBC and olaparib in patients with germline BRCA mutations without pembrolizumab. There are no data to support the use of pembrolizumab in combination with either capecitabine or olaparib.",
     "setting": [
       "early",
@@ -1465,6 +1702,46 @@
   },
   {
     "schema_version": "0.1-draft",
+    "chunk_id": "asco-mbc-2021-07-chemo-cq1",
+    "doc_type": "guideline",
+    "source": "ASCO",
+    "version": "2021-07",
+    "section": "Clinical Question 1",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1200/JCO.21.01374",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Clinical Question 1. Is there an optimal sequence of chemotherapy and/or targeted therapy (first-line, second-line, or greater) for patients with triple-negative MBC (with or without BRCA1 or BRCA2 germline mutations)?\n\nRecommendation 1.1. Patients with metastatic triple-negative breast cancer with expression of programmed cell death ligand1 (PD-L1-positive) and no existing contraindications may be offered the addition of immune checkpoint inhibitor to chemotherapy (atezolizumab plus nab-paclitaxel or pembrolizumab plus chemotherapy) as first-line therapy (Type: evidence based; benefits outweigh harms; Evidence quality: moderate; Strength of recommendation: strong; Appendix Table A2, online only).\n\nRecommendation 1.2. Patients with metastatic triple-negative breast cancer without expression of programmed cell death ligand-1 (PD-L1-negative) should be offered single-agent chemotherapy rather than combination chemotherapy as first-line treatment, although combination regimens may be offered for symptomatic or immediately life-threatening disease for which time may allow only one potential chance for therapy (Type: evidence based; benefits outweigh harms; Evidence quality: moderate; Strength of recommendation: strong).\n\nPractical information. Patients may be offered either platinum-based or nonplatinum-based regimens on the basis of individualized patient and provider assessment of preferences, risks, and benefits.\n\nRecommendation 1.3. Patients with metastatic triple-negative breast cancer who have received at least two prior therapies for metastatic disease should be offered treatment with sacituzumab govitecan (Type: evidence based; benefits outweigh harms; Evidence quality: high; Strength of recommendation: strong).\n\nRecommendation 1.4. Patients with metastatic triple-negative breast cancer with germline BRCA1 or 2 mutations who have previously been treated with chemotherapy in the neoadjuvant, adjuvant, or metastatic disease setting may be offered an oral poly (ADP-ribose) polymerase (PARP) inhibitor (olaparib or talazoparib) rather than chemotherapy (Type: evidence based; benefits outweigh harms; Evidence quality: moderate; Strength of recommendation: strong).\n\nPractical information. Small single-arm studies show that oral PARP inhibitor therapy demonstrates high response rates in MBC encoding DNA repair defects, such as germline PALB2 mutation carriers and somatic BRCA mutations. It should also be noted that the randomized PARP inhibitor trials made no direct comparison with taxanes, anthracyclines, or platinums; comparative efficacy against these compounds is unknown.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "1L",
+      ">=3L",
+      "any"
+    ],
+    "biomarker_tags": [
+      "gBRCA",
+      "PD-L1+"
+    ],
+    "drugs": [
+      "sacituzumab govitecan",
+      "nab-paclitaxel",
+      "pembrolizumab",
+      "atezolizumab",
+      "talazoparib",
+      "olaparib"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © American Society of Clinical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
     "chunk_id": "asco-mbc-2021-07-chemo-r1.1",
     "doc_type": "guideline",
     "source": "ASCO",
@@ -1474,7 +1751,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.21.01374",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-mbc-2021-07-chemo-cq1",
     "text": "Recommendation 1.1. Patients with metastatic triple-negative breast cancer with expression of programmed cell death ligand1 (PD-L1-positive) and no existing contraindications may be offered the addition of immune checkpoint inhibitor to chemotherapy (atezolizumab plus nab-paclitaxel or pembrolizumab plus chemotherapy) as first-line therapy (Type: evidence based; benefits outweigh harms; Evidence quality: moderate; Strength of recommendation: strong; Appendix Table A2, online only).",
     "setting": [
       "metastatic"
@@ -1513,7 +1790,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.21.01374",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-mbc-2021-07-chemo-cq1",
     "text": "Recommendation 1.2. Patients with metastatic triple-negative breast cancer without expression of programmed cell death ligand-1 (PD-L1-negative) should be offered single-agent chemotherapy rather than combination chemotherapy as first-line treatment, although combination regimens may be offered for symptomatic or immediately life-threatening disease for which time may allow only one potential chance for therapy (Type: evidence based; benefits outweigh harms; Evidence quality: moderate; Strength of recommendation: strong).\n\nPractical information. Patients may be offered either platinum-based or nonplatinum-based regimens on the basis of individualized patient and provider assessment of preferences, risks, and benefits.",
     "setting": [
       "metastatic"
@@ -1548,7 +1825,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.21.01374",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-mbc-2021-07-chemo-cq1",
     "text": "Recommendation 1.3. Patients with metastatic triple-negative breast cancer who have received at least two prior therapies for metastatic disease should be offered treatment with sacituzumab govitecan (Type: evidence based; benefits outweigh harms; Evidence quality: high; Strength of recommendation: strong).",
     "setting": [
       "metastatic"
@@ -1583,7 +1860,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.21.01374",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-mbc-2021-07-chemo-cq1",
     "text": "Recommendation 1.4. Patients with metastatic triple-negative breast cancer with germline BRCA1 or 2 mutations who have previously been treated with chemotherapy in the neoadjuvant, adjuvant, or metastatic disease setting may be offered an oral poly (ADP-ribose) polymerase (PARP) inhibitor (olaparib or talazoparib) rather than chemotherapy (Type: evidence based; benefits outweigh harms; Evidence quality: moderate; Strength of recommendation: strong).\n\nPractical information. Small single-arm studies show that oral PARP inhibitor therapy demonstrates high response rates in MBC encoding DNA repair defects, such as germline PALB2 mutation carriers and somatic BRCA mutations. It should also be noted that the randomized PARP inhibitor trials made no direct comparison with taxanes, anthracyclines, or platinums; comparative efficacy against these compounds is unknown.",
     "setting": [
       "metastatic"
@@ -1612,6 +1889,34 @@
   },
   {
     "schema_version": "0.1-draft",
+    "chunk_id": "asco-mbc-2021-07-chemo-cq2",
+    "doc_type": "guideline",
+    "source": "ASCO",
+    "version": "2021-07",
+    "section": "Clinical Question 2",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1200/JCO.21.01374",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Clinical Question 2. What are the indications for chemotherapy versus endocrine therapy in endocrine-pretreated ER-positive metastatic breast cancer?\n\nRecommendation 2.1. Patients with metastatic HR-positive breast cancer with disease progression on a prior endocrine agent with or without targeted therapy may be offered treatment with either ET with or without targeted therapy (refer to the companion ASCO guideline on Endocrine Therapy and Targeted Therapy for Hormone Receptor-Positive Metastatic Breast Cancer for details) or single-agent chemotherapy (Type: evidence based; benefits outweigh harms; Evidence quality: moderate; Strength of recommendation: strong).\n\nPractical information. Treatment choice should be based on individualized patient and provider assessment of preferences, risks, and benefits.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "any"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © American Society of Clinical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
     "chunk_id": "asco-mbc-2021-07-chemo-r2.1",
     "doc_type": "guideline",
     "source": "ASCO",
@@ -1621,7 +1926,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.21.01374",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-mbc-2021-07-chemo-cq2",
     "text": "Recommendation 2.1. Patients with metastatic HR-positive breast cancer with disease progression on a prior endocrine agent with or without targeted therapy may be offered treatment with either ET with or without targeted therapy (refer to the companion ASCO guideline on Endocrine Therapy and Targeted Therapy for Hormone Receptor-Positive Metastatic Breast Cancer for details) or single-agent chemotherapy (Type: evidence based; benefits outweigh harms; Evidence quality: moderate; Strength of recommendation: strong).\n\nPractical information. Treatment choice should be based on individualized patient and provider assessment of preferences, risks, and benefits.",
     "setting": [
       "metastatic"
@@ -1645,6 +1950,34 @@
   },
   {
     "schema_version": "0.1-draft",
+    "chunk_id": "asco-mbc-2021-07-chemo-cq4",
+    "doc_type": "guideline",
+    "source": "ASCO",
+    "version": "2021-07",
+    "section": "Clinical Question 4",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1200/JCO.21.01374",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Clinical Question 4. At what point should a patient be transitioned to hospice or best supportive care only?\n\nRecommendation 4.1. No recommendation regarding at which point a patient’s care should be transitioned to hospice or best supportive care only is possible at this time (Type: consensus; benefits/harms ratio unknown; Evidence quality: N/A; Strength of recommendation: strong).\n\nPractical information. Given the heterogeneity of breast cancer and the treatment goals of patients with breast cancer, it is not possible to identify a universal optimal time to transition to hospice or best supportive care. When to transition is a decision that should be shared between the patient and clinician in the context of an ongoing conversation regarding goals of care. The conversation about integration of supportive care and eventual consideration of hospice care should start early in the management of MBC.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "any"
+    ],
+    "line": [
+      "any"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © American Society of Clinical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
     "chunk_id": "asco-mbc-2021-07-chemo-r4.1",
     "doc_type": "guideline",
     "source": "ASCO",
@@ -1654,7 +1987,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.21.01374",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-mbc-2021-07-chemo-cq4",
     "text": "Recommendation 4.1. No recommendation regarding at which point a patient’s care should be transitioned to hospice or best supportive care only is possible at this time (Type: consensus; benefits/harms ratio unknown; Evidence quality: N/A; Strength of recommendation: strong).\n\nPractical information. Given the heterogeneity of breast cancer and the treatment goals of patients with breast cancer, it is not possible to identify a universal optimal time to transition to hospice or best supportive care. When to transition is a decision that should be shared between the patient and clinician in the context of an ongoing conversation regarding goals of care. The conversation about integration of supportive care and eventual consideration of hospice care should start early in the management of MBC.",
     "setting": [
       "metastatic"
@@ -1678,6 +2011,37 @@
   },
   {
     "schema_version": "0.1-draft",
+    "chunk_id": "asco-mbc-2021-07-chemo-cq3",
+    "doc_type": "guideline",
+    "source": "ASCO",
+    "version": "2021-07",
+    "section": "Clinical Question 3",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1200/JCO.21.01374",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Clinical Question 3. Is there an optimal sequence of nonendocrine agents for patients with HR-positive but HER2-negative MBC that are no longer benefiting from ET (with or without BRCA1 or BRCA2 germline mutations)?\n\nRecommendation 3.1. Patients with metastatic HR-positive but HER2-negative breast cancer with germline BRCA1 or 2 mutations who are no longer benefiting from ET may be offered an oral PARP inhibitor in the first-through to thirdline setting rather than chemotherapy (Type: evidence based; benefits outweigh harms; Evidence quality: moderate; Strength of recommendation: strong).\n\nPractical information. Small single-arm studies show that oral PARP inhibitor therapy demonstrates high response rates in MBC encoding DNA repair defects, such as germline PALB2 mutation carriers and somatic BRCA mutations. It should also be noted that the randomized PARP inhibitor trials made no direct comparison with taxanes, anthracyclines, or platinums; comparative efficacy against these compounds is unknown.\n\nRecommendation 3.2. Patients with HR-positive HER2-negative MBC no longer benefiting from ET should be offered single-agent chemotherapy rather than combination therapy, although combination regimens may be offered for symptomatic or immediately life-threatening disease for which time may allow only one potential chance for therapy (Type: evidence based; benefits outweigh harms; Evidence quality: moderate; Strength of recommendation: strong).\n\nPractical information. Choice of chemotherapy agent should be based on individualized patient and provider assessment of preferences, risks, and benefits.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      ">=3L",
+      "any"
+    ],
+    "biomarker_tags": [
+      "gBRCA"
+    ],
+    "drugs": [],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © American Society of Clinical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
     "chunk_id": "asco-mbc-2021-07-chemo-r3.1",
     "doc_type": "guideline",
     "source": "ASCO",
@@ -1687,7 +2051,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.21.01374",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-mbc-2021-07-chemo-cq3",
     "text": "Recommendation 3.1. Patients with metastatic HR-positive but HER2-negative breast cancer with germline BRCA1 or 2 mutations who are no longer benefiting from ET may be offered an oral PARP inhibitor in the first-through to thirdline setting rather than chemotherapy (Type: evidence based; benefits outweigh harms; Evidence quality: moderate; Strength of recommendation: strong).\n\nPractical information. Small single-arm studies show that oral PARP inhibitor therapy demonstrates high response rates in MBC encoding DNA repair defects, such as germline PALB2 mutation carriers and somatic BRCA mutations. It should also be noted that the randomized PARP inhibitor trials made no direct comparison with taxanes, anthracyclines, or platinums; comparative efficacy against these compounds is unknown.",
     "setting": [
       "metastatic"
@@ -1722,7 +2086,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.21.01374",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-mbc-2021-07-chemo-cq3",
     "text": "Recommendation 3.2. Patients with HR-positive HER2-negative MBC no longer benefiting from ET should be offered single-agent chemotherapy rather than combination therapy, although combination regimens may be offered for symptomatic or immediately life-threatening disease for which time may allow only one potential chance for therapy (Type: evidence based; benefits outweigh harms; Evidence quality: moderate; Strength of recommendation: strong).\n\nPractical information. Choice of chemotherapy agent should be based on individualized patient and provider assessment of preferences, risks, and benefits.",
     "setting": [
       "metastatic"
@@ -1746,6 +2110,39 @@
   },
   {
     "schema_version": "0.1-draft",
+    "chunk_id": "asco-mbc-2021-07-endo-cq1",
+    "doc_type": "guideline",
+    "source": "ASCO",
+    "version": "2021-07",
+    "section": "Clinical Question 1",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1200/JCO.21.01392",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Clinical Question 1. Should alpelisib be given to postmenopausal women, and to male patients, with HR-positive, HER2-negative, PIK3CA-mutated, ABC, or MBC?\n\nRecommendation 1.1. Alpelisib in combination with ET should be offered to postmenopausal patients in combination with fulvestrant, and to male patients, with HR-positive, HER2-negative, PIK3CA-mutated, ABC, or MBC following prior ET including an aromatase inhibitor (AI), with or without a CDK4/6 inhibitor. Careful screening for and management of common toxicities are required (type: evidence-based, benefits outweigh harms; evidence quality: high; strength of recommendation: moderate; Appendix Table A2, online only).",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "any"
+    ],
+    "biomarker_tags": [
+      "PIK3CA-mut"
+    ],
+    "drugs": [
+      "fulvestrant",
+      "alpelisib"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © American Society of Clinical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
     "chunk_id": "asco-mbc-2021-07-endo-r1.1",
     "doc_type": "guideline",
     "source": "ASCO",
@@ -1755,7 +2152,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.21.01392",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-mbc-2021-07-endo-cq1",
     "text": "Recommendation 1.1. Alpelisib in combination with ET should be offered to postmenopausal patients in combination with fulvestrant, and to male patients, with HR-positive, HER2-negative, PIK3CA-mutated, ABC, or MBC following prior ET including an aromatase inhibitor (AI), with or without a CDK4/6 inhibitor. Careful screening for and management of common toxicities are required (type: evidence-based, benefits outweigh harms; evidence quality: high; strength of recommendation: moderate; Appendix Table A2, online only).",
     "setting": [
       "metastatic"
@@ -1784,6 +2181,37 @@
   },
   {
     "schema_version": "0.1-draft",
+    "chunk_id": "asco-mbc-2021-07-endo-cq2",
+    "doc_type": "guideline",
+    "source": "ASCO",
+    "version": "2021-07",
+    "section": "Clinical Question 2",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1200/JCO.21.01392",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Clinical Question 2. What is the role of biomarkers in treatment selection for patients with HR-positive MBC?\n\nRecommendation 2.3. Patients with metastatic HR-positive but HER2-negative breast cancer with germline BRCA1 or 2 mutations who are no longer benefiting from ET may be offered an oral poly (ADP-ribose) polymerase (PARP) inhibitor in the first-line through to third-line setting rather than chemotherapy (type: evidence-based; benefits outweigh harms; evidence quality: intermediate; strength of recommendation: strong).\n\nQualifying statements: Small single-arm studies show that oral PARP inhibitor therapy demonstrates high response rates in MBC-encoding DNA repair defects, such as germline PALB2 mutation carriers and somatic BRCA mutations. It should also be noted that the randomized PARP inhibitor trials made no direct comparison with taxanes, anthracyclines, or platinums; comparative efficacy against these compounds is unknown.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "1L",
+      ">=3L"
+    ],
+    "biomarker_tags": [
+      "gBRCA"
+    ],
+    "drugs": [],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © American Society of Clinical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
     "chunk_id": "asco-mbc-2021-07-endo-r2.3",
     "doc_type": "guideline",
     "source": "ASCO",
@@ -1793,7 +2221,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.21.01392",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-mbc-2021-07-endo-cq2",
     "text": "Recommendation 2.3. Patients with metastatic HR-positive but HER2-negative breast cancer with germline BRCA1 or 2 mutations who are no longer benefiting from ET may be offered an oral poly (ADP-ribose) polymerase (PARP) inhibitor in the first-line through to third-line setting rather than chemotherapy (type: evidence-based; benefits outweigh harms; evidence quality: intermediate; strength of recommendation: strong).\n\nQualifying statements: Small single-arm studies show that oral PARP inhibitor therapy demonstrates high response rates in MBC-encoding DNA repair defects, such as germline PALB2 mutation carriers and somatic BRCA mutations. It should also be noted that the randomized PARP inhibitor trials made no direct comparison with taxanes, anthracyclines, or platinums; comparative efficacy against these compounds is unknown.",
     "setting": [
       "metastatic"
@@ -1820,6 +2248,37 @@
   },
   {
     "schema_version": "0.1-draft",
+    "chunk_id": "asco-mbc-2021-07-endo-cq3",
+    "doc_type": "guideline",
+    "source": "ASCO",
+    "version": "2021-07",
+    "section": "Clinical Question 3",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1200/JCO.21.01392",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Clinical Question 3. What is the role of CDK4/6 inhibitors in the treatment of patients with HR-positive MBC?\n\nRecommendation 3.1. A nonsteroidal AI and a CDK4/6 inhibitor should be offered to postmenopausal patients and to premenopausal patients combined with chemical ovarian function suppression, and to male patients (with a gonadotropinreleasing hormone analog), with treatment-na ̈ıve HR-positive MBC (type: evidence-based, benefits outweigh harms; evidence quality: high; strength of recommendation: strong).\n\nRecommendation 3.2. Fulvestrant and a CDK4/6 inhibitor should be offered to patients with progressive disease during treatment with AIs (or who develop a recurrence within 1 year of adjuvant AI therapy) with or without one line of prior chemotherapy for metastatic disease, or as first-line therapy. Treatment should be limited to those without prior exposure to CDK4/6 inhibitors in the metastatic setting (type: evidence-based, benefits outweigh harms; evidence quality: high; strength of recommendation: strong).",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "any",
+      "1L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "fulvestrant"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © American Society of Clinical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
     "chunk_id": "asco-mbc-2021-07-endo-r3.1",
     "doc_type": "guideline",
     "source": "ASCO",
@@ -1829,7 +2288,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.21.01392",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-mbc-2021-07-endo-cq3",
     "text": "Recommendation 3.1. A nonsteroidal AI and a CDK4/6 inhibitor should be offered to postmenopausal patients and to premenopausal patients combined with chemical ovarian function suppression, and to male patients (with a gonadotropinreleasing hormone analog), with treatment-na ̈ıve HR-positive MBC (type: evidence-based, benefits outweigh harms; evidence quality: high; strength of recommendation: strong).",
     "setting": [
       "metastatic"
@@ -1862,7 +2321,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.21.01392",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-mbc-2021-07-endo-cq3",
     "text": "Recommendation 3.2. Fulvestrant and a CDK4/6 inhibitor should be offered to patients with progressive disease during treatment with AIs (or who develop a recurrence within 1 year of adjuvant AI therapy) with or without one line of prior chemotherapy for metastatic disease, or as first-line therapy. Treatment should be limited to those without prior exposure to CDK4/6 inhibitors in the metastatic setting (type: evidence-based, benefits outweigh harms; evidence quality: high; strength of recommendation: strong).",
     "setting": [
       "metastatic"
@@ -1888,6 +2347,38 @@
   },
   {
     "schema_version": "0.1-draft",
+    "chunk_id": "asco-mbc-2022-05-her2-cq1",
+    "doc_type": "guideline",
+    "source": "ASCO",
+    "version": "2022-05",
+    "section": "Clinical Question 1",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1200/JCO.22.00519",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Clinical Question 1. What is the optimal treatment for patients with HER2-positive advanced breast cancer?\n\nRecommendation 1.1. Clinicians should recommend the combination of trastuzumab, pertuzumab, and a taxane for first-line treatment, unless the patient has a contraindication to taxanes (Type: Evidence based, benefits outweigh harms; Evidence quality: High; Strength of recommendation: Strong). No change.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2+",
+      "HR-/HER2+"
+    ],
+    "line": [
+      "1L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "trastuzumab",
+      "pertuzumab"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © American Society of Clinical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
     "chunk_id": "asco-mbc-2022-05-her2-r1.1",
     "doc_type": "guideline",
     "source": "ASCO",
@@ -1897,7 +2388,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00519",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-mbc-2022-05-her2-cq1",
     "text": "Recommendation 1.1. Clinicians should recommend the combination of trastuzumab, pertuzumab, and a taxane for first-line treatment, unless the patient has a contraindication to taxanes (Type: Evidence based, benefits outweigh harms; Evidence quality: High; Strength of recommendation: Strong). No change.",
     "setting": [
       "metastatic"
@@ -1925,6 +2416,45 @@
   },
   {
     "schema_version": "0.1-draft",
+    "chunk_id": "asco-mbc-2022-05-her2-cq3",
+    "doc_type": "guideline",
+    "source": "ASCO",
+    "version": "2022-05",
+    "section": "Clinical Question 3",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1200/JCO.22.00519",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Recommendations 3.x\n\nRecommendation 3.1. If a patient’s HER2-positive advanced breast cancer has progressed during or after second-line or greater HER2-targeted treatment and the patient has already received pertuzumab and T-Dxd (if a patient has not received pertuzumab, clinicians may offer pertuzumab), clinicians should recommend third-line or greater HER2-targeted therapybased treatment.\n\n- Overall, there is a lack of head-to-head trials; therefore, there is insufficient evidence to recommend one regimen over another. The patient and the clinician should discuss differences in treatment schedules, routes, and toxicities during the decision-making process.\n\nOptions include:\n\n- If a patient has not received trastuzumab emtansine (T-DM1) in second-line, should offer a T-DM1 regimen (Type: Evidence based, benefits outweigh harms; Evidence quality: High; Strength of recommendation: Strong). New.\n\n- May offer tucatinib combined with trastuzumab and capecitabine (Type: Evidence based, benefits outweigh harms; Evidence quality: Moderate; Strength of recommendation: Strong). New.\n\n- May offer T-Dxd (Type: Evidence based, benefits outweigh harms; Evidence quality: Moderate; Strength of recommendation: Strong). New.\n\n- May offer neratinib combined with capecitabine (Type: Evidence based, benefits outweigh harms; Evidence quality: Moderate; Strength of Recommendation: Weak). New.\n\n- May offer lapatinib and trastuzumab (Type: Evidence based, benefits outweigh harms; Evidence quality: Moderate; Strength of Recommendation: Weak).\n\n- May offer lapatinib and capecitabine (Type: Evidence based, benefits outweigh harms; Evidence quality: Moderate; Strength of recommendation: Weak).\n\n- May offer other combinations of chemotherapy and trastuzumab (Type: Evidence based, benefits outweigh harms; Evidence quality: Moderate; Strength of recommendation: Weak).\n\n- May offer margetuximab plus chemotherapy (Type: Evidence based, benefits outweigh harms; Evidence quality: Moderate; Strength of recommendation: Weak). New.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2+",
+      "HR-/HER2+"
+    ],
+    "line": [
+      ">=3L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "trastuzumab emtansine",
+      "margetuximab",
+      "capecitabine",
+      "trastuzumab",
+      "pertuzumab",
+      "tucatinib",
+      "lapatinib",
+      "neratinib",
+      "trastuzumab deruxtecan"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © American Society of Clinical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
     "chunk_id": "asco-mbc-2022-05-her2-r3.1",
     "doc_type": "guideline",
     "source": "ASCO",
@@ -1934,7 +2464,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00519",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-mbc-2022-05-her2-cq3",
     "text": "Recommendation 3.1. If a patient’s HER2-positive advanced breast cancer has progressed during or after second-line or greater HER2-targeted treatment and the patient has already received pertuzumab and T-Dxd (if a patient has not received pertuzumab, clinicians may offer pertuzumab), clinicians should recommend third-line or greater HER2-targeted therapybased treatment.\n\n- Overall, there is a lack of head-to-head trials; therefore, there is insufficient evidence to recommend one regimen over another. The patient and the clinician should discuss differences in treatment schedules, routes, and toxicities during the decision-making process.\n\nOptions include:\n\n- If a patient has not received trastuzumab emtansine (T-DM1) in second-line, should offer a T-DM1 regimen (Type: Evidence based, benefits outweigh harms; Evidence quality: High; Strength of recommendation: Strong). New.\n\n- May offer tucatinib combined with trastuzumab and capecitabine (Type: Evidence based, benefits outweigh harms; Evidence quality: Moderate; Strength of recommendation: Strong). New.\n\n- May offer T-Dxd (Type: Evidence based, benefits outweigh harms; Evidence quality: Moderate; Strength of recommendation: Strong). New.\n\n- May offer neratinib combined with capecitabine (Type: Evidence based, benefits outweigh harms; Evidence quality: Moderate; Strength of Recommendation: Weak). New.\n\n- May offer lapatinib and trastuzumab (Type: Evidence based, benefits outweigh harms; Evidence quality: Moderate; Strength of Recommendation: Weak).\n\n- May offer lapatinib and capecitabine (Type: Evidence based, benefits outweigh harms; Evidence quality: Moderate; Strength of recommendation: Weak).\n\n- May offer other combinations of chemotherapy and trastuzumab (Type: Evidence based, benefits outweigh harms; Evidence quality: Moderate; Strength of recommendation: Weak).\n\n- May offer margetuximab plus chemotherapy (Type: Evidence based, benefits outweigh harms; Evidence quality: Moderate; Strength of recommendation: Weak). New.",
     "setting": [
       "metastatic"
@@ -1949,13 +2479,13 @@
     "biomarker_tags": [],
     "drugs": [
       "trastuzumab emtansine",
-      "capecitabine",
       "margetuximab",
+      "capecitabine",
       "trastuzumab",
       "pertuzumab",
-      "neratinib",
-      "lapatinib",
       "tucatinib",
+      "lapatinib",
+      "neratinib",
       "trastuzumab deruxtecan"
     ],
     "evidence": {
@@ -1964,6 +2494,37 @@
       "esmo_mcbs": null,
       "escat": null
     },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © American Society of Clinical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "asco-mbc-2022-05-her2-cq2",
+    "doc_type": "guideline",
+    "source": "ASCO",
+    "version": "2022-05",
+    "section": "Clinical Question 2",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1200/JCO.22.00519",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Recommendations 2.x\n\nRecommendation 2.1. If a patient’s HER2-positive advanced breast cancer has progressed during or after first-line HER2-targeted therapy (and the patient has not received T-Dxd), clinicians should recommend T-Dxd as a secondline treatment (Type: Evidence based, benefits outweigh harms; Evidence quality: Moderate; Strength of recommendation: Strong).",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2+",
+      "HR-/HER2+"
+    ],
+    "line": [
+      "2L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "trastuzumab deruxtecan"
+    ],
+    "evidence": null,
     "superseded_by": null,
     "copyright_notice": "Copyright © American Society of Clinical Oncology. All rights reserved"
   },
@@ -1978,7 +2539,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.00519",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-mbc-2022-05-her2-cq2",
     "text": "Recommendation 2.1. If a patient’s HER2-positive advanced breast cancer has progressed during or after first-line HER2-targeted therapy (and the patient has not received T-Dxd), clinicians should recommend T-Dxd as a secondline treatment (Type: Evidence based, benefits outweigh harms; Evidence quality: Moderate; Strength of recommendation: Strong).",
     "setting": [
       "metastatic"
@@ -2005,6 +2566,39 @@
   },
   {
     "schema_version": "0.1-draft",
+    "chunk_id": "asco-mbc-2022-08-tdxd-doc",
+    "doc_type": "guideline",
+    "source": "ASCO",
+    "version": "2022-08",
+    "section": "UPDATED RECOMMENDATION",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1200/JCO.22.01533",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Patients with HER2 IHC 1+ or 2+ and ISH-negative metastatic breast cancer who have received at least one prior chemotherapy for metastatic disease, and if hormone receptor-positive are refractory to endocrine therapy, should be offered treatment with trastuzumab deruxtecan (Type: evidence based, benefits outweigh harms; Evidence quality: moderate; Strength of recommendation: strong).",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-",
+      "TNBC"
+    ],
+    "line": [
+      "any"
+    ],
+    "biomarker_tags": [
+      "HER2-low"
+    ],
+    "drugs": [
+      "trastuzumab deruxtecan"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © American Society of Clinical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
     "chunk_id": "asco-mbc-2022-08-tdxd-rapid-f896f0",
     "doc_type": "guideline",
     "source": "ASCO",
@@ -2014,7 +2608,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.01533",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-mbc-2022-08-tdxd-doc",
     "text": "Patients with HER2 IHC 1+ or 2+ and ISH-negative metastatic breast cancer who have received at least one prior chemotherapy for metastatic disease, and if hormone receptor-positive are refractory to endocrine therapy, should be offered treatment with trastuzumab deruxtecan (Type: evidence based, benefits outweigh harms; Evidence quality: moderate; Strength of recommendation: strong).",
     "setting": [
       "metastatic"
@@ -2043,6 +2637,36 @@
   },
   {
     "schema_version": "0.1-draft",
+    "chunk_id": "asco-mbc-2023-01-sg-doc",
+    "doc_type": "guideline",
+    "source": "ASCO",
+    "version": "2023-01",
+    "section": "UPDATED RECOMMENDATION",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1200/JCO.22.02807",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Patients with hormone receptor-positive HER2-negative metastatic breast cancer who are refractory to endocrine therapy and have received at least two prior lines of chemotherapy for metastatic disease may be offered SG. (Type: Evidence-based, benefits outweigh harms; Evidence quality: Moderate; Strength of recommendation: Strong.) For all guideline recommendations, a complete summary table is available at www.asco.org/breast-cancerguidelines.\n\nAccepted on endocrine-resistant hormone receptor-positive-positivepositive and December 21, 2022 HER2-negative locally recurrent inoperable or metaand published at static breast cancer who had received 2-4 prior ascopubs.org/journal/ jco on January 10, chemotherapy regimens for metastatic disease. The 2023: DOI https://doi. primary end point for TROPiCS-02 was progressionorg/10.1200/JCO.22. free survival (PFS) as assessed by blinded indepen02807 dent central review. © 2023 by American Society of Clinical The PFS primary end point at the first planned interim Oncology analysis was presented at ASCO 2022 and recently\n\n1318 Volume 41, Issue 6\n\nRecommendation Update",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      ">=3L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "sacituzumab govitecan"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © American Society of Clinical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
     "chunk_id": "asco-mbc-2023-01-sg-rapid-297fb8",
     "doc_type": "guideline",
     "source": "ASCO",
@@ -2052,7 +2676,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.22.02807",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-mbc-2023-01-sg-doc",
     "text": "Patients with hormone receptor-positive HER2-negative metastatic breast cancer who are refractory to endocrine therapy and have received at least two prior lines of chemotherapy for metastatic disease may be offered SG. (Type: Evidence-based, benefits outweigh harms; Evidence quality: Moderate; Strength of recommendation: Strong.) For all guideline recommendations, a complete summary table is available at www.asco.org/breast-cancerguidelines.\n\nAccepted on endocrine-resistant hormone receptor-positive-positivepositive and December 21, 2022 HER2-negative locally recurrent inoperable or metaand published at static breast cancer who had received 2-4 prior ascopubs.org/journal/ jco on January 10, chemotherapy regimens for metastatic disease. The 2023: DOI https://doi. primary end point for TROPiCS-02 was progressionorg/10.1200/JCO.22. free survival (PFS) as assessed by blinded indepen02807 dent central review. © 2023 by American Society of Clinical The PFS primary end point at the first planned interim Oncology analysis was presented at ASCO 2022 and recently\n\n1318 Volume 41, Issue 6\n\nRecommendation Update",
     "setting": [
       "metastatic"
@@ -2078,6 +2702,46 @@
   },
   {
     "schema_version": "0.1-draft",
+    "chunk_id": "asco-mbc-2024-03-capi-cq1",
+    "doc_type": "guideline",
+    "source": "ASCO",
+    "version": "2024-03",
+    "section": "Clinical Question 1",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1200/JCO.24.00248",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Recommendations 1.x\n\nThe Expert Panel recommends multiple lines of endocrine treatment (ET), frequently paired with targeted agents, with choices informed by prior treatments and by routine testing for activating mutations in ESR1, PIK3CA, or AKT1 or inactivation of PTEN (Table 1). Panelists recommend inclusion of CDK4/6 inhibitor therapy with ET in the first line. Secondand third-line therapies reflect targeted options based on tumor genomics. Combining ET with the AKT pathway inhibitor capivasertib is appropriate for tumors harboring PIK3CA or AKT1 mutations or PTEN inactivation while ET combined with the PI3 kinase inhibitor alpelisib is an option for tumors harboring PIK3CA mutations, but not AKT1 mutations. Other options include ET with mammalian target of rapamycin inhibitor everolimus irrespective of tumor genomics (Table 1). Monotherapy with the oral selective estrogen receptor degrader elacestrant is an option for tumors with ESR1 mutation (Evidence quality: High; Strength of recommendation: Strong).\n\nThere are no comparative efficacy data for choosing a PIK3CA targeted option for those who are potential candidates for capivasertib or alpelisib treatment. For such patients, the Panel recommends selecting the targeted agent based on perceived risk-benefit considerations such as",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "1L",
+      ">=3L",
+      "any"
+    ],
+    "biomarker_tags": [
+      "PIK3CA-mut",
+      "ESR1-mut",
+      "AKT1-mut",
+      "PTEN-alt"
+    ],
+    "drugs": [
+      "capivasertib",
+      "elacestrant",
+      "everolimus",
+      "alpelisib"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © American Society of Clinical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
     "chunk_id": "asco-mbc-2024-03-capi-r1.1",
     "doc_type": "guideline",
     "source": "ASCO",
@@ -2087,7 +2751,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.24.00248",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-mbc-2024-03-capi-cq1",
     "text": "The Expert Panel recommends multiple lines of endocrine treatment (ET), frequently paired with targeted agents, with choices informed by prior treatments and by routine testing for activating mutations in ESR1, PIK3CA, or AKT1 or inactivation of PTEN (Table 1). Panelists recommend inclusion of CDK4/6 inhibitor therapy with ET in the first line. Secondand third-line therapies reflect targeted options based on tumor genomics. Combining ET with the AKT pathway inhibitor capivasertib is appropriate for tumors harboring PIK3CA or AKT1 mutations or PTEN inactivation while ET combined with the PI3 kinase inhibitor alpelisib is an option for tumors harboring PIK3CA mutations, but not AKT1 mutations. Other options include ET with mammalian target of rapamycin inhibitor everolimus irrespective of tumor genomics (Table 1). Monotherapy with the oral selective estrogen receptor degrader elacestrant is an option for tumors with ESR1 mutation (Evidence quality: High; Strength of recommendation: Strong).",
     "setting": [
       "metastatic"
@@ -2131,7 +2795,7 @@
     "page_end": null,
     "url": "https://doi.org/10.1200/JCO.24.00248",
     "chunk_kind": "recommendation",
-    "parent_id": null,
+    "parent_id": "asco-mbc-2024-03-capi-cq1",
     "text": "There are no comparative efficacy data for choosing a PIK3CA targeted option for those who are potential candidates for capivasertib or alpelisib treatment. For such patients, the Panel recommends selecting the targeted agent based on perceived risk-benefit considerations such as",
     "setting": [
       "metastatic"
@@ -2155,7 +2819,7 @@
   },
   {
     "schema_version": "0.1-draft",
-    "chunk_id": "asco-mbc-2024-03-capi-qs-6a9b2f",
+    "chunk_id": "asco-mbc-2024-03-capi-doc",
     "doc_type": "guideline",
     "source": "ASCO",
     "version": "2024-03",
@@ -2165,6 +2829,37 @@
     "url": "https://doi.org/10.1200/JCO.24.00248",
     "chunk_kind": "section",
     "parent_id": null,
+    "text": "Both capivasertib and alpelisb can cause rash and/or diarrhea. Grade 3 or greater AEs included diarrhea (9.3% capivasertib v 6.7% alpelisib), rash (12.1% capivasertib v 9.9% alpelisib), and hyperglycemia (2.3% capivasertib v 36.6% alpelisib). Clinicians may mitigate symptoms with antihistamines, anti-diarrheal agents, or other supportive measures. Most patients with estrogen receptor-positive, HER2-negative breast cancers will be candidates for multiple lines of ET and/or targeted agents prior to chemotherapy or antibody-drug conjugate therapy. While newer agents have been added to the armamentarium, there remain few studies on the optimal timing or sequence of treatments, comparisons of targeted agents within a class, or studies that compare one class of agents against another. Such trials are an important clinical priority, as are studies to mitigate side effects of these agents.\n\nEvidence supporting unchanged recommendations and sections on patient-clinician communication, gaps in the literature and directions for future research, and more are found in the full guideline publications and apply to this Rapid Update. Additionally, for guideline tools and resources, including a complete summary table, visit www.asco.org/breast-cancer-guidelines.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "any"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "capivasertib",
+      "alpelisib"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © American Society of Clinical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "asco-mbc-2024-03-capi-qs-6a9b2f",
+    "doc_type": "guideline",
+    "source": "ASCO",
+    "version": "2024-03",
+    "section": "QUALIFYING STATEMENT",
+    "page_start": null,
+    "page_end": null,
+    "url": "https://doi.org/10.1200/JCO.24.00248",
+    "chunk_kind": "section",
+    "parent_id": "asco-mbc-2024-03-capi-doc",
     "text": "Both capivasertib and alpelisb can cause rash and/or diarrhea. Grade 3 or greater AEs included diarrhea (9.3% capivasertib v 6.7% alpelisib), rash (12.1% capivasertib v 9.9% alpelisib), and hyperglycemia (2.3% capivasertib v 36.6% alpelisib). Clinicians may mitigate symptoms with antihistamines, anti-diarrheal agents, or other supportive measures. Most patients with estrogen receptor-positive, HER2-negative breast cancers will be candidates for multiple lines of ET and/or targeted agents prior to chemotherapy or antibody-drug conjugate therapy. While newer agents have been added to the armamentarium, there remain few studies on the optimal timing or sequence of treatments, comparisons of targeted agents within a class, or studies that compare one class of agents against another. Such trials are an important clinical priority, as are studies to mitigate side effects of these agents.\n\nEvidence supporting unchanged recommendations and sections on patient-clinician communication, gaps in the literature and directions for future research, and more are found in the full guideline publications and apply to this Rapid Update. Additionally, for guideline tools and resources, including a complete summary table, visit www.asco.org/breast-cancer-guidelines.",
     "setting": [
       "metastatic"

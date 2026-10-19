@@ -6,7 +6,7 @@ import json
 import re
 from pathlib import Path
 
-from .chunk_common import PARSED_MD_DIR, CHUNKS_DIR, clean_text, parse_version, make_chunk, stable_key
+from .chunk_common import PARSED_MD_DIR, CHUNKS_DIR, attach_parent, clean_text, parse_version, make_chunk, stable_key
 
 COPYRIGHT = "Copyright © American Society of Clinical Oncology. All rights reserved"
 EBC = ["early", "locally_advanced"]
@@ -127,6 +127,13 @@ def extract_chunks_from_asco_md(md_path: Path) -> list[dict]:
     # (Guideline Disclaimer, AFFILIATIONS 뒤에 본문 권고나 Qualifying Statement가 오는 파일이 있다)
     paras = _paragraphs(text)
 
+    # Clinical Question N 아래 첫 문단이 질문문이다. 같은 번호 권고들(N.1, N.2 ...)의 부모 청크 머리에 쓴다
+    questions = {}
+    for i, para in enumerate(paras[:-1]):
+        m_cq = re.match(r"^#+\s*Clinical Questions?\s+(\d+)\b", para, re.IGNORECASE)
+        if m_cq and m_cq.group(1) not in questions and not paras[i + 1].startswith("#"):
+            questions[m_cq.group(1)] = paras[i + 1]
+
     # 문단을 (종류, 번호/제목, 문단 목록) 블록으로 묶는다
     blocks = []
     current = None
@@ -221,7 +228,28 @@ def extract_chunks_from_asco_md(md_path: Path) -> list[dict]:
             evidence=_evidence(chunk_text) if kind != "question" else None,
             copyright_notice=COPYRIGHT,
         ))
-    return chunks
+    return _with_parents(chunks, id_prefix, questions)
+
+
+def _with_parents(children: list[dict], id_prefix: str, questions: dict) -> list[dict]:
+    """부모 청크를 붙인다. 번호 권고는 Clinical Question별(N.x → -cqN), 번호 없는 블록(rapid update,
+    단서 문단, Q&A 질문)은 문서 하나를 부모로 둔다."""
+    groups = {}
+    for c in children:
+        m = re.search(r"-r(\d+)\.\d+$", c["chunk_id"])
+        key = f"cq{m.group(1)}" if m else "doc"
+        groups.setdefault(key, []).append(c)
+    out = []
+    for key, members in groups.items():
+        if key == "doc":
+            parent_id, section, heading = f"{id_prefix}-doc", members[0]["section"], ""
+        else:
+            n = key[2:]
+            parent_id, section = f"{id_prefix}-{key}", f"Clinical Question {n}"
+            heading = f"Clinical Question {n}. {questions[n]}" if n in questions else f"Recommendations {n}.x"
+        out.append(attach_parent(members, chunk_id=parent_id, section=section, heading=heading))
+        out.extend(members)
+    return out
 
 
 def process_all_asco() -> list[dict]:
