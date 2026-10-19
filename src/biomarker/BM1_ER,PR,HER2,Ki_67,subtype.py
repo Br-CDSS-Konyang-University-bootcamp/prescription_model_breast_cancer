@@ -13,8 +13,9 @@
 이 파일은 규칙만 쓴다. LLM은 쓰지 않는다.
 재발 환자는 value(재생검 결과)로 판정하고, history[]의 원발 결과와 비교한 설명을 reason 끝에 붙인다.
 유전자 변이(ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2)는 허가 변이 목록(actionable_variants.csv)과
-절단 변이만으로 판정하는 1차 규칙이다 (2026-10-16). 유전자 검사 공백(BM-4)은 미시행만 권고한다 (2026-10-16). 아직 다루지 않는 것:
-차수(setting.line, 6.2절), BM-1 보고서 파싱, BM-3 근거 주석, 심평원 투여단계(6.3절).
+절단 변이로 판정하고, BRCA1·BRCA2·PALB2·PTEN은 BM-3 ClinVar로 다시 가른다 (2026-10-19). 유전자 검사 공백(BM-4)은
+미시행만 권고한다. 차수(setting.line)는 A가 넘긴 treatment_history[].line으로 채운다 (6.2절, draft6, 2026-10-19).
+아직 다루지 않는 것: BM-1 보고서 파싱, BM-3 CIViC, 국소 재발 후 보조요법(SET-LOCAL-ADJ, 6.4절).
 PD-L1은 약제별 기준(22C3 CPS ≥ 10, SP142 IC ≥ 1%)으로 판정한다 (6.5절, 2026-10-16)
 """
 
@@ -509,6 +510,47 @@ def _actionable():
     return _actionable.cache
 
 
+# BM-3 ClinVar (전달 문서 5.4절). data/script/clinvar_download.py가 만든 표를 로컬에서만 조회한다
+CLINVAR_CSV = Path(__file__).resolve().parents[2] / "data" / "clinvar" / "clinvar_bm3_genes.csv"
+CLINVAR_GENES = {"BRCA1", "BRCA2", "PALB2", "PTEN"}
+# 양성으로 볼 최소 리뷰 등급(별). gBRCA·PALB2는 2성 이상 (PROJECT.md 5절). PTEN은 문서에 등급 조건이 없어
+# 근거 기준이 없는 0성만 뺀다 (2026-10-19)
+CLINVAR_MIN_STARS = {"BRCA1": 2, "BRCA2": 2, "PALB2": 2, "PTEN": 1}
+CLINVAR_PATHOGENIC = {"Pathogenic", "Likely pathogenic", "Pathogenic/Likely pathogenic"}
+
+
+def _clinvar():
+    """{(유전자, 단백질 변화): [행, ...]}. 파일이 없으면 빈 표 (ClinVar 조회 없이 VUS로 남는다)."""
+    if not hasattr(_clinvar, "cache"):
+        table = {}
+        if CLINVAR_CSV.exists():
+            with open(CLINVAR_CSV, encoding="utf-8") as fh:
+                for r in csv.DictReader(fh):
+                    r["stars"] = int(r["stars"])
+                    table.setdefault((r["gene"], r["protein_change"]), []).append(r)
+        _clinvar.cache = table
+    return _clinvar.cache
+
+
+def _clinvar_best(gene, variants):
+    """검출 변이 중 ClinVar 근거가 가장 강한 (변이, 행)과 양성 여부. ClinVar에 없으면 (None, None, False)."""
+    best = None
+    for v in variants:
+        for r in _clinvar().get((gene, v.get("protein_change")), []):
+            ok = (r["clinical_significance"].split(";")[0] in CLINVAR_PATHOGENIC
+                  and r["stars"] >= CLINVAR_MIN_STARS[gene])
+            key = (ok, r["stars"])
+            if best is None or key > best[0]:
+                best = (key, v, r)
+    if best is None:
+        return None, None, False
+    return best[1], best[2], best[0][0]
+
+
+def _clinvar_text(row):
+    return f"{row['clinical_significance']} ({row['stars']}성, VCV{row['variation_id']})"
+
+
 def _is_truncating(variant):
     change = variant.get("protein_change") or ""
     return (variant.get("variant_type") in TRUNCATING_TYPES
@@ -556,15 +598,32 @@ def judge_gene(gene, field, patient_ref=""):
         if hit:
             rule_id, why = f"BM2-{gene}-TRUNC", "절단 변이 (기능 소실)"
 
-    picked = hit or variants[0]
+    # BM-3: 절단 변이가 아니면 ClinVar 병원성·병원성 가능 + 리뷰 등급으로 다시 가른다
+    cv_variant, cv_row, cv_ok = (None, None, False)
+    if not hit and gene in CLINVAR_GENES:
+        cv_variant, cv_row, cv_ok = _clinvar_best(gene, variants)
+        if cv_ok:
+            hit, rule_id = cv_variant, f"BM3-{gene}-CLINVAR"
+            why = f"ClinVar {_clinvar_text(cv_row)}, 파일 {CLINVAR_CSV.name}"
+
+    picked = hit or cv_variant or variants[0]
     evidence = {"variant": f"p.{picked['protein_change']}" if picked.get("protein_change") else None,
                 "vaf": picked.get("vaf")}
+    if cv_row:
+        evidence["clinvar"] = _clinvar_text(cv_row)
     if hit:
         return _record(marker, "positive", f"{gene} {_variant_text(variants)} → 양성: {why}",
                        rule_id, field, evidence, [GENE_TAGS[marker]])
+    if gene in CLINVAR_GENES:
+        cv_note = (f"ClinVar {_clinvar_text(cv_row)}는 양성 기준(병원성·병원성 가능, "
+                   f"{CLINVAR_MIN_STARS[gene]}성 이상)에 못 미침" if cv_row else "ClinVar에 없음")
+        if not CLINVAR_CSV.exists():
+            cv_note = "ClinVar 파일 없음 (data/script/clinvar_download.py 실행 필요)"
+        return _record(marker, "vus", f"{gene} {_variant_text(variants)} → 의미 불명 변이(VUS). {cv_note}. "
+                       "음성으로 처리하되 표시 유지", f"BM2-{gene}-VUS", field, evidence)
     return _record(marker, "vus",
                    f"{gene} {_variant_text(variants)} → 의미 불명 변이(VUS). 음성으로 처리하되 표시 유지. "
-                   "BM-3(ClinVar·CIViC) 조회로 다시 판정 예정", f"BM2-{gene}-VUS", field, evidence)
+                   "BM-3(CIViC) 조회로 다시 판정 예정", f"BM2-{gene}-VUS", field, evidence)
 
 
 def _endocrine_progressed(fields):
@@ -609,8 +668,48 @@ def _drug_class_map():
     return _drug_class_map.cache
 
 
+def _progressed(t):
+    return t.get("best_response") == "PD" or t.get("stop_reason") == "progression"
+
+
+def _line_label(n):
+    return {1: "1L", 2: "2L"}.get(n, ">=3L")
+
+
+def line_of(fields, disease):
+    """setting.line (전달 문서 6.2절, draft6). 차수는 A가 treatment_history[].line에 계산해 넘긴다.
+    전이성: 마지막 고식적 요법의 차수. 그 요법이 진행(PD, progression)으로 끝났으면 다음 차수를 추천 대상으로 본다
+    (전달 문서 8.2절 예시: 1차 letrozole + palbociclib 진행 -> 2L). 전이 후 투약이 없으면 1L.
+    전이성이 아니면 마지막 투약의 setting (neoadjuvant / adjuvant)."""
+    history = [t for t in fields.get("treatment_history") or [] if t.get("drugs")]
+    if disease == "metastatic":
+        lined = [t for t in history if t.get("line")]
+        if not lined:
+            if any(t.get("setting") == "metastatic" for t in history):
+                return "unknown", "전이 후 투약은 있지만 차수 정보(line)가 없음"
+            return "1L", "전이 후 투약 기록 없음 -> 1차 치료 대상"
+        last = max(t["line"] for t in lined)
+        regimen = [t for t in lined if t["line"] == last]
+        drugs = " + ".join(sorted({d for t in regimen for d in t["drugs"]}))
+        sub = regimen[-1]
+        kind = (f", 내분비 {sub['endocrine_line']}차" if sub.get("endocrine_line") else "") + \
+               (f", 항암 {sub['chemo_line']}차" if sub.get("chemo_line") else "")
+        if any(_progressed(t) for t in regimen):
+            return _line_label(last + 1), f"마지막 고식적 요법 {last}차({drugs}{kind})에서 진행 -> {last + 1}차 대상"
+        return _line_label(last), f"마지막 고식적 요법 {last}차({drugs}{kind}), 진행 기록 없음"
+    # 보조약·골 보호제는 차수를 정하지 않는다 (전달 문서 6.2절 규칙 3)
+    classes = _drug_class_map()
+    timed = [t for t in history if t.get("setting") in ("neoadjuvant", "adjuvant")
+             and any(classes.get(d, "Unknown") not in NON_ANTICANCER_CLASSES for d in t["drugs"])]
+    if not timed:
+        return "unknown", "선행·보조요법 기록 없음"
+    timed.sort(key=lambda t: (t.get("start_day") is None, t.get("start_day") or 0))
+    last = timed[-1]
+    return last["setting"], f"마지막 투약 {' + '.join(last['drugs'])} ({last['setting']})"
+
+
 def setting_of(fields):
-    """현재 범주(전달 문서 6.1절)와 이전 약제 계열. 차수는 아직 계산하지 않는다 (6.2절)."""
+    """현재 범주(전달 문서 6.1절), 차수(6.2절, line_of), 이전 약제 계열."""
     stage = fields.get("stage") or {}
     extent = stage.get("disease_extent") or {}
     recurrence = (fields.get("recurrence") or {}).get("status") or {}
@@ -629,8 +728,11 @@ def setting_of(fields):
     classes = _drug_class_map()
     prior = sorted({classes.get(d, "Unknown") for t in fields.get("treatment_history") or [] for d in t["drugs"]}
                    - NON_ANTICANCER_CLASSES)
-    return {"disease": disease, "line": "unknown", "prior_drug_classes": prior,
-            "reason": f"{why} / 차수는 아직 계산하지 않음 (전달 문서 6.2절)"}
+    line, line_why = line_of(fields, disease)
+    deemed = [d["rule_id"] for d in fields.get("deemed_lines") or [] if d.get("status") == "met"]
+    if deemed:
+        line_why += f" / 심평원 차수 간주 규칙 충족: {', '.join(deemed)} (급여 판정에서 차수 +1, 전달 문서 6.3a절)"
+    return {"disease": disease, "line": line, "prior_drug_classes": prior, "reason": f"{why} / {line_why}"}
 
 
 # ------------------------------------------------------------ BM-4 검사 공백
