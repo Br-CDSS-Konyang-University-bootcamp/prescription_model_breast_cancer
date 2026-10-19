@@ -80,3 +80,10 @@ def test_search_returns_recommendations_with_parent(memory_index, monkeypatch):
         assert "metastatic" in r["setting"]
         assert "HR+/HER2-" in r["subtype"] or "any" in r["subtype"]
         assert r["parent"]["chunk_id"] == r["parent_id"]
+
+
+def test_public_api_for_reimbursement_module():
+    # D(src/reimbursement/index.py)가 src.rag에서 부르는 함수들
+    import src.rag as rag
+    for name in ("init_collection", "index_chunks", "delete_by_doc_type", "close_indexer"):
+        assert callable(getattr(rag, name)), name

@@ -23,9 +23,16 @@ def delete_guideline_chunks(*args, **kwargs):
     return _delete_guideline_chunks(*args, **kwargs)
 
 
+def close_indexer():
+    """Qdrant 로컬 폴더 잠금을 푼다. 색인한 뒤 부른다 (로컬 모드는 한 프로세스만 폴더를 열 수 있다)."""
+    from .indexer import close_indexer as _close_indexer
+    return _close_indexer()
+
+
 def search_guidelines(*args, **kwargs):
     from .searcher import search_guidelines as _search_guidelines
     return _search_guidelines(*args, **kwargs)
 
 
-__all__ = ["index_chunks", "init_collection", "delete_by_doc_type", "delete_guideline_chunks", "search_guidelines"]
+__all__ = ["index_chunks", "init_collection", "delete_by_doc_type", "delete_guideline_chunks", "close_indexer",
+           "search_guidelines"]
