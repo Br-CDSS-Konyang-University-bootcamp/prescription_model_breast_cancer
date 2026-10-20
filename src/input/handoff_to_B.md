@@ -297,9 +297,9 @@ patient_state.json
 | `administered` | `positive` / `negative` / `No value` | positive 348, negative 313, No value 213 | `No value` = 투약 기록 없음 (투여 안 함이 아님) |
 | `drugs[].drug` | `doxorubicin` / `epirubicin` / `liposomal doxorubicin` | 313 / 37 / 2 | mitoxantrone은 제외 |
 | `drugs[].timeline_index`, `combined_with`, `raw` | 정수, 배열, 문자열 | | 대조용 |
-| `drugs[].dose_per_admin` | `{value, unit}` / `"No value"` | No value 190, mg/m² 160 (2026-10-20, 860명) | 원문이 범위(100-102)면 최대값. 2026-10-20부터 크롭 단계에서 mg/m²로 맞춤 (mg는 체표면적 1.84 m² 추정으로 나눔, tcga_mapping.md §3.7a) |
+| `drugs[].dose_per_admin` | `{value, unit}` / `"No value"` | No value 183, mg/m² 156 (2026-10-20, 838명) | 원문이 범위(100-102)면 최대값. 2026-10-20부터 크롭 단계에서 mg/m²로 맞춤 (mg는 체표면적 1.84 m² 추정으로 나눔, tcga_mapping.md §3.7a) |
 | `drugs[].cycles` | `cycles` 형식 (`basis: recorded`만) / `"No value"` | 기록 189, No value 163 | |
-| `drugs[].total_dose` | `{value, unit}` / `"No value"` | No value 197, mg/m² 153 (2026-10-20, 860명) | 152건 중 92건은 mg ÷ 1.84 추정 (§6.7) |
+| `drugs[].total_dose` | `{value, unit}` / `"No value"` | No value 190, mg/m² 149 (2026-10-20, 838명) | 149건 중 91건은 mg ÷ 1.84 추정 (§6.7) |
 
 **recurrence**
 
@@ -622,7 +622,7 @@ A는 판정하지 않는다. B가 약제별로 판정한다.
 ### 6.7 anthracycline 누적 용량 (liposomal doxorubicin 급여 조건, 공고 p.60)
 
 - 조건: doxorubicin 누적 240mg/m² 이상 또는 epirubicin 450mg/m² 이상, 또는 심장 위험 요인.
-- 누적 용량 = `total_dose`(mg/m²). 2026-10-20부터 A가 크롭 단계에서 모두 mg/m²로 맞춘다. mg로 적힌 기록은 체표면적 1.84 m²(추정)로 나눈 값이라, 240 mg/m² 근처(±15%) 56건은 판정이 바뀔 수 있다 (tcga_mapping.md §3.7a).
+- 누적 용량 = `total_dose`(mg/m²). 2026-10-20부터 A가 크롭 단계에서 모두 mg/m²로 맞춘다. mg로 적힌 기록은 체표면적 1.84 m²(추정)로 나눈 값이라, 240 mg/m² 근처(±15%) 55건은 판정이 바뀔 수 있다 (tcga_mapping.md §3.7a).
 - 병용 기록(`doxorubicin+cyclophosphamide`, `60+600`)은 약 순서대로 나눈 값이다. 나눌 수 없는 4명은 정답 세트에서 뺐다 (§7).
 - 심장 위험 요인은 데이터가 없어 넘기지 않는다 (§9).
 

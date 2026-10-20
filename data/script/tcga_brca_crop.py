@@ -450,6 +450,11 @@ HISTORY = [
     ("2026-10-20", "anthracycline 용량 오기 수정 12명 (DOSE_FIXES): 누적 용량 단위 mg → mg/m2 10명, 누적 용량 10배 자릿수 2명, E2-A109 매주 용량 단위 정리, AO-A03O 1회 300 → 60 mg/m2"),
     ("2026-10-20", "anthracycline 용량을 모두 mg/m2로 맞춤 (mg는 체표면적 1.84 m2 추정으로 나눔, 1회 mg/m2면 누적 = 1회 × 주기). D8-A1JE 1회 600 → 60 mg/m2, 주기·누적 기록 없음. D8-A1JI 1회 2.5 mg/m2/day(letrozole 용량) → 60 mg/m2. 누적 ≠ 1회 × 주기 3명(A2-A04Q, E2-A14X, D8-A13Y)은 1회 × 주기로"),
     ("2026-10-20", "국소 재발 후 수술 빈칸인 3명(TCGA-AR-A24L, AR-A256, BH-A0HP)은 재발 후 투약이 없어 수술 YES로 고침 (규칙 아님, 데이터만)"),
+    ("2026-10-20", "이전 유방암에 약물 치료를 받은 7명 삭제 (GDC omf: Prior Malignancy, Breast, 약물 YES). 이전 치료를 넣을 칸이 없음 (860명 → 853명)"),
+    ("2026-10-20", "동시 양측 유방암이면서 아형과 맞지 않는 투약이 있는 4명(TCGA-A2-A04Y, EW-A1J5, LL-A5YP, E2-A158) 삭제. 반대쪽 종양 수용체가 없어 판단 불가 (853명 → 849명)"),
+    ("2026-10-20", "아형과 맞지 않는 투약이 있는 11명 삭제: HER2 양성 아님 + trastuzumab 4명, HR 음성 + 내분비요법 7명 (849명 → 838명)"),
+    ("2026-10-20", "같은 약·같은 시작일·종료일 투약 기록을 하나로 합침 (앞 기록의 빈칸만 뒤 기록 값으로 채움)"),
+    ("2026-10-20", "병기·T·N은 맞는데 양성 림프절 수가 N 병기와 맞지 않는 13명은 양성 수를 [Not Available]로, AO-A12H(69세, anastrozole) 폐경 상태를 Post로 고침"),
 ]
 
 # anthracycline 병용 기록('+')의 용량을 약 순서대로 나눌 수 없는 환자 (사용자 결정, 2026-10-15)
@@ -494,7 +499,70 @@ def locoregional_day(df):
 # 기록끼리 맞지 않아 해석할 수 없는 환자 (사용자 결정, 2026-10-20)
 UNINTERPRETABLE = {
     "TCGA-GM-A2D9": "진단 시 Stage I·M0인데 전이 여부 YES, 진단 시 전이 부위 Bone",
+    # 동시 양측 유방암인데 아형과 맞지 않는 투약이 있음. 반대쪽 종양 수용체 기록이 없어 판단할 수 없음
+    "TCGA-A2-A04Y": "동시 양측 유방암, HR+/HER2-(IHC 1+, FISH 음성)인데 trastuzumab",
+    "TCGA-EW-A1J5": "동시 양측 유방암, HR+/HER2-(HER2 음성)인데 trastuzumab",
+    "TCGA-LL-A5YP": "동시 양측 유방암, HER2 IHC 1+·FISH 양성인데 trastuzumab",
+    "TCGA-E2-A158": "동시 양측 유방암, TNBC인데 anastrozole",
+    # 아형과 맞지 않는 투약 (HER2 양성 아님 + HER2 표적치료, HR 음성 + 내분비요법). 이유를 알 수 없음
+    "TCGA-A2-A0D3": "HR+/HER2-(HER2 low)인데 trastuzumab",
+    "TCGA-AO-A0JL": "TNBC(HER2 low)인데 trastuzumab",
+    "TCGA-AR-A24Q": "HR+/HER2-(HER2 음성)인데 trastuzumab",
+    "TCGA-S3-A6ZF": "HR+/HER2-(HER2 low)인데 trastuzumab",
+    "TCGA-A2-A04P": "TNBC인데 exemestane",
+    "TCGA-A2-A3XS": "TNBC인데 tamoxifen",
+    "TCGA-A2-A3XU": "TNBC인데 anastrozole",
+    "TCGA-AC-A2QJ": "TNBC인데 fulvestrant",
+    "TCGA-S3-AA10": "TNBC인데 anastrozole",
+    "TCGA-C8-A278": "HR-/HER2+인데 tamoxifen",
+    "TCGA-E9-A1ND": "HR-/HER2+인데 exemestane, tamoxifen",
 }
+
+
+def prior_breast_treated_drops(df):
+    """이전 유방암에 약물 치료를 받은 환자 (사용자 결정, 2026-10-20). 이전 암 치료를 넣을 칸이 patient_state에 없고,
+    TCGA 투약 기록에 섞이거나(TCGA-AR-A2LR, 진단 1428일 전 AC) 빠져 있어 이전 약제·누적 용량을 판단할 수 없다."""
+    omf = pd.read_csv(GDC_DIR / "nationwidechildrens.org_clinical_omf_v4.0_brca.txt", sep="	", skiprows=[1, 2], dtype=str)
+    hit = omf[omf["malignancy_type"].str.contains("Prior", na=False) & (omf["other_malignancy_anatomic_site"] == "Breast")
+              & (omf["pharmaceutical_therapy_indicator"] == "YES")]
+    drugs = hit.groupby("bcr_patient_barcode")["pharmaceutical_therapy_drug_name"].first()
+    rows = df.loc[df["patient_id"].isin(drugs.index), ["patient_id"]].copy()
+    rows["prior_drug"] = rows["patient_id"].map(drugs)
+    return {"이전 유방암 약물 치료 있음 (이전 치료를 넣을 칸 없음)": rows}
+
+
+ITEM_COLS = ["drug_timeline", "drug_start_days", "drug_end_days", "drug_total_dose", "drug_total_dose_units",
+             "drug_prescribed_dose", "drug_dose_units", "drug_cycles"]
+
+
+def merge_duplicate_drugs(df):
+    """같은 약·같은 시작일·종료일 투약 기록을 하나로 합친다 (사용자 결정, 2026-10-20). 앞 기록의 빈칸만 뒤 기록 값으로
+    채우고, 날짜 없는 기록은 같은 투약인지 알 수 없어 합치지 않는다. 합친 (환자, 항목) 목록을 돌려준다."""
+    def missing(v):
+        return v in ("", "nan", "[Not Available]", "[Unknown]")
+
+    merged = []
+    for idx, r in df[df["drug_timeline"].notna()].iterrows():
+        cols = {c: str(r[c]).split(" | ") for c in ITEM_COLS}
+        keep, first = [], {}
+        for i, item in enumerate(cols["drug_timeline"]):
+            key = item.split(" (")[0]
+            if "날짜 없음" in item or key not in first:
+                first.setdefault(key, i)
+                keep.append(i)
+                continue
+            j = first[key]
+            for c in ITEM_COLS[1:]:
+                if missing(cols[c][j]) and not missing(cols[c][i]):
+                    cols[c][j] = cols[c][i]
+            if " (" not in cols["drug_timeline"][j] and " (" in item:
+                cols["drug_timeline"][j] = item
+            merged.append((r["patient_id"], key))
+        if len(keep) < len(cols["drug_timeline"]):
+            for c in ITEM_COLS:
+                df.at[idx, c] = " | ".join(cols[c][i] for i in keep)
+            df.at[idx, "drug_n_records"] = str(len(keep))
+    return merged
 
 
 def uninterpretable_drops(df):
@@ -585,6 +653,24 @@ def anthracycline_to_m2(df):
 # 국소 재발 후 수술 기록이 빈칸이지만 재발 후 투약이 없어 수술한 것으로 보는 환자 (사용자 결정, 2026-10-20).
 # 규칙이 아니라 이 3명 데이터만 고친다
 RECURRENCE_SURGERY_YES = ["TCGA-AR-A24L", "TCGA-AR-A256", "TCGA-BH-A0HP"]
+
+
+# 병기·T·N은 서로 맞는데(AJCC) 양성 림프절 수가 N 병기와 맞지 않는 환자. 개수를 기록 없음으로 바꾼다
+# (사용자 결정, 2026-10-20). 검사한 림프절 수는 그대로 둔다
+LN_COUNT_CONFLICT = ["TCGA-AC-A2FK", "TCGA-AN-A0FZ", "TCGA-AN-A0XN", "TCGA-AN-A0XO", "TCGA-AN-A0XP", "TCGA-AN-A0XS",
+                     "TCGA-AN-A0XT", "TCGA-AN-A0XW", "TCGA-D8-A27L", "TCGA-E2-A1B4", "TCGA-E2-A572",
+                     "TCGA-AR-A1AT", "TCGA-BH-A1ET"]
+# 폐경 상태 오기: 69세, anastrozole(폐경 후 약) 복용인데 Pre로 적힘 (사용자 결정, 2026-10-20)
+MENOPAUSE_FIXES = {"TCGA-AO-A12H": "Post (prior bilateral ovariectomy OR >12 mo since LMP with no prior hysterectomy)"}
+
+
+def record_fixes(df):
+    """LN_COUNT_CONFLICT·MENOPAUSE_FIXES를 적용하고 고친 환자 목록을 돌려준다."""
+    ln = df["patient_id"].isin(LN_COUNT_CONFLICT)
+    df.loc[ln, "gdc_lymph_nodes_examined_he_count"] = "[Not Available]"
+    for pid, value in MENOPAUSE_FIXES.items():
+        df.loc[df["patient_id"] == pid, "gdc_menopause_status"] = value
+    return sorted(df.loc[ln, "patient_id"]) + sorted(p for p in MENOPAUSE_FIXES if p in set(df["patient_id"]))
 
 
 def recurrence_surgery_fixes(df):
@@ -934,6 +1020,7 @@ def main():
     unknown_drops, unknown_kept, unknown_to_none = unknown_recurrence(df)
     dropped.update(unknown_drops)
     surgery_set = recurrence_surgery_fixes(df)
+    fixed_records = record_fixes(df)
     current_extent(df)
     followup_fixed = followup_sign_fix(df)
     metastasis_day(df)
@@ -941,10 +1028,12 @@ def main():
     dropped.update(post_metastasis_drops(df))
     dropped.update(anthracycline_dose_drops(df))
     dropped.update(uninterpretable_drops(df))
+    dropped.update(prior_breast_treated_drops(df))
     dropped.update(her2_drops(df))
     dropped.update(receptor_drops(df))
     drop_ids = set().union(*(set(d["patient_id"]) for d in dropped.values()))
-    df = df[~df["patient_id"].isin(drop_ids)]
+    df = df[~df["patient_id"].isin(drop_ids)].copy()
+    dup_merged = merge_duplicate_drugs(df)
     df = df[[c for c in df.columns if c in keep_cols]]  # 원래 열 순서 유지, 새 열은 끝에
 
     df.to_csv(OUT_CSV, index=False, encoding="utf-8-sig")
@@ -962,6 +1051,8 @@ def main():
     kept = [p for p in unknown_kept if p in set(df["patient_id"])]
     print(f"  재발 여부 기록 없음 → none {unknown_to_none}명 (삭제 전 기준), locoregional(재발 병소 수용체 있음): {', '.join(kept)}")
     fixed = [p for p in followup_fixed if p in set(df["patient_id"])]
+    print(f"  같은 약·같은 날짜 중복 합침: {len(dup_merged)}건 ({', '.join(sorted({m[0] for m in dup_merged}))})")
+    print(f"  림프절 수·폐경 상태 수정: {len([p for p in fixed_records if p in set(df['patient_id'])])}명")
     print(f"  재발 후 수술 빈칸 → YES (데이터만 수정): {', '.join(surgery_set)}")
     kept_dose = [c for c in dose_changed if c[0] in set(df["patient_id"])]
     print(f"  anthracycline 용량 수정·mg/m2 변환: {len(kept_dose)}칸, {len({c[0] for c in kept_dose})}명")
