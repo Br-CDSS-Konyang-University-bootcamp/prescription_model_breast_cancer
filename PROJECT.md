@@ -80,7 +80,7 @@ LLM이 처방 후보와 각 후보의 급여 분류를 함께 제시하는 데�
 |---|---|---|---|
 | BM-1 | 보고서 정규화기 | LLM 파싱 (유일한 LLM 단계) | HER2 · IHC · 2+ / HER2 · ISH · 비증폭 · 1.3 |
 | BM-2 | 상태 판정기 | 규칙 | HER2 IHC 2+, ISH 비증폭 → HER2 저발현 |
-| BM-3 | 근거 주석기 | 로컬 조회 (허가사항 변이 목록, CIViC, ClinVar, VEP). OncoKB는 쓰지 않음 (2026-10-15 결정) | PIK3CA p.H1047R → 허가 동반진단 변이 (알펠리십 라벨) |
+| BM-3 | 근거 주석기 | 로컬 조회 (허가사항 변이 목록, CIViC, ClinVar). OncoKB는 쓰지 않음 (2026-10-15 결정). VEP는 쓰지 않음 (2026-10-20 회의) | PIK3CA p.H1047R → 허가 동반진단 변이 (알펠리십 라벨) |
 | BM-4 | 검사 공백 탐지기 | 규칙 | 전이성 HR+/HER2-, ESR1 미시행 → ESR1 검사 권고 |
 
 상태값: 양성 / 음성 / 저발현 / 초저발현 / 0 / VUS / 불확정(판정 정보 부족) / 미시행 / 재검 필요(결과가 오래됨). 차트에 언급이 없으면 "기록 없음". 마커별로 쓰는 값은 아래 표를 따른다 (`schemas/biomarker_record.json`의 `status`).
@@ -95,8 +95,8 @@ LLM이 처방 후보와 각 후보의 급여 분류를 함께 제시하는 데�
 | Ki-67 | percent → range → result 순서. 20% 이상 → 고증식(positive) · 20% 미만 → negative · 구간이 20%에 걸치거나 적힌 판정이 intermediate → intermediate · 쓸 값 없음 → unknown (2026-10-15) | positive / negative / intermediate / unknown | 기준값 20%는 2026-10-15 확정. `Ki-67-high` 태그 |
 | gBRCA1/2, PALB2 | ClinVar 병원성·병원성 가능이고 리뷰 등급 2성 이상 → 양성 (ACMG 4·5등급 대응) · 판정 상충 또는 1성 이하 → VUS | 양성 / 음성 / VUS | VUS는 음성 처리하되 표시 유지. TCGA 정답에서는 BRCA1/2 종양 엑솜 결과를 gBRCA 측정으로 가정 (A→B 문서 §4.7) |
 | 체세포 BRCA | 종양 검사에서만 확인된 병원성 변이 | 양성 / 음성 | gBRCA와 별도 필드. 가상·실제 차트에서 생식세포 검사 언급이 없으면 gBRCA는 기록 없음 (체세포 결과로 대신하지 않음) |
-| PIK3CA / AKT1 | ① FDA·식약처 허가 동반진단 변이 목록 → 양성 · ② 목록에 없고 CIViC 근거 있음 → 양성 + `off-label-variant` 태그 · ③ 그 외 → VUS | 양성 / 음성 / VUS | 패널에 해당 유전자가 없으면 미시행. 변이 목록은 허가사항 원문에서 옮기고 출처·쪽을 저장 |
-| PTEN | VEP 절단형(nonsense, frameshift, 필수 스플라이스 부위) → 양성 (기능 소실) · 미스센스이고 ClinVar 병원성 또는 CIViC 근거 → 양성 · 그 외 → VUS | 양성 / 음성 / VUS | |
+| PIK3CA / AKT1 | ① FDA·식약처 허가 동반진단 변이 목록 → 양성 · ② 그 외 → VUS. CIViC 근거는 판정에 쓰지 않고 이유에 표시 (2026-10-20 회의) | 양성 / 음성 / VUS | 패널에 해당 유전자가 없으면 미시행. 변이 목록은 허가사항 원문에서 옮기고 출처·쪽을 저장 |
+| PTEN | 단백질이 바뀌는 변이가 있으면 양성, 없으면 음성 (변이 유무, 2026-10-20 회의). 절단형·ClinVar·CIViC는 판정에 쓰지 않고 이유에 표시 | 양성 / 음성 | |
 | ESR1 | 허가 동반진단의 리간드 결합 도메인 변이 (예: Y537S/N/C, D538G) | 양성 / 음성 / 재검 필요 | 마지막 내분비요법 진행 이전 결과면 재검 필요, cfDNA 우선 |
 | PD-L1 (TNBC) | 약제별 기준: pembrolizumab은 22C3 CPS ≥ 10 (공고 p.58~59), atezolizumab은 SP142 IC ≥ 1% | 양성 / 음성 | 검사법이 기준과 다르면 해당 약제 판정에 쓰지 않음. 검사법과 점수를 함께 저장 |
 
@@ -404,7 +404,7 @@ recall@5가 부족하면 공고·지침에서 만든 (질의, 정답 청크) 쌍
 | RAG 프레임워크 | LangChain·LangGraph, Haystack |
 | 평가 | DeepEval |
 
-유전체 도구: GDC Data Portal·gdc-client, cBioPortal API, TCGAbiolinks(R), Ensembl VEP, vcf2maf, CIViC nightly TSV, ClinVar FTP(`variant_summary`, VCF), PharmCAT(PGx, v0.2).
+유전체 도구: GDC Data Portal·gdc-client, cBioPortal API, TCGAbiolinks(R), vcf2maf, CIViC nightly TSV, ClinVar FTP(`variant_summary`, VCF), PharmCAT(PGx, v0.2).
 
 ## 10. 필요 데이터셋
 
@@ -419,7 +419,7 @@ v0.1:
 | TCGA-BRCA 임상 | 가상 차트 작성, BM-2 테스트 | GDC·cBioPortal | HER2 점수·Ki-67 결측 많음 |
 | TCGA-BRCA 체세포 변이·복제수 | BM-1 ~ BM-3 테스트 | GDC·cBioPortal | 원발 종양 위주 |
 | FDA 라벨(DailyMed)·SSED, 식약처 허가사항 | BM-3 (허가 동반진단 변이 목록) | 공개 | 원문에서 변이를 옮기고 문서·버전·쪽 저장 |
-| CIViC | BM-3 (허가 목록 밖 체세포 변이) | CC0, nightly TSV | 받은 날짜를 파일명에 넣음. 인용: Griffith M et al., Nat Genet 2017 |
+| CIViC | BM-3 참고 근거 (판정에 쓰지 않음, 2026-10-20 회의) | CC0, nightly TSV | 받은 날짜를 파일명에 넣음. 인용: Griffith M et al., Nat Genet 2017 |
 | ClinVar | BM-3 (생식세포, PTEN 미스센스) | 공개, FTP 다운로드 | 판정이 엇갈리는 변이 존재. 100MB가 넘어 커밋하지 않고 스크립트만 올림 |
 
 v0.2:
@@ -523,7 +523,7 @@ H&E에서 ER/PR/HER2를 예측해 차트 값과의 불일치를 표시하는 QC 
 - [ ] 공고책자 날짜 = 마지막 반영 공고 시행일 가정을 몇 달간 대조해 확정
 - [x] ER·PR 판정 규칙 (2026-10-12, §5 세부 판정 규칙): ER만 저발현, PR 1–10%는 양성 + `PR-low` 태그. 2026-10-15 변경: PR은 Allred 총점(0–2 음성, 3 이상 양성) → 구간 최대값 → 비율 순서로 보고 기준을 9%로 둔다 (9% 이상 양성, unknown 사용). `PR-low` 태그는 없앴다 (ASCO·ESMO에 없는 범주). ER: ER은 Allred 총점을 먼저 본다 (0–2 음성, 3–4 저발현, 5는 비율로 가름, 6–8 양성). Allred가 없으면 비율 1–10%를 저발현으로 판정. 같은 날 추가: ER 비율 구간이 0부터 시작하면 최대값으로 판정 (`[0,1]` 음성, `[0,9]`·`[0,10]` 저발현)
 - [x] HER2 경계 사례 (2026-10-15, B 결정, §5 HER2 세부 표): IHC 2+ + 적힌 판정 positive + ISH 없음(미시행·기록 없음)은 양성 + ISH 검사 권고 (TCGA 5명). IHC 0 + ISH 증폭은 데이터 오류 가능성이 있어 HER2 값을 판정에서 제외하고 불확정 + 원자료 확인 (TCGA 0명). A에게 알려 정답·가상 차트 기준을 맞춘다
-- [x] BM-3 출처 (2026-10-15 결정): OncoKB를 쓰지 않고 허가사항 변이 목록 → CIViC → ClinVar·VEP를 로컬로 조회한다 (`src/input/handoff_to_B.md` §5). `schemas/biomarker_record.json`의 `evidence.oncokb`를 출처 중립 `annotation`으로 바꾸는 스키마 변경은 4명 검토 후 반영
+- [x] BM-3 출처 (2026-10-15 결정): OncoKB를 쓰지 않고 허가사항 변이 목록 → CIViC → ClinVar·VEP를 로컬로 조회한다 (`src/input/handoff_to_B.md` §5). `schemas/biomarker_record.json`의 `evidence.oncokb`를 출처 중립 `annotation`으로 바꾸는 스키마 변경은 4명 검토 후 반영. 2026-10-20 회의: VEP는 쓰지 않고, CIViC는 판정에 쓰지 않고 근거로만 표시하며, PTEN은 변이 유무로 판정한다
 - [ ] BM-2 수치 기준을 ASCO/CAP 원문과 대조해 확정 (HER2 세부 조건 포함). 의료진 검토는 하지 않는다 (2026-10-16)
 - [ ] §12 정답표 작성: 급여 분류 정답표, 처방 허용 선택지 표(ESMO 치료 알고리즘), 안전 위반 규칙. 담당과 시나리오 수 정하기 (2026-10-16 추가)
 - [x] Ki-67 판정 기준 (2026-10-15 확정): 20% 이상 고증식(positive), 미만 negative, 20%에 걸치는 구간·적힌 판정 intermediate는 intermediate, 쓸 값 없으면 unknown (`BM1_ER,PR,HER2,Ki_67,subtype.py`의 `KI67_HIGH_MIN`). TCGA는 Ki-67이 모두 기록 없음이라 정답 영향 없음
@@ -596,7 +596,7 @@ team_project/
 | 폴더 | 담당 | 사용법 | 입력 → 출력 |
 |---|---|---|---|
 | `src/input/` | A | 비식별화(IN-0)부터 유전자 보고서 전달(IN-7)까지. 환자 텍스트는 `llm/`의 로컬 설정으로만 처리 | 차트 원문 → `patient_state` |
-| `src/biomarker/` | B | BM-1 파싱(로컬 LLM), BM-2·BM-4는 규칙 코드, BM-3은 허가사항 변이 목록·CIViC·ClinVar·VEP 로컬 조회. 아형과 치료 상황(현재 범주, 차수)도 산출 | `patient_state` → `biomarker_record` |
+| `src/biomarker/` | B | BM-1 파싱(로컬 LLM), BM-2·BM-4는 규칙 코드, BM-3은 허가사항 변이 목록·CIViC·ClinVar 로컬 조회. 아형과 치료 상황(현재 범주, 차수)도 산출 | `patient_state` → `biomarker_record` |
 | `src/rag/` | C | 지침 수집·파싱·청킹, 공용 Qdrant 색인, 검색 API. D가 호출할 색인 함수를 여기서 공개 | 지침 PDF, 급여 청크 → 검색 결과(`chunk` 목록) |
 | `src/reimbursement/` | D | 심평원 게시판 수집, 날짜 규칙, SQLite 레지스트리, 급여 청크 생성. 색인 반영은 `src/rag/` 함수 호출 | 심평원 공고 → 급여 `chunk` |
 | `src/recommend/` | B (2단계) | 프롬프트 구성, 로컬 LLM 호출, 스키마 검증, 환각 방지 후처리, 급여 분류 | `patient_state` + `biomarker_record` + 검색 결과 → `recommendation` |
@@ -694,7 +694,7 @@ python data/script/tcga_brca_crop.py
 |---|---|
 | BM-1 보고서 정규화기 | 가상·실제 차트의 유전자 보고서 원문(`genomic_reports[].raw_text`)을 로컬 LLM으로 파싱 (모듈 안의 유일한 LLM 단계). `molecular.mutations`에 같은 정보가 있으면 그쪽을 우선 |
 | BM-2 상태 판정기 | §5 판정 기준표를 규칙 코드로 작성. 상태값: 양성 / 음성 / 저발현 / 초저발현 / 0 / VUS / 불확정 / 미시행 / 재검 필요 / 기록 없음. BM-2 ~ BM-4는 한 파일 `src/biomarker/BM1_ER,PR,HER2,Ki_67,subtype.py`에 둔다 (진입점 `assess(patient_state)`, 2026-10-15: ER·PR·HER2·Ki-67 판정, 아형, 현재 범주, 검사 공백. 유전자 7개는 2026-10-16에 1차 규칙(허가 변이 목록·절단 변이, `src/biomarker/README.md`)으로 작성, 유전자 검사 공백도 같은 날 추가, 차수는 아직). 재발 환자는 재생검 결과로 판정하고 원발 대비 변화를 `reason`에 적음 |
-| BM-3 근거 주석기 | 허가사항 변이 목록 규칙표(원문에서 작성, 출처 기록), CIViC·ClinVar 다운로드 스크립트(`data/script/`), VEP 로컬 실행. 외부 API 호출 없음. OncoKB는 쓰지 않음 |
+| BM-3 근거 주석기 | 허가사항 변이 목록 규칙표(원문에서 작성, 출처 기록), CIViC·ClinVar 다운로드 스크립트(`data/script/`). 외부 API 호출 없음. OncoKB는 쓰지 않음 |
 | BM-4 검사 공백 탐지기 | §5 검사 공백 규칙 (gBRCA, PIK3CA·AKT1·PTEN, ESR1 재검, PD-L1, HER2 재판정, IHC 2+ ISH 검사) |
 | 아형 | ER·PR·HER2 상태로 HR+/HER2-, HR+/HER2+, HR-/HER2+, TNBC. 재발 환자는 재생검 결과 기준 |
 | 치료 상황 (2026-10-16 담당 변경) | B: 현재 범주(`setting.disease`), 국소 재발 후 수술이면 수술후보조요법(`SET-LOCAL-ADJ`), PD-L1 약제별 판정. A(변환 단계): 차수, 심평원 투여단계(고식적 내분비요법과 고식적 항암화학요법을 따로 셈), anthracycline 누적 용량. 규칙은 `src/input/handoff_to_B.md` §6·§10.2 |
