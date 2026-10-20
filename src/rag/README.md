@@ -21,9 +21,9 @@ ESMO 지침을 수집·청킹하고, 지침과 급여 청크가 함께 들어가
 | `chunk_store.py` | 청크 JSON을 읽어 `get_chunk(id)`, `get_parent(chunk)`로 찾는다. `select_index_chunks`는 색인할 청크(부모 제외)를 고른다 |
 | `client.py` | Qdrant 로컬 DB(`data/qdrant_db/`, git 제외)와 임베딩 모델(bge-m3) |
 | `indexer.py` | `init_collection()`, `index_chunks()`(chunk_id로 고정 ID), `delete_by_doc_type(doc_type)`(지침 또는 급여 청크만 삭제. D는 `"reimbursement"`로 부름), `delete_guideline_chunks()`, `close_indexer()`. D는 `src.rag`(`__init__.py`)로 공개한 `init_collection`·`index_chunks`·`delete_by_doc_type`·`close_indexer`만 부른다 |
-| `searcher.py` | `search_guidelines()`. `with_parent=True`면 결과마다 부모(소단원) 청크를 `parent`로 붙인다. `rerank=True`면 뜻 검색 후보 20개를 재정렬 모델(bge-reranker-v2-m3, 처음 쓸 때 약 2GB 내려받음)로 다시 매긴다. 결과의 `score`는 뜻 검색(또는 재정렬) 점수 + 차수·태그 가점 |
+| `searcher.py` | `search_guidelines()`. `with_parent=True`면 결과마다 부모(소단원) 청크를 `parent`로 붙인다. 재정렬이 기본으로 켜져 있다(`rerank=True`, PROJECT.md §6): 뜻 검색 후보 20개(`RERANK_CANDIDATES`)를 재정렬 모델(bge-reranker-v2-m3, 처음 쓸 때 약 2GB 내려받음)로 다시 매긴다. 모델을 불러오지 못하면 경고하고 뜻 검색 점수를 쓴다. 같은 조건의 검색은 결과를 기억해 두고(최대 256개), 색인을 바꾸면 비운다. 결과의 `score`는 뜻 검색(또는 재정렬) 점수 + 차수·태그 가점 |
 | `run_indexing.py` | `data/chunks/*.json`을 스키마 검증하고, 지침 청크만 지운 뒤 다시 색인한다 (D의 급여 청크는 남김). 실행: `python -m src.rag.run_indexing` |
-| `evaluate.py` | 평가 문제집 `data/eval/rag_eval_cases.csv`로 검색을 채점한다. L0 문서(1위가 정답 문서인가), L1 소단원(상위 k개에 정답 소단원), L2 권고(hit@k, recall@k, MRR). 실행: `python -m src.rag.evaluate [--k 5] [--rerank] [--out 결과.csv]` (색인을 먼저 만든다) |
+| `evaluate.py` | 평가 문제집 `data/eval/rag_eval_cases.csv`로 검색을 채점한다. L0 문서(1위가 정답 문서인가), L1 소단원(상위 k개에 정답 소단원), L2 권고(hit@k, recall@k, MRR). 실행: `python -m src.rag.evaluate [--k 5] [--no-rerank] [--candidates 20] [--out 결과.csv]`. 질의당 검색 시간도 보여 준다 (색인을 먼저 만든다) |
 
 모든 명령은 `team_project` 폴더에서 실행한다. 순서: PDF 변환 → 품질 검사 → 청커 → `python -m pytest tests/rag` → 색인.
 

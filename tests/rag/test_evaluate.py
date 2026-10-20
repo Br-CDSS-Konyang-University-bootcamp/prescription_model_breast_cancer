@@ -79,3 +79,4 @@ def test_evaluate_summary_with_perfect_search():
     rows, summary = evaluate(CASES, lambda c: [_result(cid) for cid in c["expected_chunks"]])
     assert summary["cases"] == len(CASES)
     assert summary["l0_doc"] == summary["l1_section"] == summary["l2_hit"] == summary["mrr"] == 1.0
+    assert all(r["seconds"] >= 0 for r in rows) and summary["avg_seconds"] >= 0
