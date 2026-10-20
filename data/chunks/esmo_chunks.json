@@ -1575,9 +1575,7 @@
     "line": [
       "1L"
     ],
-    "biomarker_tags": [
-      "PIK3CA-mut"
-    ],
+    "biomarker_tags": [],
     "drugs": [
       "abemaciclib",
       "fulvestrant",
@@ -3965,8 +3963,7 @@
       "1L"
     ],
     "biomarker_tags": [
-      "gBRCA",
-      "PD-L1+"
+      "gBRCA"
     ],
     "drugs": [
       "carboplatin",
@@ -4004,10 +4001,7 @@
     "line": [
       "1L"
     ],
-    "biomarker_tags": [
-      "gBRCA",
-      "PD-L1+"
-    ],
+    "biomarker_tags": [],
     "drugs": [
       "sacituzumab govitecan",
       "datopotamab deruxtecan"
@@ -4043,10 +4037,7 @@
     "line": [
       "1L"
     ],
-    "biomarker_tags": [
-      "gBRCA",
-      "PD-L1+"
-    ],
+    "biomarker_tags": [],
     "drugs": [],
     "evidence": {
       "loe": "I",
@@ -4191,9 +4182,7 @@
       "2L",
       ">=3L"
     ],
-    "biomarker_tags": [
-      "gBRCA"
-    ],
+    "biomarker_tags": [],
     "drugs": [
       "sacituzumab govitecan"
     ],
@@ -4229,9 +4218,7 @@
       "2L",
       ">=3L"
     ],
-    "biomarker_tags": [
-      "gBRCA"
-    ],
+    "biomarker_tags": [],
     "drugs": [
       "capecitabine",
       "vinorelbine",
