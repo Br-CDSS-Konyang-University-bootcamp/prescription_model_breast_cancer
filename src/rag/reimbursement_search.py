@@ -94,7 +94,9 @@ def search_reimbursement(
         exact_line = bool(line) and line != "unknown" and line in (chunk.get("line") or [])
         score = (1.0 if exact_line else 0.9) - 0.01 * len(extra)
         results.append({**chunk, "matched_drugs": wanted, "extra_drugs": extra, "score": round(score, 4)})
-    results.sort(key=lambda r: (-r["score"], r["reimbursement"].get("effective_from") or "", r["chunk_id"]))
+    # 점수가 같으면 최근 시행 행 먼저 (안정 정렬을 두 번: 시행일 내림차순 → 점수 내림차순)
+    results.sort(key=lambda r: (r["reimbursement"].get("effective_from") or "", r["chunk_id"]), reverse=True)
+    results.sort(key=lambda r: r["score"], reverse=True)
     if top_k:
         results = results[:top_k]
     if with_parent:

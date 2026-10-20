@@ -96,7 +96,9 @@ def test_preview_superseded_and_not_yet_effective_rows_are_left_out(reimb):
     later = _ids(reimb.search_reimbursement(["doxorubicin", "cyclophosphamide"], setting="metastatic", line="1L",
                                             as_of="2027-02-01"))
     assert set(later) == {"ac-palliative", "future-row"}
-    assert reimb.search_reimbursement(["doxorubicin", "cyclophosphamide"], as_of="2026-09-30") == []  # 책자 시행 전
+    # effective_from은 책자 날짜가 아니라 그 행의 마지막 공고 시행일이다 (실제 청크는 2020-06-01 등).
+    # 가짜 청크는 모두 2026-10-01로 두었으므로, 기준일이 그보다 앞이면 어느 행도 아직 시행 전이다
+    assert reimb.search_reimbursement(["doxorubicin", "cyclophosphamide"], as_of="2026-09-30") == []
 
 
 def test_parents_come_from_the_reimbursement_chunk_file(reimb):
@@ -113,6 +115,66 @@ def test_guideline_points_are_never_returned(reimb):
     assert _ids(reimb.search_reimbursement(["anastrozole"], as_of="2026-10-20")) == ["ana-lhrh"]
 
 
+def test_same_score_rows_newest_first(reimb, monkeypatch):
+    from src.rag import indexer
+    indexer.index_chunks([_chunk("ac-old", ["doxorubicin", "cyclophosphamide"], EARLY, ["adjuvant"],
+                                 effective_from="2014-01-01")])
+    rows = reimb.search_reimbursement(["doxorubicin", "cyclophosphamide"], setting="early", line="adjuvant",
+                                      as_of="2026-10-20")
+    assert _ids(rows) == ["ac-adjuvant", "ac-old"]
+
+
+def test_with_real_reimbursement_chunk_file(monkeypatch):
+    # D의 실제 청크 파일이 있는 컴퓨터에서만 돈다 (git에 올리지 않는 파일). 청크마다 자기 약으로 찾히는지 본다
+    from src.rag import chunk_store
+    chunks = chunk_store.load_reimbursement_chunks()
+    if not chunks:
+        pytest.skip("급여 청크 파일 없음 (data/reimbursement/chunks/reimbursement_chunks_current.jsonl)")
+    try:
+        import sentence_transformers  # noqa: F401
+    except ImportError:
+        monkeypatch.setitem(sys.modules, "sentence_transformers",
+                            types.SimpleNamespace(SentenceTransformer=None, CrossEncoder=None))
+    from src.rag import client as rag_client
+    from src.rag import indexer, reimbursement_search
+
+    monkeypatch.setattr(rag_client, "_client", QdrantClient(":memory:"))
+    monkeypatch.setattr(rag_client, "_model", FakeModel())
+    l3 = [c for c in chunks if c["chunk_kind"] != "section"]
+    indexer.init_collection()
+    indexer.index_chunks(l3)
+    for c in l3:
+        rb = c["reimbursement"]
+        if rb["source_type"] == "preview" or c.get("superseded_by"):
+            continue
+        rows = reimbursement_search.search_reimbursement(c["drugs"], setting=c["setting"][0], line=c["line"][0],
+                                                         as_of=rb["effective_from"])
+        found = next((r for r in rows if r["chunk_id"] == c["chunk_id"]), None)
+        assert found and found["extra_drugs"] == [], c["chunk_id"]
+        assert not c.get("parent_id") or found["parents"], c["chunk_id"]  # 부모를 파일에서 찾는다
+    rag_client._client = None
+
+
 def test_public_api():
     import src.rag as rag
-    assert callable(rag.search_reimbursement)
+    assert callable(rag.search_reimbursement) and callable(rag.close_searcher)
+
+
+def test_client_closes_at_exit(monkeypatch, tmp_path):
+    # 처음 열 때 종료 시 닫기를 한 번만 등록하고, 닫으면 다시 열 수 있다 (로컬 폴더 잠금)
+    try:
+        import sentence_transformers  # noqa: F401
+    except ImportError:
+        monkeypatch.setitem(sys.modules, "sentence_transformers",
+                            types.SimpleNamespace(SentenceTransformer=None, CrossEncoder=None))
+    from src.rag import client as rag_client
+    registered = []
+    monkeypatch.setattr(rag_client.atexit, "register", registered.append)
+    monkeypatch.setattr(rag_client, "_atexit_registered", False)
+    monkeypatch.setattr(rag_client, "_client", None)
+    monkeypatch.setattr(rag_client, "DB_PATH", tmp_path / "qdrant_db")
+    rag_client.get_qdrant_client()
+    rag_client.close_client()
+    rag_client.get_qdrant_client()
+    rag_client.close_client()
+    assert registered == [rag_client.close_client] and rag_client._client is None
