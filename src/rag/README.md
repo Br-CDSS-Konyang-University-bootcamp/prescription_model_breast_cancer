@@ -24,6 +24,7 @@ ESMO 지침을 수집·청킹하고, 지침과 급여 청크가 함께 들어가
 | `searcher.py` | `search_guidelines()`. `with_parent=True`면 결과마다 부모(소단원) 청크를 `parent`로 붙인다. 재정렬이 기본으로 켜져 있다(`rerank=True`, PROJECT.md §6): 뜻 검색 후보 20개(`RERANK_CANDIDATES`)를 재정렬 모델(bge-reranker-v2-m3, 처음 쓸 때 약 2GB 내려받음)로 다시 매긴다. 모델을 불러오지 못하면 경고하고 뜻 검색 점수를 쓴다. 같은 조건의 검색은 결과를 기억해 두고(최대 256개), 색인을 바꾸면 비운다. 결과의 `score`는 뜻 검색(또는 재정렬) 점수 + 차수·태그 가점 |
 | `run_indexing.py` | `data/chunks/*.json`을 스키마 검증하고, 지침 청크만 지운 뒤 다시 색인한다 (D의 급여 청크는 남김). 실행: `python -m src.rag.run_indexing` |
 | `evaluate.py` | 평가 문제집 `data/eval/rag_eval_cases.csv`로 검색을 채점한다. L0 문서(1위가 정답 문서인가), L1 소단원(상위 k개에 정답 소단원), L2 권고(hit@k, recall@k, MRR). 실행: `python -m src.rag.evaluate [--k 5] [--no-rerank] [--candidates 20] [--out 결과.csv]`. 질의당 검색 시간도 보여 준다 (색인을 먼저 만든다) |
+| `bench_reranker.py` | 재정렬 모델이 느린 원인을 나눠 잰다 (모델 불러오기, 후보 수, CPU 스레드 수, 최대 입력 길이). 실행: `python -m src.rag.bench_reranker [--model 이름]` |
 
 모든 명령은 `team_project` 폴더에서 실행한다. 순서: PDF 변환 → 품질 검사 → 청커 → `python -m pytest tests/rag` → 색인.
 
