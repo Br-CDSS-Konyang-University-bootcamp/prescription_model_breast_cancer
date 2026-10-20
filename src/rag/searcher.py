@@ -89,7 +89,8 @@ def search_guidelines(
 
     # 최종 점수로 내림차순 정렬
     scored_results.sort(key=lambda x: (x["score"], x["version"]), reverse=True)
-    results = [item["data"] for item in scored_results[:top_k]]
+    # score: 뜻 검색 점수 + 차수·태그 가점. 평가와 "근거 부족" 기준에 쓴다
+    results = [{**item["data"], "score": round(item["score"], 4)} for item in scored_results[:top_k]]
     if with_parent:
         results = [{**r, "parent": get_parent(r)} for r in results]
     return results
