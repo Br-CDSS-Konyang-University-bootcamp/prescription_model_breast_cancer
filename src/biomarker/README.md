@@ -60,7 +60,7 @@ PD-L1 판정 (2026-10-16, 전달 문서 6.5절). 입력 `receptors.pdl1` (`assay
 - BM-3 CIViC (2026-10-19, 전달 문서 5.4절. 2026-10-20부터 판정에 쓰지 않고 근거로만): `data/civic/civic_bm3_evidence_<받은 날>.csv` 중 가장 최근 파일을 로컬에서 조회한다 (5.6절: 파일명에 받은 날짜, CC0라 git에 올림). "PIK3CA Mutation" 같은 묶음 프로파일과 AND/OR 조합은 쓰지 않고, 변이 하나를 지목한 근거 중 Predictive + Sensitivity/Response 또는 Oncogenic + Oncogenicity, 방향 Supports만 센다 (내성 근거는 양성 근거가 아님). 근거 등급 A~E는 모두 인정하고, 가장 높은 등급(같으면 유방암 근거)을 이유에 `CIViC 근거 등급 A (…, EID12034)` 형식으로 남긴다. `biomarker_record` 스키마에 CIViC 칸이 없어 `evidence`에는 넣지 않는다 (`evidence.oncokb` → `annotation` 변경 제안, 4명 합의 대기).
 - CIViC 표 만들기: `python data/script/civic_download.py` (CIViC nightly 근거 파일 약 4MB를 받아 PIK3CA·AKT1·PTEN 근거 47행만 저장, CC0). 표가 없으면 CIViC 조회 없이 VUS로 남고 이유에 실행 안내가 붙는다.
 - `actionable_variants.csv`의 PIK3CA 11개는 전달 문서 5.4절 예시와 같고, therascreen PIK3CA 키트의 QIAGEN 제품 페이지와 AccessGUDID 등록 정보로 확인했다 (사용설명서 원본은 아직 대조하지 않음). AKT1(E17K)·ESR1(Y537S/N/C, D538G)은 전달 문서 5.4절의 예시만 넣었고 `verified = no`라 판정 이유에 "원문 확인 필요"가 붙는다. FDA 라벨·SSED 원문으로 확인하면 목록을 채우고 `yes`로 바꾼다.
-- TCGA 874명 결과 (2026-10-20, ClinVar 2026-10-12 파일·CIViC 2026-10-19 파일 기준): PIK3CA 양성 211 / VUS 69, AKT1 양성 21 / VUS 2, PTEN 양성 49, gBRCA1 양성 10 / VUS 14, gBRCA2 양성 6 / VUS 18, PALB2 VUS 6, ESR1 VUS 9 / 재검 필요 9 / 양성 0. 미시행은 유전자마다 28명 (A의 변환이 변이 검사 대상 아님 15명과 정보 없음 13명을 모두 미시행으로 넘긴다). 바뀐 점: PTEN은 변이 유무로 41 → 49 (VUS 8명이 양성), PIK3CA는 CIViC로 양성이던 2명(R88Q, K111N)이 VUS로.
+- TCGA 860명 결과 (2026-10-20 정답 세트, ClinVar 2026-10-12 파일·CIViC 2026-10-19 파일 기준): PIK3CA 양성 209 / VUS 68, AKT1 양성 21 / VUS 2, PTEN 양성 48, gBRCA1 양성 10 / VUS 13, gBRCA2 양성 6 / VUS 18, PALB2 VUS 6, ESR1 VUS 8 / 재검 필요 9 / 양성 0. 미시행은 유전자마다 28명 (A의 변환이 변이 검사 대상 아님 15명과 정보 없음 13명을 모두 미시행으로 넘긴다). 2026-10-20 규칙 변경 때(874명 기준) 바뀐 점: PTEN은 변이 유무로 41 → 49 (VUS 8명이 양성), PIK3CA는 CIViC로 양성이던 2명(R88Q, K111N)이 VUS로. 정답 세트가 874명 → 860명이 되면서(A, 2026-10-20) 숫자가 다시 바뀌었다.
 
 유전자 검사 공백 (BM-4, 2026-10-16). 현재 전이성 환자만, 미시행(`not_done`)일 때만 `tests_needed`에 넣는다:
 
@@ -71,7 +71,7 @@ PD-L1 판정 (2026-10-16, 전달 문서 6.5절). 입력 `receptors.pdl1` (`assay
 | HR+/HER2- | ESR1 미시행 → 검사 / ESR1 재검 필요 → cfDNA 재검 | `BM4-ESR1` / `BM4-ESR1-RETEST` |
 
 - 생식세포 BRCA가 기록 없음이면 권고하지 않는다 (전달 문서 4.7절의 열린 질문, B 결정 2026-10-16). TCGA가 아닌 차트는 BRCA 레코드가 sBRCA라 생식세포 BRCA 권고가 나오지 않는다.
-- TCGA 874명 결과: 현재 전이성 환자는 유전자 검사가 모두 시행돼 미시행 권고는 0명, ESR1 재검 권고 3명.
+- TCGA 860명 결과: 현재 전이성 환자는 유전자 검사가 모두 시행돼 미시행 권고는 0명, ESR1 재검 권고 3명.
 
 검사 결과 대기·예정 (2026-10-19, B 결정, 전달 문서 0절 5번·schema_fields.md 2절): 미시행(`not_done`) 칸의 `raw`가 고정 표기 `"결과 대기"`(검체를 보내 결과를 기다림) 또는 `"예정"`(예약만 됨)이면, 검사 공백(`tests_needed`)을 새 검사 권고 대신 "결과 확인"으로 낸다. `test`는 `"PIK3CA 결과 확인"`처럼 끝에 "결과 확인"을 붙이고, `rule_id`는 원래 규칙 ID에 `-PENDING`(결과 대기) 또는 `-SCHEDULED`(예정)를 붙인다 (예: `BM4-PIK3CA-PENDING`). 그 밖의 `raw`(예: "시행하지 않음")는 그대로 검사 권고. 판정 레코드의 상태는 둘 다 `not_done`이고, 이유에 `(결과 대기)`를 적는다. TCGA에는 해당 환자가 없다.
 
@@ -86,7 +86,7 @@ PD-L1 판정 (2026-10-16, 전달 문서 6.5절). 입력 `receptors.pdl1` (`assay
 | early, locally_advanced | `unknown` | 선행·보조 투약 없음 |
 
 - 내분비·항암 차수(`endocrine_line`, `chemo_line`)와 충족한 심평원 차수 간주 규칙(`deemed_lines`의 `met`)은 `setting.reason`에 적는다. 급여 판정은 [4] 추천 모듈이 "실제 차수 + 간주 규칙"으로 한다 (6.3a절).
-- TCGA 874명: 전이성 28명 중 1L 8, 2L 6, >=3L 14. 조기·국소 진행성은 adjuvant 623, neoadjuvant 3, unknown 220.
+- TCGA 860명 (2026-10-20 정답 세트): 전이성 27명 중 1L 11, 2L 6, >=3L 10. 조기·국소 진행성은 adjuvant 621, neoadjuvant 3, unknown 209.
 - 판정 기준일(`index_day`) 이후 투약을 빼는 처리는 아직 없다 (TCGA는 기준일이 마지막 추적일이라 영향 없음).
 
 테스트 실행 (`team_project` 폴더에서): `python -m pytest tests/biomarker` 또는 케이스별 출력은 `python -m tests.biomarker.test_bm`

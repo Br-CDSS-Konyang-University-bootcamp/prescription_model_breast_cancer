@@ -87,8 +87,9 @@ def find_drugs(text: str) -> list[str]:
     return found
 
 
-# 표지자 뒤에 오면 "그 변이·발현이 없다"는 뜻인 표현. 예: PIK3CA-wild type, PD-L1-negative, BRCA1/2- wild type
-_NEGATED_AFTER = re.compile(r"\s*-?\s*(wild[- ]?type|negative)\b")
+# 표지자 뒤에 오면 "그 변이·발현이 없다"는 뜻인 표현. 예: PIK3CA-wild type, PD-L1-negative, BRCA1/2- wild type,
+# 알고리즘 그림의 줄임 표기 PIK3CA wt, gBRCA1/2-wt, PD-L1- (뒤에 글자 없이 끝나는 빼기 기호)
+_NEGATED_AFTER = re.compile(r"\s*-?\s*(wild[- ]?type|wt|negative)\b|-(?=[\s,;)]|$)")
 
 
 def _mentioned(text: str, pattern: str) -> bool:

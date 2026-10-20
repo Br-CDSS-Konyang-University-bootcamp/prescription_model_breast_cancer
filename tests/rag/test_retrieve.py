@@ -75,12 +75,16 @@ def test_retrieve_returns_guideline_with_parents_and_matching_reimbursement(inde
     calls, real = [], searcher.search_guidelines
     monkeypatch.setattr(searcher, "search_guidelines", lambda **kw: calls.append(kw) or real(**kw))
     guideline, reimbursement = retrieve_for_recommend(PATIENT, RECORD, as_of="2026-10-20", rerank=False)
-    # 주 검색 1번 + 뼈 전이 추가 검색 1번 (de novo 아님: 진단 시 국소 진행성). 모두 부모를 붙여 달라고 부른다
-    assert [kw["query_text"].split()[0] for kw in calls] == ["second-line", "bone"]
+    # 주 검색 1번 + 뼈 전이 추가 검색 1번 (de novo 아님: 진단 시 국소 진행성) + 알고리즘 그림 경로 검색 1번 (주 검색과 같은 조건).
+    # 모두 부모를 붙여 달라고 부른다
+    assert [kw["query_text"].split()[0] for kw in calls] == ["second-line", "bone", "second-line"]
+    assert [kw.get("chunk_kind", "recommendation") for kw in calls] == ["recommendation", "recommendation", "algorithm"]
     assert all(kw["with_parent"] and kw["negative_tags"] == ["gBRCA"] for kw in calls)
     assert guideline and all(c["doc_type"] == "guideline" and c["parent"] for c in guideline)
     assert len({c["chunk_id"] for c in guideline}) == len(guideline)
-    drugs = {d for c in guideline for d in c["drugs"]}
+    kinds = [c["chunk_kind"] for c in guideline]
+    assert "algorithm" in kinds and kinds == sorted(kinds, key=lambda k: k == "algorithm")  # 알고리즘 경로는 맨 뒤
+    drugs = {d for c in guideline if c["chunk_kind"] != "algorithm" for d in c["drugs"]}
     assert all(r["doc_type"] == "reimbursement" and set(r["matched_drugs"]) <= drugs for r in reimbursement)
     ids = {r["chunk_id"] for r in reimbursement}
     if "fulvestrant" in drugs:
