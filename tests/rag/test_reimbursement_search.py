@@ -96,7 +96,9 @@ def test_preview_superseded_and_not_yet_effective_rows_are_left_out(reimb):
     later = _ids(reimb.search_reimbursement(["doxorubicin", "cyclophosphamide"], setting="metastatic", line="1L",
                                             as_of="2027-02-01"))
     assert set(later) == {"ac-palliative", "future-row"}
-    assert reimb.search_reimbursement(["doxorubicin", "cyclophosphamide"], as_of="2026-09-30") == []  # 책자 시행 전
+    # effective_from은 책자 날짜가 아니라 그 행의 마지막 공고 시행일이다 (실제 청크는 2020-06-01 등).
+    # 가짜 청크는 모두 2026-10-01로 두었으므로, 기준일이 그보다 앞이면 어느 행도 아직 시행 전이다
+    assert reimb.search_reimbursement(["doxorubicin", "cyclophosphamide"], as_of="2026-09-30") == []
 
 
 def test_parents_come_from_the_reimbursement_chunk_file(reimb):
@@ -155,4 +157,24 @@ def test_with_real_reimbursement_chunk_file(monkeypatch):
 
 def test_public_api():
     import src.rag as rag
-    assert callable(rag.search_reimbursement)
+    assert callable(rag.search_reimbursement) and callable(rag.close_searcher)
+
+
+def test_client_closes_at_exit(monkeypatch, tmp_path):
+    # 처음 열 때 종료 시 닫기를 한 번만 등록하고, 닫으면 다시 열 수 있다 (로컬 폴더 잠금)
+    try:
+        import sentence_transformers  # noqa: F401
+    except ImportError:
+        monkeypatch.setitem(sys.modules, "sentence_transformers",
+                            types.SimpleNamespace(SentenceTransformer=None, CrossEncoder=None))
+    from src.rag import client as rag_client
+    registered = []
+    monkeypatch.setattr(rag_client.atexit, "register", registered.append)
+    monkeypatch.setattr(rag_client, "_atexit_registered", False)
+    monkeypatch.setattr(rag_client, "_client", None)
+    monkeypatch.setattr(rag_client, "DB_PATH", tmp_path / "qdrant_db")
+    rag_client.get_qdrant_client()
+    rag_client.close_client()
+    rag_client.get_qdrant_client()
+    rag_client.close_client()
+    assert registered == [rag_client.close_client] and rag_client._client is None

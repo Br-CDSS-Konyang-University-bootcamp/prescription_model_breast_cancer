@@ -1,4 +1,5 @@
 # src/rag/client.py
+import atexit
 import os
 from pathlib import Path
 from qdrant_client import QdrantClient
@@ -10,6 +11,7 @@ COLLECTION_NAME = "breast_cancer_guidelines"
 
 # 단일 Qdrant 로컬 클라이언트 및 임베딩 모델 인스턴스
 _client = None
+_atexit_registered = False
 _model = None
 _reranker = None
 RERANKER_NAME = "BAAI/bge-reranker-v2-m3"  # 처음 쓸 때 약 2GB를 내려받는다
@@ -28,6 +30,12 @@ def get_qdrant_client() -> QdrantClient:
     global _client
     if _client is None:
         _client = QdrantClient(path=str(DB_PATH))
+        # 프로그램이 끝날 때 닫는다. 안 닫으면 종료 중에 qdrant_client가 닫히며
+        # "ImportError: sys.meta_path is None" 경고가 나고, 로컬 폴더 잠금이 늦게 풀린다 (D 확인, 2026-10-20)
+        global _atexit_registered
+        if not _atexit_registered:  # 닫았다 다시 열어도 한 번만 등록한다
+            atexit.register(close_client)
+            _atexit_registered = True
     return _client
 
 def get_embedding_model() -> SentenceTransformer:
