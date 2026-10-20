@@ -12,7 +12,9 @@
 - clinvar_version.log: 원본 파일의 날짜(Last-Modified)와 받은 날
 
 외부로 보내는 정보는 없다. 파일을 통째로 받아 로컬에서만 조회한다 (PROJECT.md 5절 BM-3).
-ClinVar 이용 조건: NCBI 자료는 사용·배포 제한이 없다. 인용 시 NCBI ClinVar와 파일 날짜를 적는다.
+ClinVar 이용 조건: 미국 정부(NCBI) 자료로 퍼블릭 도메인이다. 배포·인용 시 ClinVar를 출처로 적는다(파일 날짜 포함).
+  ClinVar에 연결된 OMIM 설명·논문 원문 등은 별도 저작권이 있어 가져오지 않는다(이 파일은 판정·리뷰 등급·번호·이름만 남긴다).
+  NCBI는 정확성을 보증하지 않는다. 연구·참고용이며 진단·치료 결정에 바로 쓰지 않는다.
 
 실행: conda team_project 환경에서
     python data/script/clinvar_download.py

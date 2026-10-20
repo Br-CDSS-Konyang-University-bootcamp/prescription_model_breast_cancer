@@ -14,7 +14,8 @@
 - civic_version.txt: 받은 날, 원본 주소
 
 외부로 보내는 정보는 없다. 파일을 받아 로컬에서만 조회한다 (PROJECT.md 5절 BM-3).
-인용: Griffith M et al., Nat Genet 2017;49:170-174 (CIViC). 데이터는 CC0.
+인용: Griffith M et al., Nat Genet 2017;49:170-174 (CIViC). 데이터는 CC0 (로고 등 그림은 CC BY-ND 4.0이라 쓰지 않는다).
+CIViC 면책 조항: 연구용 자료이며 응급 상황이나 의료적 조언에 쓰지 않는다. 결과는 참고 근거로만 표시한다.
 
 실행: conda team_project 환경에서
     python data/script/civic_download.py
