@@ -20,6 +20,18 @@ Input module (A) TCGA conversion: `python -m src.input.script.tcga_to_patient_st
 
 Biomarker module (B) entry point: `assess(patient_state)` in `src/biomarker/BM1_ER,PR,HER2,Ki_67,subtype.py` returns one `biomarker_record`; rules are in `src/biomarker/README.md`. LLM recommendation module (B) entry point: `recommend(...)` in `src/recommend/pipeline.py` takes the guideline and reimbursement chunks and an LLM function (prompt text to answer text), and runs the prompt, the hallucination post-processing, and the `schemas/recommendation.json` check; no LLM is connected yet (`src/recommend/README.md`). Tests: `python -m pytest tests/biomarker tests/recommend`.
 
+Reimbursement (D) scripts, run from `team_project`:
+- `python -m src.reimbursement.pipeline` checks the HIRA boards, downloads only new files into `data/reimbursement/raw/`, validates the booklet, and writes the reimbursement chunks to `data/reimbursement/chunks/reimbursement_chunks_current.jsonl`.
+  - `--offline` uses only files already downloaded.
+  - `--no-llm` skips structuring the dosing conditions.
+  - `--cross-check` also reads the PDFs with `pdfplumber`.
+  - The conditions step uses the Claude API when `.env` has `ANTHROPIC_API_KEY` with credits. Otherwise it falls back to Claude Code (`claude -p`, after a one-time `/login`). Results are cached in `data/reimbursement/conditions_cache.jsonl`, so only changed rows are sent again.
+  - `python -m src.reimbursement.conditions --import FILE.json` stores hand-written conditions after the same checks.
+- `python -m src.reimbursement.index` puts the L3 chunks into the shared index through `src/rag`. It removes only `doc_type=reimbursement` points, so guideline points stay.
+- Qdrant local mode allows only one process at a time, so do not run it at the same time as searching or `run_indexing`.
+- Packages: `pymupdf`, `jsonschema`, `python-tzdata` (Windows time zones); `pdfplumber` for `--cross-check`; `anthropic` (optional) for the API. Indexing also needs `qdrant-client` and `sentence-transformers`.
+- HIRA notices say no unauthorized copying, so never commit HIRA originals or anything made from them. That covers the PDFs, chunks, conditions JSON, cache, review sheet, and `registry.db`. Everything under `data/reimbursement/` other than csv, txt, and py is already ignored; keep generated files out of those three formats.
+
 GDC Biotab files have three header rows (names, alternate names, CDE IDs). Missing values are bracket codes. Keep them: `[Not Available]` means the value was not recorded (maps to 기록 없음), and `[Not Evaluated]` means the test was not done (maps to 미시행).
 
 Module folders (owners and rules in `PROJECT.md` §15):
@@ -41,7 +53,7 @@ This is a non-profit project. ESMO guidelines are used under ESMO's non-commerci
 
 ## Environment
 
-- Use a conda env named `team_project` with Python 3.14. Packages in use: `requests`, `pandas`, `tabulate`, `jsonschema`, `pytest`, and for the guideline RAG `pymupdf`, `pymupdf4llm`. Install with `conda install -n team_project ...`, not bare `pip`, which may target another env.
+- Use a conda env named `team_project` with Python 3.14. Packages in use: `requests`, `pandas`, `tabulate`, `jsonschema`, `pytest`, `python-tzdata`; for the guideline RAG `pymupdf`, `pymupdf4llm`; for the shared index `qdrant-client`, `sentence-transformers`; for the reimbursement module `pymupdf`, plus optionally `pdfplumber` and `anthropic`. Install with `conda install -n team_project ...`, not bare `pip`, which may target another env.
 - Each member's machine paths, OS, and language preferences belong in their own `CLAUDE.local.md` (git-ignored), not in this file.
 
 ## Repository conventions (from .gitignore)
