@@ -177,6 +177,18 @@ def test_line_mismatch_is_pushed_down(memory_index):
     assert "2L" in ranks[0]
 
 
+def test_matching_line_chunks_always_reach_the_candidates(memory_index):
+    # 후보 수가 작아도(top_k=2 → 후보 6개) 절반은 차수가 맞거나 any인 권고에서 뽑으므로, 맞는 차수가 1·2위에 온다
+    rag_client, indexer = memory_index
+    from src.rag import searcher
+    from src.rag.chunk_store import load_guideline_chunks, select_index_chunks
+
+    indexer.index_chunks(select_index_chunks(load_guideline_chunks()))
+    results = searcher.search_guidelines("x", setting="metastatic", subtype="HR-/HER2+", line=">=3L", top_k=2,
+                                         rerank=False)
+    assert len(results) == 2 and all(">=3L" in r["line"] or "any" in r["line"] for r in results)
+
+
 def test_public_api_for_reimbursement_module():
     # D(src/reimbursement/index.py)가 src.rag에서 부르는 함수들
     import src.rag as rag

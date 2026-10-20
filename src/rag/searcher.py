@@ -3,7 +3,7 @@ import copy
 import math
 import warnings
 
-from qdrant_client.models import Filter, FieldCondition, MatchValue
+from qdrant_client.models import Filter, FieldCondition, MatchAny, MatchValue
 from .chunk_store import get_parent
 from .client import get_qdrant_client, get_embedding_model, get_reranker, close_client, COLLECTION_NAME
 
@@ -125,13 +125,22 @@ def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, w
     query_filter = Filter(must=must_conditions) if must_conditions else None
 
     # Qdrant 검색 실행 (가점 부여를 위해 top_k보다 여유 있게 검색)
-    response = client.query_points(
-        collection_name=COLLECTION_NAME,
-        query=query_vector,
-        query_filter=query_filter,
-        limit=max(top_k * 3, RERANK_CANDIDATES) if rerank else top_k * 3
-    )
-    hits = response.points
+    limit = max(top_k * 3, RERANK_CANDIDATES) if rerank else top_k * 3
+    hits = []
+    if line and line.lower() != "unknown":
+        # 후보의 절반은 차수가 맞거나 any인 권고에서 먼저 뽑는다. 가점·감점은 뽑힌 후보 안에서만 순위를 바꾸므로,
+        # 질의가 다른 차수 권고와 글자가 많이 겹치면 맞는 차수 권고가 후보에 아예 못 들어갔다 (--auto-query M10·M11)
+        line_filter = Filter(must=must_conditions + [FieldCondition(key="line", match=MatchAny(any=[line, "any"]))])
+        hits = client.query_points(collection_name=COLLECTION_NAME, query=query_vector, query_filter=line_filter,
+                                   limit=limit // 2).points
+    seen = {hit.id for hit in hits}
+    for hit in client.query_points(collection_name=COLLECTION_NAME, query=query_vector, query_filter=query_filter,
+                                   limit=limit).points:
+        if len(hits) >= limit:
+            break
+        if hit.id not in seen:
+            hits.append(hit)
+            seen.add(hit.id)
     base_scores = [hit.score for hit in hits]
     if rerank and hits:
         base_scores = _rerank_scores(query_text, [hit.payload.get("text", "") for hit in hits]) or base_scores
