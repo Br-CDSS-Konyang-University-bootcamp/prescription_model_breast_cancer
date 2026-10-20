@@ -4,6 +4,12 @@ from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, Fi
 from .client import get_qdrant_client, get_embedding_model, close_client, COLLECTION_NAME
 
 
+def _clear_search_cache():
+    """색인이 바뀌면 검색 결과 기억(searcher의 캐시)을 비운다. 같은 프로세스에서 색인 후 검색할 때 옛 결과가 나오지 않게."""
+    from .searcher import clear_search_cache
+    clear_search_cache()
+
+
 def init_collection(force_recreate: bool = False):
     client = get_qdrant_client()
     collections = [c.name for c in client.get_collections().collections]
@@ -12,6 +18,7 @@ def init_collection(force_recreate: bool = False):
     if COLLECTION_NAME in collections and force_recreate:
         client.delete_collection(collection_name=COLLECTION_NAME)
         print(f"[RAG] 기존 컬렉션 '{COLLECTION_NAME}' 초기화 완료.")
+        _clear_search_cache()
 
     if COLLECTION_NAME not in [c.name for c in client.get_collections().collections]:
         client.create_collection(
@@ -47,6 +54,7 @@ def index_chunks(chunks: list[dict], batch_size: int = 32):
             )
         client.upsert(collection_name=COLLECTION_NAME, points=points)
 
+    _clear_search_cache()
     print(f"[RAG Indexer] {total}개 청크 색인 완료.")
 
 
@@ -67,6 +75,7 @@ def delete_by_doc_type(doc_type: str):
             filter=Filter(must=[FieldCondition(key="doc_type", match=MatchValue(value=doc_type))])
         ),
     )
+    _clear_search_cache()
     print(f"[RAG] '{COLLECTION_NAME}'에서 doc_type={doc_type} 청크 삭제 완료.")
 
 

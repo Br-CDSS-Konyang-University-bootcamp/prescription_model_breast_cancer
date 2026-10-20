@@ -26,8 +26,12 @@ def memory_index(monkeypatch):
     from src.rag import client as rag_client
     from src.rag import indexer
 
+    from src.rag import searcher
+
     monkeypatch.setattr(rag_client, "_client", QdrantClient(":memory:"))
     monkeypatch.setattr(rag_client, "_model", FakeModel())
+    monkeypatch.setattr(searcher, "_reranker_failed", False)
+    searcher.clear_search_cache()
     indexer.init_collection()
     yield rag_client, indexer
     rag_client._client = None
@@ -73,7 +77,7 @@ def test_search_returns_recommendations_with_parent(memory_index, monkeypatch):
 
     indexer.index_chunks(select_index_chunks(load_guideline_chunks()))
     results = searcher.search_guidelines("elacestrant ESR1", setting="metastatic", subtype="HR+/HER2-",
-                                         line="2L", top_k=5, with_parent=True)
+                                         line="2L", top_k=5, with_parent=True, rerank=False)
     assert results
     for r in results:
         assert r["parent_id"]  # 부모 청크(parent_id 없음)는 색인에 없다
@@ -102,6 +106,39 @@ def test_rerank_reorders_candidates_and_keeps_score_scale(memory_index, monkeypa
     assert "elacestrant" in results[0]["text"].lower()
     assert 0.9 < results[0]["score"] <= 1.0  # logit 4 → sigmoid 0.982, 가점 없음
     assert results[1]["score"] < 0.1
+
+
+def test_search_falls_back_when_reranker_cannot_load(memory_index, monkeypatch):
+    # 재정렬은 기본으로 켜져 있다. 모델을 못 불러오면(미설치, 내려받기 실패) 경고하고 뜻 검색 결과를 돌려준다
+    rag_client, indexer = memory_index
+    from src.rag import searcher
+    from src.rag.chunk_store import load_guideline_chunks, select_index_chunks
+
+    def broken():
+        raise OSError("model download blocked")
+    monkeypatch.setattr(searcher, "get_reranker", broken)
+    indexer.index_chunks(select_index_chunks(load_guideline_chunks()))
+    with pytest.warns(UserWarning, match="재정렬 모델"):
+        results = searcher.search_guidelines("ESR1-mutated MBC", setting="metastatic", subtype="HR+/HER2-", top_k=3)
+    assert len(results) == 3
+
+
+def test_search_cache_returns_copies_and_clears_on_reindex(memory_index, monkeypatch):
+    rag_client, indexer = memory_index
+    from src.rag import searcher
+    from src.rag.chunk_store import load_guideline_chunks, select_index_chunks
+
+    indexer.index_chunks(select_index_chunks(load_guideline_chunks()))
+    calls = []
+    real = searcher._search
+    monkeypatch.setattr(searcher, "_search", lambda *a: calls.append(a) or real(*a))
+    first = searcher.search_guidelines("ESR1", setting="metastatic", top_k=2, rerank=False)
+    first[0]["text"] = "고친 값"  # 받은 쪽이 고쳐도
+    second = searcher.search_guidelines("ESR1", setting="metastatic", top_k=2, rerank=False)
+    assert len(calls) == 1 and second[0]["text"] != "고친 값"  # 두 번째는 기억해 둔 원래 결과
+    indexer.delete_guideline_chunks()  # 색인이 바뀌면 기억을 비운다
+    assert searcher.search_guidelines("ESR1", setting="metastatic", top_k=2, rerank=False) == []
+    assert len(calls) == 2
 
 
 def test_public_api_for_reimbursement_module():
