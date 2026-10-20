@@ -516,7 +516,7 @@ H&E에서 ER/PR/HER2를 예측해 차트 값과의 불일치를 표시하는 QC 
 - [x] TCGA 필드를 v0.1 추출 스키마에 대응 (규칙 `src/input/tcga_mapping.md`) + 정답 생성기 (2026-10-15, `src/input/truth/tcga_truth.py`, 874명 전원 스키마 통과 (2026-10-15 HER2 판정 불가 62명, PR Indeterminate 4명, ER·PR·HER2 모두 미시행 43명, ER 또는 PR 미시행 2명 제외 후), 테스트 `tests/input/`)
 - [ ] 가상 차트 작성 방법 정하기 (양식 종류, 문장으로 쓸 필드, 합성값, 국내 표현 수집). 2026-10-19 시나리오 10건 설계: `tests/fixtures/virtual_charts/` (사례당 텍스트 한 파일에 문서 2~4개, 가짜 날짜 사용, 가짜 식별정보, 정답은 담당자별 분담). 차트 원문과 정답은 draft6 병합 뒤 VC-0103부터 작성. TCGA 기반 30건 추출 세트의 형식은 아직
 - [ ] LLM 공통 인터페이스 `llm/` (0단계 A 담당)
-- [ ] ESMO 치료 알고리즘 도식의 텍스트 변환과 검수
+- [ ] ESMO 치료 알고리즘 도식의 텍스트 변환과 검수 (2026-10-20 변환 완료: `src/rag/algorithm_esmo.py`가 MBC 그림 2~10, EBC 그림 2·4~7을 경로 청크 77개로 바꾼다. 연결 구조는 C가 그림과 대조했다. EBC 그림 글자는 PDF에서 읽을 수 없어 `data/guidelines/esmo_figure_text.csv`에 옮겨 적었다. 남은 일: 경로마다 원본 그림과 대조해 `data/chunks/esmo_algorithm_review.csv`의 `status`를 reviewed로 바꾸기, 검수 담당 정하기)
 - [x] ESMO 사용 조건 확인 (2026-10-07): ESMO 웹사이트 약관은 개인·비영리 사용을 허가 없이 허용하고, AI 관련 조항은 없다. 비영리 프로젝트이므로 ESMO로 진행한다
 - [x] ASCO 지침의 재사용 조건 확인 (2026-10-20): 재사용 불가. RAG에서 ASCO 청커·청크·사전 표현을 지웠다
 - [x] ESMO 전이성 유방암 지침(2026) 원문 확보 경로 정하기 (2026-10-20): esmo.org > Guidelines > Breast Cancer > Metastatic Breast Cancer의 게시본을 쓴다 (ESMO 웹사이트 약관의 비영리 사용). Annals of Oncology(Elsevier)판은 공개 라이선스가 없어 쓰지 않는다. 인용은 DOI(10.1016/j.annonc.2026.05.707)로 한다. 받은 곳·파일 지문은 `data/guidelines/sources.csv`

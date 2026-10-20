@@ -1,0 +1,3326 @@
+[
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig2",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 2. EBC treatment overview.",
+    "page_start": 162,
+    "page_end": 162,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Figure 2. EBC treatment overview.\n\nFigure 2. EBC treatment overview. (algorithm path): Overview of EBC treatment → Premenopausal patients receiving OFS and postmenopausal patients → Adjuvant bisphosphonates^b [I, A] Footnotes: b: Bisphosphonates are approved for treating bone metastases and osteoporosis and not for prevention of relapse.\n\nFigure 2. EBC treatment overview. (algorithm path): Overview of EBC treatment → All HR+ → ET [I, A]\n\nFigure 2. EBC treatment overview. (algorithm path): Overview of EBC treatment → HR+/HER2-^a → Neoadjuvant therapy^c → Primary surgery ± RT → Systemic treatment Footnotes: a: See Figure 3 for management of ALN involvement and Figures 4-7 for systemic therapy according to breast cancer subtype. Recommendations for special situations (elderly patients, male breast cancer and DCIS) are described in the CPG text. c: If ChT is indicated it may be given in the neoadjuvant setting.\n\nFigure 2. EBC treatment overview. (algorithm path): Overview of EBC treatment → HER2+^a → cT1 N0 → Primary surgery ± RT → Systemic treatment Footnotes: a: See Figure 3 for management of ALN involvement and Figures 4-7 for systemic therapy according to breast cancer subtype. Recommendations for special situations (elderly patients, male breast cancer and DCIS) are described in the CPG text.\n\nFigure 2. EBC treatment overview. (algorithm path): Overview of EBC treatment → HER2+^a → ≥cT2 or cN+ → Neoadjuvant therapy → Surgery ± RT → Systemic treatment Footnotes: a: See Figure 3 for management of ALN involvement and Figures 4-7 for systemic therapy according to breast cancer subtype. Recommendations for special situations (elderly patients, male breast cancer and DCIS) are described in the CPG text.\n\nFigure 2. EBC treatment overview. (algorithm path): Overview of EBC treatment → TNBC^a → cT1a or cT1b N0 → Primary surgery ± RT → Systemic treatment Footnotes: a: See Figure 3 for management of ALN involvement and Figures 4-7 for systemic therapy according to breast cancer subtype. Recommendations for special situations (elderly patients, male breast cancer and DCIS) are described in the CPG text.\n\nFigure 2. EBC treatment overview. (algorithm path): Overview of EBC treatment → TNBC^a → cT1c-4 or N+ → Neoadjuvant therapy → Surgery ± RT → Systemic treatment Footnotes: a: See Figure 3 for management of ALN involvement and Figures 4-7 for systemic therapy according to breast cancer subtype. Recommendations for special situations (elderly patients, male breast cancer and DCIS) are described in the CPG text.",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "any",
+      "HR+/HER2-",
+      "HR+/HER2+",
+      "HR-/HER2+",
+      "TNBC"
+    ],
+    "line": [
+      "adjuvant",
+      "any",
+      "neoadjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig2-74bcdc",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 2. EBC treatment overview.",
+    "page_start": 162,
+    "page_end": 162,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig2",
+    "text": "Figure 2. EBC treatment overview. (algorithm path): Overview of EBC treatment → Premenopausal patients receiving OFS and postmenopausal patients → Adjuvant bisphosphonates^b [I, A] Footnotes: b: Bisphosphonates are approved for treating bone metastases and osteoporosis and not for prevention of relapse.",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "any"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig2-3678d9",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 2. EBC treatment overview.",
+    "page_start": 162,
+    "page_end": 162,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig2",
+    "text": "Figure 2. EBC treatment overview. (algorithm path): Overview of EBC treatment → All HR+ → ET [I, A]",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "HR+/HER2-",
+      "HR+/HER2+"
+    ],
+    "line": [
+      "any"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig2-5abbd1",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 2. EBC treatment overview.",
+    "page_start": 162,
+    "page_end": 162,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig2",
+    "text": "Figure 2. EBC treatment overview. (algorithm path): Overview of EBC treatment → HR+/HER2-^a → Neoadjuvant therapy^c → Primary surgery ± RT → Systemic treatment Footnotes: a: See Figure 3 for management of ALN involvement and Figures 4-7 for systemic therapy according to breast cancer subtype. Recommendations for special situations (elderly patients, male breast cancer and DCIS) are described in the CPG text. c: If ChT is indicated it may be given in the neoadjuvant setting.",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "neoadjuvant",
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig2-c9e462",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 2. EBC treatment overview.",
+    "page_start": 162,
+    "page_end": 162,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig2",
+    "text": "Figure 2. EBC treatment overview. (algorithm path): Overview of EBC treatment → HER2+^a → cT1 N0 → Primary surgery ± RT → Systemic treatment Footnotes: a: See Figure 3 for management of ALN involvement and Figures 4-7 for systemic therapy according to breast cancer subtype. Recommendations for special situations (elderly patients, male breast cancer and DCIS) are described in the CPG text.",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "HR+/HER2+",
+      "HR-/HER2+"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig2-9d09dd",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 2. EBC treatment overview.",
+    "page_start": 162,
+    "page_end": 162,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig2",
+    "text": "Figure 2. EBC treatment overview. (algorithm path): Overview of EBC treatment → HER2+^a → ≥cT2 or cN+ → Neoadjuvant therapy → Surgery ± RT → Systemic treatment Footnotes: a: See Figure 3 for management of ALN involvement and Figures 4-7 for systemic therapy according to breast cancer subtype. Recommendations for special situations (elderly patients, male breast cancer and DCIS) are described in the CPG text.",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "HR+/HER2+",
+      "HR-/HER2+"
+    ],
+    "line": [
+      "neoadjuvant",
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig2-fb8ebb",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 2. EBC treatment overview.",
+    "page_start": 162,
+    "page_end": 162,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig2",
+    "text": "Figure 2. EBC treatment overview. (algorithm path): Overview of EBC treatment → TNBC^a → cT1a or cT1b N0 → Primary surgery ± RT → Systemic treatment Footnotes: a: See Figure 3 for management of ALN involvement and Figures 4-7 for systemic therapy according to breast cancer subtype. Recommendations for special situations (elderly patients, male breast cancer and DCIS) are described in the CPG text.",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig2-ed4466",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 2. EBC treatment overview.",
+    "page_start": 162,
+    "page_end": 162,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig2",
+    "text": "Figure 2. EBC treatment overview. (algorithm path): Overview of EBC treatment → TNBC^a → cT1c-4 or N+ → Neoadjuvant therapy → Surgery ± RT → Systemic treatment Footnotes: a: See Figure 3 for management of ALN involvement and Figures 4-7 for systemic therapy according to breast cancer subtype. Recommendations for special situations (elderly patients, male breast cancer and DCIS) are described in the CPG text.",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "neoadjuvant",
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig4",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 4. Role of adjuvant endocrine therapy in HR-positive EBC.",
+    "page_start": 165,
+    "page_end": 165,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Figure 4. Role of adjuvant endocrine therapy in HR-positive EBC.\n\nFigure 4. Role of adjuvant endocrine therapy in HR-positive EBC. (algorithm path): Adjuvant endocrine therapy in HR+ EBC^a → Premenopausal → Luminal A-like stage I → Tamoxifen [I, A] Footnotes: a: See Figure 2 for the role of surgery in HR-positive, HER2-negative EBC.\n\nFigure 4. Role of adjuvant endocrine therapy in HR-positive EBC. (algorithm path): Adjuvant endocrine therapy in HR+ EBC^a → Premenopausal → Luminal A-like stage II-III; Luminal B-like stage I-III → OFS-tamoxifen [I, A]; OFS-AI [I, A] Footnotes: a: See Figure 2 for the role of surgery in HR-positive, HER2-negative EBC.\n\nFigure 4. Role of adjuvant endocrine therapy in HR-positive EBC. (algorithm path): Adjuvant endocrine therapy in HR+ EBC^a → Postmenopausal → Tamoxifen followed by AI [I, A]; AI [I, A]; AI followed by tamoxifen [I, A]; Tamoxifen^b [I, A] Footnotes: a: See Figure 2 for the role of surgery in HR-positive, HER2-negative EBC. b: Tamoxifen can be given for lower-risk tumours or if AIs are not tolerated [I, A].",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "HR+/HER2-",
+      "HR+/HER2+"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "tamoxifen"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig4-08ac92",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 4. Role of adjuvant endocrine therapy in HR-positive EBC.",
+    "page_start": 165,
+    "page_end": 165,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig4",
+    "text": "Figure 4. Role of adjuvant endocrine therapy in HR-positive EBC. (algorithm path): Adjuvant endocrine therapy in HR+ EBC^a → Premenopausal → Luminal A-like stage I → Tamoxifen [I, A] Footnotes: a: See Figure 2 for the role of surgery in HR-positive, HER2-negative EBC.",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "HR+/HER2-",
+      "HR+/HER2+"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "tamoxifen"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig4-a14908",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 4. Role of adjuvant endocrine therapy in HR-positive EBC.",
+    "page_start": 165,
+    "page_end": 165,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig4",
+    "text": "Figure 4. Role of adjuvant endocrine therapy in HR-positive EBC. (algorithm path): Adjuvant endocrine therapy in HR+ EBC^a → Premenopausal → Luminal A-like stage II-III; Luminal B-like stage I-III → OFS-tamoxifen [I, A]; OFS-AI [I, A] Footnotes: a: See Figure 2 for the role of surgery in HR-positive, HER2-negative EBC.",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "HR+/HER2-",
+      "HR+/HER2+"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "tamoxifen"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig4-0196bf",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 4. Role of adjuvant endocrine therapy in HR-positive EBC.",
+    "page_start": 165,
+    "page_end": 165,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig4",
+    "text": "Figure 4. Role of adjuvant endocrine therapy in HR-positive EBC. (algorithm path): Adjuvant endocrine therapy in HR+ EBC^a → Postmenopausal → Tamoxifen followed by AI [I, A]; AI [I, A]; AI followed by tamoxifen [I, A]; Tamoxifen^b [I, A] Footnotes: a: See Figure 2 for the role of surgery in HR-positive, HER2-negative EBC. b: Tamoxifen can be given for lower-risk tumours or if AIs are not tolerated [I, A].",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "HR+/HER2-",
+      "HR+/HER2+"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "tamoxifen"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig5",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 5. Systemic treatment of HR-positive, HER2-negative EBC.",
+    "page_start": 166,
+    "page_end": 166,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Figure 5. Systemic treatment of HR-positive, HER2-negative EBC.\n\nFigure 5. Systemic treatment of HR-positive, HER2-negative EBC. (algorithm path): HR+/HER2- EBC^a → Luminal A like → Low risk → Adjuvant ET [I, A] → Stage III or high-risk stage II^b → gBRCA1/2-wt or untested (optional: gBRCA1/2 testing^d) → Abemaciclib for 2 years + ET [I, A; MCBS A]^c Footnotes: a: See Figure 2 for the role of surgery in HR-positive, HER2-negative EBC. b: Stage N1 with primary tumour >5 cm, and/or grade 3 and/or Ki-67 ≥20%. d: If gBRCA1/2 testing is appropriate and feasible.\n\nFigure 5. Systemic treatment of HR-positive, HER2-negative EBC. (algorithm path): HR+/HER2- EBC^a → Luminal A like → Low risk → Adjuvant ET [I, A] → Stage III or high-risk stage II^b → gBRCA1/2m and stage III or high-risk non-pCR^e (optional: gBRCA1/2 testing^d) → Olaparib for 1 year + ET [I, A; MCBS A; ESCAT I-A]^c,f Footnotes: a: See Figure 2 for the role of surgery in HR-positive, HER2-negative EBC. b: Stage N1 with primary tumour >5 cm, and/or grade 3 and/or Ki-67 ≥20%. d: If gBRCA1/2 testing is appropriate and feasible. e: Patients with HR-positive tumours and non-pCR after neoadjuvant ChT require a CPS + EG score ≥3 to receive olaparib.118\n\nFigure 5. Systemic treatment of HR-positive, HER2-negative EBC. (algorithm path): HR+/HER2- EBC^a → Luminal A like → High risk → (Neo)adjuvant ChT followed by ET [I, A] → Stage III or high-risk stage II^b → gBRCA1/2-wt or untested (optional: gBRCA1/2 testing^d) → Abemaciclib for 2 years + ET [I, A; MCBS A]^c Footnotes: a: See Figure 2 for the role of surgery in HR-positive, HER2-negative EBC. b: Stage N1 with primary tumour >5 cm, and/or grade 3 and/or Ki-67 ≥20%. d: If gBRCA1/2 testing is appropriate and feasible.\n\nFigure 5. Systemic treatment of HR-positive, HER2-negative EBC. (algorithm path): HR+/HER2- EBC^a → Luminal A like → High risk → (Neo)adjuvant ChT followed by ET [I, A] → Stage III or high-risk stage II^b → gBRCA1/2m and stage III or high-risk non-pCR^e (optional: gBRCA1/2 testing^d) → Olaparib for 1 year + ET [I, A; MCBS A; ESCAT I-A]^c,f Footnotes: a: See Figure 2 for the role of surgery in HR-positive, HER2-negative EBC. b: Stage N1 with primary tumour >5 cm, and/or grade 3 and/or Ki-67 ≥20%. d: If gBRCA1/2 testing is appropriate and feasible. e: Patients with HR-positive tumours and non-pCR after neoadjuvant ChT require a CPS + EG score ≥3 to receive olaparib.118\n\nFigure 5. Systemic treatment of HR-positive, HER2-negative EBC. (algorithm path): HR+/HER2- EBC^a → Luminal B like → (Neo)adjuvant ChT followed by ET [I, A] → Stage III or high-risk stage II^b → gBRCA1/2-wt or untested (optional: gBRCA1/2 testing^d) → Abemaciclib for 2 years + ET [I, A; MCBS A]^c Footnotes: a: See Figure 2 for the role of surgery in HR-positive, HER2-negative EBC. b: Stage N1 with primary tumour >5 cm, and/or grade 3 and/or Ki-67 ≥20%. d: If gBRCA1/2 testing is appropriate and feasible.\n\nFigure 5. Systemic treatment of HR-positive, HER2-negative EBC. (algorithm path): HR+/HER2- EBC^a → Luminal B like → (Neo)adjuvant ChT followed by ET [I, A] → Stage III or high-risk stage II^b → gBRCA1/2m and stage III or high-risk non-pCR^e (optional: gBRCA1/2 testing^d) → Olaparib for 1 year + ET [I, A; MCBS A; ESCAT I-A]^c,f Footnotes: a: See Figure 2 for the role of surgery in HR-positive, HER2-negative EBC. b: Stage N1 with primary tumour >5 cm, and/or grade 3 and/or Ki-67 ≥20%. d: If gBRCA1/2 testing is appropriate and feasible. e: Patients with HR-positive tumours and non-pCR after neoadjuvant ChT require a CPS + EG score ≥3 to receive olaparib.118",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "adjuvant",
+      "neoadjuvant"
+    ],
+    "biomarker_tags": [
+      "Ki-67-high",
+      "gBRCA",
+      "PD-L1+"
+    ],
+    "drugs": [
+      "abemaciclib",
+      "olaparib"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig5-1094f4",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 5. Systemic treatment of HR-positive, HER2-negative EBC.",
+    "page_start": 166,
+    "page_end": 166,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig5",
+    "text": "Figure 5. Systemic treatment of HR-positive, HER2-negative EBC. (algorithm path): HR+/HER2- EBC^a → Luminal A like → Low risk → Adjuvant ET [I, A] → Stage III or high-risk stage II^b → gBRCA1/2-wt or untested (optional: gBRCA1/2 testing^d) → Abemaciclib for 2 years + ET [I, A; MCBS A]^c Footnotes: a: See Figure 2 for the role of surgery in HR-positive, HER2-negative EBC. b: Stage N1 with primary tumour >5 cm, and/or grade 3 and/or Ki-67 ≥20%. d: If gBRCA1/2 testing is appropriate and feasible.",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "abemaciclib"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig5-724eb1",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 5. Systemic treatment of HR-positive, HER2-negative EBC.",
+    "page_start": 166,
+    "page_end": 166,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig5",
+    "text": "Figure 5. Systemic treatment of HR-positive, HER2-negative EBC. (algorithm path): HR+/HER2- EBC^a → Luminal A like → Low risk → Adjuvant ET [I, A] → Stage III or high-risk stage II^b → gBRCA1/2m and stage III or high-risk non-pCR^e (optional: gBRCA1/2 testing^d) → Olaparib for 1 year + ET [I, A; MCBS A; ESCAT I-A]^c,f Footnotes: a: See Figure 2 for the role of surgery in HR-positive, HER2-negative EBC. b: Stage N1 with primary tumour >5 cm, and/or grade 3 and/or Ki-67 ≥20%. d: If gBRCA1/2 testing is appropriate and feasible. e: Patients with HR-positive tumours and non-pCR after neoadjuvant ChT require a CPS + EG score ≥3 to receive olaparib.118",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [
+      "gBRCA"
+    ],
+    "drugs": [
+      "olaparib"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig5-21a119",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 5. Systemic treatment of HR-positive, HER2-negative EBC.",
+    "page_start": 166,
+    "page_end": 166,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig5",
+    "text": "Figure 5. Systemic treatment of HR-positive, HER2-negative EBC. (algorithm path): HR+/HER2- EBC^a → Luminal A like → High risk → (Neo)adjuvant ChT followed by ET [I, A] → Stage III or high-risk stage II^b → gBRCA1/2-wt or untested (optional: gBRCA1/2 testing^d) → Abemaciclib for 2 years + ET [I, A; MCBS A]^c Footnotes: a: See Figure 2 for the role of surgery in HR-positive, HER2-negative EBC. b: Stage N1 with primary tumour >5 cm, and/or grade 3 and/or Ki-67 ≥20%. d: If gBRCA1/2 testing is appropriate and feasible.",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "neoadjuvant",
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "abemaciclib"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig5-f453eb",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 5. Systemic treatment of HR-positive, HER2-negative EBC.",
+    "page_start": 166,
+    "page_end": 166,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig5",
+    "text": "Figure 5. Systemic treatment of HR-positive, HER2-negative EBC. (algorithm path): HR+/HER2- EBC^a → Luminal A like → High risk → (Neo)adjuvant ChT followed by ET [I, A] → Stage III or high-risk stage II^b → gBRCA1/2m and stage III or high-risk non-pCR^e (optional: gBRCA1/2 testing^d) → Olaparib for 1 year + ET [I, A; MCBS A; ESCAT I-A]^c,f Footnotes: a: See Figure 2 for the role of surgery in HR-positive, HER2-negative EBC. b: Stage N1 with primary tumour >5 cm, and/or grade 3 and/or Ki-67 ≥20%. d: If gBRCA1/2 testing is appropriate and feasible. e: Patients with HR-positive tumours and non-pCR after neoadjuvant ChT require a CPS + EG score ≥3 to receive olaparib.118",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "neoadjuvant",
+      "adjuvant"
+    ],
+    "biomarker_tags": [
+      "gBRCA"
+    ],
+    "drugs": [
+      "olaparib"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig5-d83cba",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 5. Systemic treatment of HR-positive, HER2-negative EBC.",
+    "page_start": 166,
+    "page_end": 166,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig5",
+    "text": "Figure 5. Systemic treatment of HR-positive, HER2-negative EBC. (algorithm path): HR+/HER2- EBC^a → Luminal B like → (Neo)adjuvant ChT followed by ET [I, A] → Stage III or high-risk stage II^b → gBRCA1/2-wt or untested (optional: gBRCA1/2 testing^d) → Abemaciclib for 2 years + ET [I, A; MCBS A]^c Footnotes: a: See Figure 2 for the role of surgery in HR-positive, HER2-negative EBC. b: Stage N1 with primary tumour >5 cm, and/or grade 3 and/or Ki-67 ≥20%. d: If gBRCA1/2 testing is appropriate and feasible.",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "neoadjuvant",
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "abemaciclib"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig5-6ffe04",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 5. Systemic treatment of HR-positive, HER2-negative EBC.",
+    "page_start": 166,
+    "page_end": 166,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig5",
+    "text": "Figure 5. Systemic treatment of HR-positive, HER2-negative EBC. (algorithm path): HR+/HER2- EBC^a → Luminal B like → (Neo)adjuvant ChT followed by ET [I, A] → Stage III or high-risk stage II^b → gBRCA1/2m and stage III or high-risk non-pCR^e (optional: gBRCA1/2 testing^d) → Olaparib for 1 year + ET [I, A; MCBS A; ESCAT I-A]^c,f Footnotes: a: See Figure 2 for the role of surgery in HR-positive, HER2-negative EBC. b: Stage N1 with primary tumour >5 cm, and/or grade 3 and/or Ki-67 ≥20%. d: If gBRCA1/2 testing is appropriate and feasible. e: Patients with HR-positive tumours and non-pCR after neoadjuvant ChT require a CPS + EG score ≥3 to receive olaparib.118",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "neoadjuvant",
+      "adjuvant"
+    ],
+    "biomarker_tags": [
+      "gBRCA"
+    ],
+    "drugs": [
+      "olaparib"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig6",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 6. Management of HER2-positive EBC.",
+    "page_start": 168,
+    "page_end": 168,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Figure 6. Management of HER2-positive EBC.\n\nFigure 6. Management of HER2-positive EBC. (algorithm path): HER2+ EBC → cT1 cN0 → Surgery and locoregional RT if indicated → pT1 pN0 → 12 weeks paclitaxel-18 cycles trastuzumab [III, B; MCBS A]^b,c\n\nFigure 6. Management of HER2-positive EBC. (algorithm path): HER2+ EBC → cT1 cN0 → Surgery and locoregional RT if indicated → ≥pT2 pN0 → 6-8 cycles ChT-trastuzumab [I, B; MCBS A]^b → Complete 1 year of trastuzumab [I, A; MCBS A]^b; If HR+, adjuvant ET [I, A]\n\nFigure 6. Management of HER2-positive EBC. (algorithm path): HER2+ EBC → cT1 cN0 → Surgery and locoregional RT if indicated → pN+ → 6-8 cycles ChT-HP [I, A; MCBS A]^b,c → Complete 1 year of HP [I, A; MCBS A]^b,c; If HR+, adjuvant ET [I, A]\n\nFigure 6. Management of HER2-positive EBC. (algorithm path): HER2+ EBC → ≥cT2^a or cN+ → 6-8 cycles ChT-HP [I, A; MCBS C]^b,c → Surgery and locoregional RT if indicated → pCR → cN0 at initial diagnosis → Complete 1 year of trastuzumab^b [I, A; MCBS A]^b; If HR+, adjuvant ET [I, A] Footnotes: a: Tumours <2 cm can be considered for neoadjuvant therapy.\n\nFigure 6. Management of HER2-positive EBC. (algorithm path): HER2+ EBC → ≥cT2^a or cN+ → 6-8 cycles ChT-HP [I, A; MCBS C]^b,c → Surgery and locoregional RT if indicated → pCR → cN+ or pN+ at initial diagnosis → Complete 1 year of HP [I, A; MCBS A]^b,c; If HR+, adjuvant ET [I, A] Footnotes: a: Tumours <2 cm can be considered for neoadjuvant therapy.\n\nFigure 6. Management of HER2-positive EBC. (algorithm path): HER2+ EBC → ≥cT2^a or cN+ → 6-8 cycles ChT-HP [I, A; MCBS C]^b,c → Surgery and locoregional RT if indicated → Residual invasive disease → T-DM1 up to 14 cycles [I, A; MCBS A]^b,c; If HR+, adjuvant ET [I, A] Footnotes: a: Tumours <2 cm can be considered for neoadjuvant therapy.",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "HR+/HER2+",
+      "HR-/HER2+"
+    ],
+    "line": [
+      "adjuvant",
+      "neoadjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "trastuzumab",
+      "paclitaxel",
+      "trastuzumab emtansine"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig6-207157",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 6. Management of HER2-positive EBC.",
+    "page_start": 168,
+    "page_end": 168,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig6",
+    "text": "Figure 6. Management of HER2-positive EBC. (algorithm path): HER2+ EBC → cT1 cN0 → Surgery and locoregional RT if indicated → pT1 pN0 → 12 weeks paclitaxel-18 cycles trastuzumab [III, B; MCBS A]^b,c",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "HR+/HER2+",
+      "HR-/HER2+"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "trastuzumab",
+      "paclitaxel"
+    ],
+    "evidence": {
+      "loe": "III",
+      "gor": "B",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig6-f25e5f",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 6. Management of HER2-positive EBC.",
+    "page_start": 168,
+    "page_end": 168,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig6",
+    "text": "Figure 6. Management of HER2-positive EBC. (algorithm path): HER2+ EBC → cT1 cN0 → Surgery and locoregional RT if indicated → ≥pT2 pN0 → 6-8 cycles ChT-trastuzumab [I, B; MCBS A]^b → Complete 1 year of trastuzumab [I, A; MCBS A]^b; If HR+, adjuvant ET [I, A]",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "HR+/HER2+",
+      "HR-/HER2+"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "trastuzumab"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig6-549ca3",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 6. Management of HER2-positive EBC.",
+    "page_start": 168,
+    "page_end": 168,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig6",
+    "text": "Figure 6. Management of HER2-positive EBC. (algorithm path): HER2+ EBC → cT1 cN0 → Surgery and locoregional RT if indicated → pN+ → 6-8 cycles ChT-HP [I, A; MCBS A]^b,c → Complete 1 year of HP [I, A; MCBS A]^b,c; If HR+, adjuvant ET [I, A]",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "HR+/HER2+",
+      "HR-/HER2+"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "trastuzumab",
+      "pertuzumab"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig6-bcc9bd",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 6. Management of HER2-positive EBC.",
+    "page_start": 168,
+    "page_end": 168,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig6",
+    "text": "Figure 6. Management of HER2-positive EBC. (algorithm path): HER2+ EBC → ≥cT2^a or cN+ → 6-8 cycles ChT-HP [I, A; MCBS C]^b,c → Surgery and locoregional RT if indicated → pCR → cN0 at initial diagnosis → Complete 1 year of trastuzumab^b [I, A; MCBS A]^b; If HR+, adjuvant ET [I, A] Footnotes: a: Tumours <2 cm can be considered for neoadjuvant therapy.",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "HR+/HER2+",
+      "HR-/HER2+"
+    ],
+    "line": [
+      "neoadjuvant",
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "trastuzumab",
+      "pertuzumab"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig6-163f7d",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 6. Management of HER2-positive EBC.",
+    "page_start": 168,
+    "page_end": 168,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig6",
+    "text": "Figure 6. Management of HER2-positive EBC. (algorithm path): HER2+ EBC → ≥cT2^a or cN+ → 6-8 cycles ChT-HP [I, A; MCBS C]^b,c → Surgery and locoregional RT if indicated → pCR → cN+ or pN+ at initial diagnosis → Complete 1 year of HP [I, A; MCBS A]^b,c; If HR+, adjuvant ET [I, A] Footnotes: a: Tumours <2 cm can be considered for neoadjuvant therapy.",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "HR+/HER2+",
+      "HR-/HER2+"
+    ],
+    "line": [
+      "neoadjuvant",
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "trastuzumab",
+      "pertuzumab"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig6-83c27d",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 6. Management of HER2-positive EBC.",
+    "page_start": 168,
+    "page_end": 168,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig6",
+    "text": "Figure 6. Management of HER2-positive EBC. (algorithm path): HER2+ EBC → ≥cT2^a or cN+ → 6-8 cycles ChT-HP [I, A; MCBS C]^b,c → Surgery and locoregional RT if indicated → Residual invasive disease → T-DM1 up to 14 cycles [I, A; MCBS A]^b,c; If HR+, adjuvant ET [I, A] Footnotes: a: Tumours <2 cm can be considered for neoadjuvant therapy.",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "HR+/HER2+",
+      "HR-/HER2+"
+    ],
+    "line": [
+      "neoadjuvant",
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "trastuzumab",
+      "pertuzumab",
+      "trastuzumab emtansine"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig7",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 7. Management of early TNBC.",
+    "page_start": 170,
+    "page_end": 170,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Figure 7. Management of early TNBC.\n\nFigure 7. Management of early TNBC. (algorithm path): Early TNBC^b (optional: gBRCA1/2 testing^a) → cT1c-T4 or N+ → <cT2 N0 → 6-8 cycles: taxane-(carbo)platin-AC/EC^c,d [I, A] → Surgery and locoregional RT if indicated → Residual disease → gBRCA1/2-wt → Capecitabine for 6-8 cycles [I, A]^i Footnotes: a: See the ESMO CPG for risk reduction and screening of cancer in hereditary breast-ovarian cancer syndromes.4 b: HER2– tumours with 1%-9% ER and/or PgR expression (ER-low/PgR-low) are a heterogenous group, some of which behave biologically similarly to TNBC; therapeutic strategies should be adjusted to this specific situation since this might lead to a higher response to ChT and to reduced efficacy of ET compared with classical HR+ breast cancer [II, B]. c: These evidence-based regimens without ICIs are sequential: anthracycline-based therapy followed by a taxane or taxane-carboplatin or vice versa. d: The use of dose-dense schedules of ChT, with G-CSF support, should be considered given their documented benefit over non-dose-dense schedules [I, A]. i: Only for ICI-naïve patients. 170 https://doi.org/10.1016/j.annonc.2023.11.016\n\nFigure 7. Management of early TNBC. (algorithm path): Early TNBC^b (optional: gBRCA1/2 testing^a) → cT1c-T4 or N+ → <cT2 N0 → 6-8 cycles: taxane-(carbo)platin-AC/EC^c,d [I, A] → Surgery and locoregional RT if indicated → Residual disease → gBRCA1/2m → Olaparib for 1 year^e [I, A; MCBS A; ESCAT I-A]^f,g Footnotes: a: See the ESMO CPG for risk reduction and screening of cancer in hereditary breast-ovarian cancer syndromes.4 b: HER2– tumours with 1%-9% ER and/or PgR expression (ER-low/PgR-low) are a heterogenous group, some of which behave biologically similarly to TNBC; therapeutic strategies should be adjusted to this specific situation since this might lead to a higher response to ChT and to reduced efficacy of ET compared with classical HR+ breast cancer [II, B]. c: These evidence-based regimens without ICIs are sequential: anthracycline-based therapy followed by a taxane or taxane-carboplatin or vice versa. d: The use of dose-dense schedules of ChT, with G-CSF support, should be considered given their documented benefit over non-dose-dense schedules [I, A]. e: Indicated as adjuvant therapy for patients with gBRCA1/2m tumours and non-pCR or ≥pT2 or ≥pN1 if treated with initial surgery.\n\nFigure 7. Management of early TNBC. (algorithm path): Early TNBC^b (optional: gBRCA1/2 testing^a) → cT1c-T4 or N+ → <cT2 N0 → 6-8 cycles: taxane-(carbo)platin-AC/EC^c,d [I, A] → Surgery and locoregional RT if indicated → Residual disease → 9 cycles pembrolizumab^h [I, A; MCBS A]^f Footnotes: a: See the ESMO CPG for risk reduction and screening of cancer in hereditary breast-ovarian cancer syndromes.4 b: HER2– tumours with 1%-9% ER and/or PgR expression (ER-low/PgR-low) are a heterogenous group, some of which behave biologically similarly to TNBC; therapeutic strategies should be adjusted to this specific situation since this might lead to a higher response to ChT and to reduced efficacy of ET compared with classical HR+ breast cancer [II, B]. c: These evidence-based regimens without ICIs are sequential: anthracycline-based therapy followed by a taxane or taxane-carboplatin or vice versa. d: The use of dose-dense schedules of ChT, with G-CSF support, should be considered given their documented benefit over non-dose-dense schedules [I, A]. h: Only if pembrolizumab was given preoperatively.\n\nFigure 7. Management of early TNBC. (algorithm path): Early TNBC^b (optional: gBRCA1/2 testing^a) → cT1c-T4 or N+ → <cT2 N0 → 6-8 cycles: taxane-(carbo)platin-AC/EC^c,d [I, A] → Surgery and locoregional RT if indicated → pCR → 9 cycles pembrolizumab^h [I, A; MCBS A]^f Footnotes: a: See the ESMO CPG for risk reduction and screening of cancer in hereditary breast-ovarian cancer syndromes.4 b: HER2– tumours with 1%-9% ER and/or PgR expression (ER-low/PgR-low) are a heterogenous group, some of which behave biologically similarly to TNBC; therapeutic strategies should be adjusted to this specific situation since this might lead to a higher response to ChT and to reduced efficacy of ET compared with classical HR+ breast cancer [II, B]. c: These evidence-based regimens without ICIs are sequential: anthracycline-based therapy followed by a taxane or taxane-carboplatin or vice versa. d: The use of dose-dense schedules of ChT, with G-CSF support, should be considered given their documented benefit over non-dose-dense schedules [I, A]. h: Only if pembrolizumab was given preoperatively.\n\nFigure 7. Management of early TNBC. (algorithm path): Early TNBC^b (optional: gBRCA1/2 testing^a) → cT1c-T4 or N+ → ≥cT2 or N+ → 6-8 cycles taxane-carboplatin followed by AC/EC^d with pembrolizumab [I, A; MCBS A]^f → Surgery and locoregional RT if indicated → Residual disease → gBRCA1/2-wt → Capecitabine for 6-8 cycles [I, A]^i Footnotes: a: See the ESMO CPG for risk reduction and screening of cancer in hereditary breast-ovarian cancer syndromes.4 b: HER2– tumours with 1%-9% ER and/or PgR expression (ER-low/PgR-low) are a heterogenous group, some of which behave biologically similarly to TNBC; therapeutic strategies should be adjusted to this specific situation since this might lead to a higher response to ChT and to reduced efficacy of ET compared with classical HR+ breast cancer [II, B]. d: The use of dose-dense schedules of ChT, with G-CSF support, should be considered given their documented benefit over non-dose-dense schedules [I, A]. i: Only for ICI-naïve patients. 170 https://doi.org/10.1016/j.annonc.2023.11.016\n\nFigure 7. Management of early TNBC. (algorithm path): Early TNBC^b (optional: gBRCA1/2 testing^a) → cT1c-T4 or N+ → ≥cT2 or N+ → 6-8 cycles taxane-carboplatin followed by AC/EC^d with pembrolizumab [I, A; MCBS A]^f → Surgery and locoregional RT if indicated → Residual disease → gBRCA1/2m → Olaparib for 1 year^e [I, A; MCBS A; ESCAT I-A]^f,g Footnotes: a: See the ESMO CPG for risk reduction and screening of cancer in hereditary breast-ovarian cancer syndromes.4 b: HER2– tumours with 1%-9% ER and/or PgR expression (ER-low/PgR-low) are a heterogenous group, some of which behave biologically similarly to TNBC; therapeutic strategies should be adjusted to this specific situation since this might lead to a higher response to ChT and to reduced efficacy of ET compared with classical HR+ breast cancer [II, B]. d: The use of dose-dense schedules of ChT, with G-CSF support, should be considered given their documented benefit over non-dose-dense schedules [I, A]. e: Indicated as adjuvant therapy for patients with gBRCA1/2m tumours and non-pCR or ≥pT2 or ≥pN1 if treated with initial surgery.\n\nFigure 7. Management of early TNBC. (algorithm path): Early TNBC^b (optional: gBRCA1/2 testing^a) → cT1c-T4 or N+ → ≥cT2 or N+ → 6-8 cycles taxane-carboplatin followed by AC/EC^d with pembrolizumab [I, A; MCBS A]^f → Surgery and locoregional RT if indicated → Residual disease → 9 cycles pembrolizumab^h [I, A; MCBS A]^f Footnotes: a: See the ESMO CPG for risk reduction and screening of cancer in hereditary breast-ovarian cancer syndromes.4 b: HER2– tumours with 1%-9% ER and/or PgR expression (ER-low/PgR-low) are a heterogenous group, some of which behave biologically similarly to TNBC; therapeutic strategies should be adjusted to this specific situation since this might lead to a higher response to ChT and to reduced efficacy of ET compared with classical HR+ breast cancer [II, B]. d: The use of dose-dense schedules of ChT, with G-CSF support, should be considered given their documented benefit over non-dose-dense schedules [I, A]. h: Only if pembrolizumab was given preoperatively.\n\nFigure 7. Management of early TNBC. (algorithm path): Early TNBC^b (optional: gBRCA1/2 testing^a) → cT1c-T4 or N+ → ≥cT2 or N+ → 6-8 cycles taxane-carboplatin followed by AC/EC^d with pembrolizumab [I, A; MCBS A]^f → Surgery and locoregional RT if indicated → pCR → 9 cycles pembrolizumab^h [I, A; MCBS A]^f Footnotes: a: See the ESMO CPG for risk reduction and screening of cancer in hereditary breast-ovarian cancer syndromes.4 b: HER2– tumours with 1%-9% ER and/or PgR expression (ER-low/PgR-low) are a heterogenous group, some of which behave biologically similarly to TNBC; therapeutic strategies should be adjusted to this specific situation since this might lead to a higher response to ChT and to reduced efficacy of ET compared with classical HR+ breast cancer [II, B]. d: The use of dose-dense schedules of ChT, with G-CSF support, should be considered given their documented benefit over non-dose-dense schedules [I, A]. h: Only if pembrolizumab was given preoperatively.\n\nFigure 7. Management of early TNBC. (algorithm path): Early TNBC^b (optional: gBRCA1/2 testing^a) → cT1a or cT1b N0 → Surgery and whole breast RT if indicated → pT1a pN0 → Consider no adjuvant systemic therapy [II, B] Footnotes: a: See the ESMO CPG for risk reduction and screening of cancer in hereditary breast-ovarian cancer syndromes.4 b: HER2– tumours with 1%-9% ER and/or PgR expression (ER-low/PgR-low) are a heterogenous group, some of which behave biologically similarly to TNBC; therapeutic strategies should be adjusted to this specific situation since this might lead to a higher response to ChT and to reduced efficacy of ET compared with classical HR+ breast cancer [II, B].\n\nFigure 7. Management of early TNBC. (algorithm path): Early TNBC^b (optional: gBRCA1/2 testing^a) → cT1a or cT1b N0 → Surgery and whole breast RT if indicated → pT1b pN0 → 6-8 cycles systemic ChT [I, A] Footnotes: a: See the ESMO CPG for risk reduction and screening of cancer in hereditary breast-ovarian cancer syndromes.4 b: HER2– tumours with 1%-9% ER and/or PgR expression (ER-low/PgR-low) are a heterogenous group, some of which behave biologically similarly to TNBC; therapeutic strategies should be adjusted to this specific situation since this might lead to a higher response to ChT and to reduced efficacy of ET compared with classical HR+ breast cancer [II, B].\n\nFigure 7. Management of early TNBC. (algorithm path): Early TNBC^b (optional: gBRCA1/2 testing^a) → cT1a or cT1b N0 → Surgery and whole breast RT if indicated → >pT1b any pN → 6-8 cycles systemic ChT [I, A] → gBRCA1/2m → Olaparib for 1 year^e [I, A; MCBS A; ESCAT I-A]^f,g Footnotes: a: See the ESMO CPG for risk reduction and screening of cancer in hereditary breast-ovarian cancer syndromes.4 b: HER2– tumours with 1%-9% ER and/or PgR expression (ER-low/PgR-low) are a heterogenous group, some of which behave biologically similarly to TNBC; therapeutic strategies should be adjusted to this specific situation since this might lead to a higher response to ChT and to reduced efficacy of ET compared with classical HR+ breast cancer [II, B]. e: Indicated as adjuvant therapy for patients with gBRCA1/2m tumours and non-pCR or ≥pT2 or ≥pN1 if treated with initial surgery.",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "neoadjuvant",
+      "adjuvant"
+    ],
+    "biomarker_tags": [
+      "ER-low",
+      "gBRCA"
+    ],
+    "drugs": [
+      "pembrolizumab",
+      "capecitabine",
+      "carboplatin",
+      "olaparib"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig7-a20657",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 7. Management of early TNBC.",
+    "page_start": 170,
+    "page_end": 170,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig7",
+    "text": "Figure 7. Management of early TNBC. (algorithm path): Early TNBC^b (optional: gBRCA1/2 testing^a) → cT1c-T4 or N+ → <cT2 N0 → 6-8 cycles: taxane-(carbo)platin-AC/EC^c,d [I, A] → Surgery and locoregional RT if indicated → Residual disease → gBRCA1/2-wt → Capecitabine for 6-8 cycles [I, A]^i Footnotes: a: See the ESMO CPG for risk reduction and screening of cancer in hereditary breast-ovarian cancer syndromes.4 b: HER2– tumours with 1%-9% ER and/or PgR expression (ER-low/PgR-low) are a heterogenous group, some of which behave biologically similarly to TNBC; therapeutic strategies should be adjusted to this specific situation since this might lead to a higher response to ChT and to reduced efficacy of ET compared with classical HR+ breast cancer [II, B]. c: These evidence-based regimens without ICIs are sequential: anthracycline-based therapy followed by a taxane or taxane-carboplatin or vice versa. d: The use of dose-dense schedules of ChT, with G-CSF support, should be considered given their documented benefit over non-dose-dense schedules [I, A]. i: Only for ICI-naïve patients. 170 https://doi.org/10.1016/j.annonc.2023.11.016",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "neoadjuvant",
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "cyclophosphamide",
+      "capecitabine",
+      "doxorubicin",
+      "epirubicin"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig7-474a0a",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 7. Management of early TNBC.",
+    "page_start": 170,
+    "page_end": 170,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig7",
+    "text": "Figure 7. Management of early TNBC. (algorithm path): Early TNBC^b (optional: gBRCA1/2 testing^a) → cT1c-T4 or N+ → <cT2 N0 → 6-8 cycles: taxane-(carbo)platin-AC/EC^c,d [I, A] → Surgery and locoregional RT if indicated → Residual disease → gBRCA1/2m → Olaparib for 1 year^e [I, A; MCBS A; ESCAT I-A]^f,g Footnotes: a: See the ESMO CPG for risk reduction and screening of cancer in hereditary breast-ovarian cancer syndromes.4 b: HER2– tumours with 1%-9% ER and/or PgR expression (ER-low/PgR-low) are a heterogenous group, some of which behave biologically similarly to TNBC; therapeutic strategies should be adjusted to this specific situation since this might lead to a higher response to ChT and to reduced efficacy of ET compared with classical HR+ breast cancer [II, B]. c: These evidence-based regimens without ICIs are sequential: anthracycline-based therapy followed by a taxane or taxane-carboplatin or vice versa. d: The use of dose-dense schedules of ChT, with G-CSF support, should be considered given their documented benefit over non-dose-dense schedules [I, A]. e: Indicated as adjuvant therapy for patients with gBRCA1/2m tumours and non-pCR or ≥pT2 or ≥pN1 if treated with initial surgery.",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "neoadjuvant",
+      "adjuvant"
+    ],
+    "biomarker_tags": [
+      "gBRCA"
+    ],
+    "drugs": [
+      "cyclophosphamide",
+      "doxorubicin",
+      "epirubicin",
+      "olaparib"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig7-f52123",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 7. Management of early TNBC.",
+    "page_start": 170,
+    "page_end": 170,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig7",
+    "text": "Figure 7. Management of early TNBC. (algorithm path): Early TNBC^b (optional: gBRCA1/2 testing^a) → cT1c-T4 or N+ → <cT2 N0 → 6-8 cycles: taxane-(carbo)platin-AC/EC^c,d [I, A] → Surgery and locoregional RT if indicated → Residual disease → 9 cycles pembrolizumab^h [I, A; MCBS A]^f Footnotes: a: See the ESMO CPG for risk reduction and screening of cancer in hereditary breast-ovarian cancer syndromes.4 b: HER2– tumours with 1%-9% ER and/or PgR expression (ER-low/PgR-low) are a heterogenous group, some of which behave biologically similarly to TNBC; therapeutic strategies should be adjusted to this specific situation since this might lead to a higher response to ChT and to reduced efficacy of ET compared with classical HR+ breast cancer [II, B]. c: These evidence-based regimens without ICIs are sequential: anthracycline-based therapy followed by a taxane or taxane-carboplatin or vice versa. d: The use of dose-dense schedules of ChT, with G-CSF support, should be considered given their documented benefit over non-dose-dense schedules [I, A]. h: Only if pembrolizumab was given preoperatively.",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "neoadjuvant",
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "cyclophosphamide",
+      "pembrolizumab",
+      "doxorubicin",
+      "epirubicin"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig7-e281ed",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 7. Management of early TNBC.",
+    "page_start": 170,
+    "page_end": 170,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig7",
+    "text": "Figure 7. Management of early TNBC. (algorithm path): Early TNBC^b (optional: gBRCA1/2 testing^a) → cT1c-T4 or N+ → <cT2 N0 → 6-8 cycles: taxane-(carbo)platin-AC/EC^c,d [I, A] → Surgery and locoregional RT if indicated → pCR → 9 cycles pembrolizumab^h [I, A; MCBS A]^f Footnotes: a: See the ESMO CPG for risk reduction and screening of cancer in hereditary breast-ovarian cancer syndromes.4 b: HER2– tumours with 1%-9% ER and/or PgR expression (ER-low/PgR-low) are a heterogenous group, some of which behave biologically similarly to TNBC; therapeutic strategies should be adjusted to this specific situation since this might lead to a higher response to ChT and to reduced efficacy of ET compared with classical HR+ breast cancer [II, B]. c: These evidence-based regimens without ICIs are sequential: anthracycline-based therapy followed by a taxane or taxane-carboplatin or vice versa. d: The use of dose-dense schedules of ChT, with G-CSF support, should be considered given their documented benefit over non-dose-dense schedules [I, A]. h: Only if pembrolizumab was given preoperatively.",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "neoadjuvant",
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "cyclophosphamide",
+      "pembrolizumab",
+      "doxorubicin",
+      "epirubicin"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig7-796507",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 7. Management of early TNBC.",
+    "page_start": 170,
+    "page_end": 170,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig7",
+    "text": "Figure 7. Management of early TNBC. (algorithm path): Early TNBC^b (optional: gBRCA1/2 testing^a) → cT1c-T4 or N+ → ≥cT2 or N+ → 6-8 cycles taxane-carboplatin followed by AC/EC^d with pembrolizumab [I, A; MCBS A]^f → Surgery and locoregional RT if indicated → Residual disease → gBRCA1/2-wt → Capecitabine for 6-8 cycles [I, A]^i Footnotes: a: See the ESMO CPG for risk reduction and screening of cancer in hereditary breast-ovarian cancer syndromes.4 b: HER2– tumours with 1%-9% ER and/or PgR expression (ER-low/PgR-low) are a heterogenous group, some of which behave biologically similarly to TNBC; therapeutic strategies should be adjusted to this specific situation since this might lead to a higher response to ChT and to reduced efficacy of ET compared with classical HR+ breast cancer [II, B]. d: The use of dose-dense schedules of ChT, with G-CSF support, should be considered given their documented benefit over non-dose-dense schedules [I, A]. i: Only for ICI-naïve patients. 170 https://doi.org/10.1016/j.annonc.2023.11.016",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "neoadjuvant",
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "cyclophosphamide",
+      "pembrolizumab",
+      "capecitabine",
+      "carboplatin",
+      "doxorubicin",
+      "epirubicin"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig7-6c7aa4",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 7. Management of early TNBC.",
+    "page_start": 170,
+    "page_end": 170,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig7",
+    "text": "Figure 7. Management of early TNBC. (algorithm path): Early TNBC^b (optional: gBRCA1/2 testing^a) → cT1c-T4 or N+ → ≥cT2 or N+ → 6-8 cycles taxane-carboplatin followed by AC/EC^d with pembrolizumab [I, A; MCBS A]^f → Surgery and locoregional RT if indicated → Residual disease → gBRCA1/2m → Olaparib for 1 year^e [I, A; MCBS A; ESCAT I-A]^f,g Footnotes: a: See the ESMO CPG for risk reduction and screening of cancer in hereditary breast-ovarian cancer syndromes.4 b: HER2– tumours with 1%-9% ER and/or PgR expression (ER-low/PgR-low) are a heterogenous group, some of which behave biologically similarly to TNBC; therapeutic strategies should be adjusted to this specific situation since this might lead to a higher response to ChT and to reduced efficacy of ET compared with classical HR+ breast cancer [II, B]. d: The use of dose-dense schedules of ChT, with G-CSF support, should be considered given their documented benefit over non-dose-dense schedules [I, A]. e: Indicated as adjuvant therapy for patients with gBRCA1/2m tumours and non-pCR or ≥pT2 or ≥pN1 if treated with initial surgery.",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "neoadjuvant",
+      "adjuvant"
+    ],
+    "biomarker_tags": [
+      "gBRCA"
+    ],
+    "drugs": [
+      "cyclophosphamide",
+      "pembrolizumab",
+      "carboplatin",
+      "doxorubicin",
+      "epirubicin",
+      "olaparib"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig7-9ac5a5",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 7. Management of early TNBC.",
+    "page_start": 170,
+    "page_end": 170,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig7",
+    "text": "Figure 7. Management of early TNBC. (algorithm path): Early TNBC^b (optional: gBRCA1/2 testing^a) → cT1c-T4 or N+ → ≥cT2 or N+ → 6-8 cycles taxane-carboplatin followed by AC/EC^d with pembrolizumab [I, A; MCBS A]^f → Surgery and locoregional RT if indicated → Residual disease → 9 cycles pembrolizumab^h [I, A; MCBS A]^f Footnotes: a: See the ESMO CPG for risk reduction and screening of cancer in hereditary breast-ovarian cancer syndromes.4 b: HER2– tumours with 1%-9% ER and/or PgR expression (ER-low/PgR-low) are a heterogenous group, some of which behave biologically similarly to TNBC; therapeutic strategies should be adjusted to this specific situation since this might lead to a higher response to ChT and to reduced efficacy of ET compared with classical HR+ breast cancer [II, B]. d: The use of dose-dense schedules of ChT, with G-CSF support, should be considered given their documented benefit over non-dose-dense schedules [I, A]. h: Only if pembrolizumab was given preoperatively.",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "neoadjuvant",
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "cyclophosphamide",
+      "pembrolizumab",
+      "carboplatin",
+      "doxorubicin",
+      "epirubicin"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig7-dbe131",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 7. Management of early TNBC.",
+    "page_start": 170,
+    "page_end": 170,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig7",
+    "text": "Figure 7. Management of early TNBC. (algorithm path): Early TNBC^b (optional: gBRCA1/2 testing^a) → cT1c-T4 or N+ → ≥cT2 or N+ → 6-8 cycles taxane-carboplatin followed by AC/EC^d with pembrolizumab [I, A; MCBS A]^f → Surgery and locoregional RT if indicated → pCR → 9 cycles pembrolizumab^h [I, A; MCBS A]^f Footnotes: a: See the ESMO CPG for risk reduction and screening of cancer in hereditary breast-ovarian cancer syndromes.4 b: HER2– tumours with 1%-9% ER and/or PgR expression (ER-low/PgR-low) are a heterogenous group, some of which behave biologically similarly to TNBC; therapeutic strategies should be adjusted to this specific situation since this might lead to a higher response to ChT and to reduced efficacy of ET compared with classical HR+ breast cancer [II, B]. d: The use of dose-dense schedules of ChT, with G-CSF support, should be considered given their documented benefit over non-dose-dense schedules [I, A]. h: Only if pembrolizumab was given preoperatively.",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "neoadjuvant",
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "cyclophosphamide",
+      "pembrolizumab",
+      "carboplatin",
+      "doxorubicin",
+      "epirubicin"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig7-5ab655",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 7. Management of early TNBC.",
+    "page_start": 170,
+    "page_end": 170,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig7",
+    "text": "Figure 7. Management of early TNBC. (algorithm path): Early TNBC^b (optional: gBRCA1/2 testing^a) → cT1a or cT1b N0 → Surgery and whole breast RT if indicated → pT1a pN0 → Consider no adjuvant systemic therapy [II, B] Footnotes: a: See the ESMO CPG for risk reduction and screening of cancer in hereditary breast-ovarian cancer syndromes.4 b: HER2– tumours with 1%-9% ER and/or PgR expression (ER-low/PgR-low) are a heterogenous group, some of which behave biologically similarly to TNBC; therapeutic strategies should be adjusted to this specific situation since this might lead to a higher response to ChT and to reduced efficacy of ET compared with classical HR+ breast cancer [II, B].",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "II",
+      "gor": "B",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig7-8ccb0b",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 7. Management of early TNBC.",
+    "page_start": 170,
+    "page_end": 170,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig7",
+    "text": "Figure 7. Management of early TNBC. (algorithm path): Early TNBC^b (optional: gBRCA1/2 testing^a) → cT1a or cT1b N0 → Surgery and whole breast RT if indicated → pT1b pN0 → 6-8 cycles systemic ChT [I, A] Footnotes: a: See the ESMO CPG for risk reduction and screening of cancer in hereditary breast-ovarian cancer syndromes.4 b: HER2– tumours with 1%-9% ER and/or PgR expression (ER-low/PgR-low) are a heterogenous group, some of which behave biologically similarly to TNBC; therapeutic strategies should be adjusted to this specific situation since this might lead to a higher response to ChT and to reduced efficacy of ET compared with classical HR+ breast cancer [II, B].",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-ebc-2024-02-fig7-304a0f",
+    "doc_type": "guideline",
+    "source": "ESMO-EBC",
+    "version": "2024-02",
+    "section": "Figure 7. Management of early TNBC.",
+    "page_start": 170,
+    "page_end": 170,
+    "url": "https://doi.org/10.1016/j.annonc.2023.11.016",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-ebc-2024-02-fig7",
+    "text": "Figure 7. Management of early TNBC. (algorithm path): Early TNBC^b (optional: gBRCA1/2 testing^a) → cT1a or cT1b N0 → Surgery and whole breast RT if indicated → >pT1b any pN → 6-8 cycles systemic ChT [I, A] → gBRCA1/2m → Olaparib for 1 year^e [I, A; MCBS A; ESCAT I-A]^f,g Footnotes: a: See the ESMO CPG for risk reduction and screening of cancer in hereditary breast-ovarian cancer syndromes.4 b: HER2– tumours with 1%-9% ER and/or PgR expression (ER-low/PgR-low) are a heterogenous group, some of which behave biologically similarly to TNBC; therapeutic strategies should be adjusted to this specific situation since this might lead to a higher response to ChT and to reduced efficacy of ET compared with classical HR+ breast cancer [II, B]. e: Indicated as adjuvant therapy for patients with gBRCA1/2m tumours and non-pCR or ≥pT2 or ≥pN1 if treated with initial surgery.",
+    "setting": [
+      "early",
+      "locally_advanced"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "adjuvant"
+    ],
+    "biomarker_tags": [
+      "gBRCA"
+    ],
+    "drugs": [
+      "olaparib"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig2",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 2. First-line management of ER-positive, HER2-negative MBC.",
+    "page_start": 1206,
+    "page_end": 1206,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Figure 2. First-line management of ER-positive, HER2-negative MBC.\n\nFigure 2. First-line management of ER-positive, HER2-negative MBC. (algorithm path): Previously untreated ER+, HER2- MBC → De novo or recurrence >12 months after end of adjuvant ET^a,b → Order of preference: AI-ribociclib [I, A; MCBS 4]^c; AI-abemaciclib [I, A; MCBS 1]^c; AI-palbociclib [I, A; MCBS 2]^c → [PD] → Second-line treatment (see Figure 3) Footnotes: a: ET alone can be recommended for the small group of patients with comorbidities or a PS that precludes the use of CDK4/6 inhibitor combinations [V, B]. ChT can be recommended for patients with imminent organ failure at MBC diagnosis [V, B]. b: Ovarian function suppression or ovarian ablation is recommended in addition to all endocrine-based therapies in pre- and perimenopausal women [I, A].\n\nFigure 2. First-line management of ER-positive, HER2-negative MBC. (algorithm path): Previously untreated ER+, HER2- MBC → Recurrence while on adjuvant ET or ≤12 months after end of adjuvant ET^a,b → PIK3CA mutated [ESCAT I-A]^d → Fulvestrant-palbociclib-inavolisib [I, A; MCBS 3]^c; Fulvestrant-palbociclib [I, B; MCBS 4]^c; Fulvestrant-ribociclib [I, B; MCBS 4]^c; Fulvestrant-abemaciclib [I, B; MCBS 3]^c → [PD] → Second-line treatment (see Figure 3) Footnotes: a: ET alone can be recommended for the small group of patients with comorbidities or a PS that precludes the use of CDK4/6 inhibitor combinations [V, B]. ChT can be recommended for patients with imminent organ failure at MBC diagnosis [V, B]. b: Ovarian function suppression or ovarian ablation is recommended in addition to all endocrine-based therapies in pre- and perimenopausal women [I, A].\n\nFigure 2. First-line management of ER-positive, HER2-negative MBC. (algorithm path): Previously untreated ER+, HER2- MBC → Recurrence while on adjuvant ET or ≤12 months after end of adjuvant ET^a,b → PIK3CA wt → Fulvestrant-palbociclib [I, A; MCBS 4]^c; Fulvestrant-ribociclib [I, A; MCBS 4]^c; Fulvestrant-abemaciclib [I, A; MCBS 3]^c → [PD] → Second-line treatment (see Figure 3) Footnotes: a: ET alone can be recommended for the small group of patients with comorbidities or a PS that precludes the use of CDK4/6 inhibitor combinations [V, B]. ChT can be recommended for patients with imminent organ failure at MBC diagnosis [V, B]. b: Ovarian function suppression or ovarian ablation is recommended in addition to all endocrine-based therapies in pre- and perimenopausal women [I, A].",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "1L"
+    ],
+    "biomarker_tags": [
+      "PIK3CA-mut"
+    ],
+    "drugs": [
+      "abemaciclib",
+      "fulvestrant",
+      "palbociclib",
+      "inavolisib",
+      "ribociclib"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig2-1ae139",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 2. First-line management of ER-positive, HER2-negative MBC.",
+    "page_start": 1206,
+    "page_end": 1206,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig2",
+    "text": "Figure 2. First-line management of ER-positive, HER2-negative MBC. (algorithm path): Previously untreated ER+, HER2- MBC → De novo or recurrence >12 months after end of adjuvant ET^a,b → Order of preference: AI-ribociclib [I, A; MCBS 4]^c; AI-abemaciclib [I, A; MCBS 1]^c; AI-palbociclib [I, A; MCBS 2]^c → [PD] → Second-line treatment (see Figure 3) Footnotes: a: ET alone can be recommended for the small group of patients with comorbidities or a PS that precludes the use of CDK4/6 inhibitor combinations [V, B]. ChT can be recommended for patients with imminent organ failure at MBC diagnosis [V, B]. b: Ovarian function suppression or ovarian ablation is recommended in addition to all endocrine-based therapies in pre- and perimenopausal women [I, A].",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "1L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "abemaciclib",
+      "palbociclib",
+      "ribociclib"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig2-0a0c7b",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 2. First-line management of ER-positive, HER2-negative MBC.",
+    "page_start": 1206,
+    "page_end": 1206,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig2",
+    "text": "Figure 2. First-line management of ER-positive, HER2-negative MBC. (algorithm path): Previously untreated ER+, HER2- MBC → Recurrence while on adjuvant ET or ≤12 months after end of adjuvant ET^a,b → PIK3CA mutated [ESCAT I-A]^d → Fulvestrant-palbociclib-inavolisib [I, A; MCBS 3]^c; Fulvestrant-palbociclib [I, B; MCBS 4]^c; Fulvestrant-ribociclib [I, B; MCBS 4]^c; Fulvestrant-abemaciclib [I, B; MCBS 3]^c → [PD] → Second-line treatment (see Figure 3) Footnotes: a: ET alone can be recommended for the small group of patients with comorbidities or a PS that precludes the use of CDK4/6 inhibitor combinations [V, B]. ChT can be recommended for patients with imminent organ failure at MBC diagnosis [V, B]. b: Ovarian function suppression or ovarian ablation is recommended in addition to all endocrine-based therapies in pre- and perimenopausal women [I, A].",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "1L"
+    ],
+    "biomarker_tags": [
+      "PIK3CA-mut"
+    ],
+    "drugs": [
+      "abemaciclib",
+      "fulvestrant",
+      "palbociclib",
+      "inavolisib",
+      "ribociclib"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig2-a9baa4",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 2. First-line management of ER-positive, HER2-negative MBC.",
+    "page_start": 1206,
+    "page_end": 1206,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig2",
+    "text": "Figure 2. First-line management of ER-positive, HER2-negative MBC. (algorithm path): Previously untreated ER+, HER2- MBC → Recurrence while on adjuvant ET or ≤12 months after end of adjuvant ET^a,b → PIK3CA wt → Fulvestrant-palbociclib [I, A; MCBS 4]^c; Fulvestrant-ribociclib [I, A; MCBS 4]^c; Fulvestrant-abemaciclib [I, A; MCBS 3]^c → [PD] → Second-line treatment (see Figure 3) Footnotes: a: ET alone can be recommended for the small group of patients with comorbidities or a PS that precludes the use of CDK4/6 inhibitor combinations [V, B]. ChT can be recommended for patients with imminent organ failure at MBC diagnosis [V, B]. b: Ovarian function suppression or ovarian ablation is recommended in addition to all endocrine-based therapies in pre- and perimenopausal women [I, A].",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "1L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "abemaciclib",
+      "fulvestrant",
+      "palbociclib",
+      "ribociclib"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig3",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 3. Second-line management of ER-positive, HER2-negative MBC.",
+    "page_start": 1207,
+    "page_end": 1207,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Figure 3. Second-line management of ER-positive, HER2-negative MBC.\n\nFigure 3. Second-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC,^a,b 1 prior therapy line → gPALB2 mutated [ESCAT II-B]^c → Olaparib^j [II, B]; Talazoparib^j [II, B] → [PD] → Third-line treatment (see Figure 4) Footnotes: a: Selection of second-line therapy (endocrine or non-endocrine) based on disease aggressiveness, disease extent, organ function, progression-free survival on prior ET, somatic and germline mutational status and the associated toxicity profile can be recommended [V, B]. b: Ovarian function suppression or ovarian ablation is recommended in addition to all endocrine-based therapies in pre- and perimenopausal women [I, A]. j: Not EMA or FDA approved.\n\nFigure 3. Second-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC,^a,b 1 prior therapy line → PIK3CA mutated [ESCAT I-A]^c → Fulvestrant-capivasertib^d,e [I, A; MCBS 2]^f; Fulvestrant-alpelisib^d,g [I, B; MCBS 1]^f → [PD] → Third-line treatment (see Figure 4) Footnotes: a: Selection of second-line therapy (endocrine or non-endocrine) based on disease aggressiveness, disease extent, organ function, progression-free survival on prior ET, somatic and germline mutational status and the associated toxicity profile can be recommended [V, B]. b: Ovarian function suppression or ovarian ablation is recommended in addition to all endocrine-based therapies in pre- and perimenopausal women [I, A]. d: If not previously exposed to fulvestrant. e: Patients experiencing relapse or PD during or after treatment with an AI with or without previous CDK4/6 inhibitor therapy. g: Patients with PIK3CA-mutated tumours (in exons 7, 9 or 20), prior exposure to an AI (with or without CDK4/6 inhibitors) and appropriate glycated haemoglobin levels.\n\nFigure 3. Second-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC,^a,b 1 prior therapy line → AKT1 or PTEN alterations [ESCAT I-A]^c → Fulvestrant-capivasertib^d,e [I, A; MCBS 2]^f → [PD] → Third-line treatment (see Figure 4) Footnotes: a: Selection of second-line therapy (endocrine or non-endocrine) based on disease aggressiveness, disease extent, organ function, progression-free survival on prior ET, somatic and germline mutational status and the associated toxicity profile can be recommended [V, B]. b: Ovarian function suppression or ovarian ablation is recommended in addition to all endocrine-based therapies in pre- and perimenopausal women [I, A]. d: If not previously exposed to fulvestrant. e: Patients experiencing relapse or PD during or after treatment with an AI with or without previous CDK4/6 inhibitor therapy.\n\nFigure 3. Second-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC,^a,b 1 prior therapy line → ESR1 mutated [ESCAT I-A]^c → Elacestrant^h [I, A; MCBS 3]^f; Imlunestrant^h [I, A; MCBS 3]^f → [PD] → Third-line treatment (see Figure 4) Footnotes: a: Selection of second-line therapy (endocrine or non-endocrine) based on disease aggressiveness, disease extent, organ function, progression-free survival on prior ET, somatic and germline mutational status and the associated toxicity profile can be recommended [V, B]. b: Ovarian function suppression or ovarian ablation is recommended in addition to all endocrine-based therapies in pre- and perimenopausal women [I, A]. h: After at least one line of ET, preferably in patients who had a prolonged response to previous CDK4/6 inhibitor therapy.\n\nFigure 3. Second-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC,^a,b 1 prior therapy line → gBRCA1/2 mutated [ESCAT I-A]^c → Olaparib^i [I, A; MCBS 4]^f; Talazoparib^i [I, A; MCBS 3]^f → [PD] → Third-line treatment (see Figure 4) Footnotes: a: Selection of second-line therapy (endocrine or non-endocrine) based on disease aggressiveness, disease extent, organ function, progression-free survival on prior ET, somatic and germline mutational status and the associated toxicity profile can be recommended [V, B]. b: Ovarian function suppression or ovarian ablation is recommended in addition to all endocrine-based therapies in pre- and perimenopausal women [I, A]. i: For patients with tumours harbouring somatic pathogenic or likely pathogenic BRCA1/2 mutations, PARPi monotherapy can also be recommended [II, B; ESCAT score: II-B].\n\nFigure 3. Second-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC,^a,b 1 prior therapy line → No targetable alterations → Exemestane-everolimus^k [I, B; MCBS 1]^f; Fulvestrant-everolimus^d,j,k [II, B]; Tamoxifen-everolimus^j,k [II, B]; Fulvestrant-CDK4/6 inhibitor switch [II, C]; Fulvestrant^d [I, C; MCBS 1]^f → [PD] → Third-line treatment (see Figure 4) Footnotes: a: Selection of second-line therapy (endocrine or non-endocrine) based on disease aggressiveness, disease extent, organ function, progression-free survival on prior ET, somatic and germline mutational status and the associated toxicity profile can be recommended [V, B]. b: Ovarian function suppression or ovarian ablation is recommended in addition to all endocrine-based therapies in pre- and perimenopausal women [I, A]. d: If not previously exposed to fulvestrant. j: Not EMA or FDA approved. k: Steroid mouthwash is recommended for stomatitis prophylaxis in patients receiving everolimus [V, A].",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "2L"
+    ],
+    "biomarker_tags": [
+      "gBRCA",
+      "sBRCA",
+      "gPALB2",
+      "PIK3CA-mut",
+      "ESR1-mut",
+      "AKT1-mut",
+      "PTEN-alt"
+    ],
+    "drugs": [
+      "capivasertib",
+      "imlunestrant",
+      "elacestrant",
+      "fulvestrant",
+      "talazoparib",
+      "everolimus",
+      "exemestane",
+      "alpelisib",
+      "tamoxifen",
+      "olaparib"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig3-d5aff4",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 3. Second-line management of ER-positive, HER2-negative MBC.",
+    "page_start": 1207,
+    "page_end": 1207,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig3",
+    "text": "Figure 3. Second-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC,^a,b 1 prior therapy line → gPALB2 mutated [ESCAT II-B]^c → Olaparib^j [II, B]; Talazoparib^j [II, B] → [PD] → Third-line treatment (see Figure 4) Footnotes: a: Selection of second-line therapy (endocrine or non-endocrine) based on disease aggressiveness, disease extent, organ function, progression-free survival on prior ET, somatic and germline mutational status and the associated toxicity profile can be recommended [V, B]. b: Ovarian function suppression or ovarian ablation is recommended in addition to all endocrine-based therapies in pre- and perimenopausal women [I, A]. j: Not EMA or FDA approved.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "2L"
+    ],
+    "biomarker_tags": [
+      "gPALB2"
+    ],
+    "drugs": [
+      "talazoparib",
+      "olaparib"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig3-1c118e",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 3. Second-line management of ER-positive, HER2-negative MBC.",
+    "page_start": 1207,
+    "page_end": 1207,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig3",
+    "text": "Figure 3. Second-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC,^a,b 1 prior therapy line → PIK3CA mutated [ESCAT I-A]^c → Fulvestrant-capivasertib^d,e [I, A; MCBS 2]^f; Fulvestrant-alpelisib^d,g [I, B; MCBS 1]^f → [PD] → Third-line treatment (see Figure 4) Footnotes: a: Selection of second-line therapy (endocrine or non-endocrine) based on disease aggressiveness, disease extent, organ function, progression-free survival on prior ET, somatic and germline mutational status and the associated toxicity profile can be recommended [V, B]. b: Ovarian function suppression or ovarian ablation is recommended in addition to all endocrine-based therapies in pre- and perimenopausal women [I, A]. d: If not previously exposed to fulvestrant. e: Patients experiencing relapse or PD during or after treatment with an AI with or without previous CDK4/6 inhibitor therapy. g: Patients with PIK3CA-mutated tumours (in exons 7, 9 or 20), prior exposure to an AI (with or without CDK4/6 inhibitors) and appropriate glycated haemoglobin levels.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "2L"
+    ],
+    "biomarker_tags": [
+      "PIK3CA-mut"
+    ],
+    "drugs": [
+      "capivasertib",
+      "fulvestrant",
+      "alpelisib"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig3-416e66",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 3. Second-line management of ER-positive, HER2-negative MBC.",
+    "page_start": 1207,
+    "page_end": 1207,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig3",
+    "text": "Figure 3. Second-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC,^a,b 1 prior therapy line → AKT1 or PTEN alterations [ESCAT I-A]^c → Fulvestrant-capivasertib^d,e [I, A; MCBS 2]^f → [PD] → Third-line treatment (see Figure 4) Footnotes: a: Selection of second-line therapy (endocrine or non-endocrine) based on disease aggressiveness, disease extent, organ function, progression-free survival on prior ET, somatic and germline mutational status and the associated toxicity profile can be recommended [V, B]. b: Ovarian function suppression or ovarian ablation is recommended in addition to all endocrine-based therapies in pre- and perimenopausal women [I, A]. d: If not previously exposed to fulvestrant. e: Patients experiencing relapse or PD during or after treatment with an AI with or without previous CDK4/6 inhibitor therapy.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "2L"
+    ],
+    "biomarker_tags": [
+      "AKT1-mut",
+      "PTEN-alt"
+    ],
+    "drugs": [
+      "capivasertib",
+      "fulvestrant"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig3-14326f",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 3. Second-line management of ER-positive, HER2-negative MBC.",
+    "page_start": 1207,
+    "page_end": 1207,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig3",
+    "text": "Figure 3. Second-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC,^a,b 1 prior therapy line → ESR1 mutated [ESCAT I-A]^c → Elacestrant^h [I, A; MCBS 3]^f; Imlunestrant^h [I, A; MCBS 3]^f → [PD] → Third-line treatment (see Figure 4) Footnotes: a: Selection of second-line therapy (endocrine or non-endocrine) based on disease aggressiveness, disease extent, organ function, progression-free survival on prior ET, somatic and germline mutational status and the associated toxicity profile can be recommended [V, B]. b: Ovarian function suppression or ovarian ablation is recommended in addition to all endocrine-based therapies in pre- and perimenopausal women [I, A]. h: After at least one line of ET, preferably in patients who had a prolonged response to previous CDK4/6 inhibitor therapy.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "2L"
+    ],
+    "biomarker_tags": [
+      "ESR1-mut"
+    ],
+    "drugs": [
+      "imlunestrant",
+      "elacestrant"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig3-8bf8f8",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 3. Second-line management of ER-positive, HER2-negative MBC.",
+    "page_start": 1207,
+    "page_end": 1207,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig3",
+    "text": "Figure 3. Second-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC,^a,b 1 prior therapy line → gBRCA1/2 mutated [ESCAT I-A]^c → Olaparib^i [I, A; MCBS 4]^f; Talazoparib^i [I, A; MCBS 3]^f → [PD] → Third-line treatment (see Figure 4) Footnotes: a: Selection of second-line therapy (endocrine or non-endocrine) based on disease aggressiveness, disease extent, organ function, progression-free survival on prior ET, somatic and germline mutational status and the associated toxicity profile can be recommended [V, B]. b: Ovarian function suppression or ovarian ablation is recommended in addition to all endocrine-based therapies in pre- and perimenopausal women [I, A]. i: For patients with tumours harbouring somatic pathogenic or likely pathogenic BRCA1/2 mutations, PARPi monotherapy can also be recommended [II, B; ESCAT score: II-B].",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "2L"
+    ],
+    "biomarker_tags": [
+      "gBRCA"
+    ],
+    "drugs": [
+      "talazoparib",
+      "olaparib"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig3-0f09b4",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 3. Second-line management of ER-positive, HER2-negative MBC.",
+    "page_start": 1207,
+    "page_end": 1207,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig3",
+    "text": "Figure 3. Second-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC,^a,b 1 prior therapy line → No targetable alterations → Exemestane-everolimus^k [I, B; MCBS 1]^f; Fulvestrant-everolimus^d,j,k [II, B]; Tamoxifen-everolimus^j,k [II, B]; Fulvestrant-CDK4/6 inhibitor switch [II, C]; Fulvestrant^d [I, C; MCBS 1]^f → [PD] → Third-line treatment (see Figure 4) Footnotes: a: Selection of second-line therapy (endocrine or non-endocrine) based on disease aggressiveness, disease extent, organ function, progression-free survival on prior ET, somatic and germline mutational status and the associated toxicity profile can be recommended [V, B]. b: Ovarian function suppression or ovarian ablation is recommended in addition to all endocrine-based therapies in pre- and perimenopausal women [I, A]. d: If not previously exposed to fulvestrant. j: Not EMA or FDA approved. k: Steroid mouthwash is recommended for stomatitis prophylaxis in patients receiving everolimus [V, A].",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      "2L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "fulvestrant",
+      "everolimus",
+      "exemestane",
+      "tamoxifen"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig4",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 4. Third- and further-line management of ER-positive, HER2-negative MBC.",
+    "page_start": 1208,
+    "page_end": 1208,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Figure 4. Third- and further-line management of ER-positive, HER2-negative MBC.\n\nFigure 4. Third- and further-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC, ≥2 prior therapy lines → Suitable for ET and/or targeted therapy → Second-line options not previously used^b (see Figure 3) Footnotes: b: At least two lines of endocrine-based therapy can be recommended before moving to non-endocrine-based therapy [V, B]. For patients with endocrine-sensitive tumours, continuation of ET with agents not previously received in the metastatic setting can be recommended [III, B].\n\nFigure 4. Third- and further-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC, ≥2 prior therapy lines → Not suitable for ET or targeted therapy^a → No previous ChT → HER2 low or ultralow [ESCAT I-A]^f → T-DXd^g [I, A; MCBS 3]^h → [PD] → T-DXd [I, A; MCBS 4]^h Footnotes: a: ChT or ADCs can be recommended for patients with tumours considered endocrine-resistant when targeted agents have already been used or ruled out due to lack of therapeutically relevant molecular alterations [V, B]. g: After at least two lines of ET for MBC, or after one line of ET if progression occurred within 24 months of adjuvant ET or within 6 months of ET—CDK4/6 inhibitor for MBC.\n\nFigure 4. Third- and further-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC, ≥2 prior therapy lines → Not suitable for ET or targeted therapy^a → No previous ChT → HER2 low or ultralow [ESCAT I-A]^f → T-DXd^g [I, A; MCBS 3]^h → [PD] → HER2 low [ESCAT I-A]^f → T-DXd^i [I, A; MCBS 4]^h Footnotes: a: ChT or ADCs can be recommended for patients with tumours considered endocrine-resistant when targeted agents have already been used or ruled out due to lack of therapeutically relevant molecular alterations [V, B]. g: After at least two lines of ET for MBC, or after one line of ET if progression occurred within 24 months of adjuvant ET or within 6 months of ET—CDK4/6 inhibitor for MBC. i: If not used previously.\n\nFigure 4. Third- and further-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC, ≥2 prior therapy lines → Not suitable for ET or targeted therapy^a → No previous ChT → HER2 low or ultralow [ESCAT I-A]^f → T-DXd^g [I, A; MCBS 3]^h → [PD] → Sacituzumab govitecan^i [I, B; MCBS 4]^h; Dato-DXd^i [I, B; MCBS 3]^h; ChT^c,j [I, B] Footnotes: a: ChT or ADCs can be recommended for patients with tumours considered endocrine-resistant when targeted agents have already been used or ruled out due to lack of therapeutically relevant molecular alterations [V, B]. c: Sequential single-agent ChT is recommended over combination strategies [II, A]. Combination ChT is recommended when a rapid response is needed due to imminent organ failure [V, A]. g: After at least two lines of ET for MBC, or after one line of ET if progression occurred within 24 months of adjuvant ET or within 6 months of ET—CDK4/6 inhibitor for MBC. i: If not used previously. j: Rechallenge with anthracyclines or taxanes (liposomal anthracyclines or protein-bound paclitaxel, if available) can be recommended in patients with a DFI of ≥12 months [II, B]. 1208 https://doi.org/10.1016/j.annonc.2026.05.707\n\nFigure 4. Third- and further-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC, ≥2 prior therapy lines → Not suitable for ET or targeted therapy^a → No previous ChT → ChT^c [I, B]; Capecitabine^d [I, C]; Capecitabine-bevacizumab^d,e [I, C]; Taxane [I, C]; Taxane-bevacizumab^e [I, C] → [PD] → T-DXd [I, A; MCBS 4]^h Footnotes: a: ChT or ADCs can be recommended for patients with tumours considered endocrine-resistant when targeted agents have already been used or ruled out due to lack of therapeutically relevant molecular alterations [V, B]. c: Sequential single-agent ChT is recommended over combination strategies [II, A]. Combination ChT is recommended when a rapid response is needed due to imminent organ failure [V, A]. d: If capecitabine is used, dihydropyrimidine dehydrogenase testing is recommended before treatment is initiated [V, A]. e: Not EMA or FDA approved in this line.\n\nFigure 4. Third- and further-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC, ≥2 prior therapy lines → Not suitable for ET or targeted therapy^a → No previous ChT → ChT^c [I, B]; Capecitabine^d [I, C]; Capecitabine-bevacizumab^d,e [I, C]; Taxane [I, C]; Taxane-bevacizumab^e [I, C] → [PD] → HER2 low [ESCAT I-A]^f → T-DXd^i [I, A; MCBS 4]^h Footnotes: a: ChT or ADCs can be recommended for patients with tumours considered endocrine-resistant when targeted agents have already been used or ruled out due to lack of therapeutically relevant molecular alterations [V, B]. c: Sequential single-agent ChT is recommended over combination strategies [II, A]. Combination ChT is recommended when a rapid response is needed due to imminent organ failure [V, A]. d: If capecitabine is used, dihydropyrimidine dehydrogenase testing is recommended before treatment is initiated [V, A]. e: Not EMA or FDA approved in this line. i: If not used previously.\n\nFigure 4. Third- and further-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC, ≥2 prior therapy lines → Not suitable for ET or targeted therapy^a → No previous ChT → ChT^c [I, B]; Capecitabine^d [I, C]; Capecitabine-bevacizumab^d,e [I, C]; Taxane [I, C]; Taxane-bevacizumab^e [I, C] → [PD] → Sacituzumab govitecan^i [I, B; MCBS 4]^h; Dato-DXd^i [I, B; MCBS 3]^h; ChT^c,j [I, B] Footnotes: a: ChT or ADCs can be recommended for patients with tumours considered endocrine-resistant when targeted agents have already been used or ruled out due to lack of therapeutically relevant molecular alterations [V, B]. c: Sequential single-agent ChT is recommended over combination strategies [II, A]. Combination ChT is recommended when a rapid response is needed due to imminent organ failure [V, A]. d: If capecitabine is used, dihydropyrimidine dehydrogenase testing is recommended before treatment is initiated [V, A]. e: Not EMA or FDA approved in this line. i: If not used previously. j: Rechallenge with anthracyclines or taxanes (liposomal anthracyclines or protein-bound paclitaxel, if available) can be recommended in patients with a DFI of ≥12 months [II, B]. 1208 https://doi.org/10.1016/j.annonc.2026.05.707\n\nFigure 4. Third- and further-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC, ≥2 prior therapy lines → Not suitable for ET or targeted therapy^a → Previous ChT → HER2 low [ESCAT I-A]^f → [PD] → T-DXd [I, A; MCBS 4]^h Footnotes: a: ChT or ADCs can be recommended for patients with tumours considered endocrine-resistant when targeted agents have already been used or ruled out due to lack of therapeutically relevant molecular alterations [V, B].\n\nFigure 4. Third- and further-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC, ≥2 prior therapy lines → Not suitable for ET or targeted therapy^a → Previous ChT → HER2 low [ESCAT I-A]^f → [PD] → HER2 low [ESCAT I-A]^f → T-DXd^i [I, A; MCBS 4]^h Footnotes: a: ChT or ADCs can be recommended for patients with tumours considered endocrine-resistant when targeted agents have already been used or ruled out due to lack of therapeutically relevant molecular alterations [V, B]. i: If not used previously.\n\nFigure 4. Third- and further-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC, ≥2 prior therapy lines → Not suitable for ET or targeted therapy^a → Previous ChT → HER2 low [ESCAT I-A]^f → [PD] → Sacituzumab govitecan^i [I, B; MCBS 4]^h; Dato-DXd^i [I, B; MCBS 3]^h; ChT^c,j [I, B] Footnotes: a: ChT or ADCs can be recommended for patients with tumours considered endocrine-resistant when targeted agents have already been used or ruled out due to lack of therapeutically relevant molecular alterations [V, B]. c: Sequential single-agent ChT is recommended over combination strategies [II, A]. Combination ChT is recommended when a rapid response is needed due to imminent organ failure [V, A]. i: If not used previously. j: Rechallenge with anthracyclines or taxanes (liposomal anthracyclines or protein-bound paclitaxel, if available) can be recommended in patients with a DFI of ≥12 months [II, B]. 1208 https://doi.org/10.1016/j.annonc.2026.05.707\n\nFigure 4. Third- and further-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC, ≥2 prior therapy lines → Not suitable for ET or targeted therapy^a → Previous ChT → Sacituzumab govitecan [I, B; MCBS 4]^h; Dato-DXd [I, B; MCBS 3]^h → [PD] → T-DXd [I, A; MCBS 4]^h Footnotes: a: ChT or ADCs can be recommended for patients with tumours considered endocrine-resistant when targeted agents have already been used or ruled out due to lack of therapeutically relevant molecular alterations [V, B].\n\nFigure 4. Third- and further-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC, ≥2 prior therapy lines → Not suitable for ET or targeted therapy^a → Previous ChT → Sacituzumab govitecan [I, B; MCBS 4]^h; Dato-DXd [I, B; MCBS 3]^h → [PD] → HER2 low [ESCAT I-A]^f → T-DXd^i [I, A; MCBS 4]^h Footnotes: a: ChT or ADCs can be recommended for patients with tumours considered endocrine-resistant when targeted agents have already been used or ruled out due to lack of therapeutically relevant molecular alterations [V, B]. i: If not used previously.\n\nFigure 4. Third- and further-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC, ≥2 prior therapy lines → Not suitable for ET or targeted therapy^a → Previous ChT → Sacituzumab govitecan [I, B; MCBS 4]^h; Dato-DXd [I, B; MCBS 3]^h → [PD] → Sacituzumab govitecan^i [I, B; MCBS 4]^h; Dato-DXd^i [I, B; MCBS 3]^h; ChT^c,j [I, B] Footnotes: a: ChT or ADCs can be recommended for patients with tumours considered endocrine-resistant when targeted agents have already been used or ruled out due to lack of therapeutically relevant molecular alterations [V, B]. c: Sequential single-agent ChT is recommended over combination strategies [II, A]. Combination ChT is recommended when a rapid response is needed due to imminent organ failure [V, A]. i: If not used previously. j: Rechallenge with anthracyclines or taxanes (liposomal anthracyclines or protein-bound paclitaxel, if available) can be recommended in patients with a DFI of ≥12 months [II, B]. 1208 https://doi.org/10.1016/j.annonc.2026.05.707",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      ">=3L"
+    ],
+    "biomarker_tags": [
+      "HER2-low",
+      "HER2-ultralow"
+    ],
+    "drugs": [
+      "nab-paclitaxel",
+      "sacituzumab govitecan",
+      "capecitabine",
+      "bevacizumab",
+      "datopotamab deruxtecan",
+      "trastuzumab deruxtecan"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig4-535699",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 4. Third- and further-line management of ER-positive, HER2-negative MBC.",
+    "page_start": 1208,
+    "page_end": 1208,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig4",
+    "text": "Figure 4. Third- and further-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC, ≥2 prior therapy lines → Suitable for ET and/or targeted therapy → Second-line options not previously used^b (see Figure 3) Footnotes: b: At least two lines of endocrine-based therapy can be recommended before moving to non-endocrine-based therapy [V, B]. For patients with endocrine-sensitive tumours, continuation of ET with agents not previously received in the metastatic setting can be recommended [III, B].",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      ">=3L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig4-4e3ecd",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 4. Third- and further-line management of ER-positive, HER2-negative MBC.",
+    "page_start": 1208,
+    "page_end": 1208,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig4",
+    "text": "Figure 4. Third- and further-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC, ≥2 prior therapy lines → Not suitable for ET or targeted therapy^a → No previous ChT → HER2 low or ultralow [ESCAT I-A]^f → T-DXd^g [I, A; MCBS 3]^h → [PD] → T-DXd [I, A; MCBS 4]^h Footnotes: a: ChT or ADCs can be recommended for patients with tumours considered endocrine-resistant when targeted agents have already been used or ruled out due to lack of therapeutically relevant molecular alterations [V, B]. g: After at least two lines of ET for MBC, or after one line of ET if progression occurred within 24 months of adjuvant ET or within 6 months of ET—CDK4/6 inhibitor for MBC.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      ">=3L"
+    ],
+    "biomarker_tags": [
+      "HER2-low",
+      "HER2-ultralow"
+    ],
+    "drugs": [
+      "trastuzumab deruxtecan"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig4-76de27",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 4. Third- and further-line management of ER-positive, HER2-negative MBC.",
+    "page_start": 1208,
+    "page_end": 1208,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig4",
+    "text": "Figure 4. Third- and further-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC, ≥2 prior therapy lines → Not suitable for ET or targeted therapy^a → No previous ChT → HER2 low or ultralow [ESCAT I-A]^f → T-DXd^g [I, A; MCBS 3]^h → [PD] → HER2 low [ESCAT I-A]^f → T-DXd^i [I, A; MCBS 4]^h Footnotes: a: ChT or ADCs can be recommended for patients with tumours considered endocrine-resistant when targeted agents have already been used or ruled out due to lack of therapeutically relevant molecular alterations [V, B]. g: After at least two lines of ET for MBC, or after one line of ET if progression occurred within 24 months of adjuvant ET or within 6 months of ET—CDK4/6 inhibitor for MBC. i: If not used previously.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      ">=3L"
+    ],
+    "biomarker_tags": [
+      "HER2-low",
+      "HER2-ultralow"
+    ],
+    "drugs": [
+      "trastuzumab deruxtecan"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig4-ddbc18",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 4. Third- and further-line management of ER-positive, HER2-negative MBC.",
+    "page_start": 1208,
+    "page_end": 1208,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig4",
+    "text": "Figure 4. Third- and further-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC, ≥2 prior therapy lines → Not suitable for ET or targeted therapy^a → No previous ChT → HER2 low or ultralow [ESCAT I-A]^f → T-DXd^g [I, A; MCBS 3]^h → [PD] → Sacituzumab govitecan^i [I, B; MCBS 4]^h; Dato-DXd^i [I, B; MCBS 3]^h; ChT^c,j [I, B] Footnotes: a: ChT or ADCs can be recommended for patients with tumours considered endocrine-resistant when targeted agents have already been used or ruled out due to lack of therapeutically relevant molecular alterations [V, B]. c: Sequential single-agent ChT is recommended over combination strategies [II, A]. Combination ChT is recommended when a rapid response is needed due to imminent organ failure [V, A]. g: After at least two lines of ET for MBC, or after one line of ET if progression occurred within 24 months of adjuvant ET or within 6 months of ET—CDK4/6 inhibitor for MBC. i: If not used previously. j: Rechallenge with anthracyclines or taxanes (liposomal anthracyclines or protein-bound paclitaxel, if available) can be recommended in patients with a DFI of ≥12 months [II, B]. 1208 https://doi.org/10.1016/j.annonc.2026.05.707",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      ">=3L"
+    ],
+    "biomarker_tags": [
+      "HER2-low",
+      "HER2-ultralow"
+    ],
+    "drugs": [
+      "sacituzumab govitecan",
+      "datopotamab deruxtecan",
+      "trastuzumab deruxtecan"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "B",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig4-2f74bb",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 4. Third- and further-line management of ER-positive, HER2-negative MBC.",
+    "page_start": 1208,
+    "page_end": 1208,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig4",
+    "text": "Figure 4. Third- and further-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC, ≥2 prior therapy lines → Not suitable for ET or targeted therapy^a → No previous ChT → ChT^c [I, B]; Capecitabine^d [I, C]; Capecitabine-bevacizumab^d,e [I, C]; Taxane [I, C]; Taxane-bevacizumab^e [I, C] → [PD] → T-DXd [I, A; MCBS 4]^h Footnotes: a: ChT or ADCs can be recommended for patients with tumours considered endocrine-resistant when targeted agents have already been used or ruled out due to lack of therapeutically relevant molecular alterations [V, B]. c: Sequential single-agent ChT is recommended over combination strategies [II, A]. Combination ChT is recommended when a rapid response is needed due to imminent organ failure [V, A]. d: If capecitabine is used, dihydropyrimidine dehydrogenase testing is recommended before treatment is initiated [V, A]. e: Not EMA or FDA approved in this line.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      ">=3L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "capecitabine",
+      "bevacizumab",
+      "trastuzumab deruxtecan"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig4-c401eb",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 4. Third- and further-line management of ER-positive, HER2-negative MBC.",
+    "page_start": 1208,
+    "page_end": 1208,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig4",
+    "text": "Figure 4. Third- and further-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC, ≥2 prior therapy lines → Not suitable for ET or targeted therapy^a → No previous ChT → ChT^c [I, B]; Capecitabine^d [I, C]; Capecitabine-bevacizumab^d,e [I, C]; Taxane [I, C]; Taxane-bevacizumab^e [I, C] → [PD] → HER2 low [ESCAT I-A]^f → T-DXd^i [I, A; MCBS 4]^h Footnotes: a: ChT or ADCs can be recommended for patients with tumours considered endocrine-resistant when targeted agents have already been used or ruled out due to lack of therapeutically relevant molecular alterations [V, B]. c: Sequential single-agent ChT is recommended over combination strategies [II, A]. Combination ChT is recommended when a rapid response is needed due to imminent organ failure [V, A]. d: If capecitabine is used, dihydropyrimidine dehydrogenase testing is recommended before treatment is initiated [V, A]. e: Not EMA or FDA approved in this line. i: If not used previously.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      ">=3L"
+    ],
+    "biomarker_tags": [
+      "HER2-low"
+    ],
+    "drugs": [
+      "capecitabine",
+      "bevacizumab",
+      "trastuzumab deruxtecan"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig4-930a6b",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 4. Third- and further-line management of ER-positive, HER2-negative MBC.",
+    "page_start": 1208,
+    "page_end": 1208,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig4",
+    "text": "Figure 4. Third- and further-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC, ≥2 prior therapy lines → Not suitable for ET or targeted therapy^a → No previous ChT → ChT^c [I, B]; Capecitabine^d [I, C]; Capecitabine-bevacizumab^d,e [I, C]; Taxane [I, C]; Taxane-bevacizumab^e [I, C] → [PD] → Sacituzumab govitecan^i [I, B; MCBS 4]^h; Dato-DXd^i [I, B; MCBS 3]^h; ChT^c,j [I, B] Footnotes: a: ChT or ADCs can be recommended for patients with tumours considered endocrine-resistant when targeted agents have already been used or ruled out due to lack of therapeutically relevant molecular alterations [V, B]. c: Sequential single-agent ChT is recommended over combination strategies [II, A]. Combination ChT is recommended when a rapid response is needed due to imminent organ failure [V, A]. d: If capecitabine is used, dihydropyrimidine dehydrogenase testing is recommended before treatment is initiated [V, A]. e: Not EMA or FDA approved in this line. i: If not used previously. j: Rechallenge with anthracyclines or taxanes (liposomal anthracyclines or protein-bound paclitaxel, if available) can be recommended in patients with a DFI of ≥12 months [II, B]. 1208 https://doi.org/10.1016/j.annonc.2026.05.707",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      ">=3L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "sacituzumab govitecan",
+      "capecitabine",
+      "bevacizumab",
+      "datopotamab deruxtecan"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "B",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig4-9af0ad",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 4. Third- and further-line management of ER-positive, HER2-negative MBC.",
+    "page_start": 1208,
+    "page_end": 1208,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig4",
+    "text": "Figure 4. Third- and further-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC, ≥2 prior therapy lines → Not suitable for ET or targeted therapy^a → Previous ChT → HER2 low [ESCAT I-A]^f → [PD] → T-DXd [I, A; MCBS 4]^h Footnotes: a: ChT or ADCs can be recommended for patients with tumours considered endocrine-resistant when targeted agents have already been used or ruled out due to lack of therapeutically relevant molecular alterations [V, B].",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      ">=3L"
+    ],
+    "biomarker_tags": [
+      "HER2-low"
+    ],
+    "drugs": [
+      "trastuzumab deruxtecan"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig4-12dec2",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 4. Third- and further-line management of ER-positive, HER2-negative MBC.",
+    "page_start": 1208,
+    "page_end": 1208,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig4",
+    "text": "Figure 4. Third- and further-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC, ≥2 prior therapy lines → Not suitable for ET or targeted therapy^a → Previous ChT → HER2 low [ESCAT I-A]^f → [PD] → HER2 low [ESCAT I-A]^f → T-DXd^i [I, A; MCBS 4]^h Footnotes: a: ChT or ADCs can be recommended for patients with tumours considered endocrine-resistant when targeted agents have already been used or ruled out due to lack of therapeutically relevant molecular alterations [V, B]. i: If not used previously.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      ">=3L"
+    ],
+    "biomarker_tags": [
+      "HER2-low"
+    ],
+    "drugs": [
+      "trastuzumab deruxtecan"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig4-b89463",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 4. Third- and further-line management of ER-positive, HER2-negative MBC.",
+    "page_start": 1208,
+    "page_end": 1208,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig4",
+    "text": "Figure 4. Third- and further-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC, ≥2 prior therapy lines → Not suitable for ET or targeted therapy^a → Previous ChT → HER2 low [ESCAT I-A]^f → [PD] → Sacituzumab govitecan^i [I, B; MCBS 4]^h; Dato-DXd^i [I, B; MCBS 3]^h; ChT^c,j [I, B] Footnotes: a: ChT or ADCs can be recommended for patients with tumours considered endocrine-resistant when targeted agents have already been used or ruled out due to lack of therapeutically relevant molecular alterations [V, B]. c: Sequential single-agent ChT is recommended over combination strategies [II, A]. Combination ChT is recommended when a rapid response is needed due to imminent organ failure [V, A]. i: If not used previously. j: Rechallenge with anthracyclines or taxanes (liposomal anthracyclines or protein-bound paclitaxel, if available) can be recommended in patients with a DFI of ≥12 months [II, B]. 1208 https://doi.org/10.1016/j.annonc.2026.05.707",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      ">=3L"
+    ],
+    "biomarker_tags": [
+      "HER2-low"
+    ],
+    "drugs": [
+      "sacituzumab govitecan",
+      "datopotamab deruxtecan"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "B",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig4-b93339",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 4. Third- and further-line management of ER-positive, HER2-negative MBC.",
+    "page_start": 1208,
+    "page_end": 1208,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig4",
+    "text": "Figure 4. Third- and further-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC, ≥2 prior therapy lines → Not suitable for ET or targeted therapy^a → Previous ChT → Sacituzumab govitecan [I, B; MCBS 4]^h; Dato-DXd [I, B; MCBS 3]^h → [PD] → T-DXd [I, A; MCBS 4]^h Footnotes: a: ChT or ADCs can be recommended for patients with tumours considered endocrine-resistant when targeted agents have already been used or ruled out due to lack of therapeutically relevant molecular alterations [V, B].",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      ">=3L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "sacituzumab govitecan",
+      "datopotamab deruxtecan",
+      "trastuzumab deruxtecan"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig4-1ab440",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 4. Third- and further-line management of ER-positive, HER2-negative MBC.",
+    "page_start": 1208,
+    "page_end": 1208,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig4",
+    "text": "Figure 4. Third- and further-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC, ≥2 prior therapy lines → Not suitable for ET or targeted therapy^a → Previous ChT → Sacituzumab govitecan [I, B; MCBS 4]^h; Dato-DXd [I, B; MCBS 3]^h → [PD] → HER2 low [ESCAT I-A]^f → T-DXd^i [I, A; MCBS 4]^h Footnotes: a: ChT or ADCs can be recommended for patients with tumours considered endocrine-resistant when targeted agents have already been used or ruled out due to lack of therapeutically relevant molecular alterations [V, B]. i: If not used previously.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      ">=3L"
+    ],
+    "biomarker_tags": [
+      "HER2-low"
+    ],
+    "drugs": [
+      "sacituzumab govitecan",
+      "datopotamab deruxtecan",
+      "trastuzumab deruxtecan"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig4-88ce0e",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 4. Third- and further-line management of ER-positive, HER2-negative MBC.",
+    "page_start": 1208,
+    "page_end": 1208,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig4",
+    "text": "Figure 4. Third- and further-line management of ER-positive, HER2-negative MBC. (algorithm path): ER+, HER2- MBC, ≥2 prior therapy lines → Not suitable for ET or targeted therapy^a → Previous ChT → Sacituzumab govitecan [I, B; MCBS 4]^h; Dato-DXd [I, B; MCBS 3]^h → [PD] → Sacituzumab govitecan^i [I, B; MCBS 4]^h; Dato-DXd^i [I, B; MCBS 3]^h; ChT^c,j [I, B] Footnotes: a: ChT or ADCs can be recommended for patients with tumours considered endocrine-resistant when targeted agents have already been used or ruled out due to lack of therapeutically relevant molecular alterations [V, B]. c: Sequential single-agent ChT is recommended over combination strategies [II, A]. Combination ChT is recommended when a rapid response is needed due to imminent organ failure [V, A]. i: If not used previously. j: Rechallenge with anthracyclines or taxanes (liposomal anthracyclines or protein-bound paclitaxel, if available) can be recommended in patients with a DFI of ≥12 months [II, B]. 1208 https://doi.org/10.1016/j.annonc.2026.05.707",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2-"
+    ],
+    "line": [
+      ">=3L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "sacituzumab govitecan",
+      "datopotamab deruxtecan"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "B",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig5",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 5. First-line management of HER2-positive MBC.",
+    "page_start": 1209,
+    "page_end": 1209,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Figure 5. First-line management of HER2-positive MBC.\n\nFigure 5. First-line management of HER2-positive MBC. (algorithm path): Previously untreated HER2+ MBC [ESCAT I-A]^a → ER+^b → Suitable for ChT → T-DXd-pertuzumab^f [I, A; MCBS 2]^e → [PD] → Second-line treatment^j (see Figure 6) Footnotes: b: Ovarian function suppression or ovarian ablation is recommended for pre- and perimenopausal women [I, A]. f: FDA approved, not EMA approved. j: Second-line options can be recommended for patients with metastatic recurrence within 6-12 months of completing adjuvant pertuzumab—trastuzumab or T-DM1 [II, B].\n\nFigure 5. First-line management of HER2-positive MBC. (algorithm path): Previously untreated HER2+ MBC [ESCAT I-A]^a → ER+^b → Suitable for ChT → Docetaxel-pertuzumab-trastuzumab^d [I, A; MCBS 4]^e → Stable disease or objective response → Maintenance pertuzumab-trastuzumab-ET-palbociclib^h (preferred) [I, C]; Maintenance pertuzumab-trastuzumab-ET^h [I, A]; Maintenance pertuzumab-trastuzumab-tucatinib^h [I, A] → [PD] → Second-line treatment^j (see Figure 6) Footnotes: b: Ovarian function suppression or ovarian ablation is recommended for pre- and perimenopausal women [I, A]. d: Docetaxel should be administered for at least six cycles [I, A]. If required, an alternative taxane (paclitaxel, nab-paclitaxel) [II, A] or vinorelbine [III, A] are recom- mended as a substitution for docetaxel. h: Not EMA or FDA approved. j: Second-line options can be recommended for patients with metastatic recurrence within 6-12 months of completing adjuvant pertuzumab—trastuzumab or T-DM1 [II, B].\n\nFigure 5. First-line management of HER2-positive MBC. (algorithm path): Previously untreated HER2+ MBC [ESCAT I-A]^a → ER+^b → Not suitable for ChT^c → ET-trastuzumab^g [II, B; MCBS 3]^e; ET-pertuzumab-trastuzumab^h [II, B]; ET-lapatinib-trastuzumab^h [II, C]; ET-lapatinib [II, C; MCBS 3]^e; Single-agent ET^i [III, C] → [PD] → Second-line treatment^j (see Figure 6) Footnotes: b: Ovarian function suppression or ovarian ablation is recommended for pre- and perimenopausal women [I, A]. c: If taxane ChT is contraindicated, a less toxic ChT partner (e.g. capecitabine or vinorelbine) may be considered [III, C]. g: EMA approved, not FDA approved. h: Not EMA or FDA approved. i: If comorbidities (e.g. cardiac disease) preclude the safe use of HER2-directed therapies. j: Second-line options can be recommended for patients with metastatic recurrence within 6-12 months of completing adjuvant pertuzumab—trastuzumab or T-DM1 [II, B].\n\nFigure 5. First-line management of HER2-positive MBC. (algorithm path): Previously untreated HER2+ MBC [ESCAT I-A]^a → ER- → Suitable for ChT → T-DXd-pertuzumab^f [I, A; MCBS 2]^e → [PD] → Second-line treatment^j (see Figure 6) Footnotes: f: FDA approved, not EMA approved. j: Second-line options can be recommended for patients with metastatic recurrence within 6-12 months of completing adjuvant pertuzumab—trastuzumab or T-DM1 [II, B].\n\nFigure 5. First-line management of HER2-positive MBC. (algorithm path): Previously untreated HER2+ MBC [ESCAT I-A]^a → ER- → Suitable for ChT → Docetaxel-pertuzumab-trastuzumab^d [I, A; MCBS 4]^e → Stable disease or objective response → Maintenance pertuzumab-trastuzumab-tucatinib^h [I, A]; Maintenance pertuzumab-trastuzumab [I, A; MCBS 4]^e → [PD] → Second-line treatment^j (see Figure 6) Footnotes: d: Docetaxel should be administered for at least six cycles [I, A]. If required, an alternative taxane (paclitaxel, nab-paclitaxel) [II, A] or vinorelbine [III, A] are recom- mended as a substitution for docetaxel. h: Not EMA or FDA approved. j: Second-line options can be recommended for patients with metastatic recurrence within 6-12 months of completing adjuvant pertuzumab—trastuzumab or T-DM1 [II, B].\n\nFigure 5. First-line management of HER2-positive MBC. (algorithm path): Previously untreated HER2+ MBC [ESCAT I-A]^a → ER- → Not suitable for ChT^c → Pertuzumab-trastuzumab^h [III, C]; Trastuzumab^h [III, C] → [PD] → Second-line treatment^j (see Figure 6) Footnotes: c: If taxane ChT is contraindicated, a less toxic ChT partner (e.g. capecitabine or vinorelbine) may be considered [III, C]. h: Not EMA or FDA approved. j: Second-line options can be recommended for patients with metastatic recurrence within 6-12 months of completing adjuvant pertuzumab—trastuzumab or T-DM1 [II, B].",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2+",
+      "HR-/HER2+"
+    ],
+    "line": [
+      "1L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "nab-paclitaxel",
+      "capecitabine",
+      "palbociclib",
+      "trastuzumab",
+      "vinorelbine",
+      "paclitaxel",
+      "pertuzumab",
+      "docetaxel",
+      "lapatinib",
+      "tucatinib",
+      "trastuzumab emtansine",
+      "trastuzumab deruxtecan"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig5-6c697d",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 5. First-line management of HER2-positive MBC.",
+    "page_start": 1209,
+    "page_end": 1209,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig5",
+    "text": "Figure 5. First-line management of HER2-positive MBC. (algorithm path): Previously untreated HER2+ MBC [ESCAT I-A]^a → ER+^b → Suitable for ChT → T-DXd-pertuzumab^f [I, A; MCBS 2]^e → [PD] → Second-line treatment^j (see Figure 6) Footnotes: b: Ovarian function suppression or ovarian ablation is recommended for pre- and perimenopausal women [I, A]. f: FDA approved, not EMA approved. j: Second-line options can be recommended for patients with metastatic recurrence within 6-12 months of completing adjuvant pertuzumab—trastuzumab or T-DM1 [II, B].",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2+"
+    ],
+    "line": [
+      "1L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "pertuzumab",
+      "trastuzumab deruxtecan"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig5-33f1be",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 5. First-line management of HER2-positive MBC.",
+    "page_start": 1209,
+    "page_end": 1209,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig5",
+    "text": "Figure 5. First-line management of HER2-positive MBC. (algorithm path): Previously untreated HER2+ MBC [ESCAT I-A]^a → ER+^b → Suitable for ChT → Docetaxel-pertuzumab-trastuzumab^d [I, A; MCBS 4]^e → Stable disease or objective response → Maintenance pertuzumab-trastuzumab-ET-palbociclib^h (preferred) [I, C]; Maintenance pertuzumab-trastuzumab-ET^h [I, A]; Maintenance pertuzumab-trastuzumab-tucatinib^h [I, A] → [PD] → Second-line treatment^j (see Figure 6) Footnotes: b: Ovarian function suppression or ovarian ablation is recommended for pre- and perimenopausal women [I, A]. d: Docetaxel should be administered for at least six cycles [I, A]. If required, an alternative taxane (paclitaxel, nab-paclitaxel) [II, A] or vinorelbine [III, A] are recom- mended as a substitution for docetaxel. h: Not EMA or FDA approved. j: Second-line options can be recommended for patients with metastatic recurrence within 6-12 months of completing adjuvant pertuzumab—trastuzumab or T-DM1 [II, B].",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2+"
+    ],
+    "line": [
+      "1L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "palbociclib",
+      "trastuzumab",
+      "pertuzumab",
+      "docetaxel",
+      "tucatinib"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig5-eaa54b",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 5. First-line management of HER2-positive MBC.",
+    "page_start": 1209,
+    "page_end": 1209,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig5",
+    "text": "Figure 5. First-line management of HER2-positive MBC. (algorithm path): Previously untreated HER2+ MBC [ESCAT I-A]^a → ER+^b → Not suitable for ChT^c → ET-trastuzumab^g [II, B; MCBS 3]^e; ET-pertuzumab-trastuzumab^h [II, B]; ET-lapatinib-trastuzumab^h [II, C]; ET-lapatinib [II, C; MCBS 3]^e; Single-agent ET^i [III, C] → [PD] → Second-line treatment^j (see Figure 6) Footnotes: b: Ovarian function suppression or ovarian ablation is recommended for pre- and perimenopausal women [I, A]. c: If taxane ChT is contraindicated, a less toxic ChT partner (e.g. capecitabine or vinorelbine) may be considered [III, C]. g: EMA approved, not FDA approved. h: Not EMA or FDA approved. i: If comorbidities (e.g. cardiac disease) preclude the safe use of HER2-directed therapies. j: Second-line options can be recommended for patients with metastatic recurrence within 6-12 months of completing adjuvant pertuzumab—trastuzumab or T-DM1 [II, B].",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2+"
+    ],
+    "line": [
+      "1L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "trastuzumab",
+      "pertuzumab",
+      "lapatinib"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig5-44dbb0",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 5. First-line management of HER2-positive MBC.",
+    "page_start": 1209,
+    "page_end": 1209,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig5",
+    "text": "Figure 5. First-line management of HER2-positive MBC. (algorithm path): Previously untreated HER2+ MBC [ESCAT I-A]^a → ER- → Suitable for ChT → T-DXd-pertuzumab^f [I, A; MCBS 2]^e → [PD] → Second-line treatment^j (see Figure 6) Footnotes: f: FDA approved, not EMA approved. j: Second-line options can be recommended for patients with metastatic recurrence within 6-12 months of completing adjuvant pertuzumab—trastuzumab or T-DM1 [II, B].",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR-/HER2+"
+    ],
+    "line": [
+      "1L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "pertuzumab",
+      "trastuzumab deruxtecan"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig5-ce139d",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 5. First-line management of HER2-positive MBC.",
+    "page_start": 1209,
+    "page_end": 1209,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig5",
+    "text": "Figure 5. First-line management of HER2-positive MBC. (algorithm path): Previously untreated HER2+ MBC [ESCAT I-A]^a → ER- → Suitable for ChT → Docetaxel-pertuzumab-trastuzumab^d [I, A; MCBS 4]^e → Stable disease or objective response → Maintenance pertuzumab-trastuzumab-tucatinib^h [I, A]; Maintenance pertuzumab-trastuzumab [I, A; MCBS 4]^e → [PD] → Second-line treatment^j (see Figure 6) Footnotes: d: Docetaxel should be administered for at least six cycles [I, A]. If required, an alternative taxane (paclitaxel, nab-paclitaxel) [II, A] or vinorelbine [III, A] are recom- mended as a substitution for docetaxel. h: Not EMA or FDA approved. j: Second-line options can be recommended for patients with metastatic recurrence within 6-12 months of completing adjuvant pertuzumab—trastuzumab or T-DM1 [II, B].",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR-/HER2+"
+    ],
+    "line": [
+      "1L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "trastuzumab",
+      "pertuzumab",
+      "docetaxel",
+      "tucatinib"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig5-a0919f",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 5. First-line management of HER2-positive MBC.",
+    "page_start": 1209,
+    "page_end": 1209,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig5",
+    "text": "Figure 5. First-line management of HER2-positive MBC. (algorithm path): Previously untreated HER2+ MBC [ESCAT I-A]^a → ER- → Not suitable for ChT^c → Pertuzumab-trastuzumab^h [III, C]; Trastuzumab^h [III, C] → [PD] → Second-line treatment^j (see Figure 6) Footnotes: c: If taxane ChT is contraindicated, a less toxic ChT partner (e.g. capecitabine or vinorelbine) may be considered [III, C]. h: Not EMA or FDA approved. j: Second-line options can be recommended for patients with metastatic recurrence within 6-12 months of completing adjuvant pertuzumab—trastuzumab or T-DM1 [II, B].",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR-/HER2+"
+    ],
+    "line": [
+      "1L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "trastuzumab",
+      "pertuzumab"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig6",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 6. Second-line management of HER2-positive MBC.",
+    "page_start": 1210,
+    "page_end": 1210,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Figure 6. Second-line management of HER2-positive MBC.\n\nFigure 6. Second-line management of HER2-positive MBC. (algorithm path): HER2+ MBC[ESCAT I-A],^a 1 prior therapy line^b → Active BMs → Local intervention not indicated → T-DXd (preferred) [I, A; MCBS 4]^c; Tucatinib-trastuzumab-capecitabine^d [I, A; MCBS 3]^c; T-DM1 (if T-DXd not available) [I, A; MCBS 3]^c → [PD] → Third-line treatment (see Figure 7) Footnotes: b: Or recurrence during or within 6-12 months of completing adjuvant treatment. d: FDA approved, not EMA approved in second line. 1210 https://doi.org/10.1016/j.annonc.2026.05.707\n\nFigure 6. Second-line management of HER2-positive MBC. (algorithm path): HER2+ MBC[ESCAT I-A],^a 1 prior therapy line^b → Active BMs → Local intervention indicated → LRT [IV, B] → PD outside CNS → T-DXd (preferred) [I, A; MCBS 4]^c; Tucatinib-trastuzumab-capecitabine^d [I, A; MCBS 4]^c; T-DM1 (if T-DXd not available) [I, A; MCBS 3]^c → [PD] → Third-line treatment (see Figure 7) Footnotes: b: Or recurrence during or within 6-12 months of completing adjuvant treatment. d: FDA approved, not EMA approved in second line. 1210 https://doi.org/10.1016/j.annonc.2026.05.707\n\nFigure 6. Second-line management of HER2-positive MBC. (algorithm path): HER2+ MBC[ESCAT I-A],^a 1 prior therapy line^b → Active BMs → Local intervention indicated → LRT [IV, B] → No PD outside CNS → Continue with current systemic therapy [IV, B] → [PD] → Third-line treatment (see Figure 7) Footnotes: b: Or recurrence during or within 6-12 months of completing adjuvant treatment.\n\nFigure 6. Second-line management of HER2-positive MBC. (algorithm path): HER2+ MBC[ESCAT I-A],^a 1 prior therapy line^b → No, stable or unknown BMs → T-DXd (preferred) [I, A; MCBS 4]^c; Tucatinib-trastuzumab-capecitabine^d [I, A; MCBS 4]^c; T-DM1 (if T-DXd not available) [I, A; MCBS 3]^c → [PD] → Third-line treatment (see Figure 7) Footnotes: b: Or recurrence during or within 6-12 months of completing adjuvant treatment. d: FDA approved, not EMA approved in second line. 1210 https://doi.org/10.1016/j.annonc.2026.05.707",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2+",
+      "HR-/HER2+"
+    ],
+    "line": [
+      "2L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "capecitabine",
+      "trastuzumab",
+      "tucatinib",
+      "trastuzumab emtansine",
+      "trastuzumab deruxtecan"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig6-ff7b69",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 6. Second-line management of HER2-positive MBC.",
+    "page_start": 1210,
+    "page_end": 1210,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig6",
+    "text": "Figure 6. Second-line management of HER2-positive MBC. (algorithm path): HER2+ MBC[ESCAT I-A],^a 1 prior therapy line^b → Active BMs → Local intervention not indicated → T-DXd (preferred) [I, A; MCBS 4]^c; Tucatinib-trastuzumab-capecitabine^d [I, A; MCBS 3]^c; T-DM1 (if T-DXd not available) [I, A; MCBS 3]^c → [PD] → Third-line treatment (see Figure 7) Footnotes: b: Or recurrence during or within 6-12 months of completing adjuvant treatment. d: FDA approved, not EMA approved in second line. 1210 https://doi.org/10.1016/j.annonc.2026.05.707",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2+",
+      "HR-/HER2+"
+    ],
+    "line": [
+      "2L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "capecitabine",
+      "trastuzumab",
+      "tucatinib",
+      "trastuzumab emtansine",
+      "trastuzumab deruxtecan"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig6-f13555",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 6. Second-line management of HER2-positive MBC.",
+    "page_start": 1210,
+    "page_end": 1210,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig6",
+    "text": "Figure 6. Second-line management of HER2-positive MBC. (algorithm path): HER2+ MBC[ESCAT I-A],^a 1 prior therapy line^b → Active BMs → Local intervention indicated → LRT [IV, B] → PD outside CNS → T-DXd (preferred) [I, A; MCBS 4]^c; Tucatinib-trastuzumab-capecitabine^d [I, A; MCBS 4]^c; T-DM1 (if T-DXd not available) [I, A; MCBS 3]^c → [PD] → Third-line treatment (see Figure 7) Footnotes: b: Or recurrence during or within 6-12 months of completing adjuvant treatment. d: FDA approved, not EMA approved in second line. 1210 https://doi.org/10.1016/j.annonc.2026.05.707",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2+",
+      "HR-/HER2+"
+    ],
+    "line": [
+      "2L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "capecitabine",
+      "trastuzumab",
+      "tucatinib",
+      "trastuzumab emtansine",
+      "trastuzumab deruxtecan"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig6-c58fb4",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 6. Second-line management of HER2-positive MBC.",
+    "page_start": 1210,
+    "page_end": 1210,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig6",
+    "text": "Figure 6. Second-line management of HER2-positive MBC. (algorithm path): HER2+ MBC[ESCAT I-A],^a 1 prior therapy line^b → Active BMs → Local intervention indicated → LRT [IV, B] → No PD outside CNS → Continue with current systemic therapy [IV, B] → [PD] → Third-line treatment (see Figure 7) Footnotes: b: Or recurrence during or within 6-12 months of completing adjuvant treatment.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2+",
+      "HR-/HER2+"
+    ],
+    "line": [
+      "2L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig6-158c93",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 6. Second-line management of HER2-positive MBC.",
+    "page_start": 1210,
+    "page_end": 1210,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig6",
+    "text": "Figure 6. Second-line management of HER2-positive MBC. (algorithm path): HER2+ MBC[ESCAT I-A],^a 1 prior therapy line^b → No, stable or unknown BMs → T-DXd (preferred) [I, A; MCBS 4]^c; Tucatinib-trastuzumab-capecitabine^d [I, A; MCBS 4]^c; T-DM1 (if T-DXd not available) [I, A; MCBS 3]^c → [PD] → Third-line treatment (see Figure 7) Footnotes: b: Or recurrence during or within 6-12 months of completing adjuvant treatment. d: FDA approved, not EMA approved in second line. 1210 https://doi.org/10.1016/j.annonc.2026.05.707",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2+",
+      "HR-/HER2+"
+    ],
+    "line": [
+      "2L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "capecitabine",
+      "trastuzumab",
+      "tucatinib",
+      "trastuzumab emtansine",
+      "trastuzumab deruxtecan"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig7",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 7. Third- and further-line management of HER2-positive MBC.",
+    "page_start": 1211,
+    "page_end": 1211,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Figure 7. Third- and further-line management of HER2-positive MBC.\n\nFigure 7. Third- and further-line management of HER2-positive MBC. (algorithm path): HER2+ MBC [ESCAT I-A],^a ≥2 prior therapy lines → Active BMs → Local intervention not indicated → T-DXd^b [II, A; MCBS 4]^c; Tucatinib-trastuzumab-capecitabine^b [I, A; MCBS 3]^c; T-DM1^b [I, A; MCBS 3]^c → [PD] → T-DM1^b [I, A; MCBS 3]^c; Lapatinib-trastuzumab^d,e [I, C; MCBS 4]^c; Lapatinib-capecitabine^d [I, C; MCBS 2]^c; Lapatinib-ET (if ER+)^d [I, C; MCBS 3]^c; Margetuximab-ChT^f,g [I, C; MCBS 2]^c; Neratinib-capecitabine^f,g [I, C; MCBS 1]^c; Trastuzumab-ChT^b,h [III, A]; Trastuzumab-ET^b,h (if ER+) [III, A] Footnotes: b: If not used previously. d: No data are available on use of lapatinib after tucatinib-based therapy. e: EMA approved, not FDA approved. f: The most appropriate setting for these options may be when all standard therapy options have been exhausted [V, C], noting that there is no evidence for sequencing a TKI after a TKI in HER2-positive MBC. g: FDA approved, not EMA approved. h: When other anti-HER2 therapies have been exhausted, are not considered suitable or are not available.\n\nFigure 7. Third- and further-line management of HER2-positive MBC. (algorithm path): HER2+ MBC [ESCAT I-A],^a ≥2 prior therapy lines → Active BMs → Local intervention indicated → LRT [IV, B] → PD outside CNS → T-DXd^b [II, A; MCBS 4]^c; Tucatinib-trastuzumab-capecitabine^b [I, A; MCBS 4]^c; T-DM1^b [I, A; MCBS 3]^c → [PD] → T-DM1^b [I, A; MCBS 3]^c; Lapatinib-trastuzumab^d,e [I, C; MCBS 4]^c; Lapatinib-capecitabine^d [I, C; MCBS 2]^c; Lapatinib-ET (if ER+)^d [I, C; MCBS 3]^c; Margetuximab-ChT^f,g [I, C; MCBS 2]^c; Neratinib-capecitabine^f,g [I, C; MCBS 1]^c; Trastuzumab-ChT^b,h [III, A]; Trastuzumab-ET^b,h (if ER+) [III, A] Footnotes: b: If not used previously. d: No data are available on use of lapatinib after tucatinib-based therapy. e: EMA approved, not FDA approved. f: The most appropriate setting for these options may be when all standard therapy options have been exhausted [V, C], noting that there is no evidence for sequencing a TKI after a TKI in HER2-positive MBC. g: FDA approved, not EMA approved. h: When other anti-HER2 therapies have been exhausted, are not considered suitable or are not available.\n\nFigure 7. Third- and further-line management of HER2-positive MBC. (algorithm path): HER2+ MBC [ESCAT I-A],^a ≥2 prior therapy lines → Active BMs → Local intervention indicated → LRT [IV, B] → No PD outside CNS → Continue with current systemic therapy [IV, B] → [PD] → T-DM1^b [I, A; MCBS 3]^c; Lapatinib-trastuzumab^d,e [I, C; MCBS 4]^c; Lapatinib-capecitabine^d [I, C; MCBS 2]^c; Lapatinib-ET (if ER+)^d [I, C; MCBS 3]^c; Margetuximab-ChT^f,g [I, C; MCBS 2]^c; Neratinib-capecitabine^f,g [I, C; MCBS 1]^c; Trastuzumab-ChT^b,h [III, A]; Trastuzumab-ET^b,h (if ER+) [III, A] Footnotes: b: If not used previously. d: No data are available on use of lapatinib after tucatinib-based therapy. e: EMA approved, not FDA approved. f: The most appropriate setting for these options may be when all standard therapy options have been exhausted [V, C], noting that there is no evidence for sequencing a TKI after a TKI in HER2-positive MBC. g: FDA approved, not EMA approved. h: When other anti-HER2 therapies have been exhausted, are not considered suitable or are not available.\n\nFigure 7. Third- and further-line management of HER2-positive MBC. (algorithm path): HER2+ MBC [ESCAT I-A],^a ≥2 prior therapy lines → No, stable or unknown BMs → T-DXd^b [II, A; MCBS 4]^c; Tucatinib-trastuzumab-capecitabine^b [I, A; MCBS 4]^c; T-DM1^b [I, A; MCBS 3]^c → [PD] → T-DM1^b [I, A; MCBS 3]^c; Lapatinib-trastuzumab^d,e [I, C; MCBS 4]^c; Lapatinib-capecitabine^d [I, C; MCBS 2]^c; Lapatinib-ET (if ER+)^d [I, C; MCBS 3]^c; Margetuximab-ChT^f,g [I, C; MCBS 2]^c; Neratinib-capecitabine^f,g [I, C; MCBS 1]^c; Trastuzumab-ChT^b,h [III, A]; Trastuzumab-ET^b,h (if ER+) [III, A] Footnotes: b: If not used previously. d: No data are available on use of lapatinib after tucatinib-based therapy. e: EMA approved, not FDA approved. f: The most appropriate setting for these options may be when all standard therapy options have been exhausted [V, C], noting that there is no evidence for sequencing a TKI after a TKI in HER2-positive MBC. g: FDA approved, not EMA approved. h: When other anti-HER2 therapies have been exhausted, are not considered suitable or are not available.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2+",
+      "HR-/HER2+"
+    ],
+    "line": [
+      ">=3L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "capecitabine",
+      "margetuximab",
+      "trastuzumab",
+      "lapatinib",
+      "neratinib",
+      "tucatinib",
+      "trastuzumab emtansine",
+      "trastuzumab deruxtecan"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig7-b11a0c",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 7. Third- and further-line management of HER2-positive MBC.",
+    "page_start": 1211,
+    "page_end": 1211,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig7",
+    "text": "Figure 7. Third- and further-line management of HER2-positive MBC. (algorithm path): HER2+ MBC [ESCAT I-A],^a ≥2 prior therapy lines → Active BMs → Local intervention not indicated → T-DXd^b [II, A; MCBS 4]^c; Tucatinib-trastuzumab-capecitabine^b [I, A; MCBS 3]^c; T-DM1^b [I, A; MCBS 3]^c → [PD] → T-DM1^b [I, A; MCBS 3]^c; Lapatinib-trastuzumab^d,e [I, C; MCBS 4]^c; Lapatinib-capecitabine^d [I, C; MCBS 2]^c; Lapatinib-ET (if ER+)^d [I, C; MCBS 3]^c; Margetuximab-ChT^f,g [I, C; MCBS 2]^c; Neratinib-capecitabine^f,g [I, C; MCBS 1]^c; Trastuzumab-ChT^b,h [III, A]; Trastuzumab-ET^b,h (if ER+) [III, A] Footnotes: b: If not used previously. d: No data are available on use of lapatinib after tucatinib-based therapy. e: EMA approved, not FDA approved. f: The most appropriate setting for these options may be when all standard therapy options have been exhausted [V, C], noting that there is no evidence for sequencing a TKI after a TKI in HER2-positive MBC. g: FDA approved, not EMA approved. h: When other anti-HER2 therapies have been exhausted, are not considered suitable or are not available.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2+",
+      "HR-/HER2+"
+    ],
+    "line": [
+      ">=3L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "capecitabine",
+      "margetuximab",
+      "trastuzumab",
+      "lapatinib",
+      "neratinib",
+      "tucatinib",
+      "trastuzumab emtansine",
+      "trastuzumab deruxtecan"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig7-4d7ea5",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 7. Third- and further-line management of HER2-positive MBC.",
+    "page_start": 1211,
+    "page_end": 1211,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig7",
+    "text": "Figure 7. Third- and further-line management of HER2-positive MBC. (algorithm path): HER2+ MBC [ESCAT I-A],^a ≥2 prior therapy lines → Active BMs → Local intervention indicated → LRT [IV, B] → PD outside CNS → T-DXd^b [II, A; MCBS 4]^c; Tucatinib-trastuzumab-capecitabine^b [I, A; MCBS 4]^c; T-DM1^b [I, A; MCBS 3]^c → [PD] → T-DM1^b [I, A; MCBS 3]^c; Lapatinib-trastuzumab^d,e [I, C; MCBS 4]^c; Lapatinib-capecitabine^d [I, C; MCBS 2]^c; Lapatinib-ET (if ER+)^d [I, C; MCBS 3]^c; Margetuximab-ChT^f,g [I, C; MCBS 2]^c; Neratinib-capecitabine^f,g [I, C; MCBS 1]^c; Trastuzumab-ChT^b,h [III, A]; Trastuzumab-ET^b,h (if ER+) [III, A] Footnotes: b: If not used previously. d: No data are available on use of lapatinib after tucatinib-based therapy. e: EMA approved, not FDA approved. f: The most appropriate setting for these options may be when all standard therapy options have been exhausted [V, C], noting that there is no evidence for sequencing a TKI after a TKI in HER2-positive MBC. g: FDA approved, not EMA approved. h: When other anti-HER2 therapies have been exhausted, are not considered suitable or are not available.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2+",
+      "HR-/HER2+"
+    ],
+    "line": [
+      ">=3L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "capecitabine",
+      "margetuximab",
+      "trastuzumab",
+      "lapatinib",
+      "neratinib",
+      "tucatinib",
+      "trastuzumab emtansine",
+      "trastuzumab deruxtecan"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig7-6b280f",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 7. Third- and further-line management of HER2-positive MBC.",
+    "page_start": 1211,
+    "page_end": 1211,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig7",
+    "text": "Figure 7. Third- and further-line management of HER2-positive MBC. (algorithm path): HER2+ MBC [ESCAT I-A],^a ≥2 prior therapy lines → Active BMs → Local intervention indicated → LRT [IV, B] → No PD outside CNS → Continue with current systemic therapy [IV, B] → [PD] → T-DM1^b [I, A; MCBS 3]^c; Lapatinib-trastuzumab^d,e [I, C; MCBS 4]^c; Lapatinib-capecitabine^d [I, C; MCBS 2]^c; Lapatinib-ET (if ER+)^d [I, C; MCBS 3]^c; Margetuximab-ChT^f,g [I, C; MCBS 2]^c; Neratinib-capecitabine^f,g [I, C; MCBS 1]^c; Trastuzumab-ChT^b,h [III, A]; Trastuzumab-ET^b,h (if ER+) [III, A] Footnotes: b: If not used previously. d: No data are available on use of lapatinib after tucatinib-based therapy. e: EMA approved, not FDA approved. f: The most appropriate setting for these options may be when all standard therapy options have been exhausted [V, C], noting that there is no evidence for sequencing a TKI after a TKI in HER2-positive MBC. g: FDA approved, not EMA approved. h: When other anti-HER2 therapies have been exhausted, are not considered suitable or are not available.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2+",
+      "HR-/HER2+"
+    ],
+    "line": [
+      ">=3L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "capecitabine",
+      "margetuximab",
+      "trastuzumab",
+      "lapatinib",
+      "neratinib",
+      "trastuzumab emtansine"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig7-c5908c",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 7. Third- and further-line management of HER2-positive MBC.",
+    "page_start": 1211,
+    "page_end": 1211,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig7",
+    "text": "Figure 7. Third- and further-line management of HER2-positive MBC. (algorithm path): HER2+ MBC [ESCAT I-A],^a ≥2 prior therapy lines → No, stable or unknown BMs → T-DXd^b [II, A; MCBS 4]^c; Tucatinib-trastuzumab-capecitabine^b [I, A; MCBS 4]^c; T-DM1^b [I, A; MCBS 3]^c → [PD] → T-DM1^b [I, A; MCBS 3]^c; Lapatinib-trastuzumab^d,e [I, C; MCBS 4]^c; Lapatinib-capecitabine^d [I, C; MCBS 2]^c; Lapatinib-ET (if ER+)^d [I, C; MCBS 3]^c; Margetuximab-ChT^f,g [I, C; MCBS 2]^c; Neratinib-capecitabine^f,g [I, C; MCBS 1]^c; Trastuzumab-ChT^b,h [III, A]; Trastuzumab-ET^b,h (if ER+) [III, A] Footnotes: b: If not used previously. d: No data are available on use of lapatinib after tucatinib-based therapy. e: EMA approved, not FDA approved. f: The most appropriate setting for these options may be when all standard therapy options have been exhausted [V, C], noting that there is no evidence for sequencing a TKI after a TKI in HER2-positive MBC. g: FDA approved, not EMA approved. h: When other anti-HER2 therapies have been exhausted, are not considered suitable or are not available.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "HR+/HER2+",
+      "HR-/HER2+"
+    ],
+    "line": [
+      ">=3L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "capecitabine",
+      "margetuximab",
+      "trastuzumab",
+      "lapatinib",
+      "neratinib",
+      "tucatinib",
+      "trastuzumab emtansine",
+      "trastuzumab deruxtecan"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig8",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 8. First-line management of mTNBC.",
+    "page_start": 1213,
+    "page_end": 1213,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Figure 8. First-line management of mTNBC.\n\nFigure 8. First-line management of mTNBC. (algorithm path): Previously untreated mTNBC^a → PD-L1+ → Pembrolizumab-sacituzumab govitecan^c,d [I, A]; Pembrolizumab-ChT^c,e [I, A; MCBS 4]^f; Atezolizumab-nab-paclitaxel^g,h [II, A; MCBS 3]^f → [PD] → Second-line treatment (see Figure 9) Footnotes: a: De novo or recurrence >6 months after the end of (neo)adjuvant ICI therapy. c: When PD-L1 CPS ≥10 and DFI ≥6 months after adjuvant treatment, noting that limited data are available after neo(adjuvant) ICI therapy. d: FDA approved, not EMA approved. e: ChT is physician’s choice of paclitaxel, nab-paclitaxel or carboplatin—gemcitabine. g: When immune cell PD-L1 positivity ≥1% and DFI ≥12 months after adjuvant treatment. h: EMA approved, not FDA approved.\n\nFigure 8. First-line management of mTNBC. (algorithm path): Previously untreated mTNBC^a → PD-L1- → gBRCA wt → Dato-DXd^j,k [I, A; MCBS 4]^f; Sacituzumab govitecan^j,k [I, A; MCBS 2]^f; Taxane monotherapy [I, A]; Anthracycline monotherapy^l [I, A]; Capecitabine^m [I, B]; Capecitabine-bevacizumab^h,m [I, B; MCBS 3]^f; Taxane^m [I, B]; Taxane-bevacizumab^h,m [I, B; MCBS 2]^f → [PD] → Second-line treatment (see Figure 9) Footnotes: a: De novo or recurrence >6 months after the end of (neo)adjuvant ICI therapy. h: EMA approved, not FDA approved. j: EMA CHMP positive opinion, FDA approved. k: Recommended if available. Dato-DXd is the preferred option for patients relapsing within 6 months of adjuvant therapy [I, A]. l: If no prior exposure or if rechallenge is possible. m: Preferred in case of imminent organ failure.\n\nFigure 8. First-line management of mTNBC. (algorithm path): Previously untreated mTNBC^a → PD-L1- → gBRCA mutated [ESCAT I-A]^b → Olaparib^i [I, A]; Talazoparib^i [I, A]; Carboplatin-based ChT [II, A] → [PD] → Second-line treatment (see Figure 9) Footnotes: a: De novo or recurrence >6 months after the end of (neo)adjuvant ICI therapy. i: Not EMA or FDA approved in first line.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "1L"
+    ],
+    "biomarker_tags": [
+      "gBRCA",
+      "PD-L1+"
+    ],
+    "drugs": [
+      "sacituzumab govitecan",
+      "nab-paclitaxel",
+      "pembrolizumab",
+      "atezolizumab",
+      "capecitabine",
+      "bevacizumab",
+      "carboplatin",
+      "gemcitabine",
+      "talazoparib",
+      "paclitaxel",
+      "datopotamab deruxtecan",
+      "olaparib"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig8-e2f44c",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 8. First-line management of mTNBC.",
+    "page_start": 1213,
+    "page_end": 1213,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig8",
+    "text": "Figure 8. First-line management of mTNBC. (algorithm path): Previously untreated mTNBC^a → PD-L1+ → Pembrolizumab-sacituzumab govitecan^c,d [I, A]; Pembrolizumab-ChT^c,e [I, A; MCBS 4]^f; Atezolizumab-nab-paclitaxel^g,h [II, A; MCBS 3]^f → [PD] → Second-line treatment (see Figure 9) Footnotes: a: De novo or recurrence >6 months after the end of (neo)adjuvant ICI therapy. c: When PD-L1 CPS ≥10 and DFI ≥6 months after adjuvant treatment, noting that limited data are available after neo(adjuvant) ICI therapy. d: FDA approved, not EMA approved. e: ChT is physician’s choice of paclitaxel, nab-paclitaxel or carboplatin—gemcitabine. g: When immune cell PD-L1 positivity ≥1% and DFI ≥12 months after adjuvant treatment. h: EMA approved, not FDA approved.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "1L"
+    ],
+    "biomarker_tags": [
+      "PD-L1+"
+    ],
+    "drugs": [
+      "sacituzumab govitecan",
+      "nab-paclitaxel",
+      "pembrolizumab",
+      "atezolizumab"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig8-b39e9e",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 8. First-line management of mTNBC.",
+    "page_start": 1213,
+    "page_end": 1213,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig8",
+    "text": "Figure 8. First-line management of mTNBC. (algorithm path): Previously untreated mTNBC^a → PD-L1- → gBRCA wt → Dato-DXd^j,k [I, A; MCBS 4]^f; Sacituzumab govitecan^j,k [I, A; MCBS 2]^f; Taxane monotherapy [I, A]; Anthracycline monotherapy^l [I, A]; Capecitabine^m [I, B]; Capecitabine-bevacizumab^h,m [I, B; MCBS 3]^f; Taxane^m [I, B]; Taxane-bevacizumab^h,m [I, B; MCBS 2]^f → [PD] → Second-line treatment (see Figure 9) Footnotes: a: De novo or recurrence >6 months after the end of (neo)adjuvant ICI therapy. h: EMA approved, not FDA approved. j: EMA CHMP positive opinion, FDA approved. k: Recommended if available. Dato-DXd is the preferred option for patients relapsing within 6 months of adjuvant therapy [I, A]. l: If no prior exposure or if rechallenge is possible. m: Preferred in case of imminent organ failure.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "1L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "sacituzumab govitecan",
+      "capecitabine",
+      "bevacizumab",
+      "datopotamab deruxtecan"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig8-6df378",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 8. First-line management of mTNBC.",
+    "page_start": 1213,
+    "page_end": 1213,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig8",
+    "text": "Figure 8. First-line management of mTNBC. (algorithm path): Previously untreated mTNBC^a → PD-L1- → gBRCA mutated [ESCAT I-A]^b → Olaparib^i [I, A]; Talazoparib^i [I, A]; Carboplatin-based ChT [II, A] → [PD] → Second-line treatment (see Figure 9) Footnotes: a: De novo or recurrence >6 months after the end of (neo)adjuvant ICI therapy. i: Not EMA or FDA approved in first line.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "1L"
+    ],
+    "biomarker_tags": [
+      "gBRCA"
+    ],
+    "drugs": [
+      "carboplatin",
+      "talazoparib",
+      "olaparib"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig9",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 9. Second- and further-line management of mTNBC.",
+    "page_start": 1214,
+    "page_end": 1214,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Figure 9. Second- and further-line management of mTNBC.\n\nFigure 9. Second- and further-line management of mTNBC. (algorithm path): Previously treated mTNBC, ≥1 prior therapy line^a → gBRCA mutated [ESCAT I-A]^b; gPALB2 mutated [ESCAT II-B]^b → Olaparib^f [I, A; MCBS 4]^d; Talazoparib^f [I, A; MCBS 3]^d; Carboplatin-based ChT [II, A] → [PD] → Sacituzumab govitecan^c [I, A; MCBS 5]^d; ChT^e [I, B] Footnotes: a: Or recurrence ≤6-12 months after the end of (neo)adjuvant ICI therapy. c: If not used previously. e: Eribulin (ESMO-MCBS v2.0 score: 2), capecitabine or vinorelbine. f: If a PARPi was not used in the first-line setting. 1214 https://doi.org/10.1016/j.annonc.2026.05.707\n\nFigure 9. Second- and further-line management of mTNBC. (algorithm path): Previously treated mTNBC, ≥1 prior therapy line^a → gBRCA mutated [ESCAT I-A]^b; gPALB2 mutated [ESCAT II-B]^b → Olaparib^f [I, A; MCBS 4]^d; Talazoparib^f [I, A; MCBS 3]^d; Carboplatin-based ChT [II, A] → [PD] → HER2 low [ESCAT I-A]^b → T-DXd [II, B; MCBS 4]^d Footnotes: a: Or recurrence ≤6-12 months after the end of (neo)adjuvant ICI therapy. f: If a PARPi was not used in the first-line setting. 1214 https://doi.org/10.1016/j.annonc.2026.05.707\n\nFigure 9. Second- and further-line management of mTNBC. (algorithm path): Previously treated mTNBC, ≥1 prior therapy line^a → gBRCA wt → Sacituzumab govitecan^c [I, A; MCBS 5]^d; ChT^e [I, B] → [PD] → Sacituzumab govitecan^c [I, A; MCBS 5]^d; ChT^e [I, B] Footnotes: a: Or recurrence ≤6-12 months after the end of (neo)adjuvant ICI therapy. c: If not used previously. e: Eribulin (ESMO-MCBS v2.0 score: 2), capecitabine or vinorelbine.\n\nFigure 9. Second- and further-line management of mTNBC. (algorithm path): Previously treated mTNBC, ≥1 prior therapy line^a → gBRCA wt → Sacituzumab govitecan^c [I, A; MCBS 5]^d; ChT^e [I, B] → [PD] → HER2 low [ESCAT I-A]^b → T-DXd [II, B; MCBS 4]^d Footnotes: a: Or recurrence ≤6-12 months after the end of (neo)adjuvant ICI therapy. c: If not used previously. e: Eribulin (ESMO-MCBS v2.0 score: 2), capecitabine or vinorelbine.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "2L",
+      ">=3L"
+    ],
+    "biomarker_tags": [
+      "HER2-low",
+      "gBRCA",
+      "gPALB2"
+    ],
+    "drugs": [
+      "sacituzumab govitecan",
+      "capecitabine",
+      "carboplatin",
+      "talazoparib",
+      "vinorelbine",
+      "eribulin",
+      "olaparib",
+      "trastuzumab deruxtecan"
+    ],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig9-856d0a",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 9. Second- and further-line management of mTNBC.",
+    "page_start": 1214,
+    "page_end": 1214,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig9",
+    "text": "Figure 9. Second- and further-line management of mTNBC. (algorithm path): Previously treated mTNBC, ≥1 prior therapy line^a → gBRCA mutated [ESCAT I-A]^b; gPALB2 mutated [ESCAT II-B]^b → Olaparib^f [I, A; MCBS 4]^d; Talazoparib^f [I, A; MCBS 3]^d; Carboplatin-based ChT [II, A] → [PD] → Sacituzumab govitecan^c [I, A; MCBS 5]^d; ChT^e [I, B] Footnotes: a: Or recurrence ≤6-12 months after the end of (neo)adjuvant ICI therapy. c: If not used previously. e: Eribulin (ESMO-MCBS v2.0 score: 2), capecitabine or vinorelbine. f: If a PARPi was not used in the first-line setting. 1214 https://doi.org/10.1016/j.annonc.2026.05.707",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "2L",
+      ">=3L"
+    ],
+    "biomarker_tags": [
+      "gBRCA",
+      "gPALB2"
+    ],
+    "drugs": [
+      "sacituzumab govitecan",
+      "carboplatin",
+      "talazoparib",
+      "olaparib"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig9-0f049d",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 9. Second- and further-line management of mTNBC.",
+    "page_start": 1214,
+    "page_end": 1214,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig9",
+    "text": "Figure 9. Second- and further-line management of mTNBC. (algorithm path): Previously treated mTNBC, ≥1 prior therapy line^a → gBRCA mutated [ESCAT I-A]^b; gPALB2 mutated [ESCAT II-B]^b → Olaparib^f [I, A; MCBS 4]^d; Talazoparib^f [I, A; MCBS 3]^d; Carboplatin-based ChT [II, A] → [PD] → HER2 low [ESCAT I-A]^b → T-DXd [II, B; MCBS 4]^d Footnotes: a: Or recurrence ≤6-12 months after the end of (neo)adjuvant ICI therapy. f: If a PARPi was not used in the first-line setting. 1214 https://doi.org/10.1016/j.annonc.2026.05.707",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "2L",
+      ">=3L"
+    ],
+    "biomarker_tags": [
+      "HER2-low",
+      "gBRCA",
+      "gPALB2"
+    ],
+    "drugs": [
+      "carboplatin",
+      "talazoparib",
+      "olaparib",
+      "trastuzumab deruxtecan"
+    ],
+    "evidence": {
+      "loe": "II",
+      "gor": "B",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig9-dde930",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 9. Second- and further-line management of mTNBC.",
+    "page_start": 1214,
+    "page_end": 1214,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig9",
+    "text": "Figure 9. Second- and further-line management of mTNBC. (algorithm path): Previously treated mTNBC, ≥1 prior therapy line^a → gBRCA wt → Sacituzumab govitecan^c [I, A; MCBS 5]^d; ChT^e [I, B] → [PD] → Sacituzumab govitecan^c [I, A; MCBS 5]^d; ChT^e [I, B] Footnotes: a: Or recurrence ≤6-12 months after the end of (neo)adjuvant ICI therapy. c: If not used previously. e: Eribulin (ESMO-MCBS v2.0 score: 2), capecitabine or vinorelbine.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "2L",
+      ">=3L"
+    ],
+    "biomarker_tags": [],
+    "drugs": [
+      "sacituzumab govitecan"
+    ],
+    "evidence": {
+      "loe": "I",
+      "gor": "A",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig9-c541f9",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 9. Second- and further-line management of mTNBC.",
+    "page_start": 1214,
+    "page_end": 1214,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig9",
+    "text": "Figure 9. Second- and further-line management of mTNBC. (algorithm path): Previously treated mTNBC, ≥1 prior therapy line^a → gBRCA wt → Sacituzumab govitecan^c [I, A; MCBS 5]^d; ChT^e [I, B] → [PD] → HER2 low [ESCAT I-A]^b → T-DXd [II, B; MCBS 4]^d Footnotes: a: Or recurrence ≤6-12 months after the end of (neo)adjuvant ICI therapy. c: If not used previously. e: Eribulin (ESMO-MCBS v2.0 score: 2), capecitabine or vinorelbine.",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "TNBC"
+    ],
+    "line": [
+      "2L",
+      ">=3L"
+    ],
+    "biomarker_tags": [
+      "HER2-low"
+    ],
+    "drugs": [
+      "sacituzumab govitecan",
+      "trastuzumab deruxtecan"
+    ],
+    "evidence": {
+      "loe": "II",
+      "gor": "B",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig10",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 10. Site-specific management of OMD.",
+    "page_start": 1215,
+    "page_end": 1215,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "section",
+    "parent_id": null,
+    "text": "Figure 10. Site-specific management of OMD.\n\nFigure 10. Site-specific management of OMD. (algorithm path): Patients with a suspicion of OMD → Biopsy, if feasible [I, A]; CT of the chest and abdomen, bone scintigraphy, blood tests, LFTs [II, B] → Patients with a diagnosis of OMD → MDT discussion [V, B] → Consider site of metastases (bone, brain, etc.), as they require different approaches (see recommendations); Multimodality treatment approaches (local or regional therapies)^a with systemic treatments tailored to disease presentation [V, B]; Systemic treatment as initial therapy; further management decisions based on initial response [V, B] Footnotes: a: Ablative procedures may be considered on a case-by-case basis for individual metastatic lesions after MDT discussion [II, C].",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "any"
+    ],
+    "line": [
+      "any"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": null,
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  },
+  {
+    "schema_version": "0.1-draft",
+    "chunk_id": "esmo-mbc-2026-05-fig10-44ccc9",
+    "doc_type": "guideline",
+    "source": "ESMO-MBC",
+    "version": "2026-05",
+    "section": "Figure 10. Site-specific management of OMD.",
+    "page_start": 1215,
+    "page_end": 1215,
+    "url": "https://doi.org/10.1016/j.annonc.2026.05.707",
+    "chunk_kind": "algorithm",
+    "parent_id": "esmo-mbc-2026-05-fig10",
+    "text": "Figure 10. Site-specific management of OMD. (algorithm path): Patients with a suspicion of OMD → Biopsy, if feasible [I, A]; CT of the chest and abdomen, bone scintigraphy, blood tests, LFTs [II, B] → Patients with a diagnosis of OMD → MDT discussion [V, B] → Consider site of metastases (bone, brain, etc.), as they require different approaches (see recommendations); Multimodality treatment approaches (local or regional therapies)^a with systemic treatments tailored to disease presentation [V, B]; Systemic treatment as initial therapy; further management decisions based on initial response [V, B] Footnotes: a: Ablative procedures may be considered on a case-by-case basis for individual metastatic lesions after MDT discussion [II, C].",
+    "setting": [
+      "metastatic"
+    ],
+    "subtype": [
+      "any"
+    ],
+    "line": [
+      "any"
+    ],
+    "biomarker_tags": [],
+    "drugs": [],
+    "evidence": {
+      "loe": "V",
+      "gor": "B",
+      "esmo_mcbs": null,
+      "escat": null
+    },
+    "superseded_by": null,
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+  }
+]

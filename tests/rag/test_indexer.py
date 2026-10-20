@@ -102,10 +102,13 @@ def test_rerank_reorders_candidates_and_keeps_score_scale(memory_index, monkeypa
     monkeypatch.setattr(searcher, "RERANK_CANDIDATES", 200)  # 가짜 임베딩이라 후보를 모두 넣어야 정답이 후보에 든다
     indexer.index_chunks(select_index_chunks(load_guideline_chunks()))
     results = searcher.search_guidelines("ESR1-mutated MBC after ET", setting="metastatic", subtype="HR+/HER2-",
-                                         top_k=3, rerank=True)
+                                         top_k=10, rerank=True)
     assert "elacestrant" in results[0]["text"].lower()
     assert 0.9 < results[0]["score"] <= 1.0  # logit 4 → sigmoid 0.982, 가점 없음
-    assert results[1]["score"] < 0.1
+    # elacestrant가 든 청크(권고, 알고리즘 그림 경로)가 모두 앞에 오고, 나머지는 재정렬 점수가 낮다
+    has = ["elacestrant" in r["text"].lower() for r in results]
+    assert has == sorted(has, reverse=True) and not all(has)
+    assert all(r["score"] < 0.1 for r, h in zip(results, has) if not h)
 
 
 def test_search_falls_back_when_reranker_cannot_load(memory_index, monkeypatch):
