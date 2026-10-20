@@ -18,7 +18,7 @@ tumor,림프절 음성,patient_state,stage.ptnm.n,N0 | N0(i-) | N0(i+) | N0(mol+
 tumor,전이된 림프절 갯수,patient_state,stage.positive_ln_count.positive,,exact,54,,
 tumor,종양분화도 / 조직학적 등급,patient_state,diagnosis.grade,1 | 2 | 3,exact,52-54,,
 receptor,HER2 양성 (과발현),biomarker_record,records[marker=HER2].status,positive,exact,48,공고 정의: IHC 3+ 또는 FISH 양성 또는 SISH 양성,확정 2026-10-15
-receptor,HER2 음성,biomarker_record,records[marker=HER2].status,negative | low | ultralow | zero,multi,"50,53,55-58",HER2 양성 정의에 해당하지 않으면 음성,확정 2026-10-15
+receptor,HER2 음성,biomarker_record,records[marker=HER2].status,negative | low | ultralow,multi,"50,53,55-58",HER2 양성 정의에 해당하지 않으면 음성,확정 2026-10-15
 receptor,IHC 3+,patient_state,receptors.her2_ihc.value.score,3+,exact,48,,
 receptor,FISH 양성,patient_state,receptors.her2_ish.value,"method=FISH, result=amplified",exact,48,,
 receptor,SISH 양성,patient_state,receptors.her2_ish.value,"method=SISH, result=amplified",exact,48,,
