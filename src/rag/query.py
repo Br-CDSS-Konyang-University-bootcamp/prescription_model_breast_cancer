@@ -8,6 +8,8 @@
 #     results = search_guidelines(**search_args(record, **patient))
 #     for args in extra_search_args(record, **patient):  # 부위별(뼈·뇌 전이)·de novo 권고는 따로 찾는다
 #         results += search_guidelines(**args)
+#     rows = search_reimbursement(["palbociclib", "letrozole"], setting="metastatic", line="1L", as_of="2026-10-20")
+#     # 후보 요법마다 급여 행을 찾고, 행의 reimbursement.conditions와 환자 정보로 급여 분류를 정한다 (B)
 # patient 값은 A의 patient_state에서 온다: stage.metastatic_sites·recurrence.metastatic_sites, patient.menopausal_status,
 # neoadjuvant_response.pcr, stage.disease_extent(진단 시 범주), treatment_history[]의 drug_subclass·drug_class.
 # 같은 환자 조건이라도 폐경 상태(OFS 권고), pCR(잔존 질환 권고), de novo(원발 종양 수술 권고), 이전 치료(후반 차수)에 따라
