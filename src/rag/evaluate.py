@@ -3,7 +3,7 @@
 #   L0 문서: 1위 결과가 정답 문서(예: esmo-mbc-2026-05)에서 나왔나
 #   L1 소단원: 상위 k개 결과의 부모(소단원) 중 정답 소단원이 있나
 #   L2 권고: 정답 권고가 상위 k개에 몇 개 들어왔나(recall@k), 처음 나온 순위(MRR)
-# 실행: team_project 폴더에서 python -m src.rag.evaluate [--k 5] [--no-rerank] [--candidates 20] [--out 결과.csv]
+# 실행: team_project 폴더에서 python -m src.rag.evaluate [--k 5] [--no-rerank] [--candidates 20] [--reranker 모델] [--out 결과.csv]
 # 질의마다 검색 시간도 잰다. 첫 질의는 모델을 불러오는 시간이 들어가 따로 보여 준다.
 # 정답은 status=draft인 동안 초안이다. 원문과 대조해 확인한 문항은 status=reviewed로 바꾼다 (PROJECT.md §12).
 import argparse
@@ -79,6 +79,11 @@ def search_case(case: dict, k: int = 5, rerank: bool = True) -> list[dict]:
     )
 
 
+def client_name() -> str:
+    from . import client
+    return client.RERANKER_NAME.split("/")[-1]
+
+
 def write_rows(rows: list[dict], path: Path) -> None:
     with open(path, "w", encoding="utf-8-sig", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=list(rows[0]))
@@ -95,6 +100,7 @@ def main(argv=None) -> int:
     parser.add_argument("--cases", type=Path, default=CASES_CSV)
     parser.add_argument("--k", type=int, default=5)
     parser.add_argument("--no-rerank", dest="rerank", action="store_false", help="재정렬 모델을 끄고 뜻 검색만 쓴다 (비교용)")
+    parser.add_argument("--reranker", help="재정렬 모델 이름 (기본 bge-reranker-v2-m3). 예: BAAI/bge-reranker-base")
     parser.add_argument("--candidates", type=int, help="재정렬할 후보 수 (기본 searcher.RERANK_CANDIDATES). 줄이면 빨라진다")
     parser.add_argument("--out", type=Path, help="문항별 결과를 저장할 CSV")
     args = parser.parse_args(argv)
@@ -103,6 +109,9 @@ def main(argv=None) -> int:
     from .searcher import close_searcher
     if args.candidates:
         searcher.RERANK_CANDIDATES = args.candidates
+    if args.reranker:
+        from . import client
+        client.RERANKER_NAME = args.reranker
     cases = load_cases(args.cases)
     try:
         rows, summary = evaluate(cases, lambda c: search_case(c, args.k, args.rerank), args.k)
@@ -113,7 +122,7 @@ def main(argv=None) -> int:
     for r in rows:
         print(f"{r['case_id']:<5} {r['l0_doc']:>2} {r['l1_section']:>2} {r['l2_hit']:>2}  {r['l2_recall']:>6.2f} "
               f"{r['mrr']:>5.2f}  {', '.join(cid.split('-', 4)[-1] for cid in r['top_ids'][:3])}")
-    print(f"\n{summary['cases']}문항, k={args.k}, 재정렬 {'켬 (후보 ' + str(searcher.RERANK_CANDIDATES) + '개)' if args.rerank else '끔'}")
+    print(f"\n{summary['cases']}문항, k={args.k}, 재정렬 {'켬 (' + client_name() + ', 후보 ' + str(searcher.RERANK_CANDIDATES) + '개)' if args.rerank else '끔'}")
     print(f"L0 문서 선택 {summary['l0_doc']:.0%} | L1 소단원 {summary['l1_section']:.0%} | "
           f"L2 hit@{args.k} {summary['l2_hit']:.0%} | L2 recall@{args.k} {summary['l2_recall']:.2f} | MRR {summary['mrr']:.2f}")
     if args.rerank and searcher._reranker_failed:

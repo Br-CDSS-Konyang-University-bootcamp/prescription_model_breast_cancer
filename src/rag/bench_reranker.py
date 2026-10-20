@@ -39,7 +39,7 @@ def main(argv=None) -> int:
 
     start = time.perf_counter()
     model = CrossEncoder(args.model)
-    print(f"모델 불러오기: {time.perf_counter() - start:.1f}초 | 설정된 최대 입력 길이: {model.max_length}")
+    print(f"모델 불러오기: {time.perf_counter() - start:.1f}초 | 설정된 최대 입력 길이: {model.max_seq_length}")
 
     def run(n):
         return lambda: model.predict([(query, t) for t in texts[:n]], show_progress_bar=False)
@@ -57,7 +57,7 @@ def main(argv=None) -> int:
 
     print("\n[최대 입력 길이별] (후보 20개)")
     for max_length in (512, 256):
-        model.max_length = max_length
+        model.max_seq_length = max_length
         print(f"  {max_length}: {_time(run(20)):.2f}초")
     print("\n권고 청크 길이(글자): 최대", max(len(t) for t in texts), "| 평균", sum(len(t) for t in texts) // len(texts))
     return 0
