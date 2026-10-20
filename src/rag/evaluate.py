@@ -3,7 +3,9 @@
 #   L0 문서: 1위 결과가 정답 문서(예: esmo-mbc-2026-05)에서 나왔나
 #   L1 소단원: 상위 k개 결과의 부모(소단원) 중 정답 소단원이 있나
 #   L2 권고: 정답 권고가 상위 k개에 몇 개 들어왔나(recall@k), 처음 나온 순위(MRR)
-# 실행: team_project 폴더에서 python -m src.rag.evaluate [--k 5] [--no-rerank] [--candidates 20] [--reranker 모델] [--out 결과.csv]
+# 실행: team_project 폴더에서 python -m src.rag.evaluate [--k 5] [--no-rerank] [--candidates 20] [--reranker 모델] [--auto-query] [--out 결과.csv]
+# --auto-query: 문제집의 query 대신 환자 조건(아형·병기·차수·태그·전이 부위)만으로 만든 질의를 쓴다 (src/rag/query.py).
+#   B의 추천 모듈이 쓸 질의에 가깝다. 문제집 질의는 지침 문장을 보며 써서 점수가 높게 나올 수 있다.
 # 질의마다 검색 시간도 잰다. 첫 질의는 모델을 불러오는 시간이 들어가 따로 보여 준다.
 # 정답은 status=draft인 동안 초안이다. 원문과 대조해 확인한 문항은 status=reviewed로 바꾼다 (PROJECT.md §12).
 import argparse
@@ -66,10 +68,18 @@ def evaluate(cases: list[dict], search_fn, k: int = 5) -> tuple[list[dict], dict
     return rows, summary
 
 
-def search_case(case: dict, k: int = 5, rerank: bool = True) -> list[dict]:
+def case_query(case: dict, auto: bool = False) -> str:
+    if not auto:
+        return case["query"]
+    from .query import build_query, profile_from_tags
+    return build_query(profile_from_tags(case["subtype"], case["setting"], case["line"], case["biomarker_tags"],
+                                         case["metastatic_sites"]))
+
+
+def search_case(case: dict, k: int = 5, rerank: bool = True, auto_query: bool = False) -> list[dict]:
     from .searcher import search_guidelines
     return search_guidelines(
-        case["query"],
+        case_query(case, auto_query),
         setting=case["setting"] or None,
         subtype=case["subtype"] or None,
         line=case["line"] or None,
@@ -103,6 +113,7 @@ def main(argv=None) -> int:
     parser.add_argument("--no-rerank", dest="rerank", action="store_false", help="재정렬 모델을 끄고 뜻 검색만 쓴다 (비교용)")
     parser.add_argument("--reranker", help="재정렬 모델 이름 (기본 bge-reranker-v2-m3). 예: BAAI/bge-reranker-base")
     parser.add_argument("--candidates", type=int, help="재정렬할 후보 수 (기본 searcher.RERANK_CANDIDATES). 줄이면 빨라진다")
+    parser.add_argument("--auto-query", action="store_true", help="환자 조건만으로 만든 질의를 쓴다 (B가 쓸 질의에 가까움)")
     parser.add_argument("--out", type=Path, help="문항별 결과를 저장할 CSV")
     args = parser.parse_args(argv)
 
@@ -115,7 +126,7 @@ def main(argv=None) -> int:
         client.RERANKER_NAME = args.reranker
     cases = load_cases(args.cases)
     try:
-        rows, summary = evaluate(cases, lambda c: search_case(c, args.k, args.rerank), args.k)
+        rows, summary = evaluate(cases, lambda c: search_case(c, args.k, args.rerank, args.auto_query), args.k)
     finally:
         close_searcher()
 
@@ -123,7 +134,9 @@ def main(argv=None) -> int:
     for r in rows:
         print(f"{r['case_id']:<5} {r['l0_doc']:>2} {r['l1_section']:>2} {r['l2_hit']:>2}  {r['l2_recall']:>6.2f} "
               f"{r['mrr']:>5.2f}  {', '.join(cid.split('-', 4)[-1] for cid in r['top_ids'][:3])}")
-    print(f"\n{summary['cases']}문항, k={args.k}, 재정렬 {'켬 (' + client_name() + ', 후보 ' + str(searcher.RERANK_CANDIDATES) + '개)' if args.rerank else '끔'}")
+        if args.auto_query:
+            print(f"      질의: {case_query(next(c for c in cases if c['case_id'] == r['case_id']), True)}")
+    print(f"\n{summary['cases']}문항, k={args.k}, 질의 {'자동 생성' if args.auto_query else '문제집'}, 재정렬 {'켬 (' + client_name() + ', 후보 ' + str(searcher.RERANK_CANDIDATES) + '개)' if args.rerank else '끔'}")
     print(f"L0 문서 선택 {summary['l0_doc']:.0%} | L1 소단원 {summary['l1_section']:.0%} | "
           f"L2 hit@{args.k} {summary['l2_hit']:.0%} | L2 recall@{args.k} {summary['l2_recall']:.2f} | MRR {summary['mrr']:.2f}")
     if args.rerank and searcher._reranker_failed:
