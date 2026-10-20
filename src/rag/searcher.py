@@ -10,9 +10,10 @@ from .client import get_qdrant_client, get_embedding_model, get_reranker, close_
 LINE_MATCH_BONUS = 0.1  # 요청 차수와 청크 차수가 같을 때
 LINE_ANY_BONUS = 0.03  # 청크 차수가 any일 때
 # 청크 차수가 요청과 명확히 다를 때 (예: 2차 환자에게 1차 권고). 빼지 않고 뒤로 보낸다.
-# 재정렬 모델은 1차 권고 문장의 "ER-positive, HER2-negative … MBC"가 질의와 글자 그대로 겹치면 거의 만점을 줘서,
-# 차수 가점(+0.1)만으로는 2차 질의에서도 1차 권고가 1위로 올라왔다 (평가 --auto-query M04·M10·M11, 2026-10-20)
-LINE_MISMATCH_PENALTY = 0.3
+# 재정렬 모델은 1차 권고 문장의 "ER-positive, HER2-negative … MBC"가 질의와 글자 그대로 겹치면 거의 만점(≈1.0)을 줘서,
+# 차수 가점(+0.1)이나 -0.3 감점으로는 2·3차 질의에서도 1차 권고가 1위였다 (평가 --auto-query M10·M11, 2026-10-20).
+# 점수 범위(약 0~1.2)보다 크게 깎아, 차수가 다른 권고는 맞는 차수·any 권고 뒤에만 온다 (맞는 권고가 모자라면 채워짐)
+LINE_MISMATCH_PENALTY = 1.0
 TAG_BONUS = 0.05  # 요청 바이오마커 태그가 청크 태그와 하나 겹칠 때마다
 RERANK_CANDIDATES = 20  # 재정렬할 때 뜻 검색으로 먼저 뽑는 후보 수
 SITE_MATCH_BONUS = 0.05  # 환자에게 있는 전이 부위의 부위별 권고

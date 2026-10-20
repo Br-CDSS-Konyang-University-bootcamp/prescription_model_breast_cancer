@@ -3,7 +3,7 @@
 #   L0 문서: 1위 결과가 정답 문서(예: esmo-mbc-2026-05)에서 나왔나
 #   L1 소단원: 상위 k개 결과의 부모(소단원) 중 정답 소단원이 있나
 #   L2 권고: 정답 권고가 상위 k개에 몇 개 들어왔나(recall@k), 처음 나온 순위(MRR)
-# 실행: team_project 폴더에서 python -m src.rag.evaluate [--k 5] [--no-rerank] [--candidates 20] [--reranker 모델] [--auto-query] [--out 결과.csv]
+# 실행: team_project 폴더에서 python -m src.rag.evaluate [--k 5] [--no-rerank] [--candidates 20] [--reranker 모델] [--auto-query] [--detail] [--out 결과.csv]
 # --auto-query: 문제집의 query 대신 환자 조건(아형·병기·차수·태그·전이 부위)만으로 만든 질의를 쓴다 (src/rag/query.py).
 #   B의 추천 모듈이 쓸 질의에 가깝다. 문제집 질의는 지침 문장을 보며 써서 점수가 높게 나올 수 있다.
 # 질의마다 검색 시간도 잰다. 첫 질의는 모델을 불러오는 시간이 들어가 따로 보여 준다.
@@ -48,6 +48,7 @@ def score_case(case: dict, results: list[dict], k: int = 5) -> dict:
         "l2_recall": len(found) / len(expected) if expected else 0.0,
         "mrr": 1 / first_rank if first_rank else 0.0,
         "top_ids": ids,
+        "top_detail": [(r["chunk_id"], r.get("score"), r.get("line")) for r in top],
     }
 
 
@@ -97,10 +98,10 @@ def client_name() -> str:
 
 def write_rows(rows: list[dict], path: Path) -> None:
     with open(path, "w", encoding="utf-8-sig", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=list(rows[0]))
+        writer = csv.DictWriter(f, fieldnames=[k for k in rows[0] if k != "top_detail"])
         writer.writeheader()
         for r in rows:
-            writer.writerow({**r, "top_ids": ";".join(r["top_ids"])})
+            writer.writerow({**{k: v for k, v in r.items() if k != "top_detail"}, "top_ids": ";".join(r["top_ids"])})
 
 
 def main(argv=None) -> int:
@@ -114,6 +115,7 @@ def main(argv=None) -> int:
     parser.add_argument("--reranker", help="재정렬 모델 이름 (기본 bge-reranker-v2-m3). 예: BAAI/bge-reranker-base")
     parser.add_argument("--candidates", type=int, help="재정렬할 후보 수 (기본 searcher.RERANK_CANDIDATES). 줄이면 빨라진다")
     parser.add_argument("--auto-query", action="store_true", help="환자 조건만으로 만든 질의를 쓴다 (B가 쓸 질의에 가까움)")
+    parser.add_argument("--detail", action="store_true", help="문항마다 상위 결과의 점수와 차수를 보여 준다")
     parser.add_argument("--out", type=Path, help="문항별 결과를 저장할 CSV")
     args = parser.parse_args(argv)
 
@@ -136,6 +138,11 @@ def main(argv=None) -> int:
               f"{r['mrr']:>5.2f}  {', '.join(cid.split('-', 4)[-1] for cid in r['top_ids'][:3])}")
         if args.auto_query:
             print(f"      질의: {case_query(next(c for c in cases if c['case_id'] == r['case_id']), True)}")
+        if args.detail:
+            expected = next(c for c in cases if c["case_id"] == r["case_id"])["expected_chunks"]
+            for cid, score, ln in r["top_detail"]:
+                mark = "  ← 정답" if cid in expected else ""
+                print(f"      {score if score is not None else '-':>7} {','.join(ln or []):<12} {cid.split('-', 4)[-1]}{mark}")
     print(f"\n{summary['cases']}문항, k={args.k}, 질의 {'자동 생성' if args.auto_query else '문제집'}, 재정렬 {'켬 (' + client_name() + ', 후보 ' + str(searcher.RERANK_CANDIDATES) + '개)' if args.rerank else '끔'}")
     print(f"L0 문서 선택 {summary['l0_doc']:.0%} | L1 소단원 {summary['l1_section']:.0%} | "
           f"L2 hit@{args.k} {summary['l2_hit']:.0%} | L2 recall@{args.k} {summary['l2_recall']:.2f} | MRR {summary['mrr']:.2f}")
