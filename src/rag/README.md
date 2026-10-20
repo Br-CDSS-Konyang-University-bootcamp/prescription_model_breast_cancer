@@ -32,7 +32,7 @@ ESMO 지침을 수집·청킹하고, 지침과 급여 청크가 함께 들어가
 
 모든 명령은 `team_project` 폴더에서 실행한다. 순서: PDF 변환 → 품질 검사 → 청커 → `python -m pytest tests/rag` → 색인.
 
-- 지침 PDF와 변환한 md(`data/parsed_md/`)는 저작권 문서라 저장소에 올리지 않는다. 각자 PDF에서 만든다. PDF는 `data/guidelines/sources.csv`에 적힌 곳(전이성 2026은 esmo.org 게시본)에서 받는다. 변환할 때 파일 지문(sha256)을 이 목록과 비교해, 다른 판이면 경고한다 (쪽 번호와 chunk_id가 판에 따라 달라질 수 있다).
+- 지침 PDF와 변환한 md(`data/parsed_md/`)는 저작권 문서라 저장소에 올리지 않는다. 각자 PDF에서 만든다. PDF는 `data/guidelines/sources.csv`에 적힌 곳(조기 2024·전이성 2026 모두 esmo.org 게시본)에서 받는다. 변환할 때 파일 지문(sha256)을 이 목록과 비교해, 다른 판이면 경고한다 (쪽 번호와 chunk_id가 판에 따라 달라질 수 있다).
 - 청크 JSON은 `data/chunks/`에 커밋한다 (`.gitignore`에서 이 폴더의 `.json`만 허용). 커밋 전에 `tests/rag/test_chunks_schema.py`(스키마 검증, chunk_id 중복)가 통과해야 한다.
 - chunk_id는 다시 청킹해도 바뀌지 않아야 한다 (평가셋 정답과 추천 결과의 인용이 가리킨다). ESMO 권고는 번호가 없어 첫 근거 등급 표시까지의 문장으로 만든 지문(`esmo-mbc-2026-05-luminal-2l-3f2a9c`, `chunk_common.stable_key`)을 쓴다. 순서 번호(r01, r02)는 앞에 권고 하나만 늘어도 뒤가 모두 밀리므로 쓰지 않는다. `tests/rag/test_chunk_ids.py`가 이 성질을 검사한다.
 - 쪽 번호: 변환할 때 쪽마다 `<!-- page pdf=3 printed=1205 -->` 표시를 넣고 (인쇄 쪽은 PDF 정보 칸의 실린 쪽 범위에서 계산), 청커가 청크 본문을 이 md에서 찾아 `page_start`·`page_end`를 채운다. 기본은 학술지 인쇄 쪽(D의 급여 청크도 인쇄 쪽)이고, `chunk_common.PAGE_NUMBERING = "pdf"`로 바꾸면 PDF 쪽이 된다. 2026-10-19 이전에 만든 md에는 쪽 표시가 없으니 `--overwrite`로 다시 변환한다 (안 하면 테스트가 쪽 번호 없음으로 실패).
