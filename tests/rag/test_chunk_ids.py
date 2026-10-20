@@ -51,3 +51,12 @@ def test_lowercase_bullet_after_full_stop_is_a_new_recommendation():
     lines = ["- For cT1c-4 N0, or any N-positive TNBC, neoadjuvant treatment is preferred [I, A].",
              "- cT2-4 N0 or any N-positive (stage II-III) TNBC should be treated with neoadjuvant ChT plus pembrolizumab [I, A]."]
     assert len(_section_items(lines)) == 2
+
+
+def test_site_recommendation_gets_subtype_named_in_sentence():
+    # 부위별 소단원(아형 any)이라도 문장이 아형을 밝히면 그 아형만 붙인다. 다른 아형 환자 검색에 섞이지 않게
+    from src.rag.chunker_esmo import HER2_POS, _sentence_subtype
+    assert _sentence_subtype("T-DXd is recommended in HER2-positive LMD [III, A].", ["any"]) == HER2_POS
+    assert _sentence_subtype("T-DXd can be recommended in case of HER2-low expressing LMD.", ["any"]) == ["HR+/HER2-", "TNBC"]
+    assert _sentence_subtype("Stereotactic RT (SRT) is recommended over whole-brain RT [I, A].", ["any"]) == ["any"]
+    assert _sentence_subtype("HER2-positive MBC ...", ["TNBC"]) == ["TNBC"]  # 소단원 아형이 정해져 있으면 그대로

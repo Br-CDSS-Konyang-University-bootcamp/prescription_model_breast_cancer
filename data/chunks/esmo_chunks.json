@@ -5959,7 +5959,11 @@
       "metastatic"
     ],
     "subtype": [
-      "any"
+      "any",
+      "HR+/HER2+",
+      "HR-/HER2+",
+      "HR+/HER2-",
+      "TNBC"
     ],
     "line": [
       "any"
@@ -6159,7 +6163,8 @@
       "metastatic"
     ],
     "subtype": [
-      "any"
+      "HR+/HER2+",
+      "HR-/HER2+"
     ],
     "line": [
       "any"
@@ -6197,7 +6202,8 @@
       "metastatic"
     ],
     "subtype": [
-      "any"
+      "HR+/HER2-",
+      "TNBC"
     ],
     "line": [
       "any"
