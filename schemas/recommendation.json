@@ -22,7 +22,7 @@
           "drugs": {"type": "array", "items": {"type": "string"}},
           "rationale": {"type": "string"},
           "evidence": {"type": ["string", "null"], "description": "예: LoE I, GoR A"},
-          "guideline_source": {"enum": ["ESMO", "ASCO", null], "description": "ESMO와 ASCO는 합치지 않고 출처별로 따로 낸다."},
+          "guideline_source": {"enum": ["ESMO", null], "description": "권고의 지침 출처. ASCO 치료 지침은 재사용 불가로 쓰지 않는다 (2026-10-20)."},
           "citations": {"type": "array", "minItems": 1, "items": {"type": "string"}, "description": "지침 청크 ID"},
           "reimbursement": {"enum": ["covered", "covered_conditions_unverified", "offlabel_approved", "no_criteria"]},
           "reimbursement_reason": {"type": "string", "description": "충족한 조건 또는 빠진 조건"},
@@ -67,7 +67,7 @@
     },
     "out_of_scope": {"type": "boolean"},
     "out_of_scope_reason": {"type": ["string", "null"], "description": "예: DCIS, 남성 유방암, 검색 결과 없음"},
-    "conflicts": {"type": "array", "items": {"type": "string"}, "description": "예: ESMO와 ASCO 권고 차수가 다름"},
+    "conflicts": {"type": "array", "items": {"type": "string"}, "description": "예: 지침 권고 차수와 급여 기준 차수가 다름"},
     "index_status": {
       "type": "object",
       "description": "화면 하단 한 줄 요약 (D 제공)",
