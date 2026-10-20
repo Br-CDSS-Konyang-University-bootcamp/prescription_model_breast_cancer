@@ -6,7 +6,7 @@
 - 입력: `patient_state`
 - 출력: `schemas/biomarker_record.json` (레코드 목록 + 아형 + 치료 상황 + 검사 공백)
 - BM-2 판정과 BM-4 공백 규칙은 규칙 코드로 작성한다. LLM이 상태값을 바꿀 수 없다.
-- BM-3 근거 주석은 허가사항 변이 목록, CIViC, ClinVar, VEP를 로컬로 조회한다. OncoKB는 쓰지 않는다.
+- BM-3 근거 주석은 허가사항 변이 목록, CIViC, ClinVar를 로컬로 조회한다. OncoKB와 VEP는 쓰지 않는다 (VEP는 팀 회의 2026-10-20).
 - 테스트: `tests/biomarker/`
 
 ## 파일
@@ -36,27 +36,31 @@ PD-L1 판정 (2026-10-16, 전달 문서 6.5절). 입력 `receptors.pdl1` (`assay
 
 분자 아형(Luminal A, Luminal B(HER2 negative), Luminal B(HER2 positive), HER2_enriched, Basal_like)은 `molecular_subtype_of(아형, Ki-67 상태값)` 규칙 함수로만 있고 출력에는 넣지 않는다 (PROJECT.md §5).
 
-유전자 7개 판정 (2026-10-16, 1차 규칙. 전달 문서 3.6·4.6·4.7·5.4절). 위에서부터 처음 맞는 줄로 판정한다:
+유전자 7개 판정 (2026-10-20 팀 회의 반영. 전달 문서 3.6·4.6·4.7·5.4절). 판정과 근거를 나눈다: 판정은 아래 표로만 하고, 판정에 쓰지 않은 근거까지 모두 이유(`reason`)에 적는다. 위에서부터 처음 맞는 줄로 판정한다:
 
 | 순서 | 조건 | 상태값 | 규칙 ID |
 |---|---|---|---|
-| 1 | 미시행 / 기록 없음 | `not_done` / `not_recorded` | `BM2-<유전자>-NOTDONE` / `-NOTRECORDED` |
+| 1 | 미시행 / 기록 없음 | `not_done` / `not_recorded` (검사하지 않은 환자는 positive·negative로 내지 않는다) | `BM2-<유전자>-NOTDONE` / `-NOTRECORDED` |
 | 2 | 변이 없음 | `negative` | `BM2-<유전자>-NOTDETECTED` |
+| 3 | PTEN: 단백질이 바뀌는 변이가 하나라도 있음 (변이 유무, 팀 회의 2026-10-20). `Silent`·`Splice_Region` 등 단백질이 바뀌지 않는 변이만 있으면 `negative` (`BM2-PTEN-NONPROTEIN`) | `positive` | `BM2-PTEN-PRESENT` |
 | 3 | PIK3CA·AKT1·ESR1: 변이 중 하나라도 `actionable_variants.csv`에 있음 | `positive` | `BM2-<유전자>-LABEL` |
-| 3 | PTEN(5.4절)·BRCA1·BRCA2(4.7절): 절단 변이. 변이 종류가 `Nonsense_Mutation`, `Frame_Shift_Del`, `Frame_Shift_Ins`, `Splice_Site`일 때. PALB2는 절단 변이 규칙이 없다 (5.4절은 ClinVar 기준만) | `positive` | `BM2-<유전자>-TRUNC` |
-| 4 | BRCA1·BRCA2·PALB2: ClinVar 병원성·병원성 가능이고 리뷰 등급 2성 이상. PTEN: ClinVar 병원성·병원성 가능 (등급 조건 없음) (BM-3, 5.4절) | `positive` | `BM3-<유전자>-CLINVAR` |
-| 5 | PIK3CA·AKT1·PTEN: CIViC에 그 변이를 지목한 발암성·예측(Sensitivity/Response) 근거가 있음 (BM-3) | `positive` (PIK3CA·AKT1은 `off-label-variant` 태그 추가) | `BM3-<유전자>-CIVIC` |
-| 6 | 그 밖의 검출 변이 | `vus` (음성 처리, 표시 유지) | `BM2-<유전자>-VUS` |
+| 3 | BRCA1·BRCA2(4.7절): 절단 변이. 변이 종류가 `Nonsense_Mutation`, `Frame_Shift_Del`, `Frame_Shift_Ins`, `Splice_Site`일 때. PALB2는 절단 변이 규칙이 없다 (5.4절은 ClinVar 기준만) | `positive` | `BM2-<유전자>-TRUNC` |
+| 4 | BRCA1·BRCA2·PALB2: ClinVar 병원성·병원성 가능이고 리뷰 등급 2성 이상 (BM-3, 5.4절) | `positive` | `BM3-<유전자>-CLINVAR` |
+| 5 | 그 밖의 검출 변이 | `vus` (음성 처리, 표시 유지) | `BM2-<유전자>-VUS` |
 | ESR1 | 원발 조직 결과인데 이후 내분비요법 진행(PD, progression)이 있음 | `retest_needed` | `BM2-ESR1-RETEST` |
 
+- PTEN을 변이 유무로 보는 이유: 팀 회의(2026-10-20)에서 PTEN 결과를 positive/negative로 통일하고 VEP를 쓰지 않기로 했다. 심평원 공고(제2026-190호 PDF 196쪽, capivasertib 허가사항)도 "PTEN 변이가 있는"으로만 적고 절단형 같은 기준이 없다. 절단형 여부와 ClinVar 판정은 근거로만 적는다.
+- CIViC는 판정에 쓰지 않는다 (팀 회의 2026-10-20: 약이 듣는지는 판정하지 않는다). 그래서 `off-label-variant` 태그도 붙이지 않는다.
+- 근거 표시 (팀 회의 2026-10-20 5번): 이유 끝에 ` / 근거: ` 뒤로 변이 이름·종류(절단형 표시)·VAF, 허가 동반진단 목록 해당 여부(PIK3CA·AKT1·ESR1), ClinVar 판정(BRCA1·BRCA2·PALB2·PTEN), CIViC 근거(PIK3CA·AKT1·PTEN, "판정에 쓰지 않음"), 급여 근거(심평원 공고 쪽 번호 또는 "심평원 공고 제2026-190호에 없음"), 지침 근거(ESMO 쪽 번호)를 적는다. 스키마에 칸이 있는 변이 이름·VAF·ClinVar는 `evidence`에도 넣는다. 변이 종류·허가 목록·CIViC·급여·지침 칸은 스키마 변경이라 4명 검토 뒤에 옮긴다. 문서 문장은 옮기지 않고 문서와 쪽만 적는다 (심평원 공고 판권면의 복제 금지 문구).
+- 급여·지침 쪽 번호: 코드의 `REIMBURSEMENT_BASIS`(심평원 공고 제2026-190호, PDF쪽 = 인쇄쪽 + 32), `GUIDELINE_BASIS`(`data/chunks/esmo_chunks.json`의 ESMO 쪽). 심평원 공고에서 유전자 조건은 '기타 항암제 병용요법' 표의 허가사항 칸에만 있고, 이 약들(alpelisib, inavolisib, capivasertib)은 비급여다. ESR1·PALB2와 체세포 BRCA는 심평원 공고에 없다.
 - BRCA1/2 레코드 이름: patient_ref가 `TCGA-`로 시작하면 `gBRCA1/2`(종양 엑솜을 생식세포 검사로 가정), 아니면 `sBRCA1/2`.
 - 태그(`rag_tags`)는 청크 `biomarker_tags`와 같은 어휘를 쓴다 (C의 `src/rag/rag_guideline_chunking_design_update.md` 3.5절 표준 태그): `PIK3CA-mut`, `AKT1-mut`, `PTEN-alt`, `ESR1-mut`, `gBRCA`, `sBRCA`, `gPALB2`, `PD-L1+`.
-- BM-3 ClinVar (2026-10-19, 전달 문서 5.4절): `data/clinvar/clinvar_bm3_genes.tsv`를 로컬에서 조회한다. 리뷰 등급 기준은 코드의 `CLINVAR_MIN_STARS`. 단백질 변화(한 글자 표기)로 맞추므로 전사체가 다르면 놓칠 수 있다. 판정 근거는 `evidence.clinvar`에 `Pathogenic (3성, VCV17661)` 형식으로 남긴다. 예: BRCA1 C61G → 양성.
-- ClinVar 표 만들기: **각자** `python data/script/clinvar_download.py`를 실행한다 (NCBI `variant_summary.txt.gz` 약 450MB를 내려받으며 BRCA1·BRCA2·PALB2·PTEN만 걸러 약 5.7MB TSV로 저장, 원본 날짜는 `data/clinvar/clinvar_version.log`). 전달 문서 5.6절("스크립트만 올린다")에 따라 표는 git에 올리지 않는다 (`.tsv`·`.log`는 `.gitignore`의 `data/` 규칙으로 제외). 표가 없으면 ClinVar 조회 없이 VUS로 남고 이유에 실행 안내가 붙으며, ClinVar가 필요한 테스트(G11, C01~C08)는 건너뛴다.
-- BM-3 CIViC (2026-10-19, 전달 문서 5.4절 2순위): `data/civic/civic_bm3_evidence_<받은 날>.csv` 중 가장 최근 파일을 로컬에서 조회한다 (5.6절: 파일명에 받은 날짜, CC0라 git에 올림). "PIK3CA Mutation" 같은 묶음 프로파일과 AND/OR 조합은 쓰지 않고, 변이 하나를 지목한 근거 중 Predictive + Sensitivity/Response 또는 Oncogenic + Oncogenicity, 방향 Supports만 센다 (내성 근거는 양성 근거가 아님). 근거 등급 A~E는 모두 인정하고, 가장 높은 등급(같으면 유방암 근거)을 이유에 `CIViC 근거 등급 A (…, EID12034)` 형식으로 남긴다. `biomarker_record` 스키마에 CIViC 칸이 없어 `evidence`에는 넣지 않는다 (`evidence.oncokb` → `annotation` 변경 제안, 4명 합의 대기).
+- BM-3 ClinVar (2026-10-19, 전달 문서 5.4절): `data/clinvar/clinvar_bm3_genes.tsv`를 로컬에서 조회한다. 리뷰 등급 기준은 코드의 `CLINVAR_MIN_STARS`. 단백질 변화(한 글자 표기)로 맞추므로 전사체가 다르면 놓칠 수 있다. ClinVar로 판정하는 유전자는 BRCA1·BRCA2·PALB2이고, PTEN은 근거로만 적는다 (코드의 `CLINVAR_JUDGE_GENES`). 근거는 `evidence.clinvar`에 `Pathogenic (3성, VCV17661)` 형식으로 남긴다. 예: BRCA1 C61G → 양성.
+- ClinVar 표 만들기: **각자** `python data/script/clinvar_download.py`를 실행한다 (NCBI `variant_summary.txt.gz` 약 450MB를 내려받으며 BRCA1·BRCA2·PALB2·PTEN만 걸러 약 5.7MB TSV로 저장, 원본 날짜는 `data/clinvar/clinvar_version.log`). 전달 문서 5.6절("스크립트만 올린다")에 따라 표는 git에 올리지 않는다 (`.tsv`·`.log`는 `.gitignore`의 `data/` 규칙으로 제외). 표가 없으면 ClinVar 조회 없이 VUS로 남고 이유에 실행 안내가 붙으며, ClinVar가 필요한 테스트(C01~C08)는 건너뛴다.
+- BM-3 CIViC (2026-10-19, 전달 문서 5.4절. 2026-10-20부터 판정에 쓰지 않고 근거로만): `data/civic/civic_bm3_evidence_<받은 날>.csv` 중 가장 최근 파일을 로컬에서 조회한다 (5.6절: 파일명에 받은 날짜, CC0라 git에 올림). "PIK3CA Mutation" 같은 묶음 프로파일과 AND/OR 조합은 쓰지 않고, 변이 하나를 지목한 근거 중 Predictive + Sensitivity/Response 또는 Oncogenic + Oncogenicity, 방향 Supports만 센다 (내성 근거는 양성 근거가 아님). 근거 등급 A~E는 모두 인정하고, 가장 높은 등급(같으면 유방암 근거)을 이유에 `CIViC 근거 등급 A (…, EID12034)` 형식으로 남긴다. `biomarker_record` 스키마에 CIViC 칸이 없어 `evidence`에는 넣지 않는다 (`evidence.oncokb` → `annotation` 변경 제안, 4명 합의 대기).
 - CIViC 표 만들기: `python data/script/civic_download.py` (CIViC nightly 근거 파일 약 4MB를 받아 PIK3CA·AKT1·PTEN 근거 47행만 저장, CC0). 표가 없으면 CIViC 조회 없이 VUS로 남고 이유에 실행 안내가 붙는다.
 - `actionable_variants.csv`의 PIK3CA 11개는 전달 문서 5.4절 예시와 같고, therascreen PIK3CA 키트의 QIAGEN 제품 페이지와 AccessGUDID 등록 정보로 확인했다 (사용설명서 원본은 아직 대조하지 않음). AKT1(E17K)·ESR1(Y537S/N/C, D538G)은 전달 문서 5.4절의 예시만 넣었고 `verified = no`라 판정 이유에 "원문 확인 필요"가 붙는다. FDA 라벨·SSED 원문으로 확인하면 목록을 채우고 `yes`로 바꾼다.
-- TCGA 874명 결과: AKT1 양성 21, PTEN 양성 41 / VUS 8, gBRCA1 양성 10 / VUS 14, gBRCA2 양성 6 / VUS 18, PALB2 VUS 6, ESR1 양성 0 / VUS 9 / 재검 필요 9 (E380Q 2명은 문서 예시 목록에 없어 VUS). 미시행은 유전자마다 28명. ClinVar로 VUS에서 양성으로 바뀐 환자 8명 (PTEN 7, gBRCA1 1, ClinVar 2026-10-12 파일 기준), CIViC로 2명 (PIK3CA R88Q 등급 A, K111N 등급 D, 2026-10-19 파일 기준). PIK3CA 양성 213 / VUS 67.
+- TCGA 874명 결과 (2026-10-20, ClinVar 2026-10-12 파일·CIViC 2026-10-19 파일 기준): PIK3CA 양성 211 / VUS 69, AKT1 양성 21 / VUS 2, PTEN 양성 49, gBRCA1 양성 10 / VUS 14, gBRCA2 양성 6 / VUS 18, PALB2 VUS 6, ESR1 VUS 9 / 재검 필요 9 / 양성 0. 미시행은 유전자마다 28명 (A의 변환이 변이 검사 대상 아님 15명과 정보 없음 13명을 모두 미시행으로 넘긴다). 바뀐 점: PTEN은 변이 유무로 41 → 49 (VUS 8명이 양성), PIK3CA는 CIViC로 양성이던 2명(R88Q, K111N)이 VUS로.
 
 유전자 검사 공백 (BM-4, 2026-10-16). 현재 전이성 환자만, 미시행(`not_done`)일 때만 `tests_needed`에 넣는다:
 
