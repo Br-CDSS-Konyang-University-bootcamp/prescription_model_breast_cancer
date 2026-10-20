@@ -18,6 +18,13 @@ def delete_by_doc_type(*args, **kwargs):
     return _delete_by_doc_type(*args, **kwargs)
 
 
+def replace_doc_type(*args, **kwargs):
+    """doc_type 점을 새 청크로 바꿔 끼운다 (새 청크를 먼저 넣고 목록에 없는 옛 점만 지움). D는
+    replace_doc_type("reimbursement", chunks)로 부른다. 넣다가 실패해도 옛 점이 남는다."""
+    from .indexer import replace_doc_type as _replace_doc_type
+    return _replace_doc_type(*args, **kwargs)
+
+
 def delete_guideline_chunks(*args, **kwargs):
     from .indexer import delete_guideline_chunks as _delete_guideline_chunks
     return _delete_guideline_chunks(*args, **kwargs)
@@ -52,5 +59,6 @@ def search_reimbursement(*args, **kwargs):
     return _search_reimbursement(*args, **kwargs)
 
 
-__all__ = ["index_chunks", "init_collection", "delete_by_doc_type", "delete_guideline_chunks", "close_indexer",
+__all__ = ["index_chunks", "init_collection", "delete_by_doc_type", "replace_doc_type", "delete_guideline_chunks",
+           "close_indexer",
            "search_guidelines", "search_reimbursement", "retrieve_for_recommend", "close_searcher"]
