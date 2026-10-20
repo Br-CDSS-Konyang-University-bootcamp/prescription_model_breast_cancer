@@ -5,7 +5,8 @@
 #     recommendation, log, errors = recommend(patient_state, biomarker_record, guideline_chunks, reimbursement_chunks, llm, ...)
 # 하는 일:
 #   1. patient_state(A, schemas/patient_state.json)에서 질의에 쓸 환자 정보를 꺼낸다 (patient_from_state)
-#   2. 지침: 주 검색(search_args) + 부위별·de novo 추가 검색(extra_search_args). 부모 소단원을 붙인다 (B의 프롬프트가 쓴다)
+#   2. 지침: 주 검색(search_args) + 부위별·de novo 추가 검색(extra_search_args). 부모 소단원을 붙인다 (B의 프롬프트가 쓴다).
+#      알고리즘 그림 경로(chunk_kind = algorithm)는 같은 조건으로 따로 찾아 뒤에 붙인다 (권고와 함께 찾으면 권고가 밀린다)
 #   3. 급여: 찾은 지침 권고에 나오는 약마다 search_reimbursement로 급여 행을 찾는다. recommend()는 LLM에 묻기 전에
 #      급여 청크를 받아야 하는데, 후보 약은 지침 권고에 이미 있으므로 그 약으로 미리 찾는다. 약 하나씩 찾는 이유:
 #      권고 하나에 대안 약이 함께 적혀 있어(예: elacestrant or imlunestrant) 묶어서 찾으면 '모두 포함' 규칙에 걸린다
@@ -74,9 +75,11 @@ def patient_from_state(patient_state: dict, disease: str = None) -> dict:
 
 
 def retrieve_for_recommend(patient_state: dict, biomarker_record: dict, as_of=None, top_k: int = 5,
-                           extra_top_k: int = 3, reimbursement_per_drug: int = 5, rerank: bool = True):
+                           extra_top_k: int = 3, algorithm_top_k: int = 2, reimbursement_per_drug: int = 5,
+                           rerank: bool = True):
     """→ (지침 청크 목록, 급여 청크 목록). 둘 다 schemas/chunk.json 형식에 검색 정보(score, parent 등)를 더한 것.
-    지침: 주 검색 top_k개 + 추가 검색 각 extra_top_k개 (중복 없이, 주 검색이 앞). 급여: 지침 권고의 약마다
+    지침: 주 검색 top_k개 + 추가 검색 각 extra_top_k개 + 알고리즘 그림 경로 algorithm_top_k개 (중복 없이, 주 검색이 앞).
+    알고리즘 경로의 약은 급여 검색에 쓰지 않는다 (권고에 이미 있고, 다음 차수 약까지 들어 있다). 급여: 지침 권고의 약마다
     맞는 행 reimbursement_per_drug개까지 (현재 병기 범주·차수로 거름, as_of 기준 시행 중인 행만)."""
     from .reimbursement_search import search_reimbursement
     from .searcher import search_guidelines
@@ -86,8 +89,10 @@ def retrieve_for_recommend(patient_state: dict, biomarker_record: dict, as_of=No
     patient = patient_from_state(patient_state, disease)
 
     guideline, seen = [], set()
-    searches = [search_args(biomarker_record, top_k=top_k, **patient)]
-    searches += extra_search_args(biomarker_record, top_k=extra_top_k, **patient)
+    main = search_args(biomarker_record, top_k=top_k, **patient)
+    searches = [main] + extra_search_args(biomarker_record, top_k=extra_top_k, **patient)
+    if algorithm_top_k:
+        searches.append({**main, "top_k": algorithm_top_k, "chunk_kind": "algorithm"})
     for args in searches:
         for chunk in search_guidelines(**{**args, "with_parent": True, "rerank": rerank}):
             if chunk["chunk_id"] not in seen:
@@ -96,6 +101,8 @@ def retrieve_for_recommend(patient_state: dict, biomarker_record: dict, as_of=No
 
     drugs = []
     for chunk in guideline:
+        if chunk.get("chunk_kind") == "algorithm":
+            continue
         drugs += [d for d in chunk.get("drugs") or [] if d not in drugs]
     reimbursement, seen = [], set()
     for drug in drugs:

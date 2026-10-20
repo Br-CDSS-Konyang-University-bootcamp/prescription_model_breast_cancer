@@ -1,0 +1,94 @@
+file,figure,x,y,text
+esmo_ebc_2024-02.pdf,2,302,436,Overview of EBC treatment
+esmo_ebc_2024-02.pdf,2,91,474,All HR+
+esmo_ebc_2024-02.pdf,2,173,481,Premenopausal patients receiving OFS and postmenopausal patients
+esmo_ebc_2024-02.pdf,2,253,474,HR+/HER2-^a
+esmo_ebc_2024-02.pdf,2,346,474,HER2+^a
+esmo_ebc_2024-02.pdf,2,482,474,TNBC^a
+esmo_ebc_2024-02.pdf,2,312,530,cT1 N0
+esmo_ebc_2024-02.pdf,2,381,530,≥cT2 or cN+
+esmo_ebc_2024-02.pdf,2,443,530,cT1a or cT1b N0
+esmo_ebc_2024-02.pdf,2,521,530,cT1c-4 or N+
+esmo_ebc_2024-02.pdf,2,91,565,"ET [I, A]"
+esmo_ebc_2024-02.pdf,2,173,566,"Adjuvant bisphosphonates^b [I, A]"
+esmo_ebc_2024-02.pdf,2,253,566,Neoadjuvant therapy^c
+esmo_ebc_2024-02.pdf,2,312,566,Primary surgery ± RT
+esmo_ebc_2024-02.pdf,2,381,566,Neoadjuvant therapy
+esmo_ebc_2024-02.pdf,2,444,566,Primary surgery ± RT
+esmo_ebc_2024-02.pdf,2,521,566,Neoadjuvant therapy
+esmo_ebc_2024-02.pdf,2,313,606,Systemic treatment
+esmo_ebc_2024-02.pdf,2,381,604,Surgery ± RT
+esmo_ebc_2024-02.pdf,2,444,606,Systemic treatment
+esmo_ebc_2024-02.pdf,2,521,604,Surgery ± RT
+esmo_ebc_2024-02.pdf,2,254,607,Primary surgery ± RT
+esmo_ebc_2024-02.pdf,2,381,641,Systemic treatment
+esmo_ebc_2024-02.pdf,2,522,641,Systemic treatment
+esmo_ebc_2024-02.pdf,2,253,647,Systemic treatment
+esmo_ebc_2024-02.pdf,4,328,494,Adjuvant endocrine therapy in HR+ EBC^a
+esmo_ebc_2024-02.pdf,4,220,541,Premenopausal
+esmo_ebc_2024-02.pdf,4,433,541,Postmenopausal
+esmo_ebc_2024-02.pdf,4,163,608,Luminal A-like stage I
+esmo_ebc_2024-02.pdf,4,271,611,Luminal A-like stage II-III; Luminal B-like stage I-III
+esmo_ebc_2024-02.pdf,4,163,656,"Tamoxifen [I, A]"
+esmo_ebc_2024-02.pdf,4,272,658,"OFS-tamoxifen [I, A]; OFS-AI [I, A]"
+esmo_ebc_2024-02.pdf,4,434,668,"Tamoxifen followed by AI [I, A]; AI [I, A]; AI followed by tamoxifen [I, A]; Tamoxifen^b [I, A]"
+esmo_ebc_2024-02.pdf,5,345,231,HR+/HER2- EBC^a
+esmo_ebc_2024-02.pdf,5,226,279,Luminal A like
+esmo_ebc_2024-02.pdf,5,462,279,Luminal B like
+esmo_ebc_2024-02.pdf,5,160,334,Low risk
+esmo_ebc_2024-02.pdf,5,287,334,High risk
+esmo_ebc_2024-02.pdf,5,161,390,"Adjuvant ET [I, A]"
+esmo_ebc_2024-02.pdf,5,416,394,"(Neo)adjuvant ChT followed by ET [I, A]"
+esmo_ebc_2024-02.pdf,5,282,466,Stage III or high-risk stage II^b
+esmo_ebc_2024-02.pdf,5,142,495,gBRCA1/2 testing^d
+esmo_ebc_2024-02.pdf,5,189,540,gBRCA1/2-wt or untested
+esmo_ebc_2024-02.pdf,5,378,545,gBRCA1/2m and stage III or high-risk non-pCR^e
+esmo_ebc_2024-02.pdf,5,189,589,"Abemaciclib for 2 years + ET [I, A; MCBS A]^c"
+esmo_ebc_2024-02.pdf,5,378,589,"Olaparib for 1 year + ET [I, A; MCBS A; ESCAT I-A]^c,f"
+esmo_ebc_2024-02.pdf,6,298,79,HER2+ EBC
+esmo_ebc_2024-02.pdf,6,168,119,cT1 cN0
+esmo_ebc_2024-02.pdf,6,431,119,≥cT2^a or cN+
+esmo_ebc_2024-02.pdf,6,168,159,Surgery and locoregional RT if indicated
+esmo_ebc_2024-02.pdf,6,431,159,"6-8 cycles ChT-HP [I, A; MCBS C]^b,c"
+esmo_ebc_2024-02.pdf,6,431,205,Surgery and locoregional RT if indicated
+esmo_ebc_2024-02.pdf,6,97,213,pT1 pN0
+esmo_ebc_2024-02.pdf,6,167,213,≥pT2 pN0
+esmo_ebc_2024-02.pdf,6,238,213,pN+
+esmo_ebc_2024-02.pdf,6,392,259,pCR
+esmo_ebc_2024-02.pdf,6,511,259,Residual invasive disease
+esmo_ebc_2024-02.pdf,6,97,319,"12 weeks paclitaxel-18 cycles trastuzumab [III, B; MCBS A]^b,c"
+esmo_ebc_2024-02.pdf,6,168,319,"6-8 cycles ChT-trastuzumab [I, B; MCBS A]^b"
+esmo_ebc_2024-02.pdf,6,241,319,"6-8 cycles ChT-HP [I, A; MCBS A]^b,c"
+esmo_ebc_2024-02.pdf,6,355,309,cN0 at initial diagnosis
+esmo_ebc_2024-02.pdf,6,432,309,cN+ or pN+ at initial diagnosis
+esmo_ebc_2024-02.pdf,6,168,380,"Complete 1 year of trastuzumab [I, A; MCBS A]^b; If HR+, adjuvant ET [I, A]"
+esmo_ebc_2024-02.pdf,6,241,376,"Complete 1 year of HP [I, A; MCBS A]^b,c; If HR+, adjuvant ET [I, A]"
+esmo_ebc_2024-02.pdf,6,355,373,"Complete 1 year of trastuzumab^b [I, A; MCBS A]^b; If HR+, adjuvant ET [I, A]"
+esmo_ebc_2024-02.pdf,6,432,374,"Complete 1 year of HP [I, A; MCBS A]^b,c; If HR+, adjuvant ET [I, A]"
+esmo_ebc_2024-02.pdf,6,511,374,"T-DM1 up to 14 cycles [I, A; MCBS A]^b,c; If HR+, adjuvant ET [I, A]"
+esmo_ebc_2024-02.pdf,7,185,80,gBRCA1/2 testing^a
+esmo_ebc_2024-02.pdf,7,309,80,Early TNBC^b
+esmo_ebc_2024-02.pdf,7,168,119,cT1a or cT1b N0
+esmo_ebc_2024-02.pdf,7,436,119,cT1c-T4 or N+
+esmo_ebc_2024-02.pdf,7,168,157,Surgery and whole breast RT if indicated
+esmo_ebc_2024-02.pdf,7,372,164,<cT2 N0
+esmo_ebc_2024-02.pdf,7,503,164,≥cT2 or N+
+esmo_ebc_2024-02.pdf,7,373,202,"6-8 cycles: taxane-(carbo)platin-AC/EC^c,d [I, A]"
+esmo_ebc_2024-02.pdf,7,504,202,"6-8 cycles taxane-carboplatin followed by AC/EC^d with pembrolizumab [I, A; MCBS A]^f"
+esmo_ebc_2024-02.pdf,7,92,209,pT1a pN0
+esmo_ebc_2024-02.pdf,7,155,209,pT1b pN0
+esmo_ebc_2024-02.pdf,7,222,209,>pT1b any pN
+esmo_ebc_2024-02.pdf,7,92,243,"Consider no adjuvant systemic therapy [II, B]"
+esmo_ebc_2024-02.pdf,7,156,243,"6-8 cycles systemic ChT [I, A]"
+esmo_ebc_2024-02.pdf,7,222,243,"6-8 cycles systemic ChT [I, A]"
+esmo_ebc_2024-02.pdf,7,437,246,Surgery and locoregional RT if indicated
+esmo_ebc_2024-02.pdf,7,298,290,pCR
+esmo_ebc_2024-02.pdf,7,457,292,Residual disease
+esmo_ebc_2024-02.pdf,7,222,332,gBRCA1/2m
+esmo_ebc_2024-02.pdf,7,442,334,gBRCA1/2-wt
+esmo_ebc_2024-02.pdf,7,512,334,gBRCA1/2m
+esmo_ebc_2024-02.pdf,7,222,366,"Olaparib for 1 year^e [I, A; MCBS A; ESCAT I-A]^f,g"
+esmo_ebc_2024-02.pdf,7,299,368,"9 cycles pembrolizumab^h [I, A; MCBS A]^f"
+esmo_ebc_2024-02.pdf,7,372,368,"9 cycles pembrolizumab^h [I, A; MCBS A]^f"
+esmo_ebc_2024-02.pdf,7,441,368,"Capecitabine for 6-8 cycles [I, A]^i"
+esmo_ebc_2024-02.pdf,7,512,368,"Olaparib for 1 year^e [I, A; MCBS A; ESCAT I-A]^f,g"
