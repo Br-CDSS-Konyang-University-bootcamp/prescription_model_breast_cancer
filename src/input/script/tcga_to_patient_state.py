@@ -270,9 +270,13 @@ def treatment(r) -> tuple[list[dict], list[str]]:
             continue
         s, e = day(starts[i]), day(ends[i])
         dur = e - s if s is not None and e is not None else None
-        # setting 유도 규칙 (유도값): 전이 기준일 이후 → metastatic, 선행요법 이력 + 첫 요법 → neoadjuvant, 나머지 → adjuvant
+        # setting 유도 규칙 (유도값): 전이 기준일 이후 → metastatic, 진단일 전 시작한 항암 투약 → neoadjuvant (2026-10-20),
+        # 선행요법 이력 + 첫 요법 → neoadjuvant, 나머지 → adjuvant
+        anticancer = any(DRUG_TABLE.get(d, ("Unknown", ""))[0] not in NOT_COUNTED for d in m["drug"].split("+"))
         if met is not None and s is not None and s >= met:
             setting, rule = "metastatic", "시작일 ≥ 전이 기준일"
+        elif s is not None and s < 0 and anticancer:
+            setting, rule = "neoadjuvant", "진단일 전 시작한 항암 투약"
         elif neo and not out:
             setting, rule = "neoadjuvant", "선행요법 이력 Yes + 첫 요법"
         else:
@@ -420,6 +424,16 @@ def genomic_report(r) -> list[dict]:
 
 
 # ---------- 조립 ----------
+def index_day_of(r, th: list[dict]) -> int | None:
+    """마지막 추적일. 그보다 늦은 투약 기록이 있으면 마지막 투약일(종료일, 없으면 시작일)로 늘린다 (사용자 결정, 2026-10-20)."""
+    last = day(r.fu_last_days)
+    if last is None:
+        return None
+    days = [t["end_day"] if t["end_day"] is not None else t["start_day"] for t in th]
+    return max([last] + [x for x in days if x is not None])
+
+
+
 def build(r) -> dict:
     th, items = treatment(r)
     reports = genomic_report(r)
@@ -427,7 +441,7 @@ def build(r) -> dict:
         "schema_version": SCHEMA_VERSION,
         "patient_ref": r.patient_id,
         "created_at": CREATED_AT,
-        "index_day": day(r.fu_last_days),  # 판정 기준일 = 마지막 추적일 (draft6)
+        "index_day": index_day_of(r, th),  # 판정 기준일 = 마지막 추적일 (draft6)
         "documents": [{"doc_id": "D1", "doc_type": "molecular", "doc_date": None}] if reports else [],
         "fields": {
             "diagnosis": diagnosis(r),
