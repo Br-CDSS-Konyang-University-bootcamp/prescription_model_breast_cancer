@@ -19,7 +19,9 @@ def _load(path):
 
 def test_chunk_files_exist():
     names = {p.name for p in CHUNK_FILES}
-    assert {"asco_chunks_all.json", "esmo_chunks.json"} <= names
+    assert "esmo_chunks.json" in names
+    # ASCO 지침은 재사용 불가라 청크를 두지 않는다 (2026-10-20)
+    assert not [n for n in names if n.startswith("asco")]
 
 
 @pytest.mark.parametrize("path", CHUNK_FILES, ids=lambda p: p.name)
@@ -35,15 +37,9 @@ def test_chunk_ids_unique_across_files():
     assert not duplicates, f"chunk_id 중복: {duplicates}"
 
 
-def test_no_downloader_info_in_text():
-    # ASCO PDF 머리말의 "Downloaded from ascopubs.org by ..."(내려받은 사람 정보)가 남으면 안 된다
-    leaked = [c["chunk_id"] for path in CHUNK_FILES for c in _load(path) if "downloaded from" in c["text"].lower()]
-    assert not leaked
-
-
 def test_no_pdf_glyph_corruption():
-    # PDF 기호 폰트가 그대로 남은 흔적: ≥ → $, IHC 1+ → IHC 11, n = 272 → n 5 272, 제어문자
-    patterns = {"$숫자": r"\$\s?\d", "IHC 11": r"\bIHC [0-3]1\b", "n 5": r"\bn 5 \d", "제어문자": r"[\x00-\x08\x0b-\x1f]"}
+    # PDF 기호 폰트가 그대로 남은 흔적: 제어문자 (ESMO EBC의 ≥·≤·•가 \x03~\x05로 나옴)
+    patterns = {"제어문자": r"[\x00-\x08\x0b-\x1f]"}
     found = [(c["chunk_id"], name) for path in CHUNK_FILES for c in _load(path)
              for name, p in patterns.items() if re.search(p, c["text"])]
     assert not found, f"기호 깨짐: {found[:10]}"

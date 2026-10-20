@@ -1,6 +1,6 @@
 # [3] 지침 RAG + 공용 검색 색인 — 담당 C
 
-ESMO·ASCO 지침을 수집·청킹하고, 지침과 급여 청크가 함께 들어가는 공용 검색 색인을 관리한다.
+ESMO 지침을 수집·청킹하고, 지침과 급여 청크가 함께 들어가는 공용 검색 색인을 관리한다.
 
 - 범위: PROJECT.md §6
 - 입력: 지침 원문 PDF, D가 만든 급여 청크
@@ -13,9 +13,8 @@ ESMO·ASCO 지침을 수집·청킹하고, 지침과 급여 청크가 함께 들
 
 | 파일 | 내용 |
 |---|---|
-| `convert_pdf_to_md.py` | `data/guidelines/*.pdf`를 `data/parsed_md/{asco,esmo}/*.md`로 변환 (pymupdf4llm). PDF가 기호 전용 폰트에 넣어 둔 ≥, =, +, – 를 폰트 표로 되돌린다. 실행: `python -m src.rag.convert_pdf_to_md` |
+| `convert_pdf_to_md.py` | `data/guidelines/*.pdf`를 `data/parsed_md/esmo/*.md`로 변환 (pymupdf4llm). PDF가 기호 전용 폰트에 넣어 둔 ≥, =, +, – 를 폰트 표로 되돌린다. 실행: `python -m src.rag.convert_pdf_to_md` |
 | `check_md_quality.py` | 변환한 md의 깨짐(기호, 제어문자, 붙은 단어, 그림 글자 등)을 세어 표로 보여 준다. 폴더 두 개를 주면 비교한다. 실행: `python -m src.rag.check_md_quality` |
-| `chunker_asco_all.py` | ASCO 처방 지침 11개 md → `data/chunks/asco_chunks_all.json`. 실행: `python -m src.rag.chunker_asco_all` |
 | `chunker_esmo.py` | ESMO EBC·MBC md → `data/chunks/esmo_chunks.json`. 실행: `python -m src.rag.chunker_esmo` |
 | `chunk_common.py` | 두 청커가 같이 쓰는 텍스트 정제, 약제·바이오마커 태깅, 청크 형식, 부모 청크(`attach_parent`) |
 | `guideline_terms.py` | 지침 표현 사전 `data/dictionaries/guideline_terms.csv`(환자 JSON 코드 값 → 지침 원문 표현)를 읽어 질의어를 만든다(`query_terms`). `canonical`은 B의 `biomarker_record` 값(아형·치료 상황·`마커:상태값`)과 A의 `patient_state` 값, 약 사전 값으로 고정하고, C는 `expression`만 늘린다 (테스트가 스키마 밖 값을 막는다). 실행하면 표현마다 청크에 몇 번 나오는지 보여 준다: `python -m src.rag.guideline_terms` |
@@ -25,11 +24,12 @@ ESMO·ASCO 지침을 수집·청킹하고, 지침과 급여 청크가 함께 들
 | `searcher.py` | `search_guidelines()`. `with_parent=True`면 결과마다 부모(소단원) 청크를 `parent`로 붙인다 |
 | `run_indexing.py` | `data/chunks/*.json`을 스키마 검증하고, 지침 청크만 지운 뒤 다시 색인한다 (D의 급여 청크는 남김). 실행: `python -m src.rag.run_indexing` |
 
-모든 명령은 `team_project` 폴더에서 실행한다. 순서: PDF 변환 → 품질 검사 → 청커 2개 → `python -m pytest tests/rag` → 색인.
+모든 명령은 `team_project` 폴더에서 실행한다. 순서: PDF 변환 → 품질 검사 → 청커 → `python -m pytest tests/rag` → 색인.
 
 - 지침 PDF와 변환한 md(`data/parsed_md/`)는 저작권 문서라 저장소에 올리지 않는다. 각자 PDF에서 만든다.
 - 청크 JSON은 `data/chunks/`에 커밋한다 (`.gitignore`에서 이 폴더의 `.json`만 허용). 커밋 전에 `tests/rag/test_chunks_schema.py`(스키마 검증, chunk_id 중복)가 통과해야 한다.
-- chunk_id는 다시 청킹해도 바뀌지 않아야 한다 (평가셋 정답과 추천 결과의 인용이 가리킨다). ASCO 권고는 원문 권고 번호(`asco-mbc-2021-07-endo-r3.2`), 번호가 없는 ESMO 권고·ASCO 질문·rapid update는 첫 근거 등급 표시까지의 문장으로 만든 지문(`esmo-mbc-2026-05-luminal-2l-3f2a9c`, `chunk_common.stable_key`)을 쓴다. 순서 번호(r01, r02)는 앞에 권고 하나만 늘어도 뒤가 모두 밀리므로 쓰지 않는다. `tests/rag/test_chunk_ids.py`가 이 성질을 검사한다.
+- chunk_id는 다시 청킹해도 바뀌지 않아야 한다 (평가셋 정답과 추천 결과의 인용이 가리킨다). ESMO 권고는 번호가 없어 첫 근거 등급 표시까지의 문장으로 만든 지문(`esmo-mbc-2026-05-luminal-2l-3f2a9c`, `chunk_common.stable_key`)을 쓴다. 순서 번호(r01, r02)는 앞에 권고 하나만 늘어도 뒤가 모두 밀리므로 쓰지 않는다. `tests/rag/test_chunk_ids.py`가 이 성질을 검사한다.
 - 쪽 번호: 변환할 때 쪽마다 `<!-- page pdf=3 printed=1205 -->` 표시를 넣고 (인쇄 쪽은 PDF 정보 칸의 실린 쪽 범위에서 계산), 청커가 청크 본문을 이 md에서 찾아 `page_start`·`page_end`를 채운다. 기본은 학술지 인쇄 쪽(D의 급여 청크도 인쇄 쪽)이고, `chunk_common.PAGE_NUMBERING = "pdf"`로 바꾸면 PDF 쪽이 된다. 2026-10-19 이전에 만든 md에는 쪽 표시가 없으니 `--overwrite`로 다시 변환한다 (안 하면 테스트가 쪽 번호 없음으로 실패).
-- 부모-자식 청크: 권고 청크(자식)마다 `parent_id`로 소단원 청크(부모, `chunk_kind: section`)를 가리킨다. 부모 본문은 소단원 제목(ASCO는 Clinical Question 질문문) + 자식 권고 전체다. ESMO는 소단원(`esmo-mbc-2026-05-luminal-2l`), ASCO는 Clinical Question(`asco-mbc-2021-07-endo-cq3`)이나 문서(`...-doc`, 번호 없는 권고)가 부모다. 검색 색인에는 자식만 넣고, 부모는 JSON에 두고 `get_parent`로 찾는다 (D의 급여 청크와 같은 방식).
-- 청킹하는 문서 목록은 각 청커의 `DOCS`에 있다. 제외한 문서와 이유는 `rag_non_prescription_docs.md`.
+- 부모-자식 청크: 권고 청크(자식)마다 `parent_id`로 소단원 청크(부모, `chunk_kind: section`)를 가리킨다. 부모 본문은 소단원 제목 + 자식 권고 전체다. ESMO 소단원(`esmo-mbc-2026-05-luminal-2l`)이 부모다. 검색 색인에는 자식만 넣고, 부모는 JSON에 두고 `get_parent`로 찾는다 (D의 급여 청크와 같은 방식).
+- ASCO 지침은 재사용 불가로 확인돼 쓰지 않는다 (2026-10-20). PDF·md·청크를 두지 않는다.
+- 청킹하는 문서 목록은 청커의 `DOCS`에 있다. 제외한 문서와 이유는 `rag_non_prescription_docs.md`.

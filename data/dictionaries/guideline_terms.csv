@@ -1,116 +1,99 @@
 field,canonical,expression,lang,source,preferred,note
 biomarker_record.subtype,HR+/HER2-,"ER-positive, HER2-negative",en,esmo,1,질의문에 쓰는 대표 표현
-biomarker_record.subtype,HR+/HER2-,"HR-positive, HER2-negative",en,asco,,
-biomarker_record.subtype,HR+/HER2-,hormone receptor-positive HER2-negative,en,asco,,
-biomarker_record.subtype,HR+/HER2-,HR-positive,en,asco,,
 biomarker_record.subtype,HR+/HER2-,ER-positive,en,esmo,,
 biomarker_record.subtype,HR+/HER2-,luminal,en,esmo,,ESMO MBC 소제목 Management of luminal MBC
 biomarker_record.subtype,HR+/HER2-,luminal A-like,en,esmo,,ESMO EBC. 분자 아형은 출력에 쓰지 않고 질의에만 쓴다
 biomarker_record.subtype,HR+/HER2-,luminal B-like,en,esmo,,ESMO EBC
 biomarker_record.subtype,HR+/HER2+,"HER2-positive, ER-positive",en,esmo,1,
-biomarker_record.subtype,HR+/HER2+,HER2-positive,en,both,,HR 상태와 무관한 HER2 양성 권고도 해당
+biomarker_record.subtype,HR+/HER2+,HER2-positive,en,esmo,,HR 상태와 무관한 HER2 양성 권고도 해당
 biomarker_record.subtype,HR-/HER2+,"HER2-positive, ER-negative",en,esmo,1,
-biomarker_record.subtype,HR-/HER2+,HER2-positive,en,both,,HR 상태와 무관한 HER2 양성 권고도 해당
-biomarker_record.subtype,TNBC,triple-negative,en,both,1,
-biomarker_record.subtype,TNBC,TNBC,en,both,,
+biomarker_record.subtype,HR-/HER2+,HER2-positive,en,esmo,,HR 상태와 무관한 HER2 양성 권고도 해당
+biomarker_record.subtype,TNBC,triple-negative,en,esmo,,
+biomarker_record.subtype,TNBC,TNBC,en,esmo,1,
 biomarker_record.subtype,TNBC,mTNBC,en,esmo,,전이성 TNBC
-biomarker_record.setting.disease,early,early breast cancer,en,both,1,
-biomarker_record.setting.disease,early,EBC,en,esmo,,
-biomarker_record.setting.disease,early,early-stage,en,asco,,
-biomarker_record.setting.disease,early,stage I,en,both,,
-biomarker_record.setting.disease,early,stage II,en,both,,
-biomarker_record.setting.disease,locally_advanced,stage III,en,both,1,심평원 급여 기준의 국소 진행성 = III기
-biomarker_record.setting.disease,locally_advanced,locally advanced,en,both,,
-biomarker_record.setting.disease,locally_advanced,stage II-III,en,both,,
-biomarker_record.setting.disease,metastatic,metastatic breast cancer,en,both,1,
-biomarker_record.setting.disease,metastatic,MBC,en,both,,
-biomarker_record.setting.disease,metastatic,advanced breast cancer,en,asco,,
-biomarker_record.setting.disease,metastatic,stage IV,en,both,,
+biomarker_record.setting.disease,early,early breast cancer,en,esmo,,
+biomarker_record.setting.disease,early,EBC,en,esmo,1,
+biomarker_record.setting.disease,early,stage I,en,esmo,,
+biomarker_record.setting.disease,early,stage II,en,esmo,,
+biomarker_record.setting.disease,locally_advanced,stage III,en,esmo,1,심평원 급여 기준의 국소 진행성 = III기
+biomarker_record.setting.disease,locally_advanced,locally advanced,en,esmo,,
+biomarker_record.setting.disease,locally_advanced,stage II-III,en,esmo,,
+biomarker_record.setting.disease,metastatic,metastatic breast cancer,en,esmo,,
+biomarker_record.setting.disease,metastatic,MBC,en,esmo,1,
+biomarker_record.setting.disease,metastatic,stage IV,en,esmo,,
 biomarker_record.setting.disease,metastatic,de novo,en,esmo,,진단 시 IV기
 biomarker_record.setting.disease,metastatic,recurring,en,esmo,,재발 전이
-biomarker_record.setting.line,neoadjuvant,neoadjuvant,en,both,1,
-biomarker_record.setting.line,adjuvant,adjuvant,en,both,1,
-biomarker_record.setting.line,adjuvant,residual invasive disease,en,both,,선행 후 잔존 질환
-biomarker_record.setting.line,adjuvant,residual disease,en,both,,
+biomarker_record.setting.line,neoadjuvant,neoadjuvant,en,esmo,1,
+biomarker_record.setting.line,adjuvant,adjuvant,en,esmo,1,
+biomarker_record.setting.line,adjuvant,residual invasive disease,en,esmo,,선행 후 잔존 질환
+biomarker_record.setting.line,adjuvant,residual disease,en,esmo,,
 biomarker_record.setting.line,adjuvant,non-pCR,en,esmo,,
 biomarker_record.setting.line,adjuvant,after completion of locoregional therapy,en,esmo,,
 biomarker_record.setting.line,adjuvant,extended ET,en,esmo,,5년 넘는 보조 내분비요법
-biomarker_record.setting.line,1L,first-line,en,both,1,
-biomarker_record.setting.line,1L,first line,en,asco,,
+biomarker_record.setting.line,1L,first-line,en,esmo,1,
 biomarker_record.setting.line,1L,>12 months after the end of adjuvant,en,esmo,,ESMO MBC 1L에서 내분비 감수성으로 권고가 갈린다 (설계 문서 §3.3)
-biomarker_record.setting.line,2L,second-line,en,both,1,
-biomarker_record.setting.line,2L,second line,en,asco,,
+biomarker_record.setting.line,2L,second-line,en,esmo,1,
 biomarker_record.setting.line,2L,after at least one line of ET,en,esmo,,
-biomarker_record.setting.line,2L,progression on,en,both,,
+biomarker_record.setting.line,2L,progression on,en,esmo,,
 biomarker_record.setting.line,2L,during or after treatment with an AI,en,esmo,,
-biomarker_record.setting.line,>=3L,third-line,en,both,1,
+biomarker_record.setting.line,>=3L,third-line,en,esmo,1,
 biomarker_record.setting.line,>=3L,fourth-line,en,esmo,,
 biomarker_record.setting.line,>=3L,later lines,en,esmo,,
 biomarker_record.setting.line,>=3L,after at least two lines,en,esmo,,
-biomarker_record.setting.line,>=3L,at least two prior therapies,en,asco,,
-biomarker_record.records,HER2:positive,HER2-positive,en,both,1,
-biomarker_record.records,HER2:negative,HER2-negative,en,both,1,B 판정 negative. low·ultralow도 아형은 HER2 음성
-biomarker_record.records,HER2:low,HER2-low,en,both,1,아형은 HER2 음성이고 T-DXd 권고를 끌어온다
-biomarker_record.records,HER2:low,IHC 1+ or 2+ and ISH-negative,en,asco,,
+biomarker_record.records,HER2:positive,HER2-positive,en,esmo,1,
+biomarker_record.records,HER2:negative,HER2-negative,en,esmo,1,B 판정 negative. low·ultralow도 아형은 HER2 음성
+biomarker_record.records,HER2:low,HER2-low,en,esmo,1,아형은 HER2 음성이고 T-DXd 권고를 끌어온다
 biomarker_record.records,HER2:low,HER2-low expressing,en,esmo,,
-biomarker_record.records,HER2:ultralow,HER2-ultralow,en,both,,
+biomarker_record.records,HER2:ultralow,HER2-ultralow,en,esmo,,
 biomarker_record.records,HER2:ultralow,ultralow,en,esmo,1,"ESMO는 ""HER2-low or -ultralow""처럼 줄여 쓴다"
-biomarker_record.records,ER:low,ER-/PgR-low,en,both,1,"ESMO EBC 표기 ""1%-9% ER and/or PgR expression (ER-/PgR-low)"""
+biomarker_record.records,ER:low,ER-/PgR-low,en,esmo,1,"ESMO EBC 표기 ""1%-9% ER and/or PgR expression (ER-/PgR-low)"""
 biomarker_record.records,ER:low,1%-9% ER,en,esmo,,
-biomarker_record.records,gBRCA1:positive,germline BRCA1/2 mutation,en,both,1,
+biomarker_record.records,gBRCA1:positive,germline BRCA1/2 mutation,en,esmo,1,
 biomarker_record.records,gBRCA1:positive,gBRCA1/2m,en,esmo,,
-biomarker_record.records,gBRCA1:positive,germline BRCA1 or 2 mutations,en,asco,,
-biomarker_record.records,gBRCA2:positive,germline BRCA1/2 mutation,en,both,1,
+biomarker_record.records,gBRCA2:positive,germline BRCA1/2 mutation,en,esmo,1,
 biomarker_record.records,gBRCA2:positive,gBRCA1/2m,en,esmo,,
-biomarker_record.records,gBRCA2:positive,germline BRCA1 or 2 mutations,en,asco,,
 biomarker_record.records,sBRCA1:positive,somatic pathogenic or likely pathogenic BRCA1/2 mutations,en,esmo,1,
 biomarker_record.records,sBRCA2:positive,somatic pathogenic or likely pathogenic BRCA1/2 mutations,en,esmo,1,
-biomarker_record.records,PALB2:positive,germline PALB2 mutation,en,both,1,
-biomarker_record.records,PIK3CA:positive,PIK3CA-mutated,en,both,1,
-biomarker_record.records,PIK3CA:positive,PIK3CA mutations,en,asco,,
+biomarker_record.records,PALB2:positive,germline PALB2 mutation,en,esmo,1,
+biomarker_record.records,PIK3CA:positive,PIK3CA-mutated,en,esmo,1,
 biomarker_record.records,PIK3CA:positive,"PIK3CA, AKT1 or PTEN alterations",en,esmo,,capivasertib 권고
 biomarker_record.records,PIK3CA:negative,PIK3CA-wild type,en,esmo,1,
 biomarker_record.records,PIK3CA:negative,absence of targetable alterations,en,esmo,,
 biomarker_record.records,AKT1:positive,"PIK3CA, AKT1 or PTEN alterations",en,esmo,1,
 biomarker_record.records,PTEN:positive,"PIK3CA, AKT1 or PTEN alterations",en,esmo,1,
-biomarker_record.records,ESR1:positive,ESR1-mutated,en,both,1,
-biomarker_record.records,ESR1:positive,ESR1 mutation,en,both,,
-biomarker_record.records,PD-L1:positive,PD-L1-positive,en,both,1,
-biomarker_record.records,PD-L1:positive,CPS ≥10,en,both,,22C3
+biomarker_record.records,ESR1:positive,ESR1-mutated,en,esmo,1,
+biomarker_record.records,ESR1:positive,ESR1 mutation,en,esmo,,
+biomarker_record.records,PD-L1:positive,PD-L1-positive,en,esmo,,
+biomarker_record.records,PD-L1:positive,CPS ≥10,en,esmo,1,22C3
 biomarker_record.records,PD-L1:positive,immune cell PD-L1 positivity ≥1%,en,esmo,,SP142 (atezolizumab)
-biomarker_record.records,PD-L1:negative,PD-L1-negative,en,both,1,
-biomarker_record.records,Ki-67:positive,Ki-67,en,both,1,B 판정 positive = 20% 이상 (2026-10-15 확정)
-biomarker_record.records,Ki-67:intermediate,Ki-67,en,both,1,B는 20%에 걸친 구간을 intermediate로 내고 분자 아형에서 high로 본다
-treatment_history.drug_subclass,AI_nonsteroidal,aromatase inhibitor,en,both,1,canonical은 drug_classes.csv의 drug_subclass
-treatment_history.drug_subclass,AI_nonsteroidal,nonsteroidal AI,en,asco,,
-treatment_history.drug_subclass,AI_nonsteroidal,AI,en,both,,
-treatment_history.drug_subclass,AI_steroidal,exemestane,en,both,1,
-treatment_history.drug_subclass,AI_steroidal,AI,en,both,,
-treatment_history.drug_subclass,CDK4/6_inhibitor,CDK4/6 inhibitor,en,both,1,
-treatment_history.drug_subclass,SERM,tamoxifen,en,both,1,
-treatment_history.drug_subclass,SERD,fulvestrant,en,both,1,
-treatment_history.drug_subclass,LHRH_agonist,ovarian function suppression,en,both,1,
+biomarker_record.records,PD-L1:negative,PD-L1-negative,en,esmo,1,
+treatment_history.drug_subclass,AI_nonsteroidal,aromatase inhibitor,en,esmo,,canonical은 drug_classes.csv의 drug_subclass
+treatment_history.drug_subclass,AI_nonsteroidal,AI,en,esmo,1,
+treatment_history.drug_subclass,AI_steroidal,exemestane,en,esmo,1,
+treatment_history.drug_subclass,AI_steroidal,AI,en,esmo,,
+treatment_history.drug_subclass,CDK4/6_inhibitor,CDK4/6 inhibitor,en,esmo,1,
+treatment_history.drug_subclass,SERM,tamoxifen,en,esmo,1,
+treatment_history.drug_subclass,SERD,fulvestrant,en,esmo,1,
+treatment_history.drug_subclass,LHRH_agonist,ovarian function suppression,en,esmo,1,
 treatment_history.drug_subclass,LHRH_agonist,OFS,en,esmo,,
-treatment_history.drug_subclass,taxane,taxane,en,both,1,
-treatment_history.drug_subclass,anthracycline,anthracycline,en,both,1,
-treatment_history.drug_subclass,immune_checkpoint_inhibitor,immune checkpoint inhibitor,en,both,1,
-treatment_history.drug_subclass,immune_checkpoint_inhibitor,ICI,en,esmo,,
+treatment_history.drug_subclass,taxane,taxane,en,esmo,1,
+treatment_history.drug_subclass,anthracycline,anthracycline,en,esmo,1,
+treatment_history.drug_subclass,immune_checkpoint_inhibitor,immune checkpoint inhibitor,en,esmo,,
+treatment_history.drug_subclass,immune_checkpoint_inhibitor,ICI,en,esmo,1,
 treatment_history.drug_class,HER2-targeted Therapy,HER2-directed therapy,en,esmo,1,canonical은 drug_classes.csv의 drug_class (항HER2제는 drug_subclass가 없다)
 treatment_history.drug_class,HER2-targeted Therapy,anti-HER2,en,esmo,,
-treatment_history.drug_class,HER2-targeted Therapy,HER2-targeted therapy,en,asco,,
-treatment_history.drug_class,Chemotherapy,chemotherapy,en,both,1,
+treatment_history.drug_class,Chemotherapy,chemotherapy,en,esmo,1,
 treatment_history.drug_class,Chemotherapy,ChT,en,esmo,,
-treatment_history.drug_class,Hormone Therapy,endocrine therapy,en,both,1,
-treatment_history.drug_class,Hormone Therapy,ET,en,both,,
-patient.menopausal_status,premenopausal,premenopausal,en,both,1,
+treatment_history.drug_class,Hormone Therapy,endocrine therapy,en,esmo,1,
+treatment_history.drug_class,Hormone Therapy,ET,en,esmo,,
+patient.menopausal_status,premenopausal,premenopausal,en,esmo,1,
 patient.menopausal_status,premenopausal,pre- and perimenopausal,en,esmo,,
 patient.menopausal_status,perimenopausal,perimenopausal,en,esmo,1,
 patient.menopausal_status,perimenopausal,pre- and perimenopausal,en,esmo,,
-patient.menopausal_status,postmenopausal,postmenopausal,en,both,1,
-patient.gender,MALE,male patients,en,both,1,
-neoadjuvant_response.pcr,no,residual invasive disease,en,both,1,
+patient.menopausal_status,postmenopausal,postmenopausal,en,esmo,1,
+neoadjuvant_response.pcr,no,residual invasive disease,en,esmo,1,
 neoadjuvant_response.pcr,no,non-pCR,en,esmo,,
-neoadjuvant_response.pcr,yes,pCR,en,both,1,
-metastatic_sites,brain,brain metastases,en,both,1,
+neoadjuvant_response.pcr,yes,pCR,en,esmo,1,
+metastatic_sites,brain,brain metastases,en,esmo,1,
 metastatic_sites,brain,BMs,en,esmo,,
-metastatic_sites,bone,bone metastases,en,both,1,
+metastatic_sites,bone,bone metastases,en,esmo,1,

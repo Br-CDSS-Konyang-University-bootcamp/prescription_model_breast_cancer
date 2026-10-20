@@ -1,5 +1,5 @@
 # src/rag/chunk_common.py
-# 청커(chunker_asco_all.py, chunker_esmo.py)가 같이 쓰는 경로, 텍스트 정제, 태깅 함수
+# 청커(chunker_esmo.py)가 쓰는 경로, 텍스트 정제, 태깅 함수
 import csv
 import hashlib
 import re
@@ -30,8 +30,6 @@ def clean_text(text: str) -> str:
     text = re.sub(r"</?u>", "", text).replace("<br>", " ").replace("**", "")
     text = re.sub(r"(?<![\w/])_([^_\n]+?)_\s?-\s?(?=\w)", r"\1-", text)  # _PIK3CA_ -mutated → PIK3CA-mutated
     text = re.sub(r"(?<![\w/])_([^_\n]+?)_(?![\w/])", r"\1", text)
-    # PDF를 내려받은 사람의 정보가 담긴 줄은 청크에 넣지 않는다
-    text = re.sub(r"^.*Downloaded from ascopubs\.org.*$", "", text, flags=re.MULTILINE | re.IGNORECASE)
     text = re.sub(r"[\x00-\x08\x0B-\x1F\x7F]", "", text)
     text = re.sub(r"(?<=[a-z])-\n\s*(?=[a-z])", "", text)
     text = text.replace("&gt;", ">").replace("&lt;", "<").replace("&amp;", "&")

@@ -1,6 +1,6 @@
 # src/rag/__init__.py
 # qdrant_client, sentence_transformers는 함수를 부를 때 불러온다.
-# 그래야 색인 패키지 없이도 청커(python -m src.rag.chunker_asco_all)를 돌릴 수 있다.
+# 그래야 색인 패키지 없이도 청커(python -m src.rag.chunker_esmo)를 돌릴 수 있다.
 
 
 def init_collection(*args, **kwargs):

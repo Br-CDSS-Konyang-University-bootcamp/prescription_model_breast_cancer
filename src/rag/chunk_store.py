@@ -5,7 +5,7 @@ from pathlib import Path
 
 from .chunk_common import CHUNKS_DIR
 
-GUIDELINE_CHUNK_FILES = ("asco_chunks_all.json", "esmo_chunks.json")
+GUIDELINE_CHUNK_FILES = ("esmo_chunks.json",)
 
 _cache = {}
 
