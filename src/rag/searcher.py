@@ -53,6 +53,7 @@ def search_guidelines(
         rerank: bool = True,
         metastatic_sites: list[str] = None,
         negative_tags: list[str] = None,
+        chunk_kind: str = "recommendation",
 ) -> list[dict]:
     """지침 권고 청크를 찾는다. with_parent=True면 각 결과에 부모(소단원) 청크를 "parent" 키로 붙인다
     (LLM에는 소단원 전체를 함께 넘긴다, PROJECT.md §6).
@@ -63,16 +64,19 @@ def search_guidelines(
     없으면 후보에서 뺀다. 주지 않거나 빈 목록이면 부위를 모르는 것으로 보고 점수를 바꾸지 않는다.
     negative_tags(예: ["gBRCA"])는 환자가 음성으로 확인된 바이오마커의 태그다. 권고의 바이오마커 태그가 모두 여기에
     들면 감점한다 (예: "PIK3CA, AKT1 or PTEN" 권고는 셋 다 음성일 때만). src/rag/query.py의 search_args가 만든다.
+    chunk_kind는 찾을 청크 종류다. 기본은 권고(recommendation). 알고리즘 그림 경로(algorithm)는 같은 권고를 그림 순서로
+    다시 적은 것이라 함께 찾으면 상위 자리를 차지해 권고가 밀린다 (평가 MRR 0.97 → 0.65, 2026-10-20). 그래서 따로 찾는다
+    (retrieve_for_recommend). None이면 종류를 가리지 않는다.
     같은 조건의 검색은 기억해 둔 결과를 돌려준다 (색인을 바꾸면 비워진다)."""
     sites = _site_keys(metastatic_sites)
     negatives = frozenset(negative_tags or ())
     key = (query_text, setting, subtype, line, source, tuple(biomarker_tags or ()), top_k, with_parent, rerank,
-           tuple(sorted(sites)) if sites is not None else None, negatives)
+           tuple(sorted(sites)) if sites is not None else None, negatives, chunk_kind)
     if key not in _cache:
         if len(_cache) >= CACHE_SIZE:
             _cache.clear()
         _cache[key] = _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, with_parent, rerank,
-                              sites, negatives)
+                              sites, negatives, chunk_kind)
     return copy.deepcopy(_cache[key])  # 받은 쪽이 결과를 고쳐도 기억해 둔 값은 그대로
 
 
@@ -116,7 +120,7 @@ def _site_adjust(parent_id, sites) -> float:
 
 
 def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, with_parent, rerank,
-            sites=None, negatives=frozenset()) -> list[dict]:
+            sites=None, negatives=frozenset(), chunk_kind="recommendation") -> list[dict]:
     client = get_qdrant_client()
     model = get_embedding_model()
 
@@ -127,6 +131,8 @@ def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, w
 
     if source and source.lower() != "unknown":
         must_conditions.append(FieldCondition(key="source", match=MatchValue(value=source)))
+    if chunk_kind:
+        must_conditions.append(FieldCondition(key="chunk_kind", match=MatchValue(value=chunk_kind)))
 
     # 2. 하드 필터: setting은 정확히 일치 (chunk.json의 setting에는 any가 없다),
     #    subtype은 요청값과 일치하거나 청크 값이 "any"이면 통과

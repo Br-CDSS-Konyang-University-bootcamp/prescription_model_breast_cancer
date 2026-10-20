@@ -234,3 +234,19 @@ def test_public_api_for_reimbursement_module():
     import src.rag as rag
     for name in ("init_collection", "index_chunks", "delete_by_doc_type", "close_indexer"):
         assert callable(getattr(rag, name)), name
+
+
+def test_algorithm_paths_are_searched_separately(memory_index):
+    # 알고리즘 그림 경로는 권고를 그림 순서로 다시 적은 것이라, 기본 검색에 섞이면 권고 자리를 차지한다 (평가 MRR 0.97 → 0.65)
+    rag_client, indexer = memory_index
+    from src.rag import searcher
+    from src.rag.chunk_store import load_guideline_chunks, select_index_chunks
+
+    chunks = select_index_chunks(load_guideline_chunks())
+    if not any(c["chunk_kind"] == "algorithm" for c in chunks):
+        pytest.skip("알고리즘 청크 파일 없음")
+    indexer.index_chunks(chunks)
+    args = dict(query_text="ESR1-mutated MBC", setting="metastatic", subtype="HR+/HER2-", top_k=50, rerank=False)
+    assert {r["chunk_kind"] for r in searcher.search_guidelines(**args)} == {"recommendation"}
+    assert {r["chunk_kind"] for r in searcher.search_guidelines(**args, chunk_kind="algorithm")} == {"algorithm"}
+    assert len({r["chunk_kind"] for r in searcher.search_guidelines(**args, chunk_kind=None)}) == 2
