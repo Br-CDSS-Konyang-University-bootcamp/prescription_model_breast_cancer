@@ -70,7 +70,7 @@ def evaluate(cases: list[dict], search_fn, k: int = 5) -> tuple[list[dict], dict
     return rows, summary
 
 
-def case_query(case: dict, auto: bool = False, style: str = "full") -> str:
+def case_query(case: dict, auto: bool = False, style: str = "adaptive") -> str:
     if not auto:
         return case["query"]
     from .query import build_query, profile_from_tags
@@ -81,7 +81,7 @@ def case_query(case: dict, auto: bool = False, style: str = "full") -> str:
         prior_subclasses=case.get("prior_subclasses"), prior_classes=case.get("prior_classes")))
 
 
-def search_case(case: dict, k: int = 5, rerank: bool = True, auto_query: bool = False, style: str = "full") -> list[dict]:
+def search_case(case: dict, k: int = 5, rerank: bool = True, auto_query: bool = False, style: str = "adaptive") -> list[dict]:
     from .searcher import search_guidelines
     return search_guidelines(
         case_query(case, auto_query, style),
@@ -120,8 +120,9 @@ def main(argv=None) -> int:
     parser.add_argument("--reranker", help="재정렬 모델 이름 (기본 bge-reranker-v2-m3). 예: BAAI/bge-reranker-base")
     parser.add_argument("--candidates", type=int, help="재정렬할 후보 수 (기본 searcher.RERANK_CANDIDATES). 줄이면 빨라진다")
     parser.add_argument("--auto-query", action="store_true", help="환자 조건만으로 만든 질의를 쓴다 (B가 쓸 질의에 가까움)")
-    parser.add_argument("--query-style", choices=("full", "focused"), default="full",
-                        help="--auto-query 질의 형식. focused는 아형·병기 표현을 뺀다 (이미 필터로 거름)")
+    parser.add_argument("--query-style", choices=("adaptive", "full", "focused"), default="adaptive",
+                        help="--auto-query 질의 형식. focused는 아형·병기 표현을 뺀다 (이미 필터로 거름). "
+                             "adaptive(기본)는 focused로 하되 차수·이전 치료만 남으면 full")
     parser.add_argument("--detail", action="store_true", help="문항마다 상위 결과의 점수와 차수를 보여 준다")
     parser.add_argument("--out", type=Path, help="문항별 결과를 저장할 CSV")
     args = parser.parse_args(argv)
