@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 from src.rag.query import (TAG_TO_MARKER, build_query, negative_tags, profile_from_record, profile_from_tags,
-                           search_args, site_search_args)
+                           extra_search_args, search_args, site_search_args)
 
 BASE_DIR = Path(__file__).resolve().parents[2]
 
@@ -106,3 +106,13 @@ def test_adaptive_query_keeps_subtype_when_only_line_and_prior_therapy_remain():
     assert search_args(her2, prior_classes=["Chemotherapy"])["query_text"] == \
         "HER2-positive, ER-negative MBC first-line after chemotherapy"
     assert search_args(her2, metastatic_sites=["brain"])["query_text"] == "first-line brain metastases"
+
+
+def test_extra_search_args_add_de_novo_only_when_metastatic_at_diagnosis_and_now():
+    mbc = {"subtype": "HR+/HER2-", "setting": {"disease": "metastatic", "line": "1L"}, "records": []}
+    de_novo = extra_search_args(mbc, stage_at_diagnosis="metastatic", metastatic_sites=["bone"])
+    assert [a["query_text"].split()[0] for a in de_novo] == ["bone", "newly"]
+    assert all(a["line"] is None and a["top_k"] == 3 for a in de_novo)
+    assert extra_search_args(mbc, stage_at_diagnosis="early") == []  # 재발 전이는 de novo가 아니다
+    early = {"subtype": "HR+/HER2-", "setting": {"disease": "early", "line": "adjuvant"}, "records": []}
+    assert extra_search_args(early, stage_at_diagnosis="metastatic") == []

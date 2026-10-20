@@ -208,6 +208,21 @@ def test_negative_marker_recommendations_are_pushed_down(memory_index):
     assert capi["score"] > alpe["score"]  # alpelisib(PIK3CA만)은 감점, capivasertib(PIK3CA·AKT1·PTEN)은 그대로
 
 
+def test_evaluate_with_extra_appends_site_and_de_novo_results(memory_index):
+    rag_client, indexer = memory_index
+    from src.rag.chunk_store import load_guideline_chunks, select_index_chunks
+    from src.rag.evaluate import extra_results, load_cases, search_case
+
+    indexer.index_chunks(select_index_chunks(load_guideline_chunks()))
+    case = next(c for c in load_cases() if c["case_id"] == "M17")  # de novo
+    main = search_case(case, k=5, rerank=False, auto_query=True)
+    extras = extra_results(case, rerank=False)
+    combined = search_case(case, k=5, rerank=False, auto_query=True, with_extra=True)
+    assert extras and combined[:5] == main  # de novo 추가 검색이 돌고, 주 검색 결과가 앞에 온다
+    assert {r["chunk_id"] for r in combined} == {r["chunk_id"] for r in main + extras}
+    assert len({r["chunk_id"] for r in combined}) == len(combined)  # 겹치는 결과는 한 번만
+
+
 def test_public_api_for_reimbursement_module():
     # D(src/reimbursement/index.py)가 src.rag에서 부르는 함수들
     import src.rag as rag
