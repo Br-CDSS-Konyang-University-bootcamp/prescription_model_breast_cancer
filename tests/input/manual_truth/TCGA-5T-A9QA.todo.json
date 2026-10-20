@@ -1,0 +1,321 @@
+{
+  "schema_version": "0.1-draft6",
+  "patient_ref": "TCGA-5T-A9QA",
+  "created_at": "2026-10-19T00:00:00+09:00",
+  "index_day": 303,
+  "documents": [
+    {
+      "doc_id": "D1",
+      "doc_type": "molecular",
+      "doc_date": null
+    }
+  ],
+  "fields": {
+    "diagnosis": {
+      "diagnosis_date": {
+        "status": "not_recorded"
+      },
+      "histology": {
+        "status": "present",
+        "value": "invasive_NOS",
+        "raw": "Other, specify: infiltrating ductal and mucinous",
+        "source": null
+      },
+      "grade": {
+        "status": "not_recorded"
+      }
+    },
+    "stage": {
+      "ctnm": {
+        "status": "not_recorded"
+      },
+      "ptnm": {
+        "status": "present",
+        "value": {
+          "t": "T2",
+          "n": "not_assessed",
+          "m": "not_assessed",
+          "edition": "7th"
+        },
+        "raw": "T2 NX MX",
+        "source": null
+      },
+      "group": {
+        "status": "present",
+        "value": "IIA",
+        "raw": "Stage IIA",
+        "source": null
+      },
+      "positive_ln_count": {
+        "status": "not_recorded"
+      },
+      "disease_extent": {
+        "status": "present",
+        "value": "early",
+        "raw": "Stage IIA",
+        "source": null
+      },
+      "metastatic_sites": {
+        "status": "present",
+        "value": "[Not Available]",
+        "raw": "[Not Available]",
+        "source": null
+      },
+      "operable": {
+        "status": "not_recorded"
+      }
+    },
+    "receptors": {
+      "er_percent": {
+        "status": "present",
+        "value": {
+          "range": [
+            70,
+            79
+          ],
+          "result": "positive"
+        },
+        "raw": "Positive (70-79%)",
+        "specimen": "primary",
+        "observed_date": null,
+        "source": null
+      },
+      "pr_percent": {
+        "status": "present",
+        "value": {
+          "result": "negative"
+        },
+        "raw": "Negative ([Not Available])",
+        "specimen": "primary",
+        "observed_date": null,
+        "source": null
+      },
+      "her2_ihc": {
+        "status": "present",
+        "value": {
+          "score": "2+",
+          "result": "negative"
+        },
+        "raw": "IHC 2+, Equivocal",
+        "specimen": "primary",
+        "source": null
+      },
+      "her2_ish": {
+        "status": "present",
+        "value": {
+          "result": "not_amplified",
+          "method": "FISH"
+        },
+        "raw": "FISH Negative",
+        "specimen": "primary",
+        "source": null
+      },
+      "pdl1": {
+        "status": "not_recorded"
+      }
+    },
+    "proliferation": {
+      "ki67_percent": {
+        "status": "not_recorded"
+      }
+    },
+    "patient": {
+      "gender": {
+        "status": "present",
+        "value": "FEMALE",
+        "raw": "FEMALE",
+        "source": null
+      },
+      "age": {
+        "status": "present",
+        "value": 52,
+        "raw": "52",
+        "observed_date": null,
+        "source": null
+      },
+      "menopausal_status": {
+        "status": "not_recorded"
+      },
+      "menopausal_basis": {
+        "status": "not_recorded"
+      },
+      "ecog": {
+        "status": "not_recorded"
+      }
+    },
+    "treatment_history": [
+      {
+        "drugs": [
+          "doxorubicin"
+        ],
+        "setting": "adjuvant",
+        "start_date": null,
+        "end_date": null,
+        "start_day": 23,
+        "end_day": 94,
+        "duration_days": 71,
+        "cycles": {
+          "value": 4,
+          "basis": "estimated",
+          "interval_days": 21,
+          "interval_basis": "standard"
+        },
+        "progression_day": null,
+        "stop_reason": null,
+        "best_response": "CR",
+        "source": null
+      },
+      {
+        "drugs": [
+          "paclitaxel"
+        ],
+        "setting": "adjuvant",
+        "start_date": null,
+        "end_date": null,
+        "start_day": 115,
+        "end_day": 198,
+        "duration_days": 83,
+        "cycles": {
+          "value": 13,
+          "basis": "estimated",
+          "interval_days": 7,
+          "interval_basis": "standard"
+        },
+        "progression_day": null,
+        "stop_reason": null,
+        "best_response": "unknown",
+        "source": null
+      },
+      {
+        "drugs": [
+          "letrozole"
+        ],
+        "setting": "adjuvant",
+        "start_date": null,
+        "end_date": null,
+        "start_day": 304,
+        "end_day": null,
+        "duration_days": null,
+        "cycles": null,
+        "progression_day": null,
+        "stop_reason": null,
+        "best_response": "unknown",
+        "source": null
+      },
+      {
+        "drugs": [
+          "cyclophosphamide"
+        ],
+        "setting": "adjuvant",
+        "start_date": null,
+        "end_date": null,
+        "start_day": null,
+        "end_day": 94,
+        "duration_days": null,
+        "cycles": null,
+        "progression_day": null,
+        "stop_reason": null,
+        "best_response": "CR",
+        "source": null
+      }
+    ],
+    "anthracycline_drug_dose": {
+      "administered": "positive",
+      "drugs": [
+        {
+          "drug": "doxorubicin",
+          "timeline_index": 0,
+          "combined_with": [],
+          "dose_per_admin": "No value",
+          "cycles": "No value",
+          "total_dose": "No value",
+          "raw": "doxorubicin [Chemotherapy] d23~d94 (Complete Response)",
+          "source": null
+        }
+      ]
+    },
+    "neoadjuvant_response": {
+      "pcr": {
+        "status": "not_recorded"
+      },
+      "rcb": {
+        "status": "not_recorded"
+      }
+    },
+    "recurrence": {
+      "recurrence_date": {
+        "status": "not_recorded"
+      },
+      "adjuvant_endocrine_end_date": {
+        "status": "not_recorded"
+      },
+      "status": {
+        "status": "present",
+        "value": "none",
+        "source": null
+      }
+    },
+    "molecular": {
+      "mutations": {
+        "ESR1": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": null
+        },
+        "PIK3CA": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": null
+        },
+        "AKT1": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": null
+        },
+        "PTEN": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": null
+        },
+        "BRCA1": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": null
+        },
+        "BRCA2": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": null
+        },
+        "PALB2": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": null
+        }
+      }
+    },
+    "genomic_reports": [
+      {
+        "doc_id": "D1",
+        "report_date": null,
+        "specimen": "primary",
+        "raw_text": "종양 조직 엑솜 검사 (원발 조직). ERBB2, ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2: 검출되지 않음."
+      }
+    ]
+  },
+  "conflicts": []
+}

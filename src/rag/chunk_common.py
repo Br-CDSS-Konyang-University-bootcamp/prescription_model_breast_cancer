@@ -1,5 +1,5 @@
 # src/rag/chunk_common.py
-# 청커(chunker_asco_all.py, chunker_esmo.py)가 같이 쓰는 경로, 텍스트 정제, 태깅 함수
+# 청커(chunker_esmo.py)가 쓰는 경로, 텍스트 정제, 태깅 함수
 import csv
 import hashlib
 import re
@@ -30,8 +30,6 @@ def clean_text(text: str) -> str:
     text = re.sub(r"</?u>", "", text).replace("<br>", " ").replace("**", "")
     text = re.sub(r"(?<![\w/])_([^_\n]+?)_\s?-\s?(?=\w)", r"\1-", text)  # _PIK3CA_ -mutated → PIK3CA-mutated
     text = re.sub(r"(?<![\w/])_([^_\n]+?)_(?![\w/])", r"\1", text)
-    # PDF를 내려받은 사람의 정보가 담긴 줄은 청크에 넣지 않는다
-    text = re.sub(r"^.*Downloaded from ascopubs\.org.*$", "", text, flags=re.MULTILINE | re.IGNORECASE)
     text = re.sub(r"[\x00-\x08\x0B-\x1F\x7F]", "", text)
     text = re.sub(r"(?<=[a-z])-\n\s*(?=[a-z])", "", text)
     text = text.replace("&gt;", ">").replace("&lt;", "<").replace("&amp;", "&")
@@ -89,9 +87,19 @@ def find_drugs(text: str) -> list[str]:
     return found
 
 
+# 표지자 뒤에 오면 "그 변이·발현이 없다"는 뜻인 표현. 예: PIK3CA-wild type, PD-L1-negative, BRCA1/2- wild type
+_NEGATED_AFTER = re.compile(r"\s*-?\s*(wild[- ]?type|negative)\b")
+
+
+def _mentioned(text: str, pattern: str) -> bool:
+    """표지자가 양성(있음)의 뜻으로 한 번이라도 나오면 True. 바로 뒤가 wild type·negative인 언급은 세지 않는다."""
+    return any(not _NEGATED_AFTER.match(text, m.end()) for m in re.finditer(pattern, text))
+
+
 def find_biomarker_tags(text: str) -> list[str]:
     # 태그 이름은 B가 biomarker_record.records[].rag_tags에 붙이는 이름과 같다 (src/biomarker/README.md).
-    # HER2-low, HER2-ultralow는 B가 아직 태그로 내지 않는다 (B는 HER2 상태값 low, ultralow로 낸다)
+    # HER2-low, HER2-ultralow는 B가 아직 태그로 내지 않는다 (B는 HER2 상태값 low, ultralow로 낸다).
+    # B의 태그는 양성일 때만 붙으므로, "PD-L1-negative", "germline BRCA1/2-wild type"처럼 없다는 언급에는 붙이지 않는다
     t = text.lower()
     tags = []
     if "her2-low" in t or "her2 low" in t or "ihc 1+" in t or "ihc 2+" in t:
@@ -102,21 +110,21 @@ def find_biomarker_tags(text: str) -> list[str]:
         tags.append("ER-low")
     if re.search(r"ki-?67 (score|index|level)?\s*(of )?≥\s?\d|high ki-?67", t):
         tags.append("Ki-67-high")
-    if re.search(r"germline brca|gbrca|brca1/2m|brca1 or 2 mutation|brca1 or brca2", t):
+    if _mentioned(t, r"germline brca(1/2|1|2)?|gbrca(1/2)?|brca1/2m|brca1 or 2 mutation|brca1 or brca2"):
         tags.append("gBRCA")
     if re.search(r"somatic[^.]{0,40}brca|sbrca", t):
         tags.append("sBRCA")
-    if "palb2" in t:
+    if _mentioned(t, r"palb2"):
         tags.append("gPALB2")
-    if "pik3ca" in t:
+    if _mentioned(t, r"pik3ca"):
         tags.append("PIK3CA-mut")
-    if "esr1" in t:
+    if _mentioned(t, r"esr1"):
         tags.append("ESR1-mut")
-    if "pd-l1" in t or re.search(r"\bcps\b", t):
+    if _mentioned(t, r"pd-l1|\bcps\b"):
         tags.append("PD-L1+")
-    if "akt1" in t:
+    if _mentioned(t, r"akt1"):
         tags.append("AKT1-mut")
-    if "pten" in t:
+    if _mentioned(t, r"pten"):
         tags.append("PTEN-alt")
     return tags
 

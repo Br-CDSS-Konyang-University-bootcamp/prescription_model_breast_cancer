@@ -1,0 +1,43 @@
+SURGICAL PATHOLOGY REPORT
+Name: TCGA가상   MRN: 0000T02   Sex/Age: F/42 (at diagnosis)
+Hospital: 가상대학교병원 Department of Pathology
+
+FINAL DIAGNOSIS
+  Breast, surgical excision:
+  - Infiltrating lobular carcinoma
+  - Lymph nodes: no metastasis (0/8)
+  - pT2 N0 M0, AJCC 7th edition, Stage IIA
+
+IMMUNOHISTOCHEMISTRY
+  Estrogen receptor: Positive, 75% of tumor cells
+  Progesterone receptor: Positive, 55%
+  HER2/neu: 1+ (negative)
+  HER2 ISH: not performed
+
+Pathologist: 박가상
+
+
+<유전자 패널 검사 결과지>
+환자명: TCGA가상   등록번호: 0000T02
+검체: 원발 종양 FFPE 조직
+검사법: 종양 조직 엑솜 검사
+
+Clinically significant variants
+  PIK3CA   p.H1047L (Missense_Mutation)   VAF 22.2%
+
+Not detected
+  ERBB2, ESR1, AKT1, PTEN, BRCA1, BRCA2, PALB2
+
+결과 요약: 종양 조직 엑솜 검사 (원발 조직). PIK3CA p.H1047L (Missense_Mutation), VAF 22.2%. ERBB2, ESR1, AKT1, PTEN, BRCA1, BRCA2, PALB2: 검출되지 않음.
+
+
+[종양내과 초진기록]
+환자명: TCGA가상   등록번호: 0000T02
+42세(진단 시) 여성, 폐경 후. 유방 침윤성 소엽암(ILC), pT2N0(0/8)M0, IIA기.
+ER 양성 75%, PR 양성 55%, HER2 1+.
+수술 후 보조 내분비요법으로 tamoxifen을 진단 후 322일째부터 복용 중이며 종료일은 기록되어 있지 않다.
+재발 소견 없음.
+
+
+<항암 처방 이력>
+- Nolvadex (tamoxifen) 20mg qd : 진단 후 322일 ~ (종료일 기록 없음), 보조요법

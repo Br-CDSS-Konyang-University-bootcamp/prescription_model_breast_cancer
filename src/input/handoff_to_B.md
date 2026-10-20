@@ -41,7 +41,7 @@
 9. **PD-L1은 발현 점수**다 (변이 아님). 검사법·점수만 넘기고 약제별 판정은 B가 한다 (§6.5).
 10. **유전자 변이**는 `molecular.mutations`에 유전자별로 넘긴다: 변이 있음 / 변이 없음 / 미시행 (§3.6).
 11. **anthracycline 투약 용량**과 **주기 길이가 붙은 투여 주기**를 넘긴다 (§6.6·§6.7). 누적 용량은 A가 변환할 때 `anthracycline_drug_dose`에 계산해 넣는다 (2026-10-16 담당 변경).
-12. BM-3(변이 근거 주석)은 OncoKB 대신 허가사항·CIViC·ClinVar·VEP를 쓴다 (§5, 2026-10-15 결정).
+12. BM-3(변이 근거 주석)은 OncoKB 대신 허가사항·CIViC·ClinVar를 쓴다 (§5, 2026-10-15 결정). 2026-10-20 회의: VEP는 쓰지 않고, CIViC는 판정에 쓰지 않고 근거로만 표시한다.
 13. §4.1 ER, §4.2 PR 판정 규칙은 2026-10-12 결정이다 (2026-10-15에 ER은 Allred 총점 우선, PR은 Allred 총점 우선 + 9% 기준으로 변경, PR-low 태그 삭제). HER2·Ki-67·아형 규칙도 2026-10-15에 확정했다 (PROJECT.md §5). 유전자 판정 규칙(§4.6·§4.7·§5.4)은 B가 2026-10-16에 1차 규칙으로 다시 넣었다 (`src/biomarker/README.md`). 진행 현황과 남은 순서는 §10.
 
 ## 1. 전달 방식
@@ -125,6 +125,7 @@ patient_state.json
 │   │   ├── line, endocrine_line, chemo_line   전이 후 차수 (전이 전 null) [draft6]
 │   │   └── source
 │   ├── deemed_lines[]        차수 간주 규칙 4개 {rule_id, category, status, basis, regimen_refs, gap_days, notice_page} [draft6]
+│   ├── at_index              기준일 시점 값 {age, recent_therapy_28d {status yes/no/unknown, basis, regimen_refs, gap_days}} [2026-10-20, 검토 전]
 │   ├── anthracycline_drug_dose
 │   │   ├── administered      positive / negative / No value
 │   │   └── drugs[]
@@ -296,9 +297,9 @@ patient_state.json
 | `administered` | `positive` / `negative` / `No value` | positive 348, negative 313, No value 213 | `No value` = 투약 기록 없음 (투여 안 함이 아님) |
 | `drugs[].drug` | `doxorubicin` / `epirubicin` / `liposomal doxorubicin` | 313 / 37 / 2 | mitoxantrone은 제외 |
 | `drugs[].timeline_index`, `combined_with`, `raw` | 정수, 배열, 문자열 | | 대조용 |
-| `drugs[].dose_per_admin` | `{value, unit}` / `"No value"` | No value 190, mg 85, mg/m² 65, mg/day 9, mg/m²/day 3 | 원문이 범위(100-102)면 최대값. 단위가 섞여 있음 (§6.7) |
+| `drugs[].dose_per_admin` | `{value, unit}` / `"No value"` | No value 190, mg/m² 160 (2026-10-20, 860명) | 원문이 범위(100-102)면 최대값. 2026-10-20부터 크롭 단계에서 mg/m²로 맞춤 (mg는 체표면적 1.84 m² 추정으로 나눔, tcga_mapping.md §3.7a) |
 | `drugs[].cycles` | `cycles` 형식 (`basis: recorded`만) / `"No value"` | 기록 189, No value 163 | |
-| `drugs[].total_dose` | `{value, unit}` / `"No value"` | No value 205, mg 142, mg/m² 3, 기타 2 | 대부분 mg |
+| `drugs[].total_dose` | `{value, unit}` / `"No value"` | No value 197, mg/m² 153 (2026-10-20, 860명) | 152건 중 92건은 mg ÷ 1.84 추정 (§6.7) |
 
 **recurrence**
 
@@ -444,7 +445,7 @@ TCGA 변이는 종양 조직 엑솜 결과라 실제 생식세포 검사 결과�
 ### 5.1 요약
 
 1. **OncoKB는 쓰지 않는다 (2026-10-15 결정).** 우리 팀 조건(기관 이메일 없음, 수동 심사 대상 제외, 부트캠프)에 맞지 않고, AI/ML 학습에 쓰는 것을 학술 목적까지 포함해 금지한다.
-2. 대체 조합: **① FDA·식약처 허가사항(동반진단 변이 목록) → ② CIViC → ClinVar(생식세포) → Ensembl VEP(PTEN 기능 소실)**.
+2. 대체 조합: **① FDA·식약처 허가사항(동반진단 변이 목록) → ② CIViC → ClinVar(생식세포)**. (2026-10-20 회의: Ensembl VEP는 쓰지 않고, CIViC는 판정에 쓰지 않고 근거로만 표시한다)
 3. 네 가지 모두 가입·심사 없이 받을 수 있고, **파일로 받아 로컬에서 조회**한다. 환자 변이 정보가 외부 서버로 나가지 않으므로 "차트 정보는 외부 API로 보내지 않는다" 원칙과도 맞는다.
 
 ### 5.2 OncoKB를 빼는 이유
@@ -468,7 +469,7 @@ TCGA 변이는 종양 조직 엑솜 결과라 실제 생식세포 검사 결과�
 | ① | **FDA 라벨(DailyMed)과 동반진단 요약(SSED), 식약처 의약품 허가사항** | PIK3CA, AKT1, PTEN, ESR1 중 치료 대상 변이 | 미국 정부 저작물과 국내 공공 문서. 가입 필요 없음 | 원문에서 변이 목록을 옮겨 규칙표로 만든다 (출처 문서·쪽 기록) |
 | ② | **CIViC** (civicdb.org) | 허가 목록에 없는 체세포 변이의 근거 | **CC0 1.0 퍼블릭 도메인**. 2026-10-13 로그인 없이 GraphQL API 응답 확인, nightly TSV 다운로드 확인 (PIK3CA·AKT1·PTEN·ESR1 관련 108행) | `https://civicdb.org/downloads/nightly/` TSV를 날짜별로 받아 로컬 조회 |
 | — | **ClinVar** (NCBI) | gBRCA1/2, PALB2, PTEN 미스센스 | NCBI 정책상 사용·배포 제한 없음. FTP 다운로드는 가입 필요 없음 | FTP의 VCF 또는 `variant_summary.txt.gz`를 받아 로컬 조회 |
-| — | **Ensembl VEP** | PTEN 절단형 변이(기능 소실) 판정, 표기 정규화 | Apache 2.0, 로컬 실행 | 로컬 설치 또는 Docker |
+| — | ~~**Ensembl VEP**~~ | ~~PTEN 절단형 변이(기능 소실) 판정, 표기 정규화~~ **쓰지 않음 (2026-10-20 회의)** | Apache 2.0, 로컬 실행 | — |
 
 제외한 후보:
 
@@ -488,13 +489,11 @@ PROJECT.md §5 판정 기준표에 반영했다 (2026-10-15). 위에서부터 �
 | 바이오마커 | 순서 | 조건 | 상태값 | 비고 |
 |---|---|---|---|---|
 | PIK3CA | 1 | 허가 동반진단 변이 목록에 있음 | 양성 | 예: C420R, E542K, E545A/D/G/K, Q546E/R, H1047L/R/Y (알펠리십 동반진단 기준. **원문에서 다시 확인**) |
-| | 2 | 목록에 없고 CIViC에 발암성·예측 근거가 있음 | 양성 + `off-label-variant` 태그 | 근거 등급(A~E)을 함께 저장 |
-| | 3 | 둘 다 아님 | VUS (음성 처리, 표시 유지) | |
+| | 2 | 목록에 없음 | VUS (음성 처리, 표시 유지) | CIViC 근거는 판정에 쓰지 않고 근거 등급(A~E)과 함께 이유에 표시 (2026-10-20 회의) |
 | AKT1 | 1 | 허가 근거 변이 (예: E17K, 카피바설팁) | 양성 | 원문 확인 |
-| | 2 | CIViC 근거 | 양성 + 태그 | |
-| PTEN | 1 | VEP 결과 절단형 (nonsense, frameshift, 필수 스플라이스 부위) | 양성 (기능 소실) | |
-| | 2 | 미스센스이고 ClinVar 병원성·병원성 가능 또는 CIViC 근거 있음 | 양성 | |
-| | 3 | 그 외 | VUS | |
+| | 2 | 그 외 | VUS | CIViC 근거는 이유에만 표시 (2026-10-20 회의) |
+| PTEN | 1 | 단백질이 바뀌는 변이가 있음 (변이 유무, 2026-10-20 회의) | 양성 | 절단형·ClinVar·CIViC는 판정에 쓰지 않고 이유에 표시 |
+| | 2 | 단백질이 바뀌는 변이 없음 | 음성 | VEP는 쓰지 않음 (2026-10-20 회의) |
 | ESR1 | 1 | 엘라세스트란트 동반진단의 리간드 결합 도메인 변이 (예: Y537S/N/C, D538G 등) | 양성 | 원문 확인. 이후 승인된 SERD 라벨도 확인 |
 | | 2 | 기존 "재검 필요" 규칙은 그대로 | | |
 | gBRCA1/2, PALB2 | 1 | ClinVar 병원성·병원성 가능이고 리뷰 등급 2성 이상 | 양성 | ACMG 4·5등급 대응 |
@@ -510,7 +509,7 @@ PROJECT.md §5 판정 기준표에 반영했다 (2026-10-15). 위에서부터 �
 "annotation": {
   "type": ["object", "null"],
   "properties": {
-    "source": {"enum": ["label", "civic", "clinvar", "vep"]},
+    "source": {"enum": ["label", "civic", "clinvar"]},
     "source_version": {"type": "string", "description": "예: civic nightly 2026-10-13, clinvar 2026-10-05, 라벨 개정일"},
     "call": {"type": "string", "description": "예: 허가 동반진단 변이, Pathogenic (2성), CIViC 근거 B"},
     "citation": {"type": "string", "description": "예: Piqray 라벨 §14, CIViC EID1234"}
@@ -552,6 +551,8 @@ A가 변환할 때 계산해 투약마다 넣는다 (`src/input/common/lines.py`
 4. 묶음 첫 투약에서 시작일이 28일 이내인 기록은 한 요법으로 묶는다.
 4a. 요법 종류: 항암·HER2 표적·면역항암제가 하나라도 있으면 항암, 없고 내분비요법이 있으면 내분비, 그 밖의 표적치료만 있으면 항암. 내분비 차수와 항암 차수를 따로 센다 (§6.3).
 5. 진행(`best_response = PD`, `stop_reason = progression`)으로 바뀐 요법만 다음 차수로 센다. `planned_switch`(AC→T 같은 계획된 순차)·`maintenance`·`toxicity`는 같은 차수다. 끝난 이유를 모르면 다음 차수로 센다 (TCGA는 대부분 이 경우).
+5a. [2026-10-20] 끝난 이유를 몰라도 셋은 같은 차수다. (1) 순차 요법: anthracycline 요법이 끝나고 28일 이내에 taxane(± HER2 표적) 요법 시작 (AC → paclitaxel). (2) 병용 추가: 앞 요법이 끝나기 전에 시작 (capecitabine 투여 중 bevacizumab 추가). (3) 유지요법: 항암 요법 다음에 내분비 요법이 시작됨 (진행 기록 없음). 근거는 `notes`에 남긴다.
+5b. [2026-10-20] 같은 차수 안에서 요법 종류가 바뀌면(항암 → 내분비 유지요법 등) 그 종류의 차수는 이 차수에서 처음일 때만 하나 올린다 (예: AC → letrozole 유지 = 1차, 항암 1차·내분비 1차).
 
 ### 6.3a 차수 간주 규칙 (`fields.deemed_lines`) [draft6]
 
@@ -621,7 +622,7 @@ A는 판정하지 않는다. B가 약제별로 판정한다.
 ### 6.7 anthracycline 누적 용량 (liposomal doxorubicin 급여 조건, 공고 p.60)
 
 - 조건: doxorubicin 누적 240mg/m² 이상 또는 epirubicin 450mg/m² 이상, 또는 심장 위험 요인.
-- 누적 용량 = `dose_per_admin`(mg/m²) × `cycles.value`. 단위가 mg/m²가 아니면(mg, mg/day) 체표면적이 없어 환산할 수 없으므로 "판정 불가"로 둔다.
+- 누적 용량 = `total_dose`(mg/m²). 2026-10-20부터 A가 크롭 단계에서 모두 mg/m²로 맞춘다. mg로 적힌 기록은 체표면적 1.84 m²(추정)로 나눈 값이라, 240 mg/m² 근처(±15%) 56건은 판정이 바뀔 수 있다 (tcga_mapping.md §3.7a).
 - 병용 기록(`doxorubicin+cyclophosphamide`, `60+600`)은 약 순서대로 나눈 값이다. 나눌 수 없는 4명은 정답 세트에서 뺐다 (§7).
 - 심장 위험 요인은 데이터가 없어 넘기지 않는다 (§9).
 
@@ -810,7 +811,7 @@ B의 기대 출력 (§4 조건을 따른 경우). `oncokb` 칸은 현재 스키�
 - [x] 결과값에 `indeterminate`를 쓰지 않는다. 판정 불가는 `unknown` (바이오마커, 아형, `setting`)
 - [x] 기록 없음(`not_recorded`)은 검사 권고 없이 기록 없음으로만 표기. 검사 권고는 미시행(`not_done`)일 때만
 - [x] 재생검 결과가 있으면 그 결과로 판정한다
-- [x] §5 BM-3 출처: OncoKB 대신 허가사항·CIViC·ClinVar·VEP
+- [x] §5 BM-3 출처: OncoKB 대신 허가사항·CIViC·ClinVar·VEP (2026-10-20 회의: VEP 미사용, CIViC는 근거로만, PTEN은 변이 유무)
 - [x] TCGA 정답의 BRCA1/2를 gBRCA 측정으로 가정 (유전자 판정을 다시 쓸 때 적용)
 
 ### 10.2 담당 변경 (2026-10-16)

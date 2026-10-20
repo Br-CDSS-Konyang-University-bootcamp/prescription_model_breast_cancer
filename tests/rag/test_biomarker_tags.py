@@ -20,3 +20,11 @@ def test_tags_use_biomarker_module_names():
 
 def test_ki67_without_cutoff_is_not_high():
     assert find_biomarker_tags("insufficient evidence to use baseline Ki67 expression") == []
+
+
+def test_negated_mentions_get_no_positive_tag():
+    # B의 태그는 양성일 때만 붙는다. "없다"는 언급에 양성 태그가 붙으면 반대 환자의 권고가 가점을 받는다
+    assert find_biomarker_tags("germline BRCA1/2- wild type and PD-L1-negative mTNBC") == []
+    assert find_biomarker_tags("germline BRCA1/2-mutated and PD-L1-negative mTNBC") == ["gBRCA"]
+    assert find_biomarker_tags("ER-positive, HER2-negative, PIK3CA-wild type MBC") == []
+    assert find_biomarker_tags("PIK3CA-mutated MBC") == ["PIK3CA-mut"]

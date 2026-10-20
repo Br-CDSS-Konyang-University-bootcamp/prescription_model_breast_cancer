@@ -51,7 +51,7 @@
 
 | 버전 | 날짜 | 추가 | 바뀜 | 제거 |
 |---|---|---|---|---|
-| 0.1-draft6 | 2026-10-16 (2026-10-19 보완) | 최상위 `index_day` (판정 기준일) · `recurrence.recurrence_day` (첫 재발일) · `treatment_history[].line`·`endocrine_line`·`chemo_line` (전이 후 차수) · `fields.deemed_lines[]` (심평원 차수 간주 규칙 4개) · `molecular.mutations.{유전자}.raw` | `schema_version` 상수 · `recurrence.metastasis_day` 설명 (차수는 A가 계산) · 추출값 `raw` 설명 (미시행일 때 "결과 대기"·"예정" 고정 표기) | 없음 |
+| 0.1-draft6 | 2026-10-16 (2026-10-19 보완) | 최상위 `index_day` (판정 기준일) · `recurrence.recurrence_day` (첫 재발일) · `treatment_history[].line`·`endocrine_line`·`chemo_line` (전이 후 차수) · `fields.deemed_lines[]` (심평원 차수 간주 규칙 4개) · `molecular.mutations.{유전자}.raw` · `fields.at_index` (기준일 나이, 최근 4주 이내 항암제·호르몬제 투여, 2026-10-20 추가) | `schema_version` 상수 · `recurrence.metastasis_day` 설명 (차수는 A가 계산) · 추출값 `raw` 설명 (미시행일 때 "결과 대기"·"예정" 고정 표기) | 없음 |
 | 0.1-draft5 | 2026-10-15 | 진단일 기준 일수(`*_day`), 투여 주기 `cycles`, 재발·전이 정보, PD-L1, 유전자 변이 `molecular.mutations`, anthracycline 투약 용량 | | |
 
 draft6의 새 칸은 모두 선택 칸이다 (가상·실제 차트에서 비워도 검증 통과). TCGA 정답에는 항상 채운다. 자세한 설명: [src/input/handoff_to_B.md](../src/input/handoff_to_B.md) §6.2·§6.3a, [src/input/schema_fields.md](../src/input/schema_fields.md) §2.
@@ -263,10 +263,10 @@ TCGA 정답은 실제 날짜가 없으므로, 날짜 칸은 추출값이면 `sta
 
 | 필드 | 설명 |
 |---|---|
-| `options[]` | `therapy`, `drugs`, `rationale`, `evidence`, `guideline_source`(ESMO / ASCO, 합치지 않음), `citations`(지침 청크 ID, 1개 이상), `reimbursement`, `reimbursement_reason`, `reimbursement_citations`, `copay`, `pending_notices` |
+| `options[]` | `therapy`, `drugs`, `rationale`, `evidence`, `guideline_source`(지침 출처, 지금은 ESMO만. ASCO 치료 지침은 재사용 불가로 2026-10-20 제외), `citations`(지침 청크 ID, 1개 이상), `reimbursement`, `reimbursement_reason`, `reimbursement_citations`, `copay`, `pending_notices` |
 | `tests_needed[]` | 검사 권고. `blocks_therapy`에 이 검사가 없어 추천 대신 권고로 바꾼 치료를 적는다 |
 | `out_of_scope`, `out_of_scope_reason` | 범위 외이거나 검색 결과가 없으면 추천을 만들지 않는다 |
-| `conflicts[]` | 예: ESMO와 ASCO 권고 차수가 다름 |
+| `conflicts[]` | 예: 지침 권고 차수와 급여 기준 차수가 다름 |
 | `index_status` | 화면 하단 요약 (공고책자 날짜, 덧씌운 공고, 예정·진행중 개수). D가 값을 제공 |
 
 스키마가 강제하는 규칙: `citations`는 1개 이상이고, 급여 분류가 `no_criteria`가 아니면 `reimbursement_citations`도 1개 이상이어야 한다.

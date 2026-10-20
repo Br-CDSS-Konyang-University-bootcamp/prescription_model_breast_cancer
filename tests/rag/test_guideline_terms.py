@@ -35,7 +35,7 @@ def test_columns_and_no_duplicates():
     assert list(TERMS[0]) == ["field", "canonical", "expression", "lang", "source", "preferred", "note"]
     keys = Counter((t["field"], t["canonical"], t["expression"]) for t in TERMS)
     assert not [k for k, n in keys.items() if n > 1]
-    assert all(t["source"] in ("esmo", "asco", "both") and t["preferred"] in ("", "1") for t in TERMS)
+    assert all(t["source"] == "esmo" and t["preferred"] in ("", "1") for t in TERMS)
 
 
 def test_exactly_one_preferred_expression_per_value():
@@ -58,7 +58,7 @@ def test_canonical_values_match_schemas_and_drug_dictionary():
     allowed["treatment_history.drug_subclass"] = {r["drug_subclass"] for r in drug_rows if r["drug_subclass"]}
     allowed["treatment_history.drug_class"] = {r["drug_class"] for r in drug_rows}
     fields = ("properties", "fields", "properties")
-    for field in ("patient.menopausal_status", "patient.gender", "neoadjuvant_response.pcr"):
+    for field in ("patient.menopausal_status", "patient.gender", "neoadjuvant_response.pcr", "stage.disease_extent"):
         group, name = field.split(".")
         allowed[field] = _enum_in("patient_state.json", *fields, group, "properties", name)
     with open(BASE_DIR / "data" / "dictionaries" / "field_vocab.csv", encoding="utf-8-sig", newline="") as f:
@@ -82,5 +82,5 @@ def test_preferred_expressions_appear_in_chunks():
 def test_query_terms_from_profile():
     profile = {"subtype": "HR+/HER2-", "disease": "metastatic", "line": "2L", "markers": ["ESR1:positive"],
                "prior_subclasses": ["AI_nonsteroidal", "CDK4/6_inhibitor"], "menopausal_status": "unknown"}
-    assert query_terms(profile) == ["ER-positive, HER2-negative", "metastatic breast cancer", "second-line",
-                                    "ESR1-mutated", "aromatase inhibitor", "CDK4/6 inhibitor"]
+    assert query_terms(profile) == ["ER-positive, HER2-negative", "MBC", "second-line",
+                                    "ESR1-mutated", "AI", "CDK4/6 inhibitor"]
