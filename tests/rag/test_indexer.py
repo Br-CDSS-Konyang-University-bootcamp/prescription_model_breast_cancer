@@ -64,6 +64,42 @@ def test_delete_by_doc_type_keeps_other_type(memory_index):
     assert _count(rag_client) == 0
 
 
+def test_replace_doc_type_swaps_only_that_type(memory_index):
+    # 새 급여 청크를 넣고, 새 목록에 없는 옛 급여 점(r-1)만 지운다. 지침 점은 그대로
+    rag_client, indexer = memory_index
+    indexer.index_chunks(GUIDE + REIMB)
+    new = [REIMB[0], {"chunk_id": "r-new", "doc_type": "reimbursement", "text": "r"}]
+    assert indexer.replace_doc_type("reimbursement", new) == {"indexed": 2, "removed": 1}
+    ids = {p.payload["chunk_id"] for p in rag_client._client.scroll(rag_client.COLLECTION_NAME, limit=100)[0]}
+    assert ids == {"g-0", "g-1", "g-2", "r-0", "r-new"}
+
+
+def test_replace_doc_type_keeps_old_points_when_indexing_fails(memory_index, monkeypatch):
+    # 지우고 넣는 방식은 넣다가 실패하면 급여 점이 0개가 됐다 (D 안건 C1). 바꿔 끼우기는 옛 점을 남긴다
+    rag_client, indexer = memory_index
+    indexer.index_chunks(GUIDE + REIMB)
+
+    class Broken:
+        def encode(self, *a, **k):
+            raise OSError("model download blocked")
+    monkeypatch.setattr(rag_client, "_model", Broken())
+    with pytest.raises(OSError):
+        indexer.replace_doc_type("reimbursement", [{"chunk_id": "r-new", "doc_type": "reimbursement", "text": "r"}])
+    assert _count(rag_client, "reimbursement") == 2 and _count(rag_client, "guideline") == 3
+
+
+def test_replace_doc_type_rejects_empty_or_mixed_lists(memory_index):
+    rag_client, indexer = memory_index
+    indexer.index_chunks(GUIDE + REIMB)
+    with pytest.raises(ValueError):
+        indexer.replace_doc_type("reimbursement", [])  # 전부 지우게 되는 실수를 막는다
+    with pytest.raises(ValueError):
+        indexer.replace_doc_type("reimbursement", REIMB + GUIDE[:1])  # 다른 종류가 섞이면 넣지 않는다
+    with pytest.raises(ValueError):
+        indexer.replace_doc_type("guidelines", GUIDE)
+    assert _count(rag_client) == 5
+
+
 def test_delete_by_doc_type_rejects_unknown(memory_index):
     _, indexer = memory_index
     with pytest.raises(ValueError):
@@ -232,7 +268,7 @@ def test_evaluate_with_extra_appends_site_and_de_novo_results(memory_index):
 def test_public_api_for_reimbursement_module():
     # D(src/reimbursement/index.py)가 src.rag에서 부르는 함수들
     import src.rag as rag
-    for name in ("init_collection", "index_chunks", "delete_by_doc_type", "close_indexer"):
+    for name in ("init_collection", "index_chunks", "delete_by_doc_type", "replace_doc_type", "close_indexer"):
         assert callable(getattr(rag, name)), name
 
 
