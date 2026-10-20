@@ -86,8 +86,8 @@ treatment_history.drug_class,Chemotherapy,chemotherapy,en,esmo,1,
 treatment_history.drug_class,Chemotherapy,ChT,en,esmo,,
 treatment_history.drug_class,Hormone Therapy,endocrine therapy,en,esmo,1,
 treatment_history.drug_class,Hormone Therapy,ET,en,esmo,,
-patient.menopausal_status,premenopausal,premenopausal,en,esmo,1,
-patient.menopausal_status,premenopausal,pre- and perimenopausal,en,esmo,,
+patient.menopausal_status,premenopausal,premenopausal,en,esmo,,ESMO EBC 표기 (Premenopausal patients)
+patient.menopausal_status,premenopausal,pre- and perimenopausal,en,esmo,1,ESMO MBC OFS 권고 3개의 표기. premenopausal로 질의하면 OFS 권고를 못 찾았다 (--auto-query M03)
 patient.menopausal_status,perimenopausal,perimenopausal,en,esmo,1,
 patient.menopausal_status,perimenopausal,pre- and perimenopausal,en,esmo,,
 patient.menopausal_status,postmenopausal,postmenopausal,en,esmo,1,
