@@ -15,7 +15,7 @@ from pathlib import Path
 from .chunk_common import BASE_DIR
 
 CASES_CSV = BASE_DIR / "data" / "eval" / "rag_eval_cases.csv"
-LIST_FIELDS = ("biomarker_tags", "expected_parents", "expected_chunks")
+LIST_FIELDS = ("biomarker_tags", "metastatic_sites", "expected_parents", "expected_chunks")
 
 
 def load_cases(path: Path = CASES_CSV) -> list[dict]:
@@ -23,7 +23,7 @@ def load_cases(path: Path = CASES_CSV) -> list[dict]:
         cases = [dict(row) for row in csv.DictReader(f)]
     for case in cases:
         for field in LIST_FIELDS:
-            case[field] = [v.strip() for v in case[field].split(";") if v.strip()]
+            case[field] = [v.strip() for v in (case.get(field) or "").split(";") if v.strip()]
     return cases
 
 
@@ -74,6 +74,7 @@ def search_case(case: dict, k: int = 5, rerank: bool = True) -> list[dict]:
         subtype=case["subtype"] or None,
         line=case["line"] or None,
         biomarker_tags=case["biomarker_tags"],
+        metastatic_sites=case["metastatic_sites"] or None,
         top_k=k,
         rerank=rerank,
     )
