@@ -22,7 +22,7 @@ def memory_index(monkeypatch):
     try:
         import sentence_transformers  # noqa: F401
     except ImportError:
-        monkeypatch.setitem(sys.modules, "sentence_transformers", types.SimpleNamespace(SentenceTransformer=None))
+        monkeypatch.setitem(sys.modules, "sentence_transformers", types.SimpleNamespace(SentenceTransformer=None, CrossEncoder=None))
     from src.rag import client as rag_client
     from src.rag import indexer
 
@@ -80,6 +80,28 @@ def test_search_returns_recommendations_with_parent(memory_index, monkeypatch):
         assert "metastatic" in r["setting"]
         assert "HR+/HER2-" in r["subtype"] or "any" in r["subtype"]
         assert r["parent"]["chunk_id"] == r["parent_id"]
+
+
+class FakeReranker:
+    """본문에 'elacestrant'가 있으면 높은 원점수(logit)를 주는 가짜 재정렬 모델."""
+    def predict(self, pairs):
+        return [4.0 if "elacestrant" in text.lower() else -4.0 for _, text in pairs]
+
+
+def test_rerank_reorders_candidates_and_keeps_score_scale(memory_index, monkeypatch):
+    # 가짜 임베딩은 모든 청크 점수가 같아 순위가 임의다. 재정렬을 켜면 재정렬 점수로 순위가 정해져야 한다
+    rag_client, indexer = memory_index
+    from src.rag import searcher
+    from src.rag.chunk_store import load_guideline_chunks, select_index_chunks
+
+    monkeypatch.setattr(searcher, "get_reranker", lambda: FakeReranker())
+    monkeypatch.setattr(searcher, "RERANK_CANDIDATES", 200)  # 가짜 임베딩이라 후보를 모두 넣어야 정답이 후보에 든다
+    indexer.index_chunks(select_index_chunks(load_guideline_chunks()))
+    results = searcher.search_guidelines("ESR1-mutated MBC after ET", setting="metastatic", subtype="HR+/HER2-",
+                                         top_k=3, rerank=True)
+    assert "elacestrant" in results[0]["text"].lower()
+    assert 0.9 < results[0]["score"] <= 1.0  # logit 4 → sigmoid 0.982, 가점 없음
+    assert results[1]["score"] < 0.1
 
 
 def test_public_api_for_reimbursement_module():

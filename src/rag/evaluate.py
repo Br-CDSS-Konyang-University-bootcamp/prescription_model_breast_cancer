@@ -3,7 +3,7 @@
 #   L0 문서: 1위 결과가 정답 문서(예: esmo-mbc-2026-05)에서 나왔나
 #   L1 소단원: 상위 k개 결과의 부모(소단원) 중 정답 소단원이 있나
 #   L2 권고: 정답 권고가 상위 k개에 몇 개 들어왔나(recall@k), 처음 나온 순위(MRR)
-# 실행: team_project 폴더에서 python -m src.rag.evaluate [--k 5] [--out 결과.csv]
+# 실행: team_project 폴더에서 python -m src.rag.evaluate [--k 5] [--rerank] [--out 결과.csv]
 # 정답은 status=draft인 동안 초안이다. 원문과 대조해 확인한 문항은 status=reviewed로 바꾼다 (PROJECT.md §12).
 import argparse
 import csv
@@ -56,7 +56,7 @@ def evaluate(cases: list[dict], search_fn, k: int = 5) -> tuple[list[dict], dict
     return rows, summary
 
 
-def search_case(case: dict, k: int = 5) -> list[dict]:
+def search_case(case: dict, k: int = 5, rerank: bool = False) -> list[dict]:
     from .searcher import search_guidelines
     return search_guidelines(
         case["query"],
@@ -65,6 +65,7 @@ def search_case(case: dict, k: int = 5) -> list[dict]:
         line=case["line"] or None,
         biomarker_tags=case["biomarker_tags"],
         top_k=k,
+        rerank=rerank,
     )
 
 
@@ -83,13 +84,14 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="지침 검색을 평가 문제집으로 채점한다")
     parser.add_argument("--cases", type=Path, default=CASES_CSV)
     parser.add_argument("--k", type=int, default=5)
+    parser.add_argument("--rerank", action="store_true", help="재정렬 모델(bge-reranker-v2-m3)을 켠다")
     parser.add_argument("--out", type=Path, help="문항별 결과를 저장할 CSV")
     args = parser.parse_args(argv)
 
     from .searcher import close_searcher
     cases = load_cases(args.cases)
     try:
-        rows, summary = evaluate(cases, lambda c: search_case(c, args.k), args.k)
+        rows, summary = evaluate(cases, lambda c: search_case(c, args.k, args.rerank), args.k)
     finally:
         close_searcher()
 
@@ -97,7 +99,7 @@ def main(argv=None) -> int:
     for r in rows:
         print(f"{r['case_id']:<5} {r['l0_doc']:>2} {r['l1_section']:>2} {r['l2_hit']:>2}  {r['l2_recall']:>6.2f} "
               f"{r['mrr']:>5.2f}  {', '.join(cid.split('-', 4)[-1] for cid in r['top_ids'][:3])}")
-    print(f"\n{summary['cases']}문항, k={args.k}")
+    print(f"\n{summary['cases']}문항, k={args.k}, 재정렬 {'켬' if args.rerank else '끔'}")
     print(f"L0 문서 선택 {summary['l0_doc']:.0%} | L1 소단원 {summary['l1_section']:.0%} | "
           f"L2 hit@{args.k} {summary['l2_hit']:.0%} | L2 recall@{args.k} {summary['l2_recall']:.2f} | MRR {summary['mrr']:.2f}")
     if args.out:
