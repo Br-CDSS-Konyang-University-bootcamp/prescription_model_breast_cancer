@@ -1,5 +1,8 @@
 # 처방 지침 RAG 설계 (B → C 전달용 초안)
 
+> **2026-10-20 변경**: ASCO 지침은 재사용 불가로 확인돼 RAG에서 뺐다 (청커·청크·사전 표현 삭제). 아래의 ASCO 관련 내용은 기록으로만 남긴다. 지금 청킹·검색 대상은 ESMO EBC·MBC 2개다.
+
+
 작성: 2026-10-16. 대상: `team_project/data/guidelines/`의 처방 지침 13개 (ESMO 2개, ASCO 11개)
 근거: PDF 책갈피(목차), 본문 텍스트 추출(PyMuPDF), 키워드 출현 빈도, `schemas/*.json`
 처방이 아닌 지침 8개는 이 문서에서 다루지 않는다. 제외 목록과 이유는 `rag_non_prescription_docs.md`에 있다.

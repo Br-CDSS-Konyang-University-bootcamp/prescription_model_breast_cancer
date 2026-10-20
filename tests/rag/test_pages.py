@@ -5,7 +5,6 @@ from src.rag.convert_pdf_to_md import page_marker, printed_page_range
 
 
 def test_printed_page_range_from_pdf_subject():
-    assert printed_page_range({"subject": "J Clin Oncol 2021.39:2959-2961"}) == (2959, 2961)
     assert printed_page_range({"subject": "Annals of Oncology, 37 (2026) 1203-1219. doi:10.1016/x"}) == (1203, 1219)
     assert printed_page_range({"subject": ""}) == (None, None)
 
