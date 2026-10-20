@@ -113,6 +113,46 @@ def test_guideline_points_are_never_returned(reimb):
     assert _ids(reimb.search_reimbursement(["anastrozole"], as_of="2026-10-20")) == ["ana-lhrh"]
 
 
+def test_same_score_rows_newest_first(reimb, monkeypatch):
+    from src.rag import indexer
+    indexer.index_chunks([_chunk("ac-old", ["doxorubicin", "cyclophosphamide"], EARLY, ["adjuvant"],
+                                 effective_from="2014-01-01")])
+    rows = reimb.search_reimbursement(["doxorubicin", "cyclophosphamide"], setting="early", line="adjuvant",
+                                      as_of="2026-10-20")
+    assert _ids(rows) == ["ac-adjuvant", "ac-old"]
+
+
+def test_with_real_reimbursement_chunk_file(monkeypatch):
+    # D의 실제 청크 파일이 있는 컴퓨터에서만 돈다 (git에 올리지 않는 파일). 청크마다 자기 약으로 찾히는지 본다
+    from src.rag import chunk_store
+    chunks = chunk_store.load_reimbursement_chunks()
+    if not chunks:
+        pytest.skip("급여 청크 파일 없음 (data/reimbursement/chunks/reimbursement_chunks_current.jsonl)")
+    try:
+        import sentence_transformers  # noqa: F401
+    except ImportError:
+        monkeypatch.setitem(sys.modules, "sentence_transformers",
+                            types.SimpleNamespace(SentenceTransformer=None, CrossEncoder=None))
+    from src.rag import client as rag_client
+    from src.rag import indexer, reimbursement_search
+
+    monkeypatch.setattr(rag_client, "_client", QdrantClient(":memory:"))
+    monkeypatch.setattr(rag_client, "_model", FakeModel())
+    l3 = [c for c in chunks if c["chunk_kind"] != "section"]
+    indexer.init_collection()
+    indexer.index_chunks(l3)
+    for c in l3:
+        rb = c["reimbursement"]
+        if rb["source_type"] == "preview" or c.get("superseded_by"):
+            continue
+        rows = reimbursement_search.search_reimbursement(c["drugs"], setting=c["setting"][0], line=c["line"][0],
+                                                         as_of=rb["effective_from"])
+        found = next((r for r in rows if r["chunk_id"] == c["chunk_id"]), None)
+        assert found and found["extra_drugs"] == [], c["chunk_id"]
+        assert not c.get("parent_id") or found["parents"], c["chunk_id"]  # 부모를 파일에서 찾는다
+    rag_client._client = None
+
+
 def test_public_api():
     import src.rag as rag
     assert callable(rag.search_reimbursement)
