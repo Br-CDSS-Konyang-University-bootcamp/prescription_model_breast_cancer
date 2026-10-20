@@ -18,6 +18,18 @@ Guideline RAG (C) scripts, run from `team_project`: `python -m src.rag.convert_p
 
 Input module (A) TCGA conversion: `python -m src.input.script.tcga_to_patient_state` (from `team_project`) turns the cropped CSV into one `patient_state` dict per patient in memory; it writes nothing unless `--out <dir>` is given (`--ids ... --show` prints one). Other code calls `convert(load_rows())`. It is the conversion part of the older `src/input/truth/tcga_truth.py`, which also validates against the schema and writes `data/truth/` plus a report; `data/truth/` was removed on 2026-10-15. The rules are specified in `src/input/tcga_mapping.md`; categorical values come from `data/dictionaries/field_vocab.csv` via `src/input/common/vocab.py`, and the generator stops on any value missing from that file. Every output is validated against `schemas/patient_state.json`. `tests/input/test_tcga_truth.py` checks the output against three expected patients in `tests/input/expected/` and against the counts written in `tcga_mapping.md`; when a rule changes, update the doc, the code, and those counts together.
 
+Reimbursement (D) scripts, run from `team_project`:
+- `python -m src.reimbursement.pipeline` checks the HIRA boards, downloads only new files into `data/reimbursement/raw/`, validates the booklet, and writes the reimbursement chunks to `data/reimbursement/chunks/reimbursement_chunks_current.jsonl`.
+  - `--offline` uses only files already downloaded.
+  - `--no-llm` skips structuring the dosing conditions.
+  - `--cross-check` also reads the PDFs with `pdfplumber`.
+  - The conditions step uses the Claude API when `.env` has `ANTHROPIC_API_KEY` with credits. Otherwise it falls back to Claude Code (`claude -p`, after a one-time `/login`). Results are cached in `data/reimbursement/conditions_cache.jsonl`, so only changed rows are sent again.
+  - `python -m src.reimbursement.conditions --import FILE.json` stores hand-written conditions after the same checks.
+- `python -m src.reimbursement.index` puts the L3 chunks into the shared index through `src/rag`. It removes only `doc_type=reimbursement` points, so guideline points stay.
+- Qdrant local mode allows only one process at a time, so do not run it at the same time as searching or `run_indexing`.
+- Packages: `pymupdf`, `jsonschema`, `python-tzdata` (Windows time zones); `pdfplumber` for `--cross-check`; `anthropic` (optional) for the API. Indexing also needs `qdrant-client` and `sentence-transformers`.
+- HIRA notices say no unauthorized copying, so never commit HIRA originals or anything made from them. That covers the PDFs, chunks, conditions JSON, cache, review sheet, and `registry.db`. Everything under `data/reimbursement/` other than csv, txt, and py is already ignored; keep generated files out of those three formats.
+
 GDC Biotab files have three header rows (names, alternate names, CDE IDs). Missing values are bracket codes. Keep them: `[Not Available]` means the value was not recorded (maps to 기록 없음), and `[Not Evaluated]` means the test was not done (maps to 미시행).
 
 Module folders (owners and rules in `PROJECT.md` §15):
@@ -39,7 +51,7 @@ This is a non-profit project. ESMO guidelines are used under ESMO's non-commerci
 
 ## Environment
 
-- Use a conda env named `team_project` with Python 3.14. Packages in use: `requests`, `pandas`, `tabulate`, `jsonschema`, `pytest`, and for the guideline RAG `pymupdf`, `pymupdf4llm`. Install with `conda install -n team_project ...`, not bare `pip`, which may target another env.
+- Use a conda env named `team_project` with Python 3.14. Packages in use: `requests`, `pandas`, `tabulate`, `jsonschema`, `pytest`, `python-tzdata`; for the guideline RAG `pymupdf`, `pymupdf4llm`; for the shared index `qdrant-client`, `sentence-transformers`; for the reimbursement module `pymupdf`, plus optionally `pdfplumber` and `anthropic`. Install with `conda install -n team_project ...`, not bare `pip`, which may target another env.
 - Each member's machine paths, OS, and language preferences belong in their own `CLAUDE.local.md` (git-ignored), not in this file.
 
 ## Repository conventions (from .gitignore)

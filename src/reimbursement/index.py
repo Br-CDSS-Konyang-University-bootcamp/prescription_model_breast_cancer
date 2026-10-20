@@ -1,13 +1,15 @@
 """급여 청크를 C의 공용 색인(src/rag)에 넣는다.
 
 색인 코드는 src/rag/에만 있다 (CLAUDE.md). 여기서는 C가 src/rag/__init__.py로 내놓은 함수를 부르기만 한다.
-  - index_chunks(chunks)            있음 (2026-10-17 공개: index_chunks, init_collection, search_guidelines)
-  - delete_by_doc_type(doc_type)    C에 요청함, 아직 없음
+  - delete_by_doc_type("reimbursement")   급여 점만 지운다 (지침 점은 남음)
+  - index_chunks(chunks)                  점 ID는 chunk_id의 uuid5라 같은 청크는 덮어쓴다
+  - close_indexer()                       Qdrant 로컬 폴더 잠금을 푼다
+
+새 책자가 나오면 chunk_id가 바뀌므로(책자 날짜가 들어 있음) 예전 급여 점을 먼저 지우고 새 청크를 넣는다.
+지운 뒤 넣는 방식이라 넣다가 실패하면 급여 점이 비어 있을 수 있다. 실패하면 다시 실행한다.
+init_collection(force_recreate=True)는 지침 점까지 지우므로 여기서 부르지 않는다.
 
 색인이 성공하면 기록 장부(registry.db)의 그 책자를 indexed로, 예전에 indexed였던 책자를 superseded로 바꾼다.
-
-새 책자가 나오면 예전 급여 점을 지운 뒤 새 청크를 넣어야 한다. 지금 index_chunks는 점 ID를 uuid4로 만들어
-같은 청크를 다시 넣으면 중복이 쌓이므로, 지우는 함수가 없으면 색인하지 않고 멈춘다.
 
 실행: python -m src.reimbursement.index            (기본: chunks/reimbursement_chunks_current.jsonl)
       python -m src.reimbursement.index --dry-run  (색인 없이 넣을 청크만 센다)
@@ -76,10 +78,8 @@ def load_rag() -> ModuleType:
 
 
 def _close(rag: ModuleType) -> None:
-    """Qdrant 로컬 폴더 잠금을 푼다. 공개 함수에 없으면 indexer의 close_indexer를 쓴다."""
+    """Qdrant 로컬 폴더 잠금을 푼다 (공개 함수 close_indexer)."""
     close = getattr(rag, "close_indexer", None)
-    if close is None:
-        close = getattr(getattr(rag, "indexer", None), "close_indexer", None)
     if callable(close):
         close()
 
@@ -106,7 +106,7 @@ def index_reimbursement(chunks: list[dict], rag: ModuleType | None = None, *,
     missing = missing_functions(rag)
     if missing:
         raise RagNotReady(
-            "C의 src/rag/indexer.py에 다음 함수가 없어 색인하지 않음: " + ", ".join(missing)
+            "src/rag 공개 함수에 다음이 없어 색인하지 않음: " + ", ".join(missing)
             + ". 예전 급여 점을 지우지 못하면 새 책자를 넣을 때 옛 기준이 검색에 남는다.")
     try:
         rag.delete_by_doc_type(DOC_TYPE)          # 지침 점(guideline)은 건드리지 않는다

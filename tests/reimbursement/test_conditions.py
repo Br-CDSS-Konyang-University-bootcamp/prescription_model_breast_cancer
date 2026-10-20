@@ -1,6 +1,7 @@
 """투여 조건 구조화 (설계 §3.5 형식). Claude API는 부르지 않는다 (가짜 구조화기)."""
 import copy
 import csv
+import json
 
 import pytest
 
@@ -209,6 +210,89 @@ def test_unavailable_without_package_or_key(monkeypatch):
     monkeypatch.setattr(builtins, "__import__", no_anthropic)
     with pytest.raises(cm.StructurerUnavailable):
         cm.ClaudeStructurer()
+
+
+class _Run:
+    """subprocess.run 가짜: Claude Code 출력(--output-format json)을 돌려주고 받은 명령을 남긴다."""
+    def __init__(self, out):
+        self.out, self.cmd, self.input = out, None, None
+
+    def __call__(self, cmd, input=None, **kw):
+        import types
+        self.cmd, self.input, self.env = cmd, input, kw.get("env")
+        return types.SimpleNamespace(stdout=json.dumps(self.out, ensure_ascii=False), stderr="", returncode=0)
+
+
+def test_claude_code_structurer(monkeypatch):
+    import subprocess
+    run = _Run({"is_error": False, "result": "", "structured_output": GOOD, "session_id": "s",
+                "usage": {"input_tokens": 10, "cache_read_input_tokens": 5, "output_tokens": 7}})
+    monkeypatch.setattr(subprocess, "run", run)
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test")
+    s = cm.ClaudeCodeStructurer(exe="claude")
+    cond, usage = s("본문", "안내")
+    assert cond == GOOD and usage["input_tokens"] == 15 and usage["output_tokens"] == 7
+    assert "[급여 기준 본문]\n본문" in run.input                       # 공고 글은 표준 입력으로
+    assert run.cmd[run.cmd.index("--tools") + 1] == ""                    # 도구를 모두 끈다
+    assert "--json-schema" in run.cmd and s.label == f"claude-code:{cm.MODEL}"
+    assert "ANTHROPIC_API_KEY" not in run.env                             # 구독으로 돌게 API 키는 넘기지 않는다
+
+
+def test_claude_code_text_result_and_errors(monkeypatch):
+    import subprocess
+    monkeypatch.setattr(subprocess, "run", _Run({"is_error": False, "result": "```json\n" + json.dumps(GOOD) + "\n```"}))
+    assert cm.ClaudeCodeStructurer(exe="claude")("본문", "")[0] == GOOD
+    for msg in ("Not logged in · Please run /login", "Claude usage limit reached", "Credit balance is too low"):
+        monkeypatch.setattr(subprocess, "run", _Run({"is_error": True, "result": msg}))
+        with pytest.raises(cm.StructurerUnavailable):
+            cm.ClaudeCodeStructurer(exe="claude")("본문", "")
+    monkeypatch.setattr(subprocess, "run", _Run({"is_error": True, "result": "overloaded"}))
+    with pytest.raises(RuntimeError):
+        cm.ClaudeCodeStructurer(exe="claude")("본문", "")
+
+
+def test_find_claude_code_env(monkeypatch):
+    monkeypatch.setenv("CLAUDE_CODE_EXE", "/x/claude")
+    assert cm.find_claude_code() == "/x/claude"
+
+
+def test_find_claude_code_store_app(tmp_path, monkeypatch):
+    """스토어판 데스크톱 앱: 실제 파일은 LOCALAPPDATA/Packages/Claude_*/LocalCache/Roaming 아래. 최신판을 고른다."""
+    import shutil
+    monkeypatch.delenv("CLAUDE_CODE_EXE", raising=False)
+    monkeypatch.setattr(shutil, "which", lambda name: None)
+    monkeypatch.setenv("APPDATA", str(tmp_path / "roaming"))         # 앱 밖에서는 비어 있음
+    monkeypatch.setenv("LOCALAPPDATA", str(tmp_path / "local"))
+    base = tmp_path / "local/Packages/Claude_abc/LocalCache/Roaming/Claude/claude-code"
+    for ver in ("2.1.295", "2.1.299"):
+        exe = base / ver / "h" / "claude.exe"
+        exe.parent.mkdir(parents=True)
+        exe.write_text("")
+    assert cm.find_claude_code() == str(base / "2.1.299" / "h" / "claude.exe")
+
+
+def test_falls_back_to_next_structurer(tmp_path, monkeypatch):
+    class NoCredit:
+        def __call__(self, text, context):
+            raise cm.StructurerUnavailable("API 크레딧 잔액 부족")
+
+    class Sub(Fake):
+        label = "claude-code:test"
+
+    sub = Sub()
+    monkeypatch.setattr(cm, "STRUCTURERS", (NoCredit, lambda: sub))
+    ch = _chunks()
+    cache_path = tmp_path / "c.jsonl"
+    rep = attach_conditions(ch, {}, cache=Cache(cache_path))
+    assert rep.requested == 1 and sub.calls == 1 and "크레딧" in rep.unavailable_reason
+    assert [x["id"] for x in ch[0]["reimbursement"]["conditions"]["all_of"]] == ["c1", "c2", "c3"]
+    assert json.loads(cache_path.read_text(encoding="utf-8"))["model"] == "claude-code:test"
+
+    def none():
+        raise cm.StructurerUnavailable("Claude Code 실행 파일 없음")
+    monkeypatch.setattr(cm, "STRUCTURERS", (NoCredit, none))
+    rep = attach_conditions(_chunks(), {}, cache=Cache(tmp_path / "d.jsonl"))
+    assert rep.skipped_no_api == ["row"] and "실행 파일 없음" in rep.unavailable_reason
 
 
 def test_prompt_lists_every_field():

@@ -34,8 +34,10 @@ python -m src.reimbursement.pipeline --with-offlabel  # 허가초과 목록 청�
 
 공용 색인(C의 Qdrant)에 넣기는 따로 실행한다. 예전 급여 점을 지운 뒤 L3 청크만 넣는다 (설계 §0.1: L1·L2는 벡터 없이
 청크 파일에서 `parent_id`로 찾는다). 검토중 요법은 뺀다.
-C의 공개 함수(`src/rag/__init__.py`)를 부른다. 2026-10-17판에는 `index_chunks`, `init_collection`, `search_guidelines`만 있어서,
-`delete_by_doc_type(doc_type)`이 생기기 전에는 색인하지 않고 멈춘다. 성공하면 기록 장부의 그 책자를 indexed로, 예전 indexed 책자를 superseded로 바꾼다.
+C의 공개 함수(`src/rag/__init__.py`)의 `delete_by_doc_type("reimbursement")`로 급여 점만 지우고 `index_chunks`로 넣은 뒤
+`close_indexer`로 닫는다. 점 ID는 chunk_id의 uuid5라 같은 청크는 덮어쓴다. 지운 뒤 넣는 방식이라 중간에 실패하면 급여 점이
+비어 있을 수 있으니 다시 실행한다. `init_collection(force_recreate=True)`는 지침 점까지 지우므로 쓰지 않는다.
+성공하면 기록 장부의 그 책자를 indexed로, 예전 indexed 책자를 superseded로 바꾼다.
 Qdrant 로컬 모드는 한 프로세스만 열 수 있으니 검색·`run_indexing`과 동시에 돌리지 않는다.
 
 ```bash
@@ -52,11 +54,15 @@ python -m src.reimbursement.index
 | 3. 유방암 추출 | 일반원칙, 유방암(주N 각주·연번 범위 규칙을 해당 행에, 병합 셀 물려받기 표시), 병용요법 유방암 행(추가 약제·기존 급여 요법 나누기), Ⅳ 기타 약제 유방암 줄 | 표 연번 연속성, 다른 섹션에 남은 '유방' 언급 (Ⅳ 기타 약제는 유방암 줄을 모두 넣었는지) |
 | 4. 허가초과 | (`--with-offlabel`일 때만) 유방암 인정 요법·검토중 요법 | 시트·건수·요법코드 |
 | 5. 청크 검사 | 청크 만들기, 요법 구조화(순차·선택 약제·제형·약제별 본인부담·복합제) | 스키마(+설계 제안 칸), 빠진 낱말(행 청크·소단원 청크·일반원칙 각각), 원문에 없는 낱말, 깨진 글자, 약제명 목록·오타, 이전 실행 대비 행 수 |
-| 6. 투여 조건 | `reimbursement.conditions`를 설계 §3.5 형식으로 채우기. 저장본(`conditions_cache.jsonl`)에 있으면 그대로 쓰고, 없는 청크만 Claude API(claude-sonnet-5-5)에 요청. 저장본은 손으로 쓴 조건을 `--import`로 넣어 채울 수도 있음. 사람 검수표(.tsv) 만들기 | 항목마다 원문 구절, field·op·값 어휘, 약 이름 사전. 하나라도 틀리면 그 청크 조건을 버림. API 키가 없으면 경고만 내고 조건 없이 진행 (`--no-llm`) |
+| 6. 투여 조건 | `reimbursement.conditions`를 설계 §3.5 형식으로 채우기. 저장본(`conditions_cache.jsonl`)에 있으면 그대로 쓰고, 없는 청크만 Claude API(claude-sonnet-5-5)에 요청. API 키·크레딧이 없으면 Claude Code(`claude -p`, 구독 사용량)로 같은 프롬프트를 보냄. 저장본은 손으로 쓴 조건을 `--import`로 넣어 채울 수도 있음. 사람 검수표(.tsv) 만들기 | 항목마다 원문 구절, field·op·값 어휘, 약 이름 사전. 하나라도 틀리면 그 청크 조건을 버림. 둘 다 안 되면 경고만 내고 조건 없이 진행 (`--no-llm`은 부르지 않음) |
 | 7. 반영 | 레지스트리 신설·변경·삭제, 청크 파일·`index_status.json` 저장 | 허가초과 변경대비표와 diff 대조 |
 
 Claude API를 쓰려면 `conda install -n team_project -c conda-forge anthropic` 후 저장소 루트 `.env`에 `ANTHROPIC_API_KEY=...`를 넣는다 (git 제외).
-조건 field 어휘와 환자 JSON 경로는 `conditions.py`의 `FIELDS` (설계 문서·`reimbursement_field_values.csv` 기준, B 검토).
+Claude Code로 돌리려면 터미널에서 `claude`를 한 번 실행해 `/login`으로 구독 계정에 로그인해 둔다. PATH에 없으면 Claude 데스크톱 앱에 든 것을 찾고, 다른 곳이면 `CLAUDE_CODE_EXE`에 경로를 넣는다.
+조건 field 어휘와 환자 JSON 경로는 `conditions.py`의 `FIELDS` (설계 문서·`reimbursement_field_values.csv` 기준, B 검토). 환자 JSON 경로는 `patient_state` 0.1-draft6 기준이다.
+`recurrence_operable`, `cardiac_history`, `mediastinal_radiation`은 아직 환자 JSON에 칸이 없어 판정하면 늘 '기록 없음'이 된다 (칸 추가는 팀 결정 대기).
+차수 간주 규칙 `counts_as_prior_line`은 draft6의 `fields.deemed_lines[]`와 대응한다 (`schema_proposal.md`).
+조건은 사람 검수 전이라, 판정 쪽(B)은 검수가 끝날 때까지 이 조건만으로 `covered`라고 하지 않고 `covered_conditions_unverified`로 둔다.
 
 API 없이 손으로 쓴 조건도 같은 검사(형식·어휘·원문 구절)를 거쳐 저장본에 넣을 수 있다. 통과한 행만 들어가고, 이후 파이프라인은 그 결과를 그대로 쓴다.
 2026-10-01 책자의 L3 131행은 이렇게 넣었다 (`data/reimbursement/conditions_manual/batch_*.json`, 작성자 "claude (대화에서 직접 작성, 2026-10-19)"). 책자 본문이 바뀐 행은 다시 써야 한다.
@@ -98,12 +104,17 @@ python -m src.reimbursement.conditions --import data/reimbursement/conditions_ma
 
 새 약제가 나와 "약제명 목록에 없는 영문 낱말" 경고가 뜨면 `vocab.py`의 `BREAST_EXTRA`에 추가한다.
 
-## 남은 일 (2026-10-19)
+## 남은 일 (2026-10-20)
 
 | 할 일 | 누가 |
 |---|---|
 | 투여 조건 사람 검수 (`conditions_review_20261001.tsv`의 O/X 칸) | D, B 확인 |
-| `src/rag/` 공개 함수에 `delete_by_doc_type(doc_type)` 추가. 이 함수가 없으면 `index.py`는 색인하지 않고 멈춘다 | C |
-| `schemas/chunk.json` 개정 (`schema_proposal.md`) | 4명 검토 |
-| 판정 쪽에서 `any_of_exceptions`를 "any_of 묶음이 실패해도 예외 조건을 모두 만족하면 통과"로 읽는지 맞추기 | B, D |
+| `schemas/chunk.json` 개정 (`schema_proposal.md`) | D 제안, 4명 검토 |
+| 판정 규칙 문서화 (`all_of`, `any_of`, `any_of_exceptions`, `unless`, `contains`, `not_contains`, 유전자 `vus`·`not_done` 처리) | B, D |
+| `patient_state`에 `recurrence_operable`, `cardiac_history`, `mediastinal_radiation` 칸 추가 여부 | A 제안, 4명 검토 |
+| 급여 검색 함수 (`doc_type=reimbursement`, 약 이름 일치, 시행일 ≤ 판정 기준일, `superseded_by` 제외)와 L1·L2 부모 청크 찾기 | C, D |
+| 결과물(청크, 조건 JSON, registry.db) 비공개 백업·공유 위치 | 팀 |
+| 지운 뒤 넣기 사이의 공백 없애기: 점 ID가 고정(uuid5)이라 "새 청크를 먼저 넣고, 새 목록에 없는 옛 급여 점만 지우기"가 가능. C가 `replace_doc_type(doc_type, chunks)` 같은 함수를 만들면 `index.py`가 그것을 쓴다 | C, D |
+| 옛 책자 기준 보존: 과거 추천의 인용 재현을 날짜별 청크 보관본(`chunks/reimbursement_chunks_<책자날짜>.jsonl`, 지금도 남김)으로 할지, 색인에 `superseded_by`로 남길지 (지침도 같은 문제) | 팀 |
 | 개정 공고 덧씌우기 (설계 §6). 새 공고가 올라오면 실행해 보고 만든다 | D |
+| 허가초과 포함 여부 | 팀 |
