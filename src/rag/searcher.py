@@ -9,6 +9,10 @@ from .client import get_qdrant_client, get_embedding_model, get_reranker, close_
 
 LINE_MATCH_BONUS = 0.1  # 요청 차수와 청크 차수가 같을 때
 LINE_ANY_BONUS = 0.03  # 청크 차수가 any일 때
+# 청크 차수가 요청과 명확히 다를 때 (예: 2차 환자에게 1차 권고). 빼지 않고 뒤로 보낸다.
+# 재정렬 모델은 1차 권고 문장의 "ER-positive, HER2-negative … MBC"가 질의와 글자 그대로 겹치면 거의 만점을 줘서,
+# 차수 가점(+0.1)만으로는 2차 질의에서도 1차 권고가 1위로 올라왔다 (평가 --auto-query M04·M10·M11, 2026-10-20)
+LINE_MISMATCH_PENALTY = 0.3
 TAG_BONUS = 0.05  # 요청 바이오마커 태그가 청크 태그와 하나 겹칠 때마다
 RERANK_CANDIDATES = 20  # 재정렬할 때 뜻 검색으로 먼저 뽑는 후보 수
 SITE_MATCH_BONUS = 0.05  # 환자에게 있는 전이 부위의 부위별 권고
@@ -46,7 +50,7 @@ def search_guidelines(
     (LLM에는 소단원 전체를 함께 넘긴다, PROJECT.md §6).
     rerank=True(기본, PROJECT.md §6)면 뜻 검색으로 후보 RERANK_CANDIDATES개를 뽑은 뒤 재정렬 모델(bge-reranker-v2-m3)의
     점수로 순위를 다시 매긴다. 모델이 없거나 불러오지 못하면 경고하고 뜻 검색 점수를 쓴다.
-    차수·태그 가점은 두 경우 모두 더한다. 결과의 score는 그 최종 점수다.
+    차수는 같으면 가점, 청크가 다른 차수만 가리키면 감점한다. 차수·태그 가점은 두 경우 모두 더한다. 결과의 score는 그 최종 점수다.
     metastatic_sites(예: ["bone", "liver"])를 주면 부위별 권고(뼈·뇌·연수막 전이)를 그 부위 전이가 있으면 가점,
     없으면 감점한다. 주지 않거나 빈 목록이면 부위를 모르는 것으로 보고 점수를 바꾸지 않는다.
     같은 조건의 검색은 기억해 둔 결과를 돌려준다 (색인을 바꾸면 비워진다)."""
@@ -138,7 +142,7 @@ def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, w
     for hit, score in zip(hits, base_scores):
         payload = hit.payload
 
-        # 3. line(치료 차수)을 하드 필터에서 소프트 조건(가점)으로 변경
+        # 3. line(치료 차수)은 거르지 않고 점수로 반영한다 (같으면 가점, 다른 차수면 감점)
         if line and line.lower() != "unknown":
             chunk_lines = payload.get("line", [])
             if isinstance(chunk_lines, str):
@@ -149,6 +153,8 @@ def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, w
                 score += LINE_MATCH_BONUS
             elif "any" in chunk_lines:
                 score += LINE_ANY_BONUS
+            elif chunk_lines:
+                score -= LINE_MISMATCH_PENALTY
 
         # 바이오마커 태그 중복도에 따른 가점
         chunk_tags = set(payload.get("biomarker_tags", []))
