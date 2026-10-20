@@ -38,7 +38,10 @@ op는 설계의 8개에 `contains`(이전 치료에 있어야 함)를 더했다.
 - `prior_drugs contains [A, B]`는 A와 B를 모두 받은 것이다. `not_contains [A, B]`는 둘 다 받은 적이 없는 것이다.
   'A 또는 B를 받은'은 `any_of` 묶음에 항목을 나눠 넣는다. `prior_failed`도 같다.
 - `unless`는 그 항목이 실패해도 unless 조건을 만족하면 통과로 본다 (예: 보조요법 종료 1년 이후 재발).
-- `of.setting`의 `palliative`는 `patient_state`의 `treatment_history[].setting` 값 `metastatic`과 같다.
+- 공고 표현을 칸·값으로 옮기는 기준은 팀 사전 `data/dictionaries/reimbursement_terms.csv`다 (2026-10-20 대조, 테스트로 확인).
+  고식적요법은 `of.setting [metastatic]`, 림프절 양성·음성은 `ln_status`(N 병기), HER2 음성은 `[negative, low, ultralow, zero]`,
+  국소진행성·전이성은 `stage.disease_extent`(진단 시)라서 '재발성'은 `recurrence`로 따로 적는다.
+- `stage_group`의 `III`는 IIIA~IIIC를 포함한다 (사전: stage Ⅲ = `III`). 판정할 때 하위 병기는 주 병기로 비교한다.
 
 ## 검토 의견
 

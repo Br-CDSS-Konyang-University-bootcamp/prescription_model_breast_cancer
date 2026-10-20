@@ -39,7 +39,7 @@ ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "data" / "reimbursement"
 CACHE_PATH = DATA / "conditions_cache.jsonl"
 MODEL ="claude-sonnet-5-5"          # PROJECT.md §9: 공고·지침 구조화
-PROMPT_VERSION = "2026-10-20.1"       # 프롬프트·어휘를 바꾸면 올린다 (예전 저장 결과를 안 쓰게)
+PROMPT_VERSION = "2026-10-20.2"       # 프롬프트·어휘를 바꾸면 올린다 (예전 저장 결과를 안 쓰게)
 
 OPS = ["eq", "in", "not_contains", "contains", "gt", "gte", "lt", "lte", "exists"]
 STAGES = ["0", "I", "IA", "IB", "II", "IIA", "IIB", "III", "IIIA", "IIIB", "IIIC", "IV"]
@@ -59,11 +59,12 @@ _DRUGS = "drugs"           # 값이 약 이름·계열 이름 목록 (사전 검
 # field -> (환자 JSON 경로, 허용 op, 값 종류 또는 허용값 목록, 설명). 설명은 프롬프트에도 들어간다.
 # patient_state 경로는 0.1-draft6 기준 (2026-10-20). fields 아래 칸은 공통 틀이라 값은 .value에 있다
 # (treatment_history[], anthracycline_drug_dose, molecular.mutations.*는 틀 없이 키를 그대로 쓴다).
-# 날짜는 모두 진단일 = 0인 정수 일수(*_day)다. 조건의 of.setting palliative는 treatment_history[].setting metastatic이다.
+# 날짜는 모두 진단일 = 0인 정수 일수(*_day)다.
+# 공고 표현 -> 칸·값은 팀 사전 data/dictionaries/reimbursement_terms.csv를 따른다 (2026-10-20 대조).
 FIELDS: dict[str, tuple[str, list[str], object, str]] = {
-    "her2": ("biomarker_record.records[HER2].status", ["eq", "in"], ["positive", "negative", "low", "ultralow"],
-             "'HER2 양성(과발현)' -> eq positive, 'HER2 음성' -> in [negative, low, ultralow] (공고에 저발현 구분 없음)"),
-    "hr": ("biomarker_record.subtype의 HR", ["eq"], _POSNEG,
+    "her2": ("biomarker_record.records[HER2].status", ["eq", "in"], ["positive", "negative", "low", "ultralow", "zero"],
+             "'HER2 양성(과발현)' -> eq positive, 'HER2 음성' -> in [negative, low, ultralow, zero] (공고에 저발현 구분 없음)"),
+    "hr": ("biomarker_record.subtype in [HR+/HER2-, HR+/HER2+] (positive) / ER·PR 모두 negative (negative)", ["eq"], _POSNEG,
            "'호르몬 수용체 양성' -> eq positive (ER 또는 PR 양성), '호르몬 수용체(ER and PR) 음성' -> eq negative"),
     "er": ("biomarker_record.records[ER].status", ["eq", "in"], ["positive", "low", "negative"],
            "에스트로겐 수용체만 따로 적힌 경우. 'ER 양성' -> in [positive, low]"),
@@ -77,8 +78,10 @@ FIELDS: dict[str, tuple[str, list[str], object, str]] = {
             "'여성 및 남성' -> in [FEMALE, MALE], '남성' -> eq MALE"),
     "age": ("patient_state.fields.patient.age", ["gt", "gte", "lt", "lte"], _NUM,
             "'40세 미만' -> lt 40, '만 19세 이상' -> gte 19, '70세 이상' -> gte 70"),
-    "disease": ("biomarker_record.setting.disease", ["eq", "in"], ["early", "locally_advanced", "metastatic"],
-                "'국소진행성' -> locally_advanced, '전이성' -> metastatic, '조기'·'초기' -> early"),
+    "disease": ("patient_state.fields.stage.disease_extent", ["eq", "in"], ["early", "locally_advanced", "metastatic"],
+                "'국소진행성' -> locally_advanced, '전이성' -> metastatic, '조기'·'초기' -> early, "
+                "'진행성' -> in [locally_advanced, metastatic]. 진단 시 범위라 재발은 recurrence로 따로 본다: "
+                "'전이성, 재발성'은 any_of 묶음에 disease eq metastatic과 recurrence in [...] 항목을 함께 넣는다"),
     "recurrence": ("patient_state.fields.recurrence.status", ["eq", "in", "exists"],
                    ["distant", "locoregional", "site_unknown"],
                    "'재발성'(국소·구역·원격 재발 모두) -> in [distant, locoregional, site_unknown], '국소 재발' -> eq locoregional"),
@@ -89,9 +92,12 @@ FIELDS: dict[str, tuple[str, list[str], object, str]] = {
     "t_stage": ("patient_state.fields.stage.ctnm.value.t / ptnm.value.t", ["eq", "in", "gt", "gte"], T_STAGES,
                 "'염증성' -> eq T4d, '직경 > 2㎝' -> gte T2, '1cm 이상'·'1cm 초과' -> gte T1c, '≥ 5 cm' -> gte T3"),
     "stage_group": ("patient_state.fields.stage.group", ["eq", "in", "gte", "lte"], STAGES,
-                    "'stage Ⅱ∼Ⅲ' -> 항목 둘 (gte II, lte III), 'stage ⅢA 이상' -> gte IIIA"),
+                    "'stage Ⅱ∼Ⅲ' -> 항목 둘 (gte II, lte III), 'stage ⅢA 이상' -> gte IIIA. "
+                    "로마숫자 Ⅰ~Ⅳ는 I~IV로 옮기고 하위 병기(A·B·C)는 붙이지 않는다 (III는 IIIA~IIIC 포함)"),
+    "ln_status": ("patient_state.fields.stage.ptnm.value.n (양성: N1*·N2*·N3*, N1mi 포함 / 음성: N0, N0(i-), N0(i+), N0(mol+))",
+                  ["eq"], _POSNEG, "'림프절 양성' -> eq positive, '림프절 음성' -> eq negative"),
     "positive_ln_count": ("patient_state.fields.stage.positive_ln_count.positive", ["eq", "gt", "gte", "lt", "lte"], _NUM,
-                          "'림프절 양성' -> gte 1, '림프절 음성' -> eq 0, '4개 이상' -> gte 4"),
+                          "전이된 림프절 갯수가 적힌 경우만. '4개 이상' -> gte 4, '1-3개' -> 항목 둘 (gte 1, lte 3)"),
     "grade": ("patient_state.fields.diagnosis.grade", ["eq", "in", "gte"], _NUM,
               "'종양분화도 2∼3' -> gte 2, '조직학적 3등급' -> eq 3"),
     "pcr": ("patient_state.fields.neoadjuvant_response.pcr", ["eq"], ["yes", "no"],
@@ -110,8 +116,9 @@ FIELDS: dict[str, tuple[str, list[str], object, str]] = {
                     "(예: 'taxane 및 trastuzumab'), not_contains면 하나도 받지 않았어야 한다 (예: 'CDK4/6 inhibitor 또는 "
                     "fulvestrant를 투여 받은 적이 없는'). 'A 또는 B를 받은'처럼 하나만 받으면 되는 조건은 any_of 묶음에 "
                     "항목을 나눠 넣는다. of.setting으로 시기를 좁힐 수 있음 "
-                    "(예: 'paclitaxel을 포함한 보조요법' -> contains [paclitaxel], of.setting [adjuvant])"),
-    "prior_failed": ("patient_state.fields.treatment_history[] stop_reason=progression 또는 best_response=PD",
+                    "(예: 'paclitaxel을 포함한 보조요법' -> contains [paclitaxel], of.setting [adjuvant]). "
+                    "'고식적요법'은 of.setting [metastatic]"),
+    "prior_failed": ("patient_state.fields.treatment_history[].stop_reason = progression",
                      ["contains"], _DRUGS, "'~에 실패한'·'~ 투여 후 진행된' 약·계열. 목록은 모두 실패했어야 한다 "
                      "(예: 'trastuzumab과 taxane계 항암제 모두에 실패'). 'A 또는 B에 실패'는 any_of 묶음으로 나눈다"),
     "palliative_endocrine_lines": ("patient_state.fields.treatment_history[].endocrine_line의 최댓값 (전이 전 null = 0)",
@@ -126,7 +133,7 @@ FIELDS: dict[str, tuple[str, list[str], object, str]] = {
                                 "'고식적요법 투여 중 또는 종료 후 1달 이내에 진행' -> lte 30"),
     "days_since_last_dose": ("patient_state.index_day - treatment_history[].end_day (투여 중이면 0)", ["lte"], _NUM,
                              "'최근 4주 이내 항암제 또는 호르몬제 투여' -> lte 28"),
-    "treatment_years": ("patient_state.fields.treatment_history[].end_day - start_day (년)", ["lte"], _NUM, "'투여기간: 5년' -> lte 5"),
+    "treatment_years": ("patient_state.fields.treatment_history[].duration_days ÷ 365 (년)", ["lte"], _NUM, "'투여기간: 5년' -> lte 5"),
     "cycles_total": ("patient_state.fields.treatment_history[].cycles.value 합", ["lte", "eq"], _NUM,
                      "'총 trastuzumab 투여 주기 18주기 이하' -> lte 18, of.drugs [trastuzumab]"),
     "cumulative_dose_mg_m2": ("patient_state.fields.anthracycline_drug_dose.drugs[].total_dose.value", ["gt", "gte"], _NUM,
@@ -141,7 +148,7 @@ _VALUE = {"anyOf": [{"type": "string"}, {"type": "number"}, {"type": "boolean"},
                     {"type": "array", "items": {"anyOf": [{"type": "string"}, {"type": "number"}]}}]}
 _OF = {"type": "object", "additionalProperties": False,
        "properties": {"drugs": {"type": "array", "items": {"type": "string"}},
-                      "setting": {"type": "array", "items": {"enum": ["neoadjuvant", "adjuvant", "palliative"]}}}}
+                      "setting": {"type": "array", "items": {"enum": ["neoadjuvant", "adjuvant", "metastatic"]}}}}
 _BASE_ITEM = {"id": {"type": "string"}, "field": {"enum": list(FIELDS)}, "op": {"enum": OPS},
               "value": _VALUE, "text": {"type": "string"}, "of": _OF}
 _UNLESS = {"type": "object", "additionalProperties": False, "required": ["field", "op", "value", "text"],
@@ -169,7 +176,7 @@ def output_schema() -> dict:
             "counts_as_prior_line": {"type": "array", "items": {
                 "type": "object", "additionalProperties": False, "required": ["text", "setting", "drugs"],
                 "properties": {"text": {"type": "string"},
-                               "setting": {"type": "array", "items": {"enum": ["neoadjuvant", "adjuvant", "palliative"]}},
+                               "setting": {"type": "array", "items": {"enum": ["neoadjuvant", "adjuvant", "metastatic"]}},
                                "drugs": {"type": "array", "items": {"type": "string"}},
                                "within_days": {"type": "number"}}}},
             "notes": _TEXTS, "human_review": _TEXTS, "unmapped": _TEXTS,

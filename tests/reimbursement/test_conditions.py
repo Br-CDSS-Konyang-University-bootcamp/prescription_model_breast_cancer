@@ -295,6 +295,26 @@ def test_falls_back_to_next_structurer(tmp_path, monkeypatch):
     assert rep.skipped_no_api == ["row"] and "실행 파일 없음" in rep.unavailable_reason
 
 
+def test_fields_follow_team_terms_dictionary():
+    """공고 표현 -> 칸·값은 팀 사전 data/dictionaries/reimbursement_terms.csv를 따른다."""
+    path = cm.ROOT / "data" / "dictionaries" / "reimbursement_terms.csv"
+    if not path.exists():
+        pytest.skip("reimbursement_terms.csv 없음")
+    with open(path, encoding="utf-8") as f:
+        terms = {r["notice_term"]: r for r in csv.DictReader(f)}
+    split = lambda s: [x.strip().split(" ")[0] for x in s.split("|")]          # noqa: E731
+    assert set(split(terms["HER2 음성"]["json_value"])) <= set(cm.FIELDS["her2"][2])
+    assert "stage.ptnm" in cm.FIELDS["ln_status"][0]                          # 림프절 양성·음성은 N 병기
+    assert terms["림프절 양성"]["json_field"] == "stage.ptnm.n"
+    assert "stage.disease_extent" in cm.FIELDS["disease"][0]
+    assert terms["전이성"]["json_field"] == "stage.disease_extent"
+    assert "duration_days" in cm.FIELDS["treatment_years"][0]
+    assert terms["투여기간"]["json_field"] == "treatment_history[].duration_days"
+    # 고식적 = treatment_history.setting metastatic (JSON에 palliative 값 없음)
+    assert terms["고식적 (palliative)"]["json_value"] == "metastatic"
+    assert cm._OF["properties"]["setting"]["items"]["enum"] == ["neoadjuvant", "adjuvant", "metastatic"]
+
+
 def test_prompt_lists_every_field():
     for k in cm.FIELDS:
         assert f"- {k}:" in cm.SYSTEM
