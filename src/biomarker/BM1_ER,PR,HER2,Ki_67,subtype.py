@@ -35,7 +35,7 @@ ER_ALLRED_TOTAL_POS_MIN = 6    # 이상 양성 (LOW_MAX와 POS_MIN 사이인 5�
 # PR (팀 결정 2026-10-15): Allred 총점 -> range -> percent -> ps -> result 순서. low 상태값 없음
 PR_ALLRED_TOTAL_NEG_MAX = 2    # 총점 이하 음성, 초과(3 이상) 양성
 PR_POSITIVE_MIN = 9            # range 최대값·percent가 이 값(%) 이상이면 양성, 미만이면 음성 (2026-10-15: 10 -> 9)
-# PR-low 태그는 쓰지 않는다 (ASCO·ESMO에 PR-low 범주가 없음, 2026-10-15 결정)
+# PR-low 태그는 쓰지 않는다 (ESMO에 PR-low 범주가 없음, 2026-10-15 결정)
 
 # Ki-67: 이 값(%) 이상이면 positive(고증식) (팀 결정 2026-10-15)
 KI67_HIGH_MIN = 20
