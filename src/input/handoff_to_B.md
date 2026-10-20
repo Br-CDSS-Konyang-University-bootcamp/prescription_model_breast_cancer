@@ -656,6 +656,8 @@ A는 판정하지 않는다. B가 약제별로 판정한다.
 
 규칙 설명용 가상 차트다. 재발로 전이된 환자. 진단 시 ER·PR 양성, HER2 IHC 2+ / FISH 음성. 재발 병소에서 PR이 음성으로 바뀜. AI + CDK4/6 억제제에서 진행. PIK3CA 변이 있음.
 
+차수 칸(draft6, §6.2): letrozole + palbociclib은 전이 기준일(1480일) 뒤에 시작해 전이 후 1차(`line` 1)다. 항암·HER2 표적·면역항암제가 없고 내분비요법이 있어 내분비 차수 1(`endocrine_line` 1), 항암 차수는 없음(`chemo_line` null). 이 요법에서 진행(PD)했으므로 B의 `setting.line`은 다음 차수인 2L이다 (2026-10-20 추가).
+
 <!-- validate:patient_state -->
 ```json
 {
@@ -702,6 +704,7 @@ A는 판정하지 않는다. B가 약제별로 판정한다.
     "treatment_history": [
       {"drugs": ["letrozole", "palbociclib"], "setting": "metastatic", "start_date": null, "end_date": null,
        "duration_days": 412, "start_day": 1500, "end_day": 1912, "cycles": null,
+       "line": 1, "endocrine_line": 1, "chemo_line": null,
        "stop_reason": null, "best_response": "PD",
        "source": {"doc_id": "D4", "quote": "letrozole + palbociclib, PD"}}
     ],
