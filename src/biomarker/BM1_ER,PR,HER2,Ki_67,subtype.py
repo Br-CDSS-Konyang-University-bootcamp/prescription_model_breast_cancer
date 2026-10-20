@@ -12,10 +12,11 @@
 
 이 파일은 규칙만 쓴다. LLM은 쓰지 않는다.
 재발 환자는 value(재생검 결과)로 판정하고, history[]의 원발 결과와 비교한 설명을 reason 끝에 붙인다.
-유전자 변이(ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2)는 허가 변이 목록(actionable_variants.csv)과
-절단 변이로 판정하고, BM-3로 BRCA1·BRCA2·PALB2·PTEN은 ClinVar, PIK3CA·AKT1·PTEN은 CIViC로 다시 가른다 (2026-10-19). 유전자 검사 공백(BM-4)은
+유전자 변이(ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2)는 유전자마다 판정 방식이 다르다 (팀 회의 2026-10-20):
+PTEN은 변이 유무, PIK3CA·AKT1·ESR1은 허가 변이 목록(actionable_variants.csv), BRCA1·BRCA2는 절단 변이 또는 ClinVar,
+PALB2는 ClinVar. CIViC는 판정에 쓰지 않고 근거로만 이유에 적는다. 유전자 검사 공백(BM-4)은
 미시행만 권고한다. 차수(setting.line)는 A가 넘긴 treatment_history[].line으로 채운다 (6.2절, draft6, 2026-10-19).
-아직 다루지 않는 것: BM-1 보고서 파싱, BM-3 VEP, 국소 재발 후 보조요법(SET-LOCAL-ADJ, 6.4절).
+아직 다루지 않는 것: BM-1 보고서 파싱, 국소 재발 후 보조요법(SET-LOCAL-ADJ, 6.4절). VEP는 쓰지 않는다 (팀 회의 2026-10-20).
 PD-L1은 약제별 기준(22C3 CPS ≥ 10, SP142 IC ≥ 1%)으로 판정한다 (6.5절, 2026-10-16)
 """
 
@@ -493,19 +494,46 @@ def judge_pdl1(field):
 
 
 # ------------------------------------------------------------ 유전자 변이
-# 전달 문서 3.6절(입력), 4.6절(ESR1 재검), 4.7절(BRCA), 5.4절(판정 순서). BM-3 로컬 조회(ClinVar, CIViC)가
-# 생기기 전 1차 규칙이다: 허가 변이 목록 또는 절단 변이만 양성으로 보고, 나머지 검출 변이는 VUS로 남긴다.
+# 전달 문서 3.6절(입력), 4.6절(ESR1 재검), 4.7절(BRCA), 5.4절(판정 순서), 팀 회의 2026-10-20.
+# 판정과 근거를 나눈다: 판정은 아래 규칙으로만 하고, 허가 목록·ClinVar·CIViC·급여·지침 근거는 모두 이유에 적는다.
 GENES = ("ESR1", "PIK3CA", "AKT1", "PTEN", "BRCA1", "BRCA2", "PALB2")
 # 허가 동반진단 변이 목록이 있는 유전자 (actionable_variants.csv)
 LABEL_GENES = {"PIK3CA", "AKT1", "ESR1"}
-# 절단 변이(nonsense, frameshift, 필수 스플라이스 부위)를 양성으로 보는 유전자. PTEN은 전달 문서 5.4절,
-# BRCA1/2는 4.7절 (TCGA: ClinVar 병원성 또는 절단 변이). PALB2는 5.4절에 ClinVar 기준만 있어 넣지 않는다
-TRUNCATING_GENES = {"PTEN", "BRCA1", "BRCA2"}
+# 변이 유무로 판정하는 유전자 (팀 회의 2026-10-20: PTEN은 positive/negative로 통일, VEP 안 씀).
+# 단백질이 바뀌는 변이가 하나라도 있으면 양성. 심평원 공고(capivasertib 허가사항)도 "PTEN 변이가 있는"으로만 적는다
+PRESENCE_GENES = {"PTEN"}
+# 단백질 서열이 바뀌지 않는 변이 종류 (MAF 변이 종류 칸). 이것만 있으면 변이 없음으로 본다
+NON_PROTEIN_TYPES = {"Silent", "Splice_Region", "Intron", "3'UTR", "5'UTR", "3'Flank", "5'Flank", "IGR", "RNA"}
+# 절단 변이(nonsense, frameshift, 필수 스플라이스 부위)를 양성으로 보는 유전자. BRCA1/2는 4.7절
+# (TCGA: ClinVar 병원성 또는 절단 변이). PALB2는 5.4절에 ClinVar 기준만 있어 넣지 않는다
+TRUNCATING_GENES = {"BRCA1", "BRCA2"}
 TRUNCATING_TYPES = {"Nonsense_Mutation", "Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site"}
 ACTIONABLE_CSV = Path(__file__).resolve().parent / "actionable_variants.csv"
 # rag_tags는 청크 biomarker_tags와 같은 어휘 (src/rag/rag_guideline_chunking_design_update.md 3.5절 표준 태그)
 GENE_TAGS = {"PIK3CA": "PIK3CA-mut", "AKT1": "AKT1-mut", "PTEN": "PTEN-alt", "ESR1": "ESR1-mut",
              "PALB2": "gPALB2", "gBRCA1": "gBRCA", "gBRCA2": "gBRCA", "sBRCA1": "sBRCA", "sBRCA2": "sBRCA"}
+
+# 근거 표시용 출처 (팀 회의 2026-10-20 5번). 판정에는 쓰지 않는다. 문서 문장은 옮기지 않고 문서·쪽만 적는다.
+# 급여: 심평원 공고 제2026-190호 PDF 쪽 번호 (PDF쪽 = 인쇄쪽 + 32). 유전자 조건은 '기타 항암제 병용요법' 표의
+# 허가사항 칸에만 있고, 인정 조건은 식약처 허가사항 범위 이내다 (PDF 190쪽)
+_HIRA = "심평원 공고 제2026-190호"
+REIMBURSEMENT_BASIS = {
+    "PIK3CA": f"{_HIRA} PDF 196–197·199쪽 (alpelisib·inavolisib·capivasertib 허가사항, 이 약들은 비급여)",
+    "AKT1": f"{_HIRA} PDF 196쪽 (capivasertib 허가사항, 비급여)",
+    "PTEN": f"{_HIRA} PDF 196쪽 (capivasertib 허가사항, 비급여)",
+    "gBRCA1": f"{_HIRA} PDF 200–202쪽 (olaparib 수술 후 보조요법 허가사항 'gBRCA 변이')",
+    "gBRCA2": f"{_HIRA} PDF 200–202쪽 (olaparib 수술 후 보조요법 허가사항 'gBRCA 변이')",
+}
+# 지침: data/chunks/esmo_chunks.json의 ESMO 권고 쪽 번호
+GUIDELINE_BASIS = {
+    "PIK3CA": "ESMO MBC 2026 p.1205 (capivasertib)",
+    "AKT1": "ESMO MBC 2026 p.1205 (capivasertib)",
+    "PTEN": "ESMO MBC 2026 p.1205 (capivasertib)",
+    "ESR1": "ESMO MBC 2026 p.1206 (elacestrant·imlunestrant)",
+    "gBRCA1": "ESMO EBC 2024 p.172–173, ESMO MBC 2026 p.1206·1212 (PARP 억제제)",
+    "gBRCA2": "ESMO EBC 2024 p.172–173, ESMO MBC 2026 p.1206·1212 (PARP 억제제)",
+    "PALB2": "ESMO MBC 2026 p.1206·1212 (PARP 억제제)",
+}
 
 
 def _actionable():
@@ -524,8 +552,10 @@ def _actionable():
 CLINVAR_CSV = Path(__file__).resolve().parents[2] / "data" / "clinvar" / "clinvar_bm3_genes.tsv"
 CLINVAR_GENES = {"BRCA1", "BRCA2", "PALB2", "PTEN"}
 # 양성으로 볼 최소 리뷰 등급(별). gBRCA·PALB2는 2성 이상 (PROJECT.md 5절, 전달 문서 5.4절).
-# PTEN은 문서에 등급 조건이 없다 ("ClinVar 병원성·병원성 가능")
+# PTEN은 변이 유무로 판정하고 ClinVar는 근거로만 적는다 (팀 회의 2026-10-20). 등급 조건은 문서에 없다
 CLINVAR_MIN_STARS = {"BRCA1": 2, "BRCA2": 2, "PALB2": 2, "PTEN": 0}
+# ClinVar로 판정하는 유전자
+CLINVAR_JUDGE_GENES = {"BRCA1", "BRCA2", "PALB2"}
 CLINVAR_PATHOGENIC = {"Pathogenic", "Likely pathogenic", "Pathogenic/Likely pathogenic"}
 
 
@@ -557,14 +587,13 @@ def _clinvar_best(gene, variants):
     return best[1], best[2], best[0][0]
 
 
-# BM-3 CIViC (전달 문서 5.4절 2순위). data/script/civic_download.py가 만든 표를 로컬에서만 조회한다.
+# BM-3 CIViC (전달 문서 5.4절). data/script/civic_download.py가 만든 표를 로컬에서만 조회한다.
 # 표에는 변이 하나를 지목한 발암성·예측(Sensitivity/Response) 근거만 들어 있다
-# 파일명에 받은 날짜가 붙는다 (전달 문서 5.6절). 가장 최근 파일을 쓴다
+# 파일명에 받은 날짜가 붙는다 (전달 문서 5.6절). 가장 최근 파일을 쓴다.
+# 판정에는 쓰지 않고 근거로만 이유에 적는다 (팀 회의 2026-10-20: 약이 듣는지는 판정하지 않는다)
 CIVIC_DIR = Path(__file__).resolve().parents[2] / "data" / "civic"
 CIVIC_CSV = max(CIVIC_DIR.glob("civic_bm3_evidence_*.csv"), default=CIVIC_DIR / "civic_bm3_evidence_없음.csv")
 CIVIC_GENES = {"PIK3CA", "AKT1", "PTEN"}
-# 허가 목록에 없는데 CIViC 근거로 양성이면 붙이는 태그 (PTEN은 허가 목록 단계가 없어 붙이지 않는다)
-OFF_LABEL_TAG = "off-label-variant"
 
 
 def _civic():
@@ -614,7 +643,42 @@ def _gene_marker(gene, patient_ref):
 
 
 def _variant_text(variants):
-    return ", ".join(v.get("protein_change") or v.get("raw") or "?" for v in variants)
+    """변이 이름·종류·VAF. 예: R130* (Nonsense_Mutation, 절단형, VAF 0.056)"""
+    parts = []
+    for v in variants:
+        detail = [v["variant_type"]] if v.get("variant_type") else []
+        if _is_truncating(v):
+            detail.append("절단형")
+        if v.get("vaf") is not None:
+            detail.append(f"VAF {v['vaf']:g}")
+        name = v.get("protein_change") or v.get("raw") or "?"
+        parts.append(f"{name} ({', '.join(detail)})" if detail else name)
+    return ", ".join(parts)
+
+
+def _evidence_notes(gene, marker, variants, cv_row):
+    """판정에 쓰지 않은 것까지 모든 근거를 한 줄로 (팀 회의 2026-10-20 5번). 스키마에 칸이 없는 근거는 이유 글에만 적는다."""
+    notes = []
+    if gene in LABEL_GENES:
+        table = _actionable().get(gene, {})
+        on = [v["protein_change"] for v in variants if v.get("protein_change") in table]
+        notes.append(f"허가 동반진단 목록: {', '.join(on)} 해당" if on else "허가 동반진단 목록: 해당 없음")
+    if gene in CLINVAR_GENES:
+        if not CLINVAR_CSV.exists():
+            notes.append("ClinVar 파일 없음 (data/script/clinvar_download.py 실행 필요)")
+        else:
+            notes.append(f"ClinVar {_clinvar_text(cv_row)}, 파일 {CLINVAR_CSV.name}" if cv_row else "ClinVar에 없음")
+    if gene in CIVIC_GENES:
+        if not CIVIC_CSV.exists():
+            notes.append("CIViC 파일 없음 (data/script/civic_download.py 실행 필요)")
+        else:
+            _, civic_row = _civic_best(gene, variants)
+            notes.append(f"{_civic_text(civic_row)}, 파일 {CIVIC_CSV.name}, 판정에 쓰지 않음" if civic_row
+                         else "CIViC 근거 없음")
+    notes.append(f"급여: {REIMBURSEMENT_BASIS.get(marker, _HIRA + '에 없음')}")
+    if marker in GUIDELINE_BASIS:
+        notes.append(f"지침: {GUIDELINE_BASIS[marker]}")
+    return " / 근거: " + "; ".join(notes)
 
 
 def judge_gene(gene, field, patient_ref=""):
@@ -631,7 +695,18 @@ def judge_gene(gene, field, patient_ref=""):
         return _record(marker, "unknown", f"{gene} 결과를 읽을 수 없음 (result={field.get('result')})",
                        f"BM2-{gene}-UNKNOWN", field)
 
+    cv_variant, cv_row, cv_ok = None, None, False
+    if gene in CLINVAR_GENES:
+        cv_variant, cv_row, cv_ok = _clinvar_best(gene, variants)
+    notes = _evidence_notes(gene, marker, variants, cv_row)
+
     hit, rule_id, why = None, None, ""
+    if gene in PRESENCE_GENES:
+        protein = [v for v in variants if v.get("variant_type") not in NON_PROTEIN_TYPES]
+        if not protein:
+            return _record(marker, "negative", f"{gene} {_variant_text(variants)} → 단백질이 바뀌는 변이 없음"
+                           f"{notes}", f"BM2-{gene}-NONPROTEIN", field)
+        hit, rule_id, why = protein[0], f"BM2-{gene}-PRESENT", "단백질이 바뀌는 변이 있음"
     if gene in LABEL_GENES:
         table = _actionable().get(gene, {})
         hit = next((v for v in variants if v.get("protein_change") in table), None)
@@ -645,29 +720,9 @@ def judge_gene(gene, field, patient_ref=""):
         hit = next((v for v in variants if _is_truncating(v)), None)
         if hit:
             rule_id, why = f"BM2-{gene}-TRUNC", "절단 변이 (기능 소실)"
-
     # BM-3: 절단 변이가 아니면 ClinVar 병원성·병원성 가능 + 리뷰 등급으로 다시 가른다
-    cv_variant, cv_row, cv_ok = (None, None, False)
-    if not hit and gene in CLINVAR_GENES:
-        cv_variant, cv_row, cv_ok = _clinvar_best(gene, variants)
-        if cv_ok:
-            hit, rule_id = cv_variant, f"BM3-{gene}-CLINVAR"
-            why = f"ClinVar {_clinvar_text(cv_row)}, 파일 {CLINVAR_CSV.name}"
-
-    # BM-3: 허가 목록·절단 변이·ClinVar로 양성이 아니면 CIViC 근거로 다시 가른다 (5.4절)
-    tags = [GENE_TAGS[marker]]
-    civic_note = ""
-    if not hit and gene in CIVIC_GENES:
-        cv2_variant, civic_row = _civic_best(gene, variants)
-        if civic_row:
-            hit, rule_id = cv2_variant, f"BM3-{gene}-CIVIC"
-            why = f"{_civic_text(civic_row)}, 파일 {CIVIC_CSV.name}"
-            if gene in LABEL_GENES:
-                why += ". 허가 동반진단 목록 밖 변이"
-                tags.append(OFF_LABEL_TAG)
-        else:
-            civic_note = " CIViC 근거 없음." if CIVIC_CSV.exists() else \
-                " CIViC 파일 없음 (data/script/civic_download.py 실행 필요)."
+    if not hit and gene in CLINVAR_JUDGE_GENES and cv_ok:
+        hit, rule_id, why = cv_variant, f"BM3-{gene}-CLINVAR", "ClinVar 병원성·병원성 가능"
 
     picked = hit or cv_variant or variants[0]
     evidence = {"variant": f"p.{picked['protein_change']}" if picked.get("protein_change") else None,
@@ -675,18 +730,10 @@ def judge_gene(gene, field, patient_ref=""):
     if cv_row:
         evidence["clinvar"] = _clinvar_text(cv_row)
     if hit:
-        return _record(marker, "positive", f"{gene} {_variant_text(variants)} → 양성: {why}",
-                       rule_id, field, evidence, tags)
-    if gene in CLINVAR_GENES:
-        cv_note = (f"ClinVar {_clinvar_text(cv_row)}는 양성 기준(병원성·병원성 가능, "
-                   f"{CLINVAR_MIN_STARS[gene]}성 이상)에 못 미침" if cv_row else "ClinVar에 없음")
-        if not CLINVAR_CSV.exists():
-            cv_note = "ClinVar 파일 없음 (data/script/clinvar_download.py 실행 필요)"
-        return _record(marker, "vus", f"{gene} {_variant_text(variants)} → 의미 불명 변이(VUS). {cv_note}."
-                       f"{civic_note} 음성으로 처리하되 표시 유지", f"BM2-{gene}-VUS", field, evidence)
-    return _record(marker, "vus",
-                   f"{gene} {_variant_text(variants)} → 의미 불명 변이(VUS).{civic_note} 음성으로 처리하되 표시 유지",
-                   f"BM2-{gene}-VUS", field, evidence)
+        return _record(marker, "positive", f"{gene} {_variant_text(variants)} → 양성: {why}{notes}",
+                       rule_id, field, evidence, [GENE_TAGS[marker]])
+    return _record(marker, "vus", f"{gene} {_variant_text(variants)} → 의미 불명 변이(VUS), 음성으로 처리하되 표시 유지"
+                   f"{notes}", f"BM2-{gene}-VUS", field, evidence)
 
 
 def _endocrine_progressed(fields):
