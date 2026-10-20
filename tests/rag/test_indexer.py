@@ -153,10 +153,13 @@ def test_metastatic_sites_raise_matching_and_lower_other_site_recommendations(me
                                       metastatic_sites=["bone"])
     n_bone = sum(r["parent_id"].endswith("-site-bone") for r in bone)
     assert n_bone and all(r["parent_id"].endswith("-site-bone") for r in bone[:n_bone])
+    # 부위를 알면 없는 부위의 부위별 권고는 후보에서 빠진다 (감점만 하면 그런 권고가 후보 자리를 채울 수 있다)
     no_cns = searcher.search_guidelines("x", setting="metastatic", subtype="TNBC", top_k=200, rerank=False,
                                         metastatic_sites=["liver"])
-    last = [r["parent_id"] for r in no_cns[-10:]]
-    assert all(pid.split("site-")[-1] in ("bone", "bm", "bm-lrt", "bm-her2neg", "lmd") for pid in last)
+    site_parents = {"site-bone", "site-bm", "site-bm-lrt", "site-bm-her2neg", "site-lmd"}
+    assert no_cns and not [r for r in no_cns if r["parent_id"].split("2026-05-")[-1] in site_parents]
+    unknown_sites = searcher.search_guidelines("x", setting="metastatic", subtype="TNBC", top_k=200, rerank=False)
+    assert [r for r in unknown_sites if r["parent_id"].split("2026-05-")[-1] in site_parents]  # 모르면 그대로
     unknown = searcher.search_guidelines("x", setting="metastatic", subtype="TNBC", top_k=3, rerank=False,
                                          metastatic_sites=["[Not Available]"][0])
     assert len({r["score"] for r in unknown}) == 1  # 부위를 모르면 점수를 바꾸지 않는다

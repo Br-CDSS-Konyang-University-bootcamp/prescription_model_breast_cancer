@@ -19,7 +19,7 @@ RERANK_CANDIDATES = 20  # 재정렬할 때 뜻 검색으로 먼저 뽑는 후보
 SITE_MATCH_BONUS = 0.05  # 환자에게 있는 전이 부위의 부위별 권고
 # 환자에게 없는 전이 부위의 부위별 권고. 차수 감점과 같은 이유로 점수 범위보다 크게 깎는다: 재정렬 점수가
 # "HER2 양성 뇌 전이 2차 T-DXd" 권고에 0.97이라 -0.3으로는 일반 2차 권고(0.15)보다 계속 위였다 (--auto-query M10).
-# 빼지는 않는다 (맞는 권고가 모자라면 채워짐, 기록 누락 대비)
+# 부위를 알면 그런 권고는 후보에서도 뺀다(_mismatched_site_parents). 감점은 그 목록 밖의 경우를 위한 안전장치
 SITE_MISMATCH_PENALTY = 1.0
 # 부위별 소단원(부모 청크 이름 끝) → 그 권고가 맞는 전이 부위 (field_vocab.csv의 metastatic_sites 값).
 # 연수막 전이(LMD)는 표준값이 없어 "other: leptomeningeal ..."처럼 적힌 값을 찾는다. 뇌 전이만으로는 LMD로 보지 않는다.
@@ -60,7 +60,7 @@ def search_guidelines(
     점수로 순위를 다시 매긴다. 모델이 없거나 불러오지 못하면 경고하고 뜻 검색 점수를 쓴다.
     차수는 같으면 가점, 청크가 다른 차수만 가리키면 감점한다. 차수·태그 가점은 두 경우 모두 더한다. 결과의 score는 그 최종 점수다.
     metastatic_sites(예: ["bone", "liver"])를 주면 부위별 권고(뼈·뇌·연수막 전이)를 그 부위 전이가 있으면 가점,
-    없으면 감점한다. 주지 않거나 빈 목록이면 부위를 모르는 것으로 보고 점수를 바꾸지 않는다.
+    없으면 후보에서 뺀다. 주지 않거나 빈 목록이면 부위를 모르는 것으로 보고 점수를 바꾸지 않는다.
     negative_tags(예: ["gBRCA"])는 환자가 음성으로 확인된 바이오마커의 태그다. 권고의 바이오마커 태그가 모두 여기에
     들면 감점한다 (예: "PIK3CA, AKT1 or PTEN" 권고는 셋 다 음성일 때만). src/rag/query.py의 search_args가 만든다.
     같은 조건의 검색은 기억해 둔 결과를 돌려준다 (색인을 바꾸면 비워진다)."""
@@ -92,6 +92,18 @@ def _site_keys(metastatic_sites):
         elif s:
             keys.add(s)
     return keys or None
+
+
+def _mismatched_site_parents(sites) -> list[str]:
+    """환자에게 없는 전이 부위의 부위별 소단원(부모 청크) ID 목록."""
+    from .chunk_store import load_guideline_chunks
+    out = []
+    for chunk in load_guideline_chunks():
+        pid = chunk["chunk_id"]
+        for section, needed in SITE_SECTIONS.items():
+            if pid.endswith("-" + section) and not needed & sites:
+                out.append(pid)
+    return out
 
 
 def _site_adjust(parent_id, sites) -> float:
@@ -133,7 +145,11 @@ def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, w
 
     # 쿼리 벡터 변환
     query_vector = model.encode(query_text).tolist()
-    query_filter = Filter(must=must_conditions) if must_conditions else None
+    # 환자 전이 부위를 알면, 없는 부위의 부위별 권고는 후보에서 뺀다. 감점(-1.0)은 뽑힌 후보 안에서만 순위를 바꾸므로,
+    # 그런 권고가 후보 자리를 채우면 맞는 권고가 후보에 못 들어간다 (retrieve 연결 확인, 2026-10-20)
+    must_not = [FieldCondition(key="parent_id", match=MatchAny(any=_mismatched_site_parents(sites)))] \
+        if sites is not None and _mismatched_site_parents(sites) else []
+    query_filter = Filter(must=must_conditions, must_not=must_not) if must_conditions or must_not else None
 
     # Qdrant 검색 실행 (가점 부여를 위해 top_k보다 여유 있게 검색)
     limit = max(top_k * 3, RERANK_CANDIDATES) if rerank else top_k * 3
@@ -141,7 +157,8 @@ def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, w
     if line and line.lower() != "unknown":
         # 후보의 절반은 차수가 맞거나 any인 권고에서 먼저 뽑는다. 가점·감점은 뽑힌 후보 안에서만 순위를 바꾸므로,
         # 질의가 다른 차수 권고와 글자가 많이 겹치면 맞는 차수 권고가 후보에 아예 못 들어갔다 (--auto-query M10·M11)
-        line_filter = Filter(must=must_conditions + [FieldCondition(key="line", match=MatchAny(any=[line, "any"]))])
+        line_filter = Filter(must=must_conditions + [FieldCondition(key="line", match=MatchAny(any=[line, "any"]))],
+                             must_not=must_not)
         hits = client.query_points(collection_name=COLLECTION_NAME, query=query_vector, query_filter=line_filter,
                                    limit=limit // 2).points
     seen = {hit.id for hit in hits}
