@@ -26,7 +26,7 @@ TCGA로는 만들 수 없는 최신 치료(CDK4/6 억제제 이후 2차, 면역�
 | [VC-0106](VC-0106/scenario.md) | pT3(5.5cm) N1a(2개), 등급 2, 시점이 다른 Ki-67 두 값 | HR+/HER2- | 국소진행(IIIA), 보조 | abemaciclib 고위험(크기), 보조 CDK4/6 추가 약제 비급여, `history[]` |
 | [VC-0106b](VC-0106b/scenario.md) | VC-0106과 같은 환자, 같은 보고서 안에 Ki-67 두 값 | HR+/HER2- | 국소진행(IIIA), 보조 | 같은 날 값 충돌 → `conflicts[]` (IN-5) |
 | [VC-0107](VC-0107/scenario.md) | 38세 폐경 전, pT1c N0, 등급 3, 외부 병원 회송서 | HR+/HER2- | 조기, 보조 | AI + LHRH(40세 미만), 영문 회송서 |
-| [VC-0108](VC-0108/scenario.md) | 70세, 진단 시 뼈 전이만, 1차 ribociclib + letrozole 복용 중 | HR+/HER2- | 전이성(de novo), 골 보호제 | `index_day`, "최근 4주 이내 투여", 투약 중 여부 한계 |
+| [VC-0108](VC-0108/scenario.md) | 70세, 진단 시 뼈 전이만, 1차 ribociclib + letrozole 복용 중 | HR+/HER2- | 전이성(de novo), 골 보호제 | `index_day`, "최근 4주 이내 투여", 투약 중 여부 한계. 골 보호제 급여는 평가에서 제외 (2026-10-19, PROJECT.md §12 한계). 이 사례를 시연용으로만 둘지 바꿀지는 결정 대기 |
 | [VC-0109](VC-0109/scenario.md) | 보조 tamoxifen 3년째 흉벽 국소 재발 → 완치 목적 절제 | HR+/HER2- | 조기, 재발 후 보조 | `recurrence_day`만 있음, `SET-LOCAL-ADJ` |
 
 ## 3. 폴더 구성

@@ -54,7 +54,7 @@ python -m pytest tests/input/test_manual_truth.py
 | TCGA-AO-A03N | `treatment_history` #8~12 setting | 모두 `adjuvant` | 1,645일째 국소 재발(재발 후 수술 NO) 이후 시작한 tesetaxel·paclitaxel·gemcitabine·vinorelbine·denosumab도 `adjuvant`다. setting 규칙은 전이 기준일만 보기 때문이다. 국소 재발 후 수술 없이 한 항암은 보조요법이 아닐 수 있다 |
 | TCGA-AO-A03N | `molecular.mutations.PTEN`, 보고서 | PTEN `not_detected`, 보고서에 "PTEN deep deletion"과 "PTEN: 검출되지 않음"이 함께 | `molecular.mutations`는 점 변이만 본다. 깊은 결실(기능 소실)은 보고서 문장에만 있다. PTEN 소실은 capivasertib 대상 판단에 쓰이므로 B가 놓칠 수 있다 |
 | TCGA-AO-A03N | `treatment_history` #0~2 | AC와 paclitaxel이 같은 기간(55~153일), 각각 4주기 | 원본 기록 그대로다. 보통 AC 후 paclitaxel 순차 요법이다 |
-| TCGA-A2-A0EW | `positive_ln_count.raw` | `"26/None"` | 검사 림프절 수가 없을 때 raw에 `None`이 들어간다. `"26/[Not Available]"`이 자연스럽다 |
+| TCGA-A2-A0EW | `positive_ln_count.raw` | `"26/[Not Available]"` | 2026-10-19 수정: 검사 림프절 수가 없을 때 raw에 `None`이 들어가던 것을 원본 코드 `[Not Available]`로 바꿨다 |
 | TCGA-A2-A0EW | liposomal doxorubicin `cycles` | 치료 이력은 4 (추정), anthracycline 용량은 `No value` | 용량 칸은 기록값만 쓰는 규칙(§3.7a)이라 정상이다 |
 | TCGA-A2-A0SV | zoledronic acid | `metastatic`, 7주기 | 골 보호제도 투약 기록이라 치료 이력에 들어간다 |
 

@@ -106,6 +106,8 @@ TNM 세부 표기 [합의 예정]: 공백만 지우고 그대로 둔다. `N0 (i-
 | positive만 `[Not Available]` | 29 | `{"positive": "[Not Available]", "examined": 15}` |
 | 둘 다 `[Not Available]` [합의 예정] | 100 | 칸 전체 `status: not_recorded` |
 
+`raw`는 원본 값을 `양성/검사`로 잇고, 없는 쪽은 원본 코드 `[Not Available]`를 그대로 쓴다 (예: `26/[Not Available]`, `[Not Available]/15`). 2026-10-19 수정: 그전에는 없는 쪽이 `None`으로 찍혔다 (30명).
+
 `gdc_lymph_nodes_examined_ihc_count`(면역염색 양성 수, 31.4%)는 가상 차트 문장에만 쓴다.
 
 전이 부위 [A 결정]:

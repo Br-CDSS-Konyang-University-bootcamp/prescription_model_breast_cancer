@@ -134,8 +134,10 @@ def stage(r) -> dict:
     if pos is None and exa is None:
         s["positive_ln_count"] = {"status": "not_recorded"}
     else:
+        # raw는 원본 표기 그대로: 없는 쪽은 원본 코드 [Not Available]
         s["positive_ln_count"] = present({"positive": int(pos) if pos else "[Not Available]",
-                                          "examined": int(exa) if exa else "[Not Available]"}, f"{pos}/{exa}")
+                                          "examined": int(exa) if exa else "[Not Available]"},
+                                         f"{pos or '[Not Available]'}/{exa or '[Not Available]'}")
 
     s["disease_extent"] = present(r.stage_disease_extent, g)
 
