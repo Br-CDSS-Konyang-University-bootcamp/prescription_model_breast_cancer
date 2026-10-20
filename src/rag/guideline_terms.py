@@ -33,7 +33,8 @@ def query_terms(profile: dict, terms: list[dict] = None) -> list[str]:
     """환자 프로필(코드 값)을 지침 대표 표현 목록으로 바꾼다. 값이 없거나 unknown이면 뺀다.
     profile 예: {"subtype": "HR+/HER2-", "disease": "metastatic", "line": "2L",
                 "markers": ["ESR1:positive"], "prior_subclasses": ["AI_nonsteroidal", "CDK4/6_inhibitor"],
-                "menopausal_status": "postmenopausal"}"""
+                "menopausal_status": "postmenopausal", "pcr": "no", "stage_at_diagnosis": "metastatic",
+                "prior_classes": ["Chemotherapy"], "metastatic_sites": ["bone"]}"""
     terms = terms or load_terms()
     keys = [("biomarker_record.subtype", profile.get("subtype")),
             ("biomarker_record.setting.disease", profile.get("disease")),
@@ -44,6 +45,8 @@ def query_terms(profile: dict, terms: list[dict] = None) -> list[str]:
     keys += [("patient.menopausal_status", profile.get("menopausal_status")),
              ("neoadjuvant_response.pcr", profile.get("pcr"))]
     keys += [("metastatic_sites", s) for s in profile.get("metastatic_sites", [])]
+    if profile.get("disease") == "metastatic" and profile.get("stage_at_diagnosis") == "metastatic":
+        keys.append(("stage.disease_extent", "metastatic"))  # 진단 시 IV기 = de novo (재발 전이와 권고가 갈린다)
     out = []
     for field, value in keys:
         if value and value != "unknown":

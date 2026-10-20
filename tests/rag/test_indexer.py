@@ -162,6 +162,33 @@ def test_metastatic_sites_raise_matching_and_lower_other_site_recommendations(me
     assert len({r["score"] for r in unknown}) == 1  # 부위를 모르면 점수를 바꾸지 않는다
 
 
+def test_line_mismatch_is_pushed_down(memory_index):
+    # 2차 질의에서 1차·3차만 가리키는 권고는 감점, any(부위별 등)는 소폭 가점, 2차는 가점
+    rag_client, indexer = memory_index
+    from src.rag import searcher
+    from src.rag.chunk_store import load_guideline_chunks, select_index_chunks
+
+    indexer.index_chunks(select_index_chunks(load_guideline_chunks()))
+    results = searcher.search_guidelines("x", setting="metastatic", subtype="HR+/HER2-", line="2L", top_k=200,
+                                         rerank=False)
+    ranks = [r["line"] for r in results]
+    first_mismatch = next(i for i, ln in enumerate(ranks) if "2L" not in ln and "any" not in ln)
+    assert all("2L" not in ln and "any" not in ln for ln in ranks[first_mismatch:])
+    assert "2L" in ranks[0]
+
+
+def test_matching_line_chunks_always_reach_the_candidates(memory_index):
+    # 후보 수가 작아도(top_k=2 → 후보 6개) 절반은 차수가 맞거나 any인 권고에서 뽑으므로, 맞는 차수가 1·2위에 온다
+    rag_client, indexer = memory_index
+    from src.rag import searcher
+    from src.rag.chunk_store import load_guideline_chunks, select_index_chunks
+
+    indexer.index_chunks(select_index_chunks(load_guideline_chunks()))
+    results = searcher.search_guidelines("x", setting="metastatic", subtype="HR-/HER2+", line=">=3L", top_k=2,
+                                         rerank=False)
+    assert len(results) == 2 and all(">=3L" in r["line"] or "any" in r["line"] for r in results)
+
+
 def test_public_api_for_reimbursement_module():
     # D(src/reimbursement/index.py)가 src.rag에서 부르는 함수들
     import src.rag as rag

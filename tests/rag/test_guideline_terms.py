@@ -58,7 +58,7 @@ def test_canonical_values_match_schemas_and_drug_dictionary():
     allowed["treatment_history.drug_subclass"] = {r["drug_subclass"] for r in drug_rows if r["drug_subclass"]}
     allowed["treatment_history.drug_class"] = {r["drug_class"] for r in drug_rows}
     fields = ("properties", "fields", "properties")
-    for field in ("patient.menopausal_status", "patient.gender", "neoadjuvant_response.pcr"):
+    for field in ("patient.menopausal_status", "patient.gender", "neoadjuvant_response.pcr", "stage.disease_extent"):
         group, name = field.split(".")
         allowed[field] = _enum_in("patient_state.json", *fields, group, "properties", name)
     with open(BASE_DIR / "data" / "dictionaries" / "field_vocab.csv", encoding="utf-8-sig", newline="") as f:
