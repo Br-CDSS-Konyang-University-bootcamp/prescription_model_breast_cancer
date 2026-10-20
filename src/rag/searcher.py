@@ -17,7 +17,10 @@ LINE_MISMATCH_PENALTY = 1.0
 TAG_BONUS = 0.05  # 요청 바이오마커 태그가 청크 태그와 하나 겹칠 때마다
 RERANK_CANDIDATES = 20  # 재정렬할 때 뜻 검색으로 먼저 뽑는 후보 수
 SITE_MATCH_BONUS = 0.05  # 환자에게 있는 전이 부위의 부위별 권고
-SITE_MISMATCH_PENALTY = 0.3  # 환자에게 없는 전이 부위의 부위별 권고. 빼지 않고 뒤로 보낸다 (기록 누락 대비)
+# 환자에게 없는 전이 부위의 부위별 권고. 차수 감점과 같은 이유로 점수 범위보다 크게 깎는다: 재정렬 점수가
+# "HER2 양성 뇌 전이 2차 T-DXd" 권고에 0.97이라 -0.3으로는 일반 2차 권고(0.15)보다 계속 위였다 (--auto-query M10).
+# 빼지는 않는다 (맞는 권고가 모자라면 채워짐, 기록 누락 대비)
+SITE_MISMATCH_PENALTY = 1.0
 # 부위별 소단원(부모 청크 이름 끝) → 그 권고가 맞는 전이 부위 (field_vocab.csv의 metastatic_sites 값).
 # 연수막 전이(LMD)는 표준값이 없어 "other: leptomeningeal ..."처럼 적힌 값을 찾는다. 뇌 전이만으로는 LMD로 보지 않는다.
 # de novo IV기(site-denovo)와 소수 전이(site-omd)는 부위가 아닌 상황이라 여기 넣지 않는다.

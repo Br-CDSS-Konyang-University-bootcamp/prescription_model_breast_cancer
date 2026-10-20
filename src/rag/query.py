@@ -3,7 +3,15 @@
 # B의 추천 모듈은 이렇게 부르면 된다:
 #     from src.rag import search_guidelines
 #     from src.rag.query import search_args
-#     results = search_guidelines(**search_args(record, metastatic_sites=["bone"], prior_subclasses=["AI_nonsteroidal"]))
+#     patient = {"metastatic_sites": ["bone"], "menopausal_status": "premenopausal", "pcr": None,
+#                "stage_at_diagnosis": "early", "prior_subclasses": ["AI_nonsteroidal"], "prior_classes": []}
+#     results = search_guidelines(**search_args(record, **patient))
+#     for args in site_search_args(record, **patient):   # 전이 부위별 권고(뼈 전이 골 보호제 등)는 따로 찾는다
+#         results += search_guidelines(**args)
+# patient 값은 A의 patient_state에서 온다: stage.metastatic_sites·recurrence.metastatic_sites, patient.menopausal_status,
+# neoadjuvant_response.pcr, stage.disease_extent(진단 시 범주), treatment_history[]의 drug_subclass·drug_class.
+# 같은 환자 조건이라도 폐경 상태(OFS 권고), pCR(잔존 질환 권고), de novo(원발 종양 수술 권고), 이전 치료(후반 차수)에 따라
+# 권고가 갈린다. 이 정보가 없으면 질의가 같아져 구분하지 못한다 (평가 --auto-query, 2026-10-20).
 # 질의 문장은 코드 값을 지침이 쓰는 영어 대표 표현(guideline_terms.csv의 preferred)으로 바꿔 이어 붙인다.
 # 예: HR+/HER2-, metastatic, 2L, ESR1 positive → "ER-positive, HER2-negative MBC second-line ESR1-mutated"
 from .guideline_terms import load_terms, query_terms
@@ -27,8 +35,20 @@ TAG_TO_MARKER = {
 }
 
 
-def profile_from_record(record: dict, metastatic_sites=None, prior_subclasses=None) -> dict:
-    """biomarker_record → query_terms가 받는 프로필."""
+def _patient_profile(metastatic_sites=None, menopausal_status=None, pcr=None, stage_at_diagnosis=None,
+                     prior_subclasses=None, prior_classes=None) -> dict:
+    return {
+        "metastatic_sites": _sites(metastatic_sites),
+        "menopausal_status": menopausal_status,
+        "pcr": pcr,
+        "stage_at_diagnosis": stage_at_diagnosis,
+        "prior_subclasses": list(prior_subclasses or []),
+        "prior_classes": list(prior_classes or []),
+    }
+
+
+def profile_from_record(record: dict, **patient) -> dict:
+    """biomarker_record + 환자 정보(patient_state에서 고른 값) → query_terms가 받는 프로필."""
     setting = record.get("setting") or {}
     markers = [f"{r['marker']}:{r['status']}" for r in record.get("records", []) if r.get("status") in QUERY_STATUSES]
     return {
@@ -36,31 +56,39 @@ def profile_from_record(record: dict, metastatic_sites=None, prior_subclasses=No
         "disease": setting.get("disease"),
         "line": setting.get("line"),
         "markers": markers,
-        "prior_subclasses": list(prior_subclasses or []),
-        "metastatic_sites": _sites(metastatic_sites),
+        **_patient_profile(**patient),
     }
 
 
-def profile_from_tags(subtype, disease, line, biomarker_tags=(), metastatic_sites=None, prior_subclasses=None) -> dict:
+def profile_from_tags(subtype, disease, line, biomarker_tags=(), **patient) -> dict:
     """태그로 프로필을 만든다 (평가 문제집용)."""
     return {
         "subtype": subtype,
         "disease": disease,
         "line": line,
         "markers": [TAG_TO_MARKER[t] for t in biomarker_tags if t in TAG_TO_MARKER],
-        "prior_subclasses": list(prior_subclasses or []),
-        "metastatic_sites": _sites(metastatic_sites),
+        **_patient_profile(**patient),
     }
 
 
 def build_query(profile: dict, terms: list[dict] = None) -> str:
-    """프로필 → 질의 문장. 사전에 없는 값과 unknown은 빠진다."""
-    return " ".join(query_terms(profile, terms or load_terms()))
+    """프로필 → 질의 문장. 사전에 없는 값과 unknown은 빠진다.
+    이전 치료는 "after AI, CDK4/6 inhibitor"처럼 뒤에 붙인다. 그냥 이어 붙이면 그 약을 권하는 질의처럼 읽힌다."""
+    terms = terms or load_terms()
+    prior_keys = ("prior_subclasses", "prior_classes")
+    current = query_terms({k: v for k, v in profile.items() if k not in prior_keys}, terms)
+    prior = [t for t in query_terms({k: profile.get(k, []) for k in prior_keys}, terms) if t not in current]
+    return " ".join(current + (["after " + ", ".join(prior)] if prior else []))
 
 
-def search_args(record: dict, metastatic_sites=None, prior_subclasses=None, **overrides) -> dict:
-    """biomarker_record → search_guidelines(**인자). top_k, with_parent 등은 overrides로 넘긴다."""
-    profile = profile_from_record(record, metastatic_sites, prior_subclasses)
+PATIENT_KEYS = ("metastatic_sites", "menopausal_status", "pcr", "stage_at_diagnosis", "prior_subclasses", "prior_classes")
+
+
+def search_args(record: dict, **kwargs) -> dict:
+    """biomarker_record + 환자 정보 → search_guidelines(**인자). top_k, with_parent 등 나머지 키는 그대로 넘긴다."""
+    patient = {k: kwargs.pop(k) for k in PATIENT_KEYS if k in kwargs}
+    overrides = kwargs
+    profile = profile_from_record(record, **patient)
     tags = []
     for r in record.get("records", []):
         if r.get("status") in QUERY_STATUSES:
@@ -76,6 +104,26 @@ def search_args(record: dict, metastatic_sites=None, prior_subclasses=None, **ov
     }
     args.update(overrides)
     return args
+
+
+# 부위별 추가 검색: 주 치료 질의와 섞으면 뼈 전이 골 보호제 같은 보조 권고가 묻힌다 (--auto-query M15).
+# 전이 부위 → 그 부위 권고를 찾는 질의 (guideline_terms.csv의 metastatic_sites 대표 표현과 같은 말)
+SITE_QUERIES = {
+    "bone": "bone metastases bone-modifying agents radiotherapy",
+    "brain": "brain metastases local therapy systemic treatment",
+}
+
+
+def site_search_args(record: dict, top_k: int = 3, **kwargs) -> list[dict]:
+    """환자에게 있는 전이 부위마다 부위별 권고를 찾는 search_guidelines 인자 목록. 부위 권고는 차수와 무관하므로 line을 뺀다."""
+    patient = {k: kwargs.pop(k) for k in PATIENT_KEYS if k in kwargs}
+    base = search_args(record, top_k=top_k, **patient, **kwargs)
+    out = []
+    for site in _sites(patient.get("metastatic_sites")):
+        query = SITE_QUERIES.get(str(site).strip().lower())
+        if query:
+            out.append({**base, "query_text": query, "line": None})
+    return out
 
 
 def _sites(metastatic_sites) -> list:

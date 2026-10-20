@@ -3,7 +3,8 @@
 import json
 from pathlib import Path
 
-from src.rag.query import TAG_TO_MARKER, build_query, profile_from_record, profile_from_tags, search_args
+from src.rag.query import (TAG_TO_MARKER, build_query, profile_from_record, profile_from_tags, search_args,
+                           site_search_args)
 
 BASE_DIR = Path(__file__).resolve().parents[2]
 
@@ -21,7 +22,7 @@ RECORD = {
 
 def test_search_args_from_biomarker_record():
     args = search_args(RECORD, metastatic_sites=["bone", "liver"], prior_subclasses=["AI_nonsteroidal"], top_k=3)
-    assert args["query_text"] == "ER-positive, HER2-negative MBC second-line ESR1-mutated HER2-low AI bone metastases"
+    assert args["query_text"] == "ER-positive, HER2-negative MBC second-line ESR1-mutated HER2-low bone metastases after AI"
     assert (args["setting"], args["subtype"], args["line"]) == ("metastatic", "HR+/HER2-", "2L")
     assert args["biomarker_tags"] == ["ESR1-mut"]  # 음성·VUS 레코드의 태그는 넣지 않는다
     assert args["metastatic_sites"] == ["bone", "liver"] and args["top_k"] == 3
@@ -47,5 +48,28 @@ def test_tag_map_matches_chunk_tags_and_biomarker_schema():
 
 
 def test_profile_from_tags_for_eval_cases():
-    profile = profile_from_tags("TNBC", "metastatic", "1L", ["PD-L1+"], ["brain"])
+    profile = profile_from_tags("TNBC", "metastatic", "1L", ["PD-L1+"], metastatic_sites=["brain"])
     assert build_query(profile) == "TNBC MBC first-line CPS ≥10 brain metastases"
+
+
+def test_patient_context_separates_otherwise_identical_queries():
+    # 같은 아형·병기·차수라도 폐경 상태, pCR, de novo, 이전 치료에 따라 권고가 갈린다
+    early = {"subtype": "HR+/HER2-", "setting": {"disease": "early", "line": "adjuvant"}, "records": []}
+    assert search_args(early, menopausal_status="premenopausal")["query_text"] == \
+        "ER-positive, HER2-negative EBC adjuvant premenopausal"
+    tnbc = {"subtype": "TNBC", "setting": {"disease": "early", "line": "adjuvant"}, "records": []}
+    assert search_args(tnbc, pcr="no")["query_text"] == "TNBC EBC adjuvant residual invasive disease"
+    mbc = {"subtype": "HR+/HER2-", "setting": {"disease": "metastatic", "line": "1L"}, "records": []}
+    assert search_args(mbc, stage_at_diagnosis="metastatic")["query_text"].endswith("de novo")
+    assert "de novo" not in search_args(mbc, stage_at_diagnosis="early")["query_text"]  # 재발 전이
+    her2 = {"subtype": "HR-/HER2+", "setting": {"disease": "metastatic", "line": ">=3L"}, "records": []}
+    assert search_args(her2, prior_subclasses=["taxane"], prior_classes=["HER2-targeted Therapy"])["query_text"] == \
+        "HER2-positive, ER-negative MBC third-line after taxane, HER2-directed therapy"
+
+
+def test_site_search_args_one_search_per_known_site():
+    args = site_search_args(RECORD, metastatic_sites=["bone", "liver", "brain"])
+    assert [a["query_text"].split()[0] for a in args] == ["bone", "brain"]  # 간은 부위별 권고가 없다
+    assert all(a["line"] is None and a["metastatic_sites"] == ["bone", "liver", "brain"] and a["top_k"] == 3
+               for a in args)
+    assert site_search_args(RECORD) == []

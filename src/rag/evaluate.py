@@ -17,7 +17,8 @@ from pathlib import Path
 from .chunk_common import BASE_DIR
 
 CASES_CSV = BASE_DIR / "data" / "eval" / "rag_eval_cases.csv"
-LIST_FIELDS = ("biomarker_tags", "metastatic_sites", "expected_parents", "expected_chunks")
+LIST_FIELDS = ("biomarker_tags", "metastatic_sites", "prior_subclasses", "prior_classes", "expected_parents",
+               "expected_chunks")
 
 
 def load_cases(path: Path = CASES_CSV) -> list[dict]:
@@ -73,8 +74,11 @@ def case_query(case: dict, auto: bool = False) -> str:
     if not auto:
         return case["query"]
     from .query import build_query, profile_from_tags
-    return build_query(profile_from_tags(case["subtype"], case["setting"], case["line"], case["biomarker_tags"],
-                                         case["metastatic_sites"]))
+    return build_query(profile_from_tags(
+        case["subtype"], case["setting"], case["line"], case["biomarker_tags"],
+        metastatic_sites=case["metastatic_sites"], menopausal_status=case.get("menopausal_status") or None,
+        pcr=case.get("pcr") or None, stage_at_diagnosis=case.get("stage_at_diagnosis") or None,
+        prior_subclasses=case.get("prior_subclasses"), prior_classes=case.get("prior_classes")))
 
 
 def search_case(case: dict, k: int = 5, rerank: bool = True, auto_query: bool = False) -> list[dict]:

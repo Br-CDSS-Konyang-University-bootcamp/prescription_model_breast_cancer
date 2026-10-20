@@ -91,6 +91,8 @@ patient.menopausal_status,premenopausal,pre- and perimenopausal,en,esmo,,
 patient.menopausal_status,perimenopausal,perimenopausal,en,esmo,1,
 patient.menopausal_status,perimenopausal,pre- and perimenopausal,en,esmo,,
 patient.menopausal_status,postmenopausal,postmenopausal,en,esmo,1,
+stage.disease_extent,metastatic,de novo,en,esmo,1,"진단 시 범주(patient_state stage.disease_extent)가 IV기면 de novo. 현재 전이성일 때만 질의에 넣는다"
+stage.disease_extent,metastatic,newly diagnosed stage IV,en,esmo,,ESMO MBC de novo 소단원
 neoadjuvant_response.pcr,no,residual invasive disease,en,esmo,1,
 neoadjuvant_response.pcr,no,non-pCR,en,esmo,,
 neoadjuvant_response.pcr,yes,pCR,en,esmo,1,

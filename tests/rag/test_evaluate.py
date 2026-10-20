@@ -14,6 +14,10 @@ CHUNKS = {c["chunk_id"]: c for c in load_guideline_chunks()}
 INDEXED = {c["chunk_id"] for c in select_index_chunks(list(CHUNKS.values()))}
 with open(BASE_DIR / "data" / "dictionaries" / "field_vocab.csv", encoding="utf-8-sig", newline="") as _f:
     SITES = {r["canonical"] for r in csv.DictReader(_f) if r["field"] == "metastatic_sites"}
+with open(BASE_DIR / "data" / "dictionaries" / "drug_classes.csv", encoding="utf-8-sig", newline="") as _f:
+    _drugs = list(csv.DictReader(_f))
+DRUG_SUBCLASSES = {r["drug_subclass"] for r in _drugs if r["drug_subclass"]}
+DRUG_CLASSES = {r["drug_class"] for r in _drugs}
 
 
 def _enum(*path):
@@ -34,6 +38,11 @@ def test_case_ids_unique_and_values_valid():
         assert c["query"] and c["expected_chunks"] and c["expected_parents"], c["case_id"]
         # 전이 부위는 field_vocab.csv의 metastatic_sites 값 또는 "other: 자유 기재" (schemas/patient_state.json sites_value)
         assert all(s in SITES or s.startswith("other:") for s in c["metastatic_sites"]), c["case_id"]
+        # 환자 정보 칸은 patient_state·약 사전 값이다 (비우면 모름)
+        assert c["menopausal_status"] in ("", "premenopausal", "perimenopausal", "postmenopausal"), c["case_id"]
+        assert c["pcr"] in ("", "yes", "no") and c["stage_at_diagnosis"] in ("", "early", "locally_advanced",
+                                                                             "metastatic"), c["case_id"]
+        assert set(c["prior_subclasses"]) <= DRUG_SUBCLASSES and set(c["prior_classes"]) <= DRUG_CLASSES, c["case_id"]
 
 
 def test_expected_chunks_exist_and_are_reachable():
