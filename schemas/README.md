@@ -263,10 +263,10 @@ TCGA 정답은 실제 날짜가 없으므로, 날짜 칸은 추출값이면 `sta
 
 | 필드 | 설명 |
 |---|---|
-| `options[]` | `therapy`, `drugs`, `rationale`, `evidence`, `guideline_source`(ESMO / ASCO, 합치지 않음), `citations`(지침 청크 ID, 1개 이상), `reimbursement`, `reimbursement_reason`, `reimbursement_citations`, `copay`, `pending_notices` |
+| `options[]` | `therapy`, `drugs`, `rationale`, `evidence`, `guideline_source`(지침 출처, 지금은 ESMO만. ASCO 치료 지침은 재사용 불가로 2026-10-20 제외), `citations`(지침 청크 ID, 1개 이상), `reimbursement`, `reimbursement_reason`, `reimbursement_citations`, `copay`, `pending_notices` |
 | `tests_needed[]` | 검사 권고. `blocks_therapy`에 이 검사가 없어 추천 대신 권고로 바꾼 치료를 적는다 |
 | `out_of_scope`, `out_of_scope_reason` | 범위 외이거나 검색 결과가 없으면 추천을 만들지 않는다 |
-| `conflicts[]` | 예: ESMO와 ASCO 권고 차수가 다름 |
+| `conflicts[]` | 예: 지침 권고 차수와 급여 기준 차수가 다름 |
 | `index_status` | 화면 하단 요약 (공고책자 날짜, 덧씌운 공고, 예정·진행중 개수). D가 값을 제공 |
 
 스키마가 강제하는 규칙: `citations`는 1개 이상이고, 급여 분류가 `no_criteria`가 아니면 `reimbursement_citations`도 1개 이상이어야 한다.

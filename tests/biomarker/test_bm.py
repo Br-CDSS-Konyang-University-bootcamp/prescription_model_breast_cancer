@@ -198,11 +198,11 @@ KI67_CASES = [
 
 PDL1_CASES = [
     # (id, 칸, 정답 상태, 정답 태그, 메모) - 전달 문서 6.5절
-    ("P01", f({"assay": "22C3", "score_type": "CPS", "score": 12}), "positive", ["PD-L1-CPS10"], "pembrolizumab 기준"),
-    ("P02", f({"assay": "22C3", "score_type": "CPS", "score": 10}), "positive", ["PD-L1-CPS10"], "경계: CPS 10은 양성"),
+    ("P01", f({"assay": "22C3", "score_type": "CPS", "score": 12}), "positive", ["PD-L1+"], "pembrolizumab 기준. 태그는 C 표준 태그"),
+    ("P02", f({"assay": "22C3", "score_type": "CPS", "score": 10}), "positive", ["PD-L1+"], "경계: CPS 10은 양성"),
     ("P03", f({"assay": "22C3", "score_type": "CPS", "score": 5}), "negative", [], ""),
-    ("P04", f({"assay": "SP142", "score_type": "IC", "score": 2}), "positive", ["PD-L1-SP142"], "atezolizumab 기준"),
-    ("P05", f({"assay": "SP142", "score_type": "IC", "score": 1}), "positive", ["PD-L1-SP142"], "경계: IC 1%는 양성"),
+    ("P04", f({"assay": "SP142", "score_type": "IC", "score": 2}), "positive", ["PD-L1+"], "atezolizumab 기준"),
+    ("P05", f({"assay": "SP142", "score_type": "IC", "score": 1}), "positive", ["PD-L1+"], "경계: IC 1%는 양성"),
     ("P06", f({"assay": "SP142", "score_type": "IC", "score": 0}), "negative", [], ""),
     ("P07", f({"assay": "SP263", "score_type": "TPS", "score": 50}), "unknown", [], "기준 검사법이 아니면 판정 안 함"),
     ("P08", f({"assay": "22C3", "score_type": "TPS", "score": 50}), "unknown", [], "22C3여도 CPS가 아니면 판정 안 함"),
@@ -295,6 +295,20 @@ ASSESS_CASES = [
     ("A17", patient(treatments=[{"drugs": ["letrozole"], "start_day": 1500, "best_response": "PD",
                                  "stop_reason": None}]), "HR+/HER2-", "metastatic", {"BM4-ESR1-RETEST"},
      "원발 ESR1 결과 + 내분비요법 진행 -> 재검 권고"),
+    # 미시행 + raw "결과 대기"·"예정" -> 검사 권고 대신 결과 확인 (전달 문서 0절 5번, B 결정 2026-10-19)
+    ("A18", patient(mutations=genes_with({"status": "not_done", "raw": "결과 대기"})), "HR+/HER2-", "metastatic",
+     {"BM4-GBRCA1-PENDING", "BM4-GBRCA2-PENDING", "BM4-PALB2-PENDING", "BM4-PIK3CA-PENDING", "BM4-AKT1-PENDING",
+      "BM4-PTEN-PENDING", "BM4-ESR1-PENDING"}, "유전자 검사 결과 대기"),
+    ("A19", patient(mutations=genes_with({"status": "not_done", "raw": "예정"})), "HR+/HER2-", "metastatic",
+     {"BM4-GBRCA1-SCHEDULED", "BM4-GBRCA2-SCHEDULED", "BM4-PALB2-SCHEDULED", "BM4-PIK3CA-SCHEDULED",
+      "BM4-AKT1-SCHEDULED", "BM4-PTEN-SCHEDULED", "BM4-ESR1-SCHEDULED"}, "유전자 검사 예약"),
+    ("A20", patient(pdl1={"status": "not_done", "raw": "예정"}, **TNBC), "TNBC", "metastatic",
+     {"BM4-PDL1-SCHEDULED", "BM4-HER2-REASSESS"}, "PD-L1 검사 예약"),
+    ("A21", patient(er={"status": "not_done", "raw": "결과 대기"}), "HR+/HER2-", "metastatic", {"BM4-ER-PENDING"},
+     "ER 결과 대기"),
+    ("A22", patient(mutations=genes_with({"status": "not_done", "raw": "시행하지 않음"})), "HR+/HER2-", "metastatic",
+     {"BM4-GBRCA1", "BM4-GBRCA2", "BM4-PALB2", "BM4-PIK3CA", "BM4-AKT1", "BM4-PTEN", "BM4-ESR1"},
+     "raw가 고정 표기가 아니면 그대로 검사 권고"),
 ]
 
 
@@ -311,16 +325,25 @@ GENE_CASES = [
     ("G06", "PIK3CA", "VC-1", NR, "PIK3CA", "not_recorded", [], ""),
     ("G07", "AKT1", "VC-1", gene(("E17K", MIS)), "AKT1", "positive", ["AKT1-mut"], "변이 목록 원문 확인 필요"),
     ("G08", "AKT1", "VC-1", gene(("L52R", MIS)), "AKT1", "vus", [], ""),
-    ("G09", "PTEN", "VC-1", gene(("R130*", NON)), "PTEN", "positive", ["PTEN-loss"], "절단 변이"),
-    ("G10", "PTEN", "VC-1", gene(("K267Rfs*9", "Frame_Shift_Ins")), "PTEN", "positive", ["PTEN-loss"], ""),
-    ("G11", "PTEN", "VC-1", gene(("R130Q", MIS)), "PTEN", "vus", [], "미스센스는 ClinVar 조회 전까지 VUS"),
+    ("G09", "PTEN", "VC-1", gene(("R130*", NON)), "PTEN", "positive", ["PTEN-alt"],
+     "PTEN은 변이 유무로 판정 (팀 회의 2026-10-20). 태그는 C 표준 태그 (RAG 설계 3.5절)"),
+    ("G10", "PTEN", "VC-1", gene(("K267Rfs*9", "Frame_Shift_Ins")), "PTEN", "positive", ["PTEN-alt"], ""),
+    ("G11", "PTEN", "VC-1", gene(("R130Q", MIS)), "PTEN", "positive", ["PTEN-alt"],
+     "미스센스도 단백질이 바뀌는 변이라 양성 (ClinVar는 근거로만)"),
+    ("G20", "PTEN", "VC-1", gene(("H64_Y65del", "In_Frame_Del")), "PTEN", "positive", ["PTEN-alt"], ""),
+    ("G21", "PTEN", "VC-1", gene(("P38P", "Silent")), "PTEN", "negative", [],
+     "단백질이 안 바뀌는 변이만 있으면 음성"),
     ("G12", "BRCA1", "TCGA-XX-0001", gene(("Q934*", NON)), "gBRCA1", "positive", ["gBRCA"],
      "TCGA는 gBRCA로 가정 (전달 문서 4.7절)"),
-    ("G13", "BRCA1", "TCGA-XX-0001", gene(("E9Q", MIS)), "gBRCA1", "vus", [], "전달 문서 4.7절 예시"),
+    ("G13", "BRCA1", "TCGA-XX-0001", gene(("E9Q", MIS)), "gBRCA1", "vus", [],
+     "전달 문서 4.7절 예시. ClinVar Uncertain significance"),
     ("G14", "BRCA2", "TCGA-XX-0001", gene(("X2602_splice", "Splice_Site")), "gBRCA2", "positive", ["gBRCA"], ""),
     ("G15", "BRCA2", "VC-1", gene(), "sBRCA2", "negative", [], "TCGA가 아니면 종양 검사로 보고 sBRCA"),
-    ("G16", "PALB2", "VC-1", gene(("L381V", MIS)), "PALB2", "vus", [], ""),
-    ("G17", "PALB2", "VC-1", gene(("T1030Ifs*13", FS)), "PALB2", "positive", ["PALB2-mut"], ""),
+    ("G16", "PALB2", "VC-1", gene(("L381V", MIS)), "PALB2", "vus", [], "ClinVar에 없음"),
+    ("G17", "PALB2", "VC-1", gene(("T1030Ifs*13", FS)), "PALB2", "vus", [],
+     "PALB2는 절단 변이 규칙이 없고 ClinVar 기준만 (전달 문서 5.4절). 이 이름은 ClinVar에 없음"),
+    ("G19", "ESR1", "VC-1", gene(("E380Q", MIS)), "ESR1", "vus", [],
+     "문서 예시(Y537S/N/C, D538G)에 없는 변이는 원문 확인 전까지 목록에 넣지 않음"),
     ("G18", "ESR1", "VC-1", gene(("D538G", MIS)), "ESR1", "positive", ["ESR1-mut"], "변이 목록 원문 확인 필요"),
 ]
 
@@ -328,6 +351,70 @@ GENE_CASES = [
 _AI_PD = [{"drugs": ["letrozole"], "start_day": 1500, "best_response": "PD", "stop_reason": None}]
 _AI_CR = [{"drugs": ["letrozole"], "start_day": 300, "best_response": "CR", "stop_reason": None}]
 _CHEMO_PD = [{"drugs": ["docetaxel"], "start_day": 1500, "best_response": "PD", "stop_reason": None}]
+# ClinVar 표가 있어야 정답이 나오는 GENE_CASES (표는 git에 없음, 각자 받음)
+CLINVAR_DEPENDENT = set()
+
+# BM-3 ClinVar (전달 문서 5.4절, data/clinvar/clinvar_bm3_genes.tsv): (id, 유전자, 칸, 정답 상태, 정답 규칙 ID, 메모)
+CLINVAR_CASES = [
+    ("C01", "BRCA1", gene(("C61G", MIS)), "positive", "BM3-BRCA1-CLINVAR", "Pathogenic, 전문가 패널 3성"),
+    ("C02", "BRCA1", gene(("G1788V", MIS)), "positive", "BM3-BRCA1-CLINVAR", "TCGA-AN-A0XU"),
+    ("C03", "BRCA1", gene(("E9Q", MIS)), "vus", "BM2-BRCA1-VUS", "Uncertain significance"),
+    ("C04", "PTEN", gene(("M198K", MIS)), "positive", "BM2-PTEN-PRESENT",
+     "PTEN은 변이 유무로 판정, ClinVar(Likely pathogenic 1성)는 근거로만 (팀 회의 2026-10-20)"),
+    ("C05", "PALB2", gene(("L381V", MIS)), "vus", "BM2-PALB2-VUS", "ClinVar에 없음"),
+    ("C08", "PALB2", gene(("Y551*", "Nonsense_Mutation")), "positive", "BM3-PALB2-CLINVAR",
+     "PALB2 절단 변이도 ClinVar 기준으로만 양성 (Pathogenic/Likely pathogenic 2성)"),
+    ("C06", "BRCA1", gene(("E9Q", MIS), ("C61G", MIS)), "positive", "BM3-BRCA1-CLINVAR",
+     "여러 변이 중 하나라도 기준 충족이면 양성"),
+]
+
+# 차수 setting.line (전달 문서 6.2절, draft6): (id, 현재 범주, treatment_history, 정답 line, 메모)
+def tx(drugs, setting, start, line=None, endo=None, chemo=None, resp="unknown", stop=None):
+    return {"drugs": drugs, "setting": setting, "start_day": start, "line": line, "endocrine_line": endo,
+            "chemo_line": chemo, "best_response": resp, "stop_reason": stop}
+
+
+LINE_CASES = [
+    ("L01", "metastatic", [tx(["letrozole", "palbociclib"], "metastatic", 1500, 1, endo=1)], "1L", "1차 진행 기록 없음"),
+    ("L02", "metastatic", [tx(["letrozole", "palbociclib"], "metastatic", 1500, 1, endo=1, resp="PD")], "2L",
+     "1차에서 진행 -> 2차 대상 (전달 문서 8.2절 예시)"),
+    ("L03", "metastatic", [tx(["capecitabine"], "metastatic", 180, 1, chemo=1),
+                           tx(["docetaxel"], "metastatic", 242, 2, chemo=2, stop="progression")], ">=3L",
+     "2차에서 진행 -> 3차 이상"),
+    ("L04", "metastatic", [tx(["paclitaxel"], "adjuvant", 69)], "unknown", "전이 후 투약 없음: 문서에 규칙이 없어 unknown"),
+    ("L05", "metastatic", [tx(["letrozole"], "metastatic", 1500)], "unknown", "전이 후 투약은 있는데 line 없음"),
+    ("L06", "early", [tx(["doxorubicin"], "adjuvant", 30), tx(["zoledronic acid"], "adjuvant", 400)], "adjuvant",
+     "골 보호제는 차수를 정하지 않음"),
+    ("L07", "early", [tx(["anastrozole"], "neoadjuvant", 10)], "neoadjuvant", ""),
+    ("L08", "early", [], "unknown", "투약 기록 없음"),
+]
+
+# BM-3 CIViC (전달 문서 5.4절, 판정에 쓰지 않고 근거로만 2026-10-20, data/civic/civic_bm3_evidence_<받은 날>.csv): (id, 유전자, 칸, 정답 상태, 정답 규칙 ID, 정답 태그, 메모)
+CIVIC_CASES = [
+    ("V01", "PIK3CA", gene(("R88Q", MIS)), "vus", "BM2-PIK3CA-VUS", [],
+     "허가 목록 밖. CIViC 근거 등급 A는 이유에만 적고 판정에 쓰지 않음 (팀 회의 2026-10-20, TCGA-A2-A04P)"),
+    ("V02", "PIK3CA", gene(("H1047R", MIS)), "positive", "BM2-PIK3CA-LABEL", ["PIK3CA-mut"],
+     "허가 목록이 CIViC보다 먼저"),
+    ("V03", "PIK3CA", gene(("N345K", MIS)), "vus", "BM2-PIK3CA-VUS", [], "CIViC에 감수성 근거 없음"),
+    ("V04", "AKT1", gene(("Q79K", MIS)), "vus", "BM2-AKT1-VUS", [], "CIViC 근거가 내성(Resistance)뿐이라 양성 아님"),
+    ("V05", "PIK3CA", gene(("N345K", MIS), ("K111N", MIS)), "vus", "BM2-PIK3CA-VUS", [],
+     "CIViC 근거가 있어도 판정은 허가 목록으로만"),
+]
+
+EVIDENCE_CASES = [
+    ("EV01", "PIK3CA", "VC-1", gene(("H1047R", MIS)),
+     ["H1047R (Missense_Mutation, VAF 0.3)", "허가 동반진단 목록: H1047R 해당", "급여: 심평원 공고 제2026-190호 PDF 196",
+      "지침: ESMO MBC 2026 p.1205"], "변이 종류·VAF, 허가 목록, 급여·지침 쪽 번호"),
+    ("EV02", "PIK3CA", "VC-1", gene(("N345K", MIS)), ["허가 동반진단 목록: 해당 없음"], "VUS도 근거를 적음"),
+    ("EV03", "PTEN", "VC-1", gene(("R130*", NON)), ["절단형", "급여: 심평원 공고 제2026-190호 PDF 196쪽"],
+     "절단형은 판정이 아니라 근거로만"),
+    ("EV04", "ESR1", "VC-1", gene(("D538G", MIS)), ["급여: 심평원 공고 제2026-190호에 없음", "지침: ESMO MBC 2026 p.1206"],
+     "심평원에 없는 유전자"),
+    ("EV05", "BRCA1", "VC-1", gene(("Q934*", NON)), ["급여: 심평원 공고 제2026-190호에 없음"],
+     "체세포 BRCA(sBRCA)는 급여 근거 없음"),
+    ("EV06", "BRCA1", "TCGA-XX-0001", gene(("Q934*", NON)), ["PDF 200–202쪽"], "gBRCA는 olaparib 허가사항"),
+]
+
 ESR1_CASES = [
     ("E01", gene(), _AI_PD, "retest_needed", "원발 음성 + 내분비요법 진행"),
     ("E02", gene(), _AI_CR, "negative", "진행 없음"),
@@ -411,7 +498,13 @@ def main():
         report(case_id, needle in reason, "", f"reason에 '{needle}' 포함")
 
     # 유전자 7개 (전달 문서 3.6·4.6·4.7·5.4절)
+    clinvar_ready = bm.CLINVAR_CSV.exists()
+    if not clinvar_ready:
+        print("SKIP   ClinVar 케이스 (G11, C01~C08): data/clinvar/clinvar_bm3_genes.tsv 없음. "
+              "python data/script/clinvar_download.py 실행 후 다시 시험")
     for case_id, g, ref, field, exp_marker, exp_status, exp_tags, note in GENE_CASES:
+        if case_id in CLINVAR_DEPENDENT and not clinvar_ready:
+            continue
         rec = bm.judge_gene(g, field, ref)
         ok = (rec["marker"] == exp_marker and rec["status"] == exp_status and rec["rag_tags"] == exp_tags
               and not check_shape(rec))
@@ -419,6 +512,63 @@ def main():
         if not ok:
             detail += f"  / 정답: {exp_marker} {exp_status} {exp_tags}  / {rec['reason']} {check_shape(rec)}"
         report(case_id, ok, note, detail)
+    for case_id, g, field, exp_status, exp_rule, note in CLINVAR_CASES if clinvar_ready else []:
+        rec = bm.judge_gene(g, field, "TCGA-XX-0001")
+        ok = rec["status"] == exp_status and rec["rule_id"] == exp_rule and not check_shape(rec)
+        report(case_id, ok, note, f"{rec['marker']} {rec['status']} {rec['rule_id']} {rec['evidence'].get('clinvar')}"
+               + ("" if ok else f"  / 정답: {exp_status} {exp_rule} / {rec['reason']}"))
+    # ClinVar 파일이 없으면 BM-3 없이 VUS로 남고 이유에 실행 안내가 붙는다
+    saved_path, saved_cache = bm.CLINVAR_CSV, getattr(bm._clinvar, "cache", None)
+    bm.CLINVAR_CSV = bm.CLINVAR_CSV.with_name("없는_파일.csv")
+    if hasattr(bm._clinvar, "cache"):
+        del bm._clinvar.cache
+    rec = bm.judge_gene("BRCA1", gene(("C61G", MIS)), "TCGA-XX-0001")
+    report("C07", rec["status"] == "vus" and "clinvar_download.py" in rec["reason"], "ClinVar 파일 없음",
+           f"{rec['status']} / {rec['reason']}")
+    bm.CLINVAR_CSV = saved_path
+    if saved_cache is not None:
+        bm._clinvar.cache = saved_cache
+    elif hasattr(bm._clinvar, "cache"):
+        del bm._clinvar.cache
+
+    for case_id, disease, history, exp_line, note in LINE_CASES:
+        got, why = bm.line_of({"treatment_history": history}, disease)
+        report(case_id, got == exp_line, note, f"{disease} -> {got}" + ("" if got == exp_line else f" / 정답 {exp_line} / {why}"))
+    deemed = {"treatment_history": [tx(["eribulin"], "metastatic", 900, 1, chemo=1)],
+              "deemed_lines": [{"rule_id": "DEEM-ANTHRA-TAXANE", "status": "met"},
+                               {"rule_id": "DEEM-SG-1Y", "status": "not_met"}],
+              "stage": {"disease_extent": {"status": "present", "value": "metastatic"}}}
+    reason = bm.setting_of(deemed)["reason"]
+    report("L09", "DEEM-ANTHRA-TAXANE" in reason and "DEEM-SG-1Y" not in reason, "충족(met)한 간주 규칙만 이유에 적음",
+           reason)
+
+    for case_id, g, field, exp_status, exp_rule, exp_tags, note in CIVIC_CASES:
+        rec = bm.judge_gene(g, field, "TCGA-XX-0001")
+        ok = (rec["status"] == exp_status and rec["rule_id"] == exp_rule and rec["rag_tags"] == exp_tags
+              and not check_shape(rec))
+        report(case_id, ok, note, f"{rec['marker']} {rec['status']} {rec['rule_id']} {rec['rag_tags']}"
+               + ("" if ok else f"  / 정답: {exp_status} {exp_rule} {exp_tags} / {rec['reason']}"))
+    reason = bm.judge_gene("PIK3CA", gene(("R88Q", MIS)), "TCGA-XX-0001")["reason"]
+    report("V06", "등급 A" in reason and "EID" in reason, "근거 등급과 근거 번호를 이유에 남김", reason)
+    saved_path, saved_cache = bm.CIVIC_CSV, getattr(bm._civic, "cache", None)
+    bm.CIVIC_CSV = bm.CIVIC_CSV.with_name("없는_파일.csv")
+    if hasattr(bm._civic, "cache"):
+        del bm._civic.cache
+    rec = bm.judge_gene("PIK3CA", gene(("R88Q", MIS)), "TCGA-XX-0001")
+    report("V07", rec["status"] == "vus" and "civic_download.py" in rec["reason"], "CIViC 파일 없음",
+           f"{rec['status']} / {rec['reason']}")
+    bm.CIVIC_CSV = saved_path
+    if saved_cache is not None:
+        bm._civic.cache = saved_cache
+    elif hasattr(bm._civic, "cache"):
+        del bm._civic.cache
+
+    # 근거 표시 (팀 회의 2026-10-20 5번): (id, 유전자, patient_ref, 칸, 이유에 있어야 할 글, 메모)
+    for case_id, g, ref, field, needles, note in EVIDENCE_CASES:
+        reason = bm.judge_gene(g, field, ref)["reason"]
+        missing = [n for n in needles if n not in reason]
+        report(case_id, not missing, note, reason + (f"  / 없는 글: {missing}" if missing else ""))
+
     for case_id, field, history, exp_status, note in ESR1_CASES:
         rec = bm.judge_esr1(field, {"treatment_history": history})
         ok = rec["status"] == exp_status and not check_shape(rec)
@@ -463,6 +613,11 @@ def main():
         if not ok:
             detail += f"  / 정답: {exp_sub} {exp_disease} {sorted(exp_tests)} {errors[:1]}"
         report(case_id, ok, note, detail)
+
+    pending = assess(patient(mutations=genes_with({"status": "not_done", "raw": "결과 대기"})))["tests_needed"]
+    pik = next(t for t in pending if t["rule_id"] == "BM4-PIK3CA-PENDING")
+    report("A23", pik["test"] == "PIK3CA 결과 확인" and "결과 확인 필요" in pik["reason"], "결과 확인 문구",
+           f"{pik['test']} / {pik['reason']}")
 
     # 전달 문서 8.2절 가상 차트: 입력 -> 기대 출력 (차수와 보고서 원문 파싱은 아직 비교하지 않음)
     ps, expected = handoff_example()

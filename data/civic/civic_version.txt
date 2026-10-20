@@ -1,0 +1,6 @@
+source: https://civicdb.org/downloads/nightly/nightly-ClinicalEvidenceSummaries.tsv
+downloaded: 2026-10-19
+genes: AKT1, PIK3CA, PTEN
+rows: 47
+license: CC0
+citation: Griffith M et al., Nat Genet 2017;49:170-174

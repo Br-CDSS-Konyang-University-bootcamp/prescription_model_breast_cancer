@@ -4,7 +4,7 @@
 
 ## 1. 목표와 범위
 
-v0.1은 환자 차트 원문을 받아 바이오마커 상태를 판정하고, ESMO·ASCO 지침과 국내 급여 기준에서 근거를 검색해,
+v0.1은 환자 차트 원문을 받아 바이오마커 상태를 판정하고, ESMO 지침과 국내 급여 기준에서 근거를 검색해,
 LLM이 처방 후보와 각 후보의 급여 분류를 함께 제시하는 데까지를 다룬다.
 
 - 대상: 침윤성 유방암의 전신 약물치료 (조기의 선행·보조요법, 전이성의 차수별 치료)
@@ -32,7 +32,7 @@ LLM이 처방 후보와 각 후보의 급여 분류를 함께 제시하는 데�
 (경과기록,     비식별화·추출·      상태값 판정(규칙)    │    (지침 + 급여)      (처방 후보 +
  병리, NGS,    정규화·정렬         검사 공백 탐지       └────────────────────▶   급여 분류)
  투약 기록)                                                  ▲
-                         외부 지식: ESMO·ASCO 지침 ───────────┤
+                         외부 지식: ESMO 지침 ────────────────┤
                                     심평원 급여 기준 ◀── [5] 급여 기준 자동 업데이트
 ```
 
@@ -80,7 +80,7 @@ LLM이 처방 후보와 각 후보의 급여 분류를 함께 제시하는 데�
 |---|---|---|---|
 | BM-1 | 보고서 정규화기 | LLM 파싱 (유일한 LLM 단계) | HER2 · IHC · 2+ / HER2 · ISH · 비증폭 · 1.3 |
 | BM-2 | 상태 판정기 | 규칙 | HER2 IHC 2+, ISH 비증폭 → HER2 저발현 |
-| BM-3 | 근거 주석기 | 로컬 조회 (허가사항 변이 목록, CIViC, ClinVar, VEP). OncoKB는 쓰지 않음 (2026-10-15 결정) | PIK3CA p.H1047R → 허가 동반진단 변이 (알펠리십 라벨) |
+| BM-3 | 근거 주석기 | 로컬 조회 (허가사항 변이 목록, CIViC, ClinVar). OncoKB는 쓰지 않음 (2026-10-15 결정). VEP는 쓰지 않음 (2026-10-20 회의) | PIK3CA p.H1047R → 허가 동반진단 변이 (알펠리십 라벨) |
 | BM-4 | 검사 공백 탐지기 | 규칙 | 전이성 HR+/HER2-, ESR1 미시행 → ESR1 검사 권고 |
 
 상태값: 양성 / 음성 / 저발현 / 초저발현 / 0 / VUS / 불확정(판정 정보 부족) / 미시행 / 재검 필요(결과가 오래됨). 차트에 언급이 없으면 "기록 없음". 마커별로 쓰는 값은 아래 표를 따른다 (`schemas/biomarker_record.json`의 `status`).
@@ -91,12 +91,12 @@ LLM이 처방 후보와 각 후보의 급여 분류를 함께 제시하는 데�
 |---|---|---|---|
 | HER2 | IHC 3+, IHC 2+/ISH 증폭, 또는 IHC 점수 없이 ISH 증폭 → 양성 · IHC 1+ 또는 2+/ISH 비증폭 → 저발현 · IHC 0이면서 10% 미만 세포에 미약한 막 염색(`faint: true`) → 초저발현 · IHC 0 → 음성 (아래 세부 규칙, 2026-10-15) | 양성 / 저발현 / 초저발현 / 음성 / unknown | 초저발현은 심평원 기준 최종 음성. IHC 2+인데 ISH가 없으면 unknown + ISH 검사 권고. `zero`는 쓰지 않음 |
 | ER | <1% → 음성 · 1–10% → 저발현 · >10% → 양성. Allred 총점을 먼저 본다: 0–2 음성, 3–4 저발현, 5는 비율로 가름, 6–8 양성 (아래 세부 규칙) | 양성 / 저발현 / 음성 / 불확정 | ER 저발현은 `ER-low` 태그 |
-| PR | Allred 총점 0~2 음성, 3 이상 양성 → 구간 최대값 ≥9% 양성 → 비율 ≥9% 양성 (아래 세부 규칙, 2026-10-15). 저발현 범주 없음 | 양성 / 음성 / unknown | `PR-low` 태그는 쓰지 않음 (ASCO·ESMO에 없는 범주, 2026-10-15) |
+| PR | Allred 총점 0~2 음성, 3 이상 양성 → 구간 최대값 ≥9% 양성 → 비율 ≥9% 양성 (아래 세부 규칙, 2026-10-15). 저발현 범주 없음 | 양성 / 음성 / unknown | `PR-low` 태그는 쓰지 않음 (ESMO 지침에 없는 범주, 2026-10-15) |
 | Ki-67 | percent → range → result 순서. 20% 이상 → 고증식(positive) · 20% 미만 → negative · 구간이 20%에 걸치거나 적힌 판정이 intermediate → intermediate · 쓸 값 없음 → unknown (2026-10-15) | positive / negative / intermediate / unknown | 기준값 20%는 2026-10-15 확정. `Ki-67-high` 태그 |
 | gBRCA1/2, PALB2 | ClinVar 병원성·병원성 가능이고 리뷰 등급 2성 이상 → 양성 (ACMG 4·5등급 대응) · 판정 상충 또는 1성 이하 → VUS | 양성 / 음성 / VUS | VUS는 음성 처리하되 표시 유지. TCGA 정답에서는 BRCA1/2 종양 엑솜 결과를 gBRCA 측정으로 가정 (A→B 문서 §4.7) |
 | 체세포 BRCA | 종양 검사에서만 확인된 병원성 변이 | 양성 / 음성 | gBRCA와 별도 필드. 가상·실제 차트에서 생식세포 검사 언급이 없으면 gBRCA는 기록 없음 (체세포 결과로 대신하지 않음) |
-| PIK3CA / AKT1 | ① FDA·식약처 허가 동반진단 변이 목록 → 양성 · ② 목록에 없고 CIViC 근거 있음 → 양성 + `off-label-variant` 태그 · ③ 그 외 → VUS | 양성 / 음성 / VUS | 패널에 해당 유전자가 없으면 미시행. 변이 목록은 허가사항 원문에서 옮기고 출처·쪽을 저장 |
-| PTEN | VEP 절단형(nonsense, frameshift, 필수 스플라이스 부위) → 양성 (기능 소실) · 미스센스이고 ClinVar 병원성 또는 CIViC 근거 → 양성 · 그 외 → VUS | 양성 / 음성 / VUS | |
+| PIK3CA / AKT1 | ① FDA·식약처 허가 동반진단 변이 목록 → 양성 · ② 그 외 → VUS. CIViC 근거는 판정에 쓰지 않고 이유에 표시 (2026-10-20 회의) | 양성 / 음성 / VUS | 패널에 해당 유전자가 없으면 미시행. 변이 목록은 허가사항 원문에서 옮기고 출처·쪽을 저장 |
+| PTEN | 단백질이 바뀌는 변이가 있으면 양성, 없으면 음성 (변이 유무, 2026-10-20 회의). 절단형·ClinVar·CIViC는 판정에 쓰지 않고 이유에 표시 | 양성 / 음성 | |
 | ESR1 | 허가 동반진단의 리간드 결합 도메인 변이 (예: Y537S/N/C, D538G) | 양성 / 음성 / 재검 필요 | 마지막 내분비요법 진행 이전 결과면 재검 필요, cfDNA 우선 |
 | PD-L1 (TNBC) | 약제별 기준: pembrolizumab은 22C3 CPS ≥ 10 (공고 p.58~59), atezolizumab은 SP142 IC ≥ 1% | 양성 / 음성 | 검사법이 기준과 다르면 해당 약제 판정에 쓰지 않음. 검사법과 점수를 함께 저장 |
 
@@ -138,7 +138,7 @@ PR (**팀 결정 2026-10-15**. 저발현 범주 없음. 비율 기준을 9%로 �
 
 처음 맞는 값으로 판정한다. 수치로 정한 판정과 적힌 `result`가 다르면 수치를 따르고 `reason`에 확인 필요를 적는다. **PR에는 `indeterminate`를 쓰지 않는다.**
 
-**PR-low 태그: 쓰지 않는다** (2026-10-15 결정). ASCO·ESMO 지침에 PR-low 범주가 없어 RAG 태그로도 쓸 곳이 없다.
+**PR-low 태그: 쓰지 않는다** (2026-10-15 결정). ESMO 지침에 PR-low 범주가 없어 RAG 태그로도 쓸 곳이 없다.
 
 ER·PR 공통: 수치로 정한 판정과 적힌 `result`가 다르면 수치를 따르고, `reason`에 둘 다 적어 확인이 필요하다고 표시한다.
 
@@ -219,7 +219,6 @@ TCGA 정답은 Ki-67이 모두 기록 없음이라 HR+/HER2-는 분자 아형이
 
 - ESMO 조기 유방암 지침(2024)과 이후 eUpdate
 - ESMO 전이성 유방암 지침(2026-05 개정)
-- ASCO 유방암 지침 전체와 Rapid Recommendation Update (기본 지침과 업데이트를 따로 저장하고 연결)
 - 심평원 항암화학요법 등 공고내용 전문(공고책자), 이후 개정 공고, 허가초과 항암요법 목록. 약제·요법 하나의 투여 대상 조건을 한 청크로 만들고 시행일을 저장한다.
 
 전처리와 청킹:
@@ -248,7 +247,6 @@ TCGA 정답은 Ki-67이 모두 기록 없음이라 HR+/HER2-는 분자 아형이
 - 임베딩 bge-m3 (한국어 질의 ↔ 영문 문서) + BM25 하이브리드 검색 (약제명·유전자명 정확 일치)
 - setting, subtype, line으로 거른 뒤 biomarker_tags로 가중치, 교차 인코더(bge-reranker-v2-m3)로 재정렬
 - 질의 예: "HR+/HER2- metastatic, 2nd line, prior CDK4/6 inhibitor, ESR1 mutated"
-- ESMO와 ASCO가 다르면 출처별로 나란히 제시하고 합치지 않는다
 - 개정 시 재색인하고, 대체된 청크는 지우지 않고 superseded_by로 표시해 과거 추천을 재현할 수 있게 한다
 - 처방 후보가 정해지면 후보 약제명과 환자 상태로 급여 기준 청크(doc_type = reimbursement)를 한 번 더 검색한다
 
@@ -273,7 +271,7 @@ LLM은 검색된 지침·급여 기준 청크 안에서만 처방 후보와 급�
   }],
   "tests_needed": [{"test": "ESR1 (cfDNA)", "reason": "..."}],
   "out_of_scope": false,
-  "conflicts": ["ESMO와 ASCO 권고 차수가 다름"]
+  "conflicts": ["지침 권고 차수와 급여 기준 차수가 다름"]
 }
 ```
 
@@ -406,7 +404,7 @@ recall@5가 부족하면 공고·지침에서 만든 (질의, 정답 청크) 쌍
 | RAG 프레임워크 | LangChain·LangGraph, Haystack |
 | 평가 | DeepEval |
 
-유전체 도구: GDC Data Portal·gdc-client, cBioPortal API, TCGAbiolinks(R), Ensembl VEP, vcf2maf, CIViC nightly TSV, ClinVar FTP(`variant_summary`, VCF), PharmCAT(PGx, v0.2).
+유전체 도구: GDC Data Portal·gdc-client, cBioPortal API, TCGAbiolinks(R), vcf2maf, CIViC nightly TSV, ClinVar FTP(`variant_summary`, VCF), PharmCAT(PGx, v0.2).
 
 ## 10. 필요 데이터셋
 
@@ -415,14 +413,13 @@ v0.1:
 | 데이터셋 | 쓰는 모듈 | 접근 | 주의 |
 |---|---|---|---|
 | ESMO 조기·전이성 유방암 지침 | RAG | 무료 공개 | 상업적 재사용 조건 확인 |
-| ASCO 유방암 지침, Rapid Update | RAG | 대부분 공개 (JCO) | 기본 지침과 업데이트 연결 관리 |
 | 심평원 암질환 사용약제 및 요법 공고 | RAG (급여) | 공개 | 수시 개정, 공고일·시행일 관리 |
 | 식약처 의약품 허가사항 | LLM 추천 | 공개 | 적응증 추가 시 갱신 |
 | 가상 환자 차트 | 입력 모듈, 전체 테스트 | 직접 작성 | 작성자가 아닌 팀원이 TCGA 정답과 대조해 교차 검토 |
 | TCGA-BRCA 임상 | 가상 차트 작성, BM-2 테스트 | GDC·cBioPortal | HER2 점수·Ki-67 결측 많음 |
 | TCGA-BRCA 체세포 변이·복제수 | BM-1 ~ BM-3 테스트 | GDC·cBioPortal | 원발 종양 위주 |
 | FDA 라벨(DailyMed)·SSED, 식약처 허가사항 | BM-3 (허가 동반진단 변이 목록) | 공개 | 원문에서 변이를 옮기고 문서·버전·쪽 저장 |
-| CIViC | BM-3 (허가 목록 밖 체세포 변이) | CC0, nightly TSV | 받은 날짜를 파일명에 넣음. 인용: Griffith M et al., Nat Genet 2017 |
+| CIViC | BM-3 참고 근거 (판정에 쓰지 않음, 2026-10-20 회의) | CC0, nightly TSV | 받은 날짜를 파일명에 넣음. 인용: Griffith M et al., Nat Genet 2017 |
 | ClinVar | BM-3 (생식세포, PTEN 미스센스) | 공개, FTP 다운로드 | 판정이 엇갈리는 변이 존재. 100MB가 넘어 커밋하지 않고 스크립트만 올림 |
 
 v0.2:
@@ -490,7 +487,7 @@ H&E에서 ER/PR/HER2를 예측해 차트 값과의 불일치를 표시하는 QC 
 - 바이오마커 모듈: HER2 IHC 2+/ISH 미시행, ER 5%, gBRCA VUS, 진행 전 ESR1 결과 같은 경계 사례 판정 테스트. 판정 기준은 ASCO/CAP 원문과 대조한다
 - RAG: 아형 × 세팅 × 차수 조합별 질의의 recall@5
 - 급여 분류: 가상 환자 × 약제마다 심평원 공고 조건으로 정답 급여 분류(`covered` 등 4종)를 만든다. 분류 정확도와, 인용한 공고 위치가 정답 출처와 같은 비율
-- 처방 추천: ESMO·ASCO 치료 알고리즘(아형 × 병기 범주 × 차수 × 바이오마커 → 권고 요법)을 정답표로 옮겨 허용 선택지로 쓴다. 1순위 추천이 허용 선택지 안에 있는 비율, 허용 선택지 재현율, 인용 출처 일치율. 시스템이 같은 지침을 검색하므로 지침이 옳은지가 아니라 지침을 찾아 적용하는 능력만 평가한다
+- 처방 추천: ESMO 치료 알고리즘(아형 × 병기 범주 × 차수 × 바이오마커 → 권고 요법)을 정답표로 옮겨 허용 선택지로 쓴다. 1순위 추천이 허용 선택지 안에 있는 비율, 허용 선택지 재현율, 인용 출처 일치율. 시스템이 같은 지침을 검색하므로 지침이 옳은지가 아니라 지침을 찾아 적용하는 능력만 평가한다
 - 안전 위반 검사 (자동, 0건이 합격 기준): HER2 음성 환자에게 HER2 표적치료 추천, ER·PR 모두 음성 환자에게 내분비요법 단독 추천, 이미 진행된 약제 재추천, 인용 없는 문장, 범위 외 환자(DCIS, 남성 등)에게 추천
 - 정답표 신뢰도: 같은 시나리오 30~50건을 두 사람이 따로 정답표로 만들고 일치율(Cohen's kappa)을 잰다. 다르면 원문을 다시 보고 합의하고, 합의 내용을 기록한다
 - 보조 지표: TCGA 실제 투약과 큰 방향(HER2 표적치료, 내분비요법 여부)의 일치율. 치료 시기가 오래돼(대부분 2013년 이전) 정답으로 쓰지 않는다
@@ -502,7 +499,7 @@ H&E에서 ER/PR/HER2를 예측해 차트 값과의 불일치를 표시하는 QC 
 | 항목 | 이전 | v0.1 |
 |---|---|---|
 | 입력 | 원발암 H&E 슬라이드 + 사용자 입력 | 차트 원문. H&E는 v0.2 QC 보조 |
-| 처방 근거 | NCI PDQ RAG. ESMO·NCCN·NICE·한국유방암학회 제외 | ESMO·ASCO 지침 RAG. ESMO는 웹사이트 약관상 비영리 사용에 서면 허가가 필요 없어 사용 확정. NCCN은 여전히 쓰지 않음 |
+| 처방 근거 | NCI PDQ RAG. ESMO·NCCN·NICE·한국유방암학회 제외 | ESMO 지침 RAG. ESMO는 웹사이트 약관상 비영리 사용에 서면 허가가 필요 없어 사용 확정. NCCN과 ASCO 치료 지침(재사용 불가, 2026-10-20)은 쓰지 않음 |
 | 출력 | "조건에 맞는 치료 옵션" (처방 추천 아님) | 처방 후보 + 급여 분류 |
 | 병리 모델 | 승인 필요 모델(UNI, CONCH, Virchow2) 제외, Phikon-v2·H-optimus-0 + ABMIL | H-optimus-0 1순위, Hibou-B·Phikon-v2·CHIEF 비교. 승인 필요 모델 제외 원칙은 유지 (TITAN 제거) |
 | 급여 판정 | 공고 제2025-210호 고정, 규칙 코드 판정 | 공고책자 + 개정 공고 자동 업데이트, 허가초과 인정 목록 포함 |
@@ -521,15 +518,15 @@ H&E에서 ER/PR/HER2를 예측해 차트 값과의 불일치를 표시하는 QC 
 - [ ] LLM 공통 인터페이스 `llm/` (0단계 A 담당)
 - [ ] ESMO 치료 알고리즘 도식의 텍스트 변환과 검수
 - [x] ESMO 사용 조건 확인 (2026-10-07): ESMO 웹사이트 약관은 개인·비영리 사용을 허가 없이 허용하고, AI 관련 조항은 없다. 비영리 프로젝트이므로 ESMO로 진행한다
-- [ ] ASCO 지침의 재사용 조건 확인
+- [x] ASCO 지침의 재사용 조건 확인 (2026-10-20): 재사용 불가. RAG에서 ASCO 청커·청크·사전 표현을 지웠다
 - [ ] ESMO 전이성 유방암 지침(2026) 원문 확보 경로 정하기. Annals of Oncology 논문은 아직 Elsevier 공개 라이선스가 붙지 않았으므로 esmo.org 게시본을 우선 검토한다
 - [ ] 심평원 급여 공고 수집, 조건 단위 청킹, 개정 추적 방법 정하기
 - [ ] 공고책자 날짜 = 마지막 반영 공고 시행일 가정을 몇 달간 대조해 확정
 - [x] ER·PR 판정 규칙 (2026-10-12, §5 세부 판정 규칙): ER만 저발현, PR 1–10%는 양성 + `PR-low` 태그. 2026-10-15 변경: PR은 Allred 총점(0–2 음성, 3 이상 양성) → 구간 최대값 → 비율 순서로 보고 기준을 9%로 둔다 (9% 이상 양성, unknown 사용). `PR-low` 태그는 없앴다 (ASCO·ESMO에 없는 범주). ER: ER은 Allred 총점을 먼저 본다 (0–2 음성, 3–4 저발현, 5는 비율로 가름, 6–8 양성). Allred가 없으면 비율 1–10%를 저발현으로 판정. 같은 날 추가: ER 비율 구간이 0부터 시작하면 최대값으로 판정 (`[0,1]` 음성, `[0,9]`·`[0,10]` 저발현)
 - [x] HER2 경계 사례 (2026-10-15, B 결정, §5 HER2 세부 표): IHC 2+ + 적힌 판정 positive + ISH 없음(미시행·기록 없음)은 양성 + ISH 검사 권고 (TCGA 5명). IHC 0 + ISH 증폭은 데이터 오류 가능성이 있어 HER2 값을 판정에서 제외하고 불확정 + 원자료 확인 (TCGA 0명). A에게 알려 정답·가상 차트 기준을 맞춘다
-- [x] BM-3 출처 (2026-10-15 결정): OncoKB를 쓰지 않고 허가사항 변이 목록 → CIViC → ClinVar·VEP를 로컬로 조회한다 (`src/input/handoff_to_B.md` §5). `schemas/biomarker_record.json`의 `evidence.oncokb`를 출처 중립 `annotation`으로 바꾸는 스키마 변경은 4명 검토 후 반영
+- [x] BM-3 출처 (2026-10-15 결정): OncoKB를 쓰지 않고 허가사항 변이 목록 → CIViC → ClinVar·VEP를 로컬로 조회한다 (`src/input/handoff_to_B.md` §5). `schemas/biomarker_record.json`의 `evidence.oncokb`를 출처 중립 `annotation`으로 바꾸는 스키마 변경은 4명 검토 후 반영. 2026-10-20 회의: VEP는 쓰지 않고, CIViC는 판정에 쓰지 않고 근거로만 표시하며, PTEN은 변이 유무로 판정한다
 - [ ] BM-2 수치 기준을 ASCO/CAP 원문과 대조해 확정 (HER2 세부 조건 포함). 의료진 검토는 하지 않는다 (2026-10-16)
-- [ ] §12 정답표 작성: 급여 분류 정답표, 처방 허용 선택지 표(ESMO·ASCO 치료 알고리즘), 안전 위반 규칙. 담당과 시나리오 수 정하기 (2026-10-16 추가)
+- [ ] §12 정답표 작성: 급여 분류 정답표, 처방 허용 선택지 표(ESMO 치료 알고리즘), 안전 위반 규칙. 담당과 시나리오 수 정하기 (2026-10-16 추가)
 - [x] Ki-67 판정 기준 (2026-10-15 확정): 20% 이상 고증식(positive), 미만 negative, 20%에 걸치는 구간·적힌 판정 intermediate는 intermediate, 쓸 값 없으면 unknown (`BM1_ER,PR,HER2,Ki_67,subtype.py`의 `KI67_HIGH_MIN`). TCGA는 Ki-67이 모두 기록 없음이라 정답 영향 없음
 - [x] ER low는 아형에서 HR+로 본다 (2026-10-15 확정). TCGA ER low 14명은 원본 `<10%` + Positive를 크롭 단계에서 `1-9%` + Low Positive로 나눈 값
 - [x] 기록 없음(`not_recorded`)은 검사 권고를 내지 않고 기록 없음으로만 표기한다 (2026-10-15 확정). 검사 권고(BM-4)는 미시행(`not_done`)일 때만 낸다
@@ -600,7 +597,7 @@ team_project/
 | 폴더 | 담당 | 사용법 | 입력 → 출력 |
 |---|---|---|---|
 | `src/input/` | A | 비식별화(IN-0)부터 유전자 보고서 전달(IN-7)까지. 환자 텍스트는 `llm/`의 로컬 설정으로만 처리 | 차트 원문 → `patient_state` |
-| `src/biomarker/` | B | BM-1 파싱(로컬 LLM), BM-2·BM-4는 규칙 코드, BM-3은 허가사항 변이 목록·CIViC·ClinVar·VEP 로컬 조회. 아형과 치료 상황(현재 범주, 차수)도 산출 | `patient_state` → `biomarker_record` |
+| `src/biomarker/` | B | BM-1 파싱(로컬 LLM), BM-2·BM-4는 규칙 코드, BM-3은 허가사항 변이 목록·CIViC·ClinVar 로컬 조회. 아형과 치료 상황(현재 범주, 차수)도 산출 | `patient_state` → `biomarker_record` |
 | `src/rag/` | C | 지침 수집·파싱·청킹, 공용 Qdrant 색인, 검색 API. D가 호출할 색인 함수를 여기서 공개 | 지침 PDF, 급여 청크 → 검색 결과(`chunk` 목록) |
 | `src/reimbursement/` | D | 심평원 게시판 수집, 날짜 규칙, SQLite 레지스트리, 급여 청크 생성. 색인 반영은 `src/rag/` 함수 호출 | 심평원 공고 → 급여 `chunk` |
 | `src/recommend/` | B (2단계) | 프롬프트 구성, 로컬 LLM 호출, 스키마 검증, 환각 방지 후처리, 급여 분류 | `patient_state` + `biomarker_record` + 검색 결과 → `recommendation` |
@@ -698,7 +695,7 @@ python data/script/tcga_brca_crop.py
 |---|---|
 | BM-1 보고서 정규화기 | 가상·실제 차트의 유전자 보고서 원문(`genomic_reports[].raw_text`)을 로컬 LLM으로 파싱 (모듈 안의 유일한 LLM 단계). `molecular.mutations`에 같은 정보가 있으면 그쪽을 우선 |
 | BM-2 상태 판정기 | §5 판정 기준표를 규칙 코드로 작성. 상태값: 양성 / 음성 / 저발현 / 초저발현 / 0 / VUS / 불확정 / 미시행 / 재검 필요 / 기록 없음. BM-2 ~ BM-4는 한 파일 `src/biomarker/BM1_ER,PR,HER2,Ki_67,subtype.py`에 둔다 (진입점 `assess(patient_state)`, 2026-10-15: ER·PR·HER2·Ki-67 판정, 아형, 현재 범주, 검사 공백. 유전자 7개는 2026-10-16에 1차 규칙(허가 변이 목록·절단 변이, `src/biomarker/README.md`)으로 작성, 유전자 검사 공백도 같은 날 추가, 차수는 아직). 재발 환자는 재생검 결과로 판정하고 원발 대비 변화를 `reason`에 적음 |
-| BM-3 근거 주석기 | 허가사항 변이 목록 규칙표(원문에서 작성, 출처 기록), CIViC·ClinVar 다운로드 스크립트(`data/script/`), VEP 로컬 실행. 외부 API 호출 없음. OncoKB는 쓰지 않음 |
+| BM-3 근거 주석기 | 허가사항 변이 목록 규칙표(원문에서 작성, 출처 기록), CIViC·ClinVar 다운로드 스크립트(`data/script/`). 외부 API 호출 없음. OncoKB는 쓰지 않음 |
 | BM-4 검사 공백 탐지기 | §5 검사 공백 규칙 (gBRCA, PIK3CA·AKT1·PTEN, ESR1 재검, PD-L1, HER2 재판정, IHC 2+ ISH 검사) |
 | 아형 | ER·PR·HER2 상태로 HR+/HER2-, HR+/HER2+, HR-/HER2+, TNBC. 재발 환자는 재생검 결과 기준 |
 | 치료 상황 (2026-10-16 담당 변경) | B: 현재 범주(`setting.disease`), 국소 재발 후 수술이면 수술후보조요법(`SET-LOCAL-ADJ`), PD-L1 약제별 판정. A(변환 단계): 차수, 심평원 투여단계(고식적 내분비요법과 고식적 항암화학요법을 따로 셈), anthracycline 누적 용량. 규칙은 `src/input/handoff_to_B.md` §6·§10.2 |
@@ -722,13 +719,13 @@ python data/script/tcga_brca_crop.py
 
 | 작업 | 내용 |
 |---|---|
-| 수집 | ESMO 조기(2024)·eUpdate, ESMO 전이성(2026-05), ASCO 유방암 지침과 Rapid Update. 원문과 발행일 보관 |
-| 사용 조건 | ASCO 재사용 조건 확인, ESMO 전이성 2026 원문 확보 경로 결정 (esmo.org 게시본 우선) |
+| 수집 | ESMO 조기(2024)·eUpdate, ESMO 전이성(2026-05). 원문과 발행일 보관 |
+| 사용 조건 | ESMO 전이성 2026 원문 확보 경로 결정 (esmo.org 게시본 우선) |
 | 파싱 | Docling. 실패하면 Marker, PyMuPDF 비교 |
 | 청킹 | 권고문 단위(약 300–800 토큰), 근거 수준(LoE/GoR, ESMO-MCBS, ESCAT), 부모-자식 구조, 표는 행 단위 문장화 |
 | 알고리즘 도식 | 노드-엣지 텍스트("조건 → 권고")로 변환 후 사람 검수 |
 | 공용 색인 | Qdrant + bge-m3 + BM25 하이브리드. `schemas/chunk.json` 메타데이터, `superseded_by` 관리. D가 호출할 색인 함수 공개 |
-| 검색 API | setting·subtype·line 하드 필터 → biomarker_tags 가중치 → bge-reranker-v2-m3 재정렬. ESMO와 ASCO는 출처별로 따로 반환 |
+| 검색 API | setting·subtype·line 하드 필터 → biomarker_tags 가중치 → bge-reranker-v2-m3 재정렬. ESMO EBC와 MBC는 출처별로 따로 반환 |
 | 평가 | 아형 × 세팅 × 차수 조합별 질의의 recall@5. 평가용 질의는 Claude API로 생성 가능 (환자 정보 없음) |
 
 산출물: 지침 청크, 공용 색인, 검색 API. 2단계: 후보 약제명으로 급여 청크를 다시 검색하는 2차 검색 연결, RAGAS 평가.

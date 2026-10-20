@@ -10,7 +10,7 @@
     "schema_version": {"const": "0.1-draft"},
     "chunk_id": {"type": "string", "description": "예: esmo-mbc-2026-05-hrpos-2l-r03, hira-booklet-20261001-p52-c02"},
     "doc_type": {"enum": ["guideline", "reimbursement"]},
-    "source": {"enum": ["ESMO-EBC", "ESMO-MBC", "ASCO", "HIRA-booklet", "HIRA-notice", "HIRA-preview", "HIRA-offlabel"]},
+    "source": {"enum": ["ESMO-EBC", "ESMO-MBC", "HIRA-booklet", "HIRA-notice", "HIRA-preview", "HIRA-offlabel"]},
     "version": {"type": "string", "description": "지침 발행일·eUpdate 날짜 또는 공고책자 날짜. 예: 2026-05, 2026-10-01"},
     "section": {"type": "string", "description": "예: ER+/HER2- 2차, 9. 유방암 > 2. 수술후보조요법"},
     "page_start": {"type": ["integer", "null"]},
