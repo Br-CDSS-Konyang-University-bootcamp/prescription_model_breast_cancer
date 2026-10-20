@@ -189,6 +189,25 @@ def test_matching_line_chunks_always_reach_the_candidates(memory_index):
     assert len(results) == 2 and all(">=3L" in r["line"] or "any" in r["line"] for r in results)
 
 
+def test_negative_marker_recommendations_are_pushed_down(memory_index):
+    # gBRCA 음성 환자: gBRCA만 조건인 권고는 감점. "PIK3CA, AKT1 or PTEN" 권고는 PIK3CA만 음성이면 그대로
+    rag_client, indexer = memory_index
+    from src.rag import searcher
+    from src.rag.chunk_store import load_guideline_chunks, select_index_chunks
+
+    indexer.index_chunks(select_index_chunks(load_guideline_chunks()))
+    results = searcher.search_guidelines("x", setting="early", subtype="HR+/HER2-", top_k=200, rerank=False,
+                                         negative_tags=["gBRCA"])
+    tags = [set(r["biomarker_tags"]) for r in results]
+    first = next(i for i, t in enumerate(tags) if t and t <= {"gBRCA"})
+    assert all(t and t <= {"gBRCA"} for t in tags[first:])
+    mixed = searcher.search_guidelines("x", setting="metastatic", subtype="HR+/HER2-", line="2L", top_k=200,
+                                       rerank=False, negative_tags=["PIK3CA-mut"])
+    capi = next(r for r in mixed if r["chunk_id"].endswith("luminal-2l-49918b"))
+    alpe = next(r for r in mixed if r["chunk_id"].endswith("luminal-2l-8d7349"))
+    assert capi["score"] > alpe["score"]  # alpelisib(PIK3CA만)은 감점, capivasertib(PIK3CA·AKT1·PTEN)은 그대로
+
+
 def test_public_api_for_reimbursement_module():
     # D(src/reimbursement/index.py)가 src.rag에서 부르는 함수들
     import src.rag as rag

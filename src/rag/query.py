@@ -81,6 +81,30 @@ def build_query(profile: dict, terms: list[dict] = None) -> str:
     return " ".join(current + (["after " + ", ".join(prior)] if prior else []))
 
 
+# 음성으로 볼 상태 (B는 VUS를 음성으로 처리한다, src/biomarker/README.md)
+NEGATIVE_STATUSES = {"negative", "vus"}
+# 태그 → 그 태그를 음성으로 보려면 음성이어야 하는 레코드 (marker, 음성 상태들). 모두 음성이어야 태그가 음성이다.
+# HER2-low 권고는 HER2가 0(negative)이나 초저발현이면 맞지 않는다. ER-low는 TNBC 소단원의 설명 권고라 넣지 않는다
+TAG_NEGATIVE_WHEN = {
+    "gBRCA": [("gBRCA1", NEGATIVE_STATUSES), ("gBRCA2", NEGATIVE_STATUSES)],
+    "sBRCA": [("sBRCA1", NEGATIVE_STATUSES), ("sBRCA2", NEGATIVE_STATUSES)],
+    "gPALB2": [("PALB2", NEGATIVE_STATUSES)],
+    "PIK3CA-mut": [("PIK3CA", NEGATIVE_STATUSES)],
+    "AKT1-mut": [("AKT1", NEGATIVE_STATUSES)],
+    "PTEN-alt": [("PTEN", NEGATIVE_STATUSES)],
+    "ESR1-mut": [("ESR1", NEGATIVE_STATUSES)],
+    "PD-L1+": [("PD-L1", {"negative"})],
+    "HER2-low": [("HER2", {"negative", "ultralow"})],
+    "HER2-ultralow": [("HER2", {"negative"})],
+}
+
+
+def negative_tags(record: dict) -> list[str]:
+    """biomarker_record에서 환자가 음성으로 확인된 바이오마커의 태그 (검색 감점용). 미시행·기록 없음은 넣지 않는다."""
+    status = {r["marker"]: r.get("status") for r in record.get("records", [])}
+    return [tag for tag, needs in TAG_NEGATIVE_WHEN.items() if all(status.get(m) in ok for m, ok in needs)]
+
+
 PATIENT_KEYS = ("metastatic_sites", "menopausal_status", "pcr", "stage_at_diagnosis", "prior_subclasses", "prior_classes")
 
 
@@ -101,6 +125,7 @@ def search_args(record: dict, **kwargs) -> dict:
         "line": setting.get("line"),
         "biomarker_tags": tags,
         "metastatic_sites": profile["metastatic_sites"] or None,
+        "negative_tags": negative_tags(record),
     }
     args.update(overrides)
     return args

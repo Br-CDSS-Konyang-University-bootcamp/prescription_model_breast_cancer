@@ -3,8 +3,8 @@
 import json
 from pathlib import Path
 
-from src.rag.query import (TAG_TO_MARKER, build_query, profile_from_record, profile_from_tags, search_args,
-                           site_search_args)
+from src.rag.query import (TAG_TO_MARKER, build_query, negative_tags, profile_from_record, profile_from_tags,
+                           search_args, site_search_args)
 
 BASE_DIR = Path(__file__).resolve().parents[2]
 
@@ -73,3 +73,14 @@ def test_site_search_args_one_search_per_known_site():
     assert all(a["line"] is None and a["metastatic_sites"] == ["bone", "liver", "brain"] and a["top_k"] == 3
                for a in args)
     assert site_search_args(RECORD) == []
+
+
+def test_negative_tags_need_every_marker_behind_the_tag_negative():
+    record = {"records": [
+        {"marker": "gBRCA1", "status": "negative"}, {"marker": "gBRCA2", "status": "vus"},  # VUS는 음성 처리
+        {"marker": "PIK3CA", "status": "negative"}, {"marker": "AKT1", "status": "not_done"},
+        {"marker": "PD-L1", "status": "unknown"}, {"marker": "HER2", "status": "negative"},
+    ]}
+    assert negative_tags(record) == ["gBRCA", "PIK3CA-mut", "HER2-low", "HER2-ultralow"]
+    assert negative_tags({"records": [{"marker": "gBRCA1", "status": "negative"}]}) == []  # gBRCA2 모름
+    assert search_args(RECORD)["negative_tags"] == ["PIK3CA-mut"]

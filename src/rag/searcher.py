@@ -32,6 +32,9 @@ SITE_SECTIONS = {
     "site-bm-her2neg": {"brain"},
     "site-lmd": {"leptomeningeal"},
 }
+# 환자가 음성으로 확인된 바이오마커만을 조건으로 하는 권고 (예: gBRCA 음성 환자에게 gBRCA 변이용 olaparib).
+# 권고 문장이 "adjuvant … HR-positive EBC"처럼 질의와 겹쳐 재정렬 점수가 높아도 맞지 않는다 (--auto-query E01·E02·E05)
+NEGATIVE_MARKER_PENALTY = 1.0
 CACHE_SIZE = 256  # 같은 조건의 검색 결과를 기억해 두는 개수. 색인이 바뀌면 indexer가 비운다
 
 _cache = {}
@@ -49,6 +52,7 @@ def search_guidelines(
         with_parent: bool = False,
         rerank: bool = True,
         metastatic_sites: list[str] = None,
+        negative_tags: list[str] = None,
 ) -> list[dict]:
     """지침 권고 청크를 찾는다. with_parent=True면 각 결과에 부모(소단원) 청크를 "parent" 키로 붙인다
     (LLM에는 소단원 전체를 함께 넘긴다, PROJECT.md §6).
@@ -57,15 +61,18 @@ def search_guidelines(
     차수는 같으면 가점, 청크가 다른 차수만 가리키면 감점한다. 차수·태그 가점은 두 경우 모두 더한다. 결과의 score는 그 최종 점수다.
     metastatic_sites(예: ["bone", "liver"])를 주면 부위별 권고(뼈·뇌·연수막 전이)를 그 부위 전이가 있으면 가점,
     없으면 감점한다. 주지 않거나 빈 목록이면 부위를 모르는 것으로 보고 점수를 바꾸지 않는다.
+    negative_tags(예: ["gBRCA"])는 환자가 음성으로 확인된 바이오마커의 태그다. 권고의 바이오마커 태그가 모두 여기에
+    들면 감점한다 (예: "PIK3CA, AKT1 or PTEN" 권고는 셋 다 음성일 때만). src/rag/query.py의 search_args가 만든다.
     같은 조건의 검색은 기억해 둔 결과를 돌려준다 (색인을 바꾸면 비워진다)."""
     sites = _site_keys(metastatic_sites)
+    negatives = frozenset(negative_tags or ())
     key = (query_text, setting, subtype, line, source, tuple(biomarker_tags or ()), top_k, with_parent, rerank,
-           tuple(sorted(sites)) if sites is not None else None)
+           tuple(sorted(sites)) if sites is not None else None, negatives)
     if key not in _cache:
         if len(_cache) >= CACHE_SIZE:
             _cache.clear()
         _cache[key] = _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, with_parent, rerank,
-                              sites)
+                              sites, negatives)
     return copy.deepcopy(_cache[key])  # 받은 쪽이 결과를 고쳐도 기억해 둔 값은 그대로
 
 
@@ -97,7 +104,7 @@ def _site_adjust(parent_id, sites) -> float:
 
 
 def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, with_parent, rerank,
-            sites=None) -> list[dict]:
+            sites=None, negatives=frozenset()) -> list[dict]:
     client = get_qdrant_client()
     model = get_embedding_model()
 
@@ -176,6 +183,10 @@ def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, w
 
         # 전이 부위: 부위별 소단원 권고만 해당
         score += _site_adjust(payload.get("parent_id"), sites)
+
+        # 음성 바이오마커: 권고가 조건으로 삼는 태그가 모두 환자에게 음성이면 감점
+        if negatives and chunk_tags and chunk_tags <= negatives:
+            score -= NEGATIVE_MARKER_PENALTY
 
         scored_results.append({
             "score": score,

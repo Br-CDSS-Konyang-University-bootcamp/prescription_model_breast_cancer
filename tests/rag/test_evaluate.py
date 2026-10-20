@@ -7,6 +7,7 @@ from pathlib import Path
 
 from src.rag.chunk_store import load_guideline_chunks, select_index_chunks
 from src.rag.evaluate import doc_of, evaluate, load_cases, score_case
+from src.rag.query import TAG_TO_MARKER
 
 BASE_DIR = Path(__file__).resolve().parents[2]
 CASES = load_cases()
@@ -43,6 +44,8 @@ def test_case_ids_unique_and_values_valid():
         assert c["pcr"] in ("", "yes", "no") and c["stage_at_diagnosis"] in ("", "early", "locally_advanced",
                                                                              "metastatic"), c["case_id"]
         assert set(c["prior_subclasses"]) <= DRUG_SUBCLASSES and set(c["prior_classes"]) <= DRUG_CLASSES, c["case_id"]
+        assert set(c["negative_tags"]) <= set(TAG_TO_MARKER), c["case_id"]
+        assert not set(c["negative_tags"]) & set(c["biomarker_tags"]), c["case_id"]  # 양성이면서 음성일 수 없다
 
 
 def test_expected_chunks_exist_and_are_reachable():
