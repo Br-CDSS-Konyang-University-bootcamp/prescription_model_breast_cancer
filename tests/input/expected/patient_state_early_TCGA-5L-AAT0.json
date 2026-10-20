@@ -68,7 +68,10 @@
         "source": null
       },
       "operable": {
-        "status": "not_recorded"
+        "status": "present",
+        "value": "yes",
+        "raw": "Modified Radical Mastectomy",
+        "source": null
       }
     },
     "receptors": {
@@ -300,7 +303,16 @@
         "gap_days": null,
         "notice_page": "57"
       }
-    ]
+    ],
+    "at_index": {
+      "age": null,
+      "recent_therapy_28d": {
+        "status": "unknown",
+        "basis": "판정 기준일 없음",
+        "regimen_refs": [],
+        "gap_days": null
+      }
+    }
   },
   "conflicts": []
 }

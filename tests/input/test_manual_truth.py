@@ -55,6 +55,7 @@ def test_manual_truth_valid_and_matches_generator(path: Path, rows):
     assert not errors, "스키마 오류:\n" + "\n".join(errors[:20])
     generated = T.build(rows.loc[manual["patient_ref"]])
     generated["fields"].pop("deemed_lines")
+    generated["fields"].pop("at_index")
     for t in generated["fields"]["treatment_history"]:
         for k in COMPUTED_ITEM_KEYS:
             t.pop(k)

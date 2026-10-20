@@ -68,7 +68,10 @@
         "source": null
       },
       "operable": {
-        "status": "not_recorded"
+        "status": "present",
+        "value": "yes",
+        "raw": "Simple Mastectomy",
+        "source": null
       }
     },
     "receptors": {
@@ -419,8 +422,8 @@
           "timeline_index": 0,
           "combined_with": [],
           "dose_per_admin": {
-            "value": 116.0,
-            "unit": "mg"
+            "value": 63.0,
+            "unit": "mg/m2"
           },
           "cycles": {
             "value": 4,
@@ -429,8 +432,8 @@
             "interval_basis": "derived"
           },
           "total_dose": {
-            "value": 463.0,
-            "unit": "mg"
+            "value": 251.6,
+            "unit": "mg/m2"
           },
           "raw": "doxorubicin [Chemotherapy] d85~d127",
           "source": null
@@ -610,7 +613,18 @@
         "gap_days": -12,
         "notice_page": "57"
       }
-    ]
+    ],
+    "at_index": {
+      "age": 58,
+      "recent_therapy_28d": {
+        "status": "no",
+        "basis": "liposomal doxorubicin 기준일 97일 전 종료 (28일 초과)",
+        "regimen_refs": [
+          11
+        ],
+        "gap_days": 97
+      }
+    }
   },
   "conflicts": []
 }

@@ -26,7 +26,7 @@ from pathlib import Path
 import pandas as pd
 from jsonschema import Draft202012Validator
 
-from src.input.common.lines import annotate, load_drug_table
+from src.input.common.lines import GROUP_DAYS, NOT_COUNTED, annotate, load_drug_table
 from src.input.common.vocab import Vocab
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -116,6 +116,17 @@ def tnm_part(x) -> str | None:
     return "not_assessed" if v in ("TX", "NX", "MX") else v
 
 
+def split_other(text: str) -> list[str]:
+    """기타 부위 원문에 표준 부위 이름이 섞여 있으면 나눈다 (사용자 결정, 2026-10-20).
+    'Lung, Bone, Liver, Brain and Skin Nodules' → ['lung', 'bone', 'liver', 'brain', 'other: Skin Nodules'].
+    표준 부위 이름이 하나도 없으면 원문을 통째로 other로 둔다."""
+    parts = [p.strip() for p in re.split(r",| and ", text) if p.strip()]
+    known = [VOCAB.lookup("metastatic_sites", p, strict=False) for p in parts]
+    if not any(known):
+        return [f"other: {text}"]
+    return [k or f"other: {p}" for p, k in zip(parts, known)]
+
+
 def sites_from(raw_sites: str, other: str | None) -> list[str]:
     """'Bone|Other, specify' → ['bone', 'other: <기타 부위>'] (§3.2 전이 부위 규칙 6)."""
     out = []
@@ -124,7 +135,7 @@ def sites_from(raw_sites: str, other: str | None) -> list[str]:
         if site:
             out.append(site)
         elif x == "Other, specify":
-            out.append(f"other: {other}" if other else "other")
+            out += split_other(other) if other else ["other"]
             STATS["stage.metastatic_sites: Other, specify → 기타 부위 열 내용"] += 1
         else:
             out.append(f"other: {x}")
@@ -172,12 +183,17 @@ def stage(r) -> dict:
         if raw_sites is None:
             sites = "[Not Available]"
         elif val(r.gdc_metastasis_site) is None:
-            sites = [f"other: {x.strip()}" for x in other.split("|")]
+            sites = [y for x in other.split("|") for y in split_other(x.strip())]
         else:
-            sites = sites_from(raw_sites, other)
+            sites = list(dict.fromkeys(sites_from(raw_sites, other)))
         STATS[f"stage.metastatic_sites: 전이 여부 {indicator} → 부위 {'없음' if sites == '[Not Available]' else '있음'}"] += 1
-    s["metastatic_sites"] = present(sites, str(r.gdc_metastasis_site))
-    s["operable"] = {"status": "not_recorded"}
+    # 진단 시 IV기인데 부위 기록이 없으면 검사가 끝나지 않은 것으로 본다 (사용자 결정, 2026-10-20)
+    s["metastatic_sites"] = ({"status": "not_done"} if sites == "[Not Available]" and r.stage_disease_extent == "metastatic"
+                             else present(sites, str(r.gdc_metastasis_site)))
+    # 원발 수술 기록이 있으면 수술 가능 (사용자 결정, 2026-10-20). 없거나 괄호 코드면 기록 없음
+    surgery = val(r.gdc_surgical_procedure_first)
+    s["operable"] = present("yes", surgery) if surgery else {"status": "not_recorded"}
+    STATS[f"stage.operable (유도): {'원발 수술 기록 → yes' if surgery else 'not_recorded'}"] += 1
     return s
 
 
@@ -301,7 +317,24 @@ def treatment(r) -> tuple[list[dict], list[str]]:
                     "best_response": VOCAB.lookup("treatment_history.best_response", m["r"]) if m["r"] else "unknown",
                     "source": None})
     out.sort(key=lambda t: (t["start_day"] is None, t["start_day"] if t["start_day"] is not None else 0))
+    progression(r, out)
     return out, items
+
+
+def progression(r, items: list[dict]) -> None:
+    """진단 시 IV기 환자의 첫 진행일(cBio PFS)을 그때 쓰던 요법의 progression_day에 넣는다 (사용자 결정, 2026-10-20).
+    재발 환자의 PFS 사건일은 전이 기준일과 같아 넣지 않는다. 진행일에 투여 중이었거나 종료 후 30일 이내인
+    전이 후 항암 투약(골 보호제·보조약 제외)이 한 요법(시작일 28일 이내)일 때만 넣고, 없거나 두 요법 이상이면 비워 둔다."""
+    if r.stage_disease_extent != "metastatic" or not str(r.cbio_PFS_STATUS).startswith("1:"):
+        return
+    pfs = round(float(r.cbio_PFS_MONTHS) * 30.4375)
+    cands = [t for t in items if t["setting"] == "metastatic" and t["start_day"] is not None and t["start_day"] <= pfs
+             and (t["end_day"] is None or t["end_day"] >= pfs - 30)
+             and any(DRUG_TABLE.get(d, ("Unknown", ""))[0] not in NOT_COUNTED for d in t["drugs"])]
+    if cands and max(t["start_day"] for t in cands) - min(t["start_day"] for t in cands) <= GROUP_DAYS:
+        for t in cands:
+            t["progression_day"] = pfs
+            STATS["treatment.progression_day (유도): 진단 시 IV기 PFS 진행일"] += 1
 
 
 # ---------- anthracycline 용량 (§3.7a) ----------
@@ -359,7 +392,7 @@ def recurrence(r) -> dict:
             if site:
                 sites.append(site)
             elif s.startswith("Other"):
-                sites += [f"other: {o}" for o in str(r.nte_sites_other).split("; ") if val(o)]
+                sites += [y for o in str(r.nte_sites_other).split("; ") if val(o) for y in split_other(o)]
             else:
                 raise ValueError(f"{r.patient_id}: field_vocab.csv에 없는 재발 부위 '{s}'")
         rec["metastatic_sites"] = present(list(dict.fromkeys(sites)) or "[Not Available]", val(r.nte_sites))
@@ -368,7 +401,7 @@ def recurrence(r) -> dict:
     # 첫 재발일: 국소 재발일과 원격 전이 재발일 중 이른 값. 진단 시 IV기(재발 없음)는 넣지 않는다 (draft6)
     days = [day(r.locoregional_dx_days)] + ([day(r.metastasis_dx_days)] if st == "distant" else [])
     days = [d for d in days if d is not None]
-    if st in ("distant", "locoregional") and days:
+    if st in ("distant", "locoregional") and days and day(r.metastasis_dx_days) != 0:
         rec["recurrence_day"] = present(min(days))
     STATS[f"recurrence.recurrence_day: {'있음' if 'recurrence_day' in rec else '없음'}"] += 1
     if st in ("distant", "locoregional", "site_unknown"):
@@ -448,7 +481,15 @@ def build(r) -> dict:
         },
         "conflicts": [],
     }
+    follow_recurrence_sites(doc["fields"])
     return annotate(doc, DRUG_TABLE)  # 차수 3칸과 간주 규칙 (src/input/common/lines.py, draft6)
+
+
+def follow_recurrence_sites(fields: dict) -> None:
+    """진단 시 전이 부위와 재발 부위가 다르면 재발 기록을 따른다 (사용자 결정, 2026-10-20). raw는 진단 시 원문 그대로."""
+    s, rc = fields["stage"]["metastatic_sites"], fields["recurrence"].get("metastatic_sites") or {}
+    if isinstance(s.get("value"), list) and isinstance(rc.get("value"), list) and s["value"] != rc["value"]:
+        s["value"] = list(rc["value"])
 
 
 def load_rows(csv: Path = CSV) -> pd.DataFrame:

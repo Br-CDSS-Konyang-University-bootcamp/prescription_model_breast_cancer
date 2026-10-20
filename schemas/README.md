@@ -51,7 +51,7 @@
 
 | 버전 | 날짜 | 추가 | 바뀜 | 제거 |
 |---|---|---|---|---|
-| 0.1-draft6 | 2026-10-16 (2026-10-19 보완) | 최상위 `index_day` (판정 기준일) · `recurrence.recurrence_day` (첫 재발일) · `treatment_history[].line`·`endocrine_line`·`chemo_line` (전이 후 차수) · `fields.deemed_lines[]` (심평원 차수 간주 규칙 4개) · `molecular.mutations.{유전자}.raw` | `schema_version` 상수 · `recurrence.metastasis_day` 설명 (차수는 A가 계산) · 추출값 `raw` 설명 (미시행일 때 "결과 대기"·"예정" 고정 표기) | 없음 |
+| 0.1-draft6 | 2026-10-16 (2026-10-19 보완) | 최상위 `index_day` (판정 기준일) · `recurrence.recurrence_day` (첫 재발일) · `treatment_history[].line`·`endocrine_line`·`chemo_line` (전이 후 차수) · `fields.deemed_lines[]` (심평원 차수 간주 규칙 4개) · `molecular.mutations.{유전자}.raw` · `fields.at_index` (기준일 나이, 최근 4주 이내 항암제·호르몬제 투여, 2026-10-20 추가) | `schema_version` 상수 · `recurrence.metastasis_day` 설명 (차수는 A가 계산) · 추출값 `raw` 설명 (미시행일 때 "결과 대기"·"예정" 고정 표기) | 없음 |
 | 0.1-draft5 | 2026-10-15 | 진단일 기준 일수(`*_day`), 투여 주기 `cycles`, 재발·전이 정보, PD-L1, 유전자 변이 `molecular.mutations`, anthracycline 투약 용량 | | |
 
 draft6의 새 칸은 모두 선택 칸이다 (가상·실제 차트에서 비워도 검증 통과). TCGA 정답에는 항상 채운다. 자세한 설명: [src/input/handoff_to_B.md](../src/input/handoff_to_B.md) §6.2·§6.3a, [src/input/schema_fields.md](../src/input/schema_fields.md) §2.

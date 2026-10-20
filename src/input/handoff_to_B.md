@@ -125,6 +125,7 @@ patient_state.json
 │   │   ├── line, endocrine_line, chemo_line   전이 후 차수 (전이 전 null) [draft6]
 │   │   └── source
 │   ├── deemed_lines[]        차수 간주 규칙 4개 {rule_id, category, status, basis, regimen_refs, gap_days, notice_page} [draft6]
+│   ├── at_index              기준일 시점 값 {age, recent_therapy_28d {status yes/no/unknown, basis, regimen_refs, gap_days}} [2026-10-20, 검토 전]
 │   ├── anthracycline_drug_dose
 │   │   ├── administered      positive / negative / No value
 │   │   └── drugs[]
@@ -296,9 +297,9 @@ patient_state.json
 | `administered` | `positive` / `negative` / `No value` | positive 348, negative 313, No value 213 | `No value` = 투약 기록 없음 (투여 안 함이 아님) |
 | `drugs[].drug` | `doxorubicin` / `epirubicin` / `liposomal doxorubicin` | 313 / 37 / 2 | mitoxantrone은 제외 |
 | `drugs[].timeline_index`, `combined_with`, `raw` | 정수, 배열, 문자열 | | 대조용 |
-| `drugs[].dose_per_admin` | `{value, unit}` / `"No value"` | No value 190, mg 85, mg/m² 65, mg/day 9, mg/m²/day 3 | 원문이 범위(100-102)면 최대값. 단위가 섞여 있음 (§6.7) |
+| `drugs[].dose_per_admin` | `{value, unit}` / `"No value"` | No value 190, mg/m² 160 (2026-10-20, 860명) | 원문이 범위(100-102)면 최대값. 2026-10-20부터 크롭 단계에서 mg/m²로 맞춤 (mg는 체표면적 1.84 m² 추정으로 나눔, tcga_mapping.md §3.7a) |
 | `drugs[].cycles` | `cycles` 형식 (`basis: recorded`만) / `"No value"` | 기록 189, No value 163 | |
-| `drugs[].total_dose` | `{value, unit}` / `"No value"` | No value 205, mg 142, mg/m² 3, 기타 2 | 대부분 mg |
+| `drugs[].total_dose` | `{value, unit}` / `"No value"` | No value 197, mg/m² 153 (2026-10-20, 860명) | 152건 중 92건은 mg ÷ 1.84 추정 (§6.7) |
 
 **recurrence**
 
@@ -552,6 +553,8 @@ A가 변환할 때 계산해 투약마다 넣는다 (`src/input/common/lines.py`
 4. 묶음 첫 투약에서 시작일이 28일 이내인 기록은 한 요법으로 묶는다.
 4a. 요법 종류: 항암·HER2 표적·면역항암제가 하나라도 있으면 항암, 없고 내분비요법이 있으면 내분비, 그 밖의 표적치료만 있으면 항암. 내분비 차수와 항암 차수를 따로 센다 (§6.3).
 5. 진행(`best_response = PD`, `stop_reason = progression`)으로 바뀐 요법만 다음 차수로 센다. `planned_switch`(AC→T 같은 계획된 순차)·`maintenance`·`toxicity`는 같은 차수다. 끝난 이유를 모르면 다음 차수로 센다 (TCGA는 대부분 이 경우).
+5a. [2026-10-20] 끝난 이유를 몰라도 셋은 같은 차수다. (1) 순차 요법: anthracycline 요법이 끝나고 28일 이내에 taxane(± HER2 표적) 요법 시작 (AC → paclitaxel). (2) 병용 추가: 앞 요법이 끝나기 전에 시작 (capecitabine 투여 중 bevacizumab 추가). (3) 유지요법: 항암 요법 다음에 내분비 요법이 시작됨 (진행 기록 없음). 근거는 `notes`에 남긴다.
+5b. [2026-10-20] 같은 차수 안에서 요법 종류가 바뀌면(항암 → 내분비 유지요법 등) 그 종류의 차수는 이 차수에서 처음일 때만 하나 올린다 (예: AC → letrozole 유지 = 1차, 항암 1차·내분비 1차).
 
 ### 6.3a 차수 간주 규칙 (`fields.deemed_lines`) [draft6]
 
@@ -621,7 +624,7 @@ A는 판정하지 않는다. B가 약제별로 판정한다.
 ### 6.7 anthracycline 누적 용량 (liposomal doxorubicin 급여 조건, 공고 p.60)
 
 - 조건: doxorubicin 누적 240mg/m² 이상 또는 epirubicin 450mg/m² 이상, 또는 심장 위험 요인.
-- 누적 용량 = `dose_per_admin`(mg/m²) × `cycles.value`. 단위가 mg/m²가 아니면(mg, mg/day) 체표면적이 없어 환산할 수 없으므로 "판정 불가"로 둔다.
+- 누적 용량 = `total_dose`(mg/m²). 2026-10-20부터 A가 크롭 단계에서 모두 mg/m²로 맞춘다. mg로 적힌 기록은 체표면적 1.84 m²(추정)로 나눈 값이라, 240 mg/m² 근처(±15%) 56건은 판정이 바뀔 수 있다 (tcga_mapping.md §3.7a).
 - 병용 기록(`doxorubicin+cyclophosphamide`, `60+600`)은 약 순서대로 나눈 값이다. 나눌 수 없는 4명은 정답 세트에서 뺐다 (§7).
 - 심장 위험 요인은 데이터가 없어 넘기지 않는다 (§9).
 

@@ -163,6 +163,27 @@
             }
           }
         },
+        "at_index": {
+          "type": "object",
+          "description": "판정 기준일(index_day) 시점 값 (2026-10-20 추가, 4명 검토 전). A가 변환 끝에 계산한다 (src/input/common/lines.py at_index). 급여 조건을 일수 계산 없이 읽게 한다",
+          "required": ["age", "recent_therapy_28d"],
+          "additionalProperties": false,
+          "properties": {
+            "age": {"type": ["integer", "null"], "minimum": 0, "description": "기준일 나이 = 진단 시 나이 + index_day ÷ 365.25의 몫. 생일을 몰라 실제보다 1살 적을 수 있다. index_day나 나이가 없으면 null (공고의 '만 19세 이상', '65세 이상' 등)"},
+            "recent_therapy_28d": {
+              "type": "object",
+              "description": "최근 4주 이내 항암제 또는 호르몬제 투여 (zoledronic acid, 공고 Ⅳ). 보조약·골 보호제는 빼고, 기준일 이전에 시작한 투약만 본다. 마지막 투여일 = end_day, 없으면 start_day(하한)",
+              "required": ["status", "basis", "regimen_refs", "gap_days"],
+              "additionalProperties": false,
+              "properties": {
+                "status": {"enum": ["yes", "no", "unknown"], "description": "yes = 기준일 − 마지막 투여일 ≤ 28 (투여 중 포함). unknown = 기준일이 없거나, 28일 안의 근거는 없는데 종료일 없는 투약이 있음 (투약 중인지 기록이 없는 것인지 모름)"},
+                "basis": {"type": "string", "description": "판정 이유 (근거 투약과 일수)"},
+                "regimen_refs": {"type": "array", "items": {"type": "integer", "minimum": 0}, "description": "근거가 된 treatment_history 순번 (0부터). unknown이면 종료일 없는 투약들"},
+                "gap_days": {"type": ["integer", "null"], "description": "기준일 − 근거 투약의 마지막 투여일. 음수면 기준일에 투여 중. 근거 투약이 없으면 null"}
+              }
+            }
+          }
+        },
         "anthracycline_drug_dose": {
           "type": "object",
           "description": "anthracycline 투약 용량 (공고 p.60 liposomal doxorubicin 조건: doxorubicin 누적 240mg/m2 이상 또는 epirubicin 450mg/m2 이상). 대상 약: doxorubicin, epirubicin, liposomal doxorubicin (mitoxantrone 제외). TCGA는 drug_timeline 항목 순서로 용량 열을 맞추고, 병용 기록은 '+' 위치로 나눈다. 값이 없으면 'No value'",

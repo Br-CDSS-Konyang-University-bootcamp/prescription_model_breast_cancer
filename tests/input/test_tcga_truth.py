@@ -49,13 +49,13 @@ def test_all_truth_valid_against_schema(truth):
 
 # ---------- 3. tcga_mapping.md의 건수 ----------
 def test_truth_set_size(truth):
-    assert len(truth) == 874  # §2.2: 크롭본 874명 = 정답 세트
+    assert len(truth) == 860  # §2.2: 크롭본 860명 = 정답 세트
 
 
 def test_histology_counts(truth):
     c = Counter(doc["fields"]["diagnosis"]["histology"]["value"] for doc in truth.values())
-    # §3.1: IDC 634 + 수질암 2, ILC 167, Other 29 + Mixed 20 = invasive_NOS 49
-    assert c == {"IDC": 636, "ILC": 167, "invasive_NOS": 49, "mucinous": 13, "metaplastic": 9}
+    # §3.1: IDC 621 + 수질암 2, ILC 167, Other 28 + Mixed 20 = invasive_NOS 48
+    assert c == {"IDC": 623, "ILC": 167, "invasive_NOS": 48, "mucinous": 13, "metaplastic": 9}
 
 
 def test_ptnm_not_assessed_counts(truth):
@@ -76,30 +76,55 @@ def test_positive_ln_count_cases(truth):
             c["none"] += 1
         else:
             c[(ln["value"]["positive"] == "[Not Available]", ln["value"]["examined"] == "[Not Available]")] += 1
-    # §3.2 양성 림프절 수 표: 둘 다 744, examined만 없음 1, positive만 없음 29, 둘 다 없음 100
-    assert c == {(False, False): 744, (False, True): 1, (True, False): 29, "none": 100}
+    # §3.2 양성 림프절 수 표: 둘 다 731, examined만 없음 1, positive만 없음 29, 둘 다 없음 99
+    assert c == {(False, False): 731, (False, True): 1, (True, False): 29, "none": 99}
 
 
 def test_metastatic_sites_not_applicable(truth):
-    c = Counter(str(doc["fields"]["stage"]["metastatic_sites"]["value"]) == "[Not Applicable]" for doc in truth.values())
-    assert c[True] == 313 + 468  # §3.2: 전이 여부 NO 313 + 기록 없음이지만 M0 468
+    c = Counter(str(doc["fields"]["stage"]["metastatic_sites"].get("value")) == "[Not Applicable]" for doc in truth.values())
+    assert c[True] == 311 + 458  # §3.2: 전이 여부 NO 311 + 기록 없음이지만 M0 458
 
 
 def test_metastatic_sites_other_specify_uses_other_column(truth):
     for doc in truth.values():
-        sites = doc["fields"]["stage"]["metastatic_sites"]["value"]
+        sites = doc["fields"]["stage"]["metastatic_sites"].get("value")
         if isinstance(sites, list):
             assert "other: Other, specify" not in sites
 
 
 def test_treatment_counts(truth):
     items = [t for doc in truth.values() for t in doc["fields"]["treatment_history"]]
-    assert len(items) == 2033  # §3.6: 투약 기록 2,033건 (unknown 15건 제외)
-    assert sum(t["duration_days"] is not None for t in items) == 1507
+    assert len(items) == 2017  # §3.6: 투약 기록 2,017건 (unknown 14건 제외)
+    assert sum(t["duration_days"] is not None for t in items) == 1494
     no_record = sum(1 for doc in truth.values() if doc["fields"]["anthracycline_drug_dose"]["administered"] == "No value")
-    assert no_record == 213  # §3.6: 투약 기록 자체가 없는 환자 213명
+    assert no_record == 202  # §3.6: 투약 기록 자체가 없는 환자 202명
     empty = sum(1 for doc in truth.values() if not doc["fields"]["treatment_history"])
-    assert empty == 213 + 6  # 성분명 unknown 항목만 있는 6명도 치료 이력이 빈 배열
+    assert empty == 202 + 6  # 성분명 unknown 항목만 있는 6명도 치료 이력이 빈 배열
+
+
+def test_operable_from_primary_surgery(truth):
+    c = Counter(doc["fields"]["stage"]["operable"].get("value", doc["fields"]["stage"]["operable"]["status"])
+                for doc in truth.values())
+    assert c == {"yes": 828, "not_recorded": 32}  # §3.2 operable: 원발 수술 기록 있음 828, 없음 32
+
+
+def test_metastatic_sites_rules_2026_10_20(truth):
+    # §3.2 전이 부위 규칙 7~9, §3.7 재발 후 수술
+    assert truth["TCGA-A7-A13E"]["fields"]["recurrence"]["metastatic_sites"]["value"] == [
+        "lung", "bone", "liver", "brain", "other: Skin Nodules"]
+    assert truth["TCGA-A8-A07W"]["fields"]["stage"]["metastatic_sites"] == {"status": "not_done"}
+    assert truth["TCGA-LL-A73Z"]["fields"]["stage"]["metastatic_sites"]["value"] == ["brain"]
+    surgery = Counter(doc["fields"]["recurrence"]["surgery"]["value"] for doc in truth.values()
+                      if "surgery" in doc["fields"]["recurrence"])
+    assert surgery == {"yes": 17, "no": 17}
+
+
+def test_progression_day_from_pfs(truth):
+    got = {(pid, t["drugs"][0]): t["progression_day"] for pid, doc in truth.items()
+           for t in doc["fields"]["treatment_history"] if t["progression_day"] is not None}
+    # §3.6: 진단 시 IV기 PFS 진행일. AO-A0J5(두 요법), B6-A3ZX(그때 쓰던 약 없음)는 비움
+    assert got == {("TCGA-A2-A0SV", "capecitabine"): 826, ("TCGA-A2-A0SW", "tamoxifen"): 653,
+                   ("TCGA-A2-A0T2", "capecitabine"): 255, ("TCGA-LL-A73Z", "fulvestrant"): 192}
 
 
 def test_neoadjuvant_setting_patients(truth):
@@ -109,33 +134,40 @@ def test_neoadjuvant_setting_patients(truth):
 
 
 def test_index_day_and_recurrence_day_counts(truth):
-    """§2.3: index_day = fu_last_days (802명, 72명 null). §3.7: recurrence_day는 distant 22 + locoregional 12명."""
-    assert sum(doc["index_day"] is not None for doc in truth.values()) == 802
-    assert sum("recurrence_day" in doc["fields"]["recurrence"] for doc in truth.values()) == 34
+    """§2.3: index_day = fu_last_days (798명, 62명 null). §3.7: recurrence_day는 distant 19 + locoregional 12명 (진단 시 IV기 제외)."""
+    assert sum(doc["index_day"] is not None for doc in truth.values()) == 798
+    assert sum("recurrence_day" in doc["fields"]["recurrence"] for doc in truth.values()) == 31
+
+
+def test_at_index_counts(truth):
+    """§2.3: 최근 4주 이내 항암제·호르몬제 투여. unknown = 기준일 없음 62명 + 종료일 없는 투약 374명."""
+    c = Counter(doc["fields"]["at_index"]["recent_therapy_28d"]["status"] for doc in truth.values())
+    assert c == {"yes": 34, "no": 390, "unknown": 436}
+    assert sum(doc["fields"]["at_index"]["age"] is None for doc in truth.values()) == 62
 
 
 def test_line_counts(truth):
-    """§3.6: 차수가 붙은 투약 90건, 환자 28명."""
+    """§3.6: 차수가 붙은 투약 86건, 환자 27명."""
     items = [t for doc in truth.values() for t in doc["fields"]["treatment_history"] if t["line"] is not None]
-    assert len(items) == 90
-    assert sum(any(t["line"] for t in doc["fields"]["treatment_history"]) for doc in truth.values()) == 28
+    assert len(items) == 86
+    assert sum(any(t["line"] for t in doc["fields"]["treatment_history"]) for doc in truth.values()) == 27
 
 
 def test_deemed_lines_counts(truth):
     """§3.6b 표."""
     c = Counter((d["rule_id"], d["status"]) for doc in truth.values() for d in doc["fields"]["deemed_lines"])
     assert {k: v for k, v in c.items() if k[1] != "not_applicable"} == {
-        ("DEEM-ANTHRA-TAXANE", "met"): 8, ("DEEM-ANTHRA-TAXANE", "not_met"): 20,
-        ("DEEM-SG-1Y", "met"): 13, ("DEEM-SG-1Y", "not_met"): 14, ("DEEM-SG-1Y", "unknown"): 1,
-        ("DEEM-HER2ADC-6M", "met"): 1, ("DEEM-HER2ADC-6M", "not_met"): 27,
-        ("DEEM-ENDO-ADJ-1Y", "met"): 8, ("DEEM-ENDO-ADJ-1Y", "not_met"): 19, ("DEEM-ENDO-ADJ-1Y", "unknown"): 1}
-    assert c[("DEEM-SG-1Y", "not_applicable")] == 846
+        ("DEEM-ANTHRA-TAXANE", "met"): 8, ("DEEM-ANTHRA-TAXANE", "not_met"): 19,
+        ("DEEM-SG-1Y", "met"): 13, ("DEEM-SG-1Y", "not_met"): 13, ("DEEM-SG-1Y", "unknown"): 1,
+        ("DEEM-HER2ADC-6M", "met"): 1, ("DEEM-HER2ADC-6M", "not_met"): 26,
+        ("DEEM-ENDO-ADJ-1Y", "met"): 8, ("DEEM-ENDO-ADJ-1Y", "not_met"): 18, ("DEEM-ENDO-ADJ-1Y", "unknown"): 1}
+    assert c[("DEEM-SG-1Y", "not_applicable")] == 833
 
 
 def test_er_low_positive_only_er(truth):
     er = Counter(doc["fields"]["receptors"]["er_percent"].get("value", {}).get("result") for doc in truth.values())
     pr = Counter(doc["fields"]["receptors"]["pr_percent"].get("value", {}).get("result") for doc in truth.values())
-    assert er["low_positive"] == 14  # §3.3: ER Low Positive 14명
+    assert er["low_positive"] == 13  # §3.3: ER Low Positive 13명
     assert pr["low_positive"] == 0  # PR에는 저발현 범주가 없다
 
 
