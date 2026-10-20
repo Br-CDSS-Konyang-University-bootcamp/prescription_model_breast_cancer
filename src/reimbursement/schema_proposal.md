@@ -38,9 +38,17 @@ op는 설계의 8개에 `contains`(이전 치료에 있어야 함)를 더했다.
 - `prior_drugs contains [A, B]`는 A와 B를 모두 받은 것이다. `not_contains [A, B]`는 둘 다 받은 적이 없는 것이다.
   'A 또는 B를 받은'은 `any_of` 묶음에 항목을 나눠 넣는다. `prior_failed`도 같다.
 - `unless`는 그 항목이 실패해도 unless 조건을 만족하면 통과로 본다 (예: 보조요법 종료 1년 이후 재발).
+- `cycles_total`의 `of.drugs [A, B]`는 A나 B가 하나라도 들어간 `treatment_history[]` 항목(요법 하나)의 `cycles.value`를
+  항목마다 한 번씩 더한 값이다. 예: 'trastuzumab ± pertuzumab 투여 주기 18주기 이하' -> `of.drugs [trastuzumab, pertuzumab]`,
+  'trastuzumab + pertuzumab 6주기' 항목은 6으로 센다 (12가 아님).
 - 공고 표현을 칸·값으로 옮기는 기준은 팀 사전 `data/dictionaries/reimbursement_terms.csv`다 (2026-10-20 대조, 테스트로 확인).
-  고식적요법은 `of.setting [metastatic]`, 림프절 양성·음성은 `ln_status`(N 병기), HER2 음성은 `[negative, low, ultralow, zero]`,
-  국소진행성·전이성은 `stage.disease_extent`(진단 시)라서 '재발성'은 `recurrence`로 따로 적는다.
+  고식적요법은 `of.setting [metastatic]`, 림프절 양성·음성은 `ln_status`(N 병기), HER2 음성은 `[negative, low, ultralow]`
+  (값은 B의 `biomarker_record` 값 기준. 사전에는 `zero`가 있지만 B는 IHC 0을 `negative`로 내보내고 `zero`를 쓰지 않으므로 뺐다, 2026-10-20),
+  국소진행성·전이성은 사전 값(early / locally_advanced / metastatic)을 쓰되 칸은 `biomarker_record.setting.disease`다.
+  사전은 `stage.disease_extent`(진단 시)로 적었지만, 스키마 설명("재발 후 상태는 `biomarker_record.setting.disease`")과
+  `handoff_to_B.md` §6.1에 따라 원격 재발까지 담은 지금 범위를 쓴다. 그렇지 않으면 원문에 '전이성'만 있는 23행에서
+  진단 후 원격 재발한 환자가 빠진다. 국소 재발은 `setting.disease`에 들어가지 않으므로 '재발성'은 `recurrence`로 따로 적는다.
+  (사전의 칸을 `setting.disease`로 맞출지 팀에 확인 필요)
 - `stage_group`의 `III`는 IIIA~IIIC를 포함한다 (사전: stage Ⅲ = `III`). 판정할 때 하위 병기는 주 병기로 비교한다.
 
 ## 검토 의견

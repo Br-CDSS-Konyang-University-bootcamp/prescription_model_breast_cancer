@@ -39,7 +39,7 @@ ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "data" / "reimbursement"
 CACHE_PATH = DATA / "conditions_cache.jsonl"
 MODEL ="claude-sonnet-5-5"          # PROJECT.md §9: 공고·지침 구조화
-PROMPT_VERSION = "2026-10-20.2"       # 프롬프트·어휘를 바꾸면 올린다 (예전 저장 결과를 안 쓰게)
+PROMPT_VERSION = "2026-10-20.4"       # 프롬프트·어휘를 바꾸면 올린다 (예전 저장 결과를 안 쓰게)
 
 OPS = ["eq", "in", "not_contains", "contains", "gt", "gte", "lt", "lte", "exists"]
 STAGES = ["0", "I", "IA", "IB", "II", "IIA", "IIB", "III", "IIIA", "IIIB", "IIIC", "IV"]
@@ -62,8 +62,9 @@ _DRUGS = "drugs"           # 값이 약 이름·계열 이름 목록 (사전 검
 # 날짜는 모두 진단일 = 0인 정수 일수(*_day)다.
 # 공고 표현 -> 칸·값은 팀 사전 data/dictionaries/reimbursement_terms.csv를 따른다 (2026-10-20 대조).
 FIELDS: dict[str, tuple[str, list[str], object, str]] = {
-    "her2": ("biomarker_record.records[HER2].status", ["eq", "in"], ["positive", "negative", "low", "ultralow", "zero"],
-             "'HER2 양성(과발현)' -> eq positive, 'HER2 음성' -> in [negative, low, ultralow, zero] (공고에 저발현 구분 없음)"),
+    # 값은 B의 biomarker_record 값을 따른다 (팀 사전과 같이 canonical = B). B는 zero를 쓰지 않는다 (IHC 0은 negative)
+    "her2": ("biomarker_record.records[HER2].status", ["eq", "in"], ["positive", "negative", "low", "ultralow"],
+             "'HER2 양성(과발현)' -> eq positive, 'HER2 음성' -> in [negative, low, ultralow] (공고에 저발현 구분 없음)"),
     "hr": ("biomarker_record.subtype in [HR+/HER2-, HR+/HER2+] (positive) / ER·PR 모두 negative (negative)", ["eq"], _POSNEG,
            "'호르몬 수용체 양성' -> eq positive (ER 또는 PR 양성), '호르몬 수용체(ER and PR) 음성' -> eq negative"),
     "er": ("biomarker_record.records[ER].status", ["eq", "in"], ["positive", "low", "negative"],
@@ -78,9 +79,13 @@ FIELDS: dict[str, tuple[str, list[str], object, str]] = {
             "'여성 및 남성' -> in [FEMALE, MALE], '남성' -> eq MALE"),
     "age": ("patient_state.fields.patient.age", ["gt", "gte", "lt", "lte"], _NUM,
             "'40세 미만' -> lt 40, '만 19세 이상' -> gte 19, '70세 이상' -> gte 70"),
-    "disease": ("patient_state.fields.stage.disease_extent", ["eq", "in"], ["early", "locally_advanced", "metastatic"],
-                "'국소진행성' -> locally_advanced, '전이성' -> metastatic, '조기'·'초기' -> early, "
-                "'진행성' -> in [locally_advanced, metastatic]. 진단 시 범위라 재발은 recurrence로 따로 본다: "
+    # 값은 팀 사전(stage.disease_extent의 값)과 같다. 칸은 지금 범위인 setting.disease를 쓴다:
+    # 스키마 설명 "재발 후 상태는 biomarker_record.setting.disease", handoff_to_B.md §6.1
+    # (진단 시 전이 또는 원격 재발 -> metastatic, 국소 재발 등은 진단 시 범주 그대로)
+    "disease": ("biomarker_record.setting.disease (진단 시 stage.disease_extent + 원격 재발)", ["eq", "in"],
+                ["early", "locally_advanced", "metastatic"],
+                "'국소진행성' -> locally_advanced, '전이성' -> metastatic (원격 재발 포함), '조기'·'초기' -> early, "
+                "'진행성' -> in [locally_advanced, metastatic]. 국소 재발은 disease에 들어가지 않으므로 "
                 "'전이성, 재발성'은 any_of 묶음에 disease eq metastatic과 recurrence in [...] 항목을 함께 넣는다"),
     "recurrence": ("patient_state.fields.recurrence.status", ["eq", "in", "exists"],
                    ["distant", "locoregional", "site_unknown"],

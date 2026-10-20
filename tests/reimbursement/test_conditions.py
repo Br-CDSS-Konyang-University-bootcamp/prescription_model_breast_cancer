@@ -295,6 +295,21 @@ def test_falls_back_to_next_structurer(tmp_path, monkeypatch):
     assert rep.skipped_no_api == ["row"] and "실행 파일 없음" in rep.unavailable_reason
 
 
+def _enums(node, key, out=None):
+    """스키마 안에서 key 속성에 붙은 enum 값 목록들 ($ref 정의 안까지)."""
+    out = [] if out is None else out
+    if isinstance(node, dict):
+        prop = node.get("properties", {}).get(key)
+        if isinstance(prop, dict) and "enum" in prop:
+            out.append({v for v in prop["enum"] if v is not None})
+        for v in node.values():
+            _enums(v, key, out)
+    elif isinstance(node, list):
+        for v in node:
+            _enums(v, key, out)
+    return out
+
+
 def test_fields_follow_team_terms_dictionary():
     """공고 표현 -> 칸·값은 팀 사전 data/dictionaries/reimbursement_terms.csv를 따른다."""
     path = cm.ROOT / "data" / "dictionaries" / "reimbursement_terms.csv"
@@ -303,11 +318,18 @@ def test_fields_follow_team_terms_dictionary():
     with open(path, encoding="utf-8") as f:
         terms = {r["notice_term"]: r for r in csv.DictReader(f)}
     split = lambda s: [x.strip().split(" ")[0] for x in s.split("|")]          # noqa: E731
-    assert set(split(terms["HER2 음성"]["json_value"])) <= set(cm.FIELDS["her2"][2])
+    # HER2 값은 B의 biomarker_record 값 (canonical = B). 사전의 zero는 B가 쓰지 않아 뺀다
+    schema = json.loads((cm.ROOT / "schemas" / "biomarker_record.json").read_text(encoding="utf-8"))
+    b_status = next(s for s in _enums(schema, "status") if "ultralow" in s)     # records[].status (마커 판정값)
+    assert set(cm.FIELDS["her2"][2]) <= b_status and "zero" not in b_status | set(cm.FIELDS["her2"][2])
+    assert set(split(terms["HER2 음성"]["json_value"])) - {"zero"} <= set(cm.FIELDS["her2"][2])
     assert "stage.ptnm" in cm.FIELDS["ln_status"][0]                          # 림프절 양성·음성은 N 병기
     assert terms["림프절 양성"]["json_field"] == "stage.ptnm.n"
-    assert "stage.disease_extent" in cm.FIELDS["disease"][0]
+    # 국소진행성·전이성: 값은 사전(stage.disease_extent)과 같고, 칸은 재발 후 상태까지 담은 setting.disease
+    # (스키마 설명 "재발 후 상태는 biomarker_record.setting.disease")
     assert terms["전이성"]["json_field"] == "stage.disease_extent"
+    assert terms["전이성"]["json_value"] in cm.FIELDS["disease"][2]
+    assert cm.FIELDS["disease"][0].startswith("biomarker_record.setting.disease")
     assert "duration_days" in cm.FIELDS["treatment_years"][0]
     assert terms["투여기간"]["json_field"] == "treatment_history[].duration_days"
     # 고식적 = treatment_history.setting metastatic (JSON에 palliative 값 없음)

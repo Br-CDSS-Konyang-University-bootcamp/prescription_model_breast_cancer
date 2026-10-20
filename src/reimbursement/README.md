@@ -40,6 +40,17 @@ C의 공개 함수(`src/rag/__init__.py`)의 `delete_by_doc_type("reimbursement"
 성공하면 기록 장부의 그 책자를 indexed로, 예전 indexed 책자를 superseded로 바꾼다.
 Qdrant 로컬 모드는 한 프로세스만 열 수 있으니 검색·`run_indexing`과 동시에 돌리지 않는다.
 
+옛 책자 기준 보존 (2026-10-20 결정, D):
+
+| 상황 | 방식 |
+|---|---|
+| 새 공고책자 (전체 교체) | 색인에는 새 책자만 둔다. 옛 책자는 날짜별 보관 파일 `chunks/reimbursement_chunks_<책자날짜>.jsonl`과 `registry.db`(항목별 유효 기간)로 재현한다 |
+| 개정 공고 (일부 행 교체, 설계 §6, 아직 없음) | 새 행을 overlay로 넣고 옛 행에 `superseded_by`를 단다. 검색(`src.rag.search_reimbursement`)이 `superseded_by`가 있는 행을 뺀다 |
+
+- 이유: 추천 결과에 남는 인용 `chunk_id`에 책자 날짜가 들어 있어(`hira-booklet-<책자날짜>-…`) 그 날짜의 보관 파일로 당시 원문·조건을 그대로 찾을 수 있다.
+  판정은 늘 지금 기준이라 옛 책자 점을 색인에 쌓을 이유가 약하고, `superseded_by`는 책자 중간에 일부 행만 바뀌는 개정 공고용이다.
+- 보관 파일은 공고 가공물이라 git에 올리지 않고 이 PC에만 있으므로, 새 책자를 반영할 때마다 결과물 백업(zip)을 팀 공유 위치에 올린다.
+
 ```bash
 python -m src.reimbursement.index --dry-run   # 넣을 청크 수만 확인
 python -m src.reimbursement.index
@@ -115,6 +126,5 @@ python -m src.reimbursement.conditions --import data/reimbursement/conditions_ma
 | 급여 검색 함수 (`doc_type=reimbursement`, 약 이름 일치, 시행일 ≤ 판정 기준일, `superseded_by` 제외)와 L1·L2 부모 청크 찾기 | C, D |
 | 결과물(청크, 조건 JSON, registry.db) 비공개 백업·공유 위치 | 팀 |
 | 지운 뒤 넣기 사이의 공백 없애기: 점 ID가 고정(uuid5)이라 "새 청크를 먼저 넣고, 새 목록에 없는 옛 급여 점만 지우기"가 가능. C가 `replace_doc_type(doc_type, chunks)` 같은 함수를 만들면 `index.py`가 그것을 쓴다 | C, D |
-| 옛 책자 기준 보존: 과거 추천의 인용 재현을 날짜별 청크 보관본(`chunks/reimbursement_chunks_<책자날짜>.jsonl`, 지금도 남김)으로 할지, 색인에 `superseded_by`로 남길지 (지침도 같은 문제) | 팀 |
 | 개정 공고 덧씌우기 (설계 §6). 새 공고가 올라오면 실행해 보고 만든다 | D |
 | 허가초과 포함 여부 | 팀 |

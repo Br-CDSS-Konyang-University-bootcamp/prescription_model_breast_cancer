@@ -1002,10 +1002,13 @@ def supportive_chunks(b: Booklet, prefix: str, ver: str) -> tuple[list[dict], li
         sources[key] = "\n".join([l2_text, *made])
     if chunks:
         l1_text = "\n".join([f"[{SUPP_TITLE}]", *headings])
+        # 목록 청크라 쪽이 따로 없다: 자식 청크의 첫 쪽~끝 쪽 (C의 지침 부모 청크와 같은 방식, 인용에 쪽이 빠지지 않게)
+        pages = [c[k] for c in chunks for k in ("page_start", "page_end") if c.get(k) is not None]
         chunks.insert(0, _base(l1_id, "HIRA-booklet", ver, SUPP_TITLE, l1_text, "section",
                                ["early", "locally_advanced", "metastatic"], ["any"], ["any"], [],
                                {"source_type": "baseline", "notice_no": f"제{b.doc_no}호", "effective_from": ver,
-                                "stage": "supportive", "her2_section": None, "line_rule": None}))
+                                "stage": "supportive", "her2_section": None, "line_rule": None},
+                               page_start=min(pages) if pages else None, page_end=max(pages) if pages else None))
     return chunks, items, contexts, sources
 
 
