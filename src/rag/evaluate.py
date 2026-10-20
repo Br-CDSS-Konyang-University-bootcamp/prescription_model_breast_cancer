@@ -3,7 +3,7 @@
 #   L0 문서: 1위 결과가 정답 문서(예: esmo-mbc-2026-05)에서 나왔나
 #   L1 소단원: 상위 k개 결과의 부모(소단원) 중 정답 소단원이 있나
 #   L2 권고: 정답 권고가 상위 k개에 몇 개 들어왔나(recall@k), 처음 나온 순위(MRR)
-# 실행: team_project 폴더에서 python -m src.rag.evaluate [--k 5] [--no-rerank] [--candidates 20] [--reranker 모델] [--auto-query] [--detail] [--out 결과.csv]
+# 실행: team_project 폴더에서 python -m src.rag.evaluate [--k 5] [--no-rerank] [--candidates 20] [--reranker 모델] [--auto-query] [--with-extra] [--detail] [--out 결과.csv]
 # --auto-query: 문제집의 query 대신 환자 조건(아형·병기·차수·태그·전이 부위)만으로 만든 질의를 쓴다 (src/rag/query.py).
 #   B의 추천 모듈이 쓸 질의에 가깝다. 문제집 질의는 지침 문장을 보며 써서 점수가 높게 나올 수 있다.
 # 질의마다 검색 시간도 잰다. 첫 질의는 모델을 불러오는 시간이 들어가 따로 보여 준다.
@@ -81,7 +81,43 @@ def case_query(case: dict, auto: bool = False, style: str = "adaptive") -> str:
         prior_subclasses=case.get("prior_subclasses"), prior_classes=case.get("prior_classes")))
 
 
-def search_case(case: dict, k: int = 5, rerank: bool = True, auto_query: bool = False, style: str = "adaptive") -> list[dict]:
+def case_patient(case: dict) -> dict:
+    """문항의 환자 정보 칸 → query.search_args·extra_search_args가 받는 키워드 인자."""
+    return {
+        "metastatic_sites": case["metastatic_sites"],
+        "menopausal_status": case.get("menopausal_status") or None,
+        "pcr": case.get("pcr") or None,
+        "stage_at_diagnosis": case.get("stage_at_diagnosis") or None,
+        "prior_subclasses": case.get("prior_subclasses") or [],
+        "prior_classes": case.get("prior_classes") or [],
+    }
+
+
+def extra_results(case: dict, rerank: bool = True, top_k: int = 3) -> list[dict]:
+    """주 검색과 따로 돌리는 부위별·de novo 검색 결과 (query.extra_search_args). B가 LLM에 함께 넘길 권고."""
+    from .query import extra_search_args
+    from .searcher import search_guidelines
+    record = {"subtype": case["subtype"], "setting": {"disease": case["setting"], "line": case["line"]}, "records": []}
+    results = []
+    for args in extra_search_args(record, top_k=top_k, **case_patient(case)):
+        results += search_guidelines(**{**args, "negative_tags": case["negative_tags"], "rerank": rerank})
+    return results
+
+
+def search_case(case: dict, k: int = 5, rerank: bool = True, auto_query: bool = False, style: str = "adaptive",
+                with_extra: bool = False) -> list[dict]:
+    main = _main_search(case, k, rerank, auto_query, style)
+    if not with_extra:
+        return main
+    combined, seen = list(main), {r["chunk_id"] for r in main}
+    for r in extra_results(case, rerank):
+        if r["chunk_id"] not in seen:  # 주 검색에 이미 있거나 추가 검색끼리 겹치면 한 번만
+            combined.append(r)
+            seen.add(r["chunk_id"])
+    return combined
+
+
+def _main_search(case: dict, k: int, rerank: bool, auto_query: bool, style: str) -> list[dict]:
     from .searcher import search_guidelines
     return search_guidelines(
         case_query(case, auto_query, style),
@@ -123,6 +159,8 @@ def main(argv=None) -> int:
     parser.add_argument("--query-style", choices=("adaptive", "full", "focused"), default="adaptive",
                         help="--auto-query 질의 형식. focused는 아형·병기 표현을 뺀다 (이미 필터로 거름). "
                              "adaptive(기본)는 focused로 하되 차수·이전 치료만 남으면 full")
+    parser.add_argument("--with-extra", action="store_true",
+                        help="주 검색 k개 뒤에 부위별·de novo 추가 검색 결과(각 3개)를 붙여 전부를 채점한다")
     parser.add_argument("--detail", action="store_true", help="문항마다 상위 결과의 점수와 차수를 보여 준다")
     parser.add_argument("--out", type=Path, help="문항별 결과를 저장할 CSV")
     args = parser.parse_args(argv)
@@ -136,7 +174,9 @@ def main(argv=None) -> int:
         client.RERANKER_NAME = args.reranker
     cases = load_cases(args.cases)
     try:
-        rows, summary = evaluate(cases, lambda c: search_case(c, args.k, args.rerank, args.auto_query, args.query_style), args.k)
+        rows, summary = evaluate(
+            cases, lambda c: search_case(c, args.k, args.rerank, args.auto_query, args.query_style, args.with_extra),
+            100 if args.with_extra else args.k)
     finally:
         close_searcher()
 
@@ -151,9 +191,12 @@ def main(argv=None) -> int:
             for cid, score, ln in r["top_detail"]:
                 mark = "  ← 정답" if cid in expected else ""
                 print(f"      {score if score is not None else '-':>7} {','.join(ln or []):<12} {cid.split('-', 4)[-1]}{mark}")
+    if args.with_extra:
+        print("\n추가 검색 포함: 주 검색 k개 + 부위별·de novo 검색 각 3개를 합친 목록 전체로 채점 (hit·recall은 합친 목록 기준)")
     print(f"\n{summary['cases']}문항, k={args.k}, 질의 {('자동 생성 ' + args.query_style) if args.auto_query else '문제집'}, 재정렬 {'켬 (' + client_name() + ', 후보 ' + str(searcher.RERANK_CANDIDATES) + '개)' if args.rerank else '끔'}")
+    at = "전체" if args.with_extra else args.k
     print(f"L0 문서 선택 {summary['l0_doc']:.0%} | L1 소단원 {summary['l1_section']:.0%} | "
-          f"L2 hit@{args.k} {summary['l2_hit']:.0%} | L2 recall@{args.k} {summary['l2_recall']:.2f} | MRR {summary['mrr']:.2f}")
+          f"L2 hit@{at} {summary['l2_hit']:.0%} | L2 recall@{at} {summary['l2_recall']:.2f} | MRR {summary['mrr']:.2f}")
     if args.rerank and searcher._reranker_failed:
         print("주의: 재정렬 모델을 불러오지 못해 뜻 검색 점수만 썼습니다 (위 경고 참고). 점수는 재정렬 끔과 같습니다.")
     print(f"검색 시간: 첫 질의 {summary['first_seconds']:.1f}초 (모델 불러오기 포함) | "

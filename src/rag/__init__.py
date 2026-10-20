@@ -34,5 +34,10 @@ def search_guidelines(*args, **kwargs):
     return _search_guidelines(*args, **kwargs)
 
 
+def search_reimbursement(*args, **kwargs):
+    from .reimbursement_search import search_reimbursement as _search_reimbursement
+    return _search_reimbursement(*args, **kwargs)
+
+
 __all__ = ["index_chunks", "init_collection", "delete_by_doc_type", "delete_guideline_chunks", "close_indexer",
-           "search_guidelines"]
+           "search_guidelines", "search_reimbursement"]

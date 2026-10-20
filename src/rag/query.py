@@ -6,8 +6,10 @@
 #     patient = {"metastatic_sites": ["bone"], "menopausal_status": "premenopausal", "pcr": None,
 #                "stage_at_diagnosis": "early", "prior_subclasses": ["AI_nonsteroidal"], "prior_classes": []}
 #     results = search_guidelines(**search_args(record, **patient))
-#     for args in site_search_args(record, **patient):   # 전이 부위별 권고(뼈 전이 골 보호제 등)는 따로 찾는다
+#     for args in extra_search_args(record, **patient):  # 부위별(뼈·뇌 전이)·de novo 권고는 따로 찾는다
 #         results += search_guidelines(**args)
+#     rows = search_reimbursement(["palbociclib", "letrozole"], setting="metastatic", line="1L", as_of="2026-10-20")
+#     # 후보 요법마다 급여 행을 찾고, 행의 reimbursement.conditions와 환자 정보로 급여 분류를 정한다 (B)
 # patient 값은 A의 patient_state에서 온다: stage.metastatic_sites·recurrence.metastatic_sites, patient.menopausal_status,
 # neoadjuvant_response.pcr, stage.disease_extent(진단 시 범주), treatment_history[]의 drug_subclass·drug_class.
 # 같은 환자 조건이라도 폐경 상태(OFS 권고), pCR(잔존 질환 권고), de novo(원발 종양 수술 권고), 이전 치료(후반 차수)에 따라
@@ -165,6 +167,22 @@ def site_search_args(record: dict, top_k: int = 3, **kwargs) -> list[dict]:
         query = SITE_QUERIES.get(str(site).strip().lower())
         if query:
             out.append({**base, "query_text": query, "line": None})
+    return out
+
+
+# 상황별 추가 검색: de novo IV기(진단 시 전이성)의 원발 종양 수술·국소 치료 권고는 환자 정보가 아니라 별도 질문이라
+# 주 치료 질의로는 찾지 못했다 (--auto-query M17). 진단 시·현재 모두 전이성이면 한 번 더 찾는다
+DE_NOVO_QUERY = "newly diagnosed stage IV breast cancer intact primary tumour locoregional therapy surgery"
+
+
+def extra_search_args(record: dict, top_k: int = 3, **kwargs) -> list[dict]:
+    """주 치료 검색과 따로 돌릴 검색 인자 목록: 전이 부위별(site_search_args) + de novo. 차수와 무관해 line을 뺀다."""
+    patient = {k: kwargs.get(k) for k in PATIENT_KEYS if k in kwargs}
+    out = site_search_args(record, top_k=top_k, **kwargs)
+    disease = (record.get("setting") or {}).get("disease")
+    if disease == "metastatic" and patient.get("stage_at_diagnosis") == "metastatic":
+        base = search_args(record, top_k=top_k, **kwargs)
+        out.append({**base, "query_text": DE_NOVO_QUERY, "line": None})
     return out
 
 
