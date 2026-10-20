@@ -48,9 +48,51 @@
         "regimen": {"type": "array", "items": {"type": "string"}},
         "conditions": {
           "type": "object",
-          "description": "투여 조건 구조화. 예: {\"her2\": \"positive\", \"ln_positive\": true, \"positive_ln_count_min\": 4}. 세부 키는 D가 정하고 B가 검토한다."
+          "description": "투여 조건 (급여 청킹 설계 §3.5). 칸: all_of, any_of, any_of_exceptions, line_rule, stage_rules, counts_as_prior_line, notes, human_review, unmapped. 항목은 {id, field, op, value, text[, of][, unless]}. field 어휘와 환자 JSON 경로는 src/reimbursement/conditions.py의 FIELDS, 읽는 법은 src/reimbursement/schema_proposal.md."
         },
-        "copay": {"type": ["string", "null"], "description": "허가초과 본인부담률. 예: 100/100, 5/100"}
+        "copay": {"type": ["string", "null"], "description": "본인부담률. 요법 전체에 하나로 정해질 때 그 값 (예: 5/100, 30/100, 100/100). 약제마다 다르면 null이고 regimen_parsed.copay_by_drug를 본다."},
+        "stage": {"enum": ["neoadjuvant", "adjuvant", "palliative_endocrine", "palliative_chemo", "combination", "supportive"], "description": "공고의 치료 단계 (소단원). combination = 40. 기타 항암제 병용요법, supportive = Ⅳ. 기타 약제"},
+        "her2_section": {"enum": ["positive", "negative", null], "description": "선행화학요법 소단원의 HER2 양성·음성 구분. 다른 단계는 null"},
+        "line_rule": {"enum": ["1차", "1차 이상", "2차", "2차 이상", "3차 이상", null], "description": "공고의 투여단계 표기. 판정할 때 biomarker_record.setting.line과 맞춘다 (schema_proposal.md)"},
+        "history": {
+          "type": "array",
+          "description": "그 행의 제·개정 공고 (시행일 순)",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["notice_no", "effective_from"],
+            "properties": {
+              "notice_no": {"type": "string"},
+              "effective_from": {"type": "string", "format": "date"}
+            }
+          }
+        },
+        "regimen_parsed": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "요법 구조화. sequence = 순차 단계별 약 목록, optional_drugs = ± 약, routes = 약별 제형(IV, SC, PO), copay_by_drug = 약별 본인부담, fixed_dose_combination = 복합제",
+          "properties": {
+            "sequence": {"type": "array"},
+            "optional_drugs": {"type": "array"},
+            "routes": {"type": "object"},
+            "copay_by_drug": {"type": "object"},
+            "fixed_dose_combination": {"type": "array"}
+          }
+        },
+        "regimen_list": {"type": "array", "items": {"type": "object"}, "description": "Ⅳ 기타 약제(G-CSF)의 대상 요법 목록 {regimen, setting, drugs, sequence}"},
+        "combination": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "병용요법 행만. added_drug = 추가 약제, added_drug_coverage = 추가 약제 급여 (비급여, 100/100, null), base_regimen = 기존 급여 요법",
+          "required": ["added_drug", "added_drug_coverage", "base_regimen"],
+          "properties": {
+            "added_drug": {"type": "array", "items": {"type": "string"}},
+            "added_drug_coverage": {"enum": ["비급여", "100/100", null]},
+            "base_regimen": {"type": "array", "items": {"type": "string"}}
+          }
+        },
+        "conditions_inherited_from": {"type": ["string", "null"], "description": "병합 셀로 조건을 물려받은 위 연번. 예: r01"},
+        "text_normalized": {"type": "string", "description": "판정용 정규화 본문 (NFKC, ①→1, ㎝→cm)"}
       }
     }
   },
