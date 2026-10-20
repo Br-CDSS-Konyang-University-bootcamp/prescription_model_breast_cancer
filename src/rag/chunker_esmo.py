@@ -119,6 +119,20 @@ def _ebc_line(text: str) -> list:
     return found or ["any"]
 
 
+def _sentence_subtype(text: str, default: list) -> list:
+    """부위별 소단원(아형 any)에서도 권고 문장이 아형을 밝히면 그 아형만 붙인다.
+    예: LMD 소단원의 "T-DXd ... in HER2-positive LMD"는 HER2 양성 환자에게만 맞는다. any로 두면
+    모든 HER2 양성 질의에서 필터를 통과해, 연수막 전이가 없는 환자 검색에서도 1위로 올라온다."""
+    if default != ["any"]:
+        return default
+    t = text.lower()
+    if "her2-positive" in t:
+        return HER2_POS
+    if re.search(r"her2-low|her2-negative", t):
+        return ["HR+/HER2-", "TNBC"]
+    return default
+
+
 def _continue_sentence(item: list, piece: str):
     """끊긴 문장의 뒷부분을 본문과 ID용 문장 둘 다에 붙인다."""
     item[0] += " " + piece
@@ -251,7 +265,7 @@ def parse_esmo_chunks(md_path: Path) -> list[dict]:
                 chunk_kind="recommendation",
                 text=item,
                 setting=doc["setting"],
-                subtype=subtype,
+                subtype=_sentence_subtype(item, subtype),
                 line=line or _ebc_line(item),
                 evidence=_evidence(item),
                 copyright_notice=COPYRIGHT,
