@@ -21,6 +21,7 @@ A는 원칙적으로 표기만 정리한다. 예외: HER2 IHC의 `result`는 ISH
 | `patient_ref` | 가명 ID | 문자열 | 비식별화(IN-0). 실제 값은 내부 대응표에만 | `홍길동 (등록번호 12345678)` → `"VC-0001"` |
 | `created_at` | 생성 시각 | ISO 8601 | 자동 | → `"2026-10-12T09:00:00+09:00"` |
 | `index_day` [draft6] | 판정 기준일 (진단일 = 0). 추천·급여 판정을 하는 '지금' 시점 | 정수 또는 `null` | 해석 (차트 작성일 → 진단일 기준 일수) | 진단 2024-03-05, 진료일 2026-10-16 → `955` |
+| `fields.at_index` [2026-10-20, 검토 전] | 기준일 시점 값. `age`(기준일 나이), `recent_therapy_28d`(최근 4주 이내 항암제·호르몬제 투여 `{status, basis, regimen_refs, gap_days}`) | 객체 | 규칙 (`index_day`, 진단 시 나이, `treatment_history[]`로 계산) | `index_day` 1000, letrozole `end_day` 980 → `{"status":"yes","gap_days":20,…}` |
 | `documents[]` | 문서 목록 (IN-1) | `{doc_id, doc_type, doc_date}` | 해석 + 사전 | `[병리결과보고서] 2024.03.05` → `{"doc_id":"D1","doc_type":"pathology","doc_date":"2024-03-05"}` |
 | `conflicts[]` | 같은 시점에 값이 다른 경우 (IN-5) | `{field, candidates[], note}` | 규칙 | `암 3기` vs `cT2N1M0` → `{"field":"stage.group","candidates":[…III…, …IIB…],"note":"적힌 병기와 TNM 계산 병기가 다름"}` |
 

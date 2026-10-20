@@ -1,0 +1,65 @@
+<외래 경과기록>   2023.5.4   종양내과
+환자명: 김가상   등록번호: 00000103   F/54   주민번호: 690101-2******   연락처: 010-0000-0103
+병원: 가상대학교병원 종양내과   담당의: 이가상
+
+S) 기침 3주. 폐경 후 (postmenopausal)
+
+O) ECOG PS 0
+   Chest CT (23.4.4): 양측 폐 다발성 결절, 전이 의심. 다른 장기 전이 없음
+   Lung bx (23.4.16): metastatic carcinoma, breast origin. ER 80%, PR 60%, HER2 0
+
+A) Rt. breast IDC, 2021.3.5 core bx로 진단
+   pT2N0(0/2)M0, IIA (2021.3.23 수술)
+   ER 80% / PR 60% / HER2 0 / Ki-67 15%, grade 2
+   보조 anastrozole 2021.4.14~ 복용 중 2023.4.4 lung metastasis → anastrozole 2023.4.9 중단 (PD)
+   Tissue NGS: PIK3CA, ESR1 미검출
+
+P) 전이성 1차 내분비 기반 치료 결정
+   HR+/HER2- MBC, 보조 AI 투여 중 재발
+
+
+[병리결과보고서]
+환자명: 김가상   등록번호: 00000103   F/52
+접수일: 2021.3.23   보고일: 2021.3.29
+검체: 우측 유방 부분절제술 + 감시림프절 생검
+
+진단
+  침윤성 유관암 (invasive ductal carcinoma, NST)
+  조직학적 등급: II (Nottingham 2+2+2=6)
+  종양 크기: 2.3 cm
+  림프절: 전이 없음 (0/2)
+  절제연: 음성
+  pTNM: pT2 N0 M0, stage IIA (AJCC 8th)
+
+면역조직화학
+  ER : 양성, 80%
+  PR : 양성, 60%
+  HER2 (4B5): 0
+  Ki-67: 15%
+
+판독의: 박가상
+
+
+[병리결과보고서]
+환자명: 김가상   등록번호: 00000103   F/54
+보고일: 2023.4.19
+2023.4.16 우하엽 폐 결절 CT 유도 생검. Metastatic carcinoma, compatible with breast primary.
+ER positive (80%), PR positive (60%), HER2 IHC 0.
+
+
+[분자병리 검사 결과]
+환자명: 김가상   등록번호: 00000103
+검사기관: 가상유전체검사센터   보고일: 2023.4.28
+검체: 폐 생검 조직 (2023.4.16)
+검사법: 표적 NGS
+
+검출된 변이: 없음
+검출되지 않음 (Not detected): PIK3CA, ESR1, AKT1, PTEN
+
+* 패널 포함 유전자: PIK3CA, ESR1, AKT1, PTEN, ERBB2
+
+
+[투약 기록]
+환자명: 김가상   등록번호: 00000103
+구분    요법                          시작         종료        반응   중단 사유
+보조    아리미덱스 (anastrozole) 1mg qd  2021.4.14    2023.4.9    PD     폐 전이

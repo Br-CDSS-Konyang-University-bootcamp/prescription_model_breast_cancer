@@ -1,0 +1,59 @@
+[병리결과보고서]
+환자명: TCGA가상   등록번호: 0000T10   성별/나이: F/53 (진단 시)
+병원: 가상대학교병원 병리과
+검체: Left breast, mastectomy with axillary lymph node dissection
+
+진단 (DIAGNOSIS)
+  Infiltrating lobular carcinoma
+  Lymph node: metastatic carcinoma in 26 lymph nodes (검사한 림프절 수 기록 없음)
+  pTNM: pT1b pN3a M0 (AJCC 6th)
+  Stage: IIIC
+
+면역조직화학 (IHC)
+  ER : positive (95%)
+  PR : positive (15%)
+  HER2: 0 (negative)
+
+ISH
+  HER2 FISH: negative (not amplified)
+
+판독의: 박가상
+
+
+[NGS 보고서]
+환자명: TCGA가상   등록번호: 0000T10
+검체: 원발 종양 조직   검사법: 종양 조직 엑솜 검사
+검출된 변이
+  PIK3CA   p.Q546R (Missense_Mutation)   VAF 22.6%
+검출되지 않음
+  ERBB2, ESR1, AKT1, PTEN, BRCA1, BRCA2, PALB2
+결과 요약: 종양 조직 엑솜 검사 (원발 조직). PIK3CA p.Q546R (Missense_Mutation), VAF 22.6%. ERBB2, ESR1, AKT1, PTEN, BRCA1, BRCA2, PALB2: 검출되지 않음.
+
+
+<외래 경과기록>   진단 후 1884일   종양내과
+환자명: TCGA가상   등록번호: 0000T10   F/53 (진단 시)
+
+S) 폐경 후 (postmenopausal)
+A) Lt. breast ILC, pT1bN3a(26+)M0, stage IIIC, ER+ 95% / PR+ 15% / HER2 0, FISH(-)
+   수술 후 보조 AC → paclitaxel, 보조 anastrozole → letrozole → anastrozole → exemestane
+   진단 후 1353일 뼈 전이로 재발 (distant metastasis, bone). 전이 병소 수술은 하지 않음
+   재발 후 fulvestrant → tamoxifen → liposomal doxorubicin, 모두 진행 (PD)
+   골 보호제: zoledronic acid → denosumab
+P) 다음 치료 논의
+
+
+[투약 기록]
+환자명: TCGA가상   등록번호: 0000T10
+구분   약제                               시작       종료       주기   반응
+보조   doxorubicin 116 mg (총 463 mg)     D+85       D+127      #4     -
+보조   cyclophosphamide                   D+85       D+127      #4     -
+보조   paclitaxel                         D+141      D+184      #4     -
+보조   anastrozole                        D+221      D+812      -      -
+보조   letrozole                          D+813      D+903      -      CR
+보조   anastrozole                        D+904      D+1001     -      CR
+보조   exemestane                         D+1002     D+1365     -      PD
+보조   zoledronic acid                    D+1158     D+1422     -      PD
+고식   fulvestrant                        D+1366     D+1562     -      PD
+고식   denosumab (Prolia)                 D+1425     D+1718     -      PD
+고식   tamoxifen                          D+1618     D+1722     -      PD
+고식   liposomal doxorubicin              D+1696     D+1787     -      PD

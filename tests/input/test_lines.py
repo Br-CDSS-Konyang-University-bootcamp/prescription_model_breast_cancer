@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from src.input.common.lines import annotate, deemed_lines, palliative_lines
+from src.input.common.lines import annotate, at_index, deemed_lines, palliative_lines
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -60,6 +60,34 @@ def test_planned_switch_stays_same_line():
                           (["paclitaxel"], 1, None, 1),
                           (["capecitabine"], 2, None, 2)]
     assert r["notes"] == []
+
+
+def test_anthracycline_then_taxane_is_same_line():
+    """§6.2 규칙 5a: 끝난 이유를 몰라도 AC 종료 28일 이내 taxane이면 같은 차수 (2026-10-20)."""
+    r = palliative_lines(state([tx(["cyclophosphamide", "doxorubicin"], 110, 166), tx(["paclitaxel"], 167, 250),
+                                tx(["capecitabine"], 300)]))
+    assert numbers(r) == [(["cyclophosphamide", "doxorubicin"], 1, None, 1), (["paclitaxel"], 1, None, 1),
+                          (["capecitabine"], 2, None, 2)]
+
+
+def test_regimen_started_before_previous_ends_is_same_line():
+    """§6.2 규칙 5a: 앞 요법이 끝나기 전에 시작하면 병용 추가 (capecitabine 중 bevacizumab)."""
+    r = palliative_lines(state([tx(["capecitabine"], 110, 520), tx(["bevacizumab"], 140, 500)]))
+    assert [x["line"] for x in r["regimens"]] == [1, 1]
+    assert [x["chemo_line"] for x in r["regimens"]] == [1, 1]
+
+
+def test_endocrine_maintenance_after_chemo_counts_endocrine_once():
+    """§6.2 규칙 5b: 같은 차수 안에서 항암 → 내분비 유지면 내분비 차수만 처음 올린다."""
+    r = palliative_lines(state([tx(["doxorubicin", "cyclophosphamide"], 110, 200, stop="maintenance"),
+                                tx(["letrozole"], 210)]))
+    assert numbers(r) == [(["doxorubicin", "cyclophosphamide"], 1, None, 1), (["letrozole"], 1, 1, None)]
+
+
+def test_endocrine_after_chemo_without_progression_is_maintenance():
+    """§6.2 규칙 5a: 항암 후 진행 기록 없이 내분비로 바뀌면 유지요법, 같은 차수 (2026-10-20)."""
+    r = palliative_lines(state([tx(["doxorubicin", "cyclophosphamide"], 110, 200, response="SD"), tx(["letrozole"], 210)]))
+    assert numbers(r) == [(["doxorubicin", "cyclophosphamide"], 1, None, 1), (["letrozole"], 1, 1, None)]
 
 
 def test_endocrine_and_chemo_counted_separately():
@@ -145,3 +173,38 @@ def test_annotate_fills_line_fields_and_rules():
     th = annotate(ps)["fields"]["treatment_history"]
     assert [(t["line"], t["endocrine_line"], t["chemo_line"]) for t in th] == [(None, None, None), (1, 1, None), (2, None, 1)]
     assert len(ps["fields"]["deemed_lines"]) == 4
+
+
+# ---------- 판정 기준일 시점 값 (at_index) ----------
+
+
+def indexed(history, index_day=1000, age=60):
+    ps = state(history)
+    ps["index_day"] = index_day
+    ps["fields"]["patient"] = {"age": {"status": "present", "value": age}}
+    return at_index(ps)
+
+
+@pytest.mark.parametrize("history,status,gap", [
+    ([tx(["letrozole"], 500, 980)], "yes", 20),                  # 20일 전 종료
+    ([tx(["letrozole"], 500, 972)], "yes", 28),                  # 경계: 28일
+    ([tx(["paclitaxel"], 500, 971)], "no", 29),                  # 29일 전 종료
+    ([tx(["letrozole"], 500, 1100)], "yes", -100),               # 기준일에 투여 중
+    ([tx(["letrozole"], 990, None)], "yes", 10),                 # 종료일 없음, 10일 전 시작
+    ([tx(["letrozole"], 500, None)], "unknown", None),           # 투약 중인지 기록 없음인지 모름
+    ([tx(["zoledronic acid"], 990, 995)], "no", None),           # 골 보호제는 세지 않음
+    ([tx(["letrozole"], 1010, 1020)], "no", None),               # 기준일 뒤 시작은 세지 않음
+    ([], "no", None),
+])
+def test_recent_therapy_28d(history, status, gap):
+    r = indexed(history)["recent_therapy_28d"]
+    assert (r["status"], r["gap_days"]) == (status, gap)
+
+
+def test_recent_therapy_unknown_without_index_day():
+    assert indexed([tx(["letrozole"], 500, 990)], index_day=None)["recent_therapy_28d"]["status"] == "unknown"
+
+
+@pytest.mark.parametrize("index_day,age", [(0, 60), (365, 60), (366, 61), (3735, 70), (None, None)])
+def test_age_at_index(index_day, age):
+    assert indexed([], index_day=index_day)["age"] == age

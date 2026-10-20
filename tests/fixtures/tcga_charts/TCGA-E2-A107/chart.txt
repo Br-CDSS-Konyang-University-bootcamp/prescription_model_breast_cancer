@@ -1,0 +1,47 @@
+SURGICAL PATHOLOGY REPORT
+Name: TCGA가상   MRN: 0000T05   Sex/Age: F/54 (at diagnosis)
+Hospital: 가상대학교병원 Department of Pathology
+
+FINAL DIAGNOSIS
+  Breast, mastectomy and axillary dissection:
+  - Infiltrating lobular carcinoma
+  - Metastatic carcinoma in 4 of 27 lymph nodes (4/27)
+  - pT3 N2a M0 (AJCC 6th), Stage IIIA
+
+IMMUNOHISTOCHEMISTRY
+  ER: Positive (percentage not reported)
+  PR: Negative (percentage not reported)
+  HER2: 2+, equivocal
+  HER2 FISH: Negative (not amplified)
+
+
+[NGS 보고서]
+환자명: TCGA가상   등록번호: 0000T05
+검체: 원발 종양 조직   검사법: 종양 조직 엑솜 검사
+검출된 변이: AKT1 p.E17K (Missense_Mutation), VAF 62.0%
+검출되지 않음: ERBB2, ESR1, PIK3CA, PTEN, BRCA1, BRCA2, PALB2
+결과 요약: 종양 조직 엑솜 검사 (원발 조직). AKT1 p.E17K (Missense_Mutation), VAF 62.0%. ERBB2, ESR1, PIK3CA, PTEN, BRCA1, BRCA2, PALB2: 검출되지 않음.
+
+
+[다학제 진료 회의록]   진단 후 1047일
+참석: 유방외과, 종양내과, 영상의학과, 병리과
+증례: 54세(진단 시) 폐경 후 여성, ILC pT3N2a(4/27)M0 IIIA, ER(+) PR(-) HER2 2+ / FISH(-)
+경과: 수술 후 보조 AC + bevacizumab → paclitaxel + bevacizumab 후 보조 내분비요법.
+      anastrozole, exemestane을 짧게 복용 후 tamoxifen으로 바꿔 복용 중. 재발 소견 없음.
+결론: 현 요법 유지, 추적 관찰
+
+
+[투약 기록]
+환자명: TCGA가상   등록번호: 0000T05
+구분   약제                                          시작      종료        주기
+보조   doxorubicin + cyclophosphamide + bevacizumab   D+109     D+151       #4
+보조   cyclophosphamide                               D+109     D+151       #4
+보조   doxorubicin 105 mg (총 420 mg)                 D+109     D+151       #4
+보조   bevacizumab (Avastin)                          D+165     D+333       #13
+보조   paclitaxel                                     D+165     D+242       #12
+보조   paclitaxel                                     D+165     D+242       #12
+보조   bevacizumab                                    D+249     D+333       #4
+보조   anastrozole                                    D+305     D+355       -
+보조   exemestane                                     D+397     D+417       -
+보조   tamoxifen                                      D+459     기록 없음   -
+보조   tamoxifen                                      D+459     기록 없음   -

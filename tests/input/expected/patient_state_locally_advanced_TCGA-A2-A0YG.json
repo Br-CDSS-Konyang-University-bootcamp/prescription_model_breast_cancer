@@ -68,7 +68,10 @@
         "source": null
       },
       "operable": {
-        "status": "not_recorded"
+        "status": "present",
+        "value": "yes",
+        "raw": "Lumpectomy",
+        "source": null
       }
     },
     "receptors": {
@@ -293,8 +296,8 @@
           "timeline_index": 1,
           "combined_with": [],
           "dose_per_admin": {
-            "value": 122.0,
-            "unit": "mg"
+            "value": 66.3,
+            "unit": "mg/m2"
           },
           "cycles": {
             "value": 4,
@@ -303,8 +306,8 @@
             "interval_basis": "derived"
           },
           "total_dose": {
-            "value": 488.0,
-            "unit": "mg"
+            "value": 265.2,
+            "unit": "mg/m2"
           },
           "raw": "doxorubicin [Chemotherapy] d68~d131",
           "source": null
@@ -430,7 +433,19 @@
         "gap_days": null,
         "notice_page": "57"
       }
-    ]
+    ],
+    "at_index": {
+      "age": 64,
+      "recent_therapy_28d": {
+        "status": "unknown",
+        "basis": "종료일 없는 투약이 있어 기준일에 투여 중인지 알 수 없음",
+        "regimen_refs": [
+          3,
+          5
+        ],
+        "gap_days": null
+      }
+    }
   },
   "conflicts": []
 }

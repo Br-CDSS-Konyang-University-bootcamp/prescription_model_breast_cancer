@@ -492,6 +492,7 @@ H&E에서 ER/PR/HER2를 예측해 차트 값과의 불일치를 표시하는 QC 
 - 정답표 신뢰도: 같은 시나리오 30~50건을 두 사람이 따로 정답표로 만들고 일치율(Cohen's kappa)을 잰다. 다르면 원문을 다시 보고 합의하고, 합의 내용을 기록한다
 - 보조 지표: TCGA 실제 투약과 큰 방향(HER2 표적치료, 내분비요법 여부)의 일치율. 치료 시기가 오래돼(대부분 2013년 이전) 정답으로 쓰지 않는다
 - 한계: 의료진 검증을 하지 않았다. 결과 보고와 발표에 이 한계를 적는다
+- 한계: 골 보호제(zoledronic acid, denosumab 등)의 급여 판정은 평가하지 않는다 (2026-10-19 A 결정). 검증 데이터가 부족하기 때문이다: TCGA 정답 874명 중 뼈 전이 기록은 15명(진단 시 4, 재발 11)이고, 공고 조건인 "영상으로 골 전이 입증"을 담을 칸이 `patient_state`에 없어 denosumab은 한 명도 끝까지 판정되지 않는다. zoledronic acid 조건까지 판정되는 환자는 8명이다. 가상 환자 중 뼈 전이는 3건(VC-0101·0102·0108)이다. 판정에 필요한 데이터를 추가하기 전까지 제외한다. 골 보호제는 차수 계산에서도 뺀다 (`src/input/handoff_to_B.md` §6.2)
 
 ## 13. 이전 설계(2026-10-06)에서 바뀐 점
 
@@ -513,7 +514,7 @@ H&E에서 ER/PR/HER2를 예측해 차트 값과의 불일치를 표시하는 QC 
 - [x] `patient_state` 0.1-draft5 (2026-10-15 협의): 차수는 정답에 넣지 않고 B가 투약 시작일(`treatment_history[].start_day`, 진단일 = 0)과 전이 기준일(`recurrence.metastasis_day`)로 판단한다. 심평원 투여단계는 고식적 내분비요법과 고식적 항암화학요법을 따로 센다. 국소 재발 후 수술(재발 후 원격 전이 없음)이면 이후 요법은 수술후보조요법(공고 p.48). TCGA 정답에서는 BRCA1/2 종양 엑솜 결과를 gBRCA 측정으로 가정한다. PD-L1은 발현 점수만 넘기고 B가 약제별 기준으로 판정한다. 유전자 변이(ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2)는 유전자별로, anthracycline 투약 용량(liposomal doxorubicin 급여 조건용)은 약별로 넘긴다. 투여 주기에는 주기 길이를 붙인다 (`data/dictionaries/drug_classes.csv`의 `cycle_days`). anthracycline 병용 용량을 나눌 수 없는 4명과 재발했지만 부위를 모르는 7명을 빼 정답 세트는 985명이다. 모델 한계: 장기 위기, 심장 위험 요인, 투약 중 여부, 재발 후 수술 의도는 판단하지 않는다. 전달 문서는 `src/input/handoff_to_B.md` (BM-3 제안과 draft5 내용을 2026-10-15에 한 파일로 합침)
 - [x] `patient_state` 0.1-draft6 (2026-10-16 A 제안, 4명 검토 전): 차수는 A가 변환할 때 계산해 `treatment_history[]`의 `line`(전체)·`endocrine_line`(고식적 내분비)·`chemo_line`(고식적 항암)에 넣는다 (`src/input/common/lines.py`). 심평원 차수 간주 규칙 4개(anthracycline·taxane 선행·보조, sacituzumab 1년, T-DM1·T-DXd 6개월, 보조 내분비 1년)는 차수를 바꾸지 않고 `fields.deemed_lines`에 충족 여부만 넣는다. 판정 기준일 `index_day`(TCGA = 마지막 추적일), 첫 재발일 `recurrence.recurrence_day` 추가. TCGA BRCA는 gBRCA 가정 유지
 - [x] TCGA 필드를 v0.1 추출 스키마에 대응 (규칙 `src/input/tcga_mapping.md`) + 정답 생성기 (2026-10-15, `src/input/truth/tcga_truth.py`, 874명 전원 스키마 통과 (2026-10-15 HER2 판정 불가 62명, PR Indeterminate 4명, ER·PR·HER2 모두 미시행 43명, ER 또는 PR 미시행 2명 제외 후), 테스트 `tests/input/`)
-- [ ] 가상 차트 작성 방법 정하기 (양식 종류, 문장으로 쓸 필드, 합성값, 국내 표현 수집)
+- [ ] 가상 차트 작성 방법 정하기 (양식 종류, 문장으로 쓸 필드, 합성값, 국내 표현 수집). 2026-10-19 시나리오 10건 설계: `tests/fixtures/virtual_charts/` (사례당 텍스트 한 파일에 문서 2~4개, 가짜 날짜 사용, 가짜 식별정보, 정답은 담당자별 분담). 차트 원문과 정답은 draft6 병합 뒤 VC-0103부터 작성. TCGA 기반 30건 추출 세트의 형식은 아직
 - [ ] LLM 공통 인터페이스 `llm/` (0단계 A 담당)
 - [ ] ESMO 치료 알고리즘 도식의 텍스트 변환과 검수
 - [x] ESMO 사용 조건 확인 (2026-10-07): ESMO 웹사이트 약관은 개인·비영리 사용을 허가 없이 허용하고, AI 관련 조항은 없다. 비영리 프로젝트이므로 ESMO로 진행한다

@@ -13,7 +13,11 @@ patient_state 한 명의 treatment_history로 전이 후 요법마다 차수를 
    그 밖의 표적치료만 있으면 항암. lapatinib + letrozole 같은 HER2 표적 + 내분비 병용은 공고에서 항암화학요법 표에 있다.
 5. 앞 요법이 진행(stop_reason = progression 또는 best_response = PD)으로 끝났으면 다음 요법은 다음 차수다.
    계획된 순차(planned_switch)·유지요법(maintenance)·독성(toxicity)으로 바뀌었으면 같은 차수다.
-   끝난 이유를 모르면 다음 차수로 세고 notes에 남긴다.
+   끝난 이유를 모르면 다음 차수로 세고 notes에 남긴다. 다만 끝난 이유를 몰라도 아래 둘은 같은 차수다 (사용자 결정, 2026-10-20).
+   - 순차 요법: anthracycline 요법이 끝나고 28일 이내에 taxane(± HER2 표적) 요법이 시작됨 (AC → paclitaxel 등)
+   - 병용 추가: 앞 요법이 끝나기 전에 시작됨 (capecitabine 투여 중 bevacizumab 추가 등)
+   - 유지요법: 항암 요법 다음에 내분비 요법이 시작됨 (진행 기록 없음)
+   같은 차수 안에서 요법 종류가 바뀌면(항암 → 내분비 유지 등) 그 종류의 차수는 이 차수에서 처음일 때만 하나 올린다.
 
 간주 규칙 (deemed_lines). 차수 자체는 바꾸지 않고 규칙마다 충족 여부만 낸다. 급여 판정이 행마다 맞는 규칙을 골라 더한다.
 - 선행·보조요법 = setting이 neoadjuvant·adjuvant이고 전이 기준일 전에 시작한 투약 (보조약·골 보호제 제외)
@@ -31,6 +35,7 @@ NOT_COUNTED = {"Supportive Care", "Bone-modifying Agent"}
 NOT_ANTICANCER = NOT_COUNTED | {"Unknown", "Other"}
 CHEMO_CLASSES = {"Chemotherapy", "HER2-targeted Therapy", "Immunotherapy"}
 SAME_LINE_STOPS = {"planned_switch", "maintenance", "toxicity"}
+SEQUENTIAL_NEXT = {"HER2-targeted Therapy"}  # 순차 요법의 taxane과 함께 써도 되는 계열 (AC → TH)
 
 # rule_id: (category, 공고 쪽, 대상 setting, 기간(일) 또는 None)
 DEEM_RULES = {
@@ -70,6 +75,36 @@ def _progressed(items: list[dict]) -> bool | None:
     return None
 
 
+def _subclasses() -> dict[str, str]:
+    if not hasattr(_subclasses, "cache"):
+        _subclasses.cache = {g: s for g, (_, s) in load_drug_table().items()}
+    return _subclasses.cache
+
+
+def _end(items: list[dict]) -> int | None:
+    """요법의 종료일 = 투약 종료일 중 가장 늦은 값. 하나라도 없으면 모른다."""
+    ends = [t.get("end_day") for t in items]
+    return None if any(e is None for e in ends) else max(ends)
+
+
+def _same_line_reason(prev: dict, group: list[dict], classes: dict[str, str]) -> str | None:
+    """끝난 이유를 모를 때 같은 차수로 볼 근거 (순차 요법, 병용 추가, 유지요법). 없으면 None."""
+    sub = _subclasses()
+    if prev["category"] == "chemo" and _category({classes.get(d, "Unknown") for t in group for d in t["drugs"]}) == "endocrine":
+        return "항암 후 내분비 유지요법"
+    end, start = _end(prev["_items"]), group[0]["start_day"]
+    if end is None:
+        return None
+    if start < end:
+        return "앞 요법 투여 중 시작 (병용 추가)"
+    drugs = [d for t in group for d in t["drugs"]]
+    if (start - end <= GROUP_DAYS and any(sub.get(d) == "anthracycline" for d in prev["drugs"])
+            and any(sub.get(d) == "taxane" for d in drugs)
+            and all(sub.get(d) == "taxane" or classes.get(d) in SEQUENTIAL_NEXT for d in drugs)):
+        return "anthracycline → taxane 순차 요법"
+    return None
+
+
 def _metastasis_day(fields: dict) -> int | None:
     mday = (fields.get("recurrence") or {}).get("metastasis_day") or {}
     return mday.get("value") if mday.get("status") == "present" else None
@@ -106,22 +141,30 @@ def palliative_lines(patient_state: dict, drug_classes: dict[str, str] | None = 
 
     regimens = []
     line = endocrine = chemo = 0
+    in_line: dict[str, int] = {}  # 지금 차수에서 이미 센 요법 종류 → 그 종류의 차수
     for g in groups:
         drugs = list(dict.fromkeys(d for t in g for d in t["drugs"]))
         category = _category({classes.get(d, "Unknown") for d in drugs})
         prev = regimens[-1] if regimens else None
         progressed = _progressed(prev["_items"]) if prev else True
-        if prev and progressed is False:
-            numbers = {k: prev[k] for k in ("line", "endocrine_line", "chemo_line")}
-        else:
+        why = _same_line_reason(prev, g, classes) if prev and progressed is None else None
+        if why:
+            notes.append(f"{'+'.join(prev['drugs'])} → {'+'.join(drugs)}: {why}이라 같은 차수로 셈")
+        if not (prev and (progressed is False or why)):
             if prev and progressed is None:
                 notes.append(f"{'+'.join(prev['drugs'])} 이후 진행 여부를 몰라 {'+'.join(drugs)}를 다음 차수로 셈")
             line += 1
-            endocrine += category == "endocrine"
-            chemo += category == "chemo"
-            numbers = {"line": line,
-                       "endocrine_line": endocrine if category == "endocrine" else None,
-                       "chemo_line": chemo if category == "chemo" else None}
+            in_line = {}
+        if category not in in_line:
+            if category == "endocrine":
+                endocrine += 1
+                in_line[category] = endocrine
+            elif category == "chemo":
+                chemo += 1
+                in_line[category] = chemo
+        numbers = {"line": line,
+                   "endocrine_line": in_line.get("endocrine") if category == "endocrine" else None,
+                   "chemo_line": in_line.get("chemo") if category == "chemo" else None}
         regimens.append({"drugs": drugs, "start_day": g[0]["start_day"], "category": category, **numbers,
                          "refs": [t["_index"] for t in g], "_items": g})
 
@@ -201,8 +244,60 @@ def deemed_lines(patient_state: dict, drug_table: dict[str, tuple[str, str]] | N
     return out
 
 
+def at_index(patient_state: dict, drug_table: dict[str, tuple[str, str]] | None = None) -> dict:
+    """판정 기준일(index_day) 시점 값. C·D·추천 모듈이 일수 계산 없이 급여 조건을 보게 한다.
+
+    - age: 진단 시 나이 + index_day를 365.25로 나눈 몫. 생일을 몰라 실제보다 1살 적을 수 있다.
+    - recent_therapy_28d: '최근 4주 이내 항암제 또는 호르몬제 투여' (zoledronic acid, 공고 Ⅳ).
+      대상은 보조약·골 보호제·분류 없는 약을 뺀 투약 중 기준일 이전에 시작한 것.
+      마지막 투여일 = 종료일, 없으면 시작일(하한). 기준일 − 마지막 투여일 ≤ 28이면 yes.
+      그 밖에 종료일 없는 투약이 있으면 unknown (투약 중인지 기록이 없는 것인지 모름), 없으면 no.
+    """
+    table = drug_table if drug_table is not None else load_drug_table()
+    fields = patient_state.get("fields") or {}
+    index_day = patient_state.get("index_day")
+    age = (fields.get("patient") or {}).get("age") or {}
+    out = {"age": age["value"] + index_day * 100 // 36525
+           if index_day is not None and age.get("status") == "present" else None}
+
+    def recent(status, basis, refs=(), gap=None):
+        return {"status": status, "basis": basis, "regimen_refs": list(refs), "gap_days": gap}
+
+    if index_day is None:
+        out["recent_therapy_28d"] = recent("unknown", "판정 기준일 없음")
+        return out
+    cands = [(i, t) for i, t in enumerate(fields.get("treatment_history") or [])
+             if any(table.get(d, ("Unknown", ""))[0] not in NOT_ANTICANCER for d in t["drugs"])
+             and (t.get("start_day") is None or t["start_day"] <= index_day)]
+
+    def last(t):
+        return t["end_day"] if t.get("end_day") is not None else t.get("start_day")
+
+    inside = [(i, t) for i, t in cands if last(t) is not None and index_day - last(t) <= 28]
+    if inside:
+        i, t = max(inside, key=lambda c: last(c[1]))
+        gap = index_day - last(t)
+        if t.get("end_day") is None:
+            how = f"종료일 없음, 기준일 {gap}일 전 시작"
+        elif gap < 0:
+            how = f"기준일에 투여 중 (종료 {-gap}일 뒤)"
+        else:
+            how = f"기준일 {gap}일 전 종료"
+        out["recent_therapy_28d"] = recent("yes", f"{'+'.join(t['drugs'])} {how}", [i], gap)
+    elif any(t.get("end_day") is None for _, t in cands):
+        open_refs = [i for i, t in cands if t.get("end_day") is None]
+        out["recent_therapy_28d"] = recent("unknown", "종료일 없는 투약이 있어 기준일에 투여 중인지 알 수 없음", open_refs)
+    elif cands:
+        i, t = max(cands, key=lambda c: c[1]["end_day"])
+        gap = index_day - t["end_day"]
+        out["recent_therapy_28d"] = recent("no", f"{'+'.join(t['drugs'])} 기준일 {gap}일 전 종료 (28일 초과)", [i], gap)
+    else:
+        out["recent_therapy_28d"] = recent("no", "기준일 이전 항암제·호르몬제 투약 없음")
+    return out
+
+
 def annotate(patient_state: dict, drug_table: dict[str, tuple[str, str]] | None = None) -> dict:
-    """patient_state에 차수 3칸(treatment_history[])과 deemed_lines를 채워 그대로 돌려준다."""
+    """patient_state에 차수 3칸(treatment_history[]), deemed_lines, at_index를 채워 그대로 돌려준다."""
     table = drug_table if drug_table is not None else load_drug_table()
     fields = patient_state["fields"]
     numbers: dict[int, dict] = {}
@@ -212,4 +307,5 @@ def annotate(patient_state: dict, drug_table: dict[str, tuple[str, str]] | None 
     for i, t in enumerate(fields["treatment_history"]):
         t.update(numbers.get(i, {"line": None, "endocrine_line": None, "chemo_line": None}))
     fields["deemed_lines"] = deemed_lines(patient_state, table)
+    fields["at_index"] = at_index(patient_state, table)
     return patient_state

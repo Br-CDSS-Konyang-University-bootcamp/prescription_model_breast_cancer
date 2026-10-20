@@ -10,6 +10,7 @@
 실행: conda team_project 환경에서 tcga_brca_merge.py 다음에
     python data/script/tcga_brca_crop.py
 """
+import re
 from datetime import date
 from pathlib import Path
 
@@ -113,7 +114,6 @@ DROP = {
     "설계서 범위 밖 (수술·방사선)": {
         "gdc_method_initial_path_dx": "첫 병리 진단 방법 (생검 종류)",
         "gdc_method_initial_path_dx_other": "첫 병리 진단 방법 기타",
-        "gdc_surgical_procedure_first": "첫 수술 종류",
         "gdc_first_surgical_procedure_other": "첫 수술 종류 기타",
         "gdc_surgery_for_positive_margins": "절제면 양성 시 추가 수술",
         "gdc_surgery_for_positive_margins_other": "절제면 양성 시 추가 수술 기타",
@@ -195,6 +195,7 @@ DESCRIPTIONS = {
         "gdc_ajcc_pathologic_tumor_stage": "종합 병기 (Stage I~IV). M1인데 [Discrepancy]였던 2명은 Stage IV로 바꿈",
         "stage_disease_extent": "진단 시 병기 기준 범주. early(조기, I~II) / locally_advanced(국소 진행성, III) / metastatic(전이성, IV). "
                                 "III 기준은 심평원 급여 조건. 병기가 없으면 AJCC 규칙(M0·MX이면서 T4 또는 N2~3 → III)으로 정함",
+        "gdc_surgical_procedure_first": "첫 수술 종류 (원발 수술). 기록이 있으면 stage.operable = yes (사용자 결정, 2026-10-20)",
         "gdc_lymph_nodes_examined_count": "검사한 림프절 개수",
         "gdc_lymph_nodes_examined_he_count": "H&E 염색으로 확인한 양성 림프절 개수 (이름과 달리 양성 개수). 심평원 abemaciclib 기준(4개)에 사용",
         "gdc_lymph_nodes_examined_ihc_count": "면역염색으로 확인한 양성 림프절 개수",
@@ -441,6 +442,14 @@ HISTORY = [
                    "또는 IHC 점수 없이 판정이 Indeterminate·미시행·기록 없음이고 ISH도 없음 (931명 → 869명)"),
     ("2026-10-15", "HER2 IHC 2+이고 ISH가 없을 때 판정이 Positive·Negative면 그 판정을 따르기로 해 "
                    "앞서 뺀 2+·판정 Positive·ISH 없음 5명을 되살림 (869명 → 874명)"),
+    ("2026-10-20", "재발 여부 기록이 없는(unknown) 환자 정리: 진단 시 전이성이 아닌데 종양 동반 사망(cbio_DSS_STATUS)이면 삭제, 재발 병소 수용체가 "
+                   "있으면 재발로 보고 전이 여부 YES면 삭제·아니면 locoregional, 나머지는 none (진단 시 전이성 포함) (874명 → 861명)"),
+    ("2026-10-20", "마지막 추적일(fu_last_days)이 음수인 1명(TCGA-A8-A082, -31일)은 부호만 바꿔 31일로 함"),
+    ("2026-10-20", "첫 수술 종류(gdc_surgical_procedure_first)를 삭제 열에서 남기는 열로 옮김 (stage.operable 근거)"),
+    ("2026-10-20", "진단 시 조기인데 진단 시 전이 부위(Bone)가 적힌 TCGA-GM-A2D9 삭제, 해석 불가 (861명 → 860명)"),
+    ("2026-10-20", "anthracycline 용량 오기 수정 12명 (DOSE_FIXES): 누적 용량 단위 mg → mg/m2 10명, 누적 용량 10배 자릿수 2명, E2-A109 매주 용량 단위 정리, AO-A03O 1회 300 → 60 mg/m2"),
+    ("2026-10-20", "anthracycline 용량을 모두 mg/m2로 맞춤 (mg는 체표면적 1.84 m2 추정으로 나눔, 1회 mg/m2면 누적 = 1회 × 주기). D8-A1JE 1회 600 → 60 mg/m2, 주기·누적 기록 없음. D8-A1JI 1회 2.5 mg/m2/day(letrozole 용량) → 60 mg/m2. 누적 ≠ 1회 × 주기 3명(A2-A04Q, E2-A14X, D8-A13Y)은 1회 × 주기로"),
+    ("2026-10-20", "국소 재발 후 수술 빈칸인 3명(TCGA-AR-A24L, AR-A256, BH-A0HP)은 재발 후 투약이 없어 수술 YES로 고침 (규칙 아님, 데이터만)"),
 ]
 
 # anthracycline 병용 기록('+')의 용량을 약 순서대로 나눌 수 없는 환자 (사용자 결정, 2026-10-15)
@@ -480,6 +489,123 @@ def metastasis_day(df):
 def locoregional_day(df):
     """첫 국소 재발 진단일. 국소 재발 기록이 없으면 빈칸."""
     df["locoregional_dx_days"] = df["patient_id"].map(first_event_day("Locoregional")).astype("Int64")
+
+
+# 기록끼리 맞지 않아 해석할 수 없는 환자 (사용자 결정, 2026-10-20)
+UNINTERPRETABLE = {
+    "TCGA-GM-A2D9": "진단 시 Stage I·M0인데 전이 여부 YES, 진단 시 전이 부위 Bone",
+}
+
+
+def uninterpretable_drops(df):
+    """기록끼리 맞지 않아 해석할 수 없는 환자 (사용자 결정, 2026-10-20)."""
+    hit = df["patient_id"].isin(UNINTERPRETABLE)
+    return {"기록끼리 맞지 않아 해석 불가": df.loc[hit, ["patient_id", "gdc_metastasis_site"]]}
+
+
+# anthracycline 용량 오기 수정 (사용자 결정, 2026-10-20). (환자, drug_timeline 항목 번호) → {열: 바꿀 값}
+# 누적 용량이 1회 mg/m2 × 주기와 같은데 단위만 mg로 적힘 → mg/m2 (D8 기관 10명, 병용 cyclophosphamide도 같은 단위)
+_TOTAL_IN_M2 = ["TCGA-D8-A1JB", "TCGA-D8-A1JC", "TCGA-D8-A1JD", "TCGA-D8-A1XT", "TCGA-D8-A1XW",
+                "TCGA-D8-A27F", "TCGA-D8-A27I", "TCGA-D8-A27K", "TCGA-D8-A27L", "TCGA-D8-A27R"]
+DOSE_FIXES = {
+    **{(p, 0): {"drug_total_dose_units": "mg/m2"} for p in _TOTAL_IN_M2},
+    # 누적 용량이 10배 (자릿수 오기) → 1/10, mg/m2
+    ("TCGA-E9-A22H", 0): {"drug_total_dose": "360"},  # 단위 mg은 아래 anthracycline_to_m2에서 mg/m2로 바꾼다
+    ("TCGA-EW-A1PE", 2): {"drug_prescribed_dose": "100", "drug_dose_units": "mg/m2",
+                          "drug_total_dose": "299", "drug_total_dose_units": "mg/m2"},
+    # 매주 24 mg/m2 × 15회 (d111~d209, 14주). 이상한 단위(mg/m2/day, mg/wk) → mg/m2, 누적 = 24 × 15
+    ("TCGA-E2-A109", 1): {"drug_dose_units": "mg/m2", "drug_total_dose": "360", "drug_total_dose_units": "mg/m2"},
+    # 1회 300 mg/m2가 doxorubicin·cyclophosphamide·paclitaxel 세 줄에 똑같이 적힘. 누적 436 mg ÷ 4 = 109 mg(약 60 mg/m2)
+    ("TCGA-AO-A03O", 0): {"drug_prescribed_dose": "60"},
+    # 1회 600 mg/m2는 cyclophosphamide 용량 → doxorubicin 1회 60 mg/m2. 9주기는 d103~d162(59일)에 3주 간격으로
+    # 들어갈 수 없어 주기·누적은 기록 없음으로 둔다
+    ("TCGA-D8-A1JE", 0): {"drug_prescribed_dose": "60", "drug_cycles": "[Not Available]",
+                          "drug_total_dose": "[Not Available]", "drug_total_dose_units": "[Not Available]"},
+    # doxorubicin 줄의 2.5 mg/m2/day는 같은 기간 letrozole의 1일 용량. doxorubicin은 1회 60 mg/m2로 고친다
+    # (누적은 anthracycline_to_m2에서 60 × 6주기 = 360 mg/m2)
+    ("TCGA-D8-A1JI", 0): {"drug_prescribed_dose": "60", "drug_dose_units": "mg/m2"},
+    # 누적이 1회 × 주기와 맞지 않음 → 1회 × 주기로 고친다 (1회 범위 100-102는 최대값 102)
+    ("TCGA-A2-A04Q", 0): {"drug_total_dose": "408"},   # 적힌 값 204 mg
+    ("TCGA-E2-A14X", 0): {"drug_total_dose": "256"},   # 적힌 값 512 mg
+    ("TCGA-D8-A13Y", 0): {"drug_total_dose": "240"},   # 적힌 값 60 mg/m2
+}
+
+# anthracycline 용량은 모두 mg/m2로 맞춘다 (사용자 결정, 2026-10-20). 환자별 키·몸무게가 없어, 1회 mg/m2·누적 mg가
+# 함께 적힌 36건에서 거꾸로 계산한 체표면적 중앙값 1.84 m2로 mg를 나눈다 (추정값).
+# - 1회 용량: mg·mg/day(실제 투여량)는 ÷ 1.84 → mg/m2. mg/m2는 그대로
+# - 누적 용량: mg/m2는 그대로. 원래 1회가 mg/m2이고 주기가 있으면 1회 × 주기. 그 밖에 mg이면 ÷ 1.84
+# 병용 기록('+')은 병용 약 값까지 같이 바꾼다
+ASSUMED_BSA = 1.84
+ANTHRACYCLINES = {"doxorubicin", "epirubicin", "liposomal doxorubicin"}
+# 1회 단위가 mg/m2/day로 적혔지만 값이 실제 투여량(mg)인 기록 (108.6 × 4주기 = 누적 434.4 mg)
+PER_DOSE_IN_MG = {"TCGA-D8-A1JJ"}
+DOSE_COLS = ("drug_timeline", "drug_prescribed_dose", "drug_dose_units", "drug_cycles", "drug_total_dose", "drug_total_dose_units")
+
+
+def _numbers(v):
+    """'60+600' → [60, 600]. 범위('100-102')는 변환기(§3.7a)처럼 최대값. 숫자가 아니면 None."""
+    try:
+        return [float(x.split("-")[-1]) if re.fullmatch(r"[\d.]+-[\d.]+", x) else float(x) for x in v.split("+")]
+    except ValueError:
+        return None
+
+
+def _fmt(xs):
+    return "+".join(f"{x:.1f}".rstrip("0").rstrip(".") for x in xs)
+
+
+def anthracycline_to_m2(df):
+    """anthracycline 항목의 1회·누적 용량을 mg/m2로 바꾸고 바꾼 (환자, 열, 전, 후) 목록을 돌려준다."""
+    changed = []
+    for idx, r in df[df["drug_timeline"].notna()].iterrows():
+        row = {c: str(r[c]).split(" | ") for c in DOSE_COLS}
+        before = {c: list(v) for c, v in row.items()}
+        for i, item in enumerate(row["drug_timeline"]):
+            if not set(item.split(" [")[0].split("+")) & ANTHRACYCLINES:
+                continue
+            per, pu = _numbers(row["drug_prescribed_dose"][i]), row["drug_dose_units"][i]
+            if per and (pu in ("mg", "mg/day") or r["patient_id"] in PER_DOSE_IN_MG):
+                per = [x / ASSUMED_BSA for x in per]
+                row["drug_prescribed_dose"][i], row["drug_dose_units"][i] = _fmt(per), "mg/m2"
+            if row["drug_total_dose_units"][i] == "mg/m2":
+                continue
+            cyc, total = _numbers(row["drug_cycles"][i]), _numbers(row["drug_total_dose"][i])
+            if pu == "mg/m2" and per and cyc and len(cyc) == 1:
+                row["drug_total_dose"][i], row["drug_total_dose_units"][i] = _fmt([x * cyc[0] for x in per]), "mg/m2"
+            elif row["drug_total_dose_units"][i] == "mg" and total:
+                row["drug_total_dose"][i], row["drug_total_dose_units"][i] = _fmt([x / ASSUMED_BSA for x in total]), "mg/m2"
+        for c in DOSE_COLS[1:]:
+            if row[c] == before[c]:
+                continue
+            changed += [(r["patient_id"], c, x, y) for x, y in zip(before[c], row[c]) if x != y]
+            df.at[idx, c] = " | ".join(row[c])
+    return changed
+
+
+# 국소 재발 후 수술 기록이 빈칸이지만 재발 후 투약이 없어 수술한 것으로 보는 환자 (사용자 결정, 2026-10-20).
+# 규칙이 아니라 이 3명 데이터만 고친다
+RECURRENCE_SURGERY_YES = ["TCGA-AR-A24L", "TCGA-AR-A256", "TCGA-BH-A0HP"]
+
+
+def recurrence_surgery_fixes(df):
+    hit = df["patient_id"].isin(RECURRENCE_SURGERY_YES) & df["nte_surgery"].isna()
+    df.loc[hit, "nte_surgery"] = "YES"
+    return sorted(df.loc[hit, "patient_id"])
+
+
+def dose_fixes(df):
+    """DOSE_FIXES를 ' | '로 이은 투약 열의 해당 항목에 적용하고 바꾼 (환자, 열, 전, 후) 목록을 돌려준다."""
+    changed = []
+    for (pid, i), cols in DOSE_FIXES.items():
+        hit = df["patient_id"] == pid
+        if not hit.any():
+            continue
+        for col, new in cols.items():
+            parts = str(df.loc[hit, col].iloc[0]).split(" | ")
+            changed.append((pid, col, parts[i], new))
+            parts[i] = new
+            df.loc[hit, col] = " | ".join(parts)
+    return changed
 
 
 def anthracycline_dose_drops(df):
@@ -558,6 +684,46 @@ def surgery_cleanup(df):
     df.loc[blank, ["nte_surgery", "nte_surgery_days"]] = pd.NA
     drops = {"재발 없음인데 재발 후 수술 YES": df.loc[contradict, ["patient_id", "nte_surgery"]]}
     return drops, blanked
+
+
+def followup_sign_fix(df):
+    """마지막 추적일(fu_last_days)이 음수면 부호만 바꾼다 (사용자 결정, 2026-10-20). 바꾼 환자 목록을 돌려준다."""
+    days = pd.to_numeric(df["fu_last_days"], errors="coerce")
+    neg = days < 0
+    fixed = sorted(df.loc[neg, "patient_id"])
+    df.loc[neg, "fu_last_days"] = (-days[neg]).astype(int).astype(str)
+    return fixed
+
+
+NTE_RECEPTOR_COLS = ["gdc_nte_er_status", "gdc_nte_pr_status_by_ihc", "gdc_nte_her2_status"]
+
+
+def unknown_recurrence(df):
+    """재발 여부 기록이 없는(unknown) 환자 정리 (사용자 결정, 2026-10-20). surgery_cleanup 다음에 부른다.
+
+    1. 진단 시 전이성이 아닌데 질병 특이 생존 상태가 '종양 동반 사망'(cbio_DSS_STATUS = 1:DEAD WITH TUMOR) → 삭제 대상.
+       진단 시 전이성은 처음부터 종양이 있으므로 이 규칙을 쓰지 않는다
+    2. 재발 병소 수용체(gdc_nte_*) 값이 있음 = 재발 병소를 조직검사한 기록 → 재발로 본다.
+       전이 여부(gdc_metastatic_tumor_indicator)가 YES인데 진단 시 전이성이 아님 → 앞뒤가 맞지 않아 삭제 (TCGA-BH-A18V).
+       그 밖 → locoregional (TCGA-BH-A0HP: 투약이 모두 보조요법 목적의 AC → paclitaxel → anastrozole이고 전이 근거 없음).
+       재발 부위·날짜 기록이 없으므로 recurrence_day는 비고 재발 후 수술은 unknown
+    3. 나머지 → none. 진단 시 전이성도 none (다른 진단 시 전이성 환자와 같게).
+       무병생존 상태가 재발이거나 무진행생존 상태가 진행인 환자, 투약 목적이 재발·진행인 환자는 2026-10-20 기준 모두 1번에 걸린다
+    """
+    unknown = df["recurrence_status"] == "unknown"
+    dead_with_tumor = (unknown & (df["stage_disease_extent"] != "metastatic")
+                       & df["cbio_DSS_STATUS"].fillna("").str.startswith("1:DEAD WITH TUMOR"))
+    nte = df[NTE_RECEPTOR_COLS].fillna("").apply(lambda c: ~c.str.startswith("[") & (c != "")).any(axis=1)
+    met_yes = df["gdc_metastatic_tumor_indicator"].fillna("") == "YES"
+    rebiopsy_conflict = unknown & ~dead_with_tumor & nte & met_yes & (df["stage_disease_extent"] != "metastatic")
+    to_local = unknown & ~dead_with_tumor & nte & ~rebiopsy_conflict
+    to_none = unknown & ~dead_with_tumor & ~nte
+    df.loc[to_local, "recurrence_status"] = "locoregional"
+    df.loc[to_none, "recurrence_status"] = "none"
+    drops = {"재발 여부 기록 없음 + 종양 동반 사망 (DSS)": df.loc[dead_with_tumor, ["patient_id", "cbio_DSS_STATUS"]],
+             "재발 여부 기록 없음 + 재발 병소 수용체 + 전이 여부 YES (진단 시 전이성 아님)":
+                 df.loc[rebiopsy_conflict, ["patient_id", "gdc_metastatic_tumor_indicator"]]}
+    return drops, sorted(df.loc[to_local, "patient_id"]), int(to_none.sum())
 
 
 def recurrence_drops(df):
@@ -756,6 +922,7 @@ def main():
     males = sorted(df.loc[df["gdc_gender"] == "MALE", "patient_id"])
     df = df[df["gdc_gender"] != "MALE"].copy()
     recoded = recode_low_percent(df)
+    dose_changed = dose_fixes(df) + anthracycline_to_m2(df)
     excluded = stage_excluded(df)
     df = df[~df["patient_id"].isin(excluded["patient_id"])].copy()
     to_iv, by_tnm = stage_extent(df)
@@ -764,11 +931,16 @@ def main():
     dropped.update(recurrence_drops(df))
     surgery_drops, surgery_blanked = surgery_cleanup(df)
     dropped.update(surgery_drops)
+    unknown_drops, unknown_kept, unknown_to_none = unknown_recurrence(df)
+    dropped.update(unknown_drops)
+    surgery_set = recurrence_surgery_fixes(df)
     current_extent(df)
+    followup_fixed = followup_sign_fix(df)
     metastasis_day(df)
     locoregional_day(df)
     dropped.update(post_metastasis_drops(df))
     dropped.update(anthracycline_dose_drops(df))
+    dropped.update(uninterpretable_drops(df))
     dropped.update(her2_drops(df))
     dropped.update(receptor_drops(df))
     drop_ids = set().union(*(set(d["patient_id"]) for d in dropped.values()))
@@ -787,6 +959,13 @@ def main():
     print("  재발 상태: " + ", ".join(f"{k} {v}" for k, v in df["recurrence_status"].value_counts().items())
           )
     print("  현재 범주: " + ", ".join(f"{k} {v}" for k, v in df["current_disease_extent"].value_counts().items()))
+    kept = [p for p in unknown_kept if p in set(df["patient_id"])]
+    print(f"  재발 여부 기록 없음 → none {unknown_to_none}명 (삭제 전 기준), locoregional(재발 병소 수용체 있음): {', '.join(kept)}")
+    fixed = [p for p in followup_fixed if p in set(df["patient_id"])]
+    print(f"  재발 후 수술 빈칸 → YES (데이터만 수정): {', '.join(surgery_set)}")
+    kept_dose = [c for c in dose_changed if c[0] in set(df["patient_id"])]
+    print(f"  anthracycline 용량 수정·mg/m2 변환: {len(kept_dose)}칸, {len({c[0] for c in kept_dose})}명")
+    print(f"  음수 마지막 추적일 → 양수: {', '.join(fixed) or '없음'}")
     print("  <10% → 1-9%(Positive, ER은 Low Positive) / <1%(Negative): " + ", ".join(f"{k} {len(v['low'])}/{len(v['neg'])}명" for k, v in recoded.items()))
     for p in (OUT_CSV, OUT_COLS, OUT_CHANGES):
         print(f"  {p}")

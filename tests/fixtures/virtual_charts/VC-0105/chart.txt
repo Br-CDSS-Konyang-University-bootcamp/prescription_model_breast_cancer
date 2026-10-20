@@ -1,0 +1,50 @@
+[병리결과보고서]
+Name: 김가상   MRN: 00000105   Sex/Age: F/49   주민번호: 740101-2******   Tel: 010-0000-0105
+Hospital: 가상대학교병원 Department of Pathology
+Received: 2023.1.9   Reported: 2023.1.12
+Specimen: Left breast, US-guided core needle biopsy
+
+DIAGNOSIS
+  Invasive ductal carcinoma
+IHC
+  ER: negative (0%)
+  PR: negative (0%)
+  HER2 (4B5): 3+, positive
+  Ki-67: 50%
+Comment: Clinical stage cT2N1M0 (per clinical note)
+
+
+[수술 병리 보고서]
+환자명: 김가상   등록번호: 00000105   F/49
+접수일: 2023.6.8   보고일: 2023.6.14
+검체: 좌측 유방 부분절제술 + 감시림프절 생검 (선행항암 후)
+
+진단
+  잔존 침윤성 유관암 있음 (residual invasive carcinoma)
+  잔존 종양 크기: 1.4 cm
+  림프절: 1/3 (+)
+  ypTNM: ypT1c ypN1a M0
+
+선행요법 후 반응
+  pCR 아님 (non-pCR)
+  Residual Cancer Burden: RCB class II
+
+판독의: 박가상
+
+
+<외래 경과기록>   2023.7.8   종양내과
+환자명: 김가상   등록번호: 00000105   F/49
+
+S) 수술 후 회복 양호. 폐경 전 (premenopausal)
+O) ECOG 0
+A) Lt. breast IDC, cT2N1M0, HER2 3+, ER(-) PR(-), Ki-67 50%
+   선행 TCHP #6 (2023.1.23 ~ 2023.5.8) 후 2023.6.8 BCS + SLNB
+   ypT1cN1a, residual invasive disease, RCB-II
+P) 보조 T-DM1 (kadcyla) 14주기 계획. 방사선치료 의뢰
+
+
+[투약 기록]
+환자명: 김가상   등록번호: 00000105
+구분    요법                                                  시작         종료         주기       반응   중단 사유
+선행    TCHP: 탁소텔(docetaxel) 75/m2 + carboplatin AUC6     2023.1.23    2023.5.8     q3w #6     PR     완료
+        + 허셉틴(trastuzumab) + 퍼제타(pertuzumab)

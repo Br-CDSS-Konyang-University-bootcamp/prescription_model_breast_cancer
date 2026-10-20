@@ -1,0 +1,38 @@
+<외래 경과기록>   2025.1.4   종양내과
+환자명: 김가상   등록번호: 00000108   F/70   주민번호: 540101-2******   연락처: 010-0000-0108
+병원: 가상대학교병원 종양내과   담당의: 이가상
+
+S) 요통 경미, 진통제로 조절됨. 폐경 후 (postmenopausal, 자연 폐경 50세)
+
+O) ECOG PS 1
+   Bone scan / PET-CT (24.12.28): 기존 척추·골반 골 전이 변화 없음, SD. 새 병변 없음
+   Ca 9.4, Cr 0.8
+
+A) Rt. breast IDC, 2024.2.19 core bx로 진단
+   진단 시 다발성 골 전이 (척추, 골반), 다른 장기 전이 없음 → cT2N1M1, stage IV (de novo)
+   ER 85% / PR 30% / HER2 0
+   1L ribociclib + letrozole 2024.3.10~ 현재 복용 중, 10개월째 SD
+
+P) 현 요법 유지
+   골 전이에 대해 denosumab 120mg q4w 시작. 칼슘·비타민 D 복용. 치과 검진 의뢰
+
+
+[영상 판독]   2024.2.24
+환자명: 김가상   등록번호: 00000108
+Whole body bone scan: 흉추 T8, 요추 L2·L4, 우측 장골에 다발성 열소 → 골 전이.
+PET-CT: 우측 유방 종괴 (2.6cm), 우측 액와 림프절 대사 증가. 폐·간·뇌 전이 소견 없음.
+
+
+[병리결과보고서]
+환자명: 김가상   등록번호: 00000108   F/70
+접수일: 2024.2.19   보고일: 2024.2.22
+검체: Right breast, US-guided core needle biopsy
+진단: Invasive ductal carcinoma
+ER : positive (85%)
+PR : positive (30%)
+HER2 (4B5): 0
+
+
+<항암 처방 이력>
+환자명: 김가상   등록번호: 00000108
+- 키스칼리 (ribociclib) 600mg qd (3주 복용 1주 휴약) + 페마라 (letrozole) 2.5mg qd : 24.3.10 ~ 현재 투여 중, SD

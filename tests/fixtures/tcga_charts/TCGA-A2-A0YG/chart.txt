@@ -1,0 +1,48 @@
+[병리결과보고서]
+환자명: TCGA가상   등록번호: 0000T04   성별/나이: F/63 (진단 시)
+병원: 가상대학교병원 병리과
+검체: 좌측 유방 전절제술 및 액와림프절 곽청술
+
+진단
+  침윤성 유관암 (Infiltrating ductal carcinoma)
+  림프절: 전이 14개 / 검사 18개 (14/18)
+  pTNM: pT2 pN3a M0
+  병기: IIIC
+
+면역조직화학
+  ER : 양성, 95%
+  PR : 양성, 5%
+  HER2: 3+ (양성)
+  HER2 ISH: 시행하지 않음
+
+판독의: 박가상
+
+
+[NGS 보고서]
+환자명: TCGA가상   등록번호: 0000T04
+검체: 원발 종양 조직   검사법: 종양 조직 엑솜 검사
+복제수 변이: ERBB2 amplification
+검출되지 않음 (점 변이): ERBB2, ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2
+결과 요약: 종양 조직 엑솜 검사 (원발 조직). ERBB2 amplification. ERBB2, ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2: 검출되지 않음.
+
+
+<외래 경과기록>   진단 후 666일   종양내과
+환자명: TCGA가상   등록번호: 0000T04   F/63 (진단 시)
+
+S) 폐경 후
+A) Lt. breast IDC, pT2N3a(14/18)M0, stage IIIC, ER+ 95% / PR+ 5% / HER2 3+
+   수술 후 보조 AC #4 → paclitaxel #12 + trastuzumab, docetaxel 1회
+   보조 내분비요법 anastrozole (시작·종료 시점 기록 없음)
+   재발 소견 없음
+P) 경과 관찰
+
+
+[투약 기록]
+환자명: TCGA가상   등록번호: 0000T04
+구분   약제                                시작        종료        주기
+보조   cyclophosphamide                     D+68        D+131       #4
+보조   doxorubicin 122 mg (총 488 mg)       D+68        D+131       #4
+보조   paclitaxel (Taxol)                   D+152       D+232       #12
+보조   trastuzumab (Herceptin)              D+152       기록 없음   -
+보조   docetaxel                            D+173       D+173       #1
+보조   anastrozole                          기록 없음   기록 없음   -

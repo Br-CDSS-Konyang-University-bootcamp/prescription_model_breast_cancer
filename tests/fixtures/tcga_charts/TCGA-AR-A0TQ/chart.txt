@@ -1,0 +1,53 @@
+[병리결과보고서]
+환자명: TCGA가상   등록번호: 0000T06   성별/나이: F/27 (진단 시)
+병원: 가상대학교병원 병리과
+검체: Right breast, mastectomy with axillary lymph node dissection
+
+진단 (DIAGNOSIS)
+  Infiltrating ductal carcinoma
+  Lymph node: 2/15 (+)
+  pTNM: pT3 pN1 M0 (AJCC 6th), stage IIIA
+
+면역조직화학 (IHC)
+  ER : positive (15%)
+  PR : negative
+  HER2: 2+ (equivocal)
+
+ISH
+  HER2 FISH: amplified (FISH Positive)
+
+판독의: 박가상
+
+
+[분자병리 검사 결과]
+환자명: TCGA가상   등록번호: 0000T06
+검체: 원발 종양 조직   검사법: 종양 조직 엑솜 검사
+복제수 변이: ERBB2 amplification
+검출되지 않음: ERBB2, ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2
+결과 요약: 종양 조직 엑솜 검사 (원발 조직). ERBB2 amplification. ERBB2, ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2: 검출되지 않음.
+
+
+<외래 경과기록>   진단 후 2991일   종양내과
+환자명: TCGA가상   등록번호: 0000T06   F/27 (진단 시)
+
+S) 폐경 전 (premenopausal)
+A) Rt. breast IDC, pT3N1(2/15)M0, IIIA
+   ER+ 15% / PR- / HER2 2+, FISH amplified → HER2 양성
+   보조 AC #4 + triptorelin (난소 기능 억제) → paclitaxel + trastuzumab → trastuzumab 단독 유지
+   보조 내분비요법 exemestane + triptorelin, 진단 후 약 5년에 종료
+   재발 소견 없음
+P) 추적 관찰
+
+
+[투약 기록]
+환자명: TCGA가상   등록번호: 0000T06
+구분   약제                              시작      종료      주기
+보조   doxorubicin 60 mg/m2 (총 550 mg)  D+37      D+79      #4
+보조   cyclophosphamide                  D+37      D+79      #4
+보조   triptorelin                       D+37      D+1864    -
+보조   trastuzumab                       D+93      D+93      -
+보조   paclitaxel                        D+93      D+107     #1
+보조   trastuzumab                       D+100     D+226     #4
+보조   paclitaxel                        D+114     D+226     #3
+보조   exemestane                        D+233     D+1867    -
+보조   trastuzumab                       D+254     D+482     #13
