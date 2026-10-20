@@ -492,6 +492,7 @@ H&E에서 ER/PR/HER2를 예측해 차트 값과의 불일치를 표시하는 QC 
 - 정답표 신뢰도: 같은 시나리오 30~50건을 두 사람이 따로 정답표로 만들고 일치율(Cohen's kappa)을 잰다. 다르면 원문을 다시 보고 합의하고, 합의 내용을 기록한다
 - 보조 지표: TCGA 실제 투약과 큰 방향(HER2 표적치료, 내분비요법 여부)의 일치율. 치료 시기가 오래돼(대부분 2013년 이전) 정답으로 쓰지 않는다
 - 한계: 의료진 검증을 하지 않았다. 결과 보고와 발표에 이 한계를 적는다
+- 한계: 심장 위험요소·병력(관상동맥질환, 부정맥, 울혈성 심부전), 종격동 방사선 치료 이력, 장기 위기(visceral crisis), 동반질환은 판단하지 않는다 (2026-10-20 A 결정). `patient_state`에 칸을 두지 않는다. 이 조건이 들어간 급여 기준(liposomal doxorubicin, dexrazoxane)은 항상 '확인 필요'(`covered_conditions_unverified`)로 둔다. 이 조건으로 갈리는 ESMO 권고(CDK4/6을 못 쓸 때 내분비 단독, 장기 부전 임박 시 ChT 등)는 의사가 확인할 항목으로 표시한다
 - 한계: 골 보호제(zoledronic acid, denosumab 등)의 급여 판정은 평가하지 않는다 (2026-10-19 A 결정). 검증 데이터가 부족하기 때문이다: TCGA 정답 874명 중 뼈 전이 기록은 15명(진단 시 4, 재발 11)이고, 공고 조건인 "영상으로 골 전이 입증"을 담을 칸이 `patient_state`에 없어 denosumab은 한 명도 끝까지 판정되지 않는다. zoledronic acid 조건까지 판정되는 환자는 8명이다. 가상 환자 중 뼈 전이는 3건(VC-0101·0102·0108)이다. 판정에 필요한 데이터를 추가하기 전까지 제외한다. 골 보호제는 차수 계산에서도 뺀다 (`src/input/handoff_to_B.md` §6.2)
 
 ## 13. 이전 설계(2026-10-06)에서 바뀐 점
@@ -533,7 +534,7 @@ H&E에서 ER/PR/HER2를 예측해 차트 값과의 불일치를 표시하는 QC 
 - [x] ER low는 아형에서 HR+로 본다 (2026-10-15 확정). TCGA ER low 14명은 원본 `<10%` + Positive를 크롭 단계에서 `1-9%` + Low Positive로 나눈 값
 - [x] 기록 없음(`not_recorded`)은 검사 권고를 내지 않고 기록 없음으로만 표기한다 (2026-10-15 확정). 검사 권고(BM-4)는 미시행(`not_done`)일 때만 낸다
 - [x] `setting.disease`·`setting.line`과 바이오마커 상태값에서 `indeterminate`를 없애고 `unknown`을 쓴다 (2026-10-15). 차수는 아직 계산하지 않아 `line`은 모두 `unknown`
-- [ ] 생식세포/체세포 구분: `patient_state`의 유전자 칸에 출처 구분이 없어 `BM1_ER,PR,HER2,Ki_67,subtype.py`는 patient_ref가 `TCGA-`로 시작하면 gBRCA, 아니면 sBRCA로 본다. 가상·실제 차트를 위해 `molecular.mutations`에 `origin`(germline / somatic) 칸 추가를 검토 (공용 스키마, 4명 합의)
+- [x] 생식세포/체세포 구분 (2026-10-20 A 결정): 구분하지 않는다. `molecular.mutations`에 `origin` 칸을 추가하지 않는다. 체세포 BRCA(sBRCA) 권고는 다루지 않는다. 남은 일: `BM1_ER,PR,HER2,Ki_67,subtype.py`는 지금 patient_ref가 `TCGA-`로 시작하면 gBRCA, 아니면 sBRCA로 본다. 이 규칙을 어떻게 바꿀지 B와 정한다
 - [ ] ESR1 테스트 범위 확인 (2026-10-15 기록): TCGA 정답 874명 중 ESR1 변이가 있는 환자는 9명뿐이다 (모두 원발 조직 결과). 재검 필요 규칙(원발 결과 + 이후 내분비요법 진행)은 전이성 28명으로 시험할 수 있지만, ESR1 양성 판정(허가 동반진단 변이 목록)은 사례가 적다. MSK-IMPACT는 쓰지 않기로 했으므로(2026-10-15) 부족하면 가상 차트로 사례를 만든다. 지금은 확인만 해 두고 넘어간다
 - [ ] 로컬 LLM 선정 (Qwen 계열, EXAONE, snuh/hari-q3-8b 비교)
 - [ ] 최종 출력 형식 (CLI, 웹 UI, 리포트 등)
