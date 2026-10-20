@@ -1,0 +1,117 @@
+﻿구분,json_칸,csv_열,변환,예시_csv,예시_json
+공통,(모든 추출 칸),,"값 하나 → {status, value, raw, source}. raw = CSV 원문, source = null (TCGA는 원문 차트 없음)",Stage IIIC,"{""status"":""present"",""value"":""IIIC"",""raw"":""Stage IIIC"",""source"":null}"
+공통,(모든 추출 칸),,"[Not Available]·[Unknown]·빈칸 → not_recorded, [Not Evaluated] → not_done",[Not Available],"{""status"":""not_recorded""}"
+공통,*_day,,진단일 = 0일 기준 상대 일수(정수). 실제 날짜 칸(*_date)은 비움,1353,1353
+진단,diagnosis.histology,gdc_histological_type; gdc_histologic_diagnosis_other; cbio_sample_ONCOTREE_CODE,사전(field_vocab.csv)으로 약어. Other·Mixed·Medullary면 ONCOTREE 코드로,Infiltrating Lobular Carcinoma,"""ILC"""
+진단,diagnosis.diagnosis_date; diagnosis.grade,(없음),항상 not_recorded,,"{""status"":""not_recorded""}"
+병기,stage.ptnm,gdc_ajcc_tumor_pathologic_pt; gdc_ajcc_nodes_pathologic_pn; gdc_ajcc_metastasis_pathologic_pm; gdc_ajcc_staging_edition,"공백 제거, TX·NX·MX → not_assessed",T1b / N3a / M0 / 6th,"{""t"":""T1b"",""n"":""N3a"",""m"":""M0"",""edition"":""6th""}"
+병기,stage.group,gdc_ajcc_pathologic_tumor_stage,"""Stage "" 제거, Stage X → not_assessed",Stage IIIC,"""IIIC"""
+병기,stage.disease_extent,stage_disease_extent,그대로 (크롭 단계에서 만든 열),locally_advanced,"""locally_advanced"""
+병기,stage.positive_ln_count,gdc_lymph_nodes_examined_he_count; gdc_lymph_nodes_examined_count,"정수, 없는 쪽은 ""[Not Available]"", 둘 다 없으면 not_recorded",26 / [Not Available],"{""positive"":26,""examined"":""[Not Available]""}"
+병기,stage.metastatic_sites,gdc_metastatic_tumor_indicator; gdc_metastasis_site; gdc_metastasis_site_other; gdc_ajcc_metastasis_pathologic_pm,"전이 여부 NO 또는 M0 → ""[Not Applicable]"", 아니면 부위 목록. IV기인데 부위 없음 → not_done. 재발 부위와 다르면 재발 기록을 따름",[Not Available] (M0),"""[Not Applicable]"""
+병기,stage.operable,gdc_surgical_procedure_first,"수술 기록 있으면 yes, 없으면 not_recorded",Simple Mastectomy,"""yes"""
+병기,stage.ctnm,(없음),항상 not_recorded,,"{""status"":""not_recorded""}"
+수용체,receptors.er_percent,gdc_er_status_by_ihc; gdc_er_status_ihc_Percent_Positive,"구간 → [최소, 최대], 판정 → 사전. <10%는 크롭 단계에서 1-9%(Positive, ER은 low_positive) / <1%(Negative)로 나눔",Positive / 90-99%,"{""range"":[90,99],""result"":""positive""}"
+수용체,receptors.pr_percent,gdc_pr_status_by_ihc; gdc_pr_status_ihc_percent_positive,ER과 같음 (저발현 범주 없음),Positive / 10-19%,"{""range"":[10,19],""result"":""positive""}"
+수용체,receptors.her2_ihc,gdc_her2_ihc_score; gdc_her2_status_by_ihc; gdc_her2_fish_status,점수 + 판정. 점수 없는 Equivocal → 2+. 2+·Equivocal이면 FISH로 판정 보정,0 / Negative,"{""score"":""0"",""result"":""negative""}"
+수용체,receptors.her2_ish,gdc_her2_fish_status,"Positive → amplified, Negative → not_amplified, Equivocal → equivocal",Negative,"{""result"":""not_amplified"",""method"":""FISH""}"
+수용체,receptors.pdl1,(없음),항상 not_recorded,,"{""status"":""not_recorded""}"
+환자,patient.gender,gdc_gender,그대로,FEMALE,"""FEMALE"""
+환자,patient.age,gdc_age_at_diagnosis,정수,53,53
+환자,patient.menopausal_status,gdc_menopause_status,앞 단어(Pre/Post/Peri/Indeterminate)로 사전,Post (prior bilateral ovariectomy OR ...),"""postmenopausal"""
+환자,patient.menopausal_basis; patient.ecog,(없음),항상 not_recorded,,"{""status"":""not_recorded""}"
+투약,treatment_history[].drugs,drug_timeline,항목 하나 = 한 줄. 약 이름을 +로 나눠 목록. 성분명 unknown은 뺌. 같은 약·같은 날짜 중복은 크롭 단계에서 합침,liposomal doxorubicin [Chemotherapy] d1696~d1787 (...),"[""liposomal doxorubicin""]"
+투약,treatment_history[].start_day; end_day,drug_start_days; drug_end_days,"' | '로 이은 drug_timeline 순서. 정수, 없으면 null",1696 / 1787,1696 / 1787
+투약,treatment_history[].duration_days,drug_start_days; drug_end_days,종료 − 시작,1696 / 1787,91
+투약,treatment_history[].cycles,drug_cycles; data/dictionaries/drug_classes.csv(cycle_days),기록값(recorded). 없으면 투여 일수 ÷ 기본 간격 + 1(estimated). 매일 먹는 약은 null,[Not Available] / 91일,"{""value"":4,""basis"":""estimated"",""interval_days"":28,""interval_basis"":""standard""}"
+투약,treatment_history[].best_response,drug_timeline 괄호 안,"Complete Response → CR, Partial → PR, Stable → SD, Clinical Progressive Disease → PD, 없으면 unknown",(Clinical Progressive Disease),"""PD"""
+투약,treatment_history[].setting,drug_start_days; metastasis_dx_days; gdc_history_neoadjuvant_treatment,"시작일 ≥ 전이 기준일 → metastatic, 진단일 전 항암 → neoadjuvant, 선행요법 이력 Yes + 첫 요법 → neoadjuvant, 나머지 → adjuvant",d1696 ≥ 1353,"""metastatic"""
+투약,treatment_history[].progression_day,cbio_PFS_STATUS; cbio_PFS_MONTHS,진단 시 IV기이고 PFS 진행이면 개월 × 30.4375. 그날 쓰던 요법 하나에만,1:PROGRESSION / 44.48 (재발 환자라 해당 없음),null
+투약,treatment_history[].line; endocrine_line; chemo_line,(계산) start_day; setting; best_response; metastasis_day,전이 후 차수 (src/input/common/lines.py). 순차·병용 추가·유지요법은 같은 차수,,3 / null / 1
+투약,treatment_history[].start_date; end_date; stop_reason,(없음),항상 null,,null
+용량,anthracycline_drug_dose.administered,drug_timeline,"doxorubicin·epirubicin·liposomal doxorubicin이 있으면 positive, 투약은 있는데 없으면 negative, 투약 기록 없으면 No value",doxorubicin ...,"""positive"""
+용량,anthracycline_drug_dose.drugs[].dose_per_admin,drug_prescribed_dose; drug_dose_units,"{value, unit}. 병용(+)이면 약 위치 값, 범위(100-102)는 최대값. 크롭 단계에서 mg/m2로 맞춤 (mg는 체표면적 1.84 m2 추정으로 나눔)",63 / mg/m2,"{""value"":63.0,""unit"":""mg/m2""}"
+용량,anthracycline_drug_dose.drugs[].total_dose,drug_total_dose; drug_total_dose_units,같음. 1회가 mg/m2이고 주기가 있으면 1회 × 주기,251.6 / mg/m2,"{""value"":251.6,""unit"":""mg/m2""}"
+용량,anthracycline_drug_dose.drugs[].cycles,drug_cycles,"기록값만, 없으면 No value",4,"{""value"":4,""basis"":""recorded""}"
+재발,recurrence.status,recurrence_status (원문 nte_types),그대로 (크롭 단계에서 만든 열),distant (Distant Metastasis),"""distant"""
+재발,recurrence.metastatic_sites,nte_sites; nte_sites_other,사전으로 부위 목록. 기타 원문에 표준 부위 이름이 섞이면 나눔,Bone,"[""bone""]"
+재발,recurrence.metastasis_day,metastasis_dx_days,정수 (진단 시 IV기는 0),1353,1353
+재발,recurrence.recurrence_day,locoregional_dx_days; metastasis_dx_days,국소 재발일과 원격 전이일 중 이른 값. 진단 시 IV기는 넣지 않음,[빈칸] / 1353,1353
+재발,recurrence.surgery,nte_surgery,"YES → yes, NO → no, 빈칸 → unknown",NO,"""no"""
+재발,recurrence.later_distant,locoregional_dx_days; metastasis_dx_days,국소 재발 → no. 원격 재발이면 국소 재발일이 먼저일 때 yes,,
+재발,recurrence.surgery_intent,(없음),재발 후 수술 칸이 있으면 항상 unknown,,"""unknown"""
+재발,recurrence.recurrence_date; adjuvant_endocrine_end_date,(없음),항상 not_recorded,,"{""status"":""not_recorded""}"
+유전자,"molecular.mutations.{ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2}",mut_ESR1 등 7개; mut_sequenced,"변이 없음 → not_detected, 변이 문자열 → detected + 변이 목록, 빈칸 → not_done","Q546R (Missense_Mutation, VAF 0.226)","{""result"":""detected"",""variants"":[{""protein_change"":""Q546R"",""variant_type"":""Missense_Mutation"",""vaf"":0.226}]}"
+유전자,genomic_reports[].raw_text,mut_ERBB2; mut_*; cna_*,"보고서 문장으로 이어 붙임. CNA 2 → amplification, -2 → deep deletion","mut_PIK3CA, cna_ERBB2 = 0","종양 조직 엑솜 검사 (원발 조직). PIK3CA p.Q546R (Missense_Mutation), VAF 22.6%. ..."
+계산,index_day,fu_last_days (+ drug_start_days; drug_end_days),"마지막 추적일. 그보다 늦은 투약이 있으면 마지막 투약일(종료일, 없으면 시작일)",1884,1884
+계산,deemed_lines[],(계산) treatment_history; metastasis_day,급여 차수 간주 규칙 4개 met / not_met / unknown / not_applicable,,"{""rule_id"":""DEEM-ANTHRA-TAXANE"",""status"":""met""}"
+계산,at_index,(계산) patient.age; index_day; treatment_history,"기준일 나이, 최근 28일 이내 항암제·호르몬제 투여",,"{""age"":58,""recent_therapy_28d"":{""status"":""no"",""gap_days"":97}}"
+계산,proliferation.ki67_percent; neoadjuvant_response.pcr; rcb,(없음),항상 not_recorded,,"{""status"":""not_recorded""}"
+변환 안 함,(JSON에 없음),has_gdc_clinical,자료 출처 표시,,
+변환 안 함,(JSON에 없음),has_cbio_clinical,자료 출처 표시,,
+변환 안 함,(JSON에 없음),has_drug,자료 출처 표시,,
+변환 안 함,(JSON에 없음),gdc_race,처방 판단에 안 씀,,
+변환 안 함,(JSON에 없음),gdc_ethnicity,처방 판단에 안 씀,,
+변환 안 함,(JSON에 없음),gdc_history_other_malignancy,크롭 단계 삭제 규칙에만 씀,,
+변환 안 함,(JSON에 없음),gdc_radiation_treatment_adjuvant,방사선은 범위 밖,,
+변환 안 함,(JSON에 없음),gdc_pharmaceutical_tx_adjuvant,투약 기록(drug_*)으로 대신,,
+변환 안 함,(JSON에 없음),gdc_initial_pathologic_dx_year,날짜 칸은 비움 (§2.3),,
+변환 안 함,(JSON에 없음),gdc_lymph_nodes_examined_ihc_count,가상 차트 문장에만 씀 (§3.2),,
+변환 안 함,(JSON에 없음),gdc_er_ihc_score,점수 열은 안 씀 (A 결정),,
+변환 안 함,(JSON에 없음),gdc_pr_positivity_ihc_intensity_score,점수 열은 안 씀,,
+변환 안 함,(JSON에 없음),gdc_her2_ihc_percent_positive,점수·판정만 씀,,
+변환 안 함,(JSON에 없음),gdc_her2_copy_number,FISH 판정만 씀,,
+변환 안 함,(JSON에 없음),gdc_cent17_copy_number,FISH 판정만 씀,,
+변환 안 함,(JSON에 없음),gdc_her2_cent17_ratio,FISH 판정만 씀,,
+변환 안 함,(JSON에 없음),gdc_new_tumor_event_dx_indicator,재발 상태(recurrence_status)로 대신,,
+변환 안 함,(JSON에 없음),gdc_nte_er_status,TCGA 정답은 원발 수용체만 (§3.7a),,
+변환 안 함,(JSON에 없음),gdc_nte_er_status_ihc__positive,TCGA 정답은 원발 수용체만 (§3.7a),,
+변환 안 함,(JSON에 없음),gdc_nte_er_ihc_intensity_score,TCGA 정답은 원발 수용체만 (§3.7a),,
+변환 안 함,(JSON에 없음),gdc_nte_pr_status_by_ihc,TCGA 정답은 원발 수용체만 (§3.7a),,
+변환 안 함,(JSON에 없음),gdc_nte_pr_status_ihc__positive,TCGA 정답은 원발 수용체만 (§3.7a),,
+변환 안 함,(JSON에 없음),gdc_nte_pr_ihc_intensity_score,TCGA 정답은 원발 수용체만 (§3.7a),,
+변환 안 함,(JSON에 없음),gdc_nte_her2_status,TCGA 정답은 원발 수용체만 (§3.7a),,
+변환 안 함,(JSON에 없음),gdc_nte_her2_status_ihc__positive,TCGA 정답은 원발 수용체만 (§3.7a),,
+변환 안 함,(JSON에 없음),gdc_nte_her2_positivity_ihc_score,TCGA 정답은 원발 수용체만 (§3.7a),,
+변환 안 함,(JSON에 없음),gdc_nte_her2_fish_status,TCGA 정답은 원발 수용체만 (§3.7a),,
+변환 안 함,(JSON에 없음),gdc_nte_cent_17_her2_ratio,TCGA 정답은 원발 수용체만 (§3.7a),,
+변환 안 함,(JSON에 없음),gdc_icd_10,조직형으로 대신,,
+변환 안 함,(JSON에 없음),gdc_icd_o_3_histology,조직형으로 대신,,
+변환 안 함,(JSON에 없음),gdc_icd_o_3_site,유방으로 같음,,
+변환 안 함,(JSON에 없음),gdc_tissue_source_site,수집 기관,,
+변환 안 함,(JSON에 없음),cbio_DFS_MONTHS,생존 지표 (크롭 단계에서만),,
+변환 안 함,(JSON에 없음),cbio_DFS_STATUS,생존 지표,,
+변환 안 함,(JSON에 없음),cbio_DSS_MONTHS,생존 지표,,
+변환 안 함,(JSON에 없음),cbio_DSS_STATUS,생존 지표 (크롭 단계 삭제 규칙),,
+변환 안 함,(JSON에 없음),cbio_NEW_TUMOR_EVENT_AFTER_INITIAL_TREATMENT,재발 상태로 대신,,
+변환 안 함,(JSON에 없음),cbio_OS_MONTHS,생존 지표,,
+변환 안 함,(JSON에 없음),cbio_OS_STATUS,생존 지표,,
+변환 안 함,(JSON에 없음),cbio_RADIATION_THERAPY,방사선은 범위 밖,,
+변환 안 함,(JSON에 없음),cbio_SUBTYPE,PAM50 아형. 아형은 B가 수용체로 판정,,
+변환 안 함,(JSON에 없음),cbio_sample_sampleId,검체 ID,,
+변환 안 함,(JSON에 없음),cbio_sample_CANCER_TYPE_DETAILED,조직형으로 대신,,
+변환 안 함,(JSON에 없음),cbio_sample_MSI_SCORE_MANTIS,아직 칸 없음,,
+변환 안 함,(JSON에 없음),cbio_sample_MSI_SENSOR_SCORE,아직 칸 없음,,
+변환 안 함,(JSON에 없음),cbio_sample_TMB_NONSYNONYMOUS,아직 칸 없음,,
+변환 안 함,(JSON에 없음),drug_n_records,투약 항목 수 (drug_timeline으로 확인),,
+변환 안 함,(JSON에 없음),drug_names,drug_timeline으로 대신,,
+변환 안 함,(JSON에 없음),drug_therapy_types,drug_timeline으로 대신,,
+변환 안 함,(JSON에 없음),drug_best_responses,drug_timeline 괄호로 대신,,
+변환 안 함,(JSON에 없음),drug_first_start_days,drug_start_days로 대신,,
+변환 안 함,(JSON에 없음),drug_names_raw,정규화 전 이름 (대조용),,
+변환 안 함,(JSON에 없음),drug_therapy_types_raw,정규화 전 분류 (대조용),,
+변환 안 함,(JSON에 없음),nte_n_records,재발 기록 수,,
+변환 안 함,(JSON에 없음),nte_event_types,재발 상태로 대신,,
+변환 안 함,(JSON에 없음),nte_dx_days,metastasis_dx_days·locoregional_dx_days로 대신,,
+변환 안 함,(JSON에 없음),nte_first_dx_days,같음,,
+변환 안 함,(JSON에 없음),nte_surgery_days,날짜 칸 없음,,
+변환 안 함,(JSON에 없음),fu_n_records,추적 기록 수,,
+변환 안 함,(JSON에 없음),fu_last_vital_status,생존 상태 칸 없음,,
+변환 안 함,(JSON에 없음),fu_last_tumor_status,칸 없음,,
+변환 안 함,(JSON에 없음),fu_death_days,fu_last_days에 포함,,
+변환 안 함,(JSON에 없음),omf_n_records,크롭 단계 삭제 규칙에만 씀,,
+변환 안 함,(JSON에 없음),omf_malignancy_types,같음,,
+변환 안 함,(JSON에 없음),omf_sites,같음,,
+변환 안 함,(JSON에 없음),cna_profiled,CNA 검사 여부,,
+변환 안 함,(JSON에 없음),mut_n_total,전체 변이 수 (칸 없음),,
+변환 안 함,(JSON에 없음),current_disease_extent,B가 진단 시 범주와 재발 상태로 다시 정함,,

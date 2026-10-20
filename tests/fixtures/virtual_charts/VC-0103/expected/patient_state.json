@@ -135,7 +135,15 @@
         }
       },
       "operable": {
-        "status": "not_recorded"
+        "status": "present",
+        "value": "yes",
+        "raw": "우측 유방 부분절제술 + 감시림프절 생검",
+        "source": {
+          "doc_id": "D2",
+          "quote": "우측 유방 부분절제술 + 감시림프절 생검",
+          "char_start": 701,
+          "char_end": 723
+        }
       }
     },
     "receptors": {
@@ -538,7 +546,18 @@
         "gap_days": -5,
         "notice_page": "57"
       }
-    ]
+    ],
+    "at_index": {
+      "age": 54,
+      "recent_therapy_28d": {
+        "status": "yes",
+        "basis": "anastrozole 기준일 25일 전 종료",
+        "regimen_refs": [
+          0
+        ],
+        "gap_days": 25
+      }
+    }
   },
   "conflicts": []
 }

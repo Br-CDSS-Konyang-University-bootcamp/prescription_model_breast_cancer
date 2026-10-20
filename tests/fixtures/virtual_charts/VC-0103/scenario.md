@@ -37,6 +37,8 @@
 | `deemed_lines` | ANTHRA-TAXANE not_met, **SG-1Y met** (gap −5), HER2ADC-6M not_met, **ENDO-ADJ-1Y met** (gap −5, 투여 중 전이) |
 | 차수 칸 | 전이 후 투약이 아직 없어 모두 비어 있음 (내분비 실제 0차) |
 | `index_day` | 790 |
+| `stage.operable` | `yes` (원발 부분절제술 기록, 2026-10-20 규칙) |
+| `at_index` | 나이 54, 최근 4주 이내 투여 `yes` (anastrozole 종료 25일 뒤가 기준일, 2026-10-20 추가) |
 
 ## 5. 기대 결과 (초안, 각 담당자가 확정)
 
