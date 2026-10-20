@@ -71,12 +71,24 @@ def profile_from_tags(subtype, disease, line, biomarker_tags=(), **patient) -> d
     }
 
 
-def build_query(profile: dict, terms: list[dict] = None) -> str:
+QUERY_STYLES = ("full", "focused")
+
+
+def build_query(profile: dict, terms: list[dict] = None, style: str = "full") -> str:
     """프로필 → 질의 문장. 사전에 없는 값과 unknown은 빠진다.
-    이전 치료는 "after AI, CDK4/6 inhibitor"처럼 뒤에 붙인다. 그냥 이어 붙이면 그 약을 권하는 질의처럼 읽힌다."""
+    이전 치료는 "after AI, CDK4/6 inhibitor"처럼 뒤에 붙인다. 그냥 이어 붙이면 그 약을 권하는 질의처럼 읽힌다.
+    style="focused"는 아형·병기 표현을 뺀다. 둘 다 하드 필터로 이미 걸렀는데 질의에 있으면, 재정렬 모델이 그 표현이
+    많이 겹치는 일반 권고를 높게 보고 폐경 상태 같은 구분 정보가 묻힌다 (--auto-query E01·E02, 2026-10-20 비교 중)."""
+    if style not in QUERY_STYLES:
+        raise ValueError(f"style은 {QUERY_STYLES} 중 하나: {style!r}")
     terms = terms or load_terms()
     prior_keys = ("prior_subclasses", "prior_classes")
     current = query_terms({k: v for k, v in profile.items() if k not in prior_keys}, terms)
+    if style == "focused":
+        # 국소 진행성(stage III)은 남긴다: EBC 청크의 setting이 [early, locally_advanced]라 필터로는 III기가 갈리지 않는다
+        disease = profile.get("disease") if profile.get("disease") in ("early", "metastatic") else None
+        filtered = query_terms({"subtype": profile.get("subtype"), "disease": disease}, terms)
+        current = [t for t in current if t not in filtered]
     prior = [t for t in query_terms({k: profile.get(k, []) for k in prior_keys}, terms) if t not in current]
     return " ".join(current + (["after " + ", ".join(prior)] if prior else []))
 
@@ -108,7 +120,7 @@ def negative_tags(record: dict) -> list[str]:
 PATIENT_KEYS = ("metastatic_sites", "menopausal_status", "pcr", "stage_at_diagnosis", "prior_subclasses", "prior_classes")
 
 
-def search_args(record: dict, **kwargs) -> dict:
+def search_args(record: dict, query_style: str = "full", **kwargs) -> dict:
     """biomarker_record + 환자 정보 → search_guidelines(**인자). top_k, with_parent 등 나머지 키는 그대로 넘긴다."""
     patient = {k: kwargs.pop(k) for k in PATIENT_KEYS if k in kwargs}
     overrides = kwargs
@@ -119,7 +131,7 @@ def search_args(record: dict, **kwargs) -> dict:
             tags += [t for t in r.get("rag_tags", []) if t not in tags]
     setting = record.get("setting") or {}
     args = {
-        "query_text": build_query(profile),
+        "query_text": build_query(profile, style=query_style),
         "setting": setting.get("disease"),
         "subtype": record.get("subtype"),
         "line": setting.get("line"),

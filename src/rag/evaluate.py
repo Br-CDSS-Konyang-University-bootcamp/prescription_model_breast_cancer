@@ -70,21 +70,21 @@ def evaluate(cases: list[dict], search_fn, k: int = 5) -> tuple[list[dict], dict
     return rows, summary
 
 
-def case_query(case: dict, auto: bool = False) -> str:
+def case_query(case: dict, auto: bool = False, style: str = "full") -> str:
     if not auto:
         return case["query"]
     from .query import build_query, profile_from_tags
-    return build_query(profile_from_tags(
+    return build_query(style=style, profile=profile_from_tags(
         case["subtype"], case["setting"], case["line"], case["biomarker_tags"],
         metastatic_sites=case["metastatic_sites"], menopausal_status=case.get("menopausal_status") or None,
         pcr=case.get("pcr") or None, stage_at_diagnosis=case.get("stage_at_diagnosis") or None,
         prior_subclasses=case.get("prior_subclasses"), prior_classes=case.get("prior_classes")))
 
 
-def search_case(case: dict, k: int = 5, rerank: bool = True, auto_query: bool = False) -> list[dict]:
+def search_case(case: dict, k: int = 5, rerank: bool = True, auto_query: bool = False, style: str = "full") -> list[dict]:
     from .searcher import search_guidelines
     return search_guidelines(
-        case_query(case, auto_query),
+        case_query(case, auto_query, style),
         setting=case["setting"] or None,
         subtype=case["subtype"] or None,
         line=case["line"] or None,
@@ -120,6 +120,8 @@ def main(argv=None) -> int:
     parser.add_argument("--reranker", help="재정렬 모델 이름 (기본 bge-reranker-v2-m3). 예: BAAI/bge-reranker-base")
     parser.add_argument("--candidates", type=int, help="재정렬할 후보 수 (기본 searcher.RERANK_CANDIDATES). 줄이면 빨라진다")
     parser.add_argument("--auto-query", action="store_true", help="환자 조건만으로 만든 질의를 쓴다 (B가 쓸 질의에 가까움)")
+    parser.add_argument("--query-style", choices=("full", "focused"), default="full",
+                        help="--auto-query 질의 형식. focused는 아형·병기 표현을 뺀다 (이미 필터로 거름)")
     parser.add_argument("--detail", action="store_true", help="문항마다 상위 결과의 점수와 차수를 보여 준다")
     parser.add_argument("--out", type=Path, help="문항별 결과를 저장할 CSV")
     args = parser.parse_args(argv)
@@ -133,7 +135,7 @@ def main(argv=None) -> int:
         client.RERANKER_NAME = args.reranker
     cases = load_cases(args.cases)
     try:
-        rows, summary = evaluate(cases, lambda c: search_case(c, args.k, args.rerank, args.auto_query), args.k)
+        rows, summary = evaluate(cases, lambda c: search_case(c, args.k, args.rerank, args.auto_query, args.query_style), args.k)
     finally:
         close_searcher()
 
@@ -142,13 +144,13 @@ def main(argv=None) -> int:
         print(f"{r['case_id']:<5} {r['l0_doc']:>2} {r['l1_section']:>2} {r['l2_hit']:>2}  {r['l2_recall']:>6.2f} "
               f"{r['mrr']:>5.2f}  {', '.join(cid.split('-', 4)[-1] for cid in r['top_ids'][:3])}")
         if args.auto_query:
-            print(f"      질의: {case_query(next(c for c in cases if c['case_id'] == r['case_id']), True)}")
+            print(f"      질의: {case_query(next(c for c in cases if c['case_id'] == r['case_id']), True, args.query_style)}")
         if args.detail:
             expected = next(c for c in cases if c["case_id"] == r["case_id"])["expected_chunks"]
             for cid, score, ln in r["top_detail"]:
                 mark = "  ← 정답" if cid in expected else ""
                 print(f"      {score if score is not None else '-':>7} {','.join(ln or []):<12} {cid.split('-', 4)[-1]}{mark}")
-    print(f"\n{summary['cases']}문항, k={args.k}, 질의 {'자동 생성' if args.auto_query else '문제집'}, 재정렬 {'켬 (' + client_name() + ', 후보 ' + str(searcher.RERANK_CANDIDATES) + '개)' if args.rerank else '끔'}")
+    print(f"\n{summary['cases']}문항, k={args.k}, 질의 {('자동 생성 ' + args.query_style) if args.auto_query else '문제집'}, 재정렬 {'켬 (' + client_name() + ', 후보 ' + str(searcher.RERANK_CANDIDATES) + '개)' if args.rerank else '끔'}")
     print(f"L0 문서 선택 {summary['l0_doc']:.0%} | L1 소단원 {summary['l1_section']:.0%} | "
           f"L2 hit@{args.k} {summary['l2_hit']:.0%} | L2 recall@{args.k} {summary['l2_recall']:.2f} | MRR {summary['mrr']:.2f}")
     if args.rerank and searcher._reranker_failed:

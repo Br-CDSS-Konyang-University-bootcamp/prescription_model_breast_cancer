@@ -56,7 +56,7 @@ def test_patient_context_separates_otherwise_identical_queries():
     # 같은 아형·병기·차수라도 폐경 상태, pCR, de novo, 이전 치료에 따라 권고가 갈린다
     early = {"subtype": "HR+/HER2-", "setting": {"disease": "early", "line": "adjuvant"}, "records": []}
     assert search_args(early, menopausal_status="premenopausal")["query_text"] == \
-        "ER-positive, HER2-negative EBC adjuvant premenopausal"
+        "ER-positive, HER2-negative EBC adjuvant pre- and perimenopausal"
     tnbc = {"subtype": "TNBC", "setting": {"disease": "early", "line": "adjuvant"}, "records": []}
     assert search_args(tnbc, pcr="no")["query_text"] == "TNBC EBC adjuvant residual invasive disease"
     mbc = {"subtype": "HR+/HER2-", "setting": {"disease": "metastatic", "line": "1L"}, "records": []}
@@ -84,3 +84,12 @@ def test_negative_tags_need_every_marker_behind_the_tag_negative():
     assert negative_tags(record) == ["gBRCA", "PIK3CA-mut", "HER2-low", "HER2-ultralow"]
     assert negative_tags({"records": [{"marker": "gBRCA1", "status": "negative"}]}) == []  # gBRCA2 모름
     assert search_args(RECORD)["negative_tags"] == ["PIK3CA-mut"]
+
+
+def test_focused_query_drops_filtered_subtype_and_disease_but_keeps_stage_iii():
+    early = {"subtype": "HR+/HER2-", "setting": {"disease": "early", "line": "adjuvant"}, "records": []}
+    assert search_args(early, query_style="focused", menopausal_status="premenopausal")["query_text"] == \
+        "adjuvant pre- and perimenopausal"
+    la = {"subtype": "HR+/HER2-", "setting": {"disease": "locally_advanced", "line": "adjuvant"}, "records": []}
+    assert search_args(la, query_style="focused")["query_text"] == "stage III adjuvant"
+    assert search_args(RECORD, query_style="focused")["query_text"] == "second-line ESR1-mutated HER2-low"
