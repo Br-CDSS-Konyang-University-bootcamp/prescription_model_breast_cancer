@@ -194,8 +194,9 @@ def main(argv=None) -> int:
     if args.with_extra:
         print("\n추가 검색 포함: 주 검색 k개 + 부위별·de novo 검색 각 3개를 합친 목록 전체로 채점 (hit·recall은 합친 목록 기준)")
     print(f"\n{summary['cases']}문항, k={args.k}, 질의 {('자동 생성 ' + args.query_style) if args.auto_query else '문제집'}, 재정렬 {'켬 (' + client_name() + ', 후보 ' + str(searcher.RERANK_CANDIDATES) + '개)' if args.rerank else '끔'}")
+    at = "전체" if args.with_extra else args.k
     print(f"L0 문서 선택 {summary['l0_doc']:.0%} | L1 소단원 {summary['l1_section']:.0%} | "
-          f"L2 hit@{args.k} {summary['l2_hit']:.0%} | L2 recall@{args.k} {summary['l2_recall']:.2f} | MRR {summary['mrr']:.2f}")
+          f"L2 hit@{at} {summary['l2_hit']:.0%} | L2 recall@{at} {summary['l2_recall']:.2f} | MRR {summary['mrr']:.2f}")
     if args.rerank and searcher._reranker_failed:
         print("주의: 재정렬 모델을 불러오지 못해 뜻 검색 점수만 썼습니다 (위 경고 참고). 점수는 재정렬 끔과 같습니다.")
     print(f"검색 시간: 첫 질의 {summary['first_seconds']:.1f}초 (모델 불러오기 포함) | "
