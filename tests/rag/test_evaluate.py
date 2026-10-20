@@ -1,5 +1,6 @@
 # tests/rag/test_evaluate.py
 # 평가 문제집(data/eval/rag_eval_cases.csv)이 청크와 맞는지, 채점이 맞게 되는지 본다. 검색 모델 없이 돈다.
+import csv
 import json
 from collections import Counter
 from pathlib import Path
@@ -11,6 +12,8 @@ BASE_DIR = Path(__file__).resolve().parents[2]
 CASES = load_cases()
 CHUNKS = {c["chunk_id"]: c for c in load_guideline_chunks()}
 INDEXED = {c["chunk_id"] for c in select_index_chunks(list(CHUNKS.values()))}
+with open(BASE_DIR / "data" / "dictionaries" / "field_vocab.csv", encoding="utf-8-sig", newline="") as _f:
+    SITES = {r["canonical"] for r in csv.DictReader(_f) if r["field"] == "metastatic_sites"}
 
 
 def _enum(*path):
@@ -29,6 +32,8 @@ def test_case_ids_unique_and_values_valid():
         assert c["setting"] in settings and c["subtype"] in subtypes and c["line"] in lines, c["case_id"]
         assert c["status"] in ("draft", "reviewed"), c["case_id"]
         assert c["query"] and c["expected_chunks"] and c["expected_parents"], c["case_id"]
+        # 전이 부위는 field_vocab.csv의 metastatic_sites 값 또는 "other: 자유 기재" (schemas/patient_state.json sites_value)
+        assert all(s in SITES or s.startswith("other:") for s in c["metastatic_sites"]), c["case_id"]
 
 
 def test_expected_chunks_exist_and_are_reachable():

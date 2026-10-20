@@ -11,6 +11,19 @@ LINE_MATCH_BONUS = 0.1  # 요청 차수와 청크 차수가 같을 때
 LINE_ANY_BONUS = 0.03  # 청크 차수가 any일 때
 TAG_BONUS = 0.05  # 요청 바이오마커 태그가 청크 태그와 하나 겹칠 때마다
 RERANK_CANDIDATES = 20  # 재정렬할 때 뜻 검색으로 먼저 뽑는 후보 수
+SITE_MATCH_BONUS = 0.05  # 환자에게 있는 전이 부위의 부위별 권고
+SITE_MISMATCH_PENALTY = 0.3  # 환자에게 없는 전이 부위의 부위별 권고. 빼지 않고 뒤로 보낸다 (기록 누락 대비)
+# 부위별 소단원(부모 청크 이름 끝) → 그 권고가 맞는 전이 부위 (field_vocab.csv의 metastatic_sites 값).
+# 연수막 전이(LMD)는 표준값이 없어 "other: leptomeningeal ..."처럼 적힌 값을 찾는다. 뇌 전이만으로는 LMD로 보지 않는다.
+# de novo IV기(site-denovo)와 소수 전이(site-omd)는 부위가 아닌 상황이라 여기 넣지 않는다.
+SITE_SECTIONS = {
+    "site-bone": {"bone"},
+    "site-bm": {"brain"},
+    "site-bm-lrt": {"brain"},
+    "site-bm-her2": {"brain"},
+    "site-bm-her2neg": {"brain"},
+    "site-lmd": {"leptomeningeal"},
+}
 CACHE_SIZE = 256  # 같은 조건의 검색 결과를 기억해 두는 개수. 색인이 바뀌면 indexer가 비운다
 
 _cache = {}
@@ -27,18 +40,24 @@ def search_guidelines(
         top_k: int = 5,
         with_parent: bool = False,
         rerank: bool = True,
+        metastatic_sites: list[str] = None,
 ) -> list[dict]:
     """지침 권고 청크를 찾는다. with_parent=True면 각 결과에 부모(소단원) 청크를 "parent" 키로 붙인다
     (LLM에는 소단원 전체를 함께 넘긴다, PROJECT.md §6).
     rerank=True(기본, PROJECT.md §6)면 뜻 검색으로 후보 RERANK_CANDIDATES개를 뽑은 뒤 재정렬 모델(bge-reranker-v2-m3)의
     점수로 순위를 다시 매긴다. 모델이 없거나 불러오지 못하면 경고하고 뜻 검색 점수를 쓴다.
     차수·태그 가점은 두 경우 모두 더한다. 결과의 score는 그 최종 점수다.
+    metastatic_sites(예: ["bone", "liver"])를 주면 부위별 권고(뼈·뇌·연수막 전이)를 그 부위 전이가 있으면 가점,
+    없으면 감점한다. 주지 않거나 빈 목록이면 부위를 모르는 것으로 보고 점수를 바꾸지 않는다.
     같은 조건의 검색은 기억해 둔 결과를 돌려준다 (색인을 바꾸면 비워진다)."""
-    key = (query_text, setting, subtype, line, source, tuple(biomarker_tags or ()), top_k, with_parent, rerank)
+    sites = _site_keys(metastatic_sites)
+    key = (query_text, setting, subtype, line, source, tuple(biomarker_tags or ()), top_k, with_parent, rerank,
+           tuple(sorted(sites)) if sites is not None else None)
     if key not in _cache:
         if len(_cache) >= CACHE_SIZE:
             _cache.clear()
-        _cache[key] = _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, with_parent, rerank)
+        _cache[key] = _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, with_parent, rerank,
+                              sites)
     return copy.deepcopy(_cache[key])  # 받은 쪽이 결과를 고쳐도 기억해 둔 값은 그대로
 
 
@@ -46,7 +65,31 @@ def clear_search_cache():
     _cache.clear()
 
 
-def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, with_parent, rerank) -> list[dict]:
+def _site_keys(metastatic_sites):
+    """환자 전이 부위를 SITE_SECTIONS와 비교할 값으로 바꾼다. 모르면 None (점수를 바꾸지 않음)."""
+    if not metastatic_sites or isinstance(metastatic_sites, str):  # "[Not Available]" 같은 값
+        return None
+    keys = set()
+    for site in metastatic_sites:
+        s = str(site).strip().lower()
+        if "lepto" in s or "mening" in s or s.endswith("lmd"):
+            keys.add("leptomeningeal")
+        elif s:
+            keys.add(s)
+    return keys or None
+
+
+def _site_adjust(parent_id, sites) -> float:
+    if sites is None or not parent_id:
+        return 0.0
+    for section, needed in SITE_SECTIONS.items():
+        if parent_id.endswith("-" + section):
+            return SITE_MATCH_BONUS if needed & sites else -SITE_MISMATCH_PENALTY
+    return 0.0
+
+
+def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, with_parent, rerank,
+            sites=None) -> list[dict]:
     client = get_qdrant_client()
     model = get_embedding_model()
 
@@ -111,6 +154,9 @@ def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, w
         chunk_tags = set(payload.get("biomarker_tags", []))
         overlap = len(target_tags.intersection(chunk_tags))
         score += overlap * TAG_BONUS
+
+        # 전이 부위: 부위별 소단원 권고만 해당
+        score += _site_adjust(payload.get("parent_id"), sites)
 
         scored_results.append({
             "score": score,

@@ -141,6 +141,27 @@ def test_search_cache_returns_copies_and_clears_on_reindex(memory_index, monkeyp
     assert len(calls) == 2
 
 
+def test_metastatic_sites_raise_matching_and_lower_other_site_recommendations(memory_index):
+    # 가짜 임베딩이라 모든 청크의 뜻 검색 점수가 같다. 전이 부위 가점·감점만으로 순위가 갈린다
+    rag_client, indexer = memory_index
+    from src.rag import searcher
+    from src.rag.chunk_store import load_guideline_chunks, select_index_chunks
+
+    indexer.index_chunks(select_index_chunks(load_guideline_chunks()))
+    # 가점·감점은 뜻 검색으로 뽑힌 후보 안에서 순위를 바꾼다. 가짜 임베딩은 후보가 임의라 전부 뽑아서 본다
+    bone = searcher.search_guidelines("x", setting="metastatic", subtype="TNBC", top_k=200, rerank=False,
+                                      metastatic_sites=["bone"])
+    n_bone = sum(r["parent_id"].endswith("-site-bone") for r in bone)
+    assert n_bone and all(r["parent_id"].endswith("-site-bone") for r in bone[:n_bone])
+    no_cns = searcher.search_guidelines("x", setting="metastatic", subtype="TNBC", top_k=200, rerank=False,
+                                        metastatic_sites=["liver"])
+    last = [r["parent_id"] for r in no_cns[-10:]]
+    assert all(pid.split("site-")[-1] in ("bone", "bm", "bm-lrt", "bm-her2neg", "lmd") for pid in last)
+    unknown = searcher.search_guidelines("x", setting="metastatic", subtype="TNBC", top_k=3, rerank=False,
+                                         metastatic_sites=["[Not Available]"][0])
+    assert len({r["score"] for r in unknown}) == 1  # 부위를 모르면 점수를 바꾸지 않는다
+
+
 def test_public_api_for_reimbursement_module():
     # D(src/reimbursement/index.py)가 src.rag에서 부르는 함수들
     import src.rag as rag
