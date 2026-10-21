@@ -637,10 +637,10 @@ def _is_truncating(variant):
 
 
 def _gene_marker(gene, patient_ref):
-    """BRCA1/2 레코드 이름. patient_state에 생식세포/체세포 구분 칸이 없어, TCGA는 gBRCA로 가정하고
-    (전달 문서 4.7절) 그 밖은 종양 검사로 보고 sBRCA로 둔다 (PROJECT.md 남은 과제의 origin 칸 검토)."""
+    """BRCA1/2 레코드 이름. TCGA·가상·실제 차트 모두 검사 종류와 관계없이 gBRCA로 본다 (전달 문서 4.7절,
+    A 결정 2026-10-21). sBRCA1/2 이름은 VALID_MARKERS에 남지만 레코드를 만들지 않는다."""
     if gene in ("BRCA1", "BRCA2"):
-        return ("g" if patient_ref.startswith("TCGA-") else "s") + gene
+        return "g" + gene
     return gene
 
 
@@ -878,8 +878,8 @@ def tests_needed_of(by, subtype, disease, fields):
         if pdl1.get("status") == "not_done":
             add("PD-L1 (22C3 CPS, SP142 IC)", "전이성 TNBC인데 PD-L1 미시행", "BM4-PDL1", pdl1)
 
-    # 유전자 (PROJECT.md 5절 검사 공백 규칙). 미시행만 권고한다. 생식세포 BRCA가 기록 없음이거나
-    # 레코드가 sBRCA뿐이면(TCGA가 아닌 차트) 권고하지 않는다 (전달 문서 4.7절, B 결정 2026-10-16)
+    # 유전자 (PROJECT.md 5절 검사 공백 규칙). 미시행만 권고한다. 생식세포 BRCA가 기록 없음이면
+    # 권고하지 않는다 (전달 문서 4.7절, B 결정 2026-10-16)
     if subtype in ("HR+/HER2-", "TNBC"):
         for m in ("gBRCA1", "gBRCA2", "PALB2"):
             if by.get(m, {}).get("status") == "not_done":
