@@ -1,0 +1,146 @@
+{
+  "schema_version": "0.1-draft",
+  "patient_ref": "VC-0103",
+  "version": 1,
+  "visit_type": "initial",
+  "decision_context": "metastatic",
+  "index_day": 790,
+  "confirmed_at": "2026-10-21T10:05:00+09:00",
+  "confirmed_by": "user-01",
+  "based_on": {
+    "patient_state_created_at": "2026-10-19T00:00:00+09:00",
+    "biomarker_record_version": "0.1-draft"
+  },
+  "supersedes": null,
+  "items": {
+    "setting.disease": {
+      "scope": "current", "system": "metastatic", "system_source": "biomarker_record",
+      "confirmed": "metastatic", "status": "confirmed"
+    },
+    "setting.line_endocrine": {
+      "scope": "current", "system": "unknown", "system_source": "biomarker_record",
+      "confirmed": "1L", "status": "changed",
+      "reason": "전이 후 고식적 내분비요법 없음. 보조 anastrozole 투여 중 재발 → 고식적 내분비 1차 결정"
+    },
+    "setting.line_chemo": {
+      "scope": "current", "system": "unknown", "system_source": "biomarker_record",
+      "confirmed": "1L", "status": "changed",
+      "reason": "고식적 항암화학요법 이력 없음"
+    },
+    "subtype": {
+      "scope": "current", "system": "HR+/HER2-", "system_source": "biomarker_record",
+      "confirmed": "HR+/HER2-", "status": "confirmed"
+    },
+    "menopausal_status": {
+      "scope": "current", "system": "postmenopausal", "system_source": "patient_state",
+      "confirmed": "postmenopausal", "status": "confirmed",
+      "detail": {"basis": "not_recorded"},
+      "evidence_refs": [{"doc_id": "D1", "quote": "폐경 후 (postmenopausal)", "char_start": 144, "char_end": 165}]
+    },
+    "age_at_index": {
+      "scope": "current", "system": 54, "system_source": "patient_state",
+      "confirmed": 54, "status": "confirmed"
+    },
+    "endocrine_relapse_12m": {
+      "scope": "current", "system": "yes", "system_source": "patient_state",
+      "confirmed": "yes", "status": "confirmed",
+      "note": "DEEM-ENDO-ADJ-1Y met, anastrozole 종료 5일 전 전이 (gap -5)",
+      "evidence_refs": [{"doc_id": "D1", "quote": "anastrozole 2023.4.9 중단", "char_start": 503, "char_end": 526}]
+    },
+    "deemed_lines": {
+      "scope": "current",
+      "system": {"DEEM-ANTHRA-TAXANE": "not_met", "DEEM-SG-1Y": "met", "DEEM-HER2ADC-6M": "not_met", "DEEM-ENDO-ADJ-1Y": "met"},
+      "system_source": "patient_state",
+      "confirmed": {"DEEM-ANTHRA-TAXANE": "not_met", "DEEM-SG-1Y": "met", "DEEM-HER2ADC-6M": "not_met", "DEEM-ENDO-ADJ-1Y": "met"},
+      "status": "confirmed"
+    },
+    "metastatic_sites": {
+      "scope": "current", "system": ["lung"], "system_source": "patient_state",
+      "confirmed": ["lung"], "status": "confirmed",
+      "evidence_refs": [{"doc_id": "D1", "quote": "lung metastasis", "char_start": 485, "char_end": 500}]
+    },
+    "recurrence_type": {
+      "scope": "current", "system": "distant", "system_source": "patient_state",
+      "confirmed": "distant", "status": "confirmed"
+    },
+    "prior_regimens": {
+      "scope": "current",
+      "system": [
+        {"drugs": ["anastrozole"], "subclasses": ["AI_nonsteroidal"], "setting": "adjuvant",
+         "start_day": 40, "end_day": 765, "line_endocrine": null, "line_chemo": null,
+         "response": "PD", "stop_reason": "progression"}
+      ],
+      "system_source": "patient_state",
+      "confirmed": [
+        {"drugs": ["anastrozole"], "subclasses": ["AI_nonsteroidal"], "setting": "adjuvant",
+         "start_day": 40, "end_day": 765, "line_endocrine": null, "line_chemo": null,
+         "response": "PD", "stop_reason": "progression"}
+      ],
+      "status": "confirmed",
+      "evidence_refs": [{"doc_id": "D5", "quote": "아리미덱스 (anastrozole) 1mg qd  2021.4.14    2023.4.9    PD     폐 전이", "char_start": 1486, "char_end": 1550}]
+    },
+    "markers": {
+      "ER": {
+        "scope": "current", "system": "positive", "system_source": "biomarker_record",
+        "confirmed": "positive", "status": "confirmed",
+        "detail": {"percent": 80, "specimen": "metastasis", "test_date": "2023-04-16"}
+      },
+      "PR": {
+        "scope": "current", "system": "positive", "system_source": "biomarker_record",
+        "confirmed": "positive", "status": "confirmed",
+        "detail": {"percent": 60, "specimen": "metastasis", "test_date": "2023-04-16"}
+      },
+      "HER2": {
+        "scope": "current", "system": "negative", "system_source": "biomarker_record",
+        "confirmed": "negative", "status": "confirmed",
+        "detail": {"ihc_score": "0", "specimen": "metastasis", "test_date": "2023-04-16"},
+        "note": "IHC 0, 미약한 막 염색 기록 없음. 초저발현 재판정 권고 유지"
+      },
+      "Ki-67": {
+        "scope": "diagnosis", "system": "negative", "system_source": "biomarker_record",
+        "confirmed": "negative", "status": "confirmed",
+        "detail": {"percent": 15, "specimen": "primary", "test_date": "2021-03-23"}
+      },
+      "gBRCA": {
+        "scope": "current", "system": "not_recorded", "system_source": "biomarker_record",
+        "confirmed": "not_recorded", "status": "confirmed",
+        "note": "B 출력 마커 이름은 sBRCA1/2 (U4). 비TCGA 차트도 gBRCA로 본다 (A 결정 2026-10-21)"
+      },
+      "PALB2": {
+        "scope": "current", "system": "not_recorded", "system_source": "biomarker_record",
+        "confirmed": "not_recorded", "status": "confirmed"
+      },
+      "PIK3CA": {
+        "scope": "current", "system": "negative", "system_source": "biomarker_record",
+        "confirmed": "negative", "status": "confirmed",
+        "detail": {"specimen": "metastasis", "assay": "표적 NGS"}
+      },
+      "AKT1": {
+        "scope": "current", "system": "negative", "system_source": "biomarker_record",
+        "confirmed": "negative", "status": "confirmed"
+      },
+      "PTEN": {
+        "scope": "current", "system": "negative", "system_source": "biomarker_record",
+        "confirmed": "negative", "status": "confirmed"
+      },
+      "ESR1": {
+        "scope": "current", "system": "negative", "system_source": "biomarker_record",
+        "confirmed": "negative", "status": "confirmed",
+        "detail": {"specimen": "metastasis", "test_date": "2023-04-16"}
+      },
+      "PD-L1": {
+        "scope": "current", "system": "not_recorded", "system_source": "biomarker_record",
+        "confirmed": "not_recorded", "status": "confirmed"
+      }
+    }
+  },
+  "visit_inputs": {
+    "last_regimen_response": "PD",
+    "progression_date": "2023-04-04",
+    "visit_reason": "폐 전이 확인 후 고식적 1차 치료 결정"
+  },
+  "memo": "보조 AI 투여 중 폐 전이. 재생검 수용체 원발과 같음",
+  "evidence": [
+    {"item": "subtype", "doc_id": "D3", "quote": "ER positive (80%)", "char_start": 1111, "char_end": 1128}
+  ]
+}
