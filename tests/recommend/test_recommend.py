@@ -116,7 +116,7 @@ def test_negative_biomarker_goes_to_conflicts():
 
 
 def test_gbrca_missing_in_virtual_chart_becomes_test():
-    """가상 차트는 BRCA가 sBRCA로만 나온다. gBRCA 기록이 없으면 olaparib 대신 검사 권고."""
+    """gBRCA 판정이 없으면 (예: sBRCA만 있는 옛 기록) olaparib 대신 검사 권고."""
     o = opt(therapy="olaparib", drugs=["olaparib"], rationale="생식세포 BRCA 변이에 권고된다 [g-ola].",
             citations=["g-ola"], reimbursement="no_criteria", reimbursement_citations=[])
     rec, _ = run([o], bm(sBRCA1="positive", PALB2="negative"))
