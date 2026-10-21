@@ -34,9 +34,11 @@ python -m src.reimbursement.pipeline --with-offlabel  # 허가초과 목록 청�
 
 공용 색인(C의 Qdrant)에 넣기는 따로 실행한다. 예전 급여 점을 지운 뒤 L3 청크만 넣는다 (설계 §0.1: L1·L2는 벡터 없이
 청크 파일에서 `parent_id`로 찾는다). 검토중 요법은 뺀다.
-C의 공개 함수(`src/rag/__init__.py`)의 `delete_by_doc_type("reimbursement")`로 급여 점만 지우고 `index_chunks`로 넣은 뒤
-`close_indexer`로 닫는다. 점 ID는 chunk_id의 uuid5라 같은 청크는 덮어쓴다. 지운 뒤 넣는 방식이라 중간에 실패하면 급여 점이
-비어 있을 수 있으니 다시 실행한다. `init_collection(force_recreate=True)`는 지침 점까지 지우므로 쓰지 않는다.
+C의 공개 함수(`src/rag/__init__.py`)의 `replace_doc_type("reimbursement", chunks)`로 새 청크를 먼저 넣고(점 ID는 chunk_id의
+uuid5라 같은 청크는 덮어씀) 새 목록에 없는 옛 급여 점만 지운 뒤 `close_indexer`로 닫는다 (팀 결정 C1, 2026-10-20).
+넣다가 실패하면 지우기까지 가지 않아 옛 급여 점이 남는다. 지침 점은 건드리지 않는다.
+`replace_doc_type`이 없는 예전 `src/rag`에서는 `delete_by_doc_type` → `index_chunks`(지운 뒤 넣기)로 대신한다.
+`init_collection(force_recreate=True)`는 지침 점까지 지우므로 쓰지 않는다.
 성공하면 기록 장부의 그 책자를 indexed로, 예전 indexed 책자를 superseded로 바꾼다.
 Qdrant 로컬 모드는 한 프로세스만 열 수 있으니 검색·`run_indexing`과 동시에 돌리지 않는다.
 
@@ -52,9 +54,21 @@ Qdrant 로컬 모드는 한 프로세스만 열 수 있으니 검색·`run_index
 - 보관 파일은 공고 가공물이라 git에 올리지 않고 이 PC에만 있으므로, 새 책자를 반영할 때마다 결과물 백업(zip)을 팀 공유 위치에 올린다.
 
 ```bash
-python -m src.reimbursement.index --dry-run   # 넣을 청크 수만 확인
-python -m src.reimbursement.index
+python -m src.reimbursement.index --dry-run     # 넣을 청크 수만 확인
+python -m src.reimbursement.index               # 늘 색인
+python -m src.reimbursement.index --if-changed  # 마지막 색인 때와 같으면 건너뜀
+python -m src.reimbursement.pipeline --index    # 파이프라인이 정상이면 이어서 --if-changed 색인
 ```
+
+색인 주기 (회의 5 결정, 2026-10-21): 바뀌었을 때만 색인한다. 앱 시작 때 파이프라인(게시판 확인)을 돌리고, 색인할 청크가
+마지막 색인 때(`reports/last_indexed.json`의 해시)와 다르면 이어서 색인한다. 새 공고의 신설·변경·삭제뿐 아니라 조건 수정도
+청크가 바뀌므로 다시 색인된다. DB도 함께 비교해서(폴더 경로 + `data/qdrant_db/meta.json` 수정 시각), DB를 새로 만들었거나
+다른 폴더로 옮겼으면 청크가 같아도 다시 색인한다 (청크 파일만 복사한 새 작업 폴더에서 빈 DB를 건너뛰지 않게).
+색인하는 1~2분 동안 검색이 막히므로 앱 시작 직후, 검색 전에 끝낸다.
+검색과 색인은 `src/rag`의 Qdrant 연결 하나를 같이 쓰므로 같은 프로그램 안에서는 `close_searcher()`를 부르지 않는다
+(부르면 진행 중인 검색이 끊길 수 있다). 앱이 켜져 있을 때 다른 프로그램(터미널 등)에서 색인을 따로 돌리지 않는다.
+색인이 실패하면 해시를 남기지 않아 다음 실행 때 다시 색인한다. 시행일이 미래인 공고는 검색이 `effective_from ≤ 기준일`로
+거르므로 날짜가 됐다고 다시 색인하지 않는다.
 
 단계마다 검사하고, 오류가 하나라도 있으면 아무것도 바꾸지 않는다 (마지막 정상 청크 파일 유지).
 
@@ -125,6 +139,15 @@ python -m src.reimbursement.conditions --import data/reimbursement/conditions_ma
 | `patient_state`에 `recurrence_operable`, `cardiac_history`, `mediastinal_radiation` 칸 추가 여부 | A 제안, 4명 검토 |
 | 급여 검색 함수 (`doc_type=reimbursement`, 약 이름 일치, 시행일 ≤ 판정 기준일, `superseded_by` 제외)와 L1·L2 부모 청크 찾기 | C, D |
 | 결과물(청크, 조건 JSON, registry.db) 비공개 백업·공유 위치 | 팀 |
-| 지운 뒤 넣기 사이의 공백 없애기: 점 ID가 고정(uuid5)이라 "새 청크를 먼저 넣고, 새 목록에 없는 옛 급여 점만 지우기"가 가능. C가 `replace_doc_type(doc_type, chunks)` 같은 함수를 만들면 `index.py`가 그것을 쓴다 | C, D |
 | 개정 공고 덧씌우기 (설계 §6). 새 공고가 올라오면 실행해 보고 만든다 | D |
-| 허가초과 포함 여부 | 팀 |
+| 허가초과 포함 여부: v0.1에서는 빼고 PROJECT.md §8을 설계 문서에 맞추자는 D 의견. 지금은 범위 밖, 팀 결정 대기 (기본 끔) | 팀 |
+
+회의 안건 결정 (2026-10-21):
+
+| 안건 | 결정 |
+|---|---|
+| 1. `text_normalized` 위치 | 청크 최상위. 필수 칸이 아님 (ESMO 지침은 영어라 필요 없고, 필수로 하면 지침 청크를 모두 고쳐야 함). 검색은 지금처럼 원문 `text`로 하고 급여 검색은 약 이름·날짜로 거르므로 C 검색 코드는 바뀌지 않음. `schemas/chunk.json`은 공용 파일이라 4명 검토 |
+| 2. `line_rule` 값 | 공고 표기 그대로 한국어 + `setting.line` 대응표 (`schema_proposal.md`). 다른 팀원 문서에 반대 내용 없음, B 동의 |
+| 3. `copay` | 요법 전체에 하나일 때만 값, 약제마다 다르면 `null`과 `copay_by_drug`. 반영함. `recommendation.json` 설명은 PR로 4명 검토 |
+| 4. 허가초과 | 위 표 (범위 밖, 팀 결정 대기) |
+| 5. 색인 주기 | 바뀌었을 때만, 앱 시작 직후·검색 전에. 같은 연결을 같이 써서 `close_searcher()`는 부르지 않음. 반영함 (위 "색인 주기") |

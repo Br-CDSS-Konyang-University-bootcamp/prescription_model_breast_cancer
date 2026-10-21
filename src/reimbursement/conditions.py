@@ -39,7 +39,7 @@ ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "data" / "reimbursement"
 CACHE_PATH = DATA / "conditions_cache.jsonl"
 MODEL ="claude-sonnet-5-5"          # PROJECT.md §9: 공고·지침 구조화
-PROMPT_VERSION = "2026-10-20.4"       # 프롬프트·어휘를 바꾸면 올린다 (예전 저장 결과를 안 쓰게)
+PROMPT_VERSION = "2026-10-21.1"       # 프롬프트·어휘를 바꾸면 올린다 (예전 저장 결과를 안 쓰게)
 
 OPS = ["eq", "in", "not_contains", "contains", "gt", "gte", "lt", "lte", "exists"]
 STAGES = ["0", "I", "IA", "IB", "II", "IIA", "IIB", "III", "IIIA", "IIIB", "IIIC", "IV"]
@@ -57,8 +57,9 @@ _NUM = "number"
 _DRUGS = "drugs"           # 값이 약 이름·계열 이름 목록 (사전 검사)
 
 # field -> (환자 JSON 경로, 허용 op, 값 종류 또는 허용값 목록, 설명). 설명은 프롬프트에도 들어간다.
-# patient_state 경로는 0.1-draft6 기준 (2026-10-20). fields 아래 칸은 공통 틀이라 값은 .value에 있다
-# (treatment_history[], anthracycline_drug_dose, molecular.mutations.*는 틀 없이 키를 그대로 쓴다).
+# patient_state 경로는 0.1-draft6 기준 (A의 patient_state_structure.md, 2026-10-20). 공통 추출 칸(◆)은 값이 .value에 있어
+# 경로에 .value까지 적는다. treatment_history[], deemed_lines[], at_index, anthracycline_drug_dose,
+# molecular.mutations.*는 틀 없이 키를 그대로 쓴다.
 # 날짜는 모두 진단일 = 0인 정수 일수(*_day)다.
 # 공고 표현 -> 칸·값은 팀 사전 data/dictionaries/reimbursement_terms.csv를 따른다 (2026-10-20 대조).
 FIELDS: dict[str, tuple[str, list[str], object, str]] = {
@@ -72,13 +73,16 @@ FIELDS: dict[str, tuple[str, list[str], object, str]] = {
     "pr": ("biomarker_record.records[PR].status", ["eq"], _POSNEG, "프로게스테론 수용체만 따로 적힌 경우"),
     "subtype": ("biomarker_record.subtype", ["eq", "in"], ["HR+/HER2-", "HR+/HER2+", "HR-/HER2+", "TNBC"],
                 "'삼중음성' -> eq TNBC"),
-    "menopause": ("patient_state.fields.patient.menopausal_status", ["eq", "in"],
+    "menopause": ("patient_state.fields.patient.menopausal_status.value", ["eq", "in"],
                   ["premenopausal", "perimenopausal", "postmenopausal"],
                   "'폐경 후' -> eq postmenopausal, '폐경 전' -> in [premenopausal, perimenopausal]"),
-    "sex": ("patient_state.fields.patient.gender", ["eq", "in"], ["FEMALE", "MALE"],
+    "sex": ("patient_state.fields.patient.gender.value", ["eq", "in"], ["FEMALE", "MALE"],
             "'여성 및 남성' -> in [FEMALE, MALE], '남성' -> eq MALE"),
-    "age": ("patient_state.fields.patient.age", ["gt", "gte", "lt", "lte"], _NUM,
-            "'40세 미만' -> lt 40, '만 19세 이상' -> gte 19, '70세 이상' -> gte 70"),
+    # 나이 기준은 A의 data_needs_by_module §6-2: patient.age는 진단 시 나이, 처방 시점 조건은 at_index.age
+    "age": ("patient_state.fields.patient.age.value (진단 시 나이)", ["gt", "gte", "lt", "lte"], _NUM,
+            "선행·수술후보조 대상의 나이 조건. '40세 미만' -> lt 40, '35세 미만' -> lt 35"),
+    "age_at_index": ("patient_state.fields.at_index.age (판정 기준일 나이, 없으면 알 수 없음)", ["gt", "gte", "lt", "lte"], _NUM,
+                     "투여 시점 나이 조건 (보조 약제 등). '만 19세 이상' -> gte 19, '70세 이상' -> gte 70"),
     # 값은 팀 사전(stage.disease_extent의 값)과 같다. 칸은 지금 범위인 setting.disease를 쓴다:
     # 스키마 설명 "재발 후 상태는 biomarker_record.setting.disease", handoff_to_B.md §6.1
     # (진단 시 전이 또는 원격 재발 -> metastatic, 국소 재발 등은 진단 시 범주 그대로)
@@ -87,25 +91,25 @@ FIELDS: dict[str, tuple[str, list[str], object, str]] = {
                 "'국소진행성' -> locally_advanced, '전이성' -> metastatic (원격 재발 포함), '조기'·'초기' -> early, "
                 "'진행성' -> in [locally_advanced, metastatic]. 국소 재발은 disease에 들어가지 않으므로 "
                 "'전이성, 재발성'은 any_of 묶음에 disease eq metastatic과 recurrence in [...] 항목을 함께 넣는다"),
-    "recurrence": ("patient_state.fields.recurrence.status", ["eq", "in", "exists"],
+    "recurrence": ("patient_state.fields.recurrence.status.value", ["eq", "in", "exists"],
                    ["distant", "locoregional", "site_unknown"],
                    "'재발성'(국소·구역·원격 재발 모두) -> in [distant, locoregional, site_unknown], '국소 재발' -> eq locoregional"),
-    "operable": ("patient_state.fields.stage.operable", ["eq"], ["yes", "no"],
+    "operable": ("patient_state.fields.stage.operable.value", ["eq"], ["yes", "no"],
                  "'절제 불가능한'·'수술이 불가능한' -> eq no (진단 시 기준)"),
     "recurrence_operable": ("(없음: 팀 결정 대기. recurrence.surgery는 재발 후 수술 여부라 절제 불가와 다름)", ["eq"], ["yes", "no"],
                             "'절제 불가능한 국소 재발성' -> eq no"),
     "t_stage": ("patient_state.fields.stage.ctnm.value.t / ptnm.value.t", ["eq", "in", "gt", "gte"], T_STAGES,
                 "'염증성' -> eq T4d, '직경 > 2㎝' -> gte T2, '1cm 이상'·'1cm 초과' -> gte T1c, '≥ 5 cm' -> gte T3"),
-    "stage_group": ("patient_state.fields.stage.group", ["eq", "in", "gte", "lte"], STAGES,
+    "stage_group": ("patient_state.fields.stage.group.value", ["eq", "in", "gte", "lte"], STAGES,
                     "'stage Ⅱ∼Ⅲ' -> 항목 둘 (gte II, lte III), 'stage ⅢA 이상' -> gte IIIA. "
                     "로마숫자 Ⅰ~Ⅳ는 I~IV로 옮기고 하위 병기(A·B·C)는 붙이지 않는다 (III는 IIIA~IIIC 포함)"),
     "ln_status": ("patient_state.fields.stage.ptnm.value.n (양성: N1*·N2*·N3*, N1mi 포함 / 음성: N0, N0(i-), N0(i+), N0(mol+))",
                   ["eq"], _POSNEG, "'림프절 양성' -> eq positive, '림프절 음성' -> eq negative"),
-    "positive_ln_count": ("patient_state.fields.stage.positive_ln_count.positive", ["eq", "gt", "gte", "lt", "lte"], _NUM,
+    "positive_ln_count": ("patient_state.fields.stage.positive_ln_count.value.positive", ["eq", "gt", "gte", "lt", "lte"], _NUM,
                           "전이된 림프절 갯수가 적힌 경우만. '4개 이상' -> gte 4, '1-3개' -> 항목 둘 (gte 1, lte 3)"),
-    "grade": ("patient_state.fields.diagnosis.grade", ["eq", "in", "gte"], _NUM,
+    "grade": ("patient_state.fields.diagnosis.grade.value", ["eq", "in", "gte"], _NUM,
               "'종양분화도 2∼3' -> gte 2, '조직학적 3등급' -> eq 3"),
-    "pcr": ("patient_state.fields.neoadjuvant_response.pcr", ["eq"], ["yes", "no"],
+    "pcr": ("patient_state.fields.neoadjuvant_response.pcr.value", ["eq"], ["yes", "no"],
             "'병리학적 완전관해(pCR)에 도달하지 않은'·'침습적 잔존 병변' -> eq no"),
     "pdl1_22c3_cps": ("patient_state.fields.receptors.pdl1.value.score (assay=22C3, score_type=CPS)", ["gte", "gt"], _NUM,
                       "'PD-L1 발현 양성(CPS≥10)' + 'IHC 22C3' -> gte 10"),
@@ -114,7 +118,7 @@ FIELDS: dict[str, tuple[str, list[str], object, str]] = {
     "pten": ("biomarker_record.records[PTEN].status", ["eq"], _POSNEG, "PTEN 변이"),
     "gbrca": ("biomarker_record.records[gBRCA1|gBRCA2].status", ["eq"], _POSNEG, "'gBRCA 변이' -> eq positive"),
     "sbrca": ("biomarker_record.records[sBRCA1|sBRCA2].status", ["eq"], _POSNEG, "체세포 BRCA 변이"),
-    "bone_metastasis": ("patient_state.fields.stage.metastatic_sites / recurrence.metastatic_sites에 bone", ["eq"], [True, False],
+    "bone_metastasis": ("patient_state.fields.stage.metastatic_sites.value / recurrence.metastatic_sites.value에 bone", ["eq"], [True, False],
                         "'골전이(영상의학적으로 입증)' -> eq true"),
     "prior_drugs": ("patient_state.fields.treatment_history[].drugs", ["contains", "not_contains"], _DRUGS,
                     "이전에 받은(contains) / 받은 적이 없는(not_contains) 약·계열. 값 목록은 contains면 모두 받았어야 하고 "
@@ -123,7 +127,8 @@ FIELDS: dict[str, tuple[str, list[str], object, str]] = {
                     "항목을 나눠 넣는다. of.setting으로 시기를 좁힐 수 있음 "
                     "(예: 'paclitaxel을 포함한 보조요법' -> contains [paclitaxel], of.setting [adjuvant]). "
                     "'고식적요법'은 of.setting [metastatic]"),
-    "prior_failed": ("patient_state.fields.treatment_history[].stop_reason = progression",
+    "prior_failed": ("patient_state.fields.treatment_history[].stop_reason = progression 또는 best_response = PD "
+                     "(A의 data_needs_by_module §4)",
                      ["contains"], _DRUGS, "'~에 실패한'·'~ 투여 후 진행된' 약·계열. 목록은 모두 실패했어야 한다 "
                      "(예: 'trastuzumab과 taxane계 항암제 모두에 실패'). 'A 또는 B에 실패'는 any_of 묶음으로 나눈다"),
     "palliative_endocrine_lines": ("patient_state.fields.treatment_history[].endocrine_line의 최댓값 (전이 전 null = 0)",
@@ -131,15 +136,21 @@ FIELDS: dict[str, tuple[str, list[str], object, str]] = {
     "palliative_chemo_lines": ("patient_state.fields.treatment_history[].chemo_line의 최댓값 (전이 전 null = 0)",
                                ["eq", "gte", "lte"], _NUM,
                                "이미 받은 고식적 항암화학요법 차수. '고식적 항암화학요법을 투여하지 않은' -> eq 0"),
-    "days_end_to_recurrence": ("patient_state.fields.recurrence.recurrence_day - treatment_history[].end_day", ["gt", "lte"], _NUM,
+    "days_end_to_recurrence": ("patient_state.fields.recurrence.recurrence_day.value - treatment_history[].end_day", ["gt", "lte"], _NUM,
                                "'투여 종료 후 1년 이후 재발' -> gt 365, '투여 중 또는 종료 1년 이내 재발' -> lte 365, "
                                "'6개월 이내' -> lte 183. of에 대상 약·시기"),
+    "days_end_to_metastasis": ("patient_state.fields.recurrence.metastasis_day.value - treatment_history[].end_day "
+                               "(A의 deemed_lines DEEM-ENDO-ADJ-1Y와 같은 기준: 종료일부터 전이 기준일까지)", ["gt", "lte"], _NUM,
+                               "고식적 단계에서 '수술후보조요법 투여 중 또는 종료 후 1년 이내에 진행' -> lte 365 (진행 = 전이). "
+                               "'재발'로 적힌 경우는 days_end_to_recurrence"),
     "days_end_to_progression": ("patient_state.fields.treatment_history[].progression_day - end_day", ["lte", "gt"], _NUM,
                                 "'고식적요법 투여 중 또는 종료 후 1달 이내에 진행' -> lte 30"),
-    "days_since_last_dose": ("patient_state.index_day - treatment_history[].end_day (투여 중이면 0)", ["lte"], _NUM,
-                             "'최근 4주 이내 항암제 또는 호르몬제 투여' -> lte 28"),
+    "recent_therapy_28d": ("patient_state.fields.at_index.recent_therapy_28d.status (A가 계산, unknown이면 알 수 없음)",
+                           ["eq"], ["yes", "no"],
+                           "'최근 4주 이내에 항암제 또는 호르몬제가 투여된' -> eq yes (A의 data_needs_by_module §6-1)"),
     "treatment_years": ("patient_state.fields.treatment_history[].duration_days ÷ 365 (년)", ["lte"], _NUM, "'투여기간: 5년' -> lte 5"),
-    "cycles_total": ("patient_state.fields.treatment_history[].cycles.value 합", ["lte", "eq"], _NUM,
+    "cycles_total": ("patient_state.fields.treatment_history[].cycles.value 합 (basis가 estimated인 값이 들어가면 추정값으로 표시)",
+                     ["lte", "eq"], _NUM,
                      "'총 trastuzumab 투여 주기 18주기 이하' -> lte 18, of.drugs [trastuzumab]"),
     "cumulative_dose_mg_m2": ("patient_state.fields.anthracycline_drug_dose.drugs[].total_dose.value", ["gt", "gte"], _NUM,
                               "'doxorubicin 누적 240mg/m2 이상' -> gte 240, of.drugs [doxorubicin]"),
