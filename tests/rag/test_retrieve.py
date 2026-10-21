@@ -108,6 +108,7 @@ def test_from_confirmed_state_reads_only_confirmed_values():
     assert patient["stage_at_diagnosis"] is None  # 재발 전이라 de novo가 아니다
     args = search_args(record, **patient)
     assert "recurring while receiving adjuvant ET" in args["query_text"]  # ESMO 1차 갈림길 (fulvestrant-CDK4/6 쪽)
+    assert args["endocrine_relapse_12m"] == "yes"  # 반대 갈래(AI-CDK4/6) 권고 감점에 쓴다
     assert {"PIK3CA-mut", "ESR1-mut"} <= set(args["negative_tags"]) and args["biomarker_tags"] == []
     # 보조 내분비 중 재발(DEEM-ENDO-ADJ-1Y met)이면 급여는 '2차 이상' 내분비 행까지 찾는다 (공고 3.다.7·9)
     assert lines == {"guideline": ["1L"], "reimbursement": ["1L", "2L"]}

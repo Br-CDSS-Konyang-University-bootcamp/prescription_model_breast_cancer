@@ -149,6 +149,8 @@ def search_args(record: dict, query_style: str = "adaptive", **kwargs) -> dict:
         "metastatic_sites": profile["metastatic_sites"] or None,
         "negative_tags": negative_tags(record),
     }
+    if profile.get("endocrine_relapse_12m") in ("yes", "no"):  # confirmed_state일 때만 (검색 감점, searcher._relapse_adjust)
+        args["endocrine_relapse_12m"] = profile["endocrine_relapse_12m"]
     args.update(overrides)
     return args
 
