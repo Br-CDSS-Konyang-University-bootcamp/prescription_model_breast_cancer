@@ -18,6 +18,13 @@ def delete_by_doc_type(*args, **kwargs):
     return _delete_by_doc_type(*args, **kwargs)
 
 
+def replace_doc_type(*args, **kwargs):
+    """doc_type 점을 새 청크로 바꿔 끼운다 (새 청크를 먼저 넣고 목록에 없는 옛 점만 지움). D는
+    replace_doc_type("reimbursement", chunks)로 부른다. 넣다가 실패해도 옛 점이 남는다."""
+    from .indexer import replace_doc_type as _replace_doc_type
+    return _replace_doc_type(*args, **kwargs)
+
+
 def delete_guideline_chunks(*args, **kwargs):
     from .indexer import delete_guideline_chunks as _delete_guideline_chunks
     return _delete_guideline_chunks(*args, **kwargs)
@@ -41,8 +48,10 @@ def retrieve_for_recommend(*args, **kwargs):
 
 
 def close_searcher():
-    """검색이 끝나면 부른다 (Qdrant 로컬 폴더 잠금을 푼다). 로컬 모드는 한 프로그램만 폴더를 열 수 있다.
-    부르지 않아도 프로그램이 끝날 때 닫히지만, 같은 프로그램에서 색인(D)·검색을 번갈아 할 때는 직접 부른다."""
+    """검색 연결을 닫아 Qdrant 로컬 폴더 잠금을 푼다. 로컬 모드는 한 프로그램만 폴더를 열 수 있다.
+    프로그램이 끝날 때(부르지 않아도 자동으로 닫힌다), 또는 앱을 켠 채로 다른 프로그램(예: 터미널의 run_indexing)에
+    DB를 넘겨줄 때 부른다. 같은 프로그램 안의 색인과 검색은 연결 하나를 같이 쓰므로 그 사이에는 부르지 않는다
+    (색인 중에 부르면 끊긴다)."""
     from .searcher import close_searcher as _close_searcher
     return _close_searcher()
 
@@ -52,5 +61,6 @@ def search_reimbursement(*args, **kwargs):
     return _search_reimbursement(*args, **kwargs)
 
 
-__all__ = ["index_chunks", "init_collection", "delete_by_doc_type", "delete_guideline_chunks", "close_indexer",
+__all__ = ["index_chunks", "init_collection", "delete_by_doc_type", "replace_doc_type", "delete_guideline_chunks",
+           "close_indexer",
            "search_guidelines", "search_reimbursement", "retrieve_for_recommend", "close_searcher"]

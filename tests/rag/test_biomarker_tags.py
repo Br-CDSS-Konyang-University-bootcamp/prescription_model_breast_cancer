@@ -28,3 +28,8 @@ def test_negated_mentions_get_no_positive_tag():
     assert find_biomarker_tags("germline BRCA1/2-mutated and PD-L1-negative mTNBC") == ["gBRCA"]
     assert find_biomarker_tags("ER-positive, HER2-negative, PIK3CA-wild type MBC") == []
     assert find_biomarker_tags("PIK3CA-mutated MBC") == ["PIK3CA-mut"]
+    # 알고리즘 그림의 줄임 표기 (src/rag/algorithm_esmo.py)
+    assert find_biomarker_tags("PD-L1- → gBRCA wt → Dato-DXd") == []
+    assert find_biomarker_tags("PIK3CA wt → Fulvestrant-palbociclib") == []
+    assert find_biomarker_tags("gBRCA1/2-wt or untested") == []
+    assert find_biomarker_tags("PD-L1- → gBRCA mutated [ESCAT I-A]") == ["gBRCA"]

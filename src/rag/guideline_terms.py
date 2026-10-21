@@ -1,6 +1,6 @@
 # src/rag/guideline_terms.py
 # 지침 표현 사전 (data/dictionaries/guideline_terms.csv): 환자 JSON의 코드 값 → 지침 원문에 쓰이는 영어 표현.
-# canonical은 B의 biomarker_record 값(과 A의 patient_state 값, 약 사전 값)으로 고정한다. C는 expression만 늘린다.
+# canonical은 B의 biomarker_record 값(과 A의 patient_state·confirmed_state 값, 약 사전 값)으로 고정한다. C는 expression만 늘린다.
 # 검색 질의문과 평가용 키워드를 만들 때 쓴다. 청크 태깅(chunk_common)도 같은 사전으로 옮겨 갈 예정이다.
 # 실행: team_project 폴더에서 python -m src.rag.guideline_terms  → 표현마다 청크에 몇 번 나오는지 보여 준다
 import csv
@@ -45,6 +45,8 @@ def query_terms(profile: dict, terms: list[dict] = None) -> list[str]:
     keys += [("patient.menopausal_status", profile.get("menopausal_status")),
              ("neoadjuvant_response.pcr", profile.get("pcr"))]
     keys += [("metastatic_sites", s) for s in profile.get("metastatic_sites", [])]
+    # 보조 내분비요법 중·12개월 이내 재발 여부 (confirmed_state). ESMO MBC 1차는 이 값으로 fulvestrant-CDK4/6과 AI-CDK4/6이 갈린다
+    keys.append(("confirmed_state.endocrine_relapse_12m", profile.get("endocrine_relapse_12m")))
     if profile.get("disease") == "metastatic" and profile.get("stage_at_diagnosis") == "metastatic":
         keys.append(("stage.disease_extent", "metastatic"))  # 진단 시 IV기 = de novo (재발 전이와 권고가 갈린다)
     out = []

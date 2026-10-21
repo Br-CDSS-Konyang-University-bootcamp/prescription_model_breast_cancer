@@ -288,8 +288,8 @@ ASSESS_CASES = [
      "기록 없음은 권고하지 않음 (B 결정 2026-10-16, 선택지 가)"),
     ("A14", patient(extent="early", mutations=genes_with(ND)), "HR+/HER2-", "early", set(), "조기는 유전자 권고 없음"),
     ("A15", patient(ref="VC-0001", mutations=genes_with(ND)), "HR+/HER2-", "metastatic",
-     {"BM4-PALB2", "BM4-PIK3CA", "BM4-AKT1", "BM4-PTEN", "BM4-ESR1"},
-     "TCGA가 아니면 BRCA 레코드가 sBRCA라 생식세포 BRCA 권고 없음"),
+     {"BM4-GBRCA1", "BM4-GBRCA2", "BM4-PALB2", "BM4-PIK3CA", "BM4-AKT1", "BM4-PTEN", "BM4-ESR1"},
+     "TCGA가 아닌 차트도 BRCA는 gBRCA라 미시행이면 권고 (전달 문서 4.7절, A 결정 2026-10-21)"),
     ("A16", patient(ihc=f({"score": "3+"}), mutations=genes_with(ND)), "HR+/HER2+", "metastatic", set(),
      "HER2 양성은 유전자 권고 대상 아님"),
     ("A17", patient(treatments=[{"drugs": ["letrozole"], "start_day": 1500, "best_response": "PD",
@@ -338,7 +338,7 @@ GENE_CASES = [
     ("G13", "BRCA1", "TCGA-XX-0001", gene(("E9Q", MIS)), "gBRCA1", "vus", [],
      "전달 문서 4.7절 예시. ClinVar Uncertain significance"),
     ("G14", "BRCA2", "TCGA-XX-0001", gene(("X2602_splice", "Splice_Site")), "gBRCA2", "positive", ["gBRCA"], ""),
-    ("G15", "BRCA2", "VC-1", gene(), "sBRCA2", "negative", [], "TCGA가 아니면 종양 검사로 보고 sBRCA"),
+    ("G15", "BRCA2", "VC-1", gene(), "gBRCA2", "negative", [], "TCGA가 아니어도 gBRCA (A 결정 2026-10-21)"),
     ("G16", "PALB2", "VC-1", gene(("L381V", MIS)), "PALB2", "vus", [], "ClinVar에 없음"),
     ("G17", "PALB2", "VC-1", gene(("T1030Ifs*13", FS)), "PALB2", "vus", [],
      "PALB2는 절단 변이 규칙이 없고 ClinVar 기준만 (전달 문서 5.4절). 이 이름은 ClinVar에 없음"),
@@ -389,6 +389,23 @@ LINE_CASES = [
     ("L08", "early", [], "unknown", "투약 기록 없음"),
 ]
 
+# 전이성 내분비·항암 차수 setting.line_endocrine / line_chemo (A 전달 문서 handoff_confirmed_state_to_B.md §6 2번):
+# (id, 아형, treatment_history, 정답 내분비, 정답 항암, 메모)
+LINE_KIND_CASES = [
+    ("LK01", "HR+/HER2-", [tx(["anastrozole"], "adjuvant", 40)], "1L", "1L",
+     "전이 후 투약 없음: 결정할 차수는 둘 다 1차 (VC-0103)"),
+    ("LK02", "HR+/HER2-", [tx(["letrozole", "palbociclib"], "metastatic", 1500, 1, endo=1, resp="PD")], "2L", "1L",
+     "내분비 1차 진행 -> 내분비 2차, 항암은 따로 세서 1차"),
+    ("LK03", "HR+/HER2-", [tx(["letrozole"], "metastatic", 1500, 1, endo=1)], "1L", "1L", "진행 기록 없으면 그 차수"),
+    ("LK04", "TNBC", [tx(["capecitabine"], "metastatic", 180, 1, chemo=1),
+                      tx(["docetaxel"], "metastatic", 242, 2, chemo=2, stop="progression")], "not_applicable", ">=3L",
+     "HR 음성은 내분비 대상 아님"),
+    ("LK05", "HR+/HER2-", [tx(["letrozole"], "metastatic", 1500)], "unknown", "unknown", "전이 후 투약은 있는데 line 없음"),
+    ("LK06", "HR+/HER2-", [tx(["paclitaxel"], "metastatic", 100, 1, chemo=1, resp="PD"),
+                           tx(["letrozole"], "metastatic", 300, 2, endo=1)], "1L", "2L",
+     "항암 1차 진행 후 내분비 시작: 전체로는 2차지만 내분비 1차, 항암 2차 (공고 p.55 따로 셈)"),
+]
+
 # BM-3 CIViC (전달 문서 5.4절, 판정에 쓰지 않고 근거로만 2026-10-20, data/civic/civic_bm3_evidence_<받은 날>.csv): (id, 유전자, 칸, 정답 상태, 정답 규칙 ID, 정답 태그, 메모)
 CIVIC_CASES = [
     ("V01", "PIK3CA", gene(("R88Q", MIS)), "vus", "BM2-PIK3CA-VUS", [],
@@ -403,16 +420,16 @@ CIVIC_CASES = [
 
 EVIDENCE_CASES = [
     ("EV01", "PIK3CA", "VC-1", gene(("H1047R", MIS)),
-     ["H1047R (Missense_Mutation, VAF 0.3)", "허가 동반진단 목록: H1047R 해당", "급여: 심평원 공고 제2026-190호 PDF 196",
+     ["H1047R (Missense_Mutation, VAF 0.3)", "허가 동반진단 목록: H1047R 해당", "급여: 심평원 공고책자 2026-10-01판 p.165–169",
       "지침: ESMO MBC 2026 p.1205"], "변이 종류·VAF, 허가 목록, 급여·지침 쪽 번호"),
     ("EV02", "PIK3CA", "VC-1", gene(("N345K", MIS)), ["허가 동반진단 목록: 해당 없음"], "VUS도 근거를 적음"),
-    ("EV03", "PTEN", "VC-1", gene(("R130*", NON)), ["절단형", "급여: 심평원 공고 제2026-190호 PDF 196쪽"],
+    ("EV03", "PTEN", "VC-1", gene(("R130*", NON)), ["절단형", "급여: 심평원 공고책자 2026-10-01판 p.165–166", "combo-r21"],
      "절단형은 판정이 아니라 근거로만"),
-    ("EV04", "ESR1", "VC-1", gene(("D538G", MIS)), ["급여: 심평원 공고 제2026-190호에 없음", "지침: ESMO MBC 2026 p.1206"],
-     "심평원에 없는 유전자"),
-    ("EV05", "BRCA1", "VC-1", gene(("Q934*", NON)), ["급여: 심평원 공고 제2026-190호에 없음"],
-     "체세포 BRCA(sBRCA)는 급여 근거 없음"),
-    ("EV06", "BRCA1", "TCGA-XX-0001", gene(("Q934*", NON)), ["PDF 200–202쪽"], "gBRCA는 olaparib 허가사항"),
+    ("EV04", "ESR1", "VC-1", gene(("D538G", MIS)), ["급여: B가 연결한 심평원 행 없음 (D 확인 전)", "지침: ESMO MBC 2026 p.1206"],
+     "B가 연결한 심평원 행이 없는 유전자"),
+    ("EV05", "BRCA1", "VC-1", gene(("Q934*", NON)), ["p.169–171", "combo-r30"],
+     "TCGA가 아닌 차트도 gBRCA라 olaparib 행 (A 결정 2026-10-21)"),
+    ("EV06", "BRCA1", "TCGA-XX-0001", gene(("Q934*", NON)), ["p.169–171", "combo-r30"], "gBRCA는 olaparib 허가사항"),
 ]
 
 ESR1_CASES = [
@@ -534,6 +551,14 @@ def main():
     for case_id, disease, history, exp_line, note in LINE_CASES:
         got, why = bm.line_of({"treatment_history": history}, disease)
         report(case_id, got == exp_line, note, f"{disease} -> {got}" + ("" if got == exp_line else f" / 정답 {exp_line} / {why}"))
+    for case_id, subtype, history, exp_endo, exp_chemo, note in LINE_KIND_CASES:
+        got = (bm.line_kind_of({"treatment_history": history}, "endocrine", subtype)[0],
+               bm.line_kind_of({"treatment_history": history}, "chemo", subtype)[0])
+        report(case_id, got == (exp_endo, exp_chemo), note,
+               f"내분비 {got[0]}, 항암 {got[1]}" + ("" if got == (exp_endo, exp_chemo) else f" / 정답 {exp_endo}, {exp_chemo}"))
+    early = bm.setting_of({"treatment_history": [], "stage": {"disease_extent": {"status": "present", "value": "early"}}})
+    report("LK07", "line_endocrine" not in early and "line_chemo" not in early, "조기는 내분비·항암 차수 칸을 만들지 않음",
+           str(early))
     deemed = {"treatment_history": [tx(["eribulin"], "metastatic", 900, 1, chemo=1)],
               "deemed_lines": [{"rule_id": "DEEM-ANTHRA-TAXANE", "status": "met"},
                                {"rule_id": "DEEM-SG-1Y", "status": "not_met"}],

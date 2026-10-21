@@ -99,6 +99,20 @@ def test_contexts_include_main_section_notes(dirs):
     assert "연번" not in bc.contexts["hira-booklet-20261001-combo-r27"]
 
 
+def test_every_chunk_has_printed_page(dirs):
+    """인용에 쪽이 빠지지 않게 모든 청크에 책자 인쇄 쪽이 있다 (지침 청크와 같은 형식, 정수)."""
+    from src.reimbursement.booklet import load_booklet
+    from src.reimbursement.chunks import booklet_chunks
+
+    bc = booklet_chunks(load_booklet(dirs["raw"] / BOOKLET.name, RAW.parent / "cache"))
+    missing = [c["chunk_id"] for c in bc.chunks if not isinstance(c.get("page_start"), int)
+               or not isinstance(c.get("page_end"), int) or c["page_start"] > c["page_end"]]
+    assert missing == []
+    supp = next(c for c in bc.chunks if c["chunk_id"].endswith("-supp"))   # Ⅳ 기타 약제 목록: 자식들의 첫 쪽~끝 쪽
+    kids = [c for c in bc.chunks if c["chunk_id"].startswith(supp["chunk_id"] + "-")]
+    assert (supp["page_start"], supp["page_end"]) == (min(c["page_start"] for c in kids), max(c["page_end"] for c in kids))
+
+
 def test_full_run_then_rerun(dirs):
     res = _run(dirs)
     assert res.ok, res.render()

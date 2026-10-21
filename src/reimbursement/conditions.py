@@ -38,8 +38,8 @@ from .dates import KST
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "data" / "reimbursement"
 CACHE_PATH = DATA / "conditions_cache.jsonl"
-MODEL = "claude-sonnet-5-5"          # PROJECT.md §9: 공고·지침 구조화
-PROMPT_VERSION = "2026-10-19.1"       # 프롬프트·어휘를 바꾸면 올린다 (예전 저장 결과를 안 쓰게)
+MODEL ="claude-sonnet-5-5"          # PROJECT.md §9: 공고·지침 구조화
+PROMPT_VERSION = "2026-10-21.1"       # 프롬프트·어휘를 바꾸면 올린다 (예전 저장 결과를 안 쓰게)
 
 OPS = ["eq", "in", "not_contains", "contains", "gt", "gte", "lt", "lte", "exists"]
 STAGES = ["0", "I", "IA", "IB", "II", "IIA", "IIB", "III", "IIIA", "IIIB", "IIIC", "IV"]
@@ -57,80 +57,106 @@ _NUM = "number"
 _DRUGS = "drugs"           # 값이 약 이름·계열 이름 목록 (사전 검사)
 
 # field -> (환자 JSON 경로, 허용 op, 값 종류 또는 허용값 목록, 설명). 설명은 프롬프트에도 들어간다.
+# patient_state 경로는 0.1-draft6 기준 (A의 patient_state_structure.md, 2026-10-20). 공통 추출 칸(◆)은 값이 .value에 있어
+# 경로에 .value까지 적는다. treatment_history[], deemed_lines[], at_index, anthracycline_drug_dose,
+# molecular.mutations.*는 틀 없이 키를 그대로 쓴다.
+# 날짜는 모두 진단일 = 0인 정수 일수(*_day)다.
+# 공고 표현 -> 칸·값은 팀 사전 data/dictionaries/reimbursement_terms.csv를 따른다 (2026-10-20 대조).
 FIELDS: dict[str, tuple[str, list[str], object, str]] = {
+    # 값은 B의 biomarker_record 값을 따른다 (팀 사전과 같이 canonical = B). B는 zero를 쓰지 않는다 (IHC 0은 negative)
     "her2": ("biomarker_record.records[HER2].status", ["eq", "in"], ["positive", "negative", "low", "ultralow"],
              "'HER2 양성(과발현)' -> eq positive, 'HER2 음성' -> in [negative, low, ultralow] (공고에 저발현 구분 없음)"),
-    "hr": ("biomarker_record.subtype의 HR", ["eq"], _POSNEG,
+    "hr": ("biomarker_record.subtype in [HR+/HER2-, HR+/HER2+] (positive) / ER·PR 모두 negative (negative)", ["eq"], _POSNEG,
            "'호르몬 수용체 양성' -> eq positive (ER 또는 PR 양성), '호르몬 수용체(ER and PR) 음성' -> eq negative"),
     "er": ("biomarker_record.records[ER].status", ["eq", "in"], ["positive", "low", "negative"],
            "에스트로겐 수용체만 따로 적힌 경우. 'ER 양성' -> in [positive, low]"),
     "pr": ("biomarker_record.records[PR].status", ["eq"], _POSNEG, "프로게스테론 수용체만 따로 적힌 경우"),
     "subtype": ("biomarker_record.subtype", ["eq", "in"], ["HR+/HER2-", "HR+/HER2+", "HR-/HER2+", "TNBC"],
                 "'삼중음성' -> eq TNBC"),
-    "menopause": ("patient_state.fields.patient.menopausal_status", ["eq", "in"],
+    "menopause": ("patient_state.fields.patient.menopausal_status.value", ["eq", "in"],
                   ["premenopausal", "perimenopausal", "postmenopausal"],
                   "'폐경 후' -> eq postmenopausal, '폐경 전' -> in [premenopausal, perimenopausal]"),
-    "sex": ("patient_state.fields.patient.gender", ["eq", "in"], ["FEMALE", "MALE"],
+    "sex": ("patient_state.fields.patient.gender.value", ["eq", "in"], ["FEMALE", "MALE"],
             "'여성 및 남성' -> in [FEMALE, MALE], '남성' -> eq MALE"),
-    "age": ("patient_state.fields.patient.age", ["gt", "gte", "lt", "lte"], _NUM,
-            "'40세 미만' -> lt 40, '만 19세 이상' -> gte 19, '70세 이상' -> gte 70"),
-    "disease": ("biomarker_record.setting.disease", ["eq", "in"], ["early", "locally_advanced", "metastatic"],
-                "'국소진행성' -> locally_advanced, '전이성' -> metastatic, '조기'·'초기' -> early"),
-    "recurrence": ("patient_state.fields.recurrence.status", ["eq", "in", "exists"],
+    # 나이 기준은 A의 data_needs_by_module §6-2: patient.age는 진단 시 나이, 처방 시점 조건은 at_index.age
+    "age": ("patient_state.fields.patient.age.value (진단 시 나이)", ["gt", "gte", "lt", "lte"], _NUM,
+            "선행·수술후보조 대상의 나이 조건. '40세 미만' -> lt 40, '35세 미만' -> lt 35"),
+    "age_at_index": ("patient_state.fields.at_index.age (판정 기준일 나이, 없으면 알 수 없음)", ["gt", "gte", "lt", "lte"], _NUM,
+                     "투여 시점 나이 조건 (보조 약제 등). '만 19세 이상' -> gte 19, '70세 이상' -> gte 70"),
+    # 값은 팀 사전(stage.disease_extent의 값)과 같다. 칸은 지금 범위인 setting.disease를 쓴다:
+    # 스키마 설명 "재발 후 상태는 biomarker_record.setting.disease", handoff_to_B.md §6.1
+    # (진단 시 전이 또는 원격 재발 -> metastatic, 국소 재발 등은 진단 시 범주 그대로)
+    "disease": ("biomarker_record.setting.disease (진단 시 stage.disease_extent + 원격 재발)", ["eq", "in"],
+                ["early", "locally_advanced", "metastatic"],
+                "'국소진행성' -> locally_advanced, '전이성' -> metastatic (원격 재발 포함), '조기'·'초기' -> early, "
+                "'진행성' -> in [locally_advanced, metastatic]. 국소 재발은 disease에 들어가지 않으므로 "
+                "'전이성, 재발성'은 any_of 묶음에 disease eq metastatic과 recurrence in [...] 항목을 함께 넣는다"),
+    "recurrence": ("patient_state.fields.recurrence.status.value", ["eq", "in", "exists"],
                    ["distant", "locoregional", "site_unknown"],
                    "'재발성'(국소·구역·원격 재발 모두) -> in [distant, locoregional, site_unknown], '국소 재발' -> eq locoregional"),
-    "operable": ("patient_state.fields.stage.operable", ["eq"], ["yes", "no"],
+    "operable": ("patient_state.fields.stage.operable.value", ["eq"], ["yes", "no"],
                  "'절제 불가능한'·'수술이 불가능한' -> eq no (진단 시 기준)"),
-    "recurrence_operable": ("(없음: recurrence.operable 제안)", ["eq"], ["yes", "no"],
+    "recurrence_operable": ("(없음: 팀 결정 대기. recurrence.surgery는 재발 후 수술 여부라 절제 불가와 다름)", ["eq"], ["yes", "no"],
                             "'절제 불가능한 국소 재발성' -> eq no"),
-    "t_stage": ("patient_state.fields.stage.ctnm/ptnm T", ["eq", "in", "gt", "gte"], T_STAGES,
+    "t_stage": ("patient_state.fields.stage.ctnm.value.t / ptnm.value.t", ["eq", "in", "gt", "gte"], T_STAGES,
                 "'염증성' -> eq T4d, '직경 > 2㎝' -> gte T2, '1cm 이상'·'1cm 초과' -> gte T1c, '≥ 5 cm' -> gte T3"),
-    "stage_group": ("patient_state.fields.stage.group", ["eq", "in", "gte", "lte"], STAGES,
-                    "'stage Ⅱ∼Ⅲ' -> 항목 둘 (gte II, lte III), 'stage ⅢA 이상' -> gte IIIA"),
-    "positive_ln_count": ("patient_state.fields.stage.positive_ln_count.positive", ["eq", "gt", "gte", "lt", "lte"], _NUM,
-                          "'림프절 양성' -> gte 1, '림프절 음성' -> eq 0, '4개 이상' -> gte 4"),
-    "grade": ("patient_state.fields.diagnosis.grade", ["eq", "in", "gte"], _NUM,
+    "stage_group": ("patient_state.fields.stage.group.value", ["eq", "in", "gte", "lte"], STAGES,
+                    "'stage Ⅱ∼Ⅲ' -> 항목 둘 (gte II, lte III), 'stage ⅢA 이상' -> gte IIIA. "
+                    "로마숫자 Ⅰ~Ⅳ는 I~IV로 옮기고 하위 병기(A·B·C)는 붙이지 않는다 (III는 IIIA~IIIC 포함)"),
+    "ln_status": ("patient_state.fields.stage.ptnm.value.n (양성: N1*·N2*·N3*, N1mi 포함 / 음성: N0, N0(i-), N0(i+), N0(mol+))",
+                  ["eq"], _POSNEG, "'림프절 양성' -> eq positive, '림프절 음성' -> eq negative"),
+    "positive_ln_count": ("patient_state.fields.stage.positive_ln_count.value.positive", ["eq", "gt", "gte", "lt", "lte"], _NUM,
+                          "전이된 림프절 갯수가 적힌 경우만. '4개 이상' -> gte 4, '1-3개' -> 항목 둘 (gte 1, lte 3)"),
+    "grade": ("patient_state.fields.diagnosis.grade.value", ["eq", "in", "gte"], _NUM,
               "'종양분화도 2∼3' -> gte 2, '조직학적 3등급' -> eq 3"),
-    "pcr": ("patient_state.fields.neoadjuvant_response.pcr", ["eq"], ["yes", "no"],
+    "pcr": ("patient_state.fields.neoadjuvant_response.pcr.value", ["eq"], ["yes", "no"],
             "'병리학적 완전관해(pCR)에 도달하지 않은'·'침습적 잔존 병변' -> eq no"),
-    "pdl1_22c3_cps": ("patient_state.fields.receptors.pdl1 (assay=22C3, score_type=CPS)", ["gte", "gt"], _NUM,
+    "pdl1_22c3_cps": ("patient_state.fields.receptors.pdl1.value.score (assay=22C3, score_type=CPS)", ["gte", "gt"], _NUM,
                       "'PD-L1 발현 양성(CPS≥10)' + 'IHC 22C3' -> gte 10"),
     "pik3ca": ("biomarker_record.records[PIK3CA].status", ["eq"], _POSNEG, "'PIK3CA 변이' -> eq positive"),
     "akt1": ("biomarker_record.records[AKT1].status", ["eq"], _POSNEG, "AKT1 변이"),
     "pten": ("biomarker_record.records[PTEN].status", ["eq"], _POSNEG, "PTEN 변이"),
     "gbrca": ("biomarker_record.records[gBRCA1|gBRCA2].status", ["eq"], _POSNEG, "'gBRCA 변이' -> eq positive"),
     "sbrca": ("biomarker_record.records[sBRCA1|sBRCA2].status", ["eq"], _POSNEG, "체세포 BRCA 변이"),
-    "bone_metastasis": ("patient_state.fields.stage/recurrence.metastatic_sites에 bone", ["eq"], [True, False],
+    "bone_metastasis": ("patient_state.fields.stage.metastatic_sites.value / recurrence.metastatic_sites.value에 bone", ["eq"], [True, False],
                         "'골전이(영상의학적으로 입증)' -> eq true"),
     "prior_drugs": ("patient_state.fields.treatment_history[].drugs", ["contains", "not_contains"], _DRUGS,
                     "이전에 받은(contains) / 받은 적이 없는(not_contains) 약·계열. 값 목록은 contains면 모두 받았어야 하고 "
                     "(예: 'taxane 및 trastuzumab'), not_contains면 하나도 받지 않았어야 한다 (예: 'CDK4/6 inhibitor 또는 "
                     "fulvestrant를 투여 받은 적이 없는'). 'A 또는 B를 받은'처럼 하나만 받으면 되는 조건은 any_of 묶음에 "
                     "항목을 나눠 넣는다. of.setting으로 시기를 좁힐 수 있음 "
-                    "(예: 'paclitaxel을 포함한 보조요법' -> contains [paclitaxel], of.setting [adjuvant])"),
-    "prior_failed": ("patient_state.fields.treatment_history[] stop_reason=progression 또는 best_response=PD",
+                    "(예: 'paclitaxel을 포함한 보조요법' -> contains [paclitaxel], of.setting [adjuvant]). "
+                    "'고식적요법'은 of.setting [metastatic]"),
+    "prior_failed": ("patient_state.fields.treatment_history[].stop_reason = progression 또는 best_response = PD "
+                     "(A의 data_needs_by_module §4)",
                      ["contains"], _DRUGS, "'~에 실패한'·'~ 투여 후 진행된' 약·계열. 목록은 모두 실패했어야 한다 "
                      "(예: 'trastuzumab과 taxane계 항암제 모두에 실패'). 'A 또는 B에 실패'는 any_of 묶음으로 나눈다"),
-    "palliative_endocrine_lines": ("src/input/common/lines.py palliative_lines() counts.endocrine (저장 칸은 미정)",
+    "palliative_endocrine_lines": ("patient_state.fields.treatment_history[].endocrine_line의 최댓값 (전이 전 null = 0)",
                                    ["eq", "gte", "lte"], _NUM, "이미 받은 고식적 내분비요법 차수"),
-    "palliative_chemo_lines": ("src/input/common/lines.py palliative_lines() counts.chemo (저장 칸은 미정)",
+    "palliative_chemo_lines": ("patient_state.fields.treatment_history[].chemo_line의 최댓값 (전이 전 null = 0)",
                                ["eq", "gte", "lte"], _NUM,
                                "이미 받은 고식적 항암화학요법 차수. '고식적 항암화학요법을 투여하지 않은' -> eq 0"),
-    "days_end_to_recurrence": ("treatment_history[].end_day ~ recurrence 일수", ["gt", "lte"], _NUM,
+    "days_end_to_recurrence": ("patient_state.fields.recurrence.recurrence_day.value - treatment_history[].end_day", ["gt", "lte"], _NUM,
                                "'투여 종료 후 1년 이후 재발' -> gt 365, '투여 중 또는 종료 1년 이내 재발' -> lte 365, "
                                "'6개월 이내' -> lte 183. of에 대상 약·시기"),
-    "days_end_to_progression": ("treatment_history[].end_day ~ progression_day 일수", ["lte", "gt"], _NUM,
+    "days_end_to_metastasis": ("patient_state.fields.recurrence.metastasis_day.value - treatment_history[].end_day "
+                               "(A의 deemed_lines DEEM-ENDO-ADJ-1Y와 같은 기준: 종료일부터 전이 기준일까지)", ["gt", "lte"], _NUM,
+                               "고식적 단계에서 '수술후보조요법 투여 중 또는 종료 후 1년 이내에 진행' -> lte 365 (진행 = 전이). "
+                               "'재발'로 적힌 경우는 days_end_to_recurrence"),
+    "days_end_to_progression": ("patient_state.fields.treatment_history[].progression_day - end_day", ["lte", "gt"], _NUM,
                                 "'고식적요법 투여 중 또는 종료 후 1달 이내에 진행' -> lte 30"),
-    "days_since_last_dose": ("판정 기준일 - 마지막 투여일", ["lte"], _NUM,
-                             "'최근 4주 이내 항암제 또는 호르몬제 투여' -> lte 28"),
-    "treatment_years": ("treatment_history[].start_day ~ end_day", ["lte"], _NUM, "'투여기간: 5년' -> lte 5"),
-    "cycles_total": ("treatment_history[].cycles 합", ["lte", "eq"], _NUM,
+    "recent_therapy_28d": ("patient_state.fields.at_index.recent_therapy_28d.status (A가 계산, unknown이면 알 수 없음)",
+                           ["eq"], ["yes", "no"],
+                           "'최근 4주 이내에 항암제 또는 호르몬제가 투여된' -> eq yes (A의 data_needs_by_module §6-1)"),
+    "treatment_years": ("patient_state.fields.treatment_history[].duration_days ÷ 365 (년)", ["lte"], _NUM, "'투여기간: 5년' -> lte 5"),
+    "cycles_total": ("patient_state.fields.treatment_history[].cycles.value 합 (basis가 estimated인 값이 들어가면 추정값으로 표시)",
+                     ["lte", "eq"], _NUM,
                      "'총 trastuzumab 투여 주기 18주기 이하' -> lte 18, of.drugs [trastuzumab]"),
-    "cumulative_dose_mg_m2": ("patient_state.fields.anthracycline_drug_dose.drugs[].total_dose", ["gt", "gte"], _NUM,
+    "cumulative_dose_mg_m2": ("patient_state.fields.anthracycline_drug_dose.drugs[].total_dose.value", ["gt", "gte"], _NUM,
                               "'doxorubicin 누적 240mg/m2 이상' -> gte 240, of.drugs [doxorubicin]"),
-    "cardiac_history": ("(없음: patient.comorbidities)", ["eq"], [True, False],
+    "cardiac_history": ("(없음: 팀 결정 대기, patient.comorbidities 제안)", ["eq"], [True, False],
                         "'심장위험요소'·'울혈 심부전증 병력 등 병발 심장질환' -> eq true"),
-    "mediastinal_radiation": ("(없음: radiotherapy_history)", ["eq"], [True, False],
+    "mediastinal_radiation": ("(없음: 팀 결정 대기, radiotherapy_history 제안)", ["eq"], [True, False],
                               "'종격동 방사선 치료' 경험 -> eq true"),
 }
 
@@ -138,7 +164,7 @@ _VALUE = {"anyOf": [{"type": "string"}, {"type": "number"}, {"type": "boolean"},
                     {"type": "array", "items": {"anyOf": [{"type": "string"}, {"type": "number"}]}}]}
 _OF = {"type": "object", "additionalProperties": False,
        "properties": {"drugs": {"type": "array", "items": {"type": "string"}},
-                      "setting": {"type": "array", "items": {"enum": ["neoadjuvant", "adjuvant", "palliative"]}}}}
+                      "setting": {"type": "array", "items": {"enum": ["neoadjuvant", "adjuvant", "metastatic"]}}}}
 _BASE_ITEM = {"id": {"type": "string"}, "field": {"enum": list(FIELDS)}, "op": {"enum": OPS},
               "value": _VALUE, "text": {"type": "string"}, "of": _OF}
 _UNLESS = {"type": "object", "additionalProperties": False, "required": ["field", "op", "value", "text"],
@@ -166,7 +192,7 @@ def output_schema() -> dict:
             "counts_as_prior_line": {"type": "array", "items": {
                 "type": "object", "additionalProperties": False, "required": ["text", "setting", "drugs"],
                 "properties": {"text": {"type": "string"},
-                               "setting": {"type": "array", "items": {"enum": ["neoadjuvant", "adjuvant", "palliative"]}},
+                               "setting": {"type": "array", "items": {"enum": ["neoadjuvant", "adjuvant", "metastatic"]}},
                                "drugs": {"type": "array", "items": {"type": "string"}},
                                "within_days": {"type": "number"}}}},
             "notes": _TEXTS, "human_review": _TEXTS, "unmapped": _TEXTS,
@@ -374,14 +400,17 @@ class ClaudeStructurer:
         except ImportError as e:
             raise StructurerUnavailable("anthropic 패키지 없음 (conda install -c conda-forge anthropic)") from e
         _load_dotenv()
+        if not os.environ.get("ANTHROPIC_API_KEY"):
+            raise StructurerUnavailable("API 키 없음 (.env의 ANTHROPIC_API_KEY)")
         self.anthropic = anthropic
         ws = os.environ.get("ANTHROPIC_WORKSPACE_ID")
         self.client = anthropic.Anthropic(default_headers={"anthropic-workspace-id": ws} if ws else None)
         self.model = model
 
+    label = MODEL
+
     def __call__(self, text: str, context: str) -> tuple[dict, dict]:
-        user = (f"[소단원 안내 - 참고용, 이 행 조건의 근거로도 인용할 수 있음]\n{context}\n\n" if context else "") \
-            + f"[급여 기준 본문]\n{text}"
+        user = _user_message(text, context)
         try:
             resp = self.client.beta.messages.create(
                 model=self.model,
@@ -413,6 +442,106 @@ class ClaudeStructurer:
         usage = {"input_tokens": resp.usage.input_tokens, "output_tokens": resp.usage.output_tokens,
                  "request_id": getattr(resp, "_request_id", None)}
         return json.loads(text_out), usage
+
+
+def _user_message(text: str, context: str) -> str:
+    return (f"[소단원 안내 - 참고용, 이 행 조건의 근거로도 인용할 수 있음]\n{context}\n\n" if context else "") \
+        + f"[급여 기준 본문]\n{text}"
+
+
+def _version_key(name: str) -> tuple:
+    return tuple(int(x) if x.isdigit() else 0 for x in name.split("."))
+
+
+def find_claude_code() -> str | None:
+    """Claude Code 실행 파일. CLAUDE_CODE_EXE 환경 변수 > PATH의 claude > Claude 데스크톱 앱에 든 최신판."""
+    import shutil
+    exe = os.environ.get("CLAUDE_CODE_EXE") or shutil.which("claude")
+    if exe:
+        return exe
+    local = os.environ.get("LOCALAPPDATA")
+    # Windows 스토어판 앱은 AppData를 앱 전용 폴더로 돌려 두므로, 앱 밖 터미널에서는 이 실제 위치에 있다
+    packaged = [p / "LocalCache" / "Roaming" / "Claude" / "claude-code"
+                for p in (Path(local) / "Packages").glob("Claude_*")] if local else []
+    bases = [Path(os.environ.get("APPDATA", "")) / "Claude" / "claude-code",                 # Windows (앱 안에서 본 경로)
+             *packaged,
+             Path.home() / "Library" / "Application Support" / "Claude" / "claude-code"]    # macOS
+    found = [p for b in bases if b.is_dir() for p in b.glob("*/*/claude*") if p.is_file()]
+    found = [p for p in found if p.name in ("claude", "claude.exe")]
+    if not found:
+        return None
+    return str(max(found, key=lambda p: _version_key(p.parent.parent.name)))
+
+
+class ClaudeCodeStructurer:
+    """Claude Code(claude -p)로 조건 JSON을 받는다. API 크레딧 대신 Claude 구독 사용량을 쓴다.
+    프롬프트·출력 형식은 ClaudeStructurer와 같다. 처음 한 번 터미널에서 claude를 실행해 /login 해 둔다.
+    도구·MCP·세션 저장은 끄고, 저장소 밖(임시 폴더)에서 실행해 프로젝트 설정을 읽지 않게 한다."""
+
+    def __init__(self, model: str = MODEL, exe: str | None = None, timeout: int = 900):
+        self.exe = exe or find_claude_code()
+        if not self.exe:
+            raise StructurerUnavailable("Claude Code 실행 파일 없음 (CLAUDE_CODE_EXE 환경 변수로 경로 지정)")
+        self.model = model
+        self.timeout = timeout
+
+    def _cmd(self) -> list[str]:
+        return [self.exe, "-p", "--output-format", "json", "--model", self.model,
+                "--tools", "", "--strict-mcp-config", "--no-session-persistence",
+                "--system-prompt", SYSTEM, "--json-schema", json.dumps(output_schema())]
+
+    def __call__(self, text: str, context: str) -> tuple[dict, dict]:
+        import subprocess
+        import tempfile
+        # API 키가 환경에 있으면 Claude Code가 구독 대신 그 키(API 크레딧)를 쓰므로 넘기지 않는다
+        env = {k: v for k, v in os.environ.items() if k not in (*DOTENV_KEYS, "ANTHROPIC_AUTH_TOKEN")}
+        try:
+            r = subprocess.run(self._cmd(), input=_user_message(text, context), capture_output=True, text=True,
+                               encoding="utf-8", cwd=tempfile.gettempdir(), timeout=self.timeout, env=env)
+        except OSError as e:
+            raise StructurerUnavailable(f"Claude Code 실행 실패: {e}") from e
+        try:
+            out = json.loads(r.stdout)
+        except json.JSONDecodeError as e:
+            raise RuntimeError(f"Claude Code 출력이 JSON이 아님: {(r.stderr or r.stdout)[:300]}") from e
+        msg = str(out.get("result") or "")
+        if out.get("is_error"):
+            low = msg.lower()
+            # 계정 문제·사용 한도는 행마다 다시 시도해도 같아서 전체를 멈춘다 (받은 결과는 저장본에 남는다)
+            if "not logged in" in low or "/login" in low:
+                raise StructurerUnavailable(f"Claude Code 로그인 필요: 터미널에서 {self.exe} 실행 후 /login")
+            if "credit balance" in low:
+                raise StructurerUnavailable(f"Claude Code가 크레딧 없는 API 키로 접속함: {msg[:200]} (/login으로 구독 계정 로그인)")
+            if "limit" in low or "quota" in low:
+                raise StructurerUnavailable(f"Claude 구독 사용 한도: {msg[:200]} (한도가 풀린 뒤 다시 실행하면 이어서 함)")
+            raise RuntimeError(f"Claude Code 오류: {msg[:300]}")
+        cond = out.get("structured_output")
+        if cond is None:
+            body = re.sub(r"^```(?:json)?\s*|\s*```$", "", msg.strip())
+            cond = json.loads(body)
+        u = out.get("usage") or {}
+        usage = {"input_tokens": u.get("input_tokens", 0) + u.get("cache_read_input_tokens", 0)
+                 + u.get("cache_creation_input_tokens", 0),
+                 "output_tokens": u.get("output_tokens", 0), "session_id": out.get("session_id"),
+                 "via": "claude-code"}
+        return cond, usage
+
+    @property
+    def label(self) -> str:
+        return f"claude-code:{self.model}"
+
+
+# 기본 구조화 순서: Claude API(.env 키, 크레딧) -> 안 되면 Claude Code(구독)
+STRUCTURERS = (ClaudeStructurer, ClaudeCodeStructurer)
+
+
+def _next_structurer(factories: list, reasons: list[str]):
+    while factories:
+        try:
+            return factories.pop(0)()
+        except StructurerUnavailable as e:
+            reasons.append(str(e))
+    return None
 
 
 # ---------- 청크에 붙이기 ----------
@@ -449,15 +578,15 @@ def attach_conditions(chunks: list[dict], contexts: dict[str, str], *, structure
     """대상 청크마다 저장된 결과를 쓰거나 API로 받아, 검사를 통과한 조건만 reimbursement.conditions에 넣는다.
 
     contexts: chunk_id -> 소단원 제목·머리 규칙·주석 (근거 구절로 쓸 수 있는 글)
-    structurer: (본문, 안내) -> (조건, 사용량). None이고 use_api면 ClaudeStructurer를 만든다.
+    structurer: (본문, 안내) -> (조건, 사용량). None이고 use_api면 STRUCTURERS 순서대로 쓸 수 있는 것을 쓴다
+    (Claude API가 키·크레딧 문제로 안 되면 Claude Code로 넘어간다).
     """
     rep = ConditionReport()
     cache = cache or Cache()
-    if structurer is None and use_api:
-        try:
-            structurer = ClaudeStructurer()
-        except StructurerUnavailable as e:
-            rep.unavailable_reason = str(e)
+    factories = list(STRUCTURERS) if structurer is None and use_api else []
+    reasons: list[str] = []
+    if structurer is None:
+        structurer = _next_structurer(factories, reasons)
     for c in chunks:
         if c["chunk_kind"] not in TARGET_KINDS:
             continue
@@ -466,24 +595,26 @@ def attach_conditions(chunks: list[dict], contexts: dict[str, str], *, structure
         cond = cache.get(key)
         if cond is not None:
             rep.from_cache += 1
-        elif structurer is None:
-            rep.skipped_no_api.append(cid)
-            continue
         else:
-            try:
-                cond, usage = structurer(text, ctx)
-            except StructurerUnavailable as e:
-                rep.unavailable_reason = str(e)
-                structurer = None
+            while structurer is not None:
+                try:
+                    cond, usage = structurer(text, ctx)
+                    break
+                except StructurerUnavailable as e:     # 다음 방법으로 같은 청크를 다시 시도
+                    reasons.append(str(e))
+                    structurer = _next_structurer(factories, reasons)
+                except Exception as e:      # 한 청크 실패로 전체를 멈추지 않는다 (보고서에 남김)
+                    rep.failed[cid] = f"{type(e).__name__}: {e}"
+                    break
+            if structurer is None:
                 rep.skipped_no_api.append(cid)
                 continue
-            except Exception as e:      # 한 청크 실패로 전체를 멈추지 않는다 (보고서에 남김)
-                rep.failed[cid] = f"{type(e).__name__}: {e}"
+            if cid in rep.failed:
                 continue
             rep.requested += 1
             rep.input_tokens += usage.get("input_tokens", 0)
             rep.output_tokens += usage.get("output_tokens", 0)
-            cache.put(key, cid, cond, usage)
+            cache.put(key, cid, cond, usage, model=getattr(structurer, "label", MODEL))
         problems = check_schema(cond) + check_values(cond) + check_grounding(cond, f"{ctx}\n{text}")
         if problems:
             rep.rejected[cid] = problems
@@ -491,6 +622,8 @@ def attach_conditions(chunks: list[dict], contexts: dict[str, str], *, structure
         if is_empty(cond):
             rep.empty.append(cid)
         c["reimbursement"]["conditions"] = merge_conditions(c["reimbursement"].get("conditions", {}), cond)
+    if reasons:
+        rep.unavailable_reason = " / ".join(reasons)
     return rep
 
 

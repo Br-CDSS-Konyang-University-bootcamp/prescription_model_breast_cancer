@@ -157,6 +157,8 @@ def test_booklet_chunks():
     assert (re_["stage"], re_["her2_section"], re_["line_rule"]) == ("neoadjuvant", "positive", None)
     assert re_["conditions_inherited_from"] == "r01"                    # 병합 셀 물려받기 (§2.2)
     assert re_["conditions"] == {"line_rule": {"stage": "neoadjuvant", "line": None}}
+    # 판정용 정규화 본문은 청크 최상위 칸 (지침 청크와 같이 씀), reimbursement 안에는 없다
+    assert "국소진행성" in r2["text_normalized"] and "text_normalized" not in re_
     assert r2["line"] == ["neoadjuvant"] and r2["subtype"] == ["HR+/HER2+", "HR-/HER2+"]
     r = by_id["hira-booklet-20261001-bc-pal-endo-2lplus-r01"]
     assert r["line"] == ["2L", ">=3L"] and r["reimbursement"]["line_rule"] == "2차 이상"
@@ -333,9 +335,12 @@ def test_parse_regimen():
     assert p["sequence"] == [["doxorubicin", "cyclophosphamide"], ["trastuzumab", "paclitaxel", "pertuzumab"]]
     assert p["optional_drugs"] == ["pertuzumab"]
     assert p["routes"] == {"trastuzumab": ["IV", "SC"]}
-    assert p["copay_by_drug"] == {"pertuzumab": "100/100"} and copay_text(p) == "100/100"   # csv의 copay 값
+    assert p["copay_by_drug"] == {"pertuzumab": "100/100"}
+    # copay는 요법 전체에 하나일 때만 (pertuzumab에만 붙은 값은 None, 약제별 값은 copay_by_drug)
+    assert copay_text(p, ["doxorubicin", "cyclophosphamide", "trastuzumab", "paclitaxel", "pertuzumab"]) is None
     p = parse_regimen("liposomal doxorubicin(50/100)")
     assert p["copay_by_drug"] == {"liposomal doxorubicin": "50/100"} and p["sequence"] == []
+    assert copay_text(p, ["liposomal doxorubicin"]) == "50/100"
 
 
 def test_split_notes_and_marks():

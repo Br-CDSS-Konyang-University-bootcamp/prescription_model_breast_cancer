@@ -2,12 +2,13 @@
 
 검색과 LLM은 넘겨받기만 한다 (CLAUDE.md: 모듈끼리는 schemas/ 형식으로만 주고받는다).
 - guideline_chunks, reimbursement_chunks: schemas/chunk.json 형식 목록 (C의 검색 결과, D의 급여 청크)
-- llm: 함수 (프롬프트 글) -> 답 글(JSON). 로컬 모델만 쓴다. llm/ 공용 인터페이스가 생기면 그 함수를 넣는다
+- llm: 함수 (프롬프트 글) -> 답 사전 또는 답 글(JSON). 로컬 모델만 쓴다. llm_link.make_llm()이 llm/ 공용 인터페이스로 만든다
 - index_status: 화면 하단 요약 (D 제공, schemas/recommendation.json)
 """
 import json
 from datetime import date, datetime
 
+from llm import LLMOutputError
 from src.recommend.postprocess import postprocess
 from src.recommend.prompt import build_prompt
 from src.recommend.validate import validate
@@ -43,8 +44,9 @@ def recommend(patient_state, biomarker_record, guideline_chunks, reimbursement_c
             "index_status": index_status}
     log = []
     try:
-        raw = _parse(llm(build_prompt(patient_state, biomarker_record, guideline_chunks, reimbursement_chunks)))
-    except ValueError as e:
+        answer = llm(build_prompt(patient_state, biomarker_record, guideline_chunks, reimbursement_chunks))
+        raw = answer if isinstance(answer, dict) else _parse(answer)   # llm_link는 사전, 글로 답하는 함수는 글
+    except (ValueError, LLMOutputError) as e:
         raw = {"options": [], "out_of_scope": True, "out_of_scope_reason": f"LLM 답을 읽을 수 없음 ({e})"}
         log.append(raw["out_of_scope_reason"])
     rec = {"options": raw.get("options") or [], "tests_needed": raw.get("tests_needed") or [],

@@ -26,6 +26,7 @@
     python -m src.reimbursement.pipeline --offline    # 이미 받은 파일로만
     python -m src.reimbursement.pipeline --no-llm     # Claude API를 부르지 않고 저장된 조건만 쓴다
     python -m src.reimbursement.pipeline --cross-check  # pdfplumber로 한 번 더 읽어 비교 (첫 실행 1분 남짓)
+    python -m src.reimbursement.pipeline --index        # 정상이면 이어서 색인, 청크가 그대로면 건너뜀 (앱 시작 직후)
 """
 from __future__ import annotations
 
@@ -525,12 +526,20 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--no-llm", action="store_true", help="Claude API를 부르지 않고 저장된 조건만 쓴다")
     ap.add_argument("--with-offlabel", action="store_true",
                     help="허가초과 목록 청크도 만든다 (설계 문서 범위 밖, 기본 끔)")
+    ap.add_argument("--index", action="store_true",
+                    help="정상이면 이어서 색인. 마지막 색인 때와 청크가 같으면 건너뜀 (회의 5: 앱 시작 직후, 검색 전에)")
     args = ap.parse_args(argv)
     res = run(raw=args.raw, db=args.db, out_dir=args.out_dir, reports=args.reports,
               offline=args.offline, cross_check=args.cross_check, today=args.today,
               use_llm=not args.no_llm, with_offlabel=args.with_offlabel)
     print(res.render())
-    return 0 if res.ok else 1
+    if not res.ok:
+        return 1
+    if args.index:
+        from .index import run_index
+        print("\n== 색인 (바뀌었을 때만)")
+        return run_index(res.current_path, args.db, if_changed=True)
+    return 0
 
 
 if __name__ == "__main__":

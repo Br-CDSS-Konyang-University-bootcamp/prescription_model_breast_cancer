@@ -1,6 +1,7 @@
 """투여 조건 구조화 (설계 §3.5 형식). Claude API는 부르지 않는다 (가짜 구조화기)."""
 import copy
 import csv
+import json
 
 import pytest
 
@@ -209,6 +210,145 @@ def test_unavailable_without_package_or_key(monkeypatch):
     monkeypatch.setattr(builtins, "__import__", no_anthropic)
     with pytest.raises(cm.StructurerUnavailable):
         cm.ClaudeStructurer()
+
+
+class _Run:
+    """subprocess.run 가짜: Claude Code 출력(--output-format json)을 돌려주고 받은 명령을 남긴다."""
+    def __init__(self, out):
+        self.out, self.cmd, self.input = out, None, None
+
+    def __call__(self, cmd, input=None, **kw):
+        import types
+        self.cmd, self.input, self.env = cmd, input, kw.get("env")
+        return types.SimpleNamespace(stdout=json.dumps(self.out, ensure_ascii=False), stderr="", returncode=0)
+
+
+def test_claude_code_structurer(monkeypatch):
+    import subprocess
+    run = _Run({"is_error": False, "result": "", "structured_output": GOOD, "session_id": "s",
+                "usage": {"input_tokens": 10, "cache_read_input_tokens": 5, "output_tokens": 7}})
+    monkeypatch.setattr(subprocess, "run", run)
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test")
+    s = cm.ClaudeCodeStructurer(exe="claude")
+    cond, usage = s("본문", "안내")
+    assert cond == GOOD and usage["input_tokens"] == 15 and usage["output_tokens"] == 7
+    assert "[급여 기준 본문]\n본문" in run.input                       # 공고 글은 표준 입력으로
+    assert run.cmd[run.cmd.index("--tools") + 1] == ""                    # 도구를 모두 끈다
+    assert "--json-schema" in run.cmd and s.label == f"claude-code:{cm.MODEL}"
+    assert "ANTHROPIC_API_KEY" not in run.env                             # 구독으로 돌게 API 키는 넘기지 않는다
+
+
+def test_claude_code_text_result_and_errors(monkeypatch):
+    import subprocess
+    monkeypatch.setattr(subprocess, "run", _Run({"is_error": False, "result": "```json\n" + json.dumps(GOOD) + "\n```"}))
+    assert cm.ClaudeCodeStructurer(exe="claude")("본문", "")[0] == GOOD
+    for msg in ("Not logged in · Please run /login", "Claude usage limit reached", "Credit balance is too low"):
+        monkeypatch.setattr(subprocess, "run", _Run({"is_error": True, "result": msg}))
+        with pytest.raises(cm.StructurerUnavailable):
+            cm.ClaudeCodeStructurer(exe="claude")("본문", "")
+    monkeypatch.setattr(subprocess, "run", _Run({"is_error": True, "result": "overloaded"}))
+    with pytest.raises(RuntimeError):
+        cm.ClaudeCodeStructurer(exe="claude")("본문", "")
+
+
+def test_find_claude_code_env(monkeypatch):
+    monkeypatch.setenv("CLAUDE_CODE_EXE", "/x/claude")
+    assert cm.find_claude_code() == "/x/claude"
+
+
+def test_find_claude_code_store_app(tmp_path, monkeypatch):
+    """스토어판 데스크톱 앱: 실제 파일은 LOCALAPPDATA/Packages/Claude_*/LocalCache/Roaming 아래. 최신판을 고른다."""
+    import shutil
+    monkeypatch.delenv("CLAUDE_CODE_EXE", raising=False)
+    monkeypatch.setattr(shutil, "which", lambda name: None)
+    monkeypatch.setenv("APPDATA", str(tmp_path / "roaming"))         # 앱 밖에서는 비어 있음
+    monkeypatch.setenv("LOCALAPPDATA", str(tmp_path / "local"))
+    base = tmp_path / "local/Packages/Claude_abc/LocalCache/Roaming/Claude/claude-code"
+    for ver in ("2.1.295", "2.1.299"):
+        exe = base / ver / "h" / "claude.exe"
+        exe.parent.mkdir(parents=True)
+        exe.write_text("")
+    assert cm.find_claude_code() == str(base / "2.1.299" / "h" / "claude.exe")
+
+
+def test_falls_back_to_next_structurer(tmp_path, monkeypatch):
+    class NoCredit:
+        def __call__(self, text, context):
+            raise cm.StructurerUnavailable("API 크레딧 잔액 부족")
+
+    class Sub(Fake):
+        label = "claude-code:test"
+
+    sub = Sub()
+    monkeypatch.setattr(cm, "STRUCTURERS", (NoCredit, lambda: sub))
+    ch = _chunks()
+    cache_path = tmp_path / "c.jsonl"
+    rep = attach_conditions(ch, {}, cache=Cache(cache_path))
+    assert rep.requested == 1 and sub.calls == 1 and "크레딧" in rep.unavailable_reason
+    assert [x["id"] for x in ch[0]["reimbursement"]["conditions"]["all_of"]] == ["c1", "c2", "c3"]
+    assert json.loads(cache_path.read_text(encoding="utf-8"))["model"] == "claude-code:test"
+
+    def none():
+        raise cm.StructurerUnavailable("Claude Code 실행 파일 없음")
+    monkeypatch.setattr(cm, "STRUCTURERS", (NoCredit, none))
+    rep = attach_conditions(_chunks(), {}, cache=Cache(tmp_path / "d.jsonl"))
+    assert rep.skipped_no_api == ["row"] and "실행 파일 없음" in rep.unavailable_reason
+
+
+def _enums(node, key, out=None):
+    """스키마 안에서 key 속성에 붙은 enum 값 목록들 ($ref 정의 안까지)."""
+    out = [] if out is None else out
+    if isinstance(node, dict):
+        prop = node.get("properties", {}).get(key)
+        if isinstance(prop, dict) and "enum" in prop:
+            out.append({v for v in prop["enum"] if v is not None})
+        for v in node.values():
+            _enums(v, key, out)
+    elif isinstance(node, list):
+        for v in node:
+            _enums(v, key, out)
+    return out
+
+
+def test_fields_follow_team_terms_dictionary():
+    """공고 표현 -> 칸·값은 팀 사전 data/dictionaries/reimbursement_terms.csv를 따른다."""
+    path = cm.ROOT / "data" / "dictionaries" / "reimbursement_terms.csv"
+    if not path.exists():
+        pytest.skip("reimbursement_terms.csv 없음")
+    with open(path, encoding="utf-8") as f:
+        terms = {r["notice_term"]: r for r in csv.DictReader(f)}
+    split = lambda s: [x.strip().split(" ")[0] for x in s.split("|")]          # noqa: E731
+    # HER2 값은 B의 biomarker_record 값 (canonical = B). 사전의 zero는 B가 쓰지 않아 뺀다
+    schema = json.loads((cm.ROOT / "schemas" / "biomarker_record.json").read_text(encoding="utf-8"))
+    b_status = next(s for s in _enums(schema, "status") if "ultralow" in s)     # records[].status (마커 판정값)
+    assert set(cm.FIELDS["her2"][2]) <= b_status and "zero" not in b_status | set(cm.FIELDS["her2"][2])
+    assert set(split(terms["HER2 음성"]["json_value"])) - {"zero"} <= set(cm.FIELDS["her2"][2])
+    assert "stage.ptnm" in cm.FIELDS["ln_status"][0]                          # 림프절 양성·음성은 N 병기
+    assert terms["림프절 양성"]["json_field"] == "stage.ptnm.n"
+    # 국소진행성·전이성: 값은 사전(stage.disease_extent)과 같고, 칸은 재발 후 상태까지 담은 setting.disease
+    # (스키마 설명 "재발 후 상태는 biomarker_record.setting.disease")
+    assert terms["전이성"]["json_field"] == "stage.disease_extent"
+    assert terms["전이성"]["json_value"] in cm.FIELDS["disease"][2]
+    assert cm.FIELDS["disease"][0].startswith("biomarker_record.setting.disease")
+    assert "duration_days" in cm.FIELDS["treatment_years"][0]
+    assert terms["투여기간"]["json_field"] == "treatment_history[].duration_days"
+    # 고식적 = treatment_history.setting metastatic (JSON에 palliative 값 없음)
+    assert terms["고식적 (palliative)"]["json_value"] == "metastatic"
+    assert cm._OF["properties"]["setting"]["items"]["enum"] == ["neoadjuvant", "adjuvant", "metastatic"]
+
+
+def test_fields_follow_input_paths():
+    """A의 data_needs_by_module (2026-10-20) §4·§6: 나이 기준, 최근 4주 투약, 실패 근거."""
+    assert cm.FIELDS["age"][0].startswith("patient_state.fields.patient.age")
+    assert cm.FIELDS["age_at_index"][0].startswith("patient_state.fields.at_index.age")
+    assert "at_index.recent_therapy_28d" in cm.FIELDS["recent_therapy_28d"][0]
+    assert cm.FIELDS["recent_therapy_28d"][2] == ["yes", "no"]
+    assert "days_since_last_dose" not in cm.FIELDS
+    assert "best_response = PD" in cm.FIELDS["prior_failed"][0]
+    # patient_state_structure.md: 공통 추출 칸(◆)은 값이 .value 아래
+    for f in ("menopause", "sex", "age", "recurrence", "operable", "stage_group", "positive_ln_count", "grade", "pcr",
+              "days_end_to_recurrence", "days_end_to_metastasis"):
+        assert ".value" in cm.FIELDS[f][0], f
 
 
 def test_prompt_lists_every_field():

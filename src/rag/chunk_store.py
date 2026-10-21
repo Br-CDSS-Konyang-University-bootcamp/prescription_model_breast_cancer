@@ -6,7 +6,7 @@ from pathlib import Path
 
 from .chunk_common import BASE_DIR, CHUNKS_DIR
 
-GUIDELINE_CHUNK_FILES = ("esmo_chunks.json",)
+GUIDELINE_CHUNK_FILES = ("esmo_chunks.json", "esmo_algorithm_chunks.json")  # 권고 청크, 알고리즘 그림 경로 청크
 # D가 만드는 급여 청크 파일 (src/reimbursement/index.py의 CURRENT). git에 올리지 않아 없을 수 있다
 REIMBURSEMENT_CHUNKS = BASE_DIR / "data" / "reimbursement" / "chunks" / "reimbursement_chunks_current.jsonl"
 

@@ -14,12 +14,28 @@
 # 글자마다 폰트 이름을 알 수 있는 PyMuPDF로 읽으면서, 아래 표의 폰트에 속한 글자만 원래 기호로 바꾼다.
 # 본문 폰트의 숫자·기호는 건드리지 않는다. 표는 ESMO PDF에서 글자 앞뒤 문맥을 보고 만들었다 (2026-10-19).
 import argparse
+import csv
+import hashlib
 import re
 from pathlib import Path
 
 from .chunk_common import BASE_DIR, PARSED_MD_DIR
 
 GUIDELINES_DIR = BASE_DIR / "data" / "guidelines"
+# 받은 곳·라이선스·파일 지문 기록 (PDF는 저작권 때문에 git에 없어서, 팀원이 같은 판을 받았는지 지문으로 확인한다)
+SOURCES_CSV = GUIDELINES_DIR / "sources.csv"
+
+
+def check_source(pdf: Path, sources_csv: Path = SOURCES_CSV) -> str:
+    """PDF가 sources.csv에 적힌 판과 같은지. 쪽 번호와 chunk_id가 판에 따라 달라질 수 있어 다르면 경고한다.
+    → "ok" / "unlisted" (목록에 없음) / "mismatch" (지문이 다름)"""
+    if not sources_csv.exists():
+        return "unlisted"
+    with open(sources_csv, encoding="utf-8-sig", newline="") as f:
+        expected = {r["file"]: r["sha256"] for r in csv.DictReader(f)}
+    if pdf.name not in expected:
+        return "unlisted"
+    return "ok" if hashlib.sha256(pdf.read_bytes()).hexdigest() == expected[pdf.name] else "mismatch"
 
 # 폰트 이름: {PDF에 저장된 글자: 실제 기호}
 SYMBOL_FONTS = {
@@ -98,6 +114,12 @@ def convert_all(pdf_dir: Path, out_dir: Path, overwrite: bool = False):
             # ASCO 지침은 재사용 불가로 확인돼 쓰지 않는다 (2026-10-20)
             print(f"[건너뜀] {pdf.name}: 파일 이름이 esmo_로 시작하지 않습니다.")
             continue
+        status = check_source(pdf)
+        if status == "mismatch":
+            print(f"[경고] {pdf.name}: data/guidelines/sources.csv에 적힌 판과 파일 지문이 다릅니다. "
+                  "쪽 번호와 chunk_id가 달라질 수 있으니 esmo.org에서 같은 판을 받았는지 확인하세요.")
+        elif status == "unlisted":
+            print(f"[알림] {pdf.name}: data/guidelines/sources.csv에 없는 파일입니다. 받은 곳과 지문을 적어 주세요.")
         out_path = out_dir / source / f"{pdf.stem}.md"
         if out_path.exists() and not overwrite:
             print(f"[있음] {out_path.name}")

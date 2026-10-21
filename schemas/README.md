@@ -169,7 +169,7 @@ TCGA 정답은 실제 날짜가 없으므로, 날짜 칸은 추출값이면 `sta
 |---|---|
 | `records[]` | 마커별 판정 결과. `marker`, `status`, `reason`, `rule_id`, `evidence`, `source_span`, `rag_tags` |
 | `subtype` | `HR+/HER2-` / `HR+/HER2+` / `HR-/HER2+` / `TNBC` / `unknown` (ER·PR·HER2 판정이 없어 정할 수 없음. `indeterminate`는 쓰지 않음, 2026-10-15). RAG 하드 필터 |
-| `setting` | `disease`(early / locally_advanced / metastatic / unknown. 진단 시 전이성 또는 원격 전이 재발 → metastatic, 그 밖은 진단 시 범주. unknown은 진단 시 병기를 모를 때만), `line`(neoadjuvant / adjuvant / 1L / 2L / >=3L / unknown), 이전 약제 계열. RAG 하드 필터 |
+| `setting` | `disease`(early / locally_advanced / metastatic / unknown. 진단 시 전이성 또는 원격 전이 재발 → metastatic, 그 밖은 진단 시 범주. unknown은 진단 시 병기를 모를 때만), `line`(neoadjuvant / adjuvant / 1L / 2L / >=3L / unknown), 전이성이면 `line_endocrine`(1L / 2L / >=3L / not_applicable / unknown)·`line_chemo`(1L / 2L / >=3L / unknown): 이번에 결정할 고식적 내분비·항암 차수를 따로 셈 (심평원 공고 p.55, 화면 1 기본값, 2026-10-21 A·B), 이전 약제 계열. RAG 하드 필터 |
 | `tests_needed[]` | BM-4 검사 공백. `test`, `reason`, `rule_id` |
 
 마커별 허용 상태값 (BM-2 판정 기준표, PROJECT.md §5):

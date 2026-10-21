@@ -4,14 +4,14 @@ import json
 from pathlib import Path
 from jsonschema import Draft202012Validator
 from src.rag.chunk_store import GUIDELINE_CHUNK_FILES, load_guideline_chunks, select_index_chunks
-from src.rag.indexer import init_collection, index_chunks, delete_guideline_chunks, close_indexer
+from src.rag.indexer import init_collection, replace_doc_type, close_indexer
 
 
 def main():
     base_dir = Path(__file__).resolve().parents[2]  # team_project
     chunks_dir = base_dir / "data" / "chunks"  # <- data/chunks/ 지정
 
-    # 1. 컬렉션은 지우지 않는다 (D의 급여 청크 보존). 지침 청크만 지우고 다시 넣는다.
+    # 1. 컬렉션은 지우지 않는다 (D의 급여 청크 보존). 지침 청크만 바꿔 끼운다 (새 청크를 먼저 넣고 옛 청크를 지움).
     init_collection(force_recreate=False)
 
     all_chunks = load_guideline_chunks(chunks_dir)
@@ -27,8 +27,7 @@ def main():
         to_index = select_index_chunks(all_chunks)
         print(f"[색인] 권고 청크 {len(to_index)}건 (부모 청크 {len(all_chunks) - len(to_index)}건은 파일에만 둠)")
         try:
-            delete_guideline_chunks()
-            index_chunks(to_index)
+            replace_doc_type("guideline", to_index)
         finally:
             close_indexer()
     else:
