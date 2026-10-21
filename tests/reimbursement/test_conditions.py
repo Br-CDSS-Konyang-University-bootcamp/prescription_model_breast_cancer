@@ -337,6 +337,20 @@ def test_fields_follow_team_terms_dictionary():
     assert cm._OF["properties"]["setting"]["items"]["enum"] == ["neoadjuvant", "adjuvant", "metastatic"]
 
 
+def test_fields_follow_input_paths():
+    """A의 data_needs_by_module (2026-10-20) §4·§6: 나이 기준, 최근 4주 투약, 실패 근거."""
+    assert cm.FIELDS["age"][0].startswith("patient_state.fields.patient.age")
+    assert cm.FIELDS["age_at_index"][0].startswith("patient_state.fields.at_index.age")
+    assert "at_index.recent_therapy_28d" in cm.FIELDS["recent_therapy_28d"][0]
+    assert cm.FIELDS["recent_therapy_28d"][2] == ["yes", "no"]
+    assert "days_since_last_dose" not in cm.FIELDS
+    assert "best_response = PD" in cm.FIELDS["prior_failed"][0]
+    # patient_state_structure.md: 공통 추출 칸(◆)은 값이 .value 아래
+    for f in ("menopause", "sex", "age", "recurrence", "operable", "stage_group", "positive_ln_count", "grade", "pcr",
+              "days_end_to_recurrence", "days_end_to_metastasis"):
+        assert ".value" in cm.FIELDS[f][0], f
+
+
 def test_prompt_lists_every_field():
     for k in cm.FIELDS:
         assert f"- {k}:" in cm.SYSTEM

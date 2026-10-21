@@ -563,7 +563,9 @@ def _base(chunk_id: str, source: str, version: str, section: str, text: str, kin
           setting: list[str], subtype: list[str], line: list[str], drugs: list[str],
           reimbursement: dict, parent_id: str | None = None,
           page_start: int | None = None, page_end: int | None = None) -> dict:
-    return {
+    # 판정용 정규화 본문은 지침 청크와 같이 쓰도록 청크 최상위 칸에 둔다 (2026-10-20 결정, C 제안)
+    normalized = reimbursement.pop("text_normalized", None)
+    chunk = {
         "schema_version": SCHEMA_VERSION, "chunk_id": chunk_id, "doc_type": "reimbursement",
         "source": source, "version": version, "section": section,
         "page_start": page_start, "page_end": page_end, "url": BOARD_URL,
@@ -573,6 +575,9 @@ def _base(chunk_id: str, source: str, version: str, section: str, text: str, kin
         "superseded_by": None, "copyright_notice": None,
         "reimbursement": reimbursement,
     }
+    if normalized is not None:
+        chunk["text_normalized"] = normalized
+    return chunk
 
 
 GENERAL_TITLE = "항암요법의 요양급여 적용 일반원칙"
@@ -740,13 +745,14 @@ def footnote_combination(attached: str) -> dict | None:
             "added_drug_coverage": "100/100" if full else None}
 
 
-def copay_text(parsed: dict) -> str | None:
-    """reimbursement.copay: field_values.csv의 값('30/100' 등). 어느 약제의 값인지는 regimen_parsed.copay_by_drug.
-    표시가 없으면 None. 값이 서로 다른 약제가 둘 이상이면 '약제 값'을 이어 쓴다 (2026-10-01판에는 없음)."""
+def copay_text(parsed: dict, drugs: list[str]) -> str | None:
+    """reimbursement.copay: 요법 전체에 하나로 정해질 때만 그 값('50/100' 등), 아니면 None.
+    기준값은 regimen_parsed.copay_by_drug (약제별). 'trastuzumab + pertuzumab(30/100)'처럼 일부 약제에만
+    붙은 값은 요법 전체 값이 아니므로 None (schema_proposal.md 'copay', B 동의 2026-10-20)."""
     c = parsed.get("copay_by_drug") or {}
-    if len(set(c.values())) == 1:
+    if len(set(c.values())) == 1 and drugs and set(drugs) <= set(c):
         return next(iter(c.values()))
-    return "; ".join(f"{d} {v}" for d, v in c.items()) or None
+    return None
 
 
 def _normalized(text: str) -> str:
@@ -1070,7 +1076,7 @@ def booklet_chunks(b: Booklet) -> BookletChunks:
             scans[chunk_id] = scan = scan_drugs(regimen)
             parsed = parse_regimen(regimen, attached_text)
             reimb = {"source_type": "baseline", "notice_no": f"제{no}호", "effective_from": d.isoformat(),
-                     "regimen": [clean_regimen(regimen)], "copay": copay_text(parsed),
+                     "regimen": [clean_regimen(regimen)], "copay": copay_text(parsed, scan.drugs),
                      "stage": sub.stage, "her2_section": sub.her2_section, "line_rule": sub.line_rule,
                      "history": history_of(r.text), "regimen_parsed": parsed,
                      "conditions_inherited_from": f"r{prev_no:02d}" if inherited and prev_no else None,
@@ -1127,7 +1133,7 @@ def booklet_chunks(b: Booklet) -> BookletChunks:
             text = f"[{heading}]\n(열: 항암제 병용요법 / 허가사항 / 급여 요법 / 급여기준 / 비고)\n{body}"
             parsed = parse_regimen(cols["combined"])
             reimb = {"source_type": "baseline", "notice_no": f"제{no}호", "effective_from": d.isoformat(),
-                     "regimen": [cols["combined"]], "copay": copay_text(parsed),
+                     "regimen": [cols["combined"]], "copay": copay_text(parsed, scan_drugs(cols["combined"]).drugs),
                      "stage": "combination", "her2_section": None, "line_rule": line_rule,
                      "history": history_of(r.text), "regimen_parsed": parsed,
                      "combination": {k: cols[k] for k in ("added_drug", "added_drug_coverage", "base_regimen")},
@@ -1231,8 +1237,9 @@ REIMBURSEMENT_EXTENSION = {
                                    "added_drug_coverage": {"enum": ["비급여", "100/100", None]},
                                    "base_regimen": {"type": "array", "items": {"type": "string"}}}},
     "conditions_inherited_from": {"type": ["string", "null"]},
-    "text_normalized": {"type": "string"},
 }
+# 청크 최상위에 더하는 칸 (지침 청크와 같이 쓰는 판정용 정규화 본문, 2026-10-20 결정)
+TOP_LEVEL_EXTENSION = {"text_normalized": {"type": "string"}}
 
 
 def load_schema(schema_path: Path = SCHEMA_PATH, extended: bool = True) -> dict:
@@ -1240,6 +1247,8 @@ def load_schema(schema_path: Path = SCHEMA_PATH, extended: bool = True) -> dict:
     if extended:
         props = schema["properties"]["reimbursement"]["properties"]
         props.update({k: v for k, v in REIMBURSEMENT_EXTENSION.items() if k not in props})
+        top = schema["properties"]
+        top.update({k: v for k, v in TOP_LEVEL_EXTENSION.items() if k not in top})
     return schema
 
 
