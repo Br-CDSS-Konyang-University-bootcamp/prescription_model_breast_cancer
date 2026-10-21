@@ -22,6 +22,21 @@
 | `common/vocab.py` | 표준값 사전(`data/dictionaries/field_vocab.csv`) 조회. 정답 생성과 IN-3 정규화가 같은 사전을 쓴다 |
 | `script/tcga_to_patient_state.py` | TCGA 크롭본 → `patient_state` 874명 (2026-10-15). 변환만 하고 기본은 파일을 만들지 않는다. 규칙 명세는 tcga_mapping.md |
 | `truth/tcga_truth.py` | 이전 정답 생성기 (같은 변환 + 파일 저장·스키마 검증·보고서). `tests/input/test_tcga_truth.py`가 쓴다 |
+| `chart/fixed_chart.py` | `patient_state` ↔ 고정 형식 차트 원문(`chart.txt`). `render()`는 보고서 4종으로 쓰고, `parse()`는 다시 `patient_state`로 읽으며 원문 위치(`source`)를 채운다 (2026-10-21) |
+
+차트 원문 변환 (고정 형식, 2026-10-21):
+
+```bash
+python -m src.input.chart.fixed_chart                              # TCGA 크롭본 전원 왕복 검사
+python -m src.input.chart.fixed_chart --ids TCGA-A2-A0EW --show    # 한 명의 차트 원문 출력
+python -m src.input.chart.fixed_chart --out <폴더>                 # <폴더>/<환자>/chart.txt, patient_state.json
+```
+
+- 형식은 하나로 고정한다: `[병리결과보고서]` → `[분자병리 보고서]` → `<외래 경과기록>` → `[투약 기록]`. 한 줄에 `이름: 값` 하나, 투약 기록은 ` | `로 나눈 표. 미시행은 `미시행`, 기록 없음은 `기록 없음`, 일수는 `D+85`
+- ER·PR 구간은 값 그대로 쓴다 (`구간 90-99%`, `구간 0-0%`)
+- `parse()`는 차수·간주 규칙·판정 기준일 값(`line`, `deemed_lines`, `at_index`)과 주기 수 추정을 변환기와 같은 규칙으로 다시 계산한다. 그래서 차트에는 원자료만 쓴다
+- 왕복 검사: `parse(render(x))`는 `raw`, `source`, `created_at`, `documents`, `genomic_reports[].doc_id`, `anthracycline_drug_dose.drugs[].timeline_index`(TCGA 순번)를 빼고 `x`와 같아야 한다. TCGA 838명 모두 같고, 다시 읽은 값으로 B `assess()`를 돌려도 판정이 같다 (`source_span`만 채워짐)
+- 담지 못하는 값(투약 날짜, `observed_date`, `history`, 한 보고서 안에 검체가 다른 값 등)이 오면 `render()`가 `Unsupported`로 멈춘다. 가상 차트(VC)는 이 형식이 아니다
 
 patient_state 변환 (team_project 폴더에서, `team_project` conda 환경):
 
