@@ -27,7 +27,7 @@
           "reimbursement": {"enum": ["covered", "covered_conditions_unverified", "offlabel_approved", "no_criteria"]},
           "reimbursement_reason": {"type": "string", "description": "충족한 조건 또는 빠진 조건"},
           "reimbursement_citations": {"type": "array", "items": {"type": "string"}, "description": "급여 청크 ID. no_criteria면 빈 배열 가능"},
-          "copay": {"type": ["string", "null"], "description": "허가초과 인정일 때 본인부담률"},
+          "copay": {"type": ["string", "null"], "description": "본인부담률. 허가초과 인정이면 그 본인부담률. 급여 요법은 급여 청크의 reimbursement.copay(요법 전체에 하나일 때)를 쓰고, 약제마다 다르면 regimen_parsed.copay_by_drug를 약제별로 이어 쓴다 (예: pertuzumab 30/100). 해당 없으면 null (2026-10-20)."},
           "pending_notices": {
             "type": "array",
             "description": "회색 태그로 표시하는 예정·진행중 공고",

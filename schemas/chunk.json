@@ -35,6 +35,7 @@
       }
     },
     "superseded_by": {"type": ["string", "null"], "description": "후속 개정 청크 ID. 대체된 청크는 지우지 않는다."},
+    "text_normalized": {"type": "string", "description": "판정·검색용 정규화 본문 (NFKC, ①→1, ㎝→cm). 인용은 text로 한다. 지침·급여 청크 공용, 없어도 됨"},
     "copyright_notice": {"type": ["string", "null"], "description": "ESMO 청크: Copyright © European Society for Medical Oncology. All rights reserved"},
     "reimbursement": {
       "type": "object",
@@ -50,7 +51,7 @@
           "type": "object",
           "description": "투여 조건 (급여 청킹 설계 §3.5). 칸: all_of, any_of, any_of_exceptions, line_rule, stage_rules, counts_as_prior_line, notes, human_review, unmapped. 항목은 {id, field, op, value, text[, of][, unless]}. field 어휘와 환자 JSON 경로는 src/reimbursement/conditions.py의 FIELDS, 읽는 법은 src/reimbursement/schema_proposal.md."
         },
-        "copay": {"type": ["string", "null"], "description": "본인부담률. 요법 전체에 하나로 정해질 때 그 값 (예: 5/100, 30/100, 100/100). 약제마다 다르면 null이고 regimen_parsed.copay_by_drug를 본다."},
+        "copay": {"type": ["string", "null"], "description": "본인부담률. 요법 전체에 하나로 정해질 때 그 값 (예: 5/100, 30/100, 100/100). 일부 약제에만 붙은 값이면 null이고 약제별 값은 regimen_parsed.copay_by_drug. 허가초과 청크는 허가초과 본인부담률."},
         "stage": {"enum": ["neoadjuvant", "adjuvant", "palliative_endocrine", "palliative_chemo", "combination", "supportive"], "description": "공고의 치료 단계 (소단원). combination = 40. 기타 항암제 병용요법, supportive = Ⅳ. 기타 약제"},
         "her2_section": {"enum": ["positive", "negative", null], "description": "선행화학요법 소단원의 HER2 양성·음성 구분. 다른 단계는 null"},
         "line_rule": {"enum": ["1차", "1차 이상", "2차", "2차 이상", "3차 이상", null], "description": "공고의 투여단계 표기. 판정할 때 biomarker_record.setting.line과 맞춘다 (schema_proposal.md)"},
@@ -91,8 +92,7 @@
             "base_regimen": {"type": "array", "items": {"type": "string"}}
           }
         },
-        "conditions_inherited_from": {"type": ["string", "null"], "description": "병합 셀로 조건을 물려받은 위 연번. 예: r01"},
-        "text_normalized": {"type": "string", "description": "판정용 정규화 본문 (NFKC, ①→1, ㎝→cm)"}
+        "conditions_inherited_from": {"type": ["string", "null"], "description": "병합 셀로 조건을 물려받은 위 연번. 예: r01"}
       }
     }
   },
