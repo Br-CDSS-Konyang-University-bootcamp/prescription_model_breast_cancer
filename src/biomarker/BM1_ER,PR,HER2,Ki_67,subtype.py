@@ -819,8 +819,36 @@ def line_of(fields, disease):
     return last["setting"], f"마지막 투약 {' + '.join(last['drugs'])} ({last['setting']})"
 
 
-def setting_of(fields):
-    """현재 범주(전달 문서 6.1절), 차수(6.2절, line_of), 이전 약제 계열."""
+LINE_KIND = {"endocrine": ("endocrine_line", "내분비"), "chemo": ("chemo_line", "항암")}
+HR_NEGATIVE_SUBTYPES = {"TNBC", "HR-/HER2+"}
+
+
+def line_kind_of(fields, kind, subtype=None):
+    """전이성의 setting.line_endocrine / line_chemo: 이번에 결정할 고식적 내분비·항암 차수 (A 전달 문서
+    handoff_confirmed_state_to_B.md §6 2번, 2026-10-21. 화면 1 기본값). 공고 p.55처럼 두 종류를 따로 센다.
+    그 종류의 고식적 요법이 없으면 1L, 마지막 차수에서 진행했으면 다음 차수, 진행 기록이 없으면 그 차수.
+    전이 후 투약은 있는데 A가 차수를 하나도 넣지 않았으면 unknown. HR 음성은 내분비 not_applicable.
+    간주 규칙(deemed_lines)은 넣지 않는다 (급여 판정에서 행마다 +1, 전달 문서 6.3a절)."""
+    key, name = LINE_KIND[kind]
+    if kind == "endocrine" and subtype in HR_NEGATIVE_SUBTYPES:
+        return "not_applicable", f"{subtype}라 내분비요법 대상 아님"
+    history = [t for t in fields.get("treatment_history") or [] if t.get("drugs")]
+    metastatic = [t for t in history if t.get("setting") == "metastatic"]
+    if metastatic and not any(t.get("line") for t in metastatic):
+        return "unknown", "전이 후 투약은 있지만 차수 정보(line)가 없음"
+    rows = [t for t in history if t.get(key)]
+    if not rows:
+        return "1L", f"고식적 {name}요법 이력 없음 -> {name} 1차"
+    last = max(t[key] for t in rows)
+    regimen = [t for t in rows if t[key] == last]
+    drugs = " + ".join(sorted({d for t in regimen for d in t["drugs"]}))
+    if any(_progressed(t) for t in regimen):
+        return _line_label(last + 1), f"고식적 {name} {last}차({drugs})에서 진행 -> {name} {last + 1}차"
+    return _line_label(last), f"고식적 {name} {last}차({drugs}), 진행 기록 없음"
+
+
+def setting_of(fields, subtype=None):
+    """현재 범주(전달 문서 6.1절), 차수(6.2절, line_of), 전이성이면 내분비·항암 차수(line_kind_of), 이전 약제 계열."""
     stage = fields.get("stage") or {}
     extent = stage.get("disease_extent") or {}
     recurrence = (fields.get("recurrence") or {}).get("status") or {}
@@ -843,7 +871,13 @@ def setting_of(fields):
     deemed = [d["rule_id"] for d in fields.get("deemed_lines") or [] if d.get("status") == "met"]
     if deemed:
         line_why += f" / 심평원 차수 간주 규칙 충족: {', '.join(deemed)} (급여 판정에서 차수 +1, 전달 문서 6.3a절)"
-    return {"disease": disease, "line": line, "prior_drug_classes": prior, "reason": f"{why} / {line_why}"}
+    out = {"disease": disease, "line": line}
+    if disease == "metastatic":
+        for kind in LINE_KIND:
+            label, kind_why = line_kind_of(fields, kind, subtype)
+            out[f"line_{kind}"] = label
+            line_why += f" / {kind_why}"
+    return {**out, "prior_drug_classes": prior, "reason": f"{why} / {line_why}"}
 
 
 # ------------------------------------------------------------ BM-4 검사 공백
@@ -922,7 +956,7 @@ def assess(patient_state):
     by = {r["marker"]: r for r in records}
 
     subtype = subtype_of(by["ER"]["status"], by["PR"]["status"], by["HER2"]["status"])
-    setting = setting_of(fields)
+    setting = setting_of(fields, subtype)
     return {
         "schema_version": "0.1-draft",
         "patient_ref": patient_ref,
