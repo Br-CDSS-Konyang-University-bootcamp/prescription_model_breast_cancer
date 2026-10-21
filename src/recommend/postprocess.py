@@ -7,7 +7,8 @@ LLM이 낸 추천을 받은 청크와 B의 판정에 비추어 고친다. 규칙
 4. 약에 필요한 바이오마커(drug_biomarker.csv)가 미시행·기록 없음·불확정·재검 필요면 후보 대신 검사 권고로 바꾼다.
    양성이 아니면(음성·VUS 등) 후보를 지우고 conflicts에 적는다.
 5. 급여 분류는 시행 중인 급여 청크(baseline·overlay, 시행일이 오늘 이전)를 인용할 때만 인정한다.
-   허가초과 인정은 허가초과 청크(HIRA-offlabel)를 인용할 때만. 급여 조건을 모두 확인할 수 없으면 "급여(조건 확인 필요)"로 낮춘다.
+   허가초과 인정은 허가초과 청크(HIRA-offlabel)를 인용할 때만. 급여 조건은 conditions_checker(conditions_eval.py)로 판정한다:
+   충족이면 "급여", 불충족이면 "급여 기준 없음", 알 수 없으면(판정기 없음 포함) "급여(조건 확인 필요)".
 6. 지침 청크가 하나도 없으면 추천을 만들지 않고 범위 외로 알린다.
 지운 것과 바꾼 것은 모두 로그로 돌려준다.
 """
@@ -102,12 +103,21 @@ def _classify(option, reimb_by_id, today, conditions_checker):
     if not valid:
         option.update(reimbursement="no_criteria", reimbursement_citations=[])
         return f"{cls} → 급여 기준 없음 (시행 중인 급여 청크 인용 없음)"
-    if cls == "covered" and not (conditions_checker and conditions_checker(option, valid)):
-        option["reimbursement"] = "covered_conditions_unverified"
-        option["reimbursement_reason"] = (option.get("reimbursement_reason") or "") + \
-            " (급여 조건을 자동으로 모두 확인하지 못함)"
-        return "급여 → 급여(조건 확인 필요) (조건 확인 안 됨)"
-    return None
+    # 급여 조건 판정 (conditions_eval.make_conditions_checker). 옛 형식(True/False)도 받는다
+    res = conditions_checker(option, valid) if conditions_checker else None
+    if isinstance(res, bool):
+        res = {"status": "met" if res else "unknown", "reason": ""}
+    status, why = (res or {}).get("status", "unknown"), (res or {}).get("reason", "")
+    reason = option.get("reimbursement_reason") or ""
+    if status == "met":
+        option.update(reimbursement="covered", reimbursement_reason=f"{reason} ({why})".strip())
+        return None if cls == "covered" else f"{cls} → 급여 ({why})"
+    if status == "not_met":
+        option.update(reimbursement="no_criteria", reimbursement_reason=f"{reason} (급여 조건 불충족: {why})".strip())
+        return f"{cls} → 급여 기준 없음 (급여 조건 불충족)"
+    option["reimbursement"] = "covered_conditions_unverified"
+    option["reimbursement_reason"] = f"{reason} ({why or '급여 조건을 자동으로 모두 확인하지 못함'})".strip()
+    return "급여 → 급여(조건 확인 필요) (조건 확인 안 됨)" if cls == "covered" else None
 
 
 def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursement_chunks, today=None,
