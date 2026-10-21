@@ -8,11 +8,12 @@
 - 로컬 모델만 쓴다. 환자 정보는 외부 API로 보내지 않는다.
 - 테스트: `python -m pytest tests/recommend` (가짜 LLM 답으로 시험, 모델·검색 색인 없이 돈다)
 
-## 파일 (2026-10-20, LLM 연결 전 단계)
+## 파일 (2026-10-21, 로컬 LLM 연결 함수까지. 실제 모델은 아직 안 붙임)
 
 | 파일 | 하는 일 |
 |---|---|
-| `pipeline.py` | 진입점 `recommend(patient_state, biomarker_record, guideline_chunks, reimbursement_chunks, llm, index_status, model_name)` → (추천, 후처리 로그, 형식 오류). 검색 결과와 LLM 함수(프롬프트 글 → 답 글)는 넘겨받기만 한다. `llm/` 공용 인터페이스가 생기면 그 함수를 넣는다 |
+| `pipeline.py` | 진입점 `recommend(patient_state, biomarker_record, guideline_chunks, reimbursement_chunks, llm, index_status, model_name)` → (추천, 후처리 로그, 형식 오류). 검색 결과와 LLM 함수(프롬프트 글 → 답 사전 또는 답 글)는 넘겨받기만 한다. LLM 함수는 `llm_link.make_llm()`으로 만든다 |
+| `llm_link.py` | `make_llm(task="recommend")` → `recommend()`에 넣을 LLM 함수. `llm/config.toml`의 `[recommend]` 칸을 읽고, 보내기 전에 **로컬인지 확인**(`patient_data = true`, provider `ollama`, 주소 `127.0.0.1`·`localhost`·`::1`)한 뒤 `llm.complete_json`으로 이 PC의 Ollama에 묻는다. 답 양식은 `schemas/recommendation.json` 중 LLM이 채우는 칸만 뗀 것 |
 | `prompt.py` | 프롬프트: 환자 요약(구조화 값만, 차트 원문 인용은 넣지 않음), 바이오마커 상태값과 이유, 검사 공백, 지침 청크(ID·출처·쪽·근거 수준·부모 소단원), 급여 청크(공고 번호·시행일). 문장마다 `[청크ID]`를 붙이라고 지시 |
 | `postprocess.py` | 환각 방지 후처리 (아래 표) |
 | `validate.py` | `schemas/recommendation.json` 형식 검사 |
@@ -75,10 +76,11 @@ B 판단 (팀 문서에 없음, 2026-10-20):
 - 질문지에 `patient_ref`도 넣지 않는다. 추천에 필요 없기 때문이다
 - 실제 환자의 추천 결과와 LLM 답은 파일로 저장하거나 출력하지 않는다 (`patient_ref`가 들어 있고 저장소가 공개라서)
 - 테스트에는 가짜 데이터, TCGA, 가상 차트만 쓴다
-- 지금은 코드가 외부 LLM 함수를 막지 않는다. `llm/`이 나오면 로컬 설정인지 확인하는 장치를 넣는다
+- `make_llm()`은 설정이 로컬이 아니면 질문지를 보내기 전에 `NonLocalLLMError`로 멈춘다. `llm/`의 확인은 provider 이름만 봐서, 주소(host)가 이 PC인지는 B가 따로 본다 (2026-10-21, A에게 `llm/`에도 넣자고 제안). `recommend()`에 직접 만든 함수를 넣으면 이 확인을 거치지 않으니 `make_llm()`만 쓴다
+- 실제 환자를 돌릴 때는 Ollama 디버그 모드(`OLLAMA_DEBUG`)를 끄고, Ollama가 이 PC(127.0.0.1)에서만 열려 있는지 확인한다 (`OLLAMA_HOST`를 0.0.0.0으로 두지 않음)
 
 ## 아직 안 한 것
 
-- 실제 LLM 연결: `llm/` 공용 인터페이스(4명 합의)가 먼저 필요
+- 실제 LLM 연결: `llm/config.toml`에 `[recommend]` 칸 추가(공용, 4명 검토. `provider = "ollama"`, `patient_data = true`, 질문지가 길어 `num_ctx`를 기본 8192보다 크게), 모델 선택·라이선스 확인(A), 각자 PC에 모델 받기
 - 급여 조건 판정기를 실제 D 청크로 시험: D 청크 파일은 공개 저장소에 올릴 수 없어 각자 컴퓨터에서만 돌린다. 테스트는 가짜 조건으로 한다
 - 검색 호출: C의 `src/rag/query.py`(`search_args`)와 `search_guidelines`를 부르는 쪽에서 청크를 받아 `recommend()`에 넘긴다
