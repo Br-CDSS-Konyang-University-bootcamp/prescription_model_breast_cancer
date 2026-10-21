@@ -286,3 +286,27 @@ def test_algorithm_paths_are_searched_separately(memory_index):
     assert {r["chunk_kind"] for r in searcher.search_guidelines(**args)} == {"recommendation"}
     assert {r["chunk_kind"] for r in searcher.search_guidelines(**args, chunk_kind="algorithm")} == {"algorithm"}
     assert len({r["chunk_kind"] for r in searcher.search_guidelines(**args, chunk_kind=None)}) == 2
+
+
+def test_relapse_within_12_months_picks_the_fulvestrant_branch(memory_index):
+    # ESMO MBC 1차: 보조 ET 중·12개월 이내 재발 → fulvestrant-CDK4/6, de novo·12개월 넘어 → AI-CDK4/6.
+    # 두 권고가 이 구절만 달라 재정렬 모델이 못 갈랐다 (VC-0103). 확정값이 있으면 반대 갈래를 뒤로 보낸다
+    rag_client, indexer = memory_index
+    from src.rag import searcher
+    from src.rag.chunk_store import load_guideline_chunks, select_index_chunks
+
+    indexer.index_chunks(select_index_chunks(load_guideline_chunks()))
+    args = dict(query_text="x", setting="metastatic", subtype="HR+/HER2-", line="1L", top_k=200, rerank=False,
+                chunk_kind=None)
+    fulv, ai = "esmo-mbc-2026-05-luminal-1l-0fd38a", "esmo-mbc-2026-05-luminal-1l-02649c"
+
+    def rank(**kw):
+        ids = [r["chunk_id"] for r in searcher.search_guidelines(**args, **kw)]
+        return ids.index(fulv), ids.index(ai), ids.index("esmo-mbc-2026-05-fig2-a9baa4"), ids.index("esmo-mbc-2026-05-fig2-1ae139")
+
+    f, a, fig_f, fig_a = rank(endocrine_relapse_12m="yes")
+    assert f < a and fig_f < fig_a
+    f, a, fig_f, fig_a = rank(endocrine_relapse_12m="no")
+    assert a < f and fig_a < fig_f
+    plain = {r["chunk_id"]: r["score"] for r in searcher.search_guidelines(**args)}
+    assert plain[fulv] == plain[ai]  # 값이 없으면 바꾸지 않는다

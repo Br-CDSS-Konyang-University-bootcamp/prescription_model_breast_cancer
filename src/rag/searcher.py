@@ -1,6 +1,7 @@
 # src/rag/searcher.py
 import copy
 import math
+import re
 import warnings
 
 from qdrant_client.models import Filter, FieldCondition, MatchAny, MatchValue
@@ -35,6 +36,14 @@ SITE_SECTIONS = {
 # 환자가 음성으로 확인된 바이오마커만을 조건으로 하는 권고 (예: gBRCA 음성 환자에게 gBRCA 변이용 olaparib).
 # 권고 문장이 "adjuvant … HR-positive EBC"처럼 질의와 겹쳐 재정렬 점수가 높아도 맞지 않는다 (--auto-query E01·E02·E05)
 NEGATIVE_MARKER_PENALTY = 1.0
+# 보조 내분비요법과 재발 시점: ESMO MBC 1차는 "보조 ET 복용 중 또는 종료 후 12개월 이내 재발"(fulvestrant-CDK4/6)과
+# "de novo 또는 12개월 넘어 재발"(AI-CDK4/6)로 갈린다. 두 권고 문장이 이 한 구절만 달라 재정렬 모델이 구분하지 못했다
+# (VC-0103 check_case: 12개월 이내 재발 환자에게 AI-CDK4/6이 1위, 2026-10-21). 의사가 확정한 endocrine_relapse_12m이
+# 있으면 다른 갈래만 가리키는 권고·그림 경로를 차수 감점처럼 뒤로 보낸다
+RELAPSE_WITHIN_12M = re.compile(r"while (receiving|on) adjuvant (ET|endocrine)|≤\s?12 months after (the )?end of adjuvant",
+                                re.IGNORECASE)
+RELAPSE_AFTER_12M = re.compile(r">\s?12 months after (the )?end of adjuvant", re.IGNORECASE)
+RELAPSE_MISMATCH_PENALTY = 1.0
 CACHE_SIZE = 256  # 같은 조건의 검색 결과를 기억해 두는 개수. 색인이 바뀌면 indexer가 비운다
 
 _cache = {}
@@ -54,6 +63,7 @@ def search_guidelines(
         metastatic_sites: list[str] = None,
         negative_tags: list[str] = None,
         chunk_kind: str = "recommendation",
+        endocrine_relapse_12m: str = None,
 ) -> list[dict]:
     """지침 권고 청크를 찾는다. with_parent=True면 각 결과에 부모(소단원) 청크를 "parent" 키로 붙인다
     (LLM에는 소단원 전체를 함께 넘긴다, PROJECT.md §6).
@@ -67,16 +77,18 @@ def search_guidelines(
     chunk_kind는 찾을 청크 종류다. 기본은 권고(recommendation). 알고리즘 그림 경로(algorithm)는 같은 권고를 그림 순서로
     다시 적은 것이라 함께 찾으면 상위 자리를 차지해 권고가 밀린다 (평가 MRR 0.97 → 0.65, 2026-10-20). 그래서 따로 찾는다
     (retrieve_for_recommend). None이면 종류를 가리지 않는다.
+    endocrine_relapse_12m("yes" / "no", confirmed_state의 의사 확정값)을 주면, 보조 내분비요법 중·12개월 이내 재발 여부가
+    반대인 갈래만 가리키는 권고를 감점한다 (ESMO MBC 1차의 fulvestrant-CDK4/6 / AI-CDK4/6 갈림길). 없으면 바꾸지 않는다.
     같은 조건의 검색은 기억해 둔 결과를 돌려준다 (색인을 바꾸면 비워진다)."""
     sites = _site_keys(metastatic_sites)
     negatives = frozenset(negative_tags or ())
     key = (query_text, setting, subtype, line, source, tuple(biomarker_tags or ()), top_k, with_parent, rerank,
-           tuple(sorted(sites)) if sites is not None else None, negatives, chunk_kind)
+           tuple(sorted(sites)) if sites is not None else None, negatives, chunk_kind, endocrine_relapse_12m)
     if key not in _cache:
         if len(_cache) >= CACHE_SIZE:
             _cache.clear()
         _cache[key] = _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, with_parent, rerank,
-                              sites, negatives, chunk_kind)
+                              sites, negatives, chunk_kind, endocrine_relapse_12m)
     return copy.deepcopy(_cache[key])  # 받은 쪽이 결과를 고쳐도 기억해 둔 값은 그대로
 
 
@@ -120,7 +132,7 @@ def _site_adjust(parent_id, sites) -> float:
 
 
 def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, with_parent, rerank,
-            sites=None, negatives=frozenset(), chunk_kind="recommendation") -> list[dict]:
+            sites=None, negatives=frozenset(), chunk_kind="recommendation", relapse_12m=None) -> list[dict]:
     client = get_qdrant_client()
     model = get_embedding_model()
 
@@ -211,6 +223,9 @@ def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, w
         if negatives and chunk_tags and chunk_tags <= negatives:
             score -= NEGATIVE_MARKER_PENALTY
 
+        # 보조 내분비요법 중·12개월 이내 재발 여부: 반대 갈래만 가리키는 권고는 감점
+        score -= _relapse_adjust(payload.get("text", ""), relapse_12m)
+
         scored_results.append({
             "score": score,
             "version": payload.get("version", "0000-00"),
@@ -224,6 +239,18 @@ def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, w
     if with_parent:
         results = [{**r, "parent": get_parent(r)} for r in results]
     return results
+
+
+def _relapse_adjust(text: str, relapse_12m) -> float:
+    """권고가 환자의 재발 시점과 반대 갈래만 가리키면 감점할 크기. 두 갈래를 다 말하거나 둘 다 말하지 않으면 0."""
+    if relapse_12m not in ("yes", "no"):
+        return 0.0
+    within, after = bool(RELAPSE_WITHIN_12M.search(text)), bool(RELAPSE_AFTER_12M.search(text))
+    if relapse_12m == "yes" and after and not within:
+        return RELAPSE_MISMATCH_PENALTY
+    if relapse_12m == "no" and within and not after:
+        return RELAPSE_MISMATCH_PENALTY
+    return 0.0
 
 
 def _rerank_scores(query_text: str, texts: list[str]):
