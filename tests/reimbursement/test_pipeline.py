@@ -113,6 +113,27 @@ def test_every_chunk_has_printed_page(dirs):
     assert (supp["page_start"], supp["page_end"]) == (min(c["page_start"] for c in kids), max(c["page_end"] for c in kids))
 
 
+def test_combo_search_tags_follow_stage(dirs):
+    """병용요법 행의 검색 태그(setting·line)는 기존 요법의 치료 단계와 맞는다. '(수술후보조요법)' 표시가 없는
+    수술 전후 행(ribociclib 보조 25~28)이 전이성으로 붙으면 조기 환자 검색에서 빠지고 전이성 검색에 섞인다."""
+    from src.reimbursement.booklet import load_booklet
+    from src.reimbursement.chunks import booklet_chunks
+
+    bc = booklet_chunks(load_booklet(dirs["raw"] / BOOKLET.name, RAW.parent / "cache"))
+    combo = [c for c in bc.chunks if "-combo-r" in c["chunk_id"]]
+    wrong = []
+    for c in combo:
+        stage = (c["reimbursement"]["conditions"] or {}).get("line_rule", {}).get("stage")
+        if stage in ("neoadjuvant", "adjuvant"):
+            if "metastatic" in c["setting"] or stage not in c["line"]:
+                wrong.append((c["chunk_id"], stage, c["setting"], c["line"]))
+        elif stage and stage.startswith("palliative") and ("metastatic" not in c["setting"] or "early" in c["setting"]):
+            wrong.append((c["chunk_id"], stage, c["setting"], c["line"]))
+    assert wrong == []
+    r25 = next(c for c in combo if c["chunk_id"].endswith("-combo-r25"))
+    assert r25["setting"] == ["early", "locally_advanced"] and r25["line"] == ["adjuvant"]
+
+
 def test_full_run_then_rerun(dirs):
     res = _run(dirs)
     assert res.ok, res.render()

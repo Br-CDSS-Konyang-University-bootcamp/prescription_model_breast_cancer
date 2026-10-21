@@ -39,7 +39,7 @@ ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "data" / "reimbursement"
 CACHE_PATH = DATA / "conditions_cache.jsonl"
 MODEL ="claude-sonnet-5-5"          # PROJECT.md §9: 공고·지침 구조화
-PROMPT_VERSION = "2026-10-21.1"       # 프롬프트·어휘를 바꾸면 올린다 (예전 저장 결과를 안 쓰게)
+PROMPT_VERSION = "2026-10-22.1"       # 프롬프트·어휘를 바꾸면 올린다 (예전 저장 결과를 안 쓰게)
 
 OPS = ["eq", "in", "not_contains", "contains", "gt", "gte", "lt", "lte", "exists"]
 STAGES = ["0", "I", "IA", "IB", "II", "IIA", "IIB", "III", "IIIA", "IIIB", "IIIC", "IV"]
@@ -50,6 +50,8 @@ DRUG_SUBCLASSES = ["anthracycline", "taxane", "AI_nonsteroidal", "AI_steroidal",
                    "SERM", "SERD", "progestin", "CDK4/6_inhibitor", "immune_checkpoint_inhibitor"]
 DRUG_CLASSES = ["Chemotherapy", "Hormone Therapy", "HER2-targeted Therapy", "Immunotherapy", "Other Targeted Therapy"]
 LINE_STAGES = ["neoadjuvant", "adjuvant", "palliative_endocrine", "palliative_chemo", "combination", "supportive"]
+# 심평원 차수 간주 규칙 (A의 patient_state fields.deemed_lines[].rule_id, schemas/patient_state.json)
+DEEM_RULES = ["DEEM-ANTHRA-TAXANE", "DEEM-SG-1Y", "DEEM-HER2ADC-6M", "DEEM-ENDO-ADJ-1Y"]
 LINE_RULES = ["1차", "1차 이상", "2차", "2차 이상", "3차 이상"]
 
 _POSNEG = ["positive", "negative"]
@@ -96,8 +98,11 @@ FIELDS: dict[str, tuple[str, list[str], object, str]] = {
                    "'재발성'(국소·구역·원격 재발 모두) -> in [distant, locoregional, site_unknown], '국소 재발' -> eq locoregional"),
     "operable": ("patient_state.fields.stage.operable.value", ["eq"], ["yes", "no"],
                  "'절제 불가능한'·'수술이 불가능한' -> eq no (진단 시 기준)"),
-    "recurrence_operable": ("(없음: 팀 결정 대기. recurrence.surgery는 재발 후 수술 여부라 절제 불가와 다름)", ["eq"], ["yes", "no"],
-                            "'절제 불가능한 국소 재발성' -> eq no"),
+    # 재발 병소를 절제할 수 있는지는 데이터에 없어 칸을 두지 않고, 재발 후 실제 수술 여부로 대신한다 (A 답변 2026-10-21).
+    # 수술하지 않은 것(surgery = no)은 절제할 수 없는 것과 같지 않으므로 no로 읽지 않는다
+    "recurrence_operable": ("patient_state.fields.recurrence.surgery.value = yes 이고 surgery_intent.value = curative -> yes "
+                            "(절제함). 그 밖(no, unknown, palliative)은 알 수 없음 (사유: 재발 병소 절제 가능 여부 확인 필요)",
+                            ["eq"], ["yes", "no"], "'절제 불가능한 국소 재발성' -> eq no"),
     "t_stage": ("patient_state.fields.stage.ctnm.value.t / ptnm.value.t", ["eq", "in", "gt", "gte"], T_STAGES,
                 "'염증성' -> eq T4d, '직경 > 2㎝' -> gte T2, '1cm 이상'·'1cm 초과' -> gte T1c, '≥ 5 cm' -> gte T3"),
     "stage_group": ("patient_state.fields.stage.group.value", ["eq", "in", "gte", "lte"], STAGES,
@@ -138,11 +143,14 @@ FIELDS: dict[str, tuple[str, list[str], object, str]] = {
                                "이미 받은 고식적 항암화학요법 차수. '고식적 항암화학요법을 투여하지 않은' -> eq 0"),
     "days_end_to_recurrence": ("patient_state.fields.recurrence.recurrence_day.value - treatment_history[].end_day", ["gt", "lte"], _NUM,
                                "'투여 종료 후 1년 이후 재발' -> gt 365, '투여 중 또는 종료 1년 이내 재발' -> lte 365, "
-                               "'6개월 이내' -> lte 183. of에 대상 약·시기"),
+                               "'6개월 이내' -> lte 183. of에 대상 약·시기. 첫 재발일(국소 재발 포함)까지. "
+                               "단 고식적 내분비 1차(3가)는 days_end_to_metastasis (A 답변 2026-10-21)"),
     "days_end_to_metastasis": ("patient_state.fields.recurrence.metastasis_day.value - treatment_history[].end_day "
                                "(A의 deemed_lines DEEM-ENDO-ADJ-1Y와 같은 기준: 종료일부터 전이 기준일까지)", ["gt", "lte"], _NUM,
-                               "고식적 단계에서 '수술후보조요법 투여 중 또는 종료 후 1년 이내에 진행' -> lte 365 (진행 = 전이). "
-                               "'재발'로 적힌 경우는 days_end_to_recurrence"),
+                               "고식적 단계에서 '수술후보조요법 투여 중 또는 종료 후 1년 이내에 진행' -> lte 365 (진행 = 전이, B 확인). "
+                               "고식적 내분비 1차(3가)의 '종료 후 1년 이후 재발'·'1년 이내 재발'도 이 칸 (A 답변 2026-10-21: "
+                               "DEEM-ENDO-ADJ-1Y로 판정). 병용 연번 29의 'CDK4/6 종료 후 12개월 초과'는 of CDK4/6로 gt 365. "
+                               "그 밖의 '재발'로 적힌 기간은 days_end_to_recurrence. 국소 재발만 있어 전이 기준일이 없으면 알 수 없음"),
     "days_end_to_progression": ("patient_state.fields.treatment_history[].progression_day - end_day", ["lte", "gt"], _NUM,
                                 "'고식적요법 투여 중 또는 종료 후 1달 이내에 진행' -> lte 30"),
     "recent_therapy_28d": ("patient_state.fields.at_index.recent_therapy_28d.status (A가 계산, unknown이면 알 수 없음)",
@@ -152,11 +160,15 @@ FIELDS: dict[str, tuple[str, list[str], object, str]] = {
     "cycles_total": ("patient_state.fields.treatment_history[].cycles.value 합 (basis가 estimated인 값이 들어가면 추정값으로 표시)",
                      ["lte", "eq"], _NUM,
                      "'총 trastuzumab 투여 주기 18주기 이하' -> lte 18, of.drugs [trastuzumab]"),
-    "cumulative_dose_mg_m2": ("patient_state.fields.anthracycline_drug_dose.drugs[].total_dose.value", ["gt", "gte"], _NUM,
+    "cumulative_dose_mg_m2": ("patient_state.fields.anthracycline_drug_dose.drugs[].total_dose.value (unit이 mg/m2인 값만. "
+                              "다른 단위나 'No value'면 알 수 없음. anthracycline만 담기므로 cisplatin 누적은 늘 알 수 없음)",
+                              ["gt", "gte"], _NUM,
                               "'doxorubicin 누적 240mg/m2 이상' -> gte 240, of.drugs [doxorubicin]"),
-    "cardiac_history": ("(없음: 팀 결정 대기, patient.comorbidities 제안)", ["eq"], [True, False],
+    # 심장 병력·종격동 방사선은 TCGA에 없어 이번 모델(v0.1)에서 뺀다 (A 결정 2026-10-20, PROJECT.md §12 한계).
+    # liposomal doxorubicin은 누적용량 기준을 만족하면 이 조건 없이 판정하고, 못 미치면 '심장 위험요소 확인 필요'
+    "cardiac_history": ("(없음: 이번 모델 제외, PROJECT.md §12) 늘 알 수 없음", ["eq"], [True, False],
                         "'심장위험요소'·'울혈 심부전증 병력 등 병발 심장질환' -> eq true"),
-    "mediastinal_radiation": ("(없음: 팀 결정 대기, radiotherapy_history 제안)", ["eq"], [True, False],
+    "mediastinal_radiation": ("(없음: 이번 모델 제외, PROJECT.md §12) 늘 알 수 없음", ["eq"], [True, False],
                               "'종격동 방사선 치료' 경험 -> eq true"),
 }
 
@@ -194,7 +206,9 @@ def output_schema() -> dict:
                 "properties": {"text": {"type": "string"},
                                "setting": {"type": "array", "items": {"enum": ["neoadjuvant", "adjuvant", "metastatic"]}},
                                "drugs": {"type": "array", "items": {"type": "string"}},
-                               "within_days": {"type": "number"}}}},
+                               "within_days": {"type": "number"},
+                               # A의 deemed_lines 규칙 이름. 적혀 있으면 판정 쪽이 이 규칙을 그대로 본다 (VC-0103, 2026-10-22)
+                               "rule_id": {"enum": DEEM_RULES}}}},
             "notes": _TEXTS, "human_review": _TEXTS, "unmapped": _TEXTS,
         },
     }
@@ -225,6 +239,8 @@ SYSTEM = """당신은 건강보험심사평가원 항암요법 급여 기준 문
 6. '선행·보조요법 중 또는 종료 후 1년 이내 재발이면 1차 투여가 실시된 것으로 간주', 'Anthracycline계 및 Taxane을
    포함한 선행화학요법 또는 수술후보조요법이 사용된 경우에는 1차 투여가 실시된 것으로 간주' 같은 간주 규칙은
    counts_as_prior_line에 넣는다 (within_days는 기간이 있을 때만).
+   고식적 내분비 2차 이상의 '수술후보조요법 투여 중 또는 종료 후 1년 이내에 진행된 경우도 인정함'도 간주 규칙이다:
+   counts_as_prior_line에 rule_id DEEM-ENDO-ADJ-1Y, setting [adjuvant], drugs [Hormone Therapy]로 넣는다 (within_days 없이).
 7. 판정 대상이 아닌 처방 조건(예: '4주 간격의 goserelin 혹은 leuprolide를 함께 투여해야 함', 투여 주기 간격)은 notes,
    의사 소견·기관 요건·'이러한 치료가 부적절한 환자는 예외'·'허가사항 범위 내에서 필요ㆍ적절하게'처럼 데이터로 판정할 수
    없는 조건은 human_review에 원문 그대로 넣는다.
@@ -685,7 +701,7 @@ def review_rows(chunks: list[dict]) -> list[list[str]]:
                                     u.get("text", ""), "", ""])
         for key in ("any_of", "any_of_exceptions", "counts_as_prior_line"):
             for g in cond.get(key, []):
-                extra = json.dumps({k: v for k, v in g.items() if k in ("setting", "drugs", "within_days")},
+                extra = json.dumps({k: v for k, v in g.items() if k in ("setting", "drugs", "within_days", "rule_id")},
                                    ensure_ascii=False) if key == "counts_as_prior_line" else ""
                 rows.append(head + [f"{key} (묶음 머리)", "", "", "", extra, "", g.get("text", ""), "", ""])
         for key in ("notes", "human_review", "unmapped"):
