@@ -1,5 +1,5 @@
 ﻿TCGA-BRCA 정리본 변경 내역 (tcga_brca_merging_cropped.csv)
-작성일 2026-10-20
+작성일 2026-10-21
 
 원본: tcga_brca_merged.csv (수정하지 않음)
 결과: 환자 1,098명 × 230열  →  838명 × 130열

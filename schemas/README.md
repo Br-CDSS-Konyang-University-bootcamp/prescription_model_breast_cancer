@@ -177,8 +177,9 @@ TCGA 정답은 실제 날짜가 없으므로, 날짜 칸은 추출값이면 `sta
 | ER | positive, low, negative, unknown, not_done, not_recorded (unknown = 값은 있지만 percent·range·Allred·적힌 판정 중 판정에 쓸 값이 없음. indeterminate는 쓰지 않음, 2026-10-15) |
 | PR | positive, negative, unknown, not_done, not_recorded (indeterminate는 쓰지 않음, 2026-10-15) |
 | Ki-67 | positive (기준 이상, 고증식), negative, intermediate (구간이 기준에 걸치거나 적힌 판정이 intermediate), unknown (쓸 값 없음), not_done, not_recorded (`evidence.percent` 사용. 기준값 20%, 2026-10-15 확정) |
-| gBRCA1, gBRCA2, PALB2 | positive, negative, vus, not_done, not_recorded. TCGA 정답 세트에서는 `molecular.mutations.BRCA1/2`를 gBRCA 측정으로 가정해 판정 (2026-10-15 협의) |
-| sBRCA1, sBRCA2, PIK3CA, AKT1, PTEN | positive, negative, not_done, not_recorded |
+| gBRCA1, gBRCA2, PALB2 | positive, negative, vus, not_done, not_recorded. `molecular.mutations.BRCA1/2`는 TCGA·가상·실제 차트 모두 gBRCA로 보고 판정 (TCGA 2026-10-15 협의, 가상·실제 차트 2026-10-21 A 결정) |
+| sBRCA1, sBRCA2 | 레코드를 만들지 않는다 (2026-10-21 A 결정). 마커 이름은 C·D가 쓰고 있어 남겨 둔다 |
+| PIK3CA, AKT1, PTEN | positive, negative, not_done, not_recorded |
 | ESR1 | positive, negative, retest_needed, not_done, not_recorded |
 | PD-L1 | positive, negative, not_done, not_recorded (`evidence.assay`, `evidence.score` 함께 저장) |
 
