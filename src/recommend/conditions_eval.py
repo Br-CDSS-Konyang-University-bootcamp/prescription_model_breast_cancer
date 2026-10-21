@@ -20,7 +20,17 @@ T_ORDER = ["Tis", "T1mi", "T1a", "T1b", "T1c", "T2", "T3", "T4a", "T4b", "T4c", 
 JUDGED = {"positive", "negative", "low", "ultralow"}
 LINE_RULE_MIN = {"1차": (1, 1), "1차 이상": (1, None), "2차": (2, 2), "2차 이상": (2, None), "3차 이상": (3, None)}
 LINE_STAGE_COUNT = {"palliative_endocrine": "endocrine_line", "palliative_chemo": "chemo_line"}
-LINE_STAGE_CATEGORY = {"palliative_endocrine": "endocrine", "palliative_chemo": "chemo"}
+
+
+def _deem_rule(entry):
+    """counts_as_prior_line 한 줄 -> A의 deemed_lines rule_id (D schema_proposal.md "차수 간주 규칙" 표).
+    anthracycline·taxane 포함 선행·보조 -> DEEM-ANTHRA-TAXANE, 종료 1년 이내 재발 -> DEEM-SG-1Y. 못 맞추면 None."""
+    drugs = set(entry.get("drugs") or [])
+    if {"anthracycline", "taxane"} <= drugs:
+        return "DEEM-ANTHRA-TAXANE"
+    if entry.get("within_days") == 365:
+        return "DEEM-SG-1Y"
+    return None
 
 
 # ------------------------------------------------------------ 세 값 논리
@@ -293,7 +303,8 @@ def _evaluate_one(it, patient_state, record):
 
 def _line_rule(cond, patient_state):
     """line_rule {stage, line}: 이번에 줄 치료의 차수(이미 받은 고식적 차수 + 1)가 공고 투여단계에 맞는지.
-    공고가 선행·보조요법을 1회로 간주하면(counts_as_prior_line) draft6 deemed_lines의 met·unknown을 본다."""
+    공고가 선행·보조요법을 1회로 간주하면(counts_as_prior_line) 그 행의 간주 규칙에 맞는 deemed_lines만 본다
+    (handoff_to_B.md §6.3a "행마다 맞는 규칙을 골라"). 규칙을 못 맞추면 알 수 없음."""
     rule = cond.get("line_rule") or {}
     if not rule.get("line") or rule.get("stage") not in LINE_STAGE_COUNT:
         return True
@@ -307,11 +318,12 @@ def _line_rule(cond, patient_state):
     if fits(given + 1):
         return True
     if cond.get("counts_as_prior_line") and fits(given + 2):
-        cat = LINE_STAGE_CATEGORY[rule["stage"]]
-        statuses = [d.get("status") for d in fields.get("deemed_lines") or [] if d.get("category") == cat]
+        rule_ids = [_deem_rule(e) for e in cond["counts_as_prior_line"]]
+        status = {d.get("rule_id"): d.get("status") for d in fields.get("deemed_lines") or []}
+        statuses = [status.get(r) if r else None for r in rule_ids]
         if "met" in statuses:
             return True
-        if "unknown" in statuses:
+        if any(st in (None, "unknown") for st in statuses):
             return None
     return False
 
