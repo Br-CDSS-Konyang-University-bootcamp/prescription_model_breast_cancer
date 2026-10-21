@@ -21,7 +21,7 @@ G2 = {"chunk_id": "g-ola", "doc_type": "guideline", "source": "ESMO-MBC", "versi
       "section": "Second-line", "page_start": 1206, "evidence": {"loe": "I", "gor": "A"}, "drugs": ["olaparib"],
       "text": "PARPi monotherapy is recommended for patients with a germline BRCA1/2 mutation. Options include olaparib."}
 R_OK = {"chunk_id": "r-fulv", "doc_type": "reimbursement", "source": "HIRA-booklet", "text": "fulvestrant 단독",
-        "reimbursement": {"source_type": "baseline", "notice_no": "제2026-190호", "effective_from": "2026-09-01"}}
+        "reimbursement": {"source_type": "baseline", "notice_no": "제2026-210호", "effective_from": "2026-10-01"}}
 R_PREVIEW = {"chunk_id": "r-pre", "doc_type": "reimbursement", "source": "HIRA-preview", "text": "예고",
              "reimbursement": {"source_type": "preview", "notice_no": "제2026-300호", "effective_from": "2026-12-01"}}
 R_OFF = {"chunk_id": "r-off", "doc_type": "reimbursement", "source": "HIRA-offlabel", "text": "olaparib 허가초과",
@@ -155,7 +155,7 @@ def test_prompt_has_rules_ids_and_no_chart_quotes():
     ps = {"fields": {"patient": {"menopausal_status": {"status": "present", "value": "postmenopausal",
                                                         "source": {"doc_id": "D1", "quote": "차트원문인용"}}}}}
     text = build_prompt(ps, bm(PIK3CA="positive"), GUIDE, REIMB)
-    assert "[g-capi]" in text and "[r-fulv]" in text and "제2026-190호" in text and "LoE I, GoR A" in text
+    assert "[g-capi]" in text and "[r-fulv]" in text and "제2026-210호" in text and "LoE I, GoR A" in text
     assert "[청크ID]" in text and "postmenopausal" in text and "차트원문인용" not in text
 
 

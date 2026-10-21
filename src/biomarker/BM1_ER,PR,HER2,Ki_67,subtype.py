@@ -42,7 +42,7 @@ PR_POSITIVE_MIN = 9            # range 최대값·percent가 이 값(%) 이상�
 KI67_HIGH_MIN = 20
 
 # PD-L1 약제별 기준 (전달 문서 6.5절). 검사법과 점수 종류가 기준과 다르면 판정하지 않는다
-PDL1_22C3_CPS_MIN = 10         # pembrolizumab + 항암 (TNBC 1차): 22C3 CPS 이 값 이상 양성 (공고 p.58~59)
+PDL1_22C3_CPS_MIN = 10         # pembrolizumab + 항암 (TNBC 1차): 22C3 CPS 이 값 이상 양성 (공고책자 2026-10-01판 p.58)
 PDL1_SP142_IC_MIN = 1          # atezolizumab + nab-paclitaxel: SP142 IC 이 값(%) 이상 양성 (ESMO MBC)
 
 # 이전 약제 계열에서 뺄 계열 (차수에 들어가지 않는 약)
@@ -464,7 +464,8 @@ def molecular_subtype_of(subtype, ki67):
 # (검사법, 점수 종류) -> (양성 최소값, 약, 근거, 태그). 전달 문서 6.5절, PROJECT.md 5절.
 # 태그는 C의 표준 태그 PD-L1+ (rag_guideline_chunking_design_update.md 3.5절)
 PDL1_RULES = {
-    ("22C3", "CPS"): (PDL1_22C3_CPS_MIN, "pembrolizumab", "심평원 공고 p.58~59", "PD-L1+"),
+    ("22C3", "CPS"): (PDL1_22C3_CPS_MIN, "pembrolizumab", "심평원 공고책자 2026-10-01판 p.58 (hira-booklet-20261001-bc-pal-chemo-1l-r06·r07)",
+                       "PD-L1+"),
     ("SP142", "IC"): (PDL1_SP142_IC_MIN, "atezolizumab", "ESMO MBC", "PD-L1+"),
 }
 
@@ -500,7 +501,7 @@ GENES = ("ESR1", "PIK3CA", "AKT1", "PTEN", "BRCA1", "BRCA2", "PALB2")
 # 허가 동반진단 변이 목록이 있는 유전자 (actionable_variants.csv)
 LABEL_GENES = {"PIK3CA", "AKT1", "ESR1"}
 # 변이 유무로 판정하는 유전자 (팀 회의 2026-10-20: PTEN은 positive/negative로 통일, VEP 안 씀).
-# 단백질이 바뀌는 변이가 하나라도 있으면 양성. 심평원 공고(capivasertib 허가사항)도 "PTEN 변이가 있는"으로만 적는다
+# 단백질이 바뀌는 변이가 하나라도 있으면 양성
 PRESENCE_GENES = {"PTEN"}
 # 단백질 서열이 바뀌지 않는 변이 종류 (MAF 변이 종류 칸). 이것만 있으면 변이 없음으로 본다
 NON_PROTEIN_TYPES = {"Silent", "Splice_Region", "Intron", "3'UTR", "5'UTR", "3'Flank", "5'Flank", "IGR", "RNA"}
@@ -514,15 +515,16 @@ GENE_TAGS = {"PIK3CA": "PIK3CA-mut", "AKT1": "AKT1-mut", "PTEN": "PTEN-alt", "ES
              "PALB2": "gPALB2", "gBRCA1": "gBRCA", "gBRCA2": "gBRCA", "sBRCA1": "sBRCA", "sBRCA2": "sBRCA"}
 
 # 근거 표시용 출처 (팀 회의 2026-10-20 5번). 판정에는 쓰지 않는다. 문서 문장은 옮기지 않고 문서·쪽만 적는다.
-# 급여: 심평원 공고 제2026-190호 PDF 쪽 번호 (PDF쪽 = 인쇄쪽 + 32). 유전자 조건은 '기타 항암제 병용요법' 표의
-# 허가사항 칸에만 있고, 인정 조건은 식약처 허가사항 범위 이내다 (PDF 190쪽)
-_HIRA = "심평원 공고 제2026-190호"
+# 급여: D의 공고책자 2026-10-01판(제2026-210호) 인쇄 쪽과 D의 chunk_id (D 확인 2026-10-21). 공고 문구와 공고 내용 해석은
+# 옮기지 않는다 (급여 판정은 D의 청크로 한다). 여기 없는 마커는 B가 연결한 행이 없다는 뜻이다
+_HIRA = "심평원 공고책자 2026-10-01판"
 REIMBURSEMENT_BASIS = {
-    "PIK3CA": f"{_HIRA} PDF 196–197·199쪽 (alpelisib·inavolisib·capivasertib 허가사항, 이 약들은 비급여)",
-    "AKT1": f"{_HIRA} PDF 196쪽 (capivasertib 허가사항, 비급여)",
-    "PTEN": f"{_HIRA} PDF 196쪽 (capivasertib 허가사항, 비급여)",
-    "gBRCA1": f"{_HIRA} PDF 200–202쪽 (olaparib 수술 후 보조요법 허가사항 'gBRCA 변이')",
-    "gBRCA2": f"{_HIRA} PDF 200–202쪽 (olaparib 수술 후 보조요법 허가사항 'gBRCA 변이')",
+    "PIK3CA": f"{_HIRA} p.165–169 (병용 연번 21 capivasertib, 22 alpelisib, 29 inavolisib; "
+              f"hira-booklet-20261001-combo-r21·r22·r29)",
+    "AKT1": f"{_HIRA} p.165–166 (병용 연번 21 capivasertib; hira-booklet-20261001-combo-r21)",
+    "PTEN": f"{_HIRA} p.165–166 (병용 연번 21 capivasertib; hira-booklet-20261001-combo-r21)",
+    "gBRCA1": f"{_HIRA} p.169–171 (병용 연번 30 olaparib; hira-booklet-20261001-combo-r30)",
+    "gBRCA2": f"{_HIRA} p.169–171 (병용 연번 30 olaparib; hira-booklet-20261001-combo-r30)",
 }
 # 지침: data/chunks/esmo_chunks.json의 ESMO 권고 쪽 번호
 GUIDELINE_BASIS = {
@@ -675,7 +677,7 @@ def _evidence_notes(gene, marker, variants, cv_row):
             _, civic_row = _civic_best(gene, variants)
             notes.append(f"{_civic_text(civic_row)}, 파일 {CIVIC_CSV.name}, 판정에 쓰지 않음" if civic_row
                          else "CIViC 근거 없음")
-    notes.append(f"급여: {REIMBURSEMENT_BASIS.get(marker, _HIRA + '에 없음')}")
+    notes.append(f"급여: {REIMBURSEMENT_BASIS.get(marker, 'B가 연결한 심평원 행 없음 (D 확인 전)')}")
     if marker in GUIDELINE_BASIS:
         notes.append(f"지침: {GUIDELINE_BASIS[marker]}")
     return " / 근거: " + "; ".join(notes)

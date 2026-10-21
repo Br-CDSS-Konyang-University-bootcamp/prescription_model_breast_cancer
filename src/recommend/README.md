@@ -16,7 +16,7 @@
 | `prompt.py` | 프롬프트: 환자 요약(구조화 값만, 차트 원문 인용은 넣지 않음), 바이오마커 상태값과 이유, 검사 공백, 지침 청크(ID·출처·쪽·근거 수준·부모 소단원), 급여 청크(공고 번호·시행일). 문장마다 `[청크ID]`를 붙이라고 지시 |
 | `postprocess.py` | 환각 방지 후처리 (아래 표) |
 | `validate.py` | `schemas/recommendation.json` 형식 검사 |
-| `drug_biomarker.csv` | 약 → 필요한 바이오마커와 상태값. 출처는 심평원 공고 제2026-190호 PDF 쪽과 ESMO 쪽. `disease` 칸이 있으면 그 범주에서만 적용 (pembrolizumab·atezolizumab은 전이성에서만 PD-L1 필요) |
+| `drug_biomarker.csv` | 약 → 필요한 바이오마커와 상태값. 출처는 D가 쓰는 심평원 공고책자 2026-10-01판(제2026-210호)의 인쇄 쪽·chunk_id(D 확인 2026-10-21)와 ESMO 쪽. 공고 문구는 옮기지 않는다. `disease` 칸이 있으면 그 범주에서만 적용 (pembrolizumab·atezolizumab은 전이성에서만 PD-L1 필요) |
 
 ## 후처리 규칙 (PROJECT.md §7 환각 방지·급여 분류)
 

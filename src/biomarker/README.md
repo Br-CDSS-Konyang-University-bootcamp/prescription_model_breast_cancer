@@ -27,7 +27,7 @@ PD-L1 판정 (2026-10-16, 전달 문서 6.5절). 입력 `receptors.pdl1` (`assay
 
 | 검사법 + 점수 종류 | 양성 기준 | 약제 | 근거 | 태그 | 규칙 ID |
 |---|---|---|---|---|---|
-| 22C3 + CPS | 10 이상 | pembrolizumab + 항암 (TNBC 1차) | 심평원 공고 p.58~59 | `PD-L1+` | `BM2-PDL1-22C3` |
+| 22C3 + CPS | 10 이상 | pembrolizumab + 항암 (TNBC 1차) | 심평원 공고책자 2026-10-01판 p.58 (`hira-booklet-20261001-bc-pal-chemo-1l-r06`·`r07`) | `PD-L1+` | `BM2-PDL1-22C3` |
 | SP142 + IC | 1% 이상 | atezolizumab + nab-paclitaxel | ESMO MBC | `PD-L1+` | `BM2-PDL1-SP142` |
 | 그 밖 (SP263, TPS 등) | 판정하지 않음 → `unknown` | | | | `BM2-PDL1-ASSAY` |
 
@@ -49,10 +49,10 @@ PD-L1 판정 (2026-10-16, 전달 문서 6.5절). 입력 `receptors.pdl1` (`assay
 | 5 | 그 밖의 검출 변이 | `vus` (음성 처리, 표시 유지) | `BM2-<유전자>-VUS` |
 | ESR1 | 원발 조직 결과인데 이후 내분비요법 진행(PD, progression)이 있음 | `retest_needed` | `BM2-ESR1-RETEST` |
 
-- PTEN을 변이 유무로 보는 이유: 팀 회의(2026-10-20)에서 PTEN 결과를 positive/negative로 통일하고 VEP를 쓰지 않기로 했다. 심평원 공고(제2026-190호 PDF 196쪽, capivasertib 허가사항)도 "PTEN 변이가 있는"으로만 적고 절단형 같은 기준이 없다. 절단형 여부와 ClinVar 판정은 근거로만 적는다.
+- PTEN을 변이 유무로 보는 이유: 팀 회의(2026-10-20)에서 PTEN 결과를 positive/negative로 통일하고 VEP를 쓰지 않기로 했다. 절단형 여부와 ClinVar 판정은 근거로만 적는다.
 - CIViC는 판정에 쓰지 않는다 (팀 회의 2026-10-20: 약이 듣는지는 판정하지 않는다). 그래서 `off-label-variant` 태그도 붙이지 않는다.
-- 근거 표시 (팀 회의 2026-10-20 5번): 이유 끝에 ` / 근거: ` 뒤로 변이 이름·종류(절단형 표시)·VAF, 허가 동반진단 목록 해당 여부(PIK3CA·AKT1·ESR1), ClinVar 판정(BRCA1·BRCA2·PALB2·PTEN), CIViC 근거(PIK3CA·AKT1·PTEN, "판정에 쓰지 않음"), 급여 근거(심평원 공고 쪽 번호 또는 "심평원 공고 제2026-190호에 없음"), 지침 근거(ESMO 쪽 번호)를 적는다. 스키마에 칸이 있는 변이 이름·VAF·ClinVar는 `evidence`에도 넣는다. 변이 종류·허가 목록·CIViC·급여·지침 칸은 스키마 변경이라 4명 검토 뒤에 옮긴다. 문서 문장은 옮기지 않고 문서와 쪽만 적는다 (심평원 공고 판권면의 복제 금지 문구).
-- 급여·지침 쪽 번호: 코드의 `REIMBURSEMENT_BASIS`(심평원 공고 제2026-190호, PDF쪽 = 인쇄쪽 + 32), `GUIDELINE_BASIS`(`data/chunks/esmo_chunks.json`의 ESMO 쪽). 심평원 공고에서 유전자 조건은 '기타 항암제 병용요법' 표의 허가사항 칸에만 있고, 이 약들(alpelisib, inavolisib, capivasertib)은 비급여다. ESR1·PALB2와 체세포 BRCA는 심평원 공고에 없다.
+- 근거 표시 (팀 회의 2026-10-20 5번): 이유 끝에 ` / 근거: ` 뒤로 변이 이름·종류(절단형 표시)·VAF, 허가 동반진단 목록 해당 여부(PIK3CA·AKT1·ESR1), ClinVar 판정(BRCA1·BRCA2·PALB2·PTEN), CIViC 근거(PIK3CA·AKT1·PTEN, "판정에 쓰지 않음"), 급여 근거(심평원 공고책자 2026-10-01판 쪽 번호와 D의 chunk_id, 또는 "B가 연결한 심평원 행 없음 (D 확인 전)"), 지침 근거(ESMO 쪽 번호)를 적는다. 스키마에 칸이 있는 변이 이름·VAF·ClinVar는 `evidence`에도 넣는다. 변이 종류·허가 목록·CIViC·급여·지침 칸은 스키마 변경이라 4명 검토 뒤에 옮긴다. 문서 문장은 옮기지 않고 문서와 쪽만 적는다 (심평원 공고 판권면의 복제 금지 문구).
+- 급여·지침 쪽 번호: 코드의 `REIMBURSEMENT_BASIS`(D가 쓰는 심평원 공고책자 2026-10-01판(제2026-210호)의 인쇄 쪽과 D의 chunk_id, D 확인 2026-10-21. 공고 문구는 옮기지 않는다), `GUIDELINE_BASIS`(`data/chunks/esmo_chunks.json`의 ESMO 쪽). 급여 근거는 D가 확인해 준 행(2026-10-21)만 적고, 공고 내용 해석(급여·비급여 여부 등)은 적지 않는다. 급여 판정은 D의 청크로 한다. ESR1·PALB2·체세포 BRCA는 B가 연결한 심평원 행이 없어 "D 확인 전"으로 적는다.
 - BRCA1/2 레코드 이름: patient_ref가 `TCGA-`로 시작하면 `gBRCA1/2`(종양 엑솜을 생식세포 검사로 가정), 아니면 `sBRCA1/2`.
 - 태그(`rag_tags`)는 청크 `biomarker_tags`와 같은 어휘를 쓴다 (C의 `src/rag/rag_guideline_chunking_design_update.md` 3.5절 표준 태그): `PIK3CA-mut`, `AKT1-mut`, `PTEN-alt`, `ESR1-mut`, `gBRCA`, `sBRCA`, `gPALB2`, `PD-L1+`.
 - BM-3 ClinVar (2026-10-19, 전달 문서 5.4절): `data/clinvar/clinvar_bm3_genes.tsv`를 로컬에서 조회한다. 리뷰 등급 기준은 코드의 `CLINVAR_MIN_STARS`. 단백질 변화(한 글자 표기)로 맞추므로 전사체가 다르면 놓칠 수 있다. ClinVar로 판정하는 유전자는 BRCA1·BRCA2·PALB2이고, PTEN은 근거로만 적는다 (코드의 `CLINVAR_JUDGE_GENES`). 근거는 `evidence.clinvar`에 `Pathogenic (3성, VCV17661)` 형식으로 남긴다. 예: BRCA1 C61G → 양성.
