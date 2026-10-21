@@ -389,6 +389,23 @@ LINE_CASES = [
     ("L08", "early", [], "unknown", "투약 기록 없음"),
 ]
 
+# 전이성 내분비·항암 차수 setting.line_endocrine / line_chemo (A 전달 문서 handoff_confirmed_state_to_B.md §6 2번):
+# (id, 아형, treatment_history, 정답 내분비, 정답 항암, 메모)
+LINE_KIND_CASES = [
+    ("LK01", "HR+/HER2-", [tx(["anastrozole"], "adjuvant", 40)], "1L", "1L",
+     "전이 후 투약 없음: 결정할 차수는 둘 다 1차 (VC-0103)"),
+    ("LK02", "HR+/HER2-", [tx(["letrozole", "palbociclib"], "metastatic", 1500, 1, endo=1, resp="PD")], "2L", "1L",
+     "내분비 1차 진행 -> 내분비 2차, 항암은 따로 세서 1차"),
+    ("LK03", "HR+/HER2-", [tx(["letrozole"], "metastatic", 1500, 1, endo=1)], "1L", "1L", "진행 기록 없으면 그 차수"),
+    ("LK04", "TNBC", [tx(["capecitabine"], "metastatic", 180, 1, chemo=1),
+                      tx(["docetaxel"], "metastatic", 242, 2, chemo=2, stop="progression")], "not_applicable", ">=3L",
+     "HR 음성은 내분비 대상 아님"),
+    ("LK05", "HR+/HER2-", [tx(["letrozole"], "metastatic", 1500)], "unknown", "unknown", "전이 후 투약은 있는데 line 없음"),
+    ("LK06", "HR+/HER2-", [tx(["paclitaxel"], "metastatic", 100, 1, chemo=1, resp="PD"),
+                           tx(["letrozole"], "metastatic", 300, 2, endo=1)], "1L", "2L",
+     "항암 1차 진행 후 내분비 시작: 전체로는 2차지만 내분비 1차, 항암 2차 (공고 p.55 따로 셈)"),
+]
+
 # BM-3 CIViC (전달 문서 5.4절, 판정에 쓰지 않고 근거로만 2026-10-20, data/civic/civic_bm3_evidence_<받은 날>.csv): (id, 유전자, 칸, 정답 상태, 정답 규칙 ID, 정답 태그, 메모)
 CIVIC_CASES = [
     ("V01", "PIK3CA", gene(("R88Q", MIS)), "vus", "BM2-PIK3CA-VUS", [],
@@ -534,6 +551,14 @@ def main():
     for case_id, disease, history, exp_line, note in LINE_CASES:
         got, why = bm.line_of({"treatment_history": history}, disease)
         report(case_id, got == exp_line, note, f"{disease} -> {got}" + ("" if got == exp_line else f" / 정답 {exp_line} / {why}"))
+    for case_id, subtype, history, exp_endo, exp_chemo, note in LINE_KIND_CASES:
+        got = (bm.line_kind_of({"treatment_history": history}, "endocrine", subtype)[0],
+               bm.line_kind_of({"treatment_history": history}, "chemo", subtype)[0])
+        report(case_id, got == (exp_endo, exp_chemo), note,
+               f"내분비 {got[0]}, 항암 {got[1]}" + ("" if got == (exp_endo, exp_chemo) else f" / 정답 {exp_endo}, {exp_chemo}"))
+    early = bm.setting_of({"treatment_history": [], "stage": {"disease_extent": {"status": "present", "value": "early"}}})
+    report("LK07", "line_endocrine" not in early and "line_chemo" not in early, "조기는 내분비·항암 차수 칸을 만들지 않음",
+           str(early))
     deemed = {"treatment_history": [tx(["eribulin"], "metastatic", 900, 1, chemo=1)],
               "deemed_lines": [{"rule_id": "DEEM-ANTHRA-TAXANE", "status": "met"},
                                {"rule_id": "DEEM-SG-1Y", "status": "not_met"}],

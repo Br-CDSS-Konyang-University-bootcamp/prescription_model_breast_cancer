@@ -85,7 +85,18 @@ PD-L1 판정 (2026-10-16, 전달 문서 6.5절). 입력 `receptors.pdl1` (`assay
 | early, locally_advanced | `neoadjuvant` / `adjuvant` | 마지막 선행·보조 투약에 A가 적은 `treatment_history[].setting`을 그대로 쓴다. 보조약·골 보호제는 빼고 본다 (6.2절 규칙 3) |
 | early, locally_advanced | `unknown` | 선행·보조 투약 없음 |
 
-- 내분비·항암 차수(`endocrine_line`, `chemo_line`)와 충족한 심평원 차수 간주 규칙(`deemed_lines`의 `met`)은 `setting.reason`에 적는다. 급여 판정은 [4] 추천 모듈이 "실제 차수 + 간주 규칙"으로 한다 (6.3a절).
+전이성이면 `setting.line_endocrine`·`setting.line_chemo`도 낸다 (A 전달 문서 `handoff_confirmed_state_to_B.md` §6 2번, 2026-10-21 A 동의). **이번에 결정할** 고식적 내분비·항암 차수를 따로 센 값으로, 화면 1(`confirmed_state`)의 기본값이다 (공고 p.55 따로 셈). 조기·국소 진행성은 이 두 칸을 만들지 않는다.
+
+| 경우 | `line_endocrine` / `line_chemo` |
+|---|---|
+| 그 종류의 고식적 요법 이력 없음 (`endocrine_line`·`chemo_line` 없음) | `1L` (B 판단: 결정할 차수이므로 `line`과 달리 `unknown`이 아님) |
+| 마지막 차수에서 진행 (PD, progression) | 다음 차수 |
+| 마지막 차수, 진행 기록 없음 | 그 차수 |
+| 전이 후 투약은 있지만 A가 `line`을 하나도 넣지 않음 | `unknown` |
+| HR 음성 (TNBC, HR-/HER2+) | 내분비 `not_applicable` |
+
+- 간주 규칙(`deemed_lines`)은 두 칸에 넣지 않는다. 충족한 간주 규칙은 `setting.reason`에 적고, 급여 판정은 [4] 추천 모듈이 급여 행마다 "결정할 차수 + 그 행의 간주 규칙"으로 한다 (6.3a절).
+- TCGA 838명 전이성 23명: 내분비 1L 9, 2L 7, >=3L 3, not_applicable 4 / 항암 1L 19, 2L 1, >=3L 3 (2026-10-21).
 - TCGA 838명 (2026-10-20 정답 세트 838명, 2026-10-21 다시 셈): 전이성 23명 중 1L 11, 2L 6, >=3L 6. 조기·국소 진행성은 adjuvant 607, neoadjuvant 2, unknown 206.
 - 판정 기준일(`index_day`) 이후 투약을 빼는 처리는 아직 없다 (TCGA는 기준일이 마지막 추적일이라 영향 없음).
 
