@@ -52,12 +52,12 @@ D 문서·B2 합의대로 (팀 기준):
 - 환자 JSON에 칸이 없거나 값이 없는 조건은 알 수 없음 (가상 차트의 gBRCA 줄이 없을 때 포함)
 - 칸마다 환자 JSON 위치는 D의 `conditions.py` FIELDS 설명을 따른다
 
-B 판단 (팀 문서에 없음, 팀 확인 필요):
+B 임시안 (팀 문서에 없음, 팀 확인 필요. 차수 세기는 A, `prior_failed` 읽는 법은 D 확인 전):
 
 - D의 조건은 아직 사람 검수 전이라(D README), `conditions_reviewed=False`(기본값)면 충족·불충족 모두 확정하지 않고 "급여(조건 확인 필요)"로 둔다. 검수가 끝나면 `True`로 바꾼다
 - 시행 중인 급여 청크 여러 개를 인용하면 하나라도 충족이면 충족, 충족이 없고 알 수 없음이 있으면 알 수 없음, 모두 불충족이면 불충족
-- 투여단계(`line_rule`): 이번 치료 차수 = 이미 받은 고식적 내분비(`endocrine_line`)·항암(`chemo_line`) 차수 중 큰 값 + 1. 공고가 선행·보조요법을 1회로 간주하면(`counts_as_prior_line`) A의 `deemed_lines`에서 같은 범주가 `met`이면 1차를 더해 보고, `unknown`이면 알 수 없음
-- `prior_failed`(실패한 이전 약): `stop_reason`이 `progression`이거나 `best_response`가 `PD`인 줄만 실패로 센다. 그런 줄이 없고 중단 이유가 비어 있는 줄이 있으면 알 수 없음
+- 투여단계(`line_rule`): 이번 치료 차수 = 이미 받은 고식적 치료 차수 + 1. 내분비 조건(`palliative_endocrine`)은 `endocrine_line`만, 항암 조건(`palliative_chemo`)은 `chemo_line`만 따로 센다. 공고가 선행·보조요법을 1회로 간주하면(`counts_as_prior_line`) A의 `deemed_lines`에서 같은 범주가 `met`이면 1차를 더해 보고, `unknown`이면 알 수 없음
+- `prior_failed`(실패한 이전 약): `stop_reason`이 `progression`이거나 `best_response`가 `PD`인 줄만 실패로 센다. 그런 줄이 없고 중단 이유와 반응이 비어 있는 줄이 있으면 알 수 없음, 다른 이유(부작용·치료 완료 등)로만 끝났으면 실패 아님
 - 조건에 쓰인 칸 중 위 목록에 없는 것(예: 아직 저장 칸이 없는 칸)은 알 수 없음
 
 ## 환자 정보 주의 (2026-10-20)
