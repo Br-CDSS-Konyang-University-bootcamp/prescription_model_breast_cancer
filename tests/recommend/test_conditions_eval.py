@@ -100,7 +100,14 @@ def test_line_rule():
     deemed = patient(deemed_lines=[{"rule_id": "DEEM-ANTHRA-TAXANE", "category": "chemo", "status": "met"}])
     c = cond(line_rule={"stage": "palliative_chemo", "line": "2차 이상"}, prior=[{"text": "간주", "setting": ["adjuvant"],
                                                                                "drugs": ["anthracycline", "taxane"]}])
-    assert ev(c) == "not_met" and ev(c, ps=deemed) == "met"
+    assert ev(c) == "unknown"                                                                     # deemed_lines 없음
+    assert ev(c, ps=deemed) == "met"
+    other = patient(deemed_lines=[{"rule_id": "DEEM-ANTHRA-TAXANE", "category": "chemo", "status": "not_met"},
+                                  {"rule_id": "DEEM-SG-1Y", "category": "chemo", "status": "met"}])
+    assert ev(c, ps=other) == "not_met"                                                           # 다른 규칙 met은 안 셈
+    sg = cond(line_rule={"stage": "palliative_chemo", "line": "2차 이상"},
+              prior=[{"text": "1년 이내", "setting": ["adjuvant"], "drugs": [], "within_days": 365}])
+    assert ev(sg, ps=other) == "met"
 
 
 def test_checker_in_postprocess():
