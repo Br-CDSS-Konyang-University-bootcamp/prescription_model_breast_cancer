@@ -1,0 +1,69 @@
+[병리결과보고서]
+등록번호: TCGA-A2-A0EW
+검체: 원발 종양
+조직형: Invasive lobular carcinoma
+조직학적 등급: 기록 없음
+pTNM: T1b N3a M0 (AJCC 6th)
+cTNM: 기록 없음
+병기: IIIC
+림프절: 전이 26 / 검사 기록 없음
+ER: 양성, 구간 90-99%
+PR: 양성, 구간 10-19%
+HER2 IHC: 점수 0, 판정 음성
+HER2 ISH: FISH 비증폭
+Ki-67: 기록 없음
+PD-L1: 기록 없음
+
+
+[분자병리 보고서]
+등록번호: TCGA-A2-A0EW
+검체: 원발 종양
+ESR1: 검출되지 않음
+PIK3CA: 검출: p.Q546R (Missense_Mutation), VAF 0.226
+AKT1: 검출되지 않음
+PTEN: 검출되지 않음
+BRCA1: 검출되지 않음
+BRCA2: 검출되지 않음
+PALB2: 검출되지 않음
+결과 요약: 종양 조직 엑솜 검사 (원발 조직). PIK3CA p.Q546R (Missense_Mutation), VAF 22.6%. ERBB2, ESR1, AKT1, PTEN, BRCA1, BRCA2, PALB2: 검출되지 않음.
+
+
+<외래 경과기록>
+등록번호: TCGA-A2-A0EW
+작성일: D+1884
+진단일: 기록 없음
+성별: 여
+진단 시 나이: 53세
+폐경 상태: 폐경 후
+폐경 판정 근거: 기록 없음
+ECOG: 기록 없음
+병기 범주: 국소 진행성
+수술 가능 여부: 가능
+진단 시 원격 전이 부위: 해당 없음
+선행요법 반응: 기록 없음
+RCB: 기록 없음
+재발: 원격 전이
+재발 전이 부위: bone
+전이 진단: D+1353
+첫 재발: D+1353
+재발 후 수술: 아니오
+재발 후 수술 의도: 미상
+재발 날짜: 기록 없음
+보조 내분비요법 종료 날짜: 기록 없음
+
+
+[투약 기록]
+등록번호: TCGA-A2-A0EW
+구분 | 약제 | 시작 | 종료 | 주기 | 반응 | 진행일 | 중단 사유 | anthracycline 용량
+보조 | doxorubicin | D+85 | D+127 | 4 | - | - | - | doxorubicin 1회 63 mg/m2, 총 251.6 mg/m2
+보조 | cyclophosphamide | D+85 | D+127 | 4 | - | - | - | -
+보조 | paclitaxel | D+141 | D+184 | 4 | - | - | - | -
+보조 | anastrozole | D+221 | D+812 | - | - | - | - | -
+보조 | letrozole | D+813 | D+903 | - | CR | - | - | -
+보조 | anastrozole | D+904 | D+1001 | - | CR | - | - | -
+보조 | exemestane | D+1002 | D+1365 | - | PD | - | - | -
+보조 | zoledronic acid | D+1158 | D+1422 | - | PD | - | - | -
+고식 | fulvestrant | D+1366 | D+1562 | - | PD | - | - | -
+고식 | denosumab | D+1425 | D+1718 | - | PD | - | - | -
+고식 | tamoxifen | D+1618 | D+1722 | - | PD | - | - | -
+고식 | liposomal doxorubicin | D+1696 | D+1787 | - | PD | - | - | liposomal doxorubicin 1회 기록 없음, 총 기록 없음

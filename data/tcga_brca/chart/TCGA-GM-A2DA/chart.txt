@@ -1,0 +1,80 @@
+[병리결과보고서]
+등록번호: TCGA-GM-A2DA
+검체: 원발 종양
+조직형: Invasive ductal carcinoma
+조직학적 등급: 기록 없음
+pTNM: T2 N1b M0 (AJCC 4th)
+cTNM: 기록 없음
+병기: IIB
+림프절: 전이 2 / 검사 13
+ER: 양성, 구간 90-99%
+PR: 양성, 구간 50-59%
+HER2 IHC: 점수 2+, 판정 양성
+HER2 ISH: FISH 증폭
+Ki-67: 기록 없음
+PD-L1: 기록 없음
+
+
+[분자병리 보고서]
+등록번호: TCGA-GM-A2DA
+검체: 원발 종양
+ESR1: 검출되지 않음
+PIK3CA: 검출되지 않음
+AKT1: 검출되지 않음
+PTEN: 검출되지 않음
+BRCA1: 검출되지 않음
+BRCA2: 검출되지 않음
+PALB2: 검출되지 않음
+결과 요약: 종양 조직 엑솜 검사 (원발 조직). ERBB2 amplification. ERBB2, ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2: 검출되지 않음.
+
+
+<외래 경과기록>
+등록번호: TCGA-GM-A2DA
+작성일: D+6593
+진단일: 기록 없음
+성별: 여
+진단 시 나이: 46세
+폐경 상태: 폐경 후
+폐경 판정 근거: 기록 없음
+ECOG: 기록 없음
+병기 범주: 조기
+수술 가능 여부: 가능
+진단 시 원격 전이 부위: 부위 기록 없음
+선행요법 반응: 기록 없음
+RCB: 기록 없음
+재발: 원격 전이
+재발 전이 부위: bone; liver; other: Intrathoracic Lymph Node; brain
+전이 진단: D+3014
+첫 재발: D+3014
+재발 후 수술: 예
+재발 후 수술 의도: 미상
+재발 날짜: 기록 없음
+보조 내분비요법 종료 날짜: 기록 없음
+
+
+[투약 기록]
+등록번호: TCGA-GM-A2DA
+구분 | 약제 | 시작 | 종료 | 주기 | 반응 | 진행일 | 중단 사유 | anthracycline 용량
+보조 | fluorouracil | D+74 | D+147 | - | CR | - | - | -
+보조 | doxorubicin | D+74 | D+147 | - | CR | - | - | doxorubicin 1회 기록 없음, 총 기록 없음
+보조 | cyclophosphamide | D+74 | D+147 | - | CR | - | - | -
+보조 | methotrexate | D+203 | D+276 | - | CR | - | - | -
+보조 | vinblastine | D+203 | D+276 | - | CR | - | - | -
+고식 | tamoxifen | D+3061 | D+3131 | - | PD | - | - | -
+고식 | exemestane | D+3061 | D+3131 | - | PD | - | - | -
+고식 | docetaxel | D+3141 | D+3415 | - | SD | - | - | -
+고식 | letrozole | D+3434 | D+4307 | - | PD | - | - | -
+고식 | megestrol | D+4347 | D+4435 | - | PD | - | - | -
+고식 | capecitabine | D+4470 | D+4494 | - | PD | - | - | -
+고식 | trabectedin | D+4470 | D+4494 | - | PD | - | - | -
+고식 | capecitabine | D+4515 | D+4720 | - | SD | - | - | -
+고식 | exemestane | D+4721 | D+5015 | - | SD | - | - | -
+고식 | capecitabine | D+5021 | D+5455 | - | SD | - | - | -
+고식 | nab-paclitaxel | D+5455 | D+5678 | - | SD | - | - | -
+고식 | ixabepilone | D+5684 | D+5797 | - | PD | - | - | -
+고식 | trastuzumab | D+5797 | D+6028 | - | SD | - | - | -
+고식 | tamoxifen | D+5909 | D+6029 | - | PD | - | - | -
+고식 | capecitabine | D+6051 | D+6213 | - | SD | - | - | -
+고식 | lapatinib | D+6051 | D+6536 | - | SD | - | - | -
+고식 | vinorelbine | D+6372 | D+6422 | - | PD | - | - | -
+고식 | trastuzumab | D+6372 | D+6536 | - | SD | - | - | -

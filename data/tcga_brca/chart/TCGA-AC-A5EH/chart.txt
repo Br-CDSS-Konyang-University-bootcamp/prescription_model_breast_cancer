@@ -1,0 +1,52 @@
+[병리결과보고서]
+등록번호: TCGA-AC-A5EH
+검체: 원발 종양
+조직형: Invasive ductal carcinoma
+조직학적 등급: 기록 없음
+pTNM: T2 N1mi MX (AJCC 7th)
+cTNM: 기록 없음
+병기: IIB
+림프절: 전이 1 / 검사 14
+ER: 양성, 구간 20-29%
+PR: 음성
+HER2 IHC: 판정 음성
+HER2 ISH: 미시행
+Ki-67: 기록 없음
+PD-L1: 기록 없음
+
+
+[분자병리 보고서]
+등록번호: TCGA-AC-A5EH
+검체: 원발 종양
+ESR1: 검출되지 않음
+PIK3CA: 검출: p.H1047R (Missense_Mutation), VAF 0.292
+AKT1: 검출되지 않음
+PTEN: 검출되지 않음
+BRCA1: 검출되지 않음
+BRCA2: 검출되지 않음
+PALB2: 검출되지 않음
+결과 요약: 종양 조직 엑솜 검사 (원발 조직). PIK3CA p.H1047R (Missense_Mutation), VAF 29.2%. ERBB2, ESR1, AKT1, PTEN, BRCA1, BRCA2, PALB2: 검출되지 않음.
+
+
+<외래 경과기록>
+등록번호: TCGA-AC-A5EH
+작성일: D+511
+진단일: 기록 없음
+성별: 여
+진단 시 나이: 76세
+폐경 상태: 기록 없음
+폐경 판정 근거: 기록 없음
+ECOG: 기록 없음
+병기 범주: 조기
+수술 가능 여부: 가능
+진단 시 원격 전이 부위: 부위 기록 없음
+선행요법 반응: 기록 없음
+RCB: 기록 없음
+재발: 없음
+재발 날짜: 기록 없음
+보조 내분비요법 종료 날짜: 기록 없음
+
+
+[투약 기록]
+등록번호: TCGA-AC-A5EH
+투약 기록 없음
