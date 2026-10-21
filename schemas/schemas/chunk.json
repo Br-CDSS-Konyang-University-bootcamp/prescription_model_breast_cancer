@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "chunk.json",
+  "title": "chunk",
+  "description": "공용 검색 색인의 청크 하나. 지침 청크([3], C)와 급여 청크([5], D)가 같은 형식을 쓰고 doc_type으로 구분한다. 초안 v0.1-draft.",
+  "type": "object",
+  "required": ["schema_version", "chunk_id", "doc_type", "source", "version", "section", "text", "url", "setting", "subtype", "line", "drugs", "superseded_by"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": "0.1-draft"},
+    "chunk_id": {"type": "string", "description": "예: esmo-mbc-2026-05-hrpos-2l-r03, hira-booklet-20261001-p52-c02"},
+    "doc_type": {"enum": ["guideline", "reimbursement"]},
+    "source": {"enum": ["ESMO-EBC", "ESMO-MBC", "HIRA-booklet", "HIRA-notice", "HIRA-preview", "HIRA-offlabel"]},
+    "version": {"type": "string", "description": "지침 발행일·eUpdate 날짜 또는 공고책자 날짜. 예: 2026-05, 2026-10-01"},
+    "section": {"type": "string", "description": "예: ER+/HER2- 2차, 9. 유방암 > 2. 수술후보조요법"},
+    "page_start": {"type": ["integer", "null"]},
+    "page_end": {"type": ["integer", "null"]},
+    "url": {"type": "string"},
+    "chunk_kind": {"enum": ["recommendation", "section", "algorithm", "table_row", "reimbursement_condition", "offlabel_regimen"]},
+    "parent_id": {"type": ["string", "null"], "description": "부모 소단원 청크 ID. LLM에는 부모 전체를 함께 넘긴다."},
+    "text": {"type": "string"},
+    "setting": {"type": "array", "items": {"enum": ["early", "locally_advanced", "metastatic"]}, "minItems": 1, "description": "early = I~II기, locally_advanced = III기 (심평원 급여 조건), metastatic = IV기·원격 전이 재발"},
+    "subtype": {"type": "array", "items": {"enum": ["HR+/HER2-", "HR+/HER2+", "HR-/HER2+", "TNBC", "any"]}, "minItems": 1},
+    "line": {"type": "array", "items": {"enum": ["neoadjuvant", "adjuvant", "1L", "2L", ">=3L", "any"]}, "minItems": 1},
+    "biomarker_tags": {"type": "array", "items": {"type": "string"}},
+    "drugs": {"type": "array", "items": {"type": "string"}, "description": "일반명 소문자. 예: elacestrant"},
+    "evidence": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "loe": {"type": ["string", "null"]},
+        "gor": {"type": ["string", "null"]},
+        "esmo_mcbs": {"type": ["string", "null"]},
+        "escat": {"type": ["string", "null"]}
+      }
+    },
+    "superseded_by": {"type": ["string", "null"], "description": "후속 개정 청크 ID. 대체된 청크는 지우지 않는다."},
+    "text_normalized": {"type": "string", "description": "판정·검색용 정규화 본문 (NFKC, ①→1, ㎝→cm). 인용은 text로 한다. 지침·급여 청크 공용, 없어도 됨"},
+    "copyright_notice": {"type": ["string", "null"], "description": "ESMO 청크: Copyright © European Society for Medical Oncology. All rights reserved"},
+    "reimbursement": {
+      "type": "object",
+      "description": "doc_type = reimbursement일 때만 채운다 (D).",
+      "required": ["source_type", "notice_no", "effective_from"],
+      "additionalProperties": false,
+      "properties": {
+        "source_type": {"enum": ["baseline", "overlay", "preview"]},
+        "notice_no": {"type": "string", "description": "예: 제2026-210호"},
+        "effective_from": {"type": "string", "format": "date", "description": "시행일. 오늘 이전인 baseline·overlay만 판정에 쓴다."},
+        "regimen": {"type": "array", "items": {"type": "string"}},
+        "conditions": {
+          "type": "object",
+          "description": "투여 조건 (급여 청킹 설계 §3.5). 칸: all_of, any_of, any_of_exceptions, line_rule, stage_rules, counts_as_prior_line, notes, human_review, unmapped. 항목은 {id, field, op, value, text[, of][, unless]}. field 어휘와 환자 JSON 경로는 src/reimbursement/conditions.py의 FIELDS, 읽는 법은 src/reimbursement/schema_proposal.md."
+        },
+        "copay": {"type": ["string", "null"], "description": "본인부담률. 요법 전체에 하나로 정해질 때 그 값 (예: 5/100, 30/100, 100/100). 일부 약제에만 붙은 값이면 null이고 약제별 값은 regimen_parsed.copay_by_drug. 허가초과 청크는 허가초과 본인부담률."},
+        "stage": {"enum": ["neoadjuvant", "adjuvant", "palliative_endocrine", "palliative_chemo", "combination", "supportive"], "description": "공고의 치료 단계 (소단원). combination = 40. 기타 항암제 병용요법, supportive = Ⅳ. 기타 약제"},
+        "her2_section": {"enum": ["positive", "negative", null], "description": "선행화학요법 소단원의 HER2 양성·음성 구분. 다른 단계는 null"},
+        "line_rule": {"enum": ["1차", "1차 이상", "2차", "2차 이상", "3차 이상", null], "description": "공고의 투여단계 표기. 판정할 때 biomarker_record.setting.line과 맞춘다 (schema_proposal.md)"},
+        "history": {
+          "type": "array",
+          "description": "그 행의 제·개정 공고 (시행일 순)",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["notice_no", "effective_from"],
+            "properties": {
+              "notice_no": {"type": "string"},
+              "effective_from": {"type": "string", "format": "date"}
+            }
+          }
+        },
+        "regimen_parsed": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "요법 구조화. sequence = 순차 단계별 약 목록, optional_drugs = ± 약, routes = 약별 제형(IV, SC, PO), copay_by_drug = 약별 본인부담, fixed_dose_combination = 복합제",
+          "properties": {
+            "sequence": {"type": "array"},
+            "optional_drugs": {"type": "array"},
+            "routes": {"type": "object"},
+            "copay_by_drug": {"type": "object"},
+            "fixed_dose_combination": {"type": "array"}
+          }
+        },
+        "regimen_list": {"type": "array", "items": {"type": "object"}, "description": "Ⅳ 기타 약제(G-CSF)의 대상 요법 목록 {regimen, setting, drugs, sequence}"},
+        "combination": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "병용요법 행만. added_drug = 추가 약제, added_drug_coverage = 추가 약제 급여 (비급여, 100/100, null), base_regimen = 기존 급여 요법",
+          "required": ["added_drug", "added_drug_coverage", "base_regimen"],
+          "properties": {
+            "added_drug": {"type": "array", "items": {"type": "string"}},
+            "added_drug_coverage": {"enum": ["비급여", "100/100", null]},
+            "base_regimen": {"type": "array", "items": {"type": "string"}}
+          }
+        },
+        "conditions_inherited_from": {"type": ["string", "null"], "description": "병합 셀로 조건을 물려받은 위 연번. 예: r01"}
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"doc_type": {"const": "reimbursement"}}},
+      "then": {"required": ["reimbursement"]}
+    },
+    {
+      "if": {"properties": {"doc_type": {"const": "guideline"}}},
+      "then": {"not": {"required": ["reimbursement"]}}
+    }
+  ]
+}
