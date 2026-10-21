@@ -13,6 +13,7 @@
 | 2026-10-16 | B 진행 현황과 남은 작업 순서 정리 (§10). 차수·투여단계·누적 용량 계산은 A로, 국소 재발 후 보조요법은 B로 담당 변경 (§6) | **정리** |
 | 2026-10-16 | §10 갱신: 유전자 7개 BM-2·BM-4 완료(PR #2) 반영, A의 차수 계산 함수(`src/input/common/lines.py`)와 약제 사전 추가 | **정리** |
 | 2026-10-16 | draft6: 판정 기준일 `index_day`, 첫 재발일 `recurrence.recurrence_day`, 투약별 차수 `line`·`endocrine_line`·`chemo_line`, 차수 간주 규칙 `deemed_lines` (§6.2·§6.3a). 차수 칸 위치 결정 (§10.4). 2026-10-19: 미시행의 `raw` 고정 표기 "결과 대기"·"예정", 유전자 칸에 `raw` 추가 (§0 5번) | **제안** (4명 검토) |
+| 2026-10-21 | BRCA1/2는 TCGA·가상·실제 차트 모두 gBRCA로 본다. sBRCA 레코드는 만들지 않는다 (§4.7). `_gene_marker` 변경 요청, BRCA 마커를 하나로 합치는 제안 | **A 결정, B 반영 요청** |
 
 ## 목차
 
@@ -37,7 +38,7 @@
 5. `not_done`(미시행)과 `not_recorded`(기록 없음)는 다르다. 미시행만 검사 권고 대상이다. 미시행 중 검사를 의뢰·예약한 경우는 `raw`에 고정 표기 `"결과 대기"`(결과를 기다림) 또는 `"예정"`(아직 시행 전)이 들어간다 (draft6, schema_fields.md §2). 이때는 검사 권고 대신 "결과 확인 필요"로 내는 것을 제안한다 (B 결정).
 6. **차수(line)와 심평원 투여단계는 A가 `patient_state`로 옮길 때 계산한다** (2026-10-16 담당 변경. 2026-10-15에는 B가 판단하기로 했었다). 결과는 `treatment_history[]`의 `line`·`endocrine_line`·`chemo_line`과 `fields.deemed_lines`에 넣는다 (draft6, §6.2·§6.3a). 재료는 투약 시작·종료일(`treatment_history[].start_day`, `end_day`)과 전이 기준일(`recurrence.metastasis_day`)이다. 모두 진단일 = 0인 정수다 (§6.2).
 7. **현재 범주**: 진단 시 IV기이거나 원격 전이 재발이면 전이성. 국소 재발은 전이가 아니다 (§6.1). **국소 재발 후 수술**(이후 원격 전이 없음)이면 이후 요법은 수술후보조요법이다 (§6.4, 차트를 보고 판단해야 해서 B 담당).
-8. **gBRCA**: TCGA 정답 세트에서는 BRCA1·BRCA2 결과를 gBRCA 측정으로 가정한다. B가 positive / negative / vus를 판정한다 (§4.7).
+8. **gBRCA**: BRCA1·BRCA2 결과는 TCGA·가상·실제 차트 모두 gBRCA로 본다 (2026-10-21, TCGA는 2026-10-15부터). sBRCA 레코드는 만들지 않는다. B가 positive / negative / vus를 판정한다 (§4.7).
 9. **PD-L1은 발현 점수**다 (변이 아님). 검사법·점수만 넘기고 약제별 판정은 B가 한다 (§6.5).
 10. **유전자 변이**는 `molecular.mutations`에 유전자별로 넘긴다: 변이 있음 / 변이 없음 / 미시행 (§3.6).
 11. **anthracycline 투약 용량**과 **주기 길이가 붙은 투여 주기**를 넘긴다 (§6.6·§6.7). 누적 용량은 A가 변환할 때 `anthracycline_drug_dose`에 계산해 넣는다 (2026-10-16 담당 변경).
@@ -425,20 +426,23 @@ B의 규칙은 "ESR1 결과가 마지막 내분비요법 진행 **이전**이면
 - 제안: ESR1 결과의 `specimen`이 `primary`(진단 시 조직)이고, `treatment_history`에 그 이후 내분비요법 진행(`best_response: PD` 또는 `stop_reason: progression`)이 있으면 `retest_needed`.
 - TCGA 변이는 모두 원발 조직 결과이므로, 전이성 HR+/HER2- 환자 대부분이 `retest_needed`가 된다.
 
-### 4.7 BRCA [협의 완료 2026-10-15]
+### 4.7 BRCA [협의 완료 2026-10-15, 2026-10-21 A 결정으로 변경]
 
-| 정보 | 상태값 |
+BRCA 검사는 보통 생식세포 검사이므로 BRCA1/2 결과는 TCGA·가상·실제 차트 모두 **gBRCA로 본다** (2026-10-21). `patient_state`에는 생식세포/체세포 구분 칸이 없고 만들지 않는다. sBRCA1/2 레코드는 만들지 않는다.
+
+| 정보 (TCGA·가상·실제 차트 공통) | 상태값 |
 |---|---|
-| **TCGA 정답 세트**: `molecular.mutations.BRCA1/2`가 `detected` + 병원성 변이 (ClinVar Pathogenic·Likely pathogenic, 또는 절단 변이) | gBRCA1/2 `positive` |
-| TCGA 정답 세트: `detected` + 의미 불명 변이 (예: missense E9Q) | gBRCA1/2 `vus` |
-| TCGA 정답 세트: `not_detected` | gBRCA1/2 `negative` |
-| TCGA 정답 세트: `status = not_done` | gBRCA1/2 `not_done` |
-| 가상·실제 차트: 종양 체세포 검사에서 BRCA1/2 검출 안 됨 | sBRCA1/2 `negative` |
-| 가상·실제 차트: 생식세포 검사 언급 없음 | gBRCA1/2 `not_recorded` (체세포 결과로 대신하지 않음) |
+| `molecular.mutations.BRCA1/2`가 `detected` + 병원성 변이 (ClinVar Pathogenic·Likely pathogenic, 또는 절단 변이) | gBRCA1/2 `positive` |
+| `detected` + 의미 불명 변이 (예: missense E9Q) | gBRCA1/2 `vus` |
+| `not_detected` | gBRCA1/2 `negative` |
+| `status = not_done` | gBRCA1/2 `not_done` |
+| `status = not_recorded` (BRCA 검사 언급 없음) | gBRCA1/2 `not_recorded` |
 | HER2 음성 전이성 + gBRCA `not_done` | BM-4 검사 권고 |
-| HER2 음성 전이성 + gBRCA `not_recorded` | B가 정할 것: 검사 권고를 낼지, "시행 여부 확인"으로만 낼지 |
+| HER2 음성 전이성 + gBRCA `not_recorded` | 검사 권고를 내지 않음 (기록 없음 규칙, 2026-10-15) |
 
-TCGA 변이는 종양 조직 엑솜 결과라 실제 생식세포 검사 결과와 다를 수 있다. 정답 세트를 만들기 위한 가정이며 모델 한계로 기록한다 (§9).
+- TCGA 변이는 종양 조직 엑솜 결과라 실제 생식세포 검사 결과와 다를 수 있다. 정답 세트를 만들기 위한 가정이며 모델 한계로 기록한다 (§9).
+- B 요청: 바이오마커 모듈의 `_gene_marker`는 지금 TCGA가 아닌 차트의 BRCA를 sBRCA로 둔다. gBRCA로 바꿔 주세요.
+- 제안 (4명 검토): `biomarker_record`도 `patient_state`처럼 BRCA1, BRCA2를 하나씩만 받는 것이 가장 단순하다. 다만 C의 태그(`gBRCA`, `sBRCA`)와 D의 급여 조건(`gbrca`, `sbrca`)이 지금 마커 이름(`gBRCA1/2`, `sBRCA1/2`)에 맞춰 만들어지고 있으므로, 당장은 마커 이름을 그대로 두고 sBRCA 레코드만 만들지 않는다. 합칠지는 C·D 작업이 안정된 뒤 다시 정한다.
 
 ## 5. BM-3 근거 주석 출처: OncoKB 대신 대체 출처 [결정 2026-10-15. §5.5 스키마 변경은 4명 합의 필요]
 
@@ -719,7 +723,9 @@ A는 판정하지 않는다. B가 약제별로 판정한다.
       "PIK3CA": {"status": "present", "result": "detected", "specimen": "primary",
                  "variants": [{"protein_change": "H1047R", "variant_type": "Missense_Mutation", "vaf": 0.4,
                                "raw": "PIK3CA p.H1047R (missense), VAF 40.0%"}]},
-      "ESR1": {"status": "present", "result": "not_detected", "variants": [], "specimen": "primary"}
+      "ESR1": {"status": "present", "result": "not_detected", "variants": [], "specimen": "primary"},
+      "BRCA1": {"status": "present", "result": "not_detected", "variants": [], "specimen": "primary"},
+      "BRCA2": {"status": "present", "result": "not_detected", "variants": [], "specimen": "primary"}
     }},
     "genomic_reports": [
       {"doc_id": "D3", "report_date": null, "specimen": "primary",
@@ -753,17 +759,16 @@ B의 기대 출력 (§4 조건을 따른 경우). `oncokb` 칸은 현재 스키�
     {"marker": "ESR1", "status": "retest_needed", "reason": "원발 조직 결과이고, 이후 AI + CDK4/6 억제제에서 진행 (검체·치료 순서로 판단)",
      "rule_id": "BM2-ESR1-RETEST", "evidence": {"specimen": "primary"},
      "source_span": {"doc_id": "D3", "quote": "ESR1, AKT1, PTEN, BRCA1, BRCA2, PALB2: 검출되지 않음"}, "rag_tags": []},
-    {"marker": "sBRCA1", "status": "negative", "reason": "종양 체세포 검사에서 검출되지 않음", "rule_id": "BM2-SBRCA",
+    {"marker": "gBRCA1", "status": "negative", "reason": "BRCA1 검출되지 않음 (검사 종류와 관계없이 gBRCA로 봄, §4.7)", "rule_id": "BM2-GBRCA",
      "evidence": {"specimen": "primary"}, "source_span": {"doc_id": "D3", "quote": "BRCA1, BRCA2"}, "rag_tags": []},
-    {"marker": "gBRCA1", "status": "not_recorded", "reason": "생식세포 검사 기록 없음 (가상 차트라 체세포 결과로 대신하지 않음)",
-     "rule_id": "BM2-GBRCA", "evidence": {}, "source_span": {"doc_id": "D3", "quote": "종양 조직 체세포 검사"}, "rag_tags": []}
+    {"marker": "gBRCA2", "status": "negative", "reason": "BRCA2 검출되지 않음 (검사 종류와 관계없이 gBRCA로 봄, §4.7)", "rule_id": "BM2-GBRCA",
+     "evidence": {"specimen": "primary"}, "source_span": {"doc_id": "D3", "quote": "BRCA1, BRCA2"}, "rag_tags": []}
   ],
   "subtype": "HR+/HER2-",
   "setting": {"disease": "metastatic", "line": "2L", "prior_drug_classes": ["aromatase inhibitor", "CDK4/6 inhibitor"],
               "reason": "전이 기준일(1480일) 이후 letrozole + palbociclib에서 진행 후"},
   "tests_needed": [
-    {"test": "ESR1 (cfDNA)", "reason": "내분비요법 진행 후 ESR1 재검", "rule_id": "BM4-ESR1-RETEST"},
-    {"test": "gBRCA1/2, PALB2", "reason": "HER2 음성 전이성인데 생식세포 검사 기록 없음", "rule_id": "BM4-GBRCA"}
+    {"test": "ESR1 (cfDNA)", "reason": "내분비요법 진행 후 ESR1 재검", "rule_id": "BM4-ESR1-RETEST"}
   ]
 }
 ```
@@ -780,7 +785,7 @@ B의 기대 출력 (§4 조건을 따른 경우). `oncokb` 칸은 현재 스키�
 | 재발 후 수술 의도 | 기록 없음 | 모두 `unknown`. `SET-LOCAL-ADJ`는 수술 여부만으로 적용 |
 | 원발암 첫 수술 종류 | 완치 목적 여부를 알 수 없음 | 넘기지 않음 |
 | ERBB2 변이 | 목록에서 제외 (협의) | |
-| gBRCA | TCGA는 종양 엑솜을 gBRCA로 가정 | 실제 생식세포 결과와 다를 수 있음 |
+| gBRCA | TCGA는 종양 엑솜을 gBRCA로 가정. 가상·실제 차트도 BRCA1/2 결과를 검사 종류와 관계없이 gBRCA로 봄 (2026-10-21) | 실제 생식세포 결과와 다를 수 있음. 체세포 BRCA(sBRCA) 근거 권고(ESMO 체세포 BRCA1/2 PARPi, 허가초과 olaparib)는 다루지 않음 |
 | 투여 주기 (추정값) | 투여 일수로 계산 | 독성으로 연기된 경우 반영 안 됨 |
 
 ## 10. B 진행 현황과 남은 작업 순서

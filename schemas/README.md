@@ -20,6 +20,9 @@
 | [biomarker_record.json](biomarker_record.json) | 바이오마커 상태값, 아형, 치료 상황, 검사 공백 | [2] 바이오마커 (B) | [3] 필터, [4] | A, C, D |
 | [chunk.json](chunk.json) | 검색 색인 청크 (지침·급여 공용) | [3] (C), [5] (D) | [3] 색인, [4] | D 필수, A, B |
 | [recommendation.json](recommendation.json) | 처방 후보, 급여 분류, 검사 권고 | [4] 추천 (B) | 출력 화면 | A, C, D |
+| [confirmed_state.json](confirmed_state.json) (0.1-draft, 2026-10-21) | 화면 1에서 의사가 확정한 환자 상태 | 화면 1 | [3] 필터, [5] 급여 조건, [4] | B, C, D (검토 전, §9) |
+
+2단계 구조(notes/system_structure.md)로 바뀌면 [3]·[4]·[5]는 `biomarker_record` 대신 `confirmed_state`의 `items.*.confirmed`를 읽는다. 위 그림은 바뀌기 전 흐름이다.
 
 ## 2. 공통 규칙
 
@@ -177,8 +180,9 @@ TCGA 정답은 실제 날짜가 없으므로, 날짜 칸은 추출값이면 `sta
 | ER | positive, low, negative, unknown, not_done, not_recorded (unknown = 값은 있지만 percent·range·Allred·적힌 판정 중 판정에 쓸 값이 없음. indeterminate는 쓰지 않음, 2026-10-15) |
 | PR | positive, negative, unknown, not_done, not_recorded (indeterminate는 쓰지 않음, 2026-10-15) |
 | Ki-67 | positive (기준 이상, 고증식), negative, intermediate (구간이 기준에 걸치거나 적힌 판정이 intermediate), unknown (쓸 값 없음), not_done, not_recorded (`evidence.percent` 사용. 기준값 20%, 2026-10-15 확정) |
-| gBRCA1, gBRCA2, PALB2 | positive, negative, vus, not_done, not_recorded. TCGA 정답 세트에서는 `molecular.mutations.BRCA1/2`를 gBRCA 측정으로 가정해 판정 (2026-10-15 협의) |
-| sBRCA1, sBRCA2, PIK3CA, AKT1, PTEN | positive, negative, not_done, not_recorded |
+| gBRCA1, gBRCA2, PALB2 | positive, negative, vus, not_done, not_recorded. `molecular.mutations.BRCA1/2`는 TCGA·가상·실제 차트 모두 gBRCA로 보고 판정 (TCGA 2026-10-15 협의, 가상·실제 차트 2026-10-21 A 결정) |
+| sBRCA1, sBRCA2 | 레코드를 만들지 않는다 (2026-10-21 A 결정). 마커 이름은 C·D가 쓰고 있어 남겨 둔다 |
+| PIK3CA, AKT1, PTEN | positive, negative, not_done, not_recorded |
 | ESR1 | positive, negative, retest_needed, not_done, not_recorded |
 | PD-L1 | positive, negative, not_done, not_recorded (`evidence.assay`, `evidence.score` 함께 저장) |
 
@@ -316,3 +320,33 @@ Draft202012Validator(schema).validate(data)  # 실패하면 ValidationError
 - [ ] `chunk.reimbursement.conditions` 세부 키 목록 (D 초안, B 검토)
 - [ ] 검색 API 반환 형식: chunk 목록 + 점수 + 부모 청크. 별도 스키마(`search_result.json`)로 만들지 (C)
 - [ ] 화면용 한국어 표시 매핑을 코드 어디에 둘지 (`schemas/labels.py` 등)
+
+## 9. confirmed_state.json — 화면 1 → [3], [4], [5]
+
+2026-10-21 A 초안, 4명 검토 전. 설계와 근거(확정 항목을 고른 이유, 초진·재진 구분, 판독이 결정되지 않은 값)는 A의 `notes/confirmed_state_items_2026-10-21.md`에 있다. 예시: [tests/fixtures/virtual_charts/VC-0103/expected/confirmed_state.json](../tests/fixtures/virtual_charts/VC-0103/expected/confirmed_state.json) (스키마 검증 통과).
+
+| 필드 | 설명 |
+|---|---|
+| `version`, `supersedes` | 환자마다 1부터 올라가는 확정 버전. 이전 버전은 지우지 않는다 |
+| `visit_type` | `initial` / `follow_up`. 이전 확정 기록이 있는지로 정한다. 화면 모드(잠금, 이전 값 비교)만 바꾼다 |
+| `decision_context` | `early` / `metastatic`. 확정된 `setting.disease`로 정하고 필수 항목이 이 값으로 갈린다 |
+| `items` | 확정 항목. 한 칸은 `{scope, system, system_source, previous, confirmed, status, reason, detail, note, evidence_refs}` |
+| `visit_inputs` | 재진 입력 (직전 요법 반응, 진행일) |
+| `memo`, `evidence[]` | 판단 근거와 원문 인용 |
+
+확정 항목: `setting.disease`, `setting.phase`(조기), `setting.line_endocrine`·`setting.line_chemo`(전이성, 이번에 결정할 차수), `subtype`, `menopausal_status`, `age_at_index`, `stage.t`, `stage.positive_ln_count`, `stage.group`, `grade`, `pcr`, `high_risk_early`, `endocrine_relapse_12m`, `deemed_lines`, `dfi_days`, `metastatic_sites`, `recurrence_type`, `prior_regimens`, `markers.{ER, PR, HER2, Ki-67, gBRCA, PALB2, sBRCA, PIK3CA, AKT1, PTEN, ESR1, PD-L1}`.
+
+스키마가 강제하는 규칙:
+
+- 2단계는 `confirmed`만 읽는다. `confirmed`에는 `unknown`, `perimenopausal` 같은 판정 불가 값을 넣지 않는다 (의사가 정한다). 폐경 이행기는 `premenopausal`로 확정한다
+- `status`가 `changed`·`corrected`면 `reason` 필수, `carried`·`unchanged`·`corrected`면 `previous` 필수
+- `decision_context: metastatic` → `setting.disease`가 `metastatic`이고 `setting.line_endocrine`, `setting.line_chemo`, `prior_regimens`, `metastatic_sites` 필수. `early` → `setting.phase`, `stage.t`, `stage.positive_ln_count`, `stage.group` 필수
+- HR+ → `menopausal_status` 필수. 전이성 HR+ → `endocrine_relapse_12m` 필수. 전이성 TNBC → `markers.PD-L1`, `dfi_days` 필수
+- `prior_regimens.confirmed`는 고치지 않았어도 요법 전체 목록을 넣는다. [4]가 `patient_state`를 따로 읽지 않아도 되게 하기 위해서다
+
+검토할 것 (B 요청 포함):
+
+- [ ] `setting.line`을 "이번에 결정할 차수"로 정의하고 내분비·항암 차수를 나눌지 (B). 지금 B 출력은 전이 후 투약이 없으면 `unknown`이라 VC-0103 예시는 의사가 1L로 고친 값(`changed`)이다
+- [ ] `prior_drug_classes`를 `drug_subclass`로 (B, D)
+- [ ] 비TCGA 차트 BRCA를 `gBRCA`로 (B). 예시의 gBRCA는 B 출력 `sBRCA1/2`를 옮긴 값이다
+- [ ] 계산 항목(`endocrine_relapse_12m`, `dfi_days`, `high_risk_early`)을 어디서 계산할지 (A, B)

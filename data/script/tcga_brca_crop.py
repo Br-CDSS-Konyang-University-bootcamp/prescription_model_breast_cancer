@@ -635,10 +635,12 @@ def anthracycline_to_m2(df):
             if per and (pu in ("mg", "mg/day") or r["patient_id"] in PER_DOSE_IN_MG):
                 per = [x / ASSUMED_BSA for x in per]
                 row["drug_prescribed_dose"][i], row["drug_dose_units"][i] = _fmt(per), "mg/m2"
-            if row["drug_total_dose_units"][i] == "mg/m2":
-                continue
             cyc, total = _numbers(row["drug_cycles"][i]), _numbers(row["drug_total_dose"][i])
-            if pu == "mg/m2" and per and cyc and len(cyc) == 1:
+            if row["drug_total_dose_units"][i] == "mg/m2" and total:
+                continue
+            # 1회가 mg/m2(원래 또는 위에서 바꾼 값)이고 주기가 있으면 누적 = 1회 × 주기. 원래 mg이면 누적 기록이 없을 때만
+            # (누적이 있으면 아래에서 ÷ 체표면적). 누적 기록 없음 3건 채움 (사용자 결정, 2026-10-21)
+            if row["drug_dose_units"][i] == "mg/m2" and per and cyc and len(cyc) == 1 and (pu == "mg/m2" or not total):
                 row["drug_total_dose"][i], row["drug_total_dose_units"][i] = _fmt([x * cyc[0] for x in per]), "mg/m2"
             elif row["drug_total_dose_units"][i] == "mg" and total:
                 row["drug_total_dose"][i], row["drug_total_dose_units"][i] = _fmt([x / ASSUMED_BSA for x in total]), "mg/m2"
