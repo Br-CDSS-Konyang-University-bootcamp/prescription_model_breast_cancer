@@ -99,3 +99,6 @@ neoadjuvant_response.pcr,yes,pCR,en,esmo,1,
 metastatic_sites,brain,brain metastases,en,esmo,1,
 metastatic_sites,brain,BMs,en,esmo,,
 metastatic_sites,bone,bone metastases,en,esmo,1,
+confirmed_state.endocrine_relapse_12m,yes,recurring while receiving adjuvant ET,en,esmo,1,보조 내분비요법 중 또는 종료 후 12개월 이내 재발 (ESMO MBC 1차 갈림길: fulvestrant-CDK4/6)
+confirmed_state.endocrine_relapse_12m,yes,≤12 months after the end of adjuvant ET,en,esmo,,
+confirmed_state.endocrine_relapse_12m,no,recurring >12 months after the end of adjuvant,en,esmo,1,보조 내분비요법 종료 후 12개월 넘어 재발 (ESMO MBC 1차 갈림길: AI-CDK4/6)
