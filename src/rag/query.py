@@ -12,6 +12,7 @@
 #     # 후보 요법마다 급여 행을 찾고, 행의 reimbursement.conditions와 환자 정보로 급여 분류를 정한다 (B)
 # patient 값은 A의 patient_state에서 온다: stage.metastatic_sites·recurrence.metastatic_sites, patient.menopausal_status,
 # neoadjuvant_response.pcr, stage.disease_extent(진단 시 범주), treatment_history[]의 drug_subclass·drug_class.
+# confirmed_state(의사 확정값)로 부르면 retrieve.from_confirmed_state가 같은 값을 만들고, endocrine_relapse_12m도 더한다.
 # 같은 환자 조건이라도 폐경 상태(OFS 권고), pCR(잔존 질환 권고), de novo(원발 종양 수술 권고), 이전 치료(후반 차수)에 따라
 # 권고가 갈린다. 이 정보가 없으면 질의가 같아져 구분하지 못한다 (평가 --auto-query, 2026-10-20).
 # 질의 문장은 코드 값을 지침이 쓰는 영어 대표 표현(guideline_terms.csv의 preferred)으로 바꿔 이어 붙인다.
@@ -38,8 +39,9 @@ TAG_TO_MARKER = {
 
 
 def _patient_profile(metastatic_sites=None, menopausal_status=None, pcr=None, stage_at_diagnosis=None,
-                     prior_subclasses=None, prior_classes=None) -> dict:
+                     prior_subclasses=None, prior_classes=None, endocrine_relapse_12m=None) -> dict:
     return {
+        "endocrine_relapse_12m": endocrine_relapse_12m,
         "metastatic_sites": _sites(metastatic_sites),
         "menopausal_status": menopausal_status,
         "pcr": pcr,
@@ -124,7 +126,8 @@ def negative_tags(record: dict) -> list[str]:
     return [tag for tag, needs in TAG_NEGATIVE_WHEN.items() if all(status.get(m) in ok for m, ok in needs)]
 
 
-PATIENT_KEYS = ("metastatic_sites", "menopausal_status", "pcr", "stage_at_diagnosis", "prior_subclasses", "prior_classes")
+PATIENT_KEYS = ("metastatic_sites", "menopausal_status", "pcr", "stage_at_diagnosis", "prior_subclasses", "prior_classes",
+                "endocrine_relapse_12m")
 
 
 def search_args(record: dict, query_style: str = "adaptive", **kwargs) -> dict:
