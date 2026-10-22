@@ -1,5 +1,6 @@
 # tests/recommend/test_recommend.py
 # [4] 추천 모듈의 LLM 없는 부분(프롬프트, 후처리, 형식 검사)을 가짜 LLM 답으로 시험한다 (PROJECT.md §7, §15.5).
+# 지침·급여 청크는 모두 지어낸 테스트 문장이다 (ESMO·심평원 원문을 옮기지 않는다).
 import csv
 import json
 from datetime import date
@@ -16,10 +17,10 @@ TODAY = date(2026, 10, 20)
 G1 = {"chunk_id": "g-capi", "doc_type": "guideline", "source": "ESMO-MBC", "version": "2026-05",
       "section": "Second-line", "page_start": 1205, "evidence": {"loe": "I", "gor": "A"},
       "drugs": ["fulvestrant", "capivasertib"],
-      "text": "Fulvestrant—capivasertib is recommended for tumours harbouring PIK3CA, AKT1 or PTEN alterations."}
+      "text": "TEST CHUNK (made up): fulvestrant plus capivasertib for PIK3CA/AKT1/PTEN altered disease."}
 G2 = {"chunk_id": "g-ola", "doc_type": "guideline", "source": "ESMO-MBC", "version": "2026-05",
       "section": "Second-line", "page_start": 1206, "evidence": {"loe": "I", "gor": "A"}, "drugs": ["olaparib"],
-      "text": "PARPi monotherapy is recommended for patients with a germline BRCA1/2 mutation. Options include olaparib."}
+      "text": "TEST CHUNK (made up): olaparib for germline BRCA1/2 positive disease."}
 R_OK = {"chunk_id": "r-fulv", "doc_type": "reimbursement", "source": "HIRA-booklet", "text": "fulvestrant 단독",
         "reimbursement": {"source_type": "baseline", "notice_no": "제2026-210호", "effective_from": "2026-10-01"}}
 R_PREVIEW = {"chunk_id": "r-pre", "doc_type": "reimbursement", "source": "HIRA-preview", "text": "예고",

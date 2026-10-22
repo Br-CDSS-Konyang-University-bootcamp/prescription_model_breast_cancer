@@ -1,5 +1,6 @@
 # tests/recommend/test_conditions_eval.py
 # 급여 조건 판정기: D 조건 형식(schemas/chunk.json, src/reimbursement/schema_proposal.md "읽는 법")을 가짜 조건으로 시험한다.
+# 조건 text는 모두 지어낸 테스트 문장이다 (심평원 공고 원문을 옮기지 않는다).
 from src.recommend.conditions_eval import evaluate_conditions, evaluate_item, make_conditions_checker
 from src.recommend.postprocess import postprocess
 
@@ -134,7 +135,7 @@ def test_checker_in_postprocess():
 
 
 def test_endocrine_adjuvant_relapse_counts_as_first_line():
-    """VC-0103: 보조 anastrozole 중 전이 (전이 후 투약 없음). 공고 문구 '1년 이내에 진행된 경우도 인정'이 있는 행에만
+    """VC-0103: 보조 anastrozole 중 전이 (전이 후 투약 없음). 공고에 보조요법 1년 이내 진행을 인정하는 문구가 있는 행에만
     D가 counts_as_prior_line + rule_id: DEEM-ENDO-ADJ-1Y를 넣는다 (A 기대값: fulvestrant + CDK4/6 급여, D 확인 2026-10-22).
     문구 없는 내분비 "2차 이상" 행에는 적용하지 않는다."""
     adj = {"drugs": ["anastrozole"], "setting": "adjuvant", "start_day": 40, "end_day": 765, "line": None,
@@ -143,7 +144,7 @@ def test_endocrine_adjuvant_relapse_counts_as_first_line():
         return patient(recurrence={"status": present("distant"), "recurrence_day": present(760),
                                    "metastasis_day": present(760)}, treatment_history=[adj],
                        deemed_lines=[{"rule_id": "DEEM-ENDO-ADJ-1Y", "category": "endocrine", "status": status}])
-    deem = [{"text": "1년 이내에 진행된 경우도 인정", "setting": ["adjuvant"], "drugs": [], "rule_id": "DEEM-ENDO-ADJ-1Y"}]
+    deem = [{"text": "TEST (made up): 보조 내분비 1년 이내 진행 간주", "setting": ["adjuvant"], "drugs": [], "rule_id": "DEEM-ENDO-ADJ-1Y"}]
     c = cond(any_of=[{"text": "내분비요법 후 진행", "items": [
         item("days_end_to_metastasis", "lte", 365, of={"drugs": ["AI_nonsteroidal"], "setting": ["adjuvant"]}),
         item("days_end_to_progression", "lte", 30, of={"setting": ["metastatic"]})]}],
