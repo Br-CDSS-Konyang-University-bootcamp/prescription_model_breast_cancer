@@ -97,3 +97,14 @@ def test_evaluate_summary_with_perfect_search():
     assert summary["cases"] == len(CASES)
     assert summary["l0_doc"] == summary["l1_section"] == summary["l2_hit"] == summary["mrr"] == 1.0
     assert all(r["seconds"] >= 0 for r in rows) and summary["avg_seconds"] >= 0
+
+
+def test_review_eval_shows_answer_and_other_recommendations_of_the_section():
+    # 검수용 출력: 정답 권고 전문과, 정답을 넓힐 후보인 같은 소단원의 다른 권고가 함께 나온다 (E02)
+    from src.rag.review_eval import render_case
+    recs = {cid: c for cid, c in CHUNKS.items() if c.get("chunk_kind") == "recommendation"}
+    case = next(c for c in CASES if c["case_id"] == "E02")
+    text = render_case(case, recs)
+    assert "hrpos-6308eb" in text.split("[같은 소단원")[0]  # 정답
+    assert "hrpos-ca0c8d" in text.split("[같은 소단원")[1]  # 같은 소단원의 고위험 권고
+    assert "조기 고위험 yes" in text
