@@ -64,6 +64,8 @@ def test_canonical_values_match_schemas_and_drug_dictionary():
     confirmed = json.loads((BASE_DIR / "schemas" / "confirmed_state.json").read_text(encoding="utf-8"))
     relapse = confirmed["$defs"]["items"]["properties"]["endocrine_relapse_12m"]["allOf"][1]["properties"]["confirmed"]
     allowed["confirmed_state.endocrine_relapse_12m"] = set(relapse["enum"])
+    risk = confirmed["$defs"]["items"]["properties"]["high_risk_early"]["allOf"][1]["properties"]["confirmed"]
+    allowed["confirmed_state.high_risk_early"] = set(risk["properties"]["esmo"]["enum"])
     with open(BASE_DIR / "data" / "dictionaries" / "field_vocab.csv", encoding="utf-8-sig", newline="") as f:
         allowed["metastatic_sites"] = {r["canonical"] for r in csv.DictReader(f) if r["field"] == "metastatic_sites"}
     for t in TERMS:

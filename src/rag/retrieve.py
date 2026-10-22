@@ -173,6 +173,10 @@ def from_confirmed_state(confirmed_state: dict):
                     target.append(value)
     pcr = _confirmed(items, "pcr")
     relapse = _confirmed(items, "endocrine_relapse_12m")
+    # 조기 고위험은 ESMO 기준(esmo)으로 본다. esmo가 unknown이어도 심평원 기준(hira)이 yes면 ESMO 기준도 만족한다
+    # (ESMO 기준 = 심평원 기준 + Ki-67 20% 이상, schemas/confirmed_state.json)
+    risk = _confirmed(items, "high_risk_early") or {}
+    high_risk = risk.get("esmo") if risk.get("esmo") in ("yes", "no") else ("yes" if risk.get("hira") == "yes" else None)
     # de novo(진단 시부터 전이성): 재발이 없었거나 무병 기간이 해당 없음 (confirmed_state에 진단 시 범주 칸이 없다)
     de_novo = disease == "metastatic" and (_confirmed(items, "recurrence_type") == "none"
                                           or _confirmed(items, "dfi_days") == "not_applicable")
@@ -184,6 +188,7 @@ def from_confirmed_state(confirmed_state: dict):
         "prior_subclasses": subclasses,
         "prior_classes": classes,
         "endocrine_relapse_12m": relapse if relapse in ("yes", "no") else None,
+        "high_risk_early": high_risk if disease != "metastatic" else None,
     }
     return record, patient, lines
 
