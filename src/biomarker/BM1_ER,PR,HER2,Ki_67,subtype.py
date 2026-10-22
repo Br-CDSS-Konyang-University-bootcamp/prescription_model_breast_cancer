@@ -788,9 +788,10 @@ def _line_label(n):
 
 
 def line_of(fields, disease):
-    """setting.line (전달 문서 6.2절, draft6). 차수는 A가 treatment_history[].line에 계산해 넘긴다.
+    """setting.line (전달 문서 6.2절, draft6). 이번에 결정할 차수 (handoff_confirmed_state_to_B.md §6 1번, A 제안·B 찬성).
+    차수는 A가 treatment_history[].line에 계산해 넘긴다.
     전이성: 마지막 고식적 요법의 차수. 그 요법이 진행(PD, progression)으로 끝났으면 다음 차수를 추천 대상으로 본다
-    (전달 문서 8.2절 예시: 1차 letrozole + palbociclib 진행 -> 2L). 전이 후 투약이 없으면 unknown.
+    (전달 문서 8.2절 예시: 1차 letrozole + palbociclib 진행 -> 2L). 전이 후 투약이 없으면 1L (이번이 첫 고식적 치료).
     전이성이 아니면 마지막 선행·보조 투약에 A가 적은 setting (neoadjuvant / adjuvant)을 그대로 쓴다."""
     history = [t for t in fields.get("treatment_history") or [] if t.get("drugs")]
     if disease == "metastatic":
@@ -798,7 +799,7 @@ def line_of(fields, disease):
         if not lined:
             if any(t.get("setting") == "metastatic" for t in history):
                 return "unknown", "전이 후 투약은 있지만 차수 정보(line)가 없음"
-            return "unknown", "전이 후 투약 기록 없음 (전달 문서에 정해진 규칙 없음)"
+            return "1L", "전이 후 고식적 투약 없음 -> 이번에 결정할 차수 1차"
         last = max(t["line"] for t in lined)
         regimen = [t for t in lined if t["line"] == last]
         drugs = " + ".join(sorted({d for t in regimen for d in t["drugs"]}))
