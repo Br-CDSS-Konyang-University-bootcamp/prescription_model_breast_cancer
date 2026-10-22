@@ -171,8 +171,12 @@ def _value(field, it, patient_state, record):
     if field == "disease":
         d = (record.get("setting") or {}).get("disease")
         return d if d not in (None, "unknown") else None
-    if field == "menopause":
-        return _present(patient.get("menopausal_status"))
+    if field == "menopause":   # indeterminate(판단 불가)는 알 수 없음 (D 요청 2026-10-22)
+        v = _present(patient.get("menopausal_status"))
+        return None if v == "indeterminate" else v
+    if field == "recurrence_operable":   # D FIELDS: 재발 후 수술 yes + 의도 curative면 yes, 그 밖은 알 수 없음
+        done = _present(recurrence.get("surgery")) == "yes" and _present(recurrence.get("surgery_intent")) == "curative"
+        return "yes" if done else None
     if field == "sex":
         return _present(patient.get("gender"))
     if field == "age":
@@ -251,7 +255,7 @@ def _value(field, it, patient_state, record):
         if not items or any(not isinstance(x, dict) or x.get("unit") != "mg/m2" for x in doses):
             return None
         return sum(x["value"] for x in doses)
-    return None   # recurrence_operable, cardiac_history, mediastinal_radiation 등 환자 JSON에 칸이 없는 조건
+    return None   # cardiac_history, mediastinal_radiation 등 환자 JSON에 칸이 없는 조건
 
 
 def _compare(op, have, want):
@@ -299,8 +303,8 @@ def _evaluate_one(it, patient_state, record):
         has = [any(_has_drug(t, w) for t in rows) for w in wants]
         if op == "contains":
             return all(has)
-        if op == "not_contains":
-            return not any(has)
+        if op == "not_contains":   # 투약 기록이 빈 목록이면 안 받은 건지 기록이 없는 건지 몰라 알 수 없음 (D 요청 2026-10-22)
+            return None if not fields.get("treatment_history") else not any(has)
         return None
     have = _value(field, it, patient_state, record)
     if isinstance(have, bool) and field != "bone_metastasis":
@@ -316,8 +320,8 @@ def _line_rule(cond, patient_state):
     """line_rule {stage, line}: 이번에 줄 치료의 차수(이미 받은 고식적 차수 + 1)가 공고 투여단계에 맞는지.
     공고가 선행·보조요법을 1회로 간주하면(counts_as_prior_line) 그 행의 간주 규칙에 맞는 deemed_lines만 본다
     (handoff_to_B.md §6.3a "행마다 맞는 규칙을 골라"). 규칙을 못 맞추면 알 수 없음.
-    고식적 내분비 행은 DEEM-ENDO-ADJ-1Y(보조 내분비 중·종료 1년 이내 전이)도 본다. D는 이 규칙을 counts_as_prior_line이
-    아니라 any_of의 days_end_to_metastasis로 적기 때문이다 (D schema_proposal.md 대응표, handoff §6.3·§6.3a, 공고 p.57)."""
+    DEEM-ENDO-ADJ-1Y(보조 내분비 1년 이내 진행)는 공고 원문에 그 문구가 있는 행에만 D가 rule_id로 넣는다.
+    문구 없는 내분비 "2차 이상" 행에는 적용하지 않는다 (D 확인 2026-10-22)."""
     rule = cond.get("line_rule") or {}
     if not rule.get("line") or rule.get("stage") not in LINE_STAGE_COUNT:
         return True
@@ -330,10 +334,8 @@ def _line_rule(cond, patient_state):
     fits = lambda n: n >= lo and (hi is None or n <= hi)
     if fits(given + 1):
         return True
-    if (cond.get("counts_as_prior_line") or rule["stage"] == "palliative_endocrine") and fits(given + 2):
+    if cond.get("counts_as_prior_line") and fits(given + 2):
         rule_ids = [_deem_rule(e) for e in cond.get("counts_as_prior_line") or []]
-        if rule["stage"] == "palliative_endocrine":
-            rule_ids.append("DEEM-ENDO-ADJ-1Y")
         status = {d.get("rule_id"): d.get("status") for d in fields.get("deemed_lines") or []}
         statuses = [status.get(r) if r else None for r in rule_ids]
         if "met" in statuses:
