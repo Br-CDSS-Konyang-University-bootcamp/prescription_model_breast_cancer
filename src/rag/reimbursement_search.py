@@ -107,6 +107,75 @@ def search_reimbursement(
     return results
 
 
+def search_reimbursement_rows(setting: str = None, lines=None, subtype: str = None, as_of=None, exclude_ids=(),
+                              include_offlabel: bool = False, with_parent: bool = True) -> list[dict]:
+    """약 이름 없이 병기 범주·차수·아형만으로 급여 행을 찾는다 ("ESMO 권고는 없고 급여만 있는 요법", A 요청 2026-10-21).
+    search_reimbursement와 같은 규칙으로 거른다: 공고예고·대체된 행·기준일 이후 시행 행 제외, 값이 any인 칸은 통과.
+    lines: 차수 목록 (하나라도 맞거나 청크가 any면 통과. None이나 빈 목록이면 거르지 않음).
+    exclude_ids: 이미 약 이름으로 찾은 행 (retrieve_for_recommend의 급여 목록). 허가초과 요법 행은 v0.1에서 빼기로 해
+    (팀 회의 4, D 기본값 꺼짐) include_offlabel=True일 때만 넣는다.
+    결과는 청크 dict에 matched_drugs([]), extra_drugs(행의 약 전부), drug_classes(약 계열, drug_classes.csv),
+    supportive(보조약·골 보호제만 든 행: G-CSF, zoledronic acid 등), score(차수가 정확히 맞으면 1.0, any면 0.9),
+    parent·parents를 더한 것. 정렬: 치료 요법 먼저(보조약 행은 뒤), 점수, 최근 시행. 판정은 B·D가 한다."""
+    as_of = (date.fromisoformat(as_of) if isinstance(as_of, str) else as_of) or date.today()
+    client = get_qdrant_client()
+    if COLLECTION_NAME not in [c.name for c in client.get_collections().collections]:
+        return []
+    flt = Filter(must=[FieldCondition(key="doc_type", match=MatchValue(value="reimbursement"))])
+    points, offset = [], None
+    while True:
+        page, offset = client.scroll(collection_name=COLLECTION_NAME, scroll_filter=flt, limit=SCROLL_PAGE,
+                                     offset=offset, with_payload=True, with_vectors=False)
+        points += page
+        if offset is None:
+            break
+    lines = [ln for ln in (lines or []) if ln and ln != "unknown"]
+    exclude = set(exclude_ids)
+    classes = _drug_class_map()
+    results = []
+    for point in points:
+        chunk = point.payload
+        if (chunk.get("chunk_kind") == "section" or chunk["chunk_id"] in exclude or not _usable(chunk, as_of)
+                or (chunk.get("chunk_kind") == "offlabel_regimen" and not include_offlabel)):
+            continue
+        if not _matches(chunk.get("setting"), setting) or not _matches(chunk.get("subtype"), subtype):
+            continue
+        chunk_lines = chunk.get("line") or []
+        if lines and not ("any" in chunk_lines or set(lines) & set(chunk_lines)):
+            continue
+        drugs = chunk.get("drugs") or []
+        drug_classes = sorted({"Supportive Care" if d in SUPPORTIVE_DRUGS else classes.get(d, "Unknown")
+                               for d in drugs})
+        score = 1.0 if lines and set(lines) & set(chunk_lines) else 0.9
+        results.append({**chunk, "matched_drugs": [], "extra_drugs": list(drugs), "drug_classes": drug_classes,
+                        "supportive": bool(drug_classes) and set(drug_classes) <= SUPPORTIVE_CLASSES,
+                        "score": score})
+    results.sort(key=lambda r: (r["reimbursement"].get("effective_from") or "", r["chunk_id"]), reverse=True)
+    results.sort(key=lambda r: (r["supportive"], -r["score"]))
+    if with_parent:
+        for r in results:
+            parents = get_reimbursement_parents(r)
+            r["parents"] = parents
+            r["parent"] = parents[0] if parents else None
+    return results
+
+
+# 치료 요법이 아니라 보조약·골 보호제만 든 행 (G-CSF, dexrazoxane, zoledronic acid, denosumab). 목록 뒤로 보낸다
+SUPPORTIVE_CLASSES = {"Supportive Care", "Bone-modifying Agent"}
+# drug_classes.csv(TCGA 투약 기록에서 만든 사전)에 없는 급여 공고의 보조약 (Ⅳ 기타 약제). 계열을 Supportive Care로 본다
+SUPPORTIVE_DRUGS = {"filgrastim", "lenograstim", "pegfilgrastim", "lipegfilgrastim", "dexrazoxane", "sodium thiosulfate"}
+DRUG_CLASSES_CSV = BASE_DIR / "data" / "dictionaries" / "drug_classes.csv"
+_class_map = None
+
+
+def _drug_class_map() -> dict:
+    global _class_map
+    if _class_map is None:
+        with open(DRUG_CLASSES_CSV, encoding="utf-8-sig", newline="") as f:
+            _class_map = {r["generic_name"].strip().lower(): r["drug_class"] for r in csv.DictReader(f)}
+    return _class_map
+
+
 def _usable(chunk: dict, as_of: date) -> bool:
     rb = chunk.get("reimbursement") or {}
     if rb.get("source_type") not in USABLE_SOURCE_TYPES or chunk.get("superseded_by"):

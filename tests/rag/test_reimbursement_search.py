@@ -178,3 +178,24 @@ def test_client_closes_at_exit(monkeypatch, tmp_path):
     rag_client.get_qdrant_client()
     rag_client.close_client()
     assert registered == [rag_client.close_client] and rag_client._client is None
+
+
+def test_rows_without_drug_names_filtered_by_setting_line_subtype(reimb):
+    # ESMO 권고는 없고 급여만 있는 요법: 약 이름 없이 병기·차수·아형으로 찾는다 (A 요청 2026-10-21)
+    from src.rag import indexer
+    indexer.index_chunks([
+        _chunk("megestrol-2l", ["megestrol"], ["metastatic"], ["2L", ">=3L"]),
+        {**_chunk("gcsf", ["filgrastim"], ["early", "locally_advanced", "metastatic"], ["any"])},
+        {**_chunk("tnbc-only", ["eribulin"], ["metastatic"], ["2L"]), "subtype": ["TNBC"]},
+        {**_chunk("offlabel", ["olaparib"], ["metastatic"], ["any"], kind="offlabel_regimen")},
+    ])
+    rows = reimb.search_reimbursement_rows(setting="metastatic", lines=["2L"], subtype="HR+/HER2-", as_of="2026-10-20",
+                                           exclude_ids={"ac-palliative"})
+    ids = [r["chunk_id"] for r in rows]
+    assert ids == ["megestrol-2l", "gcsf"]  # 치료 요법 먼저, 보조약(G-CSF) 뒤. 아형·제외·허가초과·예고·대체·시행 전 행은 없음
+    assert rows[0]["drug_classes"] == ["Hormone Therapy"] and rows[0]["matched_drugs"] == []
+    assert rows[1]["supportive"] and rows[0]["parents"]
+    assert "offlabel" in [r["chunk_id"] for r in reimb.search_reimbursement_rows(
+        setting="metastatic", lines=["2L"], subtype="HR+/HER2-", as_of="2026-10-20", include_offlabel=True)]
+    # 차수를 안 주면 거르지 않는다 (조기는 setting.phase가 없을 때)
+    assert "ac-adjuvant" in [r["chunk_id"] for r in reimb.search_reimbursement_rows(setting="early", as_of="2026-10-20")]

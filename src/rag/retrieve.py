@@ -185,15 +185,18 @@ def from_confirmed_state(confirmed_state: dict):
 
 def retrieve_for_recommend(state: dict, biomarker_record: dict = None, as_of=None, top_k: int = 5,
                            extra_top_k: int = 3, algorithm_top_k: int = 2, reimbursement_per_drug: int = 5,
-                           rerank: bool = True):
+                           rerank: bool = True, with_reimbursement_only: bool = False):
     """→ (지침 청크 목록, 급여 청크 목록). 둘 다 schemas/chunk.json 형식에 검색 정보(score, parent 등)를 더한 것.
     state: confirmed_state 하나 (biomarker_record 없이), 또는 옛 방식의 patient_state (+ biomarker_record).
     as_of: 급여 판정 기준일. confirmed_state면 비울 때 confirmed_at의 날짜를 쓴다.
     지침: 주 검색 top_k개 + 추가 검색 각 extra_top_k개 (부위별·de novo, 전이성 HR+의 항암 차수) + 알고리즘 그림 경로
     algorithm_top_k개 (중복 없이, 주 검색이 앞). 알고리즘 경로의 약은 급여 검색에 쓰지 않는다 (권고에 이미 있고, 다음 차수
     약까지 들어 있다). 급여: 지침 권고의 약마다, 급여 차수(decision_lines)마다 맞는 행 reimbursement_per_drug개까지
-    (현재 병기 범주·차수로 거름, as_of 기준 시행 중인 행만). 조건 판정은 D·B가 한다."""
-    from .reimbursement_search import search_reimbursement
+    (현재 병기 범주·차수로 거름, as_of 기준 시행 중인 행만). 조건 판정은 D·B가 한다.
+    with_reimbursement_only=True면 세 번째 목록을 더해 (지침, 급여, 급여만 있는 행)을 돌려준다: 같은 병기·차수·아형의
+    급여 행 중 지침 권고의 약으로 찾지 못한 것 (ESMO 권고는 없고 급여만 있는 요법, search_reimbursement_rows).
+    개수가 많아(전이성 2차 50행 넘음) 화면에 낼 때는 B의 조건 판정을 거친다 (팀 회의 2026-10-21)."""
+    from .reimbursement_search import search_reimbursement, search_reimbursement_rows
     from .searcher import search_guidelines
 
     if biomarker_record is None:
@@ -233,4 +236,8 @@ def retrieve_for_recommend(state: dict, biomarker_record: dict = None, as_of=Non
                 if row["chunk_id"] not in seen:
                     reimbursement.append(row)
                     seen.add(row["chunk_id"])
-    return guideline, reimbursement
+    if not with_reimbursement_only:
+        return guideline, reimbursement
+    only = search_reimbursement_rows(setting=disease, lines=lines["reimbursement"],
+                                     subtype=biomarker_record.get("subtype"), as_of=as_of, exclude_ids=seen)
+    return guideline, reimbursement, only
