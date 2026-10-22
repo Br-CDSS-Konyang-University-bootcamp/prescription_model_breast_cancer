@@ -77,10 +77,12 @@ PD-L1 판정 (2026-10-16, 전달 문서 6.5절). 입력 `receptors.pdl1` (`assay
 
 치료 상황 `setting` (전달 문서 6.1·6.2·6.3a절, draft6, 2026-10-19):
 
+`line`은 **이번에 결정할 차수**다 (받은 차수가 아님).
+
 | 현재 범주 | `line` | 규칙 |
 |---|---|---|
 | metastatic | `1L` / `2L` / `>=3L` | A가 넘긴 `treatment_history[].line` 중 마지막 고식적 요법의 차수. 그 요법이 진행(`best_response = PD`, `stop_reason = progression`)으로 끝났으면 다음 차수 (전달 문서 8.2절 예시: 1차 진행 → `2L`) |
-| metastatic | `unknown` | 전이 후 투약 기록 없음 (전달 문서에 규칙 없음) |
+| metastatic | `1L` | 전이 후 고식적 투약 없음: 이번에 결정할 차수는 1차 (2026-10-22, `handoff_confirmed_state_to_B.md` §6 1번 A 제안·B 찬성. 전에는 `unknown`) |
 | metastatic | `unknown` | 전이 후 투약은 있지만 `line` 값이 없음 |
 | early, locally_advanced | `neoadjuvant` / `adjuvant` | 마지막 선행·보조 투약에 A가 적은 `treatment_history[].setting`을 그대로 쓴다. 보조약·골 보호제는 빼고 본다 (6.2절 규칙 3) |
 | early, locally_advanced | `unknown` | 선행·보조 투약 없음 |
