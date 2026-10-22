@@ -108,15 +108,19 @@ def search_reimbursement(
 
 
 def search_reimbursement_rows(setting: str = None, lines=None, subtype: str = None, as_of=None, exclude_ids=(),
-                              include_offlabel: bool = False, with_parent: bool = True) -> list[dict]:
-    """약 이름 없이 병기 범주·차수·아형만으로 급여 행을 찾는다 ("ESMO 권고는 없고 급여만 있는 요법", A 요청 2026-10-21).
+                              include_offlabel: bool = False, prefer_classes=(), with_parent: bool = True) -> list[dict]:
+    """약 이름 없이 병기 범주·차수·아형만으로 급여 행을 찾는다 (A 요청 2026-10-21). retrieve_for_recommend는 이것으로
+    "이번에 찾은 ESMO 권고와 연결되지 않은 급여 요법"을 만든다. ESMO 권고가 아예 없는 요법(megestrol, CMF 등)만이 아니라,
+    다른 차수의 권고에는 있지만 이번 검색에 나오지 않은 약(예: 1차 환자의 everolimus, eribulin)도 들어간다.
     search_reimbursement와 같은 규칙으로 거른다: 공고예고·대체된 행·기준일 이후 시행 행 제외, 값이 any인 칸은 통과.
     lines: 차수 목록 (하나라도 맞거나 청크가 any면 통과. None이나 빈 목록이면 거르지 않음).
     exclude_ids: 이미 약 이름으로 찾은 행 (retrieve_for_recommend의 급여 목록). 허가초과 요법 행은 v0.1에서 빼기로 해
     (팀 회의 4, D 기본값 꺼짐) include_offlabel=True일 때만 넣는다.
+    prefer_classes: 이번 결정의 치료 계열 (예: ["Hormone Therapy"]). 이 계열 약이 든 행을 앞에 둔다.
     결과는 청크 dict에 matched_drugs([]), extra_drugs(행의 약 전부), drug_classes(약 계열, drug_classes.csv),
     supportive(보조약·골 보호제만 든 행: G-CSF, zoledronic acid 등), score(차수가 정확히 맞으면 1.0, any면 0.9),
-    parent·parents를 더한 것. 정렬: 치료 요법 먼저(보조약 행은 뒤), 점수, 최근 시행. 판정은 B·D가 한다."""
+    parent·parents를 더한 것. 정렬: 이번 결정의 계열 → 다른 치료 요법 → 보조약, 그 안에서 점수, 최근 시행.
+    판정은 B·D가 한다."""
     as_of = (date.fromisoformat(as_of) if isinstance(as_of, str) else as_of) or date.today()
     client = get_qdrant_client()
     if COLLECTION_NAME not in [c.name for c in client.get_collections().collections]:
@@ -151,7 +155,8 @@ def search_reimbursement_rows(setting: str = None, lines=None, subtype: str = No
                         "supportive": bool(drug_classes) and set(drug_classes) <= SUPPORTIVE_CLASSES,
                         "score": score})
     results.sort(key=lambda r: (r["reimbursement"].get("effective_from") or "", r["chunk_id"]), reverse=True)
-    results.sort(key=lambda r: (r["supportive"], -r["score"]))
+    prefer = set(prefer_classes or ())
+    results.sort(key=lambda r: (2 if r["supportive"] else 0 if prefer & set(r["drug_classes"]) else 1, -r["score"]))
     if with_parent:
         for r in results:
             parents = get_reimbursement_parents(r)

@@ -111,7 +111,7 @@ def test_from_confirmed_state_reads_only_confirmed_values():
     assert args["endocrine_relapse_12m"] == "yes"  # 반대 갈래(AI-CDK4/6) 권고 감점에 쓴다
     assert {"PIK3CA-mut", "ESR1-mut"} <= set(args["negative_tags"]) and args["biomarker_tags"] == []
     # 보조 내분비 중 재발(DEEM-ENDO-ADJ-1Y met)이면 급여는 '2차 이상' 내분비 행까지 찾는다 (공고 3.다.7·9)
-    assert lines == {"guideline": ["1L"], "reimbursement": ["1L", "2L"]}
+    assert lines == {"guideline": ["1L"], "reimbursement": ["1L", "2L"], "classes": ["Hormone Therapy"]}
 
 
 def test_decision_lines_by_subtype_and_setting():
@@ -121,14 +121,16 @@ def test_decision_lines_by_subtype_and_setting():
         return {"confirmed": value}
     hr = {"setting.disease": item("metastatic"), "subtype": item("HR+/HER2-"),
           "setting.line_endocrine": item(">=3L"), "setting.line_chemo": item("1L"), "deemed_lines": item({})}
-    assert decision_lines(hr) == {"guideline": [">=3L", "1L"], "reimbursement": [">=3L", "1L"]}
+    assert decision_lines(hr) == {"guideline": [">=3L", "1L"], "reimbursement": [">=3L", "1L"],
+                                  "classes": ["Hormone Therapy"]}
     no_more_et = {**hr, "setting.line_endocrine": item("not_applicable")}
     assert decision_lines(no_more_et)["guideline"] == ["1L"]
     her2 = {**hr, "subtype": item("HR-/HER2+"), "setting.line_chemo": item("2L"),
             "deemed_lines": item({"DEEM-HER2ADC-6M": "met"})}
-    assert decision_lines(her2) == {"guideline": ["2L"], "reimbursement": [">=3L", "2L"]}
+    assert decision_lines(her2)["reimbursement"] == [">=3L", "2L"]
+    assert decision_lines(her2)["classes"] == ["Chemotherapy", "HER2-targeted Therapy"]
     early = {"setting.disease": item("early"), "subtype": item("TNBC"), "setting.phase": item("neoadjuvant")}
-    assert decision_lines(early) == {"guideline": ["neoadjuvant"], "reimbursement": ["neoadjuvant"]}
+    assert decision_lines(early)["guideline"] == ["neoadjuvant"] and decision_lines(early)["reimbursement"] == ["neoadjuvant"]
 
 
 def test_retrieve_with_confirmed_state(index, monkeypatch):

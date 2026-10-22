@@ -113,7 +113,8 @@ def decision_lines(items: dict) -> dict:
     - 전이성 HR+: 내분비 차수 (ESMO 호르몬 양성 장의 1·2·3차는 내분비 기반 치료 순서). 내분비를 더 쓰지 않으면
       (not_applicable) 항암 차수. 두 차수가 다르면 항암 차수로도 한 번 더 찾는다
     - 전이성 HER2 양성·TNBC: 항암 차수
-    - 급여: 위 차수들 + 간주 규칙이 met인 계열의 한 차수 위"""
+    - 급여: 위 차수들 + 간주 규칙이 met인 계열의 한 차수 위
+    - classes: 이번 결정의 치료 계열 (HR+ 내분비 결정이면 Hormone Therapy, 그 밖은 항암·항HER2)"""
     disease = _confirmed(items, "setting.disease")
     if disease != "metastatic":
         phase = _confirmed(items, "setting.phase")
@@ -136,7 +137,9 @@ def decision_lines(items: dict) -> dict:
         if any(deemed.get(rule) == "met" for rule in rules):
             reimbursement.append(_next_line(line))
     reimbursement = list(dict.fromkeys(reimbursement)) or [guideline[0] if guideline[0] != "unknown" else None]
-    return {"guideline": guideline, "reimbursement": reimbursement}
+    # 이번 결정의 치료 계열 (연결되지 않은 급여 행을 늘어놓는 순서에 쓴다): HR+에서 내분비 차수를 고르면 내분비요법
+    classes = ["Hormone Therapy"] if subtype in HR_POSITIVE and endo else ["Chemotherapy", "HER2-targeted Therapy"]
+    return {"guideline": guideline, "reimbursement": reimbursement, "classes": classes}
 
 
 def from_confirmed_state(confirmed_state: dict):
@@ -193,9 +196,10 @@ def retrieve_for_recommend(state: dict, biomarker_record: dict = None, as_of=Non
     algorithm_top_k개 (중복 없이, 주 검색이 앞). 알고리즘 경로의 약은 급여 검색에 쓰지 않는다 (권고에 이미 있고, 다음 차수
     약까지 들어 있다). 급여: 지침 권고의 약마다, 급여 차수(decision_lines)마다 맞는 행 reimbursement_per_drug개까지
     (현재 병기 범주·차수로 거름, as_of 기준 시행 중인 행만). 조건 판정은 D·B가 한다.
-    with_reimbursement_only=True면 세 번째 목록을 더해 (지침, 급여, 급여만 있는 행)을 돌려준다: 같은 병기·차수·아형의
-    급여 행 중 지침 권고의 약으로 찾지 못한 것 (ESMO 권고는 없고 급여만 있는 요법, search_reimbursement_rows).
-    개수가 많아(전이성 2차 50행 넘음) 화면에 낼 때는 B의 조건 판정을 거친다 (팀 회의 2026-10-21)."""
+    with_reimbursement_only=True면 세 번째 목록을 더해 (지침, 급여, 연결되지 않은 급여 행)을 돌려준다: 같은 병기·차수·아형의
+    급여 행 중 이번에 찾은 지침 권고의 약으로 찾지 못한 것 (search_reimbursement_rows). ESMO 권고가 아예 없는 요법만이
+    아니라 다른 차수 권고의 약도 들어간다. 이번 결정의 치료 계열(decision_classes) 행이 앞에 온다.
+    개수가 많아(VC-0103 기준 57행) 화면에 낼 때는 B의 조건 판정을 거친다 (팀 회의 2026-10-21)."""
     from .reimbursement_search import search_reimbursement, search_reimbursement_rows
     from .searcher import search_guidelines
 
@@ -239,5 +243,6 @@ def retrieve_for_recommend(state: dict, biomarker_record: dict = None, as_of=Non
     if not with_reimbursement_only:
         return guideline, reimbursement
     only = search_reimbursement_rows(setting=disease, lines=lines["reimbursement"],
-                                     subtype=biomarker_record.get("subtype"), as_of=as_of, exclude_ids=seen)
+                                     subtype=biomarker_record.get("subtype"), as_of=as_of, exclude_ids=seen,
+                                     prefer_classes=lines.get("classes", ()))
     return guideline, reimbursement, only

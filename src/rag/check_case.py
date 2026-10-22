@@ -3,7 +3,7 @@
 #   python -m src.rag.check_case tests/fixtures/virtual_charts/VC-0103/expected/confirmed_state.json
 #   python -m src.rag.check_case <confirmed_state.json> --out data/reimbursement/vc0103_candidates.json
 # confirmed_state(의사 확정값) 하나로 retrieve_for_recommend를 실제 색인·모델로 돌려, B에게 넘어갈 지침 청크와
-# 급여 청크, 급여만 있는 행(ESMO 권고는 없고 급여 기준만 있는 요법)을 보여 준다.
+# 급여 청크, 이번에 찾은 ESMO 권고와 연결되지 않은 급여 행(ESMO 권고가 없거나 다른 차수 권고의 약)을 보여 준다.
 # 가상 차트의 기대 정답(scenario.md)과 눈으로 대조하고, D가 급여 판정을 시험할 후보 목록을 만든다.
 # 먼저 색인이 있어야 한다: 지침 python -m src.rag.run_indexing, 급여 python -m src.reimbursement.index (D의 비공개 청크).
 # --out 파일에는 급여 행 ID와 조건이 들어간다. 공고 원문에서 만든 자료라 git에 올리지 않는다
@@ -39,7 +39,7 @@ def _row(r: dict) -> dict:
 
 def summarize(guideline: list[dict], reimbursement: list[dict], reimbursement_only: list[dict] = ()) -> dict:
     """--out에 쓸 요약. 본문 대신 ID·약·차수·조건만 남긴다 (D가 판정에 쓰는 값).
-    reimbursement_only: ESMO 권고의 약으로는 찾지 못했지만 같은 병기·차수·아형인 급여 행 (급여만 있는 요법)."""
+    reimbursement_only: 이번에 찾은 ESMO 권고의 약으로는 찾지 못했지만 같은 병기·차수·아형인 급여 행."""
     return {
         "guideline": [{"rank": i, "chunk_id": c["chunk_id"], "chunk_kind": c.get("chunk_kind"), "score": c.get("score"),
                        "line": c.get("line"), "drugs": c.get("drugs"), "page": c.get("page_start")}
@@ -90,8 +90,8 @@ def main(argv=None):
     if not reimbursement:
         print("  (없음: 급여 청크를 색인했는지 확인하세요. python -m src.reimbursement.index)")
     treat = [r for r in only if not r.get("supportive")]
-    print(f"\n[급여만 있는 행 {len(only)}개: ESMO 권고의 약으로는 찾지 못한 같은 병기·차수·아형의 급여 행]"
-          f"  치료 요법 {len(treat)}개 + 보조약 {len(only) - len(treat)}개")
+    print(f"\n[연결되지 않은 급여 행 {len(only)}개: 이번에 찾은 ESMO 권고의 약으로는 찾지 못한 같은 병기·차수·아형의 급여 행."
+          f" ESMO 권고가 없거나 다른 차수 권고의 약]  치료 요법 {len(treat)}개 + 보조약 {len(only) - len(treat)}개")
     for r in only:
         mark = " (보조약)" if r.get("supportive") else ""
         print(f"  {r['chunk_id']}  {r.get('extra_drugs')}  {r.get('line')}  {r.get('drug_classes')}{mark}")
