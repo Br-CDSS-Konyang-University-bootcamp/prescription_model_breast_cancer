@@ -153,3 +153,30 @@ def test_endocrine_adjuvant_relapse_counts_as_first_line():
                          vc("met"), record()) is True                     # 765 - 760 = 투여 중 전이
     assert evaluate_item(item("days_end_to_recurrence", "gt", 365, of={"setting": ["adjuvant"]}),
                          vc("met"), record()) is False                    # recurrence_day는 {status, value} 칸
+
+
+def test_counts_as_prior_line_rule_id_used_as_is():
+    """D가 counts_as_prior_line에 rule_id를 적으면 대응표 대신 그 규칙을 본다 (D 요청 2026-10-22)."""
+    ps = patient(deemed_lines=[{"rule_id": "DEEM-HER2ADC-6M", "category": "chemo", "status": "met"},
+                               {"rule_id": "DEEM-ANTHRA-TAXANE", "category": "chemo", "status": "not_met"}])
+    c = cond(line_rule={"stage": "palliative_chemo", "line": "2차 이상"},
+             prior=[{"text": "보조요법 6개월 이내 재발", "setting": ["adjuvant"], "drugs": ["trastuzumab"],
+                     "rule_id": "DEEM-HER2ADC-6M"}])
+    assert ev(c, ps=ps) == "met"
+    c_other = cond(line_rule={"stage": "palliative_chemo", "line": "2차 이상"},
+                   prior=[{"text": "간주", "setting": ["adjuvant"], "drugs": [], "rule_id": "DEEM-ANTHRA-TAXANE"}])
+    assert ev(c_other, ps=ps) == "not_met"
+
+
+def test_at_index_fields():
+    """판정 기준일 나이·최근 4주 투여 (patient_state.fields.at_index, A가 계산)."""
+    ps = patient(at_index={"age": 72, "recent_therapy_28d": {"status": "yes", "basis": "", "regimen_refs": [0],
+                                                            "gap_days": 10}})
+    assert ev(cond([item("age_at_index", "gte", 70)]), ps=ps) == "met"
+    assert ev(cond([item("age_at_index", "lt", 65)]), ps=ps) == "not_met"
+    assert ev(cond([item("recent_therapy_28d", "eq", "yes")]), ps=ps) == "met"
+    unknown = patient(at_index={"age": None, "recent_therapy_28d": {"status": "unknown", "basis": "",
+                                                                     "regimen_refs": [], "gap_days": None}})
+    assert ev(cond([item("age_at_index", "gte", 19)]), ps=unknown) == "unknown"
+    assert ev(cond([item("recent_therapy_28d", "eq", "yes")]), ps=unknown) == "unknown"
+    assert ev(cond([item("recent_therapy_28d", "eq", "yes")])) == "unknown"                       # at_index 칸 없음

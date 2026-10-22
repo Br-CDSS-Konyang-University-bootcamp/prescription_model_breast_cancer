@@ -24,7 +24,10 @@ LINE_STAGE_COUNT = {"palliative_endocrine": "endocrine_line", "palliative_chemo"
 
 def _deem_rule(entry):
     """counts_as_prior_line 한 줄 -> A의 deemed_lines rule_id (D schema_proposal.md "차수 간주 규칙" 표).
+    D가 rule_id를 적었으면 그 규칙을 그대로 본다 (D 요청 2026-10-22). 없으면 대응표로 맞춘다:
     anthracycline·taxane 포함 선행·보조 -> DEEM-ANTHRA-TAXANE, 종료 1년 이내 재발 -> DEEM-SG-1Y. 못 맞추면 None."""
+    if entry.get("rule_id"):
+        return entry["rule_id"]
     drugs = set(entry.get("drugs") or [])
     if {"anthracycline", "taxane"} <= drugs:
         return "DEEM-ANTHRA-TAXANE"
@@ -174,6 +177,12 @@ def _value(field, it, patient_state, record):
         return _present(patient.get("gender"))
     if field == "age":
         return _present(patient.get("age"))
+    at_index = fields.get("at_index") or {}   # 판정 기준일 시점 값 (A가 계산, D FIELDS)
+    if field == "age_at_index":
+        return at_index.get("age") if isinstance(at_index.get("age"), int) else None
+    if field == "recent_therapy_28d":
+        status = (at_index.get("recent_therapy_28d") or {}).get("status")
+        return status if status in ("yes", "no") else None
     if field == "recurrence":
         s = _present(recurrence.get("status"))
         return None if s in (None, "unknown") else s
