@@ -1,0 +1,230 @@
+{
+ "case": "VC-0103",
+ "description": "가상 차트 VC-0103 (보조 anastrozole 중 폐 전이, 전이 후 1차 내분비 치료 결정)의 급여 검색·판정 기대값. 공고책자 2026-10-01판 기준. 공고 원문은 넣지 않는다 (chunk_id·쪽·공고 번호만).",
+ "sources": {
+  "chart": "tests/fixtures/virtual_charts/VC-0103/chart.txt",
+  "patient_state": "tests/fixtures/virtual_charts/VC-0103/expected/patient_state.json",
+  "confirmed_state": "tests/fixtures/virtual_charts/VC-0103/expected/confirmed_state.json",
+  "search": "python -m src.rag.check_case tests/fixtures/virtual_charts/VC-0103/expected/confirmed_state.json (2026-10-22)"
+ },
+ "patient": {
+  "menopausal_status": "postmenopausal",
+  "subtype": "HR+/HER2-",
+  "disease": "metastatic",
+  "recurrence": "distant",
+  "metastasis_day": 760,
+  "adjuvant_endocrine": {
+   "drugs": [
+    "anastrozole"
+   ],
+   "start_day": 40,
+   "end_day": 765,
+   "best_response": "PD"
+  },
+  "palliative_endocrine_lines": 0,
+  "palliative_chemo_lines": 0,
+  "deemed": {
+   "DEEM-ENDO-ADJ-1Y": "met"
+  },
+  "markers": {
+   "PIK3CA": "negative",
+   "AKT1": "negative",
+   "PTEN": "negative",
+   "ESR1": "negative"
+  },
+  "chart_quotes": [
+   "폐경 후 (postmenopausal)",
+   "보조 anastrozole 2021.4.14~ 복용 중 2023.4.4 lung metastasis",
+   "검출되지 않음 (Not detected): PIK3CA, ESR1, AKT1, PTEN"
+  ]
+ },
+ "search": {
+  "guideline_top": "esmo-mbc-2026-05-luminal-1l-0fd38a",
+  "drugs": [
+   "fulvestrant",
+   "palbociclib",
+   "ribociclib",
+   "abemaciclib"
+  ],
+  "must_include": [
+   "hira-booklet-20261001-bc-pal-endo-1l-r01",
+   "hira-booklet-20261001-bc-pal-endo-1l-r02",
+   "hira-booklet-20261001-bc-pal-endo-1l-r03",
+   "hira-booklet-20261001-bc-pal-endo-1l-r04",
+   "hira-booklet-20261001-bc-pal-endo-1l-r05",
+   "hira-booklet-20261001-bc-pal-endo-1l-r06",
+   "hira-booklet-20261001-bc-pal-endo-1lplus-r06",
+   "hira-booklet-20261001-bc-pal-endo-2lplus-r07",
+   "hira-booklet-20261001-bc-pal-endo-2lplus-r08",
+   "hira-booklet-20261001-bc-pal-endo-2lplus-r09",
+   "hira-booklet-20261001-combo-r21",
+   "hira-booklet-20261001-combo-r22",
+   "hira-booklet-20261001-combo-r29"
+  ],
+  "must_exclude": [
+   "hira-booklet-20261001-combo-r25",
+   "hira-booklet-20261001-combo-r26",
+   "hira-booklet-20261001-combo-r27",
+   "hira-booklet-20261001-combo-r28"
+  ],
+  "note": "must_exclude는 수술 뒤 ribociclib 보조요법 행. 전이성 검색에 섞이면 안 된다 (2026-10-22 태그 수정)"
+ },
+ "expected": [
+  {
+   "chunk_id": "hira-booklet-20261001-bc-pal-endo-1l-r01",
+   "page": [
+    55,
+    55
+   ],
+   "notice_no": "제2020-155호",
+   "regimen": "palbociclib + letrozole",
+   "status": "not_met",
+   "reason": "보조 비스테로이드성 AI(anastrozole) 투여 중 전이: '받은 적 없음'이 거짓이고 '종료 1년 이후 재발' 예외도 아님 (전이 기준일 760 - 종료일 765 = -5일)",
+   "needs": "ai_exclusion_1y_after"
+  },
+  {
+   "chunk_id": "hira-booklet-20261001-bc-pal-endo-1l-r02",
+   "page": [
+    55,
+    55
+   ],
+   "notice_no": "제2020-155호",
+   "regimen": "palbociclib + anastrozole",
+   "status": "not_met",
+   "reason": "연번 1과 같음",
+   "needs": "ai_exclusion_1y_after"
+  },
+  {
+   "chunk_id": "hira-booklet-20261001-bc-pal-endo-1l-r03",
+   "page": [
+    55,
+    55
+   ],
+   "notice_no": "제2020-155호",
+   "regimen": "abemaciclib + letrozole",
+   "status": "not_met",
+   "reason": "연번 1과 같음",
+   "needs": "ai_exclusion_1y_after"
+  },
+  {
+   "chunk_id": "hira-booklet-20261001-bc-pal-endo-1l-r04",
+   "page": [
+    55,
+    55
+   ],
+   "notice_no": "제2020-155호",
+   "regimen": "abemaciclib + anastrozole",
+   "status": "not_met",
+   "reason": "연번 1과 같음",
+   "needs": "ai_exclusion_1y_after"
+  },
+  {
+   "chunk_id": "hira-booklet-20261001-bc-pal-endo-1l-r05",
+   "page": [
+    55,
+    55
+   ],
+   "notice_no": "제2021-220호",
+   "regimen": "ribociclib + letrozole",
+   "status": "not_met",
+   "reason": "연번 1과 같음. 폐경 후라 폐경 전 예외도 아님",
+   "needs": "ai_exclusion_1y_after"
+  },
+  {
+   "chunk_id": "hira-booklet-20261001-bc-pal-endo-1l-r06",
+   "page": [
+    55,
+    55
+   ],
+   "notice_no": "제2021-220호",
+   "regimen": "ribociclib + anastrozole",
+   "status": "not_met",
+   "reason": "연번 5와 같음",
+   "needs": "ai_exclusion_1y_after"
+  },
+  {
+   "chunk_id": "hira-booklet-20261001-bc-pal-endo-1lplus-r06",
+   "page": [
+    56,
+    56
+   ],
+   "notice_no": "제2019-129호",
+   "regimen": "fulvestrant",
+   "status": "met",
+   "reason": "fulvestrant 단독: HR+, HER2-, 폐경 후 여성, 전이성, 고식적 내분비 1차 이상",
+   "needs": "line_1_plus"
+  },
+  {
+   "chunk_id": "hira-booklet-20261001-bc-pal-endo-2lplus-r07",
+   "page": [
+    57,
+    57
+   ],
+   "notice_no": "제2020-155호",
+   "regimen": "palbociclib + fulvestrant",
+   "status": "met",
+   "reason": "palbociclib + fulvestrant: 보조 내분비 중 진행(1년 이내)이라 내분비 후 진행으로 인정되고 1차를 받은 것으로 간주(DEEM-ENDO-ADJ-1Y) → 2차 이상 대상. CDK4/6·fulvestrant 사용력 없음",
+   "needs": "endo_deem_2l"
+  },
+  {
+   "chunk_id": "hira-booklet-20261001-bc-pal-endo-2lplus-r08",
+   "page": [
+    57,
+    57
+   ],
+   "notice_no": "제2020-155호",
+   "regimen": "abemaciclib + fulvestrant",
+   "status": "met",
+   "reason": "abemaciclib + fulvestrant: 연번 7과 같음",
+   "needs": "endo_deem_2l"
+  },
+  {
+   "chunk_id": "hira-booklet-20261001-bc-pal-endo-2lplus-r09",
+   "page": [
+    57,
+    57
+   ],
+   "notice_no": "제2020-282호",
+   "regimen": "ribociclib + fulvestrant",
+   "status": "met",
+   "reason": "ribociclib + fulvestrant: 연번 7과 같음 + 폐경 후",
+   "needs": "endo_deem_2l"
+  },
+  {
+   "chunk_id": "hira-booklet-20261001-combo-r21",
+   "page": [
+    165,
+    166
+   ],
+   "notice_no": "제2025-133호",
+   "regimen": "fulvestrant + capivasertib (비급여)",
+   "status": "not_met",
+   "reason": "capivasertib 허가사항(PIK3CA/AKT1/PTEN 변이) 불충족: 셋 다 검출되지 않음",
+   "needs": "mutation_required"
+  },
+  {
+   "chunk_id": "hira-booklet-20261001-combo-r22",
+   "page": [
+    166,
+    166
+   ],
+   "notice_no": "제2025-133호",
+   "regimen": "fulvestrant + alpelisib (비급여)",
+   "status": "not_met",
+   "reason": "alpelisib 허가사항(PIK3CA 변이) 불충족",
+   "needs": "mutation_required"
+  },
+  {
+   "chunk_id": "hira-booklet-20261001-combo-r29",
+   "page": [
+    168,
+    169
+   ],
+   "notice_no": "제2025-256호",
+   "regimen": "inavolisib (비급여) + palbociclib + fulvestrant",
+   "status": "not_met",
+   "reason": "inavolisib 허가사항(PIK3CA 변이) 불충족",
+   "needs": "mutation_required"
+  }
+ ]
+}

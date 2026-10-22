@@ -345,6 +345,9 @@ def test_fields_follow_input_paths():
     assert cm.FIELDS["recent_therapy_28d"][2] == ["yes", "no"]
     assert "days_since_last_dose" not in cm.FIELDS
     assert "best_response = PD" in cm.FIELDS["prior_failed"][0]
+    # A 답변 2026-10-21: 재발 병소 절제 가능 여부는 재발 후 수술 여부로 대신, 심장·종격동은 이번 모델 제외
+    assert "recurrence.surgery" in cm.FIELDS["recurrence_operable"][0] and "curative" in cm.FIELDS["recurrence_operable"][0]
+    assert all("PROJECT.md §12" in cm.FIELDS[f][0] for f in ("cardiac_history", "mediastinal_radiation"))
     # patient_state_structure.md: 공통 추출 칸(◆)은 값이 .value 아래
     for f in ("menopause", "sex", "age", "recurrence", "operable", "stage_group", "positive_ln_count", "grade", "pcr",
               "days_end_to_recurrence", "days_end_to_metastasis"):

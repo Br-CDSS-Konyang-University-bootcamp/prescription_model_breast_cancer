@@ -1130,6 +1130,9 @@ def booklet_chunks(b: Booklet) -> BookletChunks:
             if stage == "combination" and cols["merged"] and prev_stage:
                 stage = prev_stage           # 허가사항 칸이 위 행과 병합된 행은 위 행과 같은 단계 (ribociclib 27~28)
             prev_stage = stage
+            if stage in ("neoadjuvant", "adjuvant") and not {"neoadjuvant", "adjuvant"} & set(line):
+                # '(수술후보조요법)' 표시가 없는 수술 전후 행(ribociclib 25~28)도 표시가 있는 행과 같은 검색 태그로
+                setting, line = ["early", "locally_advanced"], [stage]
             text = f"[{heading}]\n(열: 항암제 병용요법 / 허가사항 / 급여 요법 / 급여기준 / 비고)\n{body}"
             parsed = parse_regimen(cols["combined"])
             reimb = {"source_type": "baseline", "notice_no": f"제{no}호", "effective_from": d.isoformat(),

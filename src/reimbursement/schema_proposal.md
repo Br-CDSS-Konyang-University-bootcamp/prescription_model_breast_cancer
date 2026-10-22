@@ -109,7 +109,18 @@ op는 설계의 8개에 `contains`(이전 치료에 있어야 함)를 더했다.
 |---|---|---|
 | anthracycline·taxane 포함 선행·보조 → 1차로 간주 | 고식적 항암 2차 이상 연번 2~18, 병용요법 연번 24 (`counts_as_prior_line`) | `DEEM-ANTHRA-TAXANE` |
 | 선행·보조 종료 1년 이내 재발 → 1차로 간주 | sacituzumab govitecan (`counts_as_prior_line`, `within_days` 365) | `DEEM-SG-1Y` |
-| 보조요법 중·종료 6개월 이내 재발도 인정 | T-DM1, T-DXd (`prior_failed`의 `unless`, 183일) | `DEEM-HER2ADC-6M` || 보조 내분비요법 중·종료 1년 이내 진행도 인정 | 고식적 내분비 2차 이상 연번 4~9, 병용 연번 29 (`any_of`의 `days_end_to_metastasis` 365: A와 같이 종료일부터 **전이 기준일**까지, B 확인 2026-10-20) | `DEEM-ENDO-ADJ-1Y` |
+| 보조요법 중·종료 6개월 이내 재발도 인정 | T-DM1, T-DXd (`prior_failed`의 `unless`, 183일) | `DEEM-HER2ADC-6M` |
+| 보조 내분비요법 중·종료 1년 이내 진행도 인정 | 고식적 내분비 2차 이상 연번 4~9, 병용 연번 29 (`any_of`의 `days_end_to_metastasis` lte 365: A와 같이 종료일부터 **전이 기준일**까지, B 확인 2026-10-20). 투여단계(2차 이상)도 이 규칙으로 1차를 받은 것으로 보므로 `counts_as_prior_line`에 `rule_id: DEEM-ENDO-ADJ-1Y`로도 적는다 (2026-10-22, VC-0103) | `DEEM-ENDO-ADJ-1Y` |
+
+`counts_as_prior_line` 항목에 `rule_id`가 있으면 판정 쪽은 그 규칙의 `deemed_lines[].status`를 그대로 본다. 없으면 지금처럼
+약(anthracycline·taxane → `DEEM-ANTHRA-TAXANE`)과 `within_days` 365(→ `DEEM-SG-1Y`)로 맞춘다.
+예: VC-0103(보조 anastrozole 중 폐 전이)은 DEEM-ENDO-ADJ-1Y가 met이라 전이 후 첫 내분비 치료가 공고상 '2차 이상' 행(CDK4/6 + fulvestrant)의 대상이다.
+| 보조로 비스테로이드성 AI를 썼으면 종료 1년 **이후** 재발 / 폐경 전 보조 내분비·항암 종료 1년 **이내** 재발 | 고식적 내분비 1차(3가) 연번 1~6 (`unless`의 `days_end_to_metastasis` gt 365, 예외의 lte 365) | `DEEM-ENDO-ADJ-1Y`와 같은 기준 (1년 이후 = not_met). A 답변 2026-10-21 |
+| (간주 규칙 아님) 보조 CDK4/6 억제제 종료 후 12개월 **초과** | 병용 연번 29 (`days_end_to_metastasis` gt 365, of CDK4/6) | DEEM 값을 쓰지 않음: 기준 약(CDK4/6)과 경계(초과)가 다르고 끝점(전이 기준일)만 같음 (A 답변 2026-10-21) |
+
+A가 전이 기준일로 세라고 한 것은 3가뿐이라, 그 밖에 '재발'로 적힌 기간 조건은 첫 재발일(`days_end_to_recurrence`) 그대로 둔다:
+고식적 내분비 2차 이상 연번 4~6, 고식적 항암 1차 연번 3·4, 1차 이상 연번 18, 2차 이상 연번 21·22, 병용 연번 21.
+같은 원칙을 적용할지는 A에게 확인 중이다 (2026-10-21). 전이 기준일로 세면 국소 재발만 있는 환자는 알 수 없음이 된다.
 
 판정 쪽은 `deemed_lines[]`의 `status`가 `met`이면 그 규칙을 충족한 것으로, `unknown`이면 확인 필요로 본다.
 
@@ -122,7 +133,7 @@ op는 설계의 8개에 `contains`(이전 치료에 있어야 함)를 더했다.
 | `not_done` | 알 수 없음 | 급여 아님이 아니라 "검사 필요" |
 | `retest_needed` | 알 수 없음 | "재검 필요" |
 | `not_recorded`, `unknown` | 알 수 없음 | "기록 확인 필요" |
-| 그 마커의 줄이 아예 없음 | 알 수 없음 | "기록 확인 필요". 예: 가상 차트는 gBRCA 줄이 없을 수 있음 (TCGA가 아니면 B가 BRCA를 sBRCA로만 냄, handoff §4.7) |
+| 그 마커의 줄이 아예 없음 | 알 수 없음 | "기록 확인 필요". BRCA1/2는 모든 차트에서 gBRCA로 보고 sBRCA 레코드는 만들지 않는다 (A 결정 2026-10-21, handoff §4.7). 그래서 `sbrca` 조건은 늘 알 수 없음 (쓰는 행 없음) |
 | `vus` | `eq positive`는 거짓 (PROJECT.md §5: VUS는 음성 처리, 표시 유지) | 급여 아님 + VUS 표시 |
 
 "알 수 없음"이 하나라도 있는 행은 다른 조건이 모두 맞아도 `covered`가 아니라 `covered_conditions_unverified`로 둔다.
@@ -140,6 +151,20 @@ op는 설계의 8개에 `contains`(이전 치료에 있어야 함)를 더했다.
 | `at_index.recent_therapy_28d.status` | `unknown` | "최근 투약 확인 필요" |
 | `treatment_history[].end_day` 등 계산에 쓰는 일수 | null | 기간 조건 (`days_end_to_*`, `treatment_years`) |
 
+- 칸을 두지 않는 조건 (A 답변 2026-10-21):
+  - 재발 병소 절제 가능 여부(`recurrence_operable`): 데이터에 없고 의학적 판단이라, 재발 후 실제 수술 여부로 대신한다.
+    `recurrence.surgery = yes`이고 `surgery_intent = curative`면 절제했으므로 '절제 불가능한 국소 재발성'은 거짓.
+    그 밖(`no`, `unknown`, `palliative`)은 알 수 없음, 사유 "재발 병소 절제 가능 여부 확인 필요". 수술하지 않은 것을 절제 불가로 읽지 않는다.
+  - 심장 병력·종격동 방사선(`cardiac_history`, `mediastinal_radiation`): 이번 모델 제외 (PROJECT.md §12). 늘 알 수 없음.
+    liposomal doxorubicin(고식적 항암 1차 이상 연번 19)은 누적용량 기준을 만족하면 이 조건 없이 충족, 투여했는데 못 미치면
+    `covered_conditions_unverified`와 사유 "심장 위험요소 확인 필요". D 조건은 '누적용량 또는 심장 위험요소' 묶음이라 이 규칙대로 나온다.
+- 병용요법(40장) 표의 허가사항 열도 급여 조건이다 (2026-10-21 D 결정, A에게 근거 전달).
+  40장 머리 원칙(165쪽, 제2025-133호): 기존 항암요법에 타 항암제를 병용할 때 "가) 병용요법은 식품의약품안전처의 허가사항 범위 이내,
+  나) 투여대상은 기존 항암요법의 급여범위 이내"를 **모두** 만족해야 기존 요법의 본인부담률을 적용한다.
+  그래서 허가사항 열(예: 연번 21·22의 PIK3CA 변이, 23·24의 PD-L1 CPS≥10, 30의 gBRCA)과 급여기준 열을 함께 판정한다.
+  허가 여부를 D가 따로 판단하는 것이 아니라 공고 표에 적힌 내용을 공고 조건대로 적용하므로 PROJECT.md §2와 부딪히지 않는다.
+  공고는 "허가사항은 공고 시점의 허가이므로 투여 전 변경 여부를 확인"하라고 적고 있어, 이 문구는 상위 청크(`…-combo`)에 있다.
+  (A 답변 2026-10-21은 연번 21의 허가사항 조건을 빼자고 했으나 위 원칙에 따라 남긴다.)
 - 최근 4주 투약: A가 계산한 `at_index.recent_therapy_28d`를 그대로 쓴다 (zoledronic acid 골전이, `recent_therapy_28d eq yes`, A §6-1).
 - 나이: `age`는 진단 시 나이(`patient.age`)로 선행·수술후보조 대상 조건에, `age_at_index`는 판정 기준일 나이(`at_index.age`)로
   투여 시점 조건(G-CSF·denosumab '만 19세 이상', dexrazoxane '70세 이상')에 쓴다 (A §6-2).
