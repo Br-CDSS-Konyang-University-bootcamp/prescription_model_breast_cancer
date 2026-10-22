@@ -349,21 +349,26 @@ def anthracycline(r, items: list[str]) -> dict:
 
 
 # ---------- 재발 (§3.7) ----------
+def nte_site_list(r) -> list[str]:
+    """재발·새 종양 기록의 부위 (nte_sites + nte_sites_other) -> 표준 부위 목록."""
+    sites = []
+    for s in str(r.nte_sites).split("; ") if val(r.nte_sites) else []:
+        site = VOCAB.lookup("metastatic_sites", s, strict=False)
+        if site:
+            sites.append(site)
+        elif s.startswith("Other"):
+            sites += [y for o in str(r.nte_sites_other).split("; ") if val(o) for y in split_other(o)]
+        else:
+            raise ValueError(f"{r.patient_id}: field_vocab.csv에 없는 재발 부위 '{s}'")
+    return list(dict.fromkeys(sites))
+
+
 def recurrence(r) -> dict:
     st = r.recurrence_status
     rec = {"recurrence_date": {"status": "not_recorded"}, "adjuvant_endocrine_end_date": {"status": "not_recorded"},
            "status": present(st, val(r.nte_types))}
     if st == "distant":
-        sites = []
-        for s in str(r.nte_sites).split("; ") if val(r.nte_sites) else []:
-            site = VOCAB.lookup("metastatic_sites", s, strict=False)
-            if site:
-                sites.append(site)
-            elif s.startswith("Other"):
-                sites += [y for o in str(r.nte_sites_other).split("; ") if val(o) for y in split_other(o)]
-            else:
-                raise ValueError(f"{r.patient_id}: field_vocab.csv에 없는 재발 부위 '{s}'")
-        rec["metastatic_sites"] = present(list(dict.fromkeys(sites)) or "[Not Available]", val(r.nte_sites))
+        rec["metastatic_sites"] = present(nte_site_list(r) or "[Not Available]", val(r.nte_sites))
     if val(r.metastasis_dx_days) is not None:
         rec["metastasis_day"] = present(int(r.metastasis_dx_days))
     # 첫 재발일: 국소 재발일과 원격 전이 재발일 중 이른 값. 진단 시 IV기(재발 없음)는 넣지 않는다 (draft6)
@@ -458,15 +463,17 @@ def build(r) -> dict:
         },
         "conflicts": [],
     }
-    follow_recurrence_sites(doc["fields"])
+    follow_recurrence_sites(doc["fields"], nte_site_list(r) if r.stage_disease_extent == "metastatic" else None)
     return annotate(doc, DRUG_TABLE)  # 차수 3칸과 간주 규칙 (src/input/common/lines.py, draft6)
 
 
-def follow_recurrence_sites(fields: dict) -> None:
-    """진단 시 전이 부위와 재발 부위가 다르면 재발 기록을 따른다 (사용자 결정, 2026-10-20). raw는 진단 시 원문 그대로."""
-    s, rc = fields["stage"]["metastatic_sites"], fields["recurrence"].get("metastatic_sites") or {}
-    if isinstance(s.get("value"), list) and isinstance(rc.get("value"), list) and s["value"] != rc["value"]:
-        s["value"] = list(rc["value"])
+def follow_recurrence_sites(fields: dict, later: list[str] | None = None) -> None:
+    """진단 시 전이 부위와 재발 부위가 다르면 재발 기록을 따른다 (사용자 결정, 2026-10-20). raw는 진단 시 원문 그대로.
+    진단 시 IV기는 재발이 아니라 재발 부위 칸이 없으므로, 이후 원격 전이 기록의 부위(later)를 따른다 (2026-10-22)."""
+    s = fields["stage"]["metastatic_sites"]
+    rc = later if later is not None else (fields["recurrence"].get("metastatic_sites") or {}).get("value")
+    if isinstance(s.get("value"), list) and isinstance(rc, list) and rc and s["value"] != rc:
+        s["value"] = list(rc)
 
 
 def load_rows(csv: Path = CSV) -> pd.DataFrame:

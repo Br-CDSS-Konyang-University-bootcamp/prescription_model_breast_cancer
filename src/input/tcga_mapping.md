@@ -121,7 +121,7 @@ TNM 세부 표기 [합의 예정]: 공백만 지우고 그대로 둔다. `N0 (i-
 6. [합의 예정] `gdc_metastasis_site` 안의 `Other, specify` 항목은 `gdc_metastasis_site_other` 내용으로 바꾼다. 해당 3명.
 7. [사용자 결정, 2026-10-20] 기타 부위 원문에 표준 부위 이름이 섞여 있으면 나눈다 (`,`·` and ` 기준). 예: `Lung, Bone, Liver, Brain and Skin Nodules` → `lung`, `bone`, `liver`, `brain`, `other: Skin Nodules`. 표준 부위 이름이 없으면 원문을 통째로 `other: `로 둔다. 재발 부위(§3.7)에도 같은 규칙. 해당 1명 (TCGA-A7-A13E, 재발 부위)
 8. [사용자 결정, 2026-10-20] 진단 시 IV기인데 부위 기록이 없으면 `{"status": "not_done"}` (검사가 끝나지 않은 것으로 본다). 1명 (TCGA-A8-A07W)
-9. [사용자 결정, 2026-10-20] 진단 시 부위와 재발 부위(`recurrence.metastatic_sites`)가 둘 다 목록이고 서로 다르면 재발 기록을 따른다 (`raw`는 진단 시 원문 그대로). 1명 (TCGA-LL-A73Z: `skin` → `brain`)
+9. [사용자 결정, 2026-10-20] 진단 시 부위와 재발 부위(`recurrence.metastatic_sites`)가 둘 다 목록이고 서로 다르면 재발 기록을 따른다 (`raw`는 진단 시 원문 그대로). 진단 시 IV기는 재발 상태가 `none`이라 재발 부위 칸이 없으므로, 이후 원격 전이 기록의 부위(`nte_sites`, `nte_sites_other`)를 따른다 (2026-10-22). 1명 (TCGA-LL-A73Z: `skin` → `brain`, 뇌 전이 192일)
 
 참고: 진단 시 M1은 8명인데 전이 여부 `YES`는 1명이다. 두 출처가 다를 수 있으므로 가상 차트를 만들 때 함께 확인한다.
 
@@ -217,11 +217,11 @@ TNM 세부 표기 [합의 예정]: 공백만 지우고 그대로 둔다. `N0 (i-
 | `neoadjuvant_response.pcr`, `.rcb` | 없음 | `not_recorded` |
 | `recurrence.recurrence_date` | `nte_first_dx_days`, `nte_types`, `nte_sites`, `nte_sites_other` | 날짜는 `not_recorded` (§2.3). 재발 여부와 사건 종류·부위는 가상 차트 문장에 쓴다. New Primary Tumor는 재발이 아니므로 제외 |
 | `recurrence.adjuvant_endocrine_end_date` | 없음 | 날짜 칸이므로 `not_recorded` (§2.3). 보조 내분비요법 종료 시점은 B가 `treatment_history[].end_day`로 계산한다 |
-| `recurrence.status` [draft5] | `recurrence_status` | 그대로: `none` / `distant` / `locoregional` / `unknown`. `site_unknown`은 크롭 단계에서 뺐다 (2026-10-15). 2026-10-20부터 재발 여부 기록이 없던 환자는 크롭 스크립트가 정리한다: 진단 시 전이성이 아니면서 종양 동반 사망이면 삭제, 재발 병소 수용체(`gdc_nte_*`)가 있으면 `locoregional` (TCGA-BH-A0HP, 투약이 모두 보조요법이라 원격 전이 근거 없음), 그중 전이 여부가 YES인데 진단 시 IV기가 아니면 삭제(TCGA-BH-A18V), 나머지는 `none` (진단 시 전이성 4명 포함, 138명). 838명 기준 none 808, distant 17, locoregional 13, unknown 0 |
+| `recurrence.status` [draft5] | `recurrence_status` | 그대로: `none` / `distant` / `locoregional` / `unknown`. `site_unknown`은 크롭 단계에서 뺐다 (2026-10-15). 2026-10-20부터 재발 여부 기록이 없던 환자는 크롭 스크립트가 정리한다: 진단 시 전이성이 아니면서 종양 동반 사망이면 삭제, 재발 병소 수용체(`gdc_nte_*`)가 있으면 `locoregional` (TCGA-BH-A0HP, 투약이 모두 보조요법이라 원격 전이 근거 없음), 그중 전이 여부가 YES인데 진단 시 IV기가 아니면 삭제(TCGA-BH-A18V), 나머지는 `none` (진단 시 전이성 4명 포함, 138명). 2026-10-22부터 진단 시 전이성(IV기)은 모두 `none`이다 (사용자 결정, 크롭 `metastatic_at_dx_to_none`). 이후 원격 전이 기록은 재발이 아니라 진행이다 (TCGA-B6-A3ZX, LL-A73Z: `distant` → `none`). 838명 기준 none 810, distant 15, locoregional 13, unknown 0 |
 | `recurrence.metastatic_sites` [draft5] | `nte_sites`, `nte_sites_other` | `status = distant`일 때만. Bone → `bone`, Liver → `liver`, Lung → `lung`, Brain → `brain`, `Other, specify` → `other: <nte_sites_other 항목>`. 여러 개 나열. 국소 부위(Axilla, Chest wall 등)가 섞일 수 있으나 처방·급여 판정에는 영향이 없다고 봄 (사용자 결정) |
 | `recurrence.metastasis_day` [draft5] | `metastasis_dx_days` | 정수 (진단 시 IV기 = 0). 값이 없으면 칸을 만들지 않음 |
 | `recurrence.recurrence_day` [draft6] | `locoregional_dx_days`, `metastasis_dx_days` | `status`가 `distant`·`locoregional`일 때만. 국소 재발일과 원격 전이 재발일(`distant`일 때) 중 이른 값. 진단 시 IV기(전이 기준일 0)는 재발이 아니므로 넣지 않음. 27명 (distant 15, locoregional 12; TCGA-BH-A0HP는 국소 재발일 기록이 없어 빠짐). 2026-10-20 수정: 그전에는 진단 시 IV기 중 TCGA가 0일째 원격 전이 사건을 기록한 2명(TCGA-B6-A3ZX, LL-A73Z)에게 0이 들어갔다 (코드에 이 검사가 빠져 있었음) |
-| `recurrence.surgery` [draft5] | `nte_surgery` | `status`가 `none`·`unknown`이 아닐 때만. YES가 하나라도 있으면 `yes`, NO만 있으면 `no`, 빈칸이면 `unknown`. 빈칸이던 국소 재발 3명(TCGA-AR-A24L, AR-A256, BH-A0HP)은 재발 후 투약이 없어 크롭 단계에서 YES로 고쳤다 (사용자 결정, 2026-10-20, 규칙 아님). 838명 기준 yes 15, no 15 |
+| `recurrence.surgery` [draft5] | `nte_surgery` | `status`가 `none`·`unknown`이 아닐 때만. YES가 하나라도 있으면 `yes`, NO만 있으면 `no`, 빈칸이면 `unknown`. 빈칸이던 국소 재발 3명(TCGA-AR-A24L, AR-A256, BH-A0HP)은 재발 후 투약이 없어 크롭 단계에서 YES로 고쳤다 (사용자 결정, 2026-10-20, 규칙 아님). 838명 기준 yes 14, no 14 |
 | `recurrence.surgery_intent` [draft5] | 없음 | `surgery`를 만들 때 항상 `unknown` |
 | `recurrence.later_distant` [draft5] | `locoregional_dx_days`, `metastasis_dx_days` | `status = locoregional` → `no`. `status = distant`이고 국소 재발일이 있으면 국소 재발일 < 전이 기준일 → `yes`, 아니면 `no`. 그 밖은 칸을 만들지 않음 |
 

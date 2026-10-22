@@ -1,5 +1,5 @@
 ﻿TCGA-BRCA 정리본 변경 내역 (tcga_brca_merging_cropped.csv)
-작성일 2026-10-21
+작성일 2026-10-22
 
 원본: tcga_brca_merged.csv (수정하지 않음)
 결과: 환자 1,098명 × 230열  →  838명 × 130열
@@ -36,6 +36,7 @@
   2026-10-20  이전 유방암에 약물 치료를 받은 7명 삭제 (GDC omf: Prior Malignancy, Breast, 약물 YES). 이전 치료를 넣을 칸이 없음 (860명 → 853명)
   2026-10-20  동시 양측 유방암이면서 아형과 맞지 않는 투약이 있는 4명(TCGA-A2-A04Y, EW-A1J5, LL-A5YP, E2-A158) 삭제. 반대쪽 종양 수용체가 없어 판단 불가 (853명 → 849명)
   2026-10-20  아형과 맞지 않는 투약이 있는 11명 삭제: HER2 양성 아님 + trastuzumab 4명, HR 음성 + 내분비요법 7명 (849명 → 838명)
+  2026-10-22  진단 시 전이성(IV기)이면 재발 상태를 none으로 바꿈. 이후 원격 전이 기록은 재발이 아니라 진행 (TCGA-B6-A3ZX, LL-A73Z: distant → none)
   2026-10-20  같은 약·같은 시작일·종료일 투약 기록을 하나로 합침 (앞 기록의 빈칸만 뒤 기록 값으로 채움)
   2026-10-20  병기·T·N은 맞는데 양성 림프절 수가 N 병기와 맞지 않는 13명은 양성 수를 [Not Available]로, AO-A12H(69세, anastrozole) 폐경 상태를 Post로 고침
 
@@ -427,7 +428,7 @@ M1인데 종합 병기가 Stage IV가 아니던 0명 → gdc_ajcc_pathologic_tum
   none = 재발 없음 (마지막 추적 시점까지) / distant = 원격 전이 재발 (국소 재발이 함께 있어도 distant)
   locoregional = 국소 재발만 / site_unknown = 재발했으나 부위 기록 없음 / unknown = 재발 여부 기록 없음
   new_primary = 새 원발암만. 진단 시 전이성이 아니면 삭제했다 (1. 삭제한 행)
-결과: none 808명, distant 17명, locoregional 13명
+결과: none 810명, distant 15명, locoregional 13명
 
 ==============================================================================
 1-0-2. 새 열: 현재 병기 범주 (current_disease_extent)
