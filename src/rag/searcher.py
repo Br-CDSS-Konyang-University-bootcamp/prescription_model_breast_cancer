@@ -4,7 +4,7 @@ import math
 import re
 import warnings
 
-from qdrant_client.models import Filter, FieldCondition, MatchAny, MatchValue
+from qdrant_client.models import Filter, FieldCondition, IsEmptyCondition, MatchAny, MatchValue, PayloadField
 from .chunk_store import get_parent
 from .client import get_qdrant_client, get_embedding_model, get_reranker, close_client, COLLECTION_NAME
 
@@ -140,6 +140,9 @@ def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, w
 
     # 1. doc_type 하드 필터: 지침(guideline) 데이터만 검색 (D 파트 급여 데이터와 분리)
     must_conditions.append(FieldCondition(key="doc_type", match=MatchValue(value="guideline")))
+    # 개정으로 대체된 청크(superseded_by에 후속 청크 ID)는 찾지 않는다 (PROJECT.md §6). 색인에는 최신 청크만 두기로 해
+    # 지금은 걸리는 것이 없지만, 옛 청크가 섞여 색인돼도 검색에는 나오지 않게 한다. 급여 검색도 같은 규칙이다
+    must_conditions.append(IsEmptyCondition(is_empty=PayloadField(key="superseded_by")))
 
     if source and source.lower() != "unknown":
         must_conditions.append(FieldCondition(key="source", match=MatchValue(value=source)))

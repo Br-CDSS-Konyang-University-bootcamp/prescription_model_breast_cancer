@@ -199,3 +199,16 @@ def test_rows_without_drug_names_filtered_by_setting_line_subtype(reimb):
         setting="metastatic", lines=["2L"], subtype="HR+/HER2-", as_of="2026-10-20", include_offlabel=True)]
     # 차수를 안 주면 거르지 않는다 (조기는 setting.phase가 없을 때)
     assert "ac-adjuvant" in [r["chunk_id"] for r in reimb.search_reimbursement_rows(setting="early", as_of="2026-10-20")]
+
+
+def test_rows_of_the_decision_class_come_first(reimb):
+    from src.rag import indexer
+    indexer.index_chunks([_chunk("chemo-2l", ["capecitabine"], ["metastatic"], ["2L"]),
+                          _chunk("endo-2l", ["megestrol"], ["metastatic"], ["2L"])])
+    ids = lambda **kw: [r["chunk_id"] for r in reimb.search_reimbursement_rows(
+        setting="metastatic", lines=["2L"], subtype="HR+/HER2-", as_of="2026-10-20", **kw)]
+    plain = ids()
+    endo_first = ids(prefer_classes=["Hormone Therapy"])
+    assert endo_first.index("endo-2l") < endo_first.index("chemo-2l")
+    assert ids(prefer_classes=["Chemotherapy"]).index("chemo-2l") < ids(prefer_classes=["Chemotherapy"]).index("endo-2l")
+    assert set(plain) == set(endo_first)

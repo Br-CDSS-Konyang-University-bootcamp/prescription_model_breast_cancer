@@ -310,3 +310,14 @@ def test_relapse_within_12_months_picks_the_fulvestrant_branch(memory_index):
     assert a < f and fig_a < fig_f
     plain = {r["chunk_id"]: r["score"] for r in searcher.search_guidelines(**args)}
     assert plain[fulv] == plain[ai]  # 값이 없으면 바꾸지 않는다
+
+
+def test_superseded_guideline_chunks_are_not_searched(memory_index):
+    # 개정으로 대체된 청크는 색인에 남아 있어도 찾지 않는다 (PROJECT.md §6)
+    rag_client, indexer = memory_index
+    from src.rag import searcher
+    base = {"doc_type": "guideline", "chunk_kind": "recommendation", "setting": ["metastatic"], "subtype": ["any"],
+            "line": ["any"], "text": "x", "version": "2026-05"}
+    indexer.index_chunks([{**base, "chunk_id": "new", "superseded_by": None},
+                          {**base, "chunk_id": "old", "superseded_by": "new"}])
+    assert [r["chunk_id"] for r in searcher.search_guidelines("x", setting="metastatic", top_k=5, rerank=False)] == ["new"]
