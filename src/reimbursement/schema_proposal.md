@@ -75,9 +75,11 @@ op는 설계의 8개에 `contains`(이전 치료에 있어야 함)를 더했다.
 회의 2 결정 (2026-10-21): 아래 D 제안대로 한국어 그대로 + 대응표. 다른 팀원 문서에 다른 의견이 없고 B가 동의했다.
 
 공고 표기 그대로 한국어(`1차`, `1차 이상`, `2차`, `2차 이상`, `3차 이상`)를 둔다. 원문 대조와 화면 표시에 그대로 쓰기 위해서다.
-판정할 때는 `biomarker_record.setting.line`(`1L`, `2L`, `>=3L`)과 아래처럼 맞춘다. 차수는 `stage`에 따라 내분비·항암을 따로 센다.
+판정할 때는 고식적 내분비요법과 고식적 항암화학요법의 차수를 따로 센다 (공고 55쪽, A handoff §6.3a). 그래서 전체 차수 `biomarker_record.setting.line`이 아니라 `stage`에 맞는 차수와 맞춘다.
+`palliative_endocrine` 행은 `setting.line_endocrine`(confirmed_state `setting.line_endocrine`), `palliative_chemo` 행은 `setting.line_chemo`(confirmed_state `setting.line_chemo`)를 쓴다.
+이 두 값에는 간주 규칙이 들어 있지 않으므로, 행의 `counts_as_prior_line`에 맞는 규칙(`fields.deemed_lines`)이 `met`이면 차수에 1을 더해 비교한다 (아래 "차수 간주 규칙").
 
-| `line_rule` | 이번에 줄 치료의 차수 | `setting.line` 예 |
+| `line_rule` | 이번에 줄 치료의 차수 | `setting.line_endocrine`·`line_chemo` 예 |
 |---|---|---|
 | `1차` | 1 | `1L` |
 | `1차 이상` | 1 이상 | `1L`, `2L`, `>=3L` |
@@ -109,8 +111,8 @@ op는 설계의 8개에 `contains`(이전 치료에 있어야 함)를 더했다.
 |---|---|---|
 | anthracycline·taxane 포함 선행·보조 → 1차로 간주 | 고식적 항암 2차 이상 연번 2~18, 병용요법 연번 24 (`counts_as_prior_line`) | `DEEM-ANTHRA-TAXANE` |
 | 선행·보조 종료 1년 이내 재발 → 1차로 간주 | sacituzumab govitecan (`counts_as_prior_line`, `within_days` 365) | `DEEM-SG-1Y` |
-| 보조요법 중·종료 6개월 이내 재발도 인정 | T-DM1, T-DXd (`prior_failed`의 `unless`, 183일) | `DEEM-HER2ADC-6M` |
-| 보조 내분비요법 중·종료 1년 이내 진행도 인정 | 고식적 내분비 2차 이상 연번 4~9, 병용 연번 29 (`any_of`의 `days_end_to_metastasis` lte 365: A와 같이 종료일부터 **전이 기준일**까지, B 확인 2026-10-20). 투여단계(2차 이상)도 이 규칙으로 1차를 받은 것으로 보므로 `counts_as_prior_line`에 `rule_id: DEEM-ENDO-ADJ-1Y`로도 적는다 (2026-10-22, VC-0103) | `DEEM-ENDO-ADJ-1Y` |
+| 보조요법 중·종료 6개월 이내 재발도 인정 | T-DM1, T-DXd (`prior_failed`의 `unless`, 183일). 투여단계(2차 이상)도 이 규칙으로 1차를 받은 것으로 보므로 `counts_as_prior_line`에 `rule_id: DEEM-HER2ADC-6M`으로도 적는다 (2026-10-22, B 요청) | `DEEM-HER2ADC-6M` |
+| 보조 내분비요법 중·종료 1년 이내 진행도 인정 | 고식적 내분비 2차 이상 연번 4~9, 병용 연번 29 (`any_of`의 `days_end_to_metastasis` lte 365: A와 같이 종료일부터 **전이 기준일**까지, B 확인 2026-10-20). 투여단계(2차 이상)도 이 규칙으로 1차를 받은 것으로 보므로 `counts_as_prior_line`에 `rule_id: DEEM-ENDO-ADJ-1Y`로도 적는다 (2026-10-22, VC-0103). 적용 행은 공고 원문에 이 문구가 있는 행뿐이고 (같은 소단원의 연번 1~3에는 없음), A handoff §6.3a 표의 '쓰는 요법'(AI·exemestane + LHRH, CDK4/6 + fulvestrant)과 같다 | `DEEM-ENDO-ADJ-1Y` |
 
 `counts_as_prior_line` 항목에 `rule_id`가 있으면 판정 쪽은 그 규칙의 `deemed_lines[].status`를 그대로 본다. 없으면 지금처럼
 약(anthracycline·taxane → `DEEM-ANTHRA-TAXANE`)과 `within_days` 365(→ `DEEM-SG-1Y`)로 맞춘다.
