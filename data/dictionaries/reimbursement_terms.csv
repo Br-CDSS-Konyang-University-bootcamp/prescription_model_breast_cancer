@@ -53,7 +53,7 @@ history,투여 종료,patient_state,treatment_history[].end_day,,exact,"55,57-58
 history,투여기간,patient_state,treatment_history[].duration_days,,exact,51-52,,
 history,투여 주기 / ~주기,patient_state,treatment_history[].cycles.value,,exact,49-54,,
 history,1주 요법 / 3주 요법 / 4주 간격,patient_state,treatment_history[].cycles.interval_days,7 | 21 | 28,exact,"49,51-52",,
-history,누적용량,patient_state,anthracycline_drug_dose.drugs[].total_dose,,exact,60,,
+history,누적용량,patient_state,anthracycline_drug_dose.drugs[].total_dose,,exact,60,"liposomal doxorubicin 조건. 약별 기준: doxorubicin 누적 240 mg/m2 이상, epirubicin 누적 450 mg/m2 이상 (두 약을 더하지 않음). total_dose가 No value면 기록 없음 → 확인 필요",확정 2026-10-22
 history,mg/m2,patient_state,anthracycline_drug_dose.drugs[].total_dose.unit,mg/m2,exact,60,,
 history,좌심실박출률 (LVEF),patient_state,,,missing,51,,
 history,심장위험요소 / 심장질환 병력,patient_state,,,missing,60-61,,
