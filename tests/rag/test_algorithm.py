@@ -101,6 +101,9 @@ def test_algorithm_chunks_and_review_sheet_agree():
     with open(alg.REVIEW_CSV, encoding="utf-8-sig", newline="") as f:
         rows = list(csv.DictReader(f))
     assert [r["chunk_id"] for r in rows] == [c["chunk_id"] for c in paths]
+    # path 칸은 청크 본문의 경로 글과 같다 (검수자는 이 칸을 그림과 대조한다)
+    assert [r["path"] for r in rows] == [alg.review_path_text(c) for c in paths]
+    assert all(" → " in r["path"] and "Footnotes" not in r["path"] for r in rows)
     assert {r["status"] for r in rows} <= {"draft", "reviewed", "rejected"}
 
 

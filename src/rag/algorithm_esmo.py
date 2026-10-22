@@ -651,24 +651,30 @@ def figure_chunks(stem: str, pdf_path: Path) -> tuple[list[dict], list[str]]:
     return chunks, report
 
 
+def review_path_text(chunk: dict) -> str:
+    """경로 청크 본문에서 그림 제목과 각주를 뺀 "상자 → 상자 → …" 부분 (검수표에서 그림과 대조할 글)."""
+    text = chunk["text"].split(" (algorithm path): ", 1)[-1]
+    return text.split(" Footnotes: ", 1)[0]
+
+
 def write_review_sheet(chunks: list[dict], path: Path = REVIEW_CSV) -> None:
     """검수표: 경로 청크마다 한 줄. 이미 적은 검수 결과(status, reviewer, reviewed_on, note)는 chunk_id로 이어받는다.
-    지침 문장은 넣지 않는다 (청크 JSON에 있다)."""
+    path 칸은 그림과 대조할 경로 글(review_path_text, 청크 JSON과 같은 내용)이다. 엑셀에서 →·≥가 깨지지 않게 BOM을 붙여 쓴다."""
     old = {}
     if path.exists():
         with open(path, encoding="utf-8-sig", newline="") as f:
             old = {r["chunk_id"]: r for r in csv.DictReader(f)}
-    fields = ["chunk_id", "figure", "page", "status", "reviewer", "reviewed_on", "note"]
+    fields = ["chunk_id", "figure", "page", "path", "status", "reviewer", "reviewed_on", "note"]
     rows = []
     for c in chunks:
         if not c.get("parent_id"):
             continue
         prev = old.get(c["chunk_id"], {})
         rows.append({"chunk_id": c["chunk_id"], "figure": f"{c['source']} {c['section'].split('.')[0]}",
-                     "page": c["page_start"], "status": prev.get("status") or "draft",
+                     "page": c["page_start"], "path": review_path_text(c), "status": prev.get("status") or "draft",
                      "reviewer": prev.get("reviewer", ""), "reviewed_on": prev.get("reviewed_on", ""),
                      "note": prev.get("note", "")})
-    with open(path, "w", encoding="utf-8", newline="") as f:
+    with open(path, "w", encoding="utf-8-sig", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fields)
         writer.writeheader()
         writer.writerows(rows)
