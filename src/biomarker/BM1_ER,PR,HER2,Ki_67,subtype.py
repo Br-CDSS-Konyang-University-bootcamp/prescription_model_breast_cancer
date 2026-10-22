@@ -665,6 +665,10 @@ def _evidence_notes(gene, marker, variants, cv_row):
         table = _actionable().get(gene, {})
         on = [v["protein_change"] for v in variants if v.get("protein_change") in table]
         notes.append(f"허가 동반진단 목록: {', '.join(on)} 해당" if on else "허가 동반진단 목록: 해당 없음")
+    if gene == "ESR1":
+        inside = _esr1_fda_missense(variants)
+        notes.append(f"FDA 동반진단 범위(codon 310~547 미스센스): {inside['protein_change']} 해당" if inside
+                     else "FDA 동반진단 범위(codon 310~547 미스센스): 해당 없음")
     if gene in CLINVAR_GENES:
         if not CLINVAR_CSV.exists():
             notes.append("ClinVar 파일 없음 (data/script/clinvar_download.py 실행 필요)")
@@ -681,6 +685,29 @@ def _evidence_notes(gene, marker, variants, cv_row):
     if marker in GUIDELINE_BASIS:
         notes.append(f"지침: {GUIDELINE_BASIS[marker]}")
     return " / 근거: " + "; ".join(notes)
+
+
+# ESR1: FDA 동반진단 목록의 elacestrant 범위 (codon 310~547 미스센스). 국내 허가·급여 기준이 없어 FDA를 따른다
+# (A 확인 2026-10-22: 식약처가 범위를 정하지 않으면 FDA 범위. 범위 안 미스센스는 VUS 여부와 관계없이 대상)
+ESR1_FDA_CODONS = (310, 547)
+ESR1_FDA_SOURCE = "판단 기준: FDA 동반진단 목록 elacestrant (codon 310~547 미스센스), 국내 미허가, 2026-10-22 확인"
+# capivasertib·inavolisib: FDA는 "FDA 승인 검사로 검출된 변이"라고만 쓴다. VUS 포함 여부는 FDA 작성 자료로 확인할 수 없어
+# VUS는 음성 처리를 유지하고 이유에 적는다 (A 확인 2026-10-22). alpelisib은 FDA 목록의 PIK3CA 11개
+FDA_VUS_NOTE = {
+    "PIK3CA": "capivasertib·inavolisib는 FDA 승인 검사로 검출된 PIK3CA 변이가 대상이나 VUS 포함 여부는 FDA 작성 자료로 확인 불가",
+    "AKT1": "capivasertib는 FDA 승인 검사로 검출된 AKT1 변화가 대상이나 VUS 포함 여부는 FDA 작성 자료로 확인 불가",
+}
+_MISSENSE_RE = re.compile(r"^([A-Z])(\d+)([A-Z])$")
+
+
+def _esr1_fda_missense(variants):
+    """ESR1 변이 중 codon 310~547 미스센스(아미노산 하나가 다른 아미노산으로)인 첫 변이."""
+    lo, hi = ESR1_FDA_CODONS
+    for v in variants:
+        m = _MISSENSE_RE.match(v.get("protein_change") or "")
+        if m and m.group(1) != m.group(3) and lo <= int(m.group(2)) <= hi:
+            return v
+    return None
 
 
 def judge_gene(gene, field, patient_ref=""):
@@ -718,6 +745,10 @@ def judge_gene(gene, field, patient_ref=""):
             why = f"{row['drug']} 허가 동반진단 변이 ({row['source']})"
             if row["verified"] != "yes":
                 why += ", 변이 목록 원문 확인 필요"
+    if gene == "ESR1" and not hit:
+        hit = _esr1_fda_missense(variants)
+        if hit:
+            rule_id, why = "BM2-ESR1-FDA-RANGE", f"elacestrant 대상 ESR1 미스센스 ({ESR1_FDA_SOURCE})"
     if gene in TRUNCATING_GENES:
         hit = next((v for v in variants if _is_truncating(v)), None)
         if hit:
@@ -734,8 +765,9 @@ def judge_gene(gene, field, patient_ref=""):
     if hit:
         return _record(marker, "positive", f"{gene} {_variant_text(variants)} → 양성: {why}{notes}",
                        rule_id, field, evidence, [GENE_TAGS[marker]])
+    fda = f" ({FDA_VUS_NOTE[gene]})" if gene in FDA_VUS_NOTE else ""
     return _record(marker, "vus", f"{gene} {_variant_text(variants)} → 의미 불명 변이(VUS), 음성으로 처리하되 표시 유지"
-                   f"{notes}", f"BM2-{gene}-VUS", field, evidence)
+                   f"{fda}{notes}", f"BM2-{gene}-VUS", field, evidence)
 
 
 def _endocrine_progressed(fields):

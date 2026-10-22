@@ -50,9 +50,8 @@ RCB: 기록 없음
 [투약 기록]
 등록번호: TCGA-E2-A107
 구분 | 약제 | 시작 | 종료 | 주기 | 반응 | 진행일 | 중단 사유 | anthracycline 용량
-보조 | doxorubicin + cyclophosphamide + bevacizumab | D+109 | D+151 | 4 | - | - | - | doxorubicin 1회 기록 없음, 총 기록 없음
+보조 | doxorubicin + cyclophosphamide + bevacizumab | D+109 | D+151 | 4 | - | - | - | doxorubicin 1회 57.1 mg/m2, 총 228.3 mg/m2
 보조 | cyclophosphamide | D+109 | D+151 | 4 | - | - | - | -
-보조 | doxorubicin | D+109 | D+151 | 4 | - | - | - | doxorubicin 1회 57.1 mg/m2, 총 228.3 mg/m2
 보조 | bevacizumab | D+165 | D+333 | 13 | - | - | - | -
 보조 | paclitaxel | D+165 | D+242 | 12 | - | - | - | -
 보조 | bevacizumab | D+249 | D+333 | 4 | - | - | - | -

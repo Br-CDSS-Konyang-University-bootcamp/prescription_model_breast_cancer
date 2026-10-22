@@ -94,8 +94,8 @@ def test_metastatic_sites_other_specify_uses_other_column(truth):
 
 def test_treatment_counts(truth):
     items = [t for doc in truth.values() for t in doc["fields"]["treatment_history"]]
-    assert len(items) == 1931  # §3.6: 투약 기록 1,931건 (같은 약·같은 날짜 중복 6건 합침) (unknown 14건 제외)
-    assert sum(t["duration_days"] is not None for t in items) == 1429
+    assert len(items) == 1930  # §3.6: 투약 기록 1,930건 (같은 약·같은 날짜 중복 6건, 병용 기록과 겹친 anthracycline 단독 1건 합침) (unknown 14건 제외)
+    assert sum(t["duration_days"] is not None for t in items) == 1428
     no_record = sum(1 for doc in truth.values() if doc["fields"]["anthracycline_drug_dose"]["administered"] == "No value")
     assert no_record == 199  # §3.6: 투약 기록 자체가 없는 환자 199명
     empty = sum(1 for doc in truth.values() if not doc["fields"]["treatment_history"])
@@ -116,7 +116,7 @@ def test_metastatic_sites_rules_2026_10_20(truth):
     assert truth["TCGA-LL-A73Z"]["fields"]["stage"]["metastatic_sites"]["value"] == ["brain"]
     surgery = Counter(doc["fields"]["recurrence"]["surgery"]["value"] for doc in truth.values()
                       if "surgery" in doc["fields"]["recurrence"])
-    assert surgery == {"yes": 15, "no": 15}
+    assert surgery == {"yes": 14, "no": 14}  # 진단 시 IV기 2명(B6-A3ZX, LL-A73Z)은 재발이 아니라 칸 없음 (2026-10-22)
 
 
 def test_progression_day_from_pfs(truth):

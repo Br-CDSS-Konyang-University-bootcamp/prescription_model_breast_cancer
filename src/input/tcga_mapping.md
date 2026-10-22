@@ -121,7 +121,7 @@ TNM 세부 표기 [합의 예정]: 공백만 지우고 그대로 둔다. `N0 (i-
 6. [합의 예정] `gdc_metastasis_site` 안의 `Other, specify` 항목은 `gdc_metastasis_site_other` 내용으로 바꾼다. 해당 3명.
 7. [사용자 결정, 2026-10-20] 기타 부위 원문에 표준 부위 이름이 섞여 있으면 나눈다 (`,`·` and ` 기준). 예: `Lung, Bone, Liver, Brain and Skin Nodules` → `lung`, `bone`, `liver`, `brain`, `other: Skin Nodules`. 표준 부위 이름이 없으면 원문을 통째로 `other: `로 둔다. 재발 부위(§3.7)에도 같은 규칙. 해당 1명 (TCGA-A7-A13E, 재발 부위)
 8. [사용자 결정, 2026-10-20] 진단 시 IV기인데 부위 기록이 없으면 `{"status": "not_done"}` (검사가 끝나지 않은 것으로 본다). 1명 (TCGA-A8-A07W)
-9. [사용자 결정, 2026-10-20] 진단 시 부위와 재발 부위(`recurrence.metastatic_sites`)가 둘 다 목록이고 서로 다르면 재발 기록을 따른다 (`raw`는 진단 시 원문 그대로). 1명 (TCGA-LL-A73Z: `skin` → `brain`)
+9. [사용자 결정, 2026-10-20] 진단 시 부위와 재발 부위(`recurrence.metastatic_sites`)가 둘 다 목록이고 서로 다르면 재발 기록을 따른다 (`raw`는 진단 시 원문 그대로). 진단 시 IV기는 재발 상태가 `none`이라 재발 부위 칸이 없으므로, 이후 원격 전이 기록의 부위(`nte_sites`, `nte_sites_other`)를 따른다 (2026-10-22). 1명 (TCGA-LL-A73Z: `skin` → `brain`, 뇌 전이 192일)
 
 참고: 진단 시 M1은 8명인데 전이 여부 `YES`는 1명이다. 두 출처가 다를 수 있으므로 가상 차트를 만들 때 함께 확인한다.
 
@@ -163,7 +163,7 @@ TNM 세부 표기 [합의 예정]: 공백만 지우고 그대로 둔다. `N0 (i-
 |---|---|---|
 | `drugs` | 성분명 | `drug_timeline` 항목 하나 = `treatment_history` 원소 하나. 원본 한 기록에 약이 여러 개면(`doxorubicin+cyclophosphamide`) 한 원소에 여러 약. 같은 날 시작한 별도 기록은 묶지 않는다. 요법 묶음과 차수는 아래 `line` 칸에서 계산한다 [2026-10-16 변경] |
 | `start_date`, `end_date` | — | [A 결정] TCGA에는 실제 날짜가 없으므로 `null` |
-| `duration_days` [제안, A 결정] | `drug_start_days`, `drug_end_days` | `end_day − start_day` (일). 투약 기록 1,931건 중 시작·종료가 모두 있는 1,429건만 값이 있다. 종료 모름 439건, 시작 모름 84건(그중 종료만 있는 31건)은 `null` |
+| `duration_days` [제안, A 결정] | `drug_start_days`, `drug_end_days` | `end_day − start_day` (일). 투약 기록 1,930건 중 시작·종료가 모두 있는 1,428건만 값이 있다 (2026-10-22 TCGA-E2-A107 doxorubicin 단독 기록을 병용 기록으로 합쳐 1건 줄어듦, §3.7a). 종료 모름 439건, 시작 모름 84건(그중 종료만 있는 31건)은 `null` |
 | `best_response` | 괄호 안 반응 | Complete Response → `CR`, Partial Response → `PR`, Stable Disease → `SD`, Clinical Progressive Disease → `PD`, 없으면 `unknown` |
 | `stop_reason` | 없음 | `null` |
 | `setting` | 유도 | 아래 규칙 (유도값이라는 표시를 남긴다) |
@@ -217,11 +217,11 @@ TNM 세부 표기 [합의 예정]: 공백만 지우고 그대로 둔다. `N0 (i-
 | `neoadjuvant_response.pcr`, `.rcb` | 없음 | `not_recorded` |
 | `recurrence.recurrence_date` | `nte_first_dx_days`, `nte_types`, `nte_sites`, `nte_sites_other` | 날짜는 `not_recorded` (§2.3). 재발 여부와 사건 종류·부위는 가상 차트 문장에 쓴다. New Primary Tumor는 재발이 아니므로 제외 |
 | `recurrence.adjuvant_endocrine_end_date` | 없음 | 날짜 칸이므로 `not_recorded` (§2.3). 보조 내분비요법 종료 시점은 B가 `treatment_history[].end_day`로 계산한다 |
-| `recurrence.status` [draft5] | `recurrence_status` | 그대로: `none` / `distant` / `locoregional` / `unknown`. `site_unknown`은 크롭 단계에서 뺐다 (2026-10-15). 2026-10-20부터 재발 여부 기록이 없던 환자는 크롭 스크립트가 정리한다: 진단 시 전이성이 아니면서 종양 동반 사망이면 삭제, 재발 병소 수용체(`gdc_nte_*`)가 있으면 `locoregional` (TCGA-BH-A0HP, 투약이 모두 보조요법이라 원격 전이 근거 없음), 그중 전이 여부가 YES인데 진단 시 IV기가 아니면 삭제(TCGA-BH-A18V), 나머지는 `none` (진단 시 전이성 4명 포함, 138명). 838명 기준 none 808, distant 17, locoregional 13, unknown 0 |
+| `recurrence.status` [draft5] | `recurrence_status` | 그대로: `none` / `distant` / `locoregional` / `unknown`. `site_unknown`은 크롭 단계에서 뺐다 (2026-10-15). 2026-10-20부터 재발 여부 기록이 없던 환자는 크롭 스크립트가 정리한다: 진단 시 전이성이 아니면서 종양 동반 사망이면 삭제, 재발 병소 수용체(`gdc_nte_*`)가 있으면 `locoregional` (TCGA-BH-A0HP, 투약이 모두 보조요법이라 원격 전이 근거 없음), 그중 전이 여부가 YES인데 진단 시 IV기가 아니면 삭제(TCGA-BH-A18V), 나머지는 `none` (진단 시 전이성 4명 포함, 138명). 2026-10-22부터 진단 시 전이성(IV기)은 모두 `none`이다 (사용자 결정, 크롭 `metastatic_at_dx_to_none`). 이후 원격 전이 기록은 재발이 아니라 진행이다 (TCGA-B6-A3ZX, LL-A73Z: `distant` → `none`). 838명 기준 none 810, distant 15, locoregional 13, unknown 0 |
 | `recurrence.metastatic_sites` [draft5] | `nte_sites`, `nte_sites_other` | `status = distant`일 때만. Bone → `bone`, Liver → `liver`, Lung → `lung`, Brain → `brain`, `Other, specify` → `other: <nte_sites_other 항목>`. 여러 개 나열. 국소 부위(Axilla, Chest wall 등)가 섞일 수 있으나 처방·급여 판정에는 영향이 없다고 봄 (사용자 결정) |
 | `recurrence.metastasis_day` [draft5] | `metastasis_dx_days` | 정수 (진단 시 IV기 = 0). 값이 없으면 칸을 만들지 않음 |
 | `recurrence.recurrence_day` [draft6] | `locoregional_dx_days`, `metastasis_dx_days` | `status`가 `distant`·`locoregional`일 때만. 국소 재발일과 원격 전이 재발일(`distant`일 때) 중 이른 값. 진단 시 IV기(전이 기준일 0)는 재발이 아니므로 넣지 않음. 27명 (distant 15, locoregional 12; TCGA-BH-A0HP는 국소 재발일 기록이 없어 빠짐). 2026-10-20 수정: 그전에는 진단 시 IV기 중 TCGA가 0일째 원격 전이 사건을 기록한 2명(TCGA-B6-A3ZX, LL-A73Z)에게 0이 들어갔다 (코드에 이 검사가 빠져 있었음) |
-| `recurrence.surgery` [draft5] | `nte_surgery` | `status`가 `none`·`unknown`이 아닐 때만. YES가 하나라도 있으면 `yes`, NO만 있으면 `no`, 빈칸이면 `unknown`. 빈칸이던 국소 재발 3명(TCGA-AR-A24L, AR-A256, BH-A0HP)은 재발 후 투약이 없어 크롭 단계에서 YES로 고쳤다 (사용자 결정, 2026-10-20, 규칙 아님). 838명 기준 yes 15, no 15 |
+| `recurrence.surgery` [draft5] | `nte_surgery` | `status`가 `none`·`unknown`이 아닐 때만. YES가 하나라도 있으면 `yes`, NO만 있으면 `no`, 빈칸이면 `unknown`. 빈칸이던 국소 재발 3명(TCGA-AR-A24L, AR-A256, BH-A0HP)은 재발 후 투약이 없어 크롭 단계에서 YES로 고쳤다 (사용자 결정, 2026-10-20, 규칙 아님). 838명 기준 yes 14, no 14 |
 | `recurrence.surgery_intent` [draft5] | 없음 | `surgery`를 만들 때 항상 `unknown` |
 | `recurrence.later_distant` [draft5] | `locoregional_dx_days`, `metastasis_dx_days` | `status = locoregional` → `no`. `status = distant`이고 국소 재발일이 있으면 국소 재발일 < 전이 기준일 → `yes`, 아니면 `no`. 그 밖은 칸을 만들지 않음 |
 
@@ -242,9 +242,11 @@ TNM 세부 표기 [합의 예정]: 공백만 지우고 그대로 둔다. `N0 (i-
 
 1. 오기 수정 (`DOSE_FIXES`): 누적이 1회 mg/m² × 주기와 같은데 단위만 mg로 적힌 10명(TCGA-D8-A1JB, A1JC, A1JD, A1XT, A1XW, A27F, A27I, A27K, A27L, A27R) → 누적 단위 mg/m². 누적 10배 2명은 자릿수 수정 (TCGA-E9-A22H 3600 → 360 mg, TCGA-EW-A1PE 1회 1000 mg → 100 mg/m², 누적 2990 mg → 299 mg/m²). TCGA-E2-A109는 매주 24 mg/m² × 15회 (1회 mg/m²/day → mg/m², 누적 360 mg/m²). TCGA-AO-A03O 1회 300 → 60 mg/m² (세 약에 같은 값). TCGA-D8-A1JE 1회 600(cyclophosphamide 용량) → 60 mg/m², 9주기가 d103~d162(59일)에 3주 간격으로 들어갈 수 없어 주기·누적은 기록 없음. TCGA-D8-A1JI는 doxorubicin 줄의 1회 2.5 mg/m²/day가 같은 기간 letrozole의 1일 용량이라 1회 60 mg/m²로 고친다 (누적 60 × 6 = 360 mg/m²).
 2. 단위 통일 (`anthracycline_to_m2`): 모든 anthracycline 용량을 mg/m²로 맞춘다. 1회 mg·mg/day(실제 투여량)와 TCGA-D8-A1JJ(1회 mg/m²/day로 적혔지만 108.6 × 4 = 누적 434.4 mg)는 체표면적 1.84 m²로 나눈다. 누적은 원래 mg/m²면 그대로, 1회가 원래 mg/m²이고 주기가 있으면 1회 × 주기, 그 밖에 mg이면 ÷ 1.84. 병용 기록은 병용 약 값도 같이 바꾼다. 1.84 m²는 1회 mg/m²·누적 mg가 함께 적힌 36건에서 거꾸로 계산한 중앙값이라 **환자 실제 값이 아닌 추정**이다.
-3. 결과 (838명, 투약 339건): 1회만 mg/m² 4건, 기록 없음 183건, 1회·누적 모두 mg/m² 152건(D8-A1JI 포함), 그중 91건은 ÷ 1.84 추정, 55건은 1회 × 주기, 3건은 원래 mg/m², 3건은 누적 기록이 없어 1회 × 주기로 채운 값 (TCGA-A2-A0T7 179.3, TCGA-D8-A143 360, TCGA-EW-A1J1 329.3 mg/m², 사용자 결정 2026-10-21). 추정한 doxorubicin 누적 84건 중 55건은 급여 기준 240 mg/m²(공고 p.60)의 ±15% 안이라 체표면적 추정에 따라 판정이 바뀔 수 있다.
+3. 결과 (838명, 투약 338건): 1회만 mg/m² 4건, 기록 없음 182건, 1회·누적 모두 mg/m² 152건(D8-A1JI 포함), 그중 91건은 ÷ 1.84 추정, 55건은 1회 × 주기, 3건은 원래 mg/m², 3건은 누적 기록이 없어 1회 × 주기로 채운 값 (TCGA-A2-A0T7 179.3, TCGA-D8-A143 360, TCGA-EW-A1J1 329.3 mg/m², 사용자 결정 2026-10-21). 추정한 doxorubicin 누적 84건 중 55건은 급여 기준 240 mg/m²(공고 p.60)의 ±15% 안이라 체표면적 추정에 따라 판정이 바뀔 수 있다.
 누적이 1회 × 주기와 맞지 않던 3명은 1회 × 주기로 고친다: TCGA-A2-A04Q 204 → 408 mg(÷ 1.84 = 221.7 mg/m²), TCGA-E2-A14X 512 → 256 mg(139.1 mg/m²), TCGA-D8-A13Y 60 → 240 mg/m².
 4. 체표면적 추정으로 doxorubicin 누적 240 mg/m² 근처 51건은 판정이 바뀔 수 있지만, 추정값 분포(중앙값 240)가 고르게 퍼져 있어 그대로 쓴다 (사용자 결정, 2026-10-20).
+5. 병용 기록과 날짜가 같은 anthracycline 단독 기록은 병용 기록으로 합친다 (사용자 결정, 2026-10-22, `fold_anthracycline_into_combo`). 병용 기록은 함께 쓴 약 정보가 있어 남기고, 단독 기록의 1회·주기·누적을 병용 기록의 그 약 위치에 넣는다 (다른 약 위치는 `-`). TCGA-E2-A107 한 명: 'Adriamycin, cytoxan, avastin'(d109~d151, 4주기, 용량 없음)과 'Doxorubicin'(같은 날짜, 105 mg × 4, 누적 420 mg)이 같은 투약이라 doxorubicin 1회 57.1·누적 228.3 mg/m²를 병용 기록에 넣었다 (투약 339 → 338건).
+6. 누적 용량 `"No value"`는 기록 없음이다. 1회 용량과 주기가 모두 있는 기록은 모두 누적을 채웠으므로 남은 `"No value"`는 계산할 수 없다 (1회·주기 둘 다 없음 153건, 1회 없음 29건, 주기 없음 4건). anthracycline 투약 335명 중 183명은 모든 기록에 누적이 없다. 급여 판정은 '확인 필요'로 넘긴다 (사용자 결정, 2026-10-22, `handoff_to_B.md` §6.7).
 
 재발 병소 재생검 수용체 [A 결정, 2026-10-14 변경]:
 

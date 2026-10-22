@@ -7,7 +7,7 @@ patient_state 한 명의 treatment_history로 전이 후 요법마다 차수를 
 
 차수 규칙
 1. 전이 기준일(recurrence.metastasis_day) 이후 시작한 투약이 전이 후 요법이다. 시작일이 없는 투약은 순서를 알 수 없어 뺀다.
-2. 보조약(Supportive Care)과 골 보호제(Bone-modifying Agent)는 세지 않는다.
+2. 보조약(Supportive Care), 골 보호제(Bone-modifying Agent), 임상시험 백신(Vaccine)은 세지 않는다 (백신은 2026-10-22 사용자 결정).
 3. 시작일이 묶음 첫 투약에서 GROUP_DAYS(28일) 이내인 투약은 한 요법으로 묶는다.
 4. 요법 종류: 항암화학·HER2 표적·면역항암제가 하나라도 있으면 항암, 아니면 내분비요법이 있으면 내분비,
    그 밖의 표적치료만 있으면 항암. lapatinib + letrozole 같은 HER2 표적 + 내분비 병용은 공고에서 항암화학요법 표에 있다.
@@ -31,7 +31,7 @@ from pathlib import Path
 
 DRUG_CLASSES_CSV = Path(__file__).resolve().parents[3] / "data" / "dictionaries" / "drug_classes.csv"
 GROUP_DAYS = 28
-NOT_COUNTED = {"Supportive Care", "Bone-modifying Agent"}
+NOT_COUNTED = {"Supportive Care", "Bone-modifying Agent", "Vaccine"}
 NOT_ANTICANCER = NOT_COUNTED | {"Unknown", "Other"}
 CHEMO_CLASSES = {"Chemotherapy", "HER2-targeted Therapy", "Immunotherapy"}
 SAME_LINE_STOPS = {"planned_switch", "maintenance", "toxicity"}

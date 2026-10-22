@@ -1,5 +1,5 @@
 ﻿TCGA-BRCA 정리본 열 설명 (tcga_brca_merging_cropped.csv)
-작성일 2026-10-21 · 환자 838명 × 130열
+작성일 2026-10-22 · 환자 838명 × 130열
 
 GDC 결측 코드 (지우지 않고 그대로 둠)
   [Not Available]   값이 기록되지 않음 → 입력 모듈 '기록 없음'
@@ -368,11 +368,11 @@ drug_timeline
 
 drug_total_dose
     의미: 투약별 총 투여량. drug_timeline과 같은 순서로 ' | '로 이음. 값이 없으면 -
-    실제 값 비율: 27.3%   예시: 1; 240 | [Not Available]; 240+2400
+    실제 값 비율: 27.4%   예시: 1; 240 | [Not Available]; 240+2400
 
 drug_total_dose_units
     의미: 투약별 총 투여량 단위 (mg, mg/m2 등). drug_timeline과 같은 순서
-    실제 값 비율: 30.9%   예시: mg; mg/day; mg/m2 | mg | mg | [Not Availab
+    실제 값 비율: 31.0%   예시: mg; mg/day; mg/m2 | mg | mg | [Not Availab
 
 drug_prescribed_dose
     의미: 투약별 1회 처방 용량. '60+600'처럼 병용 약 용량이 합쳐진 값이 있음. drug_timeline과 같은 순서
