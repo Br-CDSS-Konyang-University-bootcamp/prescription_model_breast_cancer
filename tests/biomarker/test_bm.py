@@ -342,8 +342,10 @@ GENE_CASES = [
     ("G16", "PALB2", "VC-1", gene(("L381V", MIS)), "PALB2", "vus", [], "ClinVar에 없음"),
     ("G17", "PALB2", "VC-1", gene(("T1030Ifs*13", FS)), "PALB2", "vus", [],
      "PALB2는 절단 변이 규칙이 없고 ClinVar 기준만 (전달 문서 5.4절). 이 이름은 ClinVar에 없음"),
-    ("G19", "ESR1", "VC-1", gene(("E380Q", MIS)), "ESR1", "vus", [],
-     "문서 예시(Y537S/N/C, D538G)에 없는 변이는 원문 확인 전까지 목록에 넣지 않음"),
+    ("G19", "ESR1", "VC-1", gene(("E380Q", MIS)), "ESR1", "positive", ["ESR1-mut"],
+     "FDA 동반진단 범위 codon 310~547 미스센스는 VUS 여부와 관계없이 양성 (A 확인 2026-10-22, 국내 미허가)"),
+    ("G22", "ESR1", "VC-1", gene(("A593D", MIS)), "ESR1", "vus", [], "codon 547 밖의 미스센스는 VUS"),
+    ("G23", "ESR1", "VC-1", gene(("I451_I452del", "In_Frame_Del")), "ESR1", "vus", [], "범위 안이라도 미스센스가 아니면 VUS"),
     ("G18", "ESR1", "VC-1", gene(("D538G", MIS)), "ESR1", "positive", ["ESR1-mut"], "변이 목록 원문 확인 필요"),
 ]
 
@@ -431,6 +433,10 @@ EVIDENCE_CASES = [
     ("EV05", "BRCA1", "VC-1", gene(("Q934*", NON)), ["p.169–171", "combo-r30"],
      "TCGA가 아닌 차트도 gBRCA라 olaparib 행 (A 결정 2026-10-21)"),
     ("EV06", "BRCA1", "TCGA-XX-0001", gene(("Q934*", NON)), ["p.169–171", "combo-r30"], "gBRCA는 olaparib 허가사항"),
+    ("EV07", "PIK3CA", "VC-1", gene(("N345K", MIS)), ["VUS 포함 여부는 FDA 작성 자료로 확인 불가"],
+     "capivasertib·inavolisib는 FDA 승인 검사로 검출된 변이가 대상, VUS 포함 여부 미확인 표시 (A 확인 2026-10-22)"),
+    ("EV08", "ESR1", "VC-1", gene(("E380Q", MIS)), ["판단 기준: FDA 동반진단 목록 elacestrant", "국내 미허가"],
+     "ESR1 FDA 범위 판정은 판단 기준을 FDA로 표시"),
 ]
 
 ESR1_CASES = [
