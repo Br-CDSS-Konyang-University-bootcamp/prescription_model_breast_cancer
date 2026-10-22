@@ -78,7 +78,8 @@ def case_query(case: dict, auto: bool = False, style: str = "adaptive") -> str:
         case["subtype"], case["setting"], case["line"], case["biomarker_tags"],
         metastatic_sites=case["metastatic_sites"], menopausal_status=case.get("menopausal_status") or None,
         pcr=case.get("pcr") or None, stage_at_diagnosis=case.get("stage_at_diagnosis") or None,
-        prior_subclasses=case.get("prior_subclasses"), prior_classes=case.get("prior_classes")))
+        prior_subclasses=case.get("prior_subclasses"), prior_classes=case.get("prior_classes"),
+        high_risk_early=case.get("high_risk_early") or None))
 
 
 def case_patient(case: dict) -> dict:
@@ -90,6 +91,7 @@ def case_patient(case: dict) -> dict:
         "stage_at_diagnosis": case.get("stage_at_diagnosis") or None,
         "prior_subclasses": case.get("prior_subclasses") or [],
         "prior_classes": case.get("prior_classes") or [],
+        "high_risk_early": case.get("high_risk_early") or None,
     }
 
 

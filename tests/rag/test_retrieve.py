@@ -114,6 +114,28 @@ def test_from_confirmed_state_reads_only_confirmed_values():
     assert lines == {"guideline": ["1L"], "reimbursement": ["1L", "2L"], "classes": ["Hormone Therapy"]}
 
 
+def test_high_risk_early_goes_into_query_for_early_only():
+    # 조기 고위험(ESMO 기준)이면 질의에 "high-risk"를 넣는다 (ESMO EBC 연장 내분비·abemaciclib 권고, 평가 E05)
+    from src.rag.query import search_args
+    from src.rag.retrieve import from_confirmed_state
+
+    def state(disease, risk):
+        items = {"setting.disease": {"confirmed": disease}, "subtype": {"confirmed": "HR+/HER2-"},
+                 "setting.phase": {"confirmed": "adjuvant"}, "menopausal_status": {"confirmed": "postmenopausal"},
+                 "high_risk_early": {"confirmed": risk}}
+        if disease == "metastatic":
+            items["setting.line_endocrine"] = {"confirmed": "1L"}
+        return {"items": items, "decision_context": {}}
+    record, patient, _ = from_confirmed_state(state("early", {"hira": "unknown", "esmo": "yes"}))
+    assert patient["high_risk_early"] == "yes" and "high-risk" in search_args(record, **patient)["query_text"]
+    # ESMO 기준이 unknown이어도 심평원 기준이 yes면 ESMO 기준도 만족한다
+    assert from_confirmed_state(state("early", {"hira": "yes", "esmo": "unknown"}))[1]["high_risk_early"] == "yes"
+    record, patient, _ = from_confirmed_state(state("early", {"hira": "no", "esmo": "no"}))
+    assert "high-risk" not in search_args(record, **patient)["query_text"]
+    record, patient, _ = from_confirmed_state(state("metastatic", {"hira": "yes", "esmo": "yes"}))
+    assert patient["high_risk_early"] is None and "high-risk" not in search_args(record, **patient)["query_text"]
+
+
 def test_decision_lines_by_subtype_and_setting():
     from src.rag.retrieve import decision_lines
 

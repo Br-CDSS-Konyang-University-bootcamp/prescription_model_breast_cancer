@@ -47,6 +47,9 @@ def query_terms(profile: dict, terms: list[dict] = None) -> list[str]:
     keys += [("metastatic_sites", s) for s in profile.get("metastatic_sites", [])]
     # 보조 내분비요법 중·12개월 이내 재발 여부 (confirmed_state). ESMO MBC 1차는 이 값으로 fulvestrant-CDK4/6과 AI-CDK4/6이 갈린다
     keys.append(("confirmed_state.endocrine_relapse_12m", profile.get("endocrine_relapse_12m")))
+    # 조기 고위험 (confirmed_state high_risk_early, ESMO 기준). ESMO EBC 권고의 연장 내분비·abemaciclib·OFS 등이 "high-risk"로 갈린다
+    if profile.get("disease") != "metastatic":
+        keys.append(("confirmed_state.high_risk_early", profile.get("high_risk_early")))
     if profile.get("disease") == "metastatic" and profile.get("stage_at_diagnosis") == "metastatic":
         keys.append(("stage.disease_extent", "metastatic"))  # 진단 시 IV기 = de novo (재발 전이와 권고가 갈린다)
     out = []
