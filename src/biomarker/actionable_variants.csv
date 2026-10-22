@@ -1,15 +1,15 @@
 gene,protein_change,drug,source,verified,note
-PIK3CA,C420R,alpelisib,"therascreen PIK3CA RGQ PCR Kit (QIAGEN 제품 페이지, AccessGUDID 04053228034223)",yes,exon 7
-PIK3CA,E542K,alpelisib,"therascreen PIK3CA RGQ PCR Kit (QIAGEN 제품 페이지, AccessGUDID 04053228034223)",yes,exon 9
-PIK3CA,E545A,alpelisib,"therascreen PIK3CA RGQ PCR Kit (QIAGEN 제품 페이지, AccessGUDID 04053228034223)",yes,exon 9
-PIK3CA,E545D,alpelisib,"therascreen PIK3CA RGQ PCR Kit (QIAGEN 제품 페이지, AccessGUDID 04053228034223)",yes,exon 9. 키트는 c.1635G>T로 생긴 E545D만 검출
-PIK3CA,E545G,alpelisib,"therascreen PIK3CA RGQ PCR Kit (QIAGEN 제품 페이지, AccessGUDID 04053228034223)",yes,exon 9
-PIK3CA,E545K,alpelisib,"therascreen PIK3CA RGQ PCR Kit (QIAGEN 제품 페이지, AccessGUDID 04053228034223)",yes,exon 9
-PIK3CA,Q546E,alpelisib,"therascreen PIK3CA RGQ PCR Kit (QIAGEN 제품 페이지, AccessGUDID 04053228034223)",yes,exon 9
-PIK3CA,Q546R,alpelisib,"therascreen PIK3CA RGQ PCR Kit (QIAGEN 제품 페이지, AccessGUDID 04053228034223)",yes,exon 9
-PIK3CA,H1047L,alpelisib,"therascreen PIK3CA RGQ PCR Kit (QIAGEN 제품 페이지, AccessGUDID 04053228034223)",yes,exon 20
-PIK3CA,H1047R,alpelisib,"therascreen PIK3CA RGQ PCR Kit (QIAGEN 제품 페이지, AccessGUDID 04053228034223)",yes,exon 20
-PIK3CA,H1047Y,alpelisib,"therascreen PIK3CA RGQ PCR Kit (QIAGEN 제품 페이지, AccessGUDID 04053228034223)",yes,exon 20
+PIK3CA,C420R,alpelisib,handoff_to_B.md §5.4 예시 (알펠리십 동반진단),no,exon 7
+PIK3CA,E542K,alpelisib,handoff_to_B.md §5.4 예시 (알펠리십 동반진단),no,exon 9
+PIK3CA,E545A,alpelisib,handoff_to_B.md §5.4 예시 (알펠리십 동반진단),no,exon 9
+PIK3CA,E545D,alpelisib,handoff_to_B.md §5.4 예시 (알펠리십 동반진단),no,exon 9. 키트는 c.1635G>T로 생긴 E545D만 검출
+PIK3CA,E545G,alpelisib,handoff_to_B.md §5.4 예시 (알펠리십 동반진단),no,exon 9
+PIK3CA,E545K,alpelisib,handoff_to_B.md §5.4 예시 (알펠리십 동반진단),no,exon 9
+PIK3CA,Q546E,alpelisib,handoff_to_B.md §5.4 예시 (알펠리십 동반진단),no,exon 9
+PIK3CA,Q546R,alpelisib,handoff_to_B.md §5.4 예시 (알펠리십 동반진단),no,exon 9
+PIK3CA,H1047L,alpelisib,handoff_to_B.md §5.4 예시 (알펠리십 동반진단),no,exon 20
+PIK3CA,H1047R,alpelisib,handoff_to_B.md §5.4 예시 (알펠리십 동반진단),no,exon 20
+PIK3CA,H1047Y,alpelisib,handoff_to_B.md §5.4 예시 (알펠리십 동반진단),no,exon 20
 AKT1,E17K,capivasertib,handoff_to_B.md §5.4 예시 (카피바설팁),no,원문 확인 전
 ESR1,Y537C,elacestrant,handoff_to_B.md §5.4 예시 (엘라세스트란트 동반진단),no,원문 확인 전
 ESR1,Y537N,elacestrant,handoff_to_B.md §5.4 예시 (엘라세스트란트 동반진단),no,원문 확인 전
