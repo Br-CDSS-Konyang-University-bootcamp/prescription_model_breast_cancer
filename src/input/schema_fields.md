@@ -266,6 +266,11 @@ TCGA 건수 (score 2+ 또는 Equivocal):
 | `menopausal_status` | 폐경 여부 | `premenopausal` / `perimenopausal` / `postmenopausal` / `indeterminate` | 사전 | `폐경 후 상태` → `"postmenopausal"` | `gdc_menopause_status` |
 | `ecog` | 전신 수행 상태 | `0`~`4` | 해석 | `ECOG PS 1` → `1` | 없음 (합성) |
 | `menopausal_basis` [draft5] | 폐경 판정 근거 | `age_amenorrhea` / `fsh` / `oophorectomy` / `ovarian_radiation` / `hysterectomy` / `unknown` (`ovarian_radiation`·`hysterectomy`는 2026-10-22 추가, 공고 p.48 원문 대조 전) | 사전 | `양측 난소절제술 후` → `"oophorectomy"`, `자궁적출술 후, FSH 68` → `"hysterectomy"` (FSH 값은 `raw`) | 없음 (`not_recorded`) |
+| `cardiac_history` [2026-10-22, 검토 전] | 심장 위험요소·병력 (병명은 `raw`) | `yes` / `no` | 사전 | `HTN, 협심증으로 스텐트 시술` → `"yes"` | 없음 |
+| `lvef_percent` [2026-10-22, 검토 전] | 좌심실 박출률 | 숫자 (%) | 해석 | `Echo: LVEF 62%` → `62` | 없음 |
+| `mediastinal_radiation` [2026-10-22, 검토 전] | 종격동 방사선 치료 이력 | `yes` / `no` | 사전 | `호지킨 림프종으로 종격동 RT (2001)` → `"yes"` | 없음 |
+| `visceral_crisis` [2026-10-22, 검토 전] | 장기 위기. 의사가 적은 판단만 옮김 | `yes` / `no` | 사전 | `visceral crisis 소견` → `"yes"` | 없음 |
+| `comorbidities` [2026-10-22, 검토 전] | 치료 선택에 영향을 주는 동반질환 | 원문 표기 목록 | 그대로 | `간경화 Child B, CKD 4기` → `["간경화 Child B","CKD 4기"]` | 없음 |
 | `height_cm`, `weight_kg` [2026-10-22, 검토 전] | 키, 몸무게 (체표면적 → anthracycline 누적 용량 mg/m²) | 숫자 | 해석 | `Ht 158cm / Wt 55.5kg` → `158`, `55.5` | 없음 |
 
 - 성별은 범위 외 판정(남성 유방암)에 쓰인다
@@ -316,6 +321,7 @@ TCGA 건수 (score 2+ 또는 Equivocal):
 | `deemed_lines[]` [draft6] | 심평원 차수 간주 규칙 4개의 충족 여부 | `{rule_id, category, status, basis, regimen_refs, gap_days, notice_page}` | 계산 (`lines.py`) | 보조 AC → paclitaxel 후 전이 → `DEEM-ANTHRA-TAXANE: met` | tcga_mapping.md §3.6b |
 | `anthracycline_drug_dose` [draft5] | anthracycline 투여 여부와 약별 용량 | `{administered, drugs[]}` | 해석 | `doxorubicin 60 mg/m2 #4` → `{"drug":"doxorubicin","dose_per_admin":{"value":60,"unit":"mg/m2"}, …}` | tcga_mapping.md §3.7a |
 | `molecular.mutations.{유전자}` [draft5] | 유전자별 변이 (ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2) | `{status, result, variants[], specimen}` | 해석 | `PIK3CA H1047R, VAF 31%` → `{"status":"present","result":"detected","variants":[…]}` | `mut_*` (tcga_mapping.md §3.8) |
+| `imaging_findings[]` [2026-10-22, 검토 전] | 영상 소견 (골전이 영상 입증, M 병기 근거) | `{modality, day, date, sites[], certainty, source}` | 해석 + 사전 | `Bone scan: 척추·골반 다발성 골전이` → `{"modality":"bone_scan","sites":["bone"],"certainty":"confirmed"}` | 없음 |
 | `molecular.germline.{BRCA1, BRCA2, PALB2}` [2026-10-22, 검토 전] | 생식세포 검사 (혈액·타액) 결과. `mutations`는 종양 조직·cfDNA. 한 유전자에 두 결과가 있을 수 있어 칸을 나눈다 | `mutations`와 같은 `{status, result, variants[]}` | 해석 | `혈액 BRCA1/2 유전자 검사: 병원성 변이 없음` → `BRCA1`·`BRCA2` `{"status":"present","result":"not_detected","variants":[]}` | 없음 (칸을 두지 않음. B는 `mutations`의 BRCA를 gBRCA로 가정) |
 | `genomic_reports[].specimen` | 검체 | `primary` / `metastasis` / `cfDNA` / `unknown` | 사전 | `혈장 cfDNA NGS` → `"cfDNA"` | 원발(01) 고정 |
 | `genomic_reports[].report_date` | 보고일 | `YYYY-MM-DD` | 해석 | `보고일 2026-07-01` → `"2026-07-01"` | `null` |

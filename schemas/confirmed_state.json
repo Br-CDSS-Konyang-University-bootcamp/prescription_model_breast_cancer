@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "confirmed_state.json",
   "title": "confirmed_state",
-  "description": "화면 1에서 의사가 확정한 환자 상태. 2단계(C 지침 검색, D 급여, [4] LLM 추천)는 items.*.confirmed만 읽는다. 설계: notes/confirmed_state_items_2026-10-21.md §5·§6. 초안 v0.1-draft (A 제안, 4명 검토 전). 2026-10-22 급여 조건용 선택 항목 추가 (stage.size_mm, stage.n, operable, recurrence_day, metastasis_day, anthracycline_cumulative, prior_regimens의 progression_day·cycles·ongoing): 2단계가 이 파일 하나로 급여 조건을 판정할 수 있게 한다 (notes/virtual_chart_data_coverage_2026-10-22.md §5.2).",
+  "description": "화면 1에서 의사가 확정한 환자 상태. 2단계(C 지침 검색, D 급여, [4] LLM 추천)는 items.*.confirmed만 읽는다. 설계: notes/confirmed_state_items_2026-10-21.md §5·§6. 초안 v0.1-draft (A 제안, 4명 검토 전). 2026-10-22 급여 조건용 선택 항목 추가 (cardiac_risk, mediastinal_radiation, visceral_crisis, contraindicated_classes, bone_metastasis_imaging, recent_therapy_28d, stage.size_mm, stage.n, operable, recurrence_day, metastasis_day, anthracycline_cumulative, prior_regimens의 progression_day·cycles·ongoing): 2단계가 이 파일 하나로 급여 조건을 판정할 수 있게 한다 (notes/virtual_chart_data_coverage_2026-10-22.md §5.2).",
   "type": "object",
   "required": ["schema_version", "patient_ref", "version", "visit_type", "decision_context", "index_day", "confirmed_at", "confirmed_by", "based_on", "supersedes", "items"],
   "additionalProperties": false,
@@ -267,10 +267,22 @@
               "liposomal doxorubicin": {"$ref": "#/$defs/cumulative_dose"}
             }
           }}}],
-          "description": "anthracycline 누적 용량 (patient_state anthracycline_drug_dose). liposomal doxorubicin 급여 조건 (공고 9장 4나-19, 약별로 따로 본다). 심장 위험요소는 한계 조항이라 넣지 않는다 (2026-10-22 추가)"
+          "description": "anthracycline 누적 용량 (patient_state anthracycline_drug_dose). liposomal doxorubicin 급여 조건 (공고 9장 4나-19, 약별로 따로 본다). 누적 용량 기준을 못 넘으면 cardiac_risk·mediastinal_radiation으로 판정한다 (2026-10-22 추가)"
         },
+        "cardiac_risk": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"enum": ["yes", "no"]}}}],
+                         "description": "심장 위험요소·병력 (patient_state patient.cardiac_history, LVEF는 detail.lvef_percent). 공고 9장 4나-19 (2026-10-22 추가)"},
+        "mediastinal_radiation": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"enum": ["yes", "no"]}}}],
+                                  "description": "종격동 방사선 치료 이력. 공고 9장 4나-19 (2026-10-22 추가)"},
+        "visceral_crisis": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"enum": ["yes", "no"]}}}],
+                            "description": "장기 위기. yes면 ESMO M06·M50 (내분비 + CDK4/6 대신 항암). 전이성 결정에서 확인 (2026-10-22 추가)"},
+        "contraindicated_classes": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"type": "array", "items": {"type": "string"}}}}],
+                                    "description": "동반질환·전신 상태 때문에 쓰지 못하는 약 계열 (data/dictionaries/drug_classes.csv의 drug_subclass·drug_class, 예: CDK4/6_inhibitor, HER2-targeted Therapy). 없으면 빈 목록. ESMO M05·M35 (2026-10-22 추가)"},
         "metastatic_sites": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"type": "array", "items": {"type": "string"}}}}],
                              "description": "bone, liver, lung, brain, other: … (patient_state 표기)"},
+        "bone_metastasis_imaging": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"enum": ["yes", "no"]}}}],
+                                    "description": "골전이가 영상으로 확인됐는지 (patient_state imaging_findings에 bone + confirmed). 골 보호제 급여 '영상으로 골전이 입증' (2026-10-22 추가)"},
+        "recent_therapy_28d": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"enum": ["yes", "no"]}}}],
+                               "description": "기준일 4주 이내 항암제·호르몬제 투여 (patient_state at_index.recent_therapy_28d, 투약 중이면 yes). zoledronic acid 급여 (2026-10-22 추가)"},
         "recurrence_type": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"enum": ["none", "locoregional_curative", "locoregional_other", "distant"]}}}],
                             "description": "locoregional_curative = 국소 재발 후 완치 목적 수술 (SET-LOCAL-ADJ, 이후 요법은 수술후보조요법)"},
         "prior_regimens": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"type": "array", "items": {"$ref": "#/$defs/regimen"}}}}],

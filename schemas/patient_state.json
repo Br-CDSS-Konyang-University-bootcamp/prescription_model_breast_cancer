@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "patient_state.json",
   "title": "patient_state",
-  "description": "[1] 입력 모듈(A)의 출력. 비식별화된 차트에서 추출한 환자 상태. 모든 값에 원문 근거 위치를 붙인다. 필드 설명은 src/input/schema_fields.md. 초안 v0.1-draft6 (2026-10-16, 판정 기준일 index_day, 첫 재발일 recurrence_day, 투약별 차수 line·endocrine_line·chemo_line, 심평원 차수 간주 규칙 deemed_lines 추가. draft5는 2026-10-15: 진단일 기준 일수, 투여 주기, 재발·전이 정보, PD-L1, 유전자 변이, anthracycline 투약 용량). 상대 일수(*_day)는 진단일 = 0인 정수다. 실제 날짜가 아니므로 TCGA 정답에도 넣는다. 2026-10-22 가상 차트용 선택 칸 추가 (draft7 후보, 4명 검토 전. schema_version은 검토 뒤 올린다): doc_type radiology, 종양 크기, 키·몸무게, 폐경 근거 값 2개, 투약 중 여부, 생식세포 검사.",
+  "description": "[1] 입력 모듈(A)의 출력. 비식별화된 차트에서 추출한 환자 상태. 모든 값에 원문 근거 위치를 붙인다. 필드 설명은 src/input/schema_fields.md. 초안 v0.1-draft6 (2026-10-16, 판정 기준일 index_day, 첫 재발일 recurrence_day, 투약별 차수 line·endocrine_line·chemo_line, 심평원 차수 간주 규칙 deemed_lines 추가. draft5는 2026-10-15: 진단일 기준 일수, 투여 주기, 재발·전이 정보, PD-L1, 유전자 변이, anthracycline 투약 용량). 상대 일수(*_day)는 진단일 = 0인 정수다. 실제 날짜가 아니므로 TCGA 정답에도 넣는다. 2026-10-22 가상 차트용 선택 칸 추가 (draft7 후보, 4명 검토 전. schema_version은 검토 뒤 올린다): doc_type radiology, 종양 크기, 키·몸무게, 폐경 근거 값 2개, 투약 중 여부, 생식세포 검사. 이어서 TCGA 때문에 둔 한계 조항을 없애려고 심장 병력·LVEF·종격동 방사선·장기 위기·동반질환·영상 소견(imaging_findings) 칸 추가.",
   "type": "object",
   "required": ["schema_version", "patient_ref", "created_at", "documents", "fields", "conflicts"],
   "additionalProperties": false,
@@ -121,7 +121,34 @@
             "height_cm": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"type": "number", "minimum": 0}}}],
               "description": "키 (cm). 용량이 mg로만 적힌 차트에서 체표면적을 구해 anthracycline 누적 용량을 mg/m2로 바꾸는 데 쓴다 (공고 9장 4나-19). 측정일은 observed_date (2026-10-22 추가, 검토 전). TCGA에는 없음"},
             "weight_kg": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"type": "number", "minimum": 0}}}],
-              "description": "몸무게 (kg). height_cm과 같은 용도 (2026-10-22 추가, 검토 전). TCGA에는 없음"}
+              "description": "몸무게 (kg). height_cm과 같은 용도 (2026-10-22 추가, 검토 전). TCGA에는 없음"},
+            "cardiac_history": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"enum": ["yes", "no"]}}}],
+              "description": "심장 위험요소·병력 (관상동맥질환, 부정맥, 울혈성 심부전 등). 어떤 병인지는 raw에 남긴다. liposomal doxorubicin 급여 조건 (공고 9장 4나-19). 2026-10-22 추가 (가상 차트 평가로 바꾸며 한계 조항에서 뺌, 검토 전). TCGA에는 없음"},
+            "lvef_percent": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"type": "number", "minimum": 0, "maximum": 100}}}],
+              "description": "좌심실 박출률 (%, 심초음파·MUGA). 공고 p.51 (용어 사전 58행). 측정일은 observed_date (2026-10-22 추가, 검토 전). TCGA에는 없음"},
+            "mediastinal_radiation": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"enum": ["yes", "no"]}}}],
+              "description": "종격동 방사선 치료 이력. 공고 9장 4나-19 (2026-10-22 추가, 검토 전). TCGA에는 없음"},
+            "visceral_crisis": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"enum": ["yes", "no"]}}}],
+              "description": "장기 위기 (장기 부전 임박). 차트에 의사가 적은 판단만 옮기고 A가 검사 수치로 추정하지 않는다. ESMO M06·M50 (내분비 + CDK4/6 대신 항암) (2026-10-22 추가, 검토 전). TCGA에는 없음"},
+            "comorbidities": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"type": "array", "items": {"type": "string"}}}}],
+              "description": "치료 선택에 영향을 주는 동반질환 (원문 표기 목록). 어느 약을 못 쓰는지는 confirmed_state contraindicated_classes에서 의사가 확정한다. ESMO M05·M35 (2026-10-22 추가, 검토 전). TCGA에는 없음"}
+          }
+        },
+        "imaging_findings": {
+          "type": "array",
+          "description": "영상 검사 소견 (CT, 뼈 스캔, PET, MRI 등). 전이 부위가 영상으로 확인됐는지를 담는다: 골 보호제 급여의 '영상으로 골전이 입증', M 병기 근거. 2026-10-22 추가 (골 보호제를 평가 범위에 넣음, 검토 전). TCGA에는 없음",
+          "items": {
+            "type": "object",
+            "required": ["modality", "sites"],
+            "additionalProperties": false,
+            "properties": {
+              "modality": {"enum": ["CT", "MRI", "PET", "bone_scan", "X-ray", "ultrasound", "other"]},
+              "day": {"$ref": "#/$defs/day", "description": "검사일 (진단일 = 0)"},
+              "date": {"$ref": "#/$defs/date"},
+              "sites": {"type": "array", "items": {"type": "string"}, "description": "전이로 판독한 부위 (metastatic_sites와 같은 표기). 전이 없음이면 빈 목록"},
+              "certainty": {"enum": ["confirmed", "suspected"], "description": "판독문이 전이로 확정했는지, 의심(r/o, 의증)인지"},
+              "source": {"anyOf": [{"$ref": "#/$defs/source"}, {"type": "null"}]}
+            }
           }
         },
         "treatment_history": {
