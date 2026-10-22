@@ -85,9 +85,10 @@ python -m src.reimbursement.pipeline --index    # 파이프라인이 정상이�
 Claude API를 쓰려면 `conda install -n team_project -c conda-forge anthropic` 후 저장소 루트 `.env`에 `ANTHROPIC_API_KEY=...`를 넣는다 (git 제외).
 Claude Code로 돌리려면 터미널에서 `claude`를 한 번 실행해 `/login`으로 구독 계정에 로그인해 둔다. PATH에 없으면 Claude 데스크톱 앱에 든 것을 찾고, 다른 곳이면 `CLAUDE_CODE_EXE`에 경로를 넣는다.
 조건 field 어휘와 환자 JSON 경로는 `conditions.py`의 `FIELDS` (설계 문서·`reimbursement_field_values.csv` 기준, B 검토). 환자 JSON 경로는 `patient_state` 0.1-draft6 기준이다.
-`recurrence_operable`, `cardiac_history`, `mediastinal_radiation`은 아직 환자 JSON에 칸이 없어 판정하면 늘 '기록 없음'이 된다 (칸 추가는 팀 결정 대기).
-차수 간주 규칙 `counts_as_prior_line`은 draft6의 `fields.deemed_lines[]`와 대응한다 (`schema_proposal.md`).
-조건은 사람 검수 전이라, 판정 쪽(B)은 검수가 끝날 때까지 이 조건만으로 `covered`라고 하지 않고 `covered_conditions_unverified`로 둔다.
+`cardiac_history`, `mediastinal_radiation`은 이번 모델에서 뺐다 (PROJECT.md §12). 판정하면 늘 '알 수 없음'이 된다.
+`recurrence_operable`은 환자 JSON에 칸을 두지 않고, 재발 후 수술 여부(`recurrence.surgery`, `surgery_intent`)로 대신 읽는다. `surgery = yes`이고 `surgery_intent = curative`면 절제 가능, 그 밖은 '알 수 없음'이다 (A 결정 2026-10-21, PROJECT.md).
+차수 간주 규칙 `counts_as_prior_line`은 draft6의 `fields.deemed_lines[]`와 대응한다. 항목에 `rule_id`가 있으면 그 규칙을 그대로 본다 (`schema_proposal.md`).
+조건 131행 중 109행은 D가 검수 기록을 남겼다 (`reports/review_decisions_20261001.tsv`, 일부는 B 확인). 나머지 행 검수와 의료진 검토는 아직이라, 판정 쪽(B)은 이 조건만으로 `covered`라고 하지 않고 `covered_conditions_unverified`로 둔다.
 
 API 없이 손으로 쓴 조건도 같은 검사(형식·어휘·원문 구절)를 거쳐 저장본에 넣을 수 있다. 통과한 행만 들어가고, 이후 파이프라인은 그 결과를 그대로 쓴다.
 2026-10-01 책자의 L3 131행은 이렇게 넣었다 (`data/reimbursement/conditions_manual/batch_*.json`, 작성자 "claude (대화에서 직접 작성, 2026-10-19)"). 책자 본문이 바뀐 행은 다시 써야 한다.
@@ -129,15 +130,14 @@ python -m src.reimbursement.conditions --import data/reimbursement/conditions_ma
 
 새 약제가 나와 "약제명 목록에 없는 영문 낱말" 경고가 뜨면 `vocab.py`의 `BREAST_EXTRA`에 추가한다.
 
-## 남은 일 (2026-10-20)
+## 남은 일 (2026-10-22)
 
 | 할 일 | 누가 |
 |---|---|
-| 투여 조건 사람 검수 (`conditions_review_20261001.tsv`의 O/X 칸) | D, B 확인 |
+| 투여 조건 검수 마무리 (131행 중 남은 22행)와 의료진 검토 | D, B 확인 |
 | `schemas/chunk.json` 개정 (`schema_proposal.md`) | D 제안, 4명 검토 |
 | 판정 규칙 문서화 (`all_of`, `any_of`, `any_of_exceptions`, `unless`, `contains`, `not_contains`, 유전자 `vus`·`not_done` 처리) | B, D |
-| `patient_state`에 `recurrence_operable`, `cardiac_history`, `mediastinal_radiation` 칸 추가 여부 | A 제안, 4명 검토 |
-| 급여 검색 함수 (`doc_type=reimbursement`, 약 이름 일치, 시행일 ≤ 판정 기준일, `superseded_by` 제외)와 L1·L2 부모 청크 찾기 | C, D |
+| 3가 밖의 "보조요법 종료 후 ~ 재발" 기간(`days_end_to_recurrence`)도 전이 기준일까지 셀지 | A 답변 대기 |
 | 결과물(청크, 조건 JSON, registry.db) 비공개 백업·공유 위치 | 팀 |
 | 개정 공고 덧씌우기 (설계 §6). 새 공고가 올라오면 실행해 보고 만든다 | D |
 | 허가초과 포함 여부: v0.1에서는 빼고 PROJECT.md §8을 설계 문서에 맞추자는 D 의견. 지금은 범위 밖, 팀 결정 대기 (기본 끔) | 팀 |
