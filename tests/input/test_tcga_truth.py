@@ -94,8 +94,8 @@ def test_metastatic_sites_other_specify_uses_other_column(truth):
 
 def test_treatment_counts(truth):
     items = [t for doc in truth.values() for t in doc["fields"]["treatment_history"]]
-    assert len(items) == 1931  # §3.6: 투약 기록 1,931건 (같은 약·같은 날짜 중복 6건 합침) (unknown 14건 제외)
-    assert sum(t["duration_days"] is not None for t in items) == 1429
+    assert len(items) == 1930  # §3.6: 투약 기록 1,930건 (같은 약·같은 날짜 중복 6건, 병용 기록과 겹친 anthracycline 단독 1건 합침) (unknown 14건 제외)
+    assert sum(t["duration_days"] is not None for t in items) == 1428
     no_record = sum(1 for doc in truth.values() if doc["fields"]["anthracycline_drug_dose"]["administered"] == "No value")
     assert no_record == 199  # §3.6: 투약 기록 자체가 없는 환자 199명
     empty = sum(1 for doc in truth.values() if not doc["fields"]["treatment_history"])
