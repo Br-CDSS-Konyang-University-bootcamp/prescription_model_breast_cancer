@@ -134,21 +134,25 @@ def test_checker_in_postprocess():
 
 
 def test_endocrine_adjuvant_relapse_counts_as_first_line():
-    """VC-0103: 보조 anastrozole 중 전이 (전이 후 투약 없음). 공고 p.57 '보조요법 중 또는 종료 후 1년 이내 진행도 인정'으로
-    내분비 2차 이상 행이 충족 (A 기대값: fulvestrant + CDK4/6 급여). D는 이 규칙을 any_of의 days_end_to_metastasis로 적는다."""
+    """VC-0103: 보조 anastrozole 중 전이 (전이 후 투약 없음). 공고 문구 '1년 이내에 진행된 경우도 인정'이 있는 행에만
+    D가 counts_as_prior_line + rule_id: DEEM-ENDO-ADJ-1Y를 넣는다 (A 기대값: fulvestrant + CDK4/6 급여, D 확인 2026-10-22).
+    문구 없는 내분비 "2차 이상" 행에는 적용하지 않는다."""
     adj = {"drugs": ["anastrozole"], "setting": "adjuvant", "start_day": 40, "end_day": 765, "line": None,
            "endocrine_line": None, "chemo_line": None, "stop_reason": "progression", "best_response": "PD"}
     def vc(status):
         return patient(recurrence={"status": present("distant"), "recurrence_day": present(760),
                                    "metastasis_day": present(760)}, treatment_history=[adj],
                        deemed_lines=[{"rule_id": "DEEM-ENDO-ADJ-1Y", "category": "endocrine", "status": status}])
+    deem = [{"text": "1년 이내에 진행된 경우도 인정", "setting": ["adjuvant"], "drugs": [], "rule_id": "DEEM-ENDO-ADJ-1Y"}]
     c = cond(any_of=[{"text": "내분비요법 후 진행", "items": [
         item("days_end_to_metastasis", "lte", 365, of={"drugs": ["AI_nonsteroidal"], "setting": ["adjuvant"]}),
         item("days_end_to_progression", "lte", 30, of={"setting": ["metastatic"]})]}],
-        line_rule={"stage": "palliative_endocrine", "line": "2차 이상"})
+        line_rule={"stage": "palliative_endocrine", "line": "2차 이상"}, prior=deem)
     assert ev(c, ps=vc("met")) == "met"
     assert ev(c, ps=vc("not_met")) == "not_met"
     assert ev(c, ps=vc("unknown")) == "unknown"
+    plain = cond(line_rule={"stage": "palliative_endocrine", "line": "2차 이상"})       # 문구 없는 행 (3다 연번 1~3 등)
+    assert ev(plain, ps=vc("met")) == "not_met"
     assert evaluate_item(item("days_end_to_metastasis", "lte", 365, of={"setting": ["adjuvant"]}),
                          vc("met"), record()) is True                     # 765 - 760 = 투여 중 전이
     assert evaluate_item(item("days_end_to_recurrence", "gt", 365, of={"setting": ["adjuvant"]}),
@@ -180,3 +184,18 @@ def test_at_index_fields():
     assert ev(cond([item("age_at_index", "gte", 19)]), ps=unknown) == "unknown"
     assert ev(cond([item("recent_therapy_28d", "eq", "yes")]), ps=unknown) == "unknown"
     assert ev(cond([item("recent_therapy_28d", "eq", "yes")])) == "unknown"                       # at_index 칸 없음
+
+
+def test_d_requests_2026_10_22():
+    """D 요청: 재발 병소 절제(recurrence_operable), 폐경 indeterminate, 빈 투약 기록의 not_contains."""
+    rec = lambda surgery, intent: patient(recurrence={"status": present("locoregional"), "surgery": present(surgery),
+                                                      "surgery_intent": present(intent)})
+    assert ev(cond([item("recurrence_operable", "eq", "yes")]), ps=rec("yes", "curative")) == "met"
+    assert ev(cond([item("recurrence_operable", "eq", "no")]), ps=rec("yes", "curative")) == "not_met"
+    assert ev(cond([item("recurrence_operable", "eq", "no")]), ps=rec("no", "unknown")) == "unknown"
+    assert ev(cond([item("recurrence_operable", "eq", "yes")]), ps=rec("yes", "palliative")) == "unknown"
+    indet = patient(patient={"menopausal_status": present("indeterminate"), "gender": present("FEMALE")})
+    assert ev(cond([item("menopause", "eq", "postmenopausal")]), ps=indet) == "unknown"
+    empty = patient(treatment_history=[])
+    assert ev(cond([item("prior_drugs", "not_contains", ["letrozole"])]), ps=empty) == "unknown"
+    assert ev(cond([item("prior_drugs", "not_contains", ["tamoxifen"])])) == "met"                # 기록이 있으면 판정
