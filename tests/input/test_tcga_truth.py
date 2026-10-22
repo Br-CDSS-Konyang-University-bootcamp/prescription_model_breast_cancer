@@ -116,7 +116,7 @@ def test_metastatic_sites_rules_2026_10_20(truth):
     assert truth["TCGA-LL-A73Z"]["fields"]["stage"]["metastatic_sites"]["value"] == ["brain"]
     surgery = Counter(doc["fields"]["recurrence"]["surgery"]["value"] for doc in truth.values()
                       if "surgery" in doc["fields"]["recurrence"])
-    assert surgery == {"yes": 15, "no": 15}
+    assert surgery == {"yes": 14, "no": 14}  # 진단 시 IV기 2명(B6-A3ZX, LL-A73Z)은 재발이 아니라 칸 없음 (2026-10-22)
 
 
 def test_progression_day_from_pfs(truth):

@@ -453,6 +453,8 @@ HISTORY = [
     ("2026-10-20", "이전 유방암에 약물 치료를 받은 7명 삭제 (GDC omf: Prior Malignancy, Breast, 약물 YES). 이전 치료를 넣을 칸이 없음 (860명 → 853명)"),
     ("2026-10-20", "동시 양측 유방암이면서 아형과 맞지 않는 투약이 있는 4명(TCGA-A2-A04Y, EW-A1J5, LL-A5YP, E2-A158) 삭제. 반대쪽 종양 수용체가 없어 판단 불가 (853명 → 849명)"),
     ("2026-10-20", "아형과 맞지 않는 투약이 있는 11명 삭제: HER2 양성 아님 + trastuzumab 4명, HR 음성 + 내분비요법 7명 (849명 → 838명)"),
+    ("2026-10-22", "진단 시 전이성(IV기)이면 재발 상태를 none으로 바꿈. 이후 원격 전이 기록은 재발이 아니라 진행 "
+                   "(TCGA-B6-A3ZX, LL-A73Z: distant → none)"),
     ("2026-10-20", "같은 약·같은 시작일·종료일 투약 기록을 하나로 합침 (앞 기록의 빈칸만 뒤 기록 값으로 채움)"),
     ("2026-10-20", "병기·T·N은 맞는데 양성 림프절 수가 N 병기와 맞지 않는 13명은 양성 수를 [Not Available]로, AO-A12H(69세, anastrozole) 폐경 상태를 Post로 고침"),
 ]
@@ -814,6 +816,15 @@ def unknown_recurrence(df):
     return drops, sorted(df.loc[to_local, "patient_id"]), int(to_none.sum())
 
 
+def metastatic_at_dx_to_none(df):
+    """진단 시 전이성이면 재발 상태를 none으로 둔다 (사용자 결정, 2026-10-22). 처음부터 IV기면 재발이 아니고,
+    이후 원격 전이 기록은 전이 상태에서의 진행이다. 재발 정리(삭제·수술 규칙) 뒤에 부른다. 바꾼 환자 목록을 돌려준다."""
+    hit = (df["stage_disease_extent"] == "metastatic") & (df["recurrence_status"] != "none")
+    fixed = sorted(df.loc[hit, "patient_id"])
+    df.loc[hit, "recurrence_status"] = "none"
+    return fixed
+
+
 def recurrence_drops(df):
     """진단 시 전이성이 아니면서 새 원발암만 있는 환자 (사용자 결정, 2026-10-13),
     재발했지만 부위(원격·국소)를 알 수 없는 환자 (사용자 결정, 2026-10-15)."""
@@ -1025,6 +1036,7 @@ def main():
     fixed_records = record_fixes(df)
     current_extent(df)
     followup_fixed = followup_sign_fix(df)
+    iv_to_none = metastatic_at_dx_to_none(df)
     metastasis_day(df)
     locoregional_day(df)
     dropped.update(post_metastasis_drops(df))
@@ -1054,6 +1066,8 @@ def main():
     print(f"  재발 여부 기록 없음 → none {unknown_to_none}명 (삭제 전 기준), locoregional(재발 병소 수용체 있음): {', '.join(kept)}")
     fixed = [p for p in followup_fixed if p in set(df["patient_id"])]
     print(f"  같은 약·같은 날짜 중복 합침: {len(dup_merged)}건 ({', '.join(sorted({m[0] for m in dup_merged}))})")
+    iv_kept = [p for p in iv_to_none if p in set(df["patient_id"])]
+    print(f"  진단 시 전이성 재발 상태 → none: {', '.join(iv_kept) or '없음'}")
     print(f"  림프절 수·폐경 상태 수정: {len([p for p in fixed_records if p in set(df['patient_id'])])}명")
     print(f"  재발 후 수술 빈칸 → YES (데이터만 수정): {', '.join(surgery_set)}")
     kept_dose = [c for c in dose_changed if c[0] in set(df["patient_id"])]
