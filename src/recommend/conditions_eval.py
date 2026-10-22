@@ -211,7 +211,9 @@ def _value(field, it, patient_state, record):
         rows = fields.get("treatment_history")
         return None if rows is None else max([t.get(key) or 0 for t in rows] or [0])
     if field == "days_end_to_recurrence":
-        return _days_since(fields, of, recurrence.get("recurrence_day"))
+        return _days_since(fields, of, _present(recurrence.get("recurrence_day")))
+    if field == "days_end_to_metastasis":   # D FIELDS: 종료일부터 전이 기준일까지 (A의 DEEM-ENDO-ADJ-1Y와 같은 기준)
+        return _days_since(fields, of, _present(recurrence.get("metastasis_day")))
     if field == "days_end_to_progression":
         rows = _entries(fields, of)
         if not rows:
@@ -304,7 +306,9 @@ def _evaluate_one(it, patient_state, record):
 def _line_rule(cond, patient_state):
     """line_rule {stage, line}: 이번에 줄 치료의 차수(이미 받은 고식적 차수 + 1)가 공고 투여단계에 맞는지.
     공고가 선행·보조요법을 1회로 간주하면(counts_as_prior_line) 그 행의 간주 규칙에 맞는 deemed_lines만 본다
-    (handoff_to_B.md §6.3a "행마다 맞는 규칙을 골라"). 규칙을 못 맞추면 알 수 없음."""
+    (handoff_to_B.md §6.3a "행마다 맞는 규칙을 골라"). 규칙을 못 맞추면 알 수 없음.
+    고식적 내분비 행은 DEEM-ENDO-ADJ-1Y(보조 내분비 중·종료 1년 이내 전이)도 본다. D는 이 규칙을 counts_as_prior_line이
+    아니라 any_of의 days_end_to_metastasis로 적기 때문이다 (D schema_proposal.md 대응표, handoff §6.3·§6.3a, 공고 p.57)."""
     rule = cond.get("line_rule") or {}
     if not rule.get("line") or rule.get("stage") not in LINE_STAGE_COUNT:
         return True
@@ -317,8 +321,10 @@ def _line_rule(cond, patient_state):
     fits = lambda n: n >= lo and (hi is None or n <= hi)
     if fits(given + 1):
         return True
-    if cond.get("counts_as_prior_line") and fits(given + 2):
-        rule_ids = [_deem_rule(e) for e in cond["counts_as_prior_line"]]
+    if (cond.get("counts_as_prior_line") or rule["stage"] == "palliative_endocrine") and fits(given + 2):
+        rule_ids = [_deem_rule(e) for e in cond.get("counts_as_prior_line") or []]
+        if rule["stage"] == "palliative_endocrine":
+            rule_ids.append("DEEM-ENDO-ADJ-1Y")
         status = {d.get("rule_id"): d.get("status") for d in fields.get("deemed_lines") or []}
         statuses = [status.get(r) if r else None for r in rule_ids]
         if "met" in statuses:

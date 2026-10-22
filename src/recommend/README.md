@@ -57,7 +57,8 @@ B 임시안 (팀 문서에 없음, 팀 확인 필요. 차수 세기는 A, `prior
 
 - D의 조건은 아직 사람 검수 전이라(D README), `conditions_reviewed=False`(기본값)면 충족·불충족 모두 확정하지 않고 "급여(조건 확인 필요)"로 둔다. 검수가 끝나면 `True`로 바꾼다
 - 시행 중인 급여 청크 여러 개를 인용하면 하나라도 충족이면 충족, 충족이 없고 알 수 없음이 있으면 알 수 없음, 모두 불충족이면 불충족
-- 투여단계(`line_rule`): 이번 치료 차수 = 이미 받은 고식적 치료 차수 + 1. 내분비 조건(`palliative_endocrine`)은 `endocrine_line`만, 항암 조건(`palliative_chemo`)은 `chemo_line`만 따로 센다. 공고가 선행·보조요법을 1회로 간주하면(`counts_as_prior_line`) **그 행에 맞는 간주 규칙만** 본다 (handoff_to_B.md §6.3a, D `schema_proposal.md` 대응표): anthracycline·taxane → `DEEM-ANTHRA-TAXANE`, 종료 1년(365일) 이내 → `DEEM-SG-1Y`. A의 `deemed_lines`에서 그 규칙이 `met`이면 1차를 더해 보고, `unknown`이거나 규칙을 못 맞추거나 `deemed_lines`가 없으면 알 수 없음
+- 투여단계(`line_rule`): 이번 치료 차수 = 이미 받은 고식적 치료 차수 + 1. 내분비 조건(`palliative_endocrine`)은 `endocrine_line`만, 항암 조건(`palliative_chemo`)은 `chemo_line`만 따로 센다. 공고가 선행·보조요법을 1회로 간주하면(`counts_as_prior_line`) **그 행에 맞는 간주 규칙만** 본다 (handoff_to_B.md §6.3a, D `schema_proposal.md` 대응표): anthracycline·taxane → `DEEM-ANTHRA-TAXANE`, 종료 1년(365일) 이내 → `DEEM-SG-1Y`. A의 `deemed_lines`에서 그 규칙이 `met`이면 1차를 더해 보고, `unknown`이거나 규칙을 못 맞추거나 `deemed_lines`가 없으면 알 수 없음. 고식적 내분비 행은 `DEEM-ENDO-ADJ-1Y`(보조 내분비 중·종료 1년 이내 전이, 공고 p.57)도 본다. D는 이 규칙을 `counts_as_prior_line`이 아니라 `any_of`의 `days_end_to_metastasis`로 적기 때문이다 (2026-10-22, VC-0103: 보조 anastrozole 중 전이 → 내분비 2차 이상 행 충족)
+- 일수 조건: `days_end_to_recurrence`(종료일 → 첫 재발일), `days_end_to_metastasis`(종료일 → 전이 기준일), `days_end_to_progression`. 재발일·전이 기준일은 patient_state의 `{status, value}` 칸에서 값만 읽는다
 - `prior_failed`(실패한 이전 약): `stop_reason`이 `progression`이거나 `best_response`가 `PD`인 줄만 실패로 센다. 그런 줄이 없고 중단 이유와 반응이 비어 있는 줄이 있으면 알 수 없음, 다른 이유(부작용·치료 완료 등)로만 끝났으면 실패 아님
 - 조건에 쓰인 칸 중 위 목록에 없는 것(예: 아직 저장 칸이 없는 칸)은 알 수 없음
 

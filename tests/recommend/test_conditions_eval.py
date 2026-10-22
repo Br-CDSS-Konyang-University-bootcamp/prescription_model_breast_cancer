@@ -26,7 +26,8 @@ def present(v):
 def patient(**fields):
     base = {"patient": {"menopausal_status": present("postmenopausal"), "gender": present("FEMALE")},
             "stage": {"group": present("IIIA"), "ptnm": present({"t": "T2", "n": "N1a", "m": "M0"})},
-            "recurrence": {"status": present("distant"), "recurrence_day": 900, "metastatic_sites": present(["bone"])},
+            "recurrence": {"status": present("distant"), "recurrence_day": present(900), "metastasis_day": present(900),
+                           "metastatic_sites": present(["bone"])},
             "treatment_history": [
                 {"drugs": ["letrozole"], "setting": "adjuvant", "start_day": 100, "end_day": 700, "line": None,
                  "endocrine_line": None, "chemo_line": None, "stop_reason": None, "best_response": "unknown"},
@@ -130,3 +131,25 @@ def test_checker_in_postprocess():
                   "conditions": cond(line_rule={"stage": "palliative_endocrine", "line": "1차"})}}
     assert run(record(PIK3CA="positive"), reviewed=True, chunk=first_line) == "no_criteria"       # 검수 후 불충족
     assert run(record(PIK3CA="positive"), reviewed=False, chunk=first_line) == "covered_conditions_unverified"
+
+
+def test_endocrine_adjuvant_relapse_counts_as_first_line():
+    """VC-0103: 보조 anastrozole 중 전이 (전이 후 투약 없음). 공고 p.57 '보조요법 중 또는 종료 후 1년 이내 진행도 인정'으로
+    내분비 2차 이상 행이 충족 (A 기대값: fulvestrant + CDK4/6 급여). D는 이 규칙을 any_of의 days_end_to_metastasis로 적는다."""
+    adj = {"drugs": ["anastrozole"], "setting": "adjuvant", "start_day": 40, "end_day": 765, "line": None,
+           "endocrine_line": None, "chemo_line": None, "stop_reason": "progression", "best_response": "PD"}
+    def vc(status):
+        return patient(recurrence={"status": present("distant"), "recurrence_day": present(760),
+                                   "metastasis_day": present(760)}, treatment_history=[adj],
+                       deemed_lines=[{"rule_id": "DEEM-ENDO-ADJ-1Y", "category": "endocrine", "status": status}])
+    c = cond(any_of=[{"text": "내분비요법 후 진행", "items": [
+        item("days_end_to_metastasis", "lte", 365, of={"drugs": ["AI_nonsteroidal"], "setting": ["adjuvant"]}),
+        item("days_end_to_progression", "lte", 30, of={"setting": ["metastatic"]})]}],
+        line_rule={"stage": "palliative_endocrine", "line": "2차 이상"})
+    assert ev(c, ps=vc("met")) == "met"
+    assert ev(c, ps=vc("not_met")) == "not_met"
+    assert ev(c, ps=vc("unknown")) == "unknown"
+    assert evaluate_item(item("days_end_to_metastasis", "lte", 365, of={"setting": ["adjuvant"]}),
+                         vc("met"), record()) is True                     # 765 - 760 = 투여 중 전이
+    assert evaluate_item(item("days_end_to_recurrence", "gt", 365, of={"setting": ["adjuvant"]}),
+                         vc("met"), record()) is False                    # recurrence_day는 {status, value} 칸
