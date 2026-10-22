@@ -3,7 +3,8 @@
 #   python -m src.rag.check_case tests/fixtures/virtual_charts/VC-0103/expected/confirmed_state.json
 #   python -m src.rag.check_case <confirmed_state.json> --out data/reimbursement/vc0103_candidates.json
 # confirmed_state(의사 확정값) 하나로 retrieve_for_recommend를 실제 색인·모델로 돌려, B에게 넘어갈 지침 청크와
-# 급여 청크를 보여 준다. 가상 차트의 기대 정답(scenario.md)과 눈으로 대조하고, D가 급여 판정을 시험할 후보 목록을 만든다.
+# 급여 청크, 급여만 있는 행(ESMO 권고는 없고 급여 기준만 있는 요법)을 보여 준다.
+# 가상 차트의 기대 정답(scenario.md)과 눈으로 대조하고, D가 급여 판정을 시험할 후보 목록을 만든다.
 # 먼저 색인이 있어야 한다: 지침 python -m src.rag.run_indexing, 급여 python -m src.reimbursement.index (D의 비공개 청크).
 # --out 파일에는 급여 행 ID와 조건이 들어간다. 공고 원문에서 만든 자료라 git에 올리지 않는다
 # (data/reimbursement/ 아래 .json은 .gitignore가 막는다).
@@ -29,17 +30,22 @@ def validate(confirmed_state: dict) -> list[str]:
     return [f"{'/'.join(map(str, e.path))}: {e.message}" for e in Draft202012Validator(schema).iter_errors(confirmed_state)]
 
 
-def summarize(guideline: list[dict], reimbursement: list[dict]) -> dict:
-    """--out에 쓸 요약. 본문 대신 ID·약·차수·조건만 남긴다 (D가 판정에 쓰는 값)."""
+def _row(r: dict) -> dict:
+    return {"chunk_id": r["chunk_id"], "matched_drugs": r.get("matched_drugs"), "extra_drugs": r.get("extra_drugs"),
+            "setting": r.get("setting"), "line": r.get("line"), "drug_classes": r.get("drug_classes"),
+            "supportive": r.get("supportive"), "parents": [p["chunk_id"] for p in r.get("parents") or []],
+            "reimbursement": r.get("reimbursement")}
+
+
+def summarize(guideline: list[dict], reimbursement: list[dict], reimbursement_only: list[dict] = ()) -> dict:
+    """--out에 쓸 요약. 본문 대신 ID·약·차수·조건만 남긴다 (D가 판정에 쓰는 값).
+    reimbursement_only: ESMO 권고의 약으로는 찾지 못했지만 같은 병기·차수·아형인 급여 행 (급여만 있는 요법)."""
     return {
         "guideline": [{"rank": i, "chunk_id": c["chunk_id"], "chunk_kind": c.get("chunk_kind"), "score": c.get("score"),
                        "line": c.get("line"), "drugs": c.get("drugs"), "page": c.get("page_start")}
                       for i, c in enumerate(guideline, 1)],
-        "reimbursement": [{"chunk_id": r["chunk_id"], "matched_drugs": r.get("matched_drugs"),
-                           "extra_drugs": r.get("extra_drugs"), "setting": r.get("setting"), "line": r.get("line"),
-                           "parents": [p["chunk_id"] for p in r.get("parents") or []],
-                           "reimbursement": r.get("reimbursement")}
-                          for r in reimbursement],
+        "reimbursement": [_row(r) for r in reimbursement],
+        "reimbursement_only": [_row(r) for r in reimbursement_only],
     }
 
 
@@ -68,8 +74,8 @@ def main(argv=None):
           f"지침 차수 {lines['guideline']} · 급여 차수 {lines['reimbursement']}")
     print(f"환자 정보 {patient}")
     try:
-        guideline, reimbursement = retrieve_for_recommend(state, as_of=args.as_of, top_k=args.top_k,
-                                                          rerank=not args.no_rerank)
+        guideline, reimbursement, only = retrieve_for_recommend(state, as_of=args.as_of, top_k=args.top_k,
+                                                                rerank=not args.no_rerank, with_reimbursement_only=True)
     finally:
         close_searcher()
 
@@ -83,6 +89,12 @@ def main(argv=None):
         print(f"  {r['chunk_id']}  {r.get('matched_drugs')} / {r.get('extra_drugs')}  {r.get('line')}")
     if not reimbursement:
         print("  (없음: 급여 청크를 색인했는지 확인하세요. python -m src.reimbursement.index)")
+    treat = [r for r in only if not r.get("supportive")]
+    print(f"\n[급여만 있는 행 {len(only)}개: ESMO 권고의 약으로는 찾지 못한 같은 병기·차수·아형의 급여 행]"
+          f"  치료 요법 {len(treat)}개 + 보조약 {len(only) - len(treat)}개")
+    for r in only:
+        mark = " (보조약)" if r.get("supportive") else ""
+        print(f"  {r['chunk_id']}  {r.get('extra_drugs')}  {r.get('line')}  {r.get('drug_classes')}{mark}")
 
     if args.out:
         out = args.out.resolve()
@@ -90,7 +102,7 @@ def main(argv=None):
             print(f"[주의] {args.out}: 급여 행 정보는 공고 원문에서 만든 자료라 git에 올리면 안 됩니다. "
                   f"data/reimbursement/ 아래에 저장하기를 권합니다.")
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(json.dumps(summarize(guideline, reimbursement), ensure_ascii=False, indent=2) + "\n",
+        out.write_text(json.dumps(summarize(guideline, reimbursement, only), ensure_ascii=False, indent=2) + "\n",
                        encoding="utf-8")
         print(f"\n저장 -> {args.out}")
 

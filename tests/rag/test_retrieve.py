@@ -149,6 +149,10 @@ def test_retrieve_with_confirmed_state(index, monkeypatch):
     # 기준일은 확정 시각의 날짜, 급여 차수는 1L과 간주 규칙(DEEM-ENDO-ADJ-1Y)의 2L
     assert {kw["as_of"] for _, kw in calls} == {"2026-10-21"} and {kw["line"] for _, kw in calls} == {"1L", "2L"}
     assert {"r-fulv", "r-fulv-1l"} <= {r["chunk_id"] for r in reimbursement}  # '2차 이상' 행도 빠지지 않는다
+    # 급여만 있는 행: 같은 병기·차수·아형인데 권고의 약으로 찾지 못한 행 (zoledronic acid, any). 이미 찾은 행은 빠진다
+    guideline, reimbursement, only = retrieve_for_recommend(VC0103, rerank=False, with_reimbursement_only=True)
+    assert [r["chunk_id"] for r in only] == ["r-zol"]
+    assert not {r["chunk_id"] for r in only} & {r["chunk_id"] for r in reimbursement}
     with pytest.raises(TypeError):
         retrieve_for_recommend({"subtype": "HR+/HER2-"})  # biomarker_record 없이 confirmed_state도 아니면 거부
 
@@ -164,5 +168,6 @@ def test_check_case_validates_and_summarizes_without_text():
     row = {"chunk_id": "r-1", "text": "공고 원문", "matched_drugs": ["fulvestrant"], "extra_drugs": ["palbociclib"],
            "setting": ["metastatic"], "line": ["2L"], "parents": [{"chunk_id": "r-l2"}],
            "reimbursement": {"notice_no": "제2026-1호"}}
-    out = summarize([], [row])
+    out = summarize([], [row], [row])
     assert out["reimbursement"][0]["parents"] == ["r-l2"] and "text" not in out["reimbursement"][0]
+    assert out["reimbursement_only"][0]["chunk_id"] == "r-1"
