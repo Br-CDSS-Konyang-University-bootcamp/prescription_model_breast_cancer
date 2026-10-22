@@ -80,7 +80,9 @@ def patient_from_state(patient_state: dict, disease: str = None) -> dict:
 
 # ---------- confirmed_state (의사 확정값) ----------
 
-HR_POSITIVE = ("HR+/HER2-", "HR+/HER2+")
+# 내분비 차수로 주 검색하는 아형. HR+/HER2+는 ESMO 전이성 지침의 HER2 양성 장에서 다루고(1·2차가 항HER2 순서,
+# 내분비는 항HER2에 곁들이는 선택지) 그래서 항암 차수로 찾는다. 급여 행은 두 차수 모두에서 찾는다
+HR_POSITIVE = ("HR+/HER2-",)
 LINE_ORDER = ["1L", "2L", ">=3L"]
 # 심평원 차수 간주 규칙 (confirmed_state items.deemed_lines). met이면 그 계열 급여 행을 한 차수 위까지 찾는다.
 # 예: 보조 내분비요법 중 재발(DEEM-ENDO-ADJ-1Y)이면 내분비 1차 시점에 공고의 '2차 이상' 내분비 요법이 급여다 (VC-0103).
@@ -110,11 +112,11 @@ def decision_lines(items: dict) -> dict:
     """검색에 쓸 차수. confirmed_state는 전이성 차수를 고식적 내분비·항암으로 나눠 확정한다 (심평원 투여단계).
     → {"guideline": [주 검색 차수, (추가 검색 차수)], "reimbursement": [급여 행을 찾을 차수들]}
     - 조기: setting.phase (neoadjuvant / adjuvant)
-    - 전이성 HR+: 내분비 차수 (ESMO 호르몬 양성 장의 1·2·3차는 내분비 기반 치료 순서). 내분비를 더 쓰지 않으면
+    - 전이성 HR+/HER2-: 내분비 차수 (ESMO 호르몬 양성 장의 1·2·3차는 내분비 기반 치료 순서). 내분비를 더 쓰지 않으면
       (not_applicable) 항암 차수. 두 차수가 다르면 항암 차수로도 한 번 더 찾는다
-    - 전이성 HER2 양성·TNBC: 항암 차수
+    - 전이성 HER2 양성(HR+/HER2+ 포함)·TNBC: 항암 차수
     - 급여: 위 차수들 + 간주 규칙이 met인 계열의 한 차수 위
-    - classes: 이번 결정의 치료 계열 (HR+ 내분비 결정이면 Hormone Therapy, 그 밖은 항암·항HER2)"""
+    - classes: 이번 결정의 치료 계열 (HR+/HER2- 내분비 결정이면 Hormone Therapy, 그 밖은 항암·항HER2)"""
     disease = _confirmed(items, "setting.disease")
     if disease != "metastatic":
         phase = _confirmed(items, "setting.phase")
@@ -192,7 +194,7 @@ def retrieve_for_recommend(state: dict, biomarker_record: dict = None, as_of=Non
     """→ (지침 청크 목록, 급여 청크 목록). 둘 다 schemas/chunk.json 형식에 검색 정보(score, parent 등)를 더한 것.
     state: confirmed_state 하나 (biomarker_record 없이), 또는 옛 방식의 patient_state (+ biomarker_record).
     as_of: 급여 판정 기준일. confirmed_state면 비울 때 confirmed_at의 날짜를 쓴다.
-    지침: 주 검색 top_k개 + 추가 검색 각 extra_top_k개 (부위별·de novo, 전이성 HR+의 항암 차수) + 알고리즘 그림 경로
+    지침: 주 검색 top_k개 + 추가 검색 각 extra_top_k개 (부위별·de novo, 전이성 HR+/HER2-의 항암 차수) + 알고리즘 그림 경로
     algorithm_top_k개 (중복 없이, 주 검색이 앞). 알고리즘 경로의 약은 급여 검색에 쓰지 않는다 (권고에 이미 있고, 다음 차수
     약까지 들어 있다). 급여: 지침 권고의 약마다, 급여 차수(decision_lines)마다 맞는 행 reimbursement_per_drug개까지
     (현재 병기 범주·차수로 거름, as_of 기준 시행 중인 행만). 조건 판정은 D·B가 한다.
@@ -217,7 +219,7 @@ def retrieve_for_recommend(state: dict, biomarker_record: dict = None, as_of=Non
     guideline, seen = [], set()
     main = search_args(biomarker_record, top_k=top_k, **patient)
     searches = [main] + extra_search_args(biomarker_record, top_k=extra_top_k, **patient)
-    for line in lines["guideline"][1:]:  # 전이성 HR+에서 내분비·항암 차수가 다르면 항암 차수 권고도 찾는다
+    for line in lines["guideline"][1:]:  # 전이성 HR+/HER2-에서 내분비·항암 차수가 다르면 항암 차수 권고도 찾는다
         searches.append({**main, "line": line, "top_k": extra_top_k})
     if algorithm_top_k:
         searches.append({**main, "top_k": algorithm_top_k, "chunk_kind": "algorithm"})

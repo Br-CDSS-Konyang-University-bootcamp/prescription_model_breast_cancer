@@ -129,6 +129,10 @@ def test_decision_lines_by_subtype_and_setting():
             "deemed_lines": item({"DEEM-HER2ADC-6M": "met"})}
     assert decision_lines(her2)["reimbursement"] == [">=3L", "2L"]
     assert decision_lines(her2)["classes"] == ["Chemotherapy", "HER2-targeted Therapy"]
+    # HR+/HER2+는 ESMO HER2 양성 장(항HER2 순서)이라 항암 차수가 주 검색, 급여는 내분비 차수 행도 찾는다
+    hr_her2 = {**hr, "subtype": item("HR+/HER2+")}
+    assert decision_lines(hr_her2) == {"guideline": ["1L"], "reimbursement": [">=3L", "1L"],
+                                       "classes": ["Chemotherapy", "HER2-targeted Therapy"]}
     early = {"setting.disease": item("early"), "subtype": item("TNBC"), "setting.phase": item("neoadjuvant")}
     assert decision_lines(early)["guideline"] == ["neoadjuvant"] and decision_lines(early)["reimbursement"] == ["neoadjuvant"]
 
