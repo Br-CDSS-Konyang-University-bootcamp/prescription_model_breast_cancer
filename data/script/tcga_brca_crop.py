@@ -453,6 +453,8 @@ HISTORY = [
     ("2026-10-20", "이전 유방암에 약물 치료를 받은 7명 삭제 (GDC omf: Prior Malignancy, Breast, 약물 YES). 이전 치료를 넣을 칸이 없음 (860명 → 853명)"),
     ("2026-10-20", "동시 양측 유방암이면서 아형과 맞지 않는 투약이 있는 4명(TCGA-A2-A04Y, EW-A1J5, LL-A5YP, E2-A158) 삭제. 반대쪽 종양 수용체가 없어 판단 불가 (853명 → 849명)"),
     ("2026-10-20", "아형과 맞지 않는 투약이 있는 11명 삭제: HER2 양성 아님 + trastuzumab 4명, HR 음성 + 내분비요법 7명 (849명 → 838명)"),
+    ("2026-10-22", "anthracycline 단독 기록이 같은 날짜의 병용 기록과 겹치면 병용 기록에 용량을 넣고 단독 기록을 지움 (TCGA-E2-A107 doxorubicin: "
+                   "'Adriamycin, cytoxan, avastin' 줄에 1회 57.1·누적 228.3 mg/m2)"),
     ("2026-10-20", "같은 약·같은 시작일·종료일 투약 기록을 하나로 합침 (앞 기록의 빈칸만 뒤 기록 값으로 채움)"),
     ("2026-10-20", "병기·T·N은 맞는데 양성 림프절 수가 N 병기와 맞지 않는 13명은 양성 수를 [Not Available]로, AO-A12H(69세, anastrozole) 폐경 상태를 Post로 고침"),
 ]
@@ -563,6 +565,47 @@ def merge_duplicate_drugs(df):
                 df.at[idx, c] = " | ".join(cols[c][i] for i in keep)
             df.at[idx, "drug_n_records"] = str(len(keep))
     return merged
+
+
+def fold_anthracycline_into_combo(df):
+    """병용 기록과 시작일·종료일이 같은 anthracycline 단독 기록을 병용 기록으로 합친다 (사용자 결정, 2026-10-22).
+    병용 기록은 함께 쓴 약 정보가 있어 남기고, 단독 기록의 1회 용량·주기·누적을 병용 기록의 그 약 위치('+' 순서)에
+    넣은 뒤 단독 기록을 지운다. 병용 기록의 다른 약 위치는 '-'. 병용 기록에 용량이 이미 있으면 합치지 않는다.
+    anthracycline_to_m2 뒤에 부르므로 값은 이미 mg/m2다. 합친 (환자, 약) 목록을 돌려준다."""
+    def missing(v):
+        return v in ("", "nan", "-", "[Not Available]", "[Unknown]")
+
+    folded = []
+    for idx, r in df[df["drug_timeline"].notna()].iterrows():
+        cols = {c: str(r[c]).split(" | ") for c in ITEM_COLS}
+        names = [it.split(" [")[0].split("+") for it in cols["drug_timeline"]]
+        drop = set()
+        for i, single in enumerate(names):
+            if len(single) != 1 or single[0] not in ANTHRACYCLINES:
+                continue
+            for j, combo in enumerate(names):
+                if (j == i or j in drop or len(combo) < 2 or single[0] not in combo
+                        or (cols["drug_start_days"][j], cols["drug_end_days"][j])
+                        != (cols["drug_start_days"][i], cols["drug_end_days"][i])
+                        or not all(missing(cols[c][j]) for c in ("drug_prescribed_dose", "drug_total_dose"))):
+                    continue
+                pos = combo.index(single[0])
+                for val_col, unit_col in (("drug_prescribed_dose", "drug_dose_units"),
+                                          ("drug_total_dose", "drug_total_dose_units")):
+                    if not missing(cols[val_col][i]):
+                        parts = ["-"] * len(combo)
+                        parts[pos] = cols[val_col][i]
+                        cols[val_col][j], cols[unit_col][j] = "+".join(parts), cols[unit_col][i]
+                if missing(cols["drug_cycles"][j]):
+                    cols["drug_cycles"][j] = cols["drug_cycles"][i]
+                drop.add(i)
+                folded.append((r["patient_id"], single[0]))
+                break
+        if drop:
+            for c in ITEM_COLS:
+                df.at[idx, c] = " | ".join(v for k, v in enumerate(cols[c]) if k not in drop)
+            df.at[idx, "drug_n_records"] = str(len(cols["drug_timeline"]) - len(drop))
+    return folded
 
 
 def uninterpretable_drops(df):
@@ -1036,6 +1079,7 @@ def main():
     drop_ids = set().union(*(set(d["patient_id"]) for d in dropped.values()))
     df = df[~df["patient_id"].isin(drop_ids)].copy()
     dup_merged = merge_duplicate_drugs(df)
+    folded = fold_anthracycline_into_combo(df)
     df = df[[c for c in df.columns if c in keep_cols]]  # 원래 열 순서 유지, 새 열은 끝에
 
     df.to_csv(OUT_CSV, index=False, encoding="utf-8-sig")
@@ -1054,6 +1098,7 @@ def main():
     print(f"  재발 여부 기록 없음 → none {unknown_to_none}명 (삭제 전 기준), locoregional(재발 병소 수용체 있음): {', '.join(kept)}")
     fixed = [p for p in followup_fixed if p in set(df["patient_id"])]
     print(f"  같은 약·같은 날짜 중복 합침: {len(dup_merged)}건 ({', '.join(sorted({m[0] for m in dup_merged}))})")
+    print(f"  anthracycline 단독 기록을 같은 날짜 병용 기록으로 합침: {', '.join(f'{p} {d}' for p, d in folded) or '없음'}")
     print(f"  림프절 수·폐경 상태 수정: {len([p for p in fixed_records if p in set(df['patient_id'])])}명")
     print(f"  재발 후 수술 빈칸 → YES (데이터만 수정): {', '.join(surgery_set)}")
     kept_dose = [c for c in dose_changed if c[0] in set(df["patient_id"])]
