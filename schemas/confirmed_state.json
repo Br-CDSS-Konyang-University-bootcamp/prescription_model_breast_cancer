@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "confirmed_state.json",
   "title": "confirmed_state",
-  "description": "화면 1에서 의사가 확정한 환자 상태. 2단계(C 지침 검색, D 급여, [4] LLM 추천)는 items.*.confirmed만 읽는다. 설계: notes/confirmed_state_items_2026-10-21.md §5·§6. 초안 v0.1-draft (A 제안, 4명 검토 전).",
+  "description": "화면 1에서 의사가 확정한 환자 상태. 2단계(C 지침 검색, D 급여, [4] LLM 추천)는 items.*.confirmed만 읽는다. 설계: notes/confirmed_state_items_2026-10-21.md §5·§6. 초안 v0.1-draft (A 제안, 4명 검토 전). 2026-10-22 급여 조건용 선택 항목 추가 (stage.size_mm, stage.n, operable, recurrence_day, metastasis_day, anthracycline_cumulative, prior_regimens의 progression_day·cycles·ongoing): 2단계가 이 파일 하나로 급여 조건을 판정할 수 있게 한다 (notes/virtual_chart_data_coverage_2026-10-22.md §5.2).",
   "type": "object",
   "required": ["schema_version", "patient_ref", "version", "visit_type", "decision_context", "index_day", "confirmed_at", "confirmed_by", "based_on", "supersedes", "items"],
   "additionalProperties": false,
@@ -148,6 +148,21 @@
       ]
     },
     "gene_status": {"enum": ["positive", "negative", "vus", "not_done", "not_recorded"]},
+    "cumulative_dose": {
+      "description": "누적 용량 하나. 체표면적으로 바꾼 mg/m2 값, 또는 기록 없음",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["value", "unit"],
+          "additionalProperties": false,
+          "properties": {
+            "value": {"type": "number", "minimum": 0},
+            "unit": {"const": "mg/m2"}
+          }
+        },
+        {"const": "not_recorded"}
+      ]
+    },
     "regimen": {
       "type": "object",
       "required": ["drugs", "subclasses", "setting", "response"],
@@ -161,7 +176,24 @@
         "line_endocrine": {"type": ["integer", "null"], "minimum": 1},
         "line_chemo": {"type": ["integer", "null"], "minimum": 1},
         "response": {"enum": ["CR", "PR", "SD", "PD", "unknown"]},
-        "stop_reason": {"enum": ["progression", "toxicity", "completed", "planned_switch", "maintenance", "other", null]}
+        "stop_reason": {"enum": ["progression", "toxicity", "completed", "planned_switch", "maintenance", "other", null]},
+        "progression_day": {"type": ["integer", "null"], "description": "이 요법 중 또는 후 진행일 (진단일 = 0). '종료 후 1달 이내 진행' 조건 (2026-10-22 추가)"},
+        "cycles": {
+          "oneOf": [
+            {"type": "null"},
+            {
+              "type": "object",
+              "required": ["value", "interval_days"],
+              "additionalProperties": false,
+              "properties": {
+                "value": {"type": "integer", "minimum": 0},
+                "interval_days": {"type": ["integer", "null"], "minimum": 1}
+              }
+            }
+          ],
+          "description": "투여 주기 수와 주기 길이 (일). 총 trastuzumab 18주기 같은 조건. 매일 먹는 약은 null (2026-10-22 추가)"
+        },
+        "ongoing": {"type": ["boolean", "null"], "description": "기준일에 투약 중인지. true면 end_day는 null (2026-10-22 추가)"}
       }
     },
     "items": {
@@ -182,8 +214,14 @@
         "age_at_index": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"type": "integer", "minimum": 0}}}],
                          "description": "기준일 나이 (patient_state at_index.age). 급여 '40세 미만'에 쓴다"},
         "stage.t": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"type": "string", "pattern": "^(T0|Tis|T1mi|T1a|T1b|T1c|T1|T2|T3|T4a|T4b|T4c|T4d|T4|not_assessed)$"}}}],
-                    "description": "pT 우선, 선행요법 전이면 cT. detail.basis에 p/c"},
+                    "description": "pT 우선, 선행요법 전이면 cT. 선행요법을 받았으면 크기 조건은 선행 전 cT로 본다 (선행 후 값은 patient_state stage.yptnm). detail.basis에 p/c"},
+        "stage.size_mm": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"oneOf": [{"type": "number", "minimum": 0}, {"const": "not_recorded"}]}}}],
+                          "description": "종양 최대 직경 (mm). 공고의 '1cm 이상·초과', '2cm 초과', '5cm 이상'을 T 범주 대신 mm로 판정한다. 수술 전·선행요법 환자는 임상 크기, 수술을 먼저 한 환자는 병리 크기 (patient_state clinical_size_mm·pathologic_size_mm). detail.basis에 c/p (2026-10-22 추가)"},
         "stage.positive_ln_count": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"oneOf": [{"type": "integer", "minimum": 0}, {"const": "not_recorded"}]}}}]},
+        "stage.n": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"enum": ["positive", "negative", "not_assessed"]}}}],
+                    "description": "림프절 전이 여부 (공고 '림프절 양성'). 수술 전(선행요법 대상)은 cN, 수술 후는 pN. detail.basis에 c/p. N1mi는 positive, N0(i+)는 negative (2026-10-22 추가)"},
+        "operable": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"enum": ["yes", "no"]}}}],
+                     "description": "수술 가능 여부 (patient_state stage.operable). 국소진행성의 선행요법 대상과 '절제 불가능' 고식 대상을 가른다 (공고 9장 1가, 2026-10-22 추가)"},
         "stage.group": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"type": "string", "pattern": "^(0|I|IA|IB|II|IIA|IIB|III|IIIA|IIIB|IIIC|IV)$"}}}]},
         "grade": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"enum": [1, 2, 3, "not_recorded"]}}}]},
         "pcr": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"enum": ["yes", "no", "not_applicable"]}}}],
@@ -214,6 +252,23 @@
                          "description": "심평원 차수 간주 규칙 (patient_state fields.deemed_lines). D가 약제별로 차수 +1에 쓴다"},
         "dfi_days": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"oneOf": [{"type": "integer"}, {"const": "not_applicable"}]}}}],
                      "description": "무병 기간 = 첫 재발일 - 마지막 선행·보조 요법 종료일. 음수 = 투여 중 재발. de novo 전이성이면 not_applicable"},
+        "recurrence_day": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"oneOf": [{"type": "integer", "minimum": 0}, {"const": "not_applicable"}]}}}],
+                           "description": "첫 재발일 (국소·원격, 진단일 = 0. patient_state recurrence.recurrence_day). 약제별 '종료 후 n개월 이내 재발' 조건을 prior_regimens의 end_day와 비교한다. 재발이 없거나 de novo 전이성이면 not_applicable (2026-10-22 추가)"},
+        "metastasis_day": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"oneOf": [{"type": "integer", "minimum": 0}, {"const": "not_applicable"}]}}}],
+                           "description": "전이 기준일 (진단 시 IV기 = 0, 원격 재발 = 첫 원격 전이일. patient_state recurrence.metastasis_day). '보조 CDK4/6 종료 후 12개월 초과' 같은 조건. 전이성이 아니면 not_applicable (2026-10-22 추가)"},
+        "anthracycline_cumulative": {
+          "allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {
+            "type": "object",
+            "description": "약별 누적 투여량. anthracycline을 받은 약만 키를 둔다",
+            "additionalProperties": false,
+            "properties": {
+              "doxorubicin": {"$ref": "#/$defs/cumulative_dose"},
+              "epirubicin": {"$ref": "#/$defs/cumulative_dose"},
+              "liposomal doxorubicin": {"$ref": "#/$defs/cumulative_dose"}
+            }
+          }}}],
+          "description": "anthracycline 누적 용량 (patient_state anthracycline_drug_dose). liposomal doxorubicin 급여 조건 (공고 9장 4나-19, 약별로 따로 본다). 심장 위험요소는 한계 조항이라 넣지 않는다 (2026-10-22 추가)"
+        },
         "metastatic_sites": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"type": "array", "items": {"type": "string"}}}}],
                              "description": "bone, liver, lung, brain, other: … (patient_state 표기)"},
         "recurrence_type": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"enum": ["none", "locoregional_curative", "locoregional_other", "distant"]}}}],
