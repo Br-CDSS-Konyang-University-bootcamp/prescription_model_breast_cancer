@@ -4,7 +4,7 @@
 
 TCGA로는 만들 수 없는 최신 치료(CDK4/6 억제제 이후 2차, 면역항암제, 보조 CDK4/6 등)의 지침·급여 경계 사례를 입력 모듈부터 추천까지(A → B → C/D → [4]) 끝까지 돌려 보기 위한 가상 환자다. 모두 가상 환자이고 실제 환자 정보는 없다.
 
-**지금 상태: 차트 원문 초안까지 있다 (2026-10-19).** 사례마다 `scenario.md`(이야기, 시험 목적, 기대 결과 초안)와 `chart.txt`(`notes/report_templates.md` 틀로 작성한 초안)가 있고, 정답은 VC-0103의 `expected/patient_state.json`(A)만 있다 (2026-10-19). 나머지 정답은 이 형식을 따라 만든다.
+**지금 상태 (2026-10-23): 10건 모두 `chart.txt`와 A 정답 `expected/patient_state.json`이 있다.** 둘은 `src/input/chart/cases/`의 사례 코드에서 함께 만든다 (`python -m src.input.chart.virtual_chart`). 글을 쓰는 순간 값과 원문 위치를 기록하므로 위치가 어긋나지 않는다. 손으로 고치지 말고 사례 코드를 고친 뒤 다시 만든다. 검사: `tests/input/test_virtual_charts.py`. 2026-10-22 선택 칸(영상 판독, ypTNM, 크기, 심장·동반질환, 생식세포, `ongoing`)을 쓰므로 브랜치 `feat/virtual-chart-schema-fields`의 스키마가 기준이다 (4명 검토 전). B·C·D 정답은 아직 VC-0103만 있다. 판정 경계를 시험하는 짝 사례 20건은 [`pairs/`](pairs/README.md)에 있다 (값 하나만 바꾼 변형, 2026-10-23).
 
 ## 1. 다른 데이터와의 관계
 

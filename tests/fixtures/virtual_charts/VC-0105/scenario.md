@@ -31,7 +31,8 @@
 | 칸 | 값 |
 |---|---|
 | `stage.ctnm` | T2 N1 M0 |
-| `stage.ptnm` | T1c N1a M0 (선행 후, 원문 `ypT1c ypN1a`) |
+| `stage.yptnm` | T1c N1a M0, 잔존 14 mm, 림프절 1/3 (선행 후, 원문 `ypT1c ypN1a`). `ptnm`은 비움 (2026-10-22 ypTNM 별도 칸) |
+| `stage.clinical_size_mm` | 28 (치료 전 유방 초음파) |
 | `neoadjuvant_response` | `pcr: no`, `rcb: RCB-II` |
 | `treatment_history` | 선행 docetaxel·carboplatin·trastuzumab·pertuzumab, `setting: neoadjuvant`, `cycles` 6 (21일) |
 | `recurrence` | `status: none`. `recurrence_day`·`metastasis_day` 없음 |

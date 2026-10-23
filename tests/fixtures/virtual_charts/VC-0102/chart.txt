@@ -1,49 +1,68 @@
-[종양내과 초진기록]   2026.5.1
-환자명: 김가상   등록번호: 00000102   F/68   주민번호: 580101-2******   연락처: 010-0000-0102
+[종양내과 진료기록]   2026.5.1
+환자명: 김가상   등록번호: 00000102   F/68   주민번호: 480101-2******   연락처: 010-0000-0102
 병원: 가상대학교병원 종양내과   담당의: 이가상
 
-58세에 진단받은 폐경 후 여성(postmenopausal, LMP 2008년). 2016년 2월 8일 좌측 유방 중심 생검으로 침윤성 유관암 진단,
-진단 시 cT2N1M0. 2016.2.28 유방 부분절제 + 액와 림프절 절제 시행, pT2N1a(2/12), IIB기, 등급 2.
-ER(+) 95%, PR(+) 40%, HER2 1+, Ki-67 25%.
-수술 후 보조 AC 4회(3주 간격) → paclitaxel 매주 12회 → letrozole 5년 복용 후 2021.9.25 종료.
-2024.9.24 PET-CT에서 뼈와 간에 다발성 전이 확인. 2024.10.8 간 조직검사 결과 수용체는 원발과 같음
-(ER 95%, PR 40%, HER2 1+).
-1차로 letrozole + palbociclib을 2024.10.23부터 복용하였으나 2026.4.16 CT상 진행(PD)하여 중단.
-원발 조직 NGS에서 PIK3CA H1047R 검출, 혈장 cfDNA에서 ESR1 변이는 검출되지 않음.
-ECOG 1. 오늘 2차 치료 방침 상담.
+58세 폐경 후 여성. 2016.2.8 좌측 유방 IDC 진단, cT2N1M0.
+보조 AC #4 → weekly paclitaxel #12 → letrozole 5년 복용 후 2021.9.25 종료. 2024.9.24 뼈·간 전이로 1차 letrozole + palbociclib 시작, 18개월 뒤 진행.
+ECOG PS 1, Ht 155cm, Wt 57kg. 심장 질환 과거력 없음.
+원발 조직 NGS에서 PIK3CA H1047R 검출, cfDNA에서 ESR1 미검출. 2차 내분비 기반 치료 결정 예정.
+
+
+[병리결과보고서]
+환자명: 김가상   등록번호: 00000102   F/58
+접수일: 2016.2.28   보고일: 2016.3.5
+검체: Left breast, partial mastectomy + axillary dissection
+
+진단 (DIAGNOSIS)
+  Invasive ductal carcinoma, NST
+  Histologic grade: NG2
+  Tumor size: 2.6 cm
+  Lymph node: 2/12 (+)
+  pTNM: pT2 N1a M0, stage IIB (AJCC 8th)
+
+면역조직화학 (IHC)
+  ER : 양성, Allred score 8 (PS 5 + IS 3)
+  PR : 양성, Allred score 6 (PS 4 + IS 2)
+  HER2 (4B5): 1+
+  Ki-67: 25%
+
+판독의: 박가상
+
+
+<병리 조직검사 결과>
+환자명: 김가상   등록번호: 00000102   F/66
+2024.10.11 간 침생검 (2024.10.8 시행). Metastatic carcinoma, consistent with breast primary.
+ER Allred 8 (5+3), PR Allred 6 (4+2), HER2 1+. 원발 종양과 같은 결과.
 
 
 [분자병리 검사 결과]
-환자명: 김가상   등록번호: 00000102
-검사기관: 가상유전체검사센터   보고일: 2026.3.27
+환자명: 김가상   등록번호: 00000102   F/68
+검사기관: 가상유전체검사센터   보고일: 2026.4.1
 검체: 원발 종양 FFPE 조직 (2016.2.28 수술 검체)
-검사법: 표적 NGS (유전자 패널 52 genes)
+검사법: 표적 NGS (52 genes)
 종양세포 비율: 60%
 
-Clinically significant variants
-  Gene     Variant                       VAF
-  PIK3CA   c.3140A>G (p.H1047R)          28%
+검출된 변이 (Clinically significant variants)
+  PIK3CA   c.3140A>G (p.H1047R)   VAF 28%
 
-Not detected
-  AKT1, PTEN, ERBB2
+검출되지 않음 (Not detected)
+  AKT1, PTEN, BRCA1, BRCA2
 
-* ESR1은 조직 패널에서 보고하지 않음 (cfDNA 검사 권장)
-
-
-[분자병리 검사 결과]
-환자명: 김가상   등록번호: 00000102
-검사기관: 가상유전체검사센터   보고일: 2026.4.21
-검체: Plasma cfDNA
-검사법: Liquid biopsy panel
-
-검출된 변이: 없음
-검출되지 않음 (Not detected): ESR1
+* 패널 포함 유전자: PIK3CA, AKT1, PTEN, BRCA1, BRCA2, ERBB2 외 46개 (ESR1 제외)
 
 
-[투약 기록]
-환자명: 김가상   등록번호: 00000102
-구분    요법                                 시작         종료         주기          반응   중단 사유
-보조    AC (adriamycin + cytoxan)             2016.3.24    2016.5.26    q3w #4        -      완료
-보조    paclitaxel 80mg/m2                    2016.6.16    2016.9.1     weekly #12    -      완료
-보조    letrozole 2.5mg                       2016.9.25    2021.9.25    -             -      완료
-고식    palbociclib + letrozole               2024.10.23   2026.4.16    28일 주기     PD     진행
+[NGS 보고서]
+환자명: 김가상   등록번호: 00000102   F/68
+검사기관: 가상유전체검사센터   보고일: 2026.4.26
+검체: Plasma cfDNA (2026.4.21 채혈)
+검사법: Liquid biopsy panel (ESR1)
+
+ESR1: 변이 검출되지 않음 (Not detected)
+
+
+<항암 처방 이력>
+환자명: 김가상   등록번호: 00000102   F/68
+- AC (doxorubicin 95mg + cyclophosphamide 950mg) q3w #4 : 2016.3.24 ~ 2016.5.26, paclitaxel로 계획된 변경
+- paclitaxel 125mg weekly #12 : 2016.6.16 ~ 2016.9.1, 완료
+- 페마라 2.5mg qd (보조) : 2016.9.25 ~ 2021.9.25, 5년 완료
+- 입랜스 125mg qd (3주 복용 1주 휴약) + 페마라 2.5mg qd : 2024.10.23 ~ 2026.4.16, PD로 중단

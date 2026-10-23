@@ -35,7 +35,7 @@
       "scope": "current", "system": "postmenopausal", "system_source": "patient_state",
       "confirmed": "postmenopausal", "status": "confirmed",
       "detail": {"basis": "not_recorded"},
-      "evidence_refs": [{"doc_id": "D1", "quote": "폐경 후 (postmenopausal)", "char_start": 144, "char_end": 165}]
+      "evidence_refs": [{"doc_id": "D1", "quote": "폐경 후 (postmenopausal)", "char_start": 151, "char_end": 172}]
     },
     "age_at_index": {
       "scope": "current", "system": 54, "system_source": "patient_state",
@@ -45,7 +45,7 @@
       "scope": "current", "system": "yes", "system_source": "patient_state",
       "confirmed": "yes", "status": "confirmed",
       "note": "DEEM-ENDO-ADJ-1Y met, anastrozole 종료 5일 전 전이 (gap -5)",
-      "evidence_refs": [{"doc_id": "D1", "quote": "anastrozole 2023.4.9 중단", "char_start": 503, "char_end": 526}]
+      "evidence_refs": [{"doc_id": "D1", "quote": "anastrozole 2023.4.9 중단", "char_start": 437, "char_end": 460}]
     },
     "deemed_lines": {
       "scope": "current",
@@ -57,7 +57,7 @@
     "metastatic_sites": {
       "scope": "current", "system": ["lung"], "system_source": "patient_state",
       "confirmed": ["lung"], "status": "confirmed",
-      "evidence_refs": [{"doc_id": "D1", "quote": "lung metastasis", "char_start": 485, "char_end": 500}]
+      "evidence_refs": [{"doc_id": "D1", "quote": "lung metastasis", "char_start": 419, "char_end": 434}]
     },
     "recurrence_type": {
       "scope": "current", "system": "distant", "system_source": "patient_state",
@@ -77,18 +77,18 @@
          "response": "PD", "stop_reason": "progression"}
       ],
       "status": "confirmed",
-      "evidence_refs": [{"doc_id": "D5", "quote": "아리미덱스 (anastrozole) 1mg qd  2021.4.14    2023.4.9    PD     폐 전이", "char_start": 1486, "char_end": 1550}]
+      "evidence_refs": [{"doc_id": "D6", "quote": "아리미덱스 (anastrozole) 1mg qd  2021.4.14    2023.4.9    PD     폐 전이", "char_start": 1681, "char_end": 1745}]
     },
     "markers": {
       "ER": {
         "scope": "current", "system": "positive", "system_source": "biomarker_record",
         "confirmed": "positive", "status": "confirmed",
-        "detail": {"percent": 80, "specimen": "metastasis", "test_date": "2023-04-16"}
+        "detail": {"allred": {"total": 8, "ps": 5, "is": 3}, "specimen": "metastasis", "test_date": "2023-04-16"}
       },
       "PR": {
         "scope": "current", "system": "positive", "system_source": "biomarker_record",
         "confirmed": "positive", "status": "confirmed",
-        "detail": {"percent": 60, "specimen": "metastasis", "test_date": "2023-04-16"}
+        "detail": {"allred": {"total": 6, "ps": 4, "is": 2}, "specimen": "metastasis", "test_date": "2023-04-16"}
       },
       "HER2": {
         "scope": "current", "system": "negative", "system_source": "biomarker_record",
@@ -141,6 +141,6 @@
   },
   "memo": "보조 AI 투여 중 폐 전이. 재생검 수용체 원발과 같음",
   "evidence": [
-    {"item": "subtype", "doc_id": "D3", "quote": "ER positive (80%)", "char_start": 1111, "char_end": 1128}
+    {"item": "subtype", "doc_id": "D4", "quote": "ER positive (Allred 8, 5+3)", "char_start": 1272, "char_end": 1299}
   ]
 }

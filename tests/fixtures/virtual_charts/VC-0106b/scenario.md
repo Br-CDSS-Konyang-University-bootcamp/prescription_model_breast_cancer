@@ -25,7 +25,7 @@ VC-0106과 같은 환자 이야기(가짜 진단일 2022-09-14, 다른 환자 ID
 
 | 칸 | 값 |
 |---|---|
-| `proliferation.ki67_percent` | `status: present`이지만 값을 하나로 정하지 않는다. 정확한 표기(값을 비울지, 첫 값을 둘지)는 정답 작성 때 schema_fields.md §2 규칙으로 확정 |
+| `proliferation.ki67_percent` | 칸을 두지 않는다 (2026-10-23 정답 작성 때 결정). 값을 하나로 고르지 않고 두 값을 모두 `conflicts[]`에 둔다 |
 | `conflicts[]` | `{"field": "proliferation.ki67_percent", "candidates": [15%, 25%], "note": "같은 보고서 안에서 값이 다름 (본문 표 15%, 판독 요약 25%)"}` |
 | 그 밖 | VC-0106과 같음 (병기, 림프절, 등급) |
 

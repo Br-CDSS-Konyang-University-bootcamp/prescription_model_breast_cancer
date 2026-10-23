@@ -15,7 +15,7 @@
 ## 2. 시험 목적
 
 - 시점이 다른 두 Ki-67 값 → 최신 값(수술 조직)이 `value`, 외부 생검 값이 `history[]` (`superseded_reason: newer_result`)
-- 종양 크기 5.5cm → T3로 abemaciclib 고위험 조건 판정 (`tumor_size_mm` 칸은 없음, A-3 보류)
+- 종양 크기 5.5cm → `stage.pathologic_size_mm` 55 (2026-10-22 추가 칸)로 abemaciclib 고위험 조건 판정 (5cm 경계)
 - 병기 IIIA → `disease_extent: locally_advanced`
 - 보조 CDK4/6: 기존 내분비요법 급여 + 추가 약제 비급여
 

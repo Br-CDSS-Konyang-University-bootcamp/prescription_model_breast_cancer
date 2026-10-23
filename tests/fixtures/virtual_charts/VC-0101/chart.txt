@@ -1,72 +1,92 @@
 <외래 경과기록>   2026.7.3   종양내과
-환자명: 김가상   등록번호: 00000101   F/72   주민번호: 540101-2******   연락처: 010-0000-0101
+환자명: 김가상   등록번호: 00000101   F/72   주민번호: 440101-2******   연락처: 010-0000-0101
 병원: 가상대학교병원 종양내과   담당의: 이가상
 
-S) 특별한 불편감 없음. 폐경 후 (LMP 2003년)
+S) 허리 통증 지속, 식욕 저하.
+   폐경: 폐경 후 (LMP 2009년)
+   과거력: 심장 질환 과거력 없음, 고지혈증
 
 O) ECOG PS 1
-   cfDNA NGS (26.6.23): ESR1 p.Y537S 검출 (VAF 4.2%), PIK3CA 미검출
+   Ht 156cm / Wt 58kg
+   Echo (2026.6.28): LVEF 60%
+   CT (2026.6.18): 간 병변 증가, 새 골병변 → PD
 
-A) Lt. breast IDC, 2016.4.11 core bx로 진단, 진단 시 cT2N1M0
-   2016.5.1 BCS + ALND: pT2N1a(2/12)M0, stage IIB, NG2
-   ER 95% / PR 40% / HER2 1+ / Ki-67 25% (원발)
-   보조 AC #4 → weekly paclitaxel #12 → letrozole 5년 완료 (2021.11.27)
-   2024.11.26 bone & liver metastasis (보조 내분비 종료 약 3년 후)
-   2024.12.10 liver bx: metastatic carcinoma, ER 90%, PR 5%, HER2 1+
-   1L letrozole + palbociclib 2024.12.25 ~ 2026.6.18, PD (CT상 간 병변 증가)
+A) Lt. breast IDC, 2016.4.11 진단, cT2N1M0 → pT2N1a(2/12), IIB
+   보조 AC #4 → weekly paclitaxel #12 → letrozole 2021.11.27 5년 복용 완료
+   2024.11.26 골·간 전이 (보조 내분비 종료 3년 뒤)
+   1L letrozole + palbociclib 18개월 → PD
+   cfDNA NGS: ESR1 Y537S 검출
 
-P) 2L 내분비요법 결정. ESR1 변이 결과 반영하여 다음 외래에 치료 시작
+P) 2L 내분비 기반 치료 결정
 
 
 [병리결과보고서]
 환자명: 김가상   등록번호: 00000101   F/62
-접수일: 2016.5.1   보고일: 2016.5.6
-검체: Left breast, partial mastectomy & axillary lymph node dissection
+접수일: 2016.5.1   보고일: 2016.5.7
+검체: 좌측 유방 부분절제술 + 액와 림프절 절제
 
 진단 (DIAGNOSIS)
-  Invasive ductal carcinoma
-  Histologic grade: Nottingham grade 2 (3+2+1=6)
-  Tumor size: 2.8 cm
-  Lymph node: 2/12 (+)
-  Resection margin: negative
-  pTNM: pT2 pN1a M0 (AJCC 8th)
+  조직형: Invasive ductal carcinoma, NST
+  조직학적 등급: Nottingham grade 2 (3+2+1=6)
+  종양 크기: 3.2 cm
+  림프절: 2/12 (+)
+  절제연: 음성
+  pTNM: pT2 N1a M0, stage IIB (AJCC 8th)
 
 면역조직화학 (IHC)
-  ER : positive (95%)
-  PR : positive (40%)
+  ER : positive, Allred score 8 (PS 5 + IS 3)
+  PR : positive, Allred score 6 (PS 4 + IS 2)
   HER2 (4B5): 1+
   Ki-67: 25%
 
 판독의: 박가상
 
 
-[병리결과보고서]
+BONE SCAN REPORT
 환자명: 김가상   등록번호: 00000101   F/70
-보고일: 2024.12.13
-2024.12.10 간 S6 침생검. Metastatic carcinoma, consistent with breast primary.
-에스트로겐 수용체 양성 90%, PR 5% 약양성, HER2 1+.
+검사: Whole body bone scan   검사일: 2024.11.26
+
+Findings:
+  T8, L2 척추체와 좌측 장골에 열소 증가. 퇴행성 변화와 구별되는 양상.
+Conclusion:
+  Multiple bone metastases (T8, L2, Lt. iliac bone)
 
 
-[분자병리 검사 결과]
-환자명: 김가상   등록번호: 00000101
-검사기관: 가상유전체검사센터   보고일: 2026.6.23
-검체: Plasma cfDNA
+<CT 판독 결과>
+환자명: 김가상   등록번호: 00000101   F/70
+검사: Abdomen-pelvis CT (contrast)   검사일: 2024.11.26
+
+Findings:
+  간 S6, S8에 1.5 cm, 2.2 cm 저음영 결절 2개.
+Conclusion:
+  간 다발성 전이 (S6, S8)
+
+
+<병리 조직검사 결과>
+환자명: 김가상   등록번호: 00000101   F/70
+2024.12.13 간 침생검 (2024.12.10 시행). Metastatic carcinoma, consistent with breast primary.
+ER 강양성 (Allred 8, 5+3), PR 약양성 (Allred 3, 2+1), HER2 1+. Ki-67은 평가하지 않음.
+
+
+[NGS 보고서]
+환자명: 김가상   등록번호: 00000101   F/72
+검사기관: 가상유전체검사센터   보고일: 2026.6.28
+검체: Plasma cfDNA (2026.6.23 채혈)
 검사법: Liquid biopsy panel
 
 검출된 변이 (Clinically significant variants)
-  유전자   변이 (HGVS)                  VAF
-  ESR1     c.1610A>C (p.Y537S)          4.2%
+  ESR1   c.1610A>C (p.Y537S)   VAF 4.2%
 
 검출되지 않음 (Not detected)
   PIK3CA, AKT1, PTEN
 
-* 패널 포함 유전자: ESR1, PIK3CA, AKT1, PTEN
+* 패널 포함 유전자: ESR1, PIK3CA, AKT1, PTEN, ERBB2
 
 
 [투약 기록]
-환자명: 김가상   등록번호: 00000101
-구분    요법                                   시작         종료         주기          반응   중단 사유
-보조    AC (doxorubicin 60/m2 + cyclophosphamide 600/m2)  2016.5.26    2016.7.28    q3w #4        -      완료
-보조    paclitaxel 80/m2                        2016.8.18    2016.11.3    weekly #12    -      완료
-보조    페마라 (letrozole) 2.5mg qd             2016.11.27   2021.11.27   -             -      완료 (5년)
-고식 1차 입랜스 125mg (3주 복용 1주 휴약) + 페마라 2.5mg   2024.12.25   2026.6.18    28일 주기     PD     PD
+환자명: 김가상   등록번호: 00000101   F/72
+구분    요법                                        시작         종료         주기         반응   중단 사유
+보조    AC (doxorubicin 60mg/m2 + cyclophosphamide 600mg/m2)   2016.5.26   2016.7.28   q3w #4   -   계획된 변경
+보조    paclitaxel 80mg/m2   2016.8.18   2016.11.3   weekly #12   -   완료
+보조    페마라 (letrozole) 2.5mg qd   2016.11.27   2021.11.27   -   -   완료 (5년)
+고식    입랜스 (palbociclib) 125mg + 페마라 2.5mg   2024.12.25   2026.6.18   28일 #18   PD   진행

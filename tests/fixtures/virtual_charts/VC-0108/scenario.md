@@ -17,7 +17,8 @@
 
 - 진단 시 IV기: `metastasis_day` 0, 재발이 아니므로 `recurrence_day` 없음
 - `index_day`로 "최근 4주 이내 항암제·호르몬제 투여" (zoledronic acid 조건) 판정
-- **복용 중인 약의 `end_day`가 null** → "투약 중"과 "기록 없음"을 구분하지 못하는 한계 (AB_gap J-4)가 드러남
+- **복용 중인 약의 `end_day`가 null** → 2026-10-22 `treatment_history[].ongoing` 칸(`true`)으로 "투약 중"과 "기록 없음"을 가른다. `at_index.recent_therapy_28d`는 `yes` (A의 `lines.py`가 `ongoing`을 읽음)
+- 뼈 전이는 뼈 스캔으로 확정 (`imaging_findings` `certainty: confirmed`) → "영상으로 골전이 입증". 동반질환 CKD 3a (`comorbidities`)
 - Ⅳ 기타 약제(골 보호제) 급여 판정
 
 ## 3. 차트 문서 구성
@@ -45,7 +46,7 @@
 | 후보 | 공고 위치 | 기대 분류 | 이유 |
 |---|---|---|---|
 | denosumab | Ⅳ. 기타 약제 3 | `covered` | 만 19세 이상, 영상으로 골전이 입증 |
-| zoledronic acid | Ⅳ.2 나 | `covered_conditions_unverified` | 골전이 ✓, "최근 4주 이내 호르몬제 투여"는 복용 중이면 충족이지만 `end_day` null이 "투약 중"인지 확인할 수 없음 |
+| zoledronic acid | Ⅳ.2 나 | D가 확정 (2026-10-23 A 의견: 조건 확인 가능) | 골전이 영상 확정 ✓, "최근 4주 이내 호르몬제 투여"는 `ongoing: true`로 충족. 신기능(CKD 3a) 조건은 D가 공고 원문으로 확인 |
 | ribociclib + letrozole (확인용) | 3. 고식적 내분비 가.5 | `covered` | 이전 AI 없음, 고식적 항암 없음 |
 
 ## 6. 근거 출처

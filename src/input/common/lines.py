@@ -22,7 +22,8 @@ patient_state 한 명의 treatment_history로 전이 후 요법마다 차수를 
 간주 규칙 (deemed_lines). 차수 자체는 바꾸지 않고 규칙마다 충족 여부만 낸다. 급여 판정이 행마다 맞는 규칙을 골라 더한다.
 - 선행·보조요법 = setting이 neoadjuvant·adjuvant이고 전이 기준일 전에 시작한 투약 (보조약·골 보호제 제외)
 - 기간은 근거 투약 종료일부터 전이 기준일까지 센다. 종료일이 없으면 시작일로 하한을 잡아, 그래도 기간 안이면 met,
-  아니면 unknown이다 (종료일이 시작일보다 앞설 수 없으므로).
+  아니면 unknown이다 (종료일이 시작일보다 앞설 수 없으므로). 종료일이 없고 ongoing이 true(기준일에 투약 중)면
+  전이 때도 투여 중으로 보고 met이다.
 """
 from __future__ import annotations
 
@@ -186,13 +187,17 @@ def _within(rule_id: str, cands: list[tuple[int, dict]], mday: int, limit: int, 
         return _deem(rule_id, "not_met", f"{what} 없음", [], None)
 
     def bound(t):
+        if t.get("end_day") is None and t.get("ongoing") is True:   # 기준일에 투약 중 → 전이 때도 투여 중
+            return mday
         return t["end_day"] if t.get("end_day") is not None else t.get("start_day")
 
     inside = [c for c in cands if bound(c[1]) is not None and mday - bound(c[1]) <= limit]
     if inside:
         i, t = max(inside, key=lambda c: bound(c[1]))
         gap = mday - bound(t)
-        if t.get("end_day") is None:
+        if t.get("end_day") is None and t.get("ongoing") is True:
+            how = "투여 중 전이 (투약 중 표시)"
+        elif t.get("end_day") is None:
             how = f"종료일 없음, 시작 후 {gap}일 뒤 전이"
         elif gap < 0:
             how = f"투여 중 전이 (종료 {-gap}일 전)"
@@ -250,7 +255,7 @@ def at_index(patient_state: dict, drug_table: dict[str, tuple[str, str]] | None 
     - age: 진단 시 나이 + index_day를 365.25로 나눈 몫. 생일을 몰라 실제보다 1살 적을 수 있다.
     - recent_therapy_28d: '최근 4주 이내 항암제 또는 호르몬제 투여' (zoledronic acid, 공고 Ⅳ).
       대상은 보조약·골 보호제·분류 없는 약을 뺀 투약 중 기준일 이전에 시작한 것.
-      마지막 투여일 = 종료일, 없으면 시작일(하한). 기준일 − 마지막 투여일 ≤ 28이면 yes.
+      마지막 투여일 = 종료일, 없으면 시작일(하한). ongoing이 true면 기준일. 기준일 − 마지막 투여일 ≤ 28이면 yes.
       그 밖에 종료일 없는 투약이 있으면 unknown (투약 중인지 기록이 없는 것인지 모름), 없으면 no.
     """
     table = drug_table if drug_table is not None else load_drug_table()
@@ -271,13 +276,17 @@ def at_index(patient_state: dict, drug_table: dict[str, tuple[str, str]] | None 
              and (t.get("start_day") is None or t["start_day"] <= index_day)]
 
     def last(t):
+        if t.get("end_day") is None and t.get("ongoing") is True:   # 기준일에 투약 중 (2026-10-22 ongoing 칸)
+            return index_day
         return t["end_day"] if t.get("end_day") is not None else t.get("start_day")
 
     inside = [(i, t) for i, t in cands if last(t) is not None and index_day - last(t) <= 28]
     if inside:
         i, t = max(inside, key=lambda c: last(c[1]))
         gap = index_day - last(t)
-        if t.get("end_day") is None:
+        if t.get("end_day") is None and t.get("ongoing") is True:
+            how = "기준일에 투여 중 (투약 중 표시)"
+        elif t.get("end_day") is None:
             how = f"종료일 없음, 기준일 {gap}일 전 시작"
         elif gap < 0:
             how = f"기준일에 투여 중 (종료 {-gap}일 뒤)"

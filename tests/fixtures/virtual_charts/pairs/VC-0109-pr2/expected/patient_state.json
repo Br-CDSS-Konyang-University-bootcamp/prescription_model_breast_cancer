@@ -1,0 +1,507 @@
+{
+  "schema_version": "0.1-draft6",
+  "patient_ref": "VC-0109-pr2",
+  "created_at": "2026-10-23T00:00:00+09:00",
+  "index_day": 1190,
+  "documents": [
+    {
+      "doc_id": "D1",
+      "doc_type": "progress_note",
+      "doc_date": "2022-10-24"
+    },
+    {
+      "doc_id": "D2",
+      "doc_type": "progress_note",
+      "doc_date": "2022-09-29"
+    },
+    {
+      "doc_id": "D3",
+      "doc_type": "radiology",
+      "doc_date": "2022-09-24"
+    },
+    {
+      "doc_id": "D4",
+      "doc_type": "pathology",
+      "doc_date": "2019-08-11"
+    },
+    {
+      "doc_id": "D5",
+      "doc_type": "pathology",
+      "doc_date": "2022-09-09"
+    },
+    {
+      "doc_id": "D6",
+      "doc_type": "medication",
+      "doc_date": null
+    }
+  ],
+  "fields": {
+    "diagnosis": {
+      "diagnosis_date": {
+        "status": "present",
+        "value": "2019-07-22",
+        "raw": "2019.7.22",
+        "source": {
+          "doc_id": "D1",
+          "quote": "2019.7.22 좌측 유방 IDC 진단",
+          "char_start": 144,
+          "char_end": 166
+        }
+      },
+      "histology": {
+        "status": "present",
+        "value": "IDC",
+        "raw": "침윤성 유관암",
+        "source": {
+          "doc_id": "D4",
+          "quote": "침윤성 유관암",
+          "char_start": 839,
+          "char_end": 846
+        }
+      },
+      "grade": {
+        "status": "present",
+        "value": 2,
+        "raw": "II (Nottingham 2+2+1=5)",
+        "source": {
+          "doc_id": "D4",
+          "quote": "II (Nottingham 2+2+1=5)",
+          "char_start": 858,
+          "char_end": 881
+        }
+      }
+    },
+    "stage": {
+      "ctnm": {
+        "status": "not_recorded"
+      },
+      "ptnm": {
+        "status": "present",
+        "value": {
+          "t": "T2",
+          "n": "N0",
+          "m": "M0",
+          "edition": "8th"
+        },
+        "raw": "pT2 N0 M0, stage IIA (AJCC 8th)",
+        "observed_date": "2019-08-05",
+        "source": {
+          "doc_id": "D4",
+          "quote": "pT2 N0 M0, stage IIA (AJCC 8th)",
+          "char_start": 925,
+          "char_end": 956
+        }
+      },
+      "group": {
+        "status": "present",
+        "value": "IIA",
+        "raw": "stage IIA",
+        "source": {
+          "doc_id": "D4",
+          "quote": "stage IIA",
+          "char_start": 936,
+          "char_end": 945
+        }
+      },
+      "positive_ln_count": {
+        "status": "present",
+        "value": {
+          "positive": 0,
+          "examined": 3
+        },
+        "raw": "전이 없음 (0/3)",
+        "source": {
+          "doc_id": "D4",
+          "quote": "전이 없음 (0/3)",
+          "char_start": 905,
+          "char_end": 916
+        }
+      },
+      "disease_extent": {
+        "status": "present",
+        "value": "early",
+        "raw": "stage IIA",
+        "source": {
+          "doc_id": "D4",
+          "quote": "stage IIA",
+          "char_start": 936,
+          "char_end": 945
+        }
+      },
+      "metastatic_sites": {
+        "status": "present",
+        "value": "[Not Applicable]",
+        "raw": "pT2 N0 M0",
+        "source": {
+          "doc_id": "D4",
+          "quote": "pT2 N0 M0",
+          "char_start": 925,
+          "char_end": 934
+        }
+      },
+      "operable": {
+        "status": "present",
+        "value": "yes",
+        "raw": "좌측 유방 부분절제술 + 감시림프절 생검",
+        "source": {
+          "doc_id": "D4",
+          "quote": "좌측 유방 부분절제술 + 감시림프절 생검",
+          "char_start": 805,
+          "char_end": 827
+        }
+      },
+      "pathologic_size_mm": {
+        "status": "present",
+        "value": 24,
+        "raw": "2.4 cm",
+        "observed_date": "2019-08-05",
+        "source": {
+          "doc_id": "D4",
+          "quote": "2.4 cm",
+          "char_start": 891,
+          "char_end": 897
+        }
+      }
+    },
+    "receptors": {
+      "er_percent": {
+        "status": "present",
+        "value": {
+          "allred": {
+            "total": 7,
+            "ps": 5,
+            "is": 2
+          },
+          "result": "positive"
+        },
+        "raw": "ER : 양성, Allred score 7 (PS 5 + IS 2)",
+        "specimen": "primary",
+        "observed_date": "2019-08-05",
+        "source": {
+          "doc_id": "D4",
+          "quote": "ER : 양성, Allred score 7 (PS 5 + IS 2)",
+          "char_start": 967,
+          "char_end": 1004
+        }
+      },
+      "pr_percent": {
+        "status": "present",
+        "value": {
+          "allred": {
+            "total": 2,
+            "ps": 1,
+            "is": 1
+          },
+          "result": "negative"
+        },
+        "raw": "PR : 음성, Allred score 2 (PS 1 + IS 1)",
+        "specimen": "primary",
+        "observed_date": "2019-08-05",
+        "source": {
+          "doc_id": "D4",
+          "quote": "PR : 음성, Allred score 2 (PS 1 + IS 1)",
+          "char_start": 1007,
+          "char_end": 1044
+        }
+      },
+      "her2_ihc": {
+        "status": "present",
+        "value": {
+          "score": "0"
+        },
+        "raw": "HER2 (4B5): 0",
+        "specimen": "primary",
+        "observed_date": "2019-08-05",
+        "source": {
+          "doc_id": "D4",
+          "quote": "HER2 (4B5): 0",
+          "char_start": 1047,
+          "char_end": 1060
+        }
+      },
+      "her2_ish": {
+        "status": "not_recorded"
+      },
+      "pdl1": {
+        "status": "not_recorded"
+      }
+    },
+    "proliferation": {
+      "ki67_percent": {
+        "status": "not_recorded"
+      }
+    },
+    "patient": {
+      "gender": {
+        "status": "present",
+        "value": "FEMALE",
+        "raw": "F/58",
+        "source": {
+          "doc_id": "D4",
+          "quote": "F/58",
+          "char_start": 765,
+          "char_end": 769
+        }
+      },
+      "age": {
+        "status": "present",
+        "value": 58,
+        "raw": "F/58",
+        "source": {
+          "doc_id": "D4",
+          "quote": "F/58",
+          "char_start": 765,
+          "char_end": 769
+        }
+      },
+      "menopausal_status": {
+        "status": "present",
+        "value": "postmenopausal",
+        "raw": "폐경 후",
+        "source": {
+          "doc_id": "D1",
+          "quote": "폐경 후",
+          "char_start": 131,
+          "char_end": 135
+        }
+      },
+      "menopausal_basis": {
+        "status": "not_recorded"
+      },
+      "ecog": {
+        "status": "present",
+        "value": 0,
+        "raw": "ECOG PS 0",
+        "observed_date": "2022-10-24",
+        "source": {
+          "doc_id": "D1",
+          "quote": "ECOG PS 0",
+          "char_start": 338,
+          "char_end": 347
+        }
+      }
+    },
+    "imaging_findings": [
+      {
+        "modality": "PET",
+        "day": 1160,
+        "date": "2022-09-24",
+        "sites": [],
+        "certainty": "confirmed",
+        "source": {
+          "doc_id": "D3",
+          "quote": "흉벽 국소 재발, 원격 전이 소견 없음",
+          "char_start": 703,
+          "char_end": 724
+        }
+      }
+    ],
+    "treatment_history": [
+      {
+        "drugs": [
+          "tamoxifen"
+        ],
+        "setting": "adjuvant",
+        "start_date": "2019-09-05",
+        "end_date": "2022-09-14",
+        "start_day": 45,
+        "end_day": 1150,
+        "duration_days": 1105,
+        "cycles": null,
+        "progression_day": 1140,
+        "stop_reason": "progression",
+        "best_response": "PD",
+        "source": {
+          "doc_id": "D6",
+          "quote": "놀바덱스 (tamoxifen) 20mg qd   2019.9.5   2022.9.14   PD     흉벽 재발",
+          "char_start": 1338,
+          "char_end": 1400
+        },
+        "line": null,
+        "endocrine_line": null,
+        "chemo_line": null
+      }
+    ],
+    "anthracycline_drug_dose": {
+      "administered": "negative",
+      "drugs": []
+    },
+    "neoadjuvant_response": {
+      "pcr": {
+        "status": "not_recorded"
+      },
+      "rcb": {
+        "status": "not_recorded"
+      }
+    },
+    "recurrence": {
+      "recurrence_date": {
+        "status": "present",
+        "value": "2022-09-04",
+        "raw": "2022.9.4",
+        "source": {
+          "doc_id": "D1",
+          "quote": "2022.9.4 흉벽 국소 재발",
+          "char_start": 210,
+          "char_end": 227
+        }
+      },
+      "adjuvant_endocrine_end_date": {
+        "status": "present",
+        "value": "2022-09-14",
+        "raw": "2022.9.14",
+        "source": {
+          "doc_id": "D1",
+          "quote": "tamoxifen 2022.9.14 중단",
+          "char_start": 240,
+          "char_end": 262
+        }
+      },
+      "status": {
+        "status": "present",
+        "value": "locoregional",
+        "raw": "흉벽 국소 재발",
+        "source": {
+          "doc_id": "D1",
+          "quote": "흉벽 국소 재발",
+          "char_start": 219,
+          "char_end": 227
+        }
+      },
+      "metastatic_sites": {
+        "status": "present",
+        "value": "[Not Applicable]",
+        "raw": "원격 전이 없음",
+        "source": {
+          "doc_id": "D1",
+          "quote": "원격 전이 없음",
+          "char_start": 273,
+          "char_end": 281
+        }
+      },
+      "metastasis_day": {
+        "status": "not_recorded"
+      },
+      "recurrence_day": {
+        "status": "present",
+        "value": 1140,
+        "raw": "2022.9.4 흉벽 국소 재발",
+        "source": {
+          "doc_id": "D1",
+          "quote": "2022.9.4 흉벽 국소 재발",
+          "char_start": 210,
+          "char_end": 227
+        }
+      },
+      "surgery": {
+        "status": "present",
+        "value": "yes",
+        "raw": "2022.9.29 흉벽 광범위 절제",
+        "source": {
+          "doc_id": "D1",
+          "quote": "2022.9.29 흉벽 광범위 절제",
+          "char_start": 283,
+          "char_end": 302
+        }
+      },
+      "surgery_intent": {
+        "status": "present",
+        "value": "curative",
+        "raw": "완치 목적",
+        "source": {
+          "doc_id": "D1",
+          "quote": "완치 목적",
+          "char_start": 304,
+          "char_end": 309
+        }
+      },
+      "later_distant": {
+        "status": "present",
+        "value": "no",
+        "raw": "수술 후 원격 전이 소견 없음",
+        "source": {
+          "doc_id": "D1",
+          "quote": "수술 후 원격 전이 소견 없음",
+          "char_start": 320,
+          "char_end": 336
+        }
+      }
+    },
+    "molecular": {
+      "mutations": {
+        "ESR1": {
+          "status": "not_recorded"
+        },
+        "PIK3CA": {
+          "status": "not_recorded"
+        },
+        "AKT1": {
+          "status": "not_recorded"
+        },
+        "PTEN": {
+          "status": "not_recorded"
+        },
+        "BRCA1": {
+          "status": "not_recorded"
+        },
+        "BRCA2": {
+          "status": "not_recorded"
+        },
+        "PALB2": {
+          "status": "not_recorded"
+        }
+      }
+    },
+    "genomic_reports": [],
+    "deemed_lines": [
+      {
+        "rule_id": "DEEM-ANTHRA-TAXANE",
+        "category": "chemo",
+        "status": "not_applicable",
+        "basis": "전이 기준일 없음 (전이성 아님)",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "61-62"
+      },
+      {
+        "rule_id": "DEEM-SG-1Y",
+        "category": "chemo",
+        "status": "not_applicable",
+        "basis": "전이 기준일 없음 (전이성 아님)",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "63"
+      },
+      {
+        "rule_id": "DEEM-HER2ADC-6M",
+        "category": "chemo",
+        "status": "not_applicable",
+        "basis": "전이 기준일 없음 (전이성 아님)",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "62-63"
+      },
+      {
+        "rule_id": "DEEM-ENDO-ADJ-1Y",
+        "category": "endocrine",
+        "status": "not_applicable",
+        "basis": "전이 기준일 없음 (전이성 아님)",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "57"
+      }
+    ],
+    "at_index": {
+      "age": 61,
+      "recent_therapy_28d": {
+        "status": "no",
+        "basis": "tamoxifen 기준일 40일 전 종료 (28일 초과)",
+        "regimen_refs": [
+          0
+        ],
+        "gap_days": 40
+      }
+    }
+  },
+  "conflicts": []
+}
