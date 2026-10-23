@@ -1,0 +1,39 @@
+진료의뢰 회신서
+From: 가상의원 외과   To: 가상대학교병원 종양내과
+환자명: 김가상   등록번호: 00000107   F/38
+Dx) Lt. breast ca., IDC, NG3, pT1cN0(0/3)M0, stage IA
+    ER- (Allred 2), PR+ (Allred 8), HER2 1+, Ki-67 40%
+s/p BCS & SLNB (2023.5.14)
+Premenopausal, regular menses. Pls evaluate for adjuvant endocrine tx.
+
+
+[종양내과 초진기록]   2023.6.11
+환자명: 김가상   등록번호: 00000107   F/38   주민번호: 850101-2******   연락처: 010-0000-0107
+병원: 가상대학교병원 종양내과   담당의: 이가상
+
+38세 여성. 2023.5.2 가상의원에서 좌측 유방암 진단, 2023.5.14 유방 부분절제 + 감시림프절 생검 후 회송됨.
+폐경 전, 월경 주기 28일로 규칙적. 출산력 1회.
+ECOG PS 0. 재발·전이 소견 없음.
+보조 내분비요법 상의 예정.
+
+
+[병리결과보고서]  (가상의원 사본)
+환자명: 김가상   등록번호: 00000107   F/38
+접수일: 2023.5.14   보고일: 2023.5.20
+검체: Left breast, partial mastectomy + sentinel LN biopsy
+
+DIAGNOSIS
+  Invasive ductal carcinoma, NST
+  Histologic grade: NG3
+  Tumor size: 1.8 cm
+  Lymph node: 0/3
+  Margin: clear
+  pTNM: pT1c N0(sn) M0, stage IA (AJCC 8th)
+
+IHC
+  ER: negative, Allred score 2 (PS 1 + IS 1)
+  PR: positive, Allred score 8 (PS 5 + IS 3)
+  HER2 (4B5): 1+
+  Ki-67: 40%
+
+Pathologist: 최가상 (가상의원)

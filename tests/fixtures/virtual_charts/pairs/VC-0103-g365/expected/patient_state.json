@@ -1,0 +1,615 @@
+{
+  "schema_version": "0.1-draft6",
+  "patient_ref": "VC-0103-g365",
+  "created_at": "2026-10-19T00:00:00+09:00",
+  "index_day": 790,
+  "documents": [
+    {
+      "doc_id": "D1",
+      "doc_type": "progress_note",
+      "doc_date": "2023-05-04"
+    },
+    {
+      "doc_id": "D2",
+      "doc_type": "pathology",
+      "doc_date": "2021-03-29"
+    },
+    {
+      "doc_id": "D3",
+      "doc_type": "radiology",
+      "doc_date": "2023-04-04"
+    },
+    {
+      "doc_id": "D4",
+      "doc_type": "pathology",
+      "doc_date": "2023-04-19"
+    },
+    {
+      "doc_id": "D5",
+      "doc_type": "molecular",
+      "doc_date": "2023-04-28"
+    },
+    {
+      "doc_id": "D6",
+      "doc_type": "medication",
+      "doc_date": null
+    }
+  ],
+  "fields": {
+    "diagnosis": {
+      "diagnosis_date": {
+        "status": "present",
+        "value": "2021-03-05",
+        "raw": "2021.3.5 core bx로 진단",
+        "source": {
+          "doc_id": "D1",
+          "quote": "2021.3.5 core bx로 진단",
+          "char_start": 260,
+          "char_end": 280
+        }
+      },
+      "histology": {
+        "status": "present",
+        "value": "IDC",
+        "raw": "침윤성 유관암 (invasive ductal carcinoma, NST)",
+        "source": {
+          "doc_id": "D2",
+          "quote": "침윤성 유관암 (invasive ductal carcinoma, NST)",
+          "char_start": 625,
+          "char_end": 665
+        }
+      },
+      "grade": {
+        "status": "present",
+        "value": 2,
+        "raw": "II (Nottingham 2+2+2=6)",
+        "source": {
+          "doc_id": "D2",
+          "quote": "II (Nottingham 2+2+2=6)",
+          "char_start": 677,
+          "char_end": 700
+        }
+      }
+    },
+    "stage": {
+      "ctnm": {
+        "status": "not_recorded"
+      },
+      "ptnm": {
+        "status": "present",
+        "value": {
+          "t": "T2",
+          "n": "N0",
+          "m": "M0",
+          "edition": "8th"
+        },
+        "raw": "pT2 N0 M0, stage IIA (AJCC 8th)",
+        "observed_date": "2021-03-23",
+        "source": {
+          "doc_id": "D2",
+          "quote": "pT2 N0 M0, stage IIA (AJCC 8th)",
+          "char_start": 754,
+          "char_end": 785
+        }
+      },
+      "group": {
+        "status": "present",
+        "value": "IIA",
+        "raw": "stage IIA",
+        "source": {
+          "doc_id": "D2",
+          "quote": "stage IIA",
+          "char_start": 765,
+          "char_end": 774
+        }
+      },
+      "positive_ln_count": {
+        "status": "present",
+        "value": {
+          "positive": 0,
+          "examined": 2
+        },
+        "raw": "전이 없음 (0/2)",
+        "source": {
+          "doc_id": "D2",
+          "quote": "전이 없음 (0/2)",
+          "char_start": 724,
+          "char_end": 735
+        }
+      },
+      "disease_extent": {
+        "status": "present",
+        "value": "early",
+        "raw": "stage IIA",
+        "source": {
+          "doc_id": "D2",
+          "quote": "stage IIA",
+          "char_start": 765,
+          "char_end": 774
+        }
+      },
+      "metastatic_sites": {
+        "status": "present",
+        "value": "[Not Applicable]",
+        "raw": "pT2 N0 M0",
+        "source": {
+          "doc_id": "D2",
+          "quote": "pT2 N0 M0",
+          "char_start": 754,
+          "char_end": 763
+        }
+      },
+      "operable": {
+        "status": "present",
+        "value": "yes",
+        "raw": "우측 유방 부분절제술 + 감시림프절 생검",
+        "source": {
+          "doc_id": "D2",
+          "quote": "우측 유방 부분절제술 + 감시림프절 생검",
+          "char_start": 596,
+          "char_end": 618
+        }
+      },
+      "pathologic_size_mm": {
+        "status": "present",
+        "value": 23,
+        "raw": "2.3 cm",
+        "observed_date": "2021-03-23",
+        "source": {
+          "doc_id": "D2",
+          "quote": "2.3 cm",
+          "char_start": 710,
+          "char_end": 716
+        }
+      }
+    },
+    "receptors": {
+      "er_percent": {
+        "status": "present",
+        "value": {
+          "allred": {
+            "total": 8,
+            "ps": 5,
+            "is": 3
+          },
+          "result": "positive"
+        },
+        "raw": "ER positive (Allred 8, 5+3)",
+        "specimen": "metastasis",
+        "observed_date": "2023-04-16",
+        "source": {
+          "doc_id": "D4",
+          "quote": "ER positive (Allred 8, 5+3)",
+          "char_start": 1265,
+          "char_end": 1292
+        },
+        "history": [
+          {
+            "status": "present",
+            "value": {
+              "allred": {
+                "total": 8,
+                "ps": 5,
+                "is": 3
+              },
+              "result": "positive"
+            },
+            "raw": "ER : 양성, Allred score 8 (PS 5 + IS 3)",
+            "specimen": "primary",
+            "observed_date": "2021-03-23",
+            "source": {
+              "doc_id": "D2",
+              "quote": "ER : 양성, Allred score 8 (PS 5 + IS 3)",
+              "char_start": 796,
+              "char_end": 833
+            },
+            "superseded_reason": "recurrence"
+          }
+        ]
+      },
+      "pr_percent": {
+        "status": "present",
+        "value": {
+          "allred": {
+            "total": 6,
+            "ps": 4,
+            "is": 2
+          },
+          "result": "positive"
+        },
+        "raw": "PR positive (Allred 6, 4+2)",
+        "specimen": "metastasis",
+        "observed_date": "2023-04-16",
+        "source": {
+          "doc_id": "D4",
+          "quote": "PR positive (Allred 6, 4+2)",
+          "char_start": 1294,
+          "char_end": 1321
+        },
+        "history": [
+          {
+            "status": "present",
+            "value": {
+              "allred": {
+                "total": 6,
+                "ps": 4,
+                "is": 2
+              },
+              "result": "positive"
+            },
+            "raw": "PR : 양성, Allred score 6 (PS 4 + IS 2)",
+            "specimen": "primary",
+            "observed_date": "2021-03-23",
+            "source": {
+              "doc_id": "D2",
+              "quote": "PR : 양성, Allred score 6 (PS 4 + IS 2)",
+              "char_start": 836,
+              "char_end": 873
+            },
+            "superseded_reason": "recurrence"
+          }
+        ]
+      },
+      "her2_ihc": {
+        "status": "present",
+        "value": {
+          "score": "0"
+        },
+        "raw": "HER2 IHC 0",
+        "specimen": "metastasis",
+        "observed_date": "2023-04-16",
+        "source": {
+          "doc_id": "D4",
+          "quote": "HER2 IHC 0",
+          "char_start": 1323,
+          "char_end": 1333
+        },
+        "history": [
+          {
+            "status": "present",
+            "value": {
+              "score": "0"
+            },
+            "raw": "HER2 (4B5): 0",
+            "specimen": "primary",
+            "observed_date": "2021-03-23",
+            "source": {
+              "doc_id": "D2",
+              "quote": "HER2 (4B5): 0",
+              "char_start": 876,
+              "char_end": 889
+            },
+            "superseded_reason": "recurrence"
+          }
+        ]
+      },
+      "her2_ish": {
+        "status": "not_recorded"
+      },
+      "pdl1": {
+        "status": "not_recorded"
+      }
+    },
+    "proliferation": {
+      "ki67_percent": {
+        "status": "present",
+        "value": {
+          "percent": 15
+        },
+        "raw": "Ki-67: 15%",
+        "specimen": "primary",
+        "observed_date": "2021-03-23",
+        "source": {
+          "doc_id": "D2",
+          "quote": "Ki-67: 15%",
+          "char_start": 892,
+          "char_end": 902
+        }
+      }
+    },
+    "patient": {
+      "gender": {
+        "status": "present",
+        "value": "FEMALE",
+        "raw": "F/52",
+        "source": {
+          "doc_id": "D2",
+          "quote": "F/52",
+          "char_start": 555,
+          "char_end": 559
+        }
+      },
+      "age": {
+        "status": "present",
+        "value": 52,
+        "raw": "F/52",
+        "source": {
+          "doc_id": "D2",
+          "quote": "F/52",
+          "char_start": 555,
+          "char_end": 559
+        }
+      },
+      "menopausal_status": {
+        "status": "present",
+        "value": "postmenopausal",
+        "raw": "폐경 후 (postmenopausal)",
+        "source": {
+          "doc_id": "D1",
+          "quote": "폐경 후 (postmenopausal)",
+          "char_start": 151,
+          "char_end": 172
+        }
+      },
+      "menopausal_basis": {
+        "status": "not_recorded"
+      },
+      "ecog": {
+        "status": "present",
+        "value": 0,
+        "raw": "ECOG PS 0",
+        "observed_date": "2023-05-04",
+        "source": {
+          "doc_id": "D1",
+          "quote": "ECOG PS 0",
+          "char_start": 177,
+          "char_end": 186
+        }
+      }
+    },
+    "imaging_findings": [
+      {
+        "modality": "CT",
+        "day": 760,
+        "date": "2023-04-04",
+        "sites": [
+          "lung"
+        ],
+        "certainty": "suspected",
+        "source": {
+          "doc_id": "D3",
+          "quote": "Multiple lung nodules, r/o metastasis",
+          "char_start": 1084,
+          "char_end": 1121
+        }
+      }
+    ],
+    "treatment_history": [
+      {
+        "drugs": [
+          "anastrozole"
+        ],
+        "setting": "adjuvant",
+        "start_date": "2021-04-14",
+        "end_date": "2022-04-04",
+        "start_day": 40,
+        "end_day": 395,
+        "duration_days": 355,
+        "cycles": null,
+        "progression_day": null,
+        "stop_reason": "toxicity",
+        "best_response": null,
+        "source": {
+          "doc_id": "D6",
+          "quote": "아리미덱스 (anastrozole) 1mg qd  2021.4.14    2022.4.4    -      관절통 (부작용)",
+          "char_start": 1674,
+          "char_end": 1743
+        },
+        "line": null,
+        "endocrine_line": null,
+        "chemo_line": null
+      }
+    ],
+    "anthracycline_drug_dose": {
+      "administered": "negative",
+      "drugs": []
+    },
+    "neoadjuvant_response": {
+      "pcr": {
+        "status": "not_recorded"
+      },
+      "rcb": {
+        "status": "not_recorded"
+      }
+    },
+    "recurrence": {
+      "recurrence_date": {
+        "status": "present",
+        "value": "2023-04-04",
+        "raw": "2023.4.4",
+        "source": {
+          "doc_id": "D1",
+          "quote": "2023.4.4 lung metastasis",
+          "char_start": 434,
+          "char_end": 458
+        }
+      },
+      "adjuvant_endocrine_end_date": {
+        "status": "present",
+        "value": "2022-04-04",
+        "raw": "2022.4.4",
+        "source": {
+          "doc_id": "D1",
+          "quote": "2022.4.4 관절통으로 중단",
+          "char_start": 404,
+          "char_end": 421
+        }
+      },
+      "status": {
+        "status": "present",
+        "value": "distant",
+        "raw": "lung metastasis",
+        "source": {
+          "doc_id": "D1",
+          "quote": "lung metastasis",
+          "char_start": 443,
+          "char_end": 458
+        }
+      },
+      "metastatic_sites": {
+        "status": "present",
+        "value": [
+          "lung"
+        ],
+        "raw": "lung metastasis",
+        "source": {
+          "doc_id": "D1",
+          "quote": "lung metastasis",
+          "char_start": 443,
+          "char_end": 458
+        }
+      },
+      "metastasis_day": {
+        "status": "present",
+        "value": 760,
+        "raw": "2023.4.4 lung metastasis",
+        "source": {
+          "doc_id": "D1",
+          "quote": "2023.4.4 lung metastasis",
+          "char_start": 434,
+          "char_end": 458
+        }
+      },
+      "recurrence_day": {
+        "status": "present",
+        "value": 760,
+        "raw": "2023.4.4 lung metastasis",
+        "source": {
+          "doc_id": "D1",
+          "quote": "2023.4.4 lung metastasis",
+          "char_start": 434,
+          "char_end": 458
+        }
+      },
+      "surgery": {
+        "status": "not_recorded"
+      },
+      "surgery_intent": {
+        "status": "not_recorded"
+      }
+    },
+    "molecular": {
+      "mutations": {
+        "ESR1": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "metastasis",
+          "source": {
+            "doc_id": "D5",
+            "quote": "검출되지 않음 (Not detected): PIK3CA, ESR1, AKT1, PTEN",
+            "char_start": 1464,
+            "char_end": 1512
+          }
+        },
+        "PIK3CA": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "metastasis",
+          "source": {
+            "doc_id": "D5",
+            "quote": "검출되지 않음 (Not detected): PIK3CA, ESR1, AKT1, PTEN",
+            "char_start": 1464,
+            "char_end": 1512
+          }
+        },
+        "AKT1": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "metastasis",
+          "source": {
+            "doc_id": "D5",
+            "quote": "검출되지 않음 (Not detected): PIK3CA, ESR1, AKT1, PTEN",
+            "char_start": 1464,
+            "char_end": 1512
+          }
+        },
+        "PTEN": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "metastasis",
+          "source": {
+            "doc_id": "D5",
+            "quote": "검출되지 않음 (Not detected): PIK3CA, ESR1, AKT1, PTEN",
+            "char_start": 1464,
+            "char_end": 1512
+          }
+        },
+        "BRCA1": {
+          "status": "not_recorded"
+        },
+        "BRCA2": {
+          "status": "not_recorded"
+        },
+        "PALB2": {
+          "status": "not_recorded"
+        }
+      }
+    },
+    "genomic_reports": [
+      {
+        "doc_id": "D5",
+        "report_date": "2023-04-28",
+        "specimen": "metastasis",
+        "raw_text": "[분자병리 검사 결과]\n환자명: 김가상   등록번호: 00000103   F/54\n검사기관: 가상유전체검사센터   보고일: 2023.4.28\n검체: 폐 생검 조직 (2023.4.16)\n검사법: 표적 NGS\n\n검출된 변이: 없음\n검출되지 않음 (Not detected): PIK3CA, ESR1, AKT1, PTEN\n\n* 패널 포함 유전자: PIK3CA, ESR1, AKT1, PTEN, ERBB2"
+      }
+    ],
+    "deemed_lines": [
+      {
+        "rule_id": "DEEM-ANTHRA-TAXANE",
+        "category": "chemo",
+        "status": "not_met",
+        "basis": "선행·보조요법에 anthracycline · taxane 없음",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "61-62"
+      },
+      {
+        "rule_id": "DEEM-SG-1Y",
+        "category": "chemo",
+        "status": "met",
+        "basis": "선행·보조요법 anastrozole 종료 후 365일 뒤 전이 (기준 365일 이내)",
+        "regimen_refs": [
+          0
+        ],
+        "gap_days": 365,
+        "notice_page": "63"
+      },
+      {
+        "rule_id": "DEEM-HER2ADC-6M",
+        "category": "chemo",
+        "status": "not_met",
+        "basis": "trastuzumab 포함 보조요법 없음",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "62-63"
+      },
+      {
+        "rule_id": "DEEM-ENDO-ADJ-1Y",
+        "category": "endocrine",
+        "status": "met",
+        "basis": "보조 내분비요법 anastrozole 종료 후 365일 뒤 전이 (기준 365일 이내)",
+        "regimen_refs": [
+          0
+        ],
+        "gap_days": 365,
+        "notice_page": "57"
+      }
+    ],
+    "at_index": {
+      "age": 54,
+      "recent_therapy_28d": {
+        "status": "no",
+        "basis": "anastrozole 기준일 395일 전 종료 (28일 초과)",
+        "regimen_refs": [
+          0
+        ],
+        "gap_days": 395
+      }
+    }
+  },
+  "conflicts": []
+}

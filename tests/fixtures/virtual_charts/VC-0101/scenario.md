@@ -38,7 +38,7 @@
 
 | 칸 | 값 |
 |---|---|
-| `receptors.pr_percent` | `value` 5% (`specimen: metastasis`), `history[]` 40% (`superseded_reason: recurrence`) |
+| `receptors.pr_percent` | `value` Allred 3 (PS 2 + IS 1, 약양성, `specimen: metastasis`), `history[]` Allred 6 (PS 4 + IS 2) (`superseded_reason: recurrence`). 2026-10-23: ER·PR은 Allred 점수로 적는다 (원래 설계 5%, 40%). PR은 Allred 3점 이상 양성이라 재생검도 양성 |
 | `receptors.her2_ihc` | `{"score": "1+"}` |
 | `molecular.mutations.ESR1` | `detected`, Y537S, VAF 0.042, `specimen: cfDNA` |
 | `molecular.mutations.PIK3CA` | `not_detected`, `specimen: cfDNA` |

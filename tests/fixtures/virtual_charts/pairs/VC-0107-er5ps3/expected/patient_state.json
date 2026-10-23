@@ -1,0 +1,411 @@
+{
+  "schema_version": "0.1-draft6",
+  "patient_ref": "VC-0107-er5ps3",
+  "created_at": "2026-10-23T00:00:00+09:00",
+  "index_day": 40,
+  "documents": [
+    {
+      "doc_id": "D1",
+      "doc_type": "progress_note",
+      "doc_date": "2023-06-01"
+    },
+    {
+      "doc_id": "D2",
+      "doc_type": "progress_note",
+      "doc_date": "2023-06-11"
+    },
+    {
+      "doc_id": "D3",
+      "doc_type": "pathology",
+      "doc_date": "2023-05-20"
+    }
+  ],
+  "fields": {
+    "diagnosis": {
+      "diagnosis_date": {
+        "status": "present",
+        "value": "2023-05-02",
+        "raw": "2023.5.2",
+        "source": {
+          "doc_id": "D2",
+          "quote": "2023.5.2 가상의원에서 좌측 유방암 진단",
+          "char_start": 422,
+          "char_end": 447
+        }
+      },
+      "histology": {
+        "status": "present",
+        "value": "IDC",
+        "raw": "Invasive ductal carcinoma, NST",
+        "source": {
+          "doc_id": "D3",
+          "quote": "Invasive ductal carcinoma, NST",
+          "char_start": 713,
+          "char_end": 743
+        }
+      },
+      "grade": {
+        "status": "present",
+        "value": 3,
+        "raw": "NG3",
+        "source": {
+          "doc_id": "D3",
+          "quote": "NG3",
+          "char_start": 764,
+          "char_end": 767
+        }
+      }
+    },
+    "stage": {
+      "ctnm": {
+        "status": "not_recorded"
+      },
+      "ptnm": {
+        "status": "present",
+        "value": {
+          "t": "T1c",
+          "n": "N0",
+          "m": "M0",
+          "edition": "8th"
+        },
+        "raw": "pT1c N0(sn) M0, stage IA (AJCC 8th)",
+        "observed_date": "2023-05-14",
+        "source": {
+          "doc_id": "D3",
+          "quote": "pT1c N0(sn) M0, stage IA (AJCC 8th)",
+          "char_start": 831,
+          "char_end": 866
+        }
+      },
+      "group": {
+        "status": "present",
+        "value": "IA",
+        "raw": "stage IA",
+        "source": {
+          "doc_id": "D3",
+          "quote": "stage IA",
+          "char_start": 847,
+          "char_end": 855
+        }
+      },
+      "positive_ln_count": {
+        "status": "present",
+        "value": {
+          "positive": 0,
+          "examined": 3
+        },
+        "raw": "0/3",
+        "source": {
+          "doc_id": "D3",
+          "quote": "0/3",
+          "char_start": 803,
+          "char_end": 806
+        }
+      },
+      "disease_extent": {
+        "status": "present",
+        "value": "early",
+        "raw": "stage IA",
+        "source": {
+          "doc_id": "D3",
+          "quote": "stage IA",
+          "char_start": 847,
+          "char_end": 855
+        }
+      },
+      "metastatic_sites": {
+        "status": "present",
+        "value": "[Not Applicable]",
+        "raw": "pT1c N0(sn) M0",
+        "source": {
+          "doc_id": "D3",
+          "quote": "pT1c N0(sn) M0",
+          "char_start": 831,
+          "char_end": 845
+        }
+      },
+      "operable": {
+        "status": "present",
+        "value": "yes",
+        "raw": "Left breast, partial mastectomy + sentinel LN biopsy",
+        "source": {
+          "doc_id": "D3",
+          "quote": "Left breast, partial mastectomy + sentinel LN biopsy",
+          "char_start": 647,
+          "char_end": 699
+        }
+      },
+      "pathologic_size_mm": {
+        "status": "present",
+        "value": 18,
+        "raw": "1.8 cm",
+        "observed_date": "2023-05-14",
+        "source": {
+          "doc_id": "D3",
+          "quote": "1.8 cm",
+          "char_start": 782,
+          "char_end": 788
+        }
+      }
+    },
+    "receptors": {
+      "er_percent": {
+        "status": "present",
+        "value": {
+          "allred": {
+            "total": 5,
+            "ps": 3,
+            "is": 2
+          },
+          "result": "positive"
+        },
+        "raw": "ER: positive, Allred score 5 (PS 3 + IS 2)",
+        "specimen": "primary",
+        "observed_date": "2023-05-14",
+        "source": {
+          "doc_id": "D3",
+          "quote": "ER: positive, Allred score 5 (PS 3 + IS 2)",
+          "char_start": 874,
+          "char_end": 916
+        }
+      },
+      "pr_percent": {
+        "status": "present",
+        "value": {
+          "allred": {
+            "total": 8,
+            "ps": 5,
+            "is": 3
+          },
+          "result": "positive"
+        },
+        "raw": "PR: positive, Allred score 8 (PS 5 + IS 3)",
+        "specimen": "primary",
+        "observed_date": "2023-05-14",
+        "source": {
+          "doc_id": "D3",
+          "quote": "PR: positive, Allred score 8 (PS 5 + IS 3)",
+          "char_start": 919,
+          "char_end": 961
+        }
+      },
+      "her2_ihc": {
+        "status": "present",
+        "value": {
+          "score": "1+"
+        },
+        "raw": "HER2 (4B5): 1+",
+        "specimen": "primary",
+        "observed_date": "2023-05-14",
+        "source": {
+          "doc_id": "D3",
+          "quote": "HER2 (4B5): 1+",
+          "char_start": 964,
+          "char_end": 978
+        }
+      },
+      "her2_ish": {
+        "status": "not_recorded"
+      },
+      "pdl1": {
+        "status": "not_recorded"
+      }
+    },
+    "proliferation": {
+      "ki67_percent": {
+        "status": "present",
+        "value": {
+          "percent": 40
+        },
+        "raw": "Ki-67: 40%",
+        "specimen": "primary",
+        "observed_date": "2023-05-14",
+        "source": {
+          "doc_id": "D3",
+          "quote": "Ki-67: 40%",
+          "char_start": 981,
+          "char_end": 991
+        }
+      }
+    },
+    "patient": {
+      "gender": {
+        "status": "present",
+        "value": "FEMALE",
+        "raw": "여성",
+        "source": {
+          "doc_id": "D2",
+          "quote": "여성",
+          "char_start": 418,
+          "char_end": 420
+        }
+      },
+      "age": {
+        "status": "present",
+        "value": 38,
+        "raw": "38세",
+        "source": {
+          "doc_id": "D2",
+          "quote": "38세",
+          "char_start": 414,
+          "char_end": 417
+        }
+      },
+      "menopausal_status": {
+        "status": "present",
+        "value": "premenopausal",
+        "raw": "폐경 전",
+        "source": {
+          "doc_id": "D2",
+          "quote": "폐경 전",
+          "char_start": 485,
+          "char_end": 489
+        }
+      },
+      "menopausal_basis": {
+        "status": "present",
+        "value": "age_amenorrhea",
+        "raw": "월경 주기 28일로 규칙적",
+        "source": {
+          "doc_id": "D2",
+          "quote": "월경 주기 28일로 규칙적",
+          "char_start": 491,
+          "char_end": 505
+        }
+      },
+      "ecog": {
+        "status": "present",
+        "value": 0,
+        "raw": "ECOG PS 0",
+        "observed_date": "2023-06-11",
+        "source": {
+          "doc_id": "D2",
+          "quote": "ECOG PS 0",
+          "char_start": 515,
+          "char_end": 524
+        }
+      }
+    },
+    "treatment_history": [],
+    "anthracycline_drug_dose": {
+      "administered": "No value",
+      "drugs": []
+    },
+    "neoadjuvant_response": {
+      "pcr": {
+        "status": "not_recorded"
+      },
+      "rcb": {
+        "status": "not_recorded"
+      }
+    },
+    "recurrence": {
+      "recurrence_date": {
+        "status": "not_recorded"
+      },
+      "adjuvant_endocrine_end_date": {
+        "status": "not_recorded"
+      },
+      "status": {
+        "status": "present",
+        "value": "none",
+        "raw": "재발·전이 소견 없음",
+        "source": {
+          "doc_id": "D2",
+          "quote": "재발·전이 소견 없음",
+          "char_start": 526,
+          "char_end": 537
+        }
+      },
+      "metastatic_sites": {
+        "status": "not_recorded"
+      },
+      "metastasis_day": {
+        "status": "not_recorded"
+      },
+      "recurrence_day": {
+        "status": "not_recorded"
+      },
+      "surgery": {
+        "status": "not_recorded"
+      },
+      "surgery_intent": {
+        "status": "not_recorded"
+      }
+    },
+    "molecular": {
+      "mutations": {
+        "ESR1": {
+          "status": "not_recorded"
+        },
+        "PIK3CA": {
+          "status": "not_recorded"
+        },
+        "AKT1": {
+          "status": "not_recorded"
+        },
+        "PTEN": {
+          "status": "not_recorded"
+        },
+        "BRCA1": {
+          "status": "not_recorded"
+        },
+        "BRCA2": {
+          "status": "not_recorded"
+        },
+        "PALB2": {
+          "status": "not_recorded"
+        }
+      }
+    },
+    "genomic_reports": [],
+    "deemed_lines": [
+      {
+        "rule_id": "DEEM-ANTHRA-TAXANE",
+        "category": "chemo",
+        "status": "not_applicable",
+        "basis": "전이 기준일 없음 (전이성 아님)",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "61-62"
+      },
+      {
+        "rule_id": "DEEM-SG-1Y",
+        "category": "chemo",
+        "status": "not_applicable",
+        "basis": "전이 기준일 없음 (전이성 아님)",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "63"
+      },
+      {
+        "rule_id": "DEEM-HER2ADC-6M",
+        "category": "chemo",
+        "status": "not_applicable",
+        "basis": "전이 기준일 없음 (전이성 아님)",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "62-63"
+      },
+      {
+        "rule_id": "DEEM-ENDO-ADJ-1Y",
+        "category": "endocrine",
+        "status": "not_applicable",
+        "basis": "전이 기준일 없음 (전이성 아님)",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "57"
+      }
+    ],
+    "at_index": {
+      "age": 38,
+      "recent_therapy_28d": {
+        "status": "no",
+        "basis": "기준일 이전 항암제·호르몬제 투약 없음",
+        "regimen_refs": [],
+        "gap_days": null
+      }
+    }
+  },
+  "conflicts": []
+}
