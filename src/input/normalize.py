@@ -126,15 +126,16 @@ def _grade(q, ctx):
     return None if not m else {"I": 1, "II": 2, "III": 3}.get(m.group(1)) or int(m.group(1))
 
 
-def _tnm(q, ctx, *, yp=False):
-    m = re.search(r"(?:y?p|c)?T(is|[0-4][a-d]?|X)\s*(?:\(\w+\))?\s*(?:y?p|c)?N([0-3][a-c]?(?:mi)?|X)\s*(?:\(\w+\))?"
+def _tnm(q, ctx, *, prefix):
+    m = re.search(r"(yp|p|c)?T(is|[0-4][a-d]?|X)\s*(?:\(\w+\))?\s*(?:y?p|c)?N([0-3][a-c]?(?:mi)?|X)\s*(?:\(\w+\))?"
                   r"\s*(?:M([01X]))?", q)
-    if not m:
+    # 접두어가 칸과 다르면 받지 않는다 (경과기록의 pT2N0M0를 ctnm 칸에 넣은 경우 등). 접두어가 없으면 받는다
+    if not m or m.group(1) not in (None, prefix):
         return None
     ed = re.search(r"AJCC\s*(\d+(?:st|nd|rd|th))", q)
-    v = {"t": f"T{m.group(1)}", "n": f"N{m.group(2)}", "m": m.group(3) and f"M{m.group(3)}",
+    v = {"t": f"T{m.group(2)}", "n": f"N{m.group(3)}", "m": m.group(4) and f"M{m.group(4)}",
          "edition": ed and ed.group(1)}
-    if yp:
+    if prefix == "yp":
         # ypTNM에 M이 없으면 M0 (수술 병기). 잔존 크기·림프절 수는 같은 문서의 다른 줄에서 읽는다
         v["m"] = v["m"] or "M0"
         size = re.search(r"(?:잔존 (?:종양 )?크기|residual (?:tumor )?size)\s*:\s*(.+)", ctx.doc.text, re.I)
@@ -231,11 +232,14 @@ def _gender(q, ctx):
 
 
 def _menopausal_basis(q, ctx):
+    """근거 단어가 없으면 None ('폐경 후'만 적힌 구절은 상태이지 근거가 아니다)."""
     for basis, pat in [("fsh", r"FSH"), ("oophorectomy", r"난소\s*절제|oophorectomy|ovariectomy"),
-                       ("ovarian_radiation", r"난소\s*방사선"), ("hysterectomy", r"자궁\s*(?:적출|절제)|hysterectomy")]:
+                       ("ovarian_radiation", r"난소\s*방사선"), ("hysterectomy", r"자궁\s*(?:적출|절제)|hysterectomy"),
+                       # "58세 폐경 후 여성"의 58세는 나이라 근거가 아니다 (폐경 바로 뒤에 후·전이 붙으면 뺀다)
+                       ("age_amenorrhea", r"LMP|\d+\s*세\s*폐경(?!\s*[후전])|폐경\s*\d+\s*세|월경|생리|menses|amenorrhea")]:
         if re.search(pat, q, re.I):
             return basis
-    return "age_amenorrhea"     # LMP, 폐경 나이, 월경 여부
+    return None
 
 
 def _number(pattern):
@@ -250,6 +254,20 @@ def _day_field(q, ctx):
     if date is None:
         return 0 if re.search(r"de novo", q, re.I) else None
     return _day(date, ctx.dx_date)
+
+
+def _metastasis_day(q, ctx):
+    """국소 재발 구절은 원격 전이일이 아니다."""
+    if re.search(r"국소|locoregional|local", q, re.I) and not re.search(r"전이|metasta", q, re.I):
+        return None
+    return _day_field(q, ctx)
+
+
+def _need(pattern: str, parse):
+    """구절에 그 칸의 단어가 있을 때만 정규화한다. LLM이 '재발·전이 소견 없음' 같은 구절을 여러 칸에 넣는 것을 막는다."""
+    def wrapped(q, ctx):
+        return parse(q, ctx) if re.search(pattern, q, re.I) else None
+    return wrapped
 
 
 def _recurrence_status(q, ctx):
@@ -281,15 +299,16 @@ PARSERS = {
     "diagnosis.diagnosis_date": lambda q, ctx: parse_date(q),
     "diagnosis.histology": lambda q, ctx: _vocab("diagnosis.histology", q),
     "diagnosis.grade": _grade,
-    "stage.ctnm": _tnm,
-    "stage.ptnm": _tnm,
-    "stage.yptnm": lambda q, ctx: _tnm(q, ctx, yp=True),
+    "stage.ctnm": lambda q, ctx: _tnm(q, ctx, prefix="c"),
+    "stage.ptnm": lambda q, ctx: _tnm(q, ctx, prefix="p"),
+    "stage.yptnm": lambda q, ctx: _tnm(q, ctx, prefix="yp"),
     "stage.group": _group,
     "stage.disease_extent": _extent,
     "stage.metastatic_sites": _metastatic_sites,
     "stage.positive_ln_count": _ln_count,
     "stage.operable": lambda q, ctx: _yes_no(q),
-    "stage.clinical_size_mm": lambda q, ctx: _size_mm(q),
+    # 유방 종괴 크기만 (흉부 CT의 폐 결절 크기 등은 받지 않는다)
+    "stage.clinical_size_mm": lambda q, ctx: _size_mm(q) if re.search(r"유방|breast|종괴|mass", q, re.I) else None,
     "stage.pathologic_size_mm": lambda q, ctx: _size_mm(q),
     "receptors.er_percent": _receptor("er_percent"),
     "receptors.pr_percent": _receptor("pr_percent"),
@@ -305,20 +324,22 @@ PARSERS = {
     "patient.height_cm": _number(r"(\d+(?:\.\d+)?)\s*cm"),
     "patient.weight_kg": _number(r"(\d+(?:\.\d+)?)\s*kg"),
     "patient.lvef_percent": _number(r"(\d+(?:\.\d+)?)\s*%"),
-    "patient.cardiac_history": lambda q, ctx: _yes_no(q),
-    "patient.mediastinal_radiation": lambda q, ctx: _yes_no(q),
-    "patient.comorbidities": lambda q, ctx: [q],
+    "patient.cardiac_history": _need(r"심장|심질환|심부전|관상동맥|심근|부정맥|cardiac|heart|CHF|\bMI\b",
+                                     lambda q, ctx: _yes_no(q)),
+    "patient.mediastinal_radiation": _need(r"종격동|mediastin", lambda q, ctx: _yes_no(q)),
+    "patient.comorbidities": lambda q, ctx: None if re.search(r"재발|전이|metasta", q, re.I) else [q],
     "neoadjuvant_response.pcr": _pcr,
     "neoadjuvant_response.rcb": _rcb,
     "recurrence.recurrence_date": lambda q, ctx: parse_date(q),
-    "recurrence.adjuvant_endocrine_end_date": lambda q, ctx: parse_date(q),
+    "recurrence.adjuvant_endocrine_end_date": _need(r"종료|중단|완료|끝|stop|discontinu|complet",
+                                                    lambda q, ctx: parse_date(q)),
     "recurrence.status": _recurrence_status,
     "recurrence.metastatic_sites": _metastatic_sites,
-    "recurrence.metastasis_day": _day_field,
+    "recurrence.metastasis_day": _metastasis_day,
     "recurrence.recurrence_day": _day_field,
-    "recurrence.surgery": lambda q, ctx: _yes_no(q),
+    "recurrence.surgery": _need(r"수술|절제|surgery|resection|excision|mastectomy", lambda q, ctx: _yes_no(q)),
     "recurrence.surgery_intent": _intent,
-    "recurrence.later_distant": lambda q, ctx: _yes_no(q),
+    "recurrence.later_distant": _need(r"원격|distant", lambda q, ctx: _yes_no(q)),
 }
 
 
@@ -326,8 +347,13 @@ PARSERS = {
 VARIANT = re.compile(r"\b([A-Z][A-Z0-9]+)\s+c\.(\S+)\s*\(p\.([^)]+)\)(?:\s*VAF\s*(\d+(?:\.\d+)?)\s*%)?")
 
 
-def _gene(gene: str, q: str) -> dict:
-    """변이 표기(c. / p.)가 있으면 detected, 유전자 이름만 나열돼 있으면 not_detected (검출되지 않음 목록)."""
+def _gene(gene: str, q: str) -> dict | None:
+    """변이 표기(c. / p.)가 있으면 detected, 유전자 이름만 나열돼 있으면 not_detected (검출되지 않음 목록).
+    구절에 그 유전자 이름이 없으면 None ('BRCA1/2'는 BRCA1·BRCA2 둘 다). 다른 유전자의 변이 구절을 넣은 경우를 막는다."""
+    named = re.search(rf"(?<![A-Z0-9]){gene}(?![0-9])", q) or (
+        gene in ("BRCA1", "BRCA2") and re.search(r"BRCA\s*1\s*/\s*2", q))
+    if not named:
+        return None
     if NOT_DONE.search(q):
         return {"status": "not_done"}
     variants = []

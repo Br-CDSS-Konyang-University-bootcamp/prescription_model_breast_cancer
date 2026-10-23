@@ -70,3 +70,25 @@ def test_gold_quote_normalizes_to_expected_value(ref, chart, ps):
 def test_not_done_and_failure(quote, want):
     doc = split("[병리결과보고서]\n" + quote + "\n")[0]
     assert normalize("receptors.pdl1", quote, Context(doc)) == want
+
+
+@pytest.mark.parametrize("field,quote", [
+    ("patient.menopausal_basis", "폐경 후"),                       # 상태만 있고 근거가 없음
+    ("stage.ctnm", "pT2N0(0/2)M0"),                               # 병리 TNM을 임상 칸에
+    ("stage.ptnm", "cT2N1M0"),
+    ("stage.clinical_size_mm", "0.5~1.2 cm 크기의 다발성 결절."),  # 폐 결절 크기
+    # 10건 시험 (2026-10-23)에서 나온 것
+    ("molecular.germline.BRCA1", "PIK3CA H1047R"),                 # 다른 유전자의 구절
+    ("patient.cardiac_history", "재발·전이 소견 없음"),            # 일반적인 '없음' 구절을 여러 칸에
+    ("patient.mediastinal_radiation", "재발·전이 소견 없음"),
+    ("patient.comorbidities", "재발·전이 소견 없음"),
+    ("recurrence.surgery", "재발·전이 소견 없음"),
+    ("recurrence.later_distant", "재발·전이 소견 없음"),
+    ("recurrence.adjuvant_endocrine_end_date", "2023.9.4 간 전이"),  # 종료가 아니라 전이 날짜
+    ("recurrence.metastasis_day", "2022.9.4 흉벽 국소 재발"),       # 국소 재발은 원격 전이가 아님
+    ("patient.menopausal_basis", "58세 폐경 후"),                   # 58세는 나이
+])
+def test_wrong_field_is_not_normalized(field, quote):
+    """LLM이 칸을 잘못 고른 구절은 값을 만들지 않는다 (VC-0103 hari-q3-8b 시험, 2026-10-23)."""
+    doc = split("<외래 경과기록>   2023.5.4\n" + quote + "\n")[0]
+    assert normalize(field, quote, Context(doc)) is None

@@ -161,13 +161,14 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("pred_dir", nargs="?", type=Path, help="<폴더>/<사례>/patient_state.json")
     ap.add_argument("--gold", action="store_true", help="정답 후보로 파이프라인을 돌려 채점")
-    ap.add_argument("--ids", nargs="*", default=ALL)
+    ap.add_argument("--ids", nargs="*", help="사례 (기본: --gold는 29건, 출력 폴더는 그 안에 있는 사례)")
     ap.add_argument("--show-wrong", type=int, default=30)
     args = ap.parse_args(argv)
     if not args.gold and args.pred_dir is None:
         ap.error("출력 폴더 또는 --gold")
     results, issues = {}, {}
-    for ref in args.ids:
+    ids = args.ids or (ALL if args.gold else [r for r in ALL if (args.pred_dir / r).is_dir()])
+    for ref in ids:
         want = expected(ref)
         if args.gold:
             chart = (out_dir(ref) / "chart.txt").read_text(encoding="utf-8")

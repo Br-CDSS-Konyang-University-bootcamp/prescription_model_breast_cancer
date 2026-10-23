@@ -73,6 +73,16 @@ def assemble(docs: list[Document], candidates: list[dict], *, patient_ref: str, 
             continue
         items.append((c, doc, src, out))
 
+    # ypTNM이 있는 문서의 크기·림프절은 선행요법 뒤 잔존 값이라 yptnm에만 둔다 (pathologic_size_mm 스키마 설명)
+    yp_docs = {c["doc_id"] for c, *_ in items if c["field"] == "stage.yptnm"}
+    keep = []
+    for it in items:
+        if it[0]["field"] in ("stage.pathologic_size_mm", "stage.positive_ln_count") and it[0]["doc_id"] in yp_docs:
+            issues.append({"reason": "rule", "candidate": it[0], "note": "ypTNM 문서의 잔존 값"})
+        else:
+            keep.append(it)
+    items = keep
+
     fields: dict = {g: {k: {"status": "not_recorded"} for k in ks} for g, ks in DEFAULT_FIELDS.items()}
     fields["molecular"] = {"mutations": {g: {"status": "not_recorded"} for g in GENES}}
     conflicts = []
@@ -80,7 +90,19 @@ def assemble(docs: list[Document], candidates: list[dict], *, patient_ref: str, 
     for it in items:
         if it[0]["field"] not in LIST_FIELDS:
             by_field.setdefault(it[0]["field"], []).append(it)
-    for field, its in by_field.items():
+    # 다른 칸을 보고 거르는 칸이 있어 병기 범주·재발 상태를 먼저 정한다
+    first = ("stage.disease_extent", "recurrence.status")
+    for field in sorted(by_field, key=lambda f: f not in first):
+        its = by_field[field]
+        extent, status = _value(fields, "stage.disease_extent"), _value(fields, "recurrence.status")
+        if field == "stage.metastatic_sites" and extent in ("early", "locally_advanced"):
+            # 진단 시 IV기가 아니면 진단 시 전이 부위는 없다 (나중 전이를 이 칸에 넣은 후보를 뺀다)
+            its = _drop(its, lambda out: isinstance(out.get("value"), list), issues, "진단 시 IV기가 아님")
+        if field == "recurrence.metastatic_sites" and status == "none":
+            # 재발이 없으면 재발 부위 칸은 비워 둔다 (정답 표기, 2026-10-23 A 결정)
+            its = _drop(its, lambda out: True, issues, "재발 없음")
+        if not its:
+            continue
         entries = [_entry(c, doc, src, out) for c, doc, src, out in its]
         chosen = _choose(field, entries)
         if isinstance(chosen, dict) and "conflict" in chosen:
@@ -93,7 +115,14 @@ def assemble(docs: list[Document], candidates: list[dict], *, patient_ref: str, 
             continue
         _set(fields, field, chosen)
 
-    rows = [(c, doc, src, out) for c, doc, src, out in items if c["field"] == "treatment_history"]
+    # 진단 시 IV기면 전이 기준일은 0 (스키마 metastasis_day 설명). 투약 setting도 이 값으로 정해진다
+    if _value(fields, "stage.disease_extent") == "metastatic" and \
+            fields["recurrence"]["metastasis_day"].get("status") == "not_recorded":
+        ext = fields["stage"]["disease_extent"]
+        fields["recurrence"]["metastasis_day"] = {"status": "present", "value": 0, "raw": ext["raw"],
+                                                  "source": ext["source"]}
+
+    rows =[(c, doc, src, out) for c, doc, src, out in items if c["field"] == "treatment_history"]
     rows.sort(key=lambda r: (r[3]["start_day"] is None, r[3]["start_day"] or 0))
     history = [{**out, "source": src} for _, _, src, out in rows]
     _fill_treatment(history, fields)
@@ -122,6 +151,17 @@ def assemble(docs: list[Document], candidates: list[dict], *, patient_ref: str, 
     return ps, issues
 
 
+def _drop(its: list, test, issues: list, note: str) -> list:
+    """test(정규화 결과)가 참인 후보를 빼고 issues에 남긴다."""
+    out = []
+    for it in its:
+        if test(it[3]):
+            issues.append({"reason": "rule", "candidate": it[0], "note": note})
+        else:
+            out.append(it)
+    return out
+
+
 def _diagnosis_date(found) -> str | None:
     for c, doc, src in found:
         if c["field"] == "diagnosis.diagnosis_date":
@@ -136,7 +176,7 @@ def _entry(c: dict, doc: Document, src: dict, out: dict) -> dict:
     e = dict(out)
     if not c["field"].startswith("molecular."):
         e.setdefault("raw", src["quote"])
-    for k in ("specimen", "observed_date"):
+    for k in ("specimen",) if c["field"].startswith("molecular.") else ("specimen", "observed_date"):
         if c.get(k) is not None:
             e[k] = c[k]
     e["source"] = src
@@ -145,18 +185,30 @@ def _entry(c: dict, doc: Document, src: dict, out: dict) -> dict:
 
 
 def _choose(field: str, entries: list[dict]):
-    """IN-4·IN-5. 고른 entry(history 포함) 또는 {"conflict": {...}}."""
+    """IN-4·IN-5. 고른 entry(history 포함) 또는 {"conflict": {...}}.
+
+    patient.age는 진단 시 나이라 날짜가 가장 이른 값을 고르고, 나중 문서의 나이는 이력으로 두지 않는다
+    (at_index.age가 진단 시 나이 + index_day로 계산한다). 현재 값과 값·검체가 같은 이전 값은 같은 내용을
+    다시 적은 것이라 이력에서 뺀다 (성별·나이처럼 문서마다 나오는 칸)."""
     meta = [e for e in entries if e.get("specimen") == "metastasis"]
-    pool = meta or entries
-    latest = max(e["_date"] for e in pool)
-    top = [e for e in pool if e["_date"] == latest]
+    if field == "patient.age":
+        pool = [e for e in entries if e["_date"]] or entries
+        pick = min(e["_date"] for e in pool)
+    else:
+        pool = meta or entries
+        pick = max(e["_date"] for e in pool)
+    top = [e for e in pool if e["_date"] == pick]
     if len({_value_key(e) for e in top}) > 1:
         values = ", ".join(e["source"]["quote"] for e in top)
         return {"conflict": {"field": field, "candidates": [_clean(e) for e in entries],
-                             "note": f"같은 날짜({latest or '날짜 없음'})의 값이 다름: {values}"}}
-    current = _clean(top[-1])
+                             "note": f"같은 날짜({pick or '날짜 없음'})의 값이 다름: {values}"}}
+    cur = top[0] if field == "patient.age" else top[-1]
+    current = _clean(cur)
+    if field == "patient.age" or field.startswith("molecular."):     # 유전자 칸 스키마에는 history가 없다
+        return current
     hist = [{**_clean(e), "superseded_reason": "recurrence" if meta and e.get("specimen") != "metastasis"
-             else "newer_result"} for e in entries if e is not top[-1]]
+             else "newer_result"} for e in entries
+            if e is not cur and (_value_key(e), e.get("specimen")) != (_value_key(cur), cur.get("specimen"))]
     if hist:
         current["history"] = hist
     return current
