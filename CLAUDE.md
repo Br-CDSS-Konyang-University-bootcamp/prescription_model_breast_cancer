@@ -27,11 +27,11 @@ Reimbursement (D) scripts, run from `team_project`:
   - `--offline` uses only files already downloaded.
   - `--no-llm` skips structuring the dosing conditions.
   - `--cross-check` also reads the PDFs with `pdfplumber`.
-  - The conditions step uses the Claude API when `.env` has `ANTHROPIC_API_KEY` with credits. Otherwise it falls back to Claude Code (`claude -p`, after a one-time `/login`). Results are cached in `data/reimbursement/conditions_cache.jsonl`, so only changed rows are sent again.
+  - The conditions step is to move to a local LLM (decided 2026-10-23; model not chosen yet, see `PROJECT.md` §9 and §14). Until that is built, the code uses the Claude API when `.env` has `ANTHROPIC_API_KEY` with credits, and otherwise falls back to Claude Code (`claude -p`, after a one-time `/login`). Results are cached in `data/reimbursement/conditions_cache.jsonl`, so only changed rows are sent again.
   - `python -m src.reimbursement.conditions --import FILE.json` stores hand-written conditions after the same checks.
 - `python -m src.reimbursement.index` puts the L3 chunks into the shared index through `src/rag`. It removes only `doc_type=reimbursement` points, so guideline points stay.
 - Qdrant local mode allows only one process at a time, so do not run it at the same time as searching or `run_indexing`.
-- Packages: `pymupdf`, `jsonschema`, `python-tzdata` (Windows time zones); `pdfplumber` for `--cross-check`; `anthropic` (optional) for the API. Indexing also needs `qdrant-client` and `sentence-transformers`.
+- Packages: `pymupdf`, `jsonschema`, `python-tzdata` (Windows time zones); `pdfplumber` for `--cross-check`; `anthropic` (optional) for the API, until the local LLM replaces it. Indexing also needs `qdrant-client` and `sentence-transformers`.
 - HIRA notices say no unauthorized copying, so never commit HIRA originals or anything made from them. That covers the PDFs, chunks, conditions JSON, cache, review sheet, and `registry.db`. Everything under `data/reimbursement/` other than csv, txt, and py is already ignored; keep generated files out of those three formats.
 
 GDC Biotab files have three header rows (names, alternate names, CDE IDs). Missing values are bracket codes. Keep them: `[Not Available]` means the value was not recorded (maps to 기록 없음), and `[Not Evaluated]` means the test was not done (maps to 미시행).
@@ -39,6 +39,7 @@ GDC Biotab files have three header rows (names, alternate names, CDE IDs). Missi
 Module folders (owners and rules in `PROJECT.md` §15):
 
 - `src/input/` [1] input (A), `src/biomarker/` [2] biomarker (B), `src/recommend/` [4] LLM recommendation (B), `src/rag/` [3] guideline RAG and the shared search index (C), `src/reimbursement/` [5] reimbursement auto-update (D). Tests go in the matching `tests/<module>/`.
+- Chunks are split by source (2026-10-23): C makes the ESMO guideline chunks and their format; D makes the HIRA reimbursement chunks and their format (the `reimbursement` field of `schemas/chunk.json`). Indexing and search code for both guideline and reimbursement chunks (`search_reimbursement`, `retrieve_for_recommend`) stays in `src/rag/` (C); D writes no index or search code.
 - Shared folders: `schemas/` (JSON contracts between modules), `llm/` (common LLM interface), `tests/fixtures/` (virtual charts and expected outputs). Change these only after all four members review.
 - Write code only inside the module folder you are working on. Modules exchange data only through the `schemas/` formats and do not import each other's internals. The one exception: `src/reimbursement/` calls the index functions that `src/rag/` exposes. Index code lives only in `src/rag/`.
 
@@ -48,7 +49,7 @@ The planned design is in `PROJECT.md` (Korean, design v0.1). Read it before star
 2. Biomarker module: deterministic rules turn reports into status values (e.g. HER2-low). The LLM cannot change them.
 3. RAG over ESMO guidelines plus HIRA reimbursement notices, filtered by setting, subtype, and line.
 4. A local LLM proposes therapy candidates with a reimbursement class, citing chunk ids for every sentence.
-5. A reimbursement auto-update module overlays new HIRA notices on the booklet by effective date.
+5. A reimbursement auto-update module overlays new HIRA notices on the booklet by effective date and structures dosing conditions with a local LLM (model not chosen yet).
 6. An H&E QC module (H-optimus-0 features from TCGA slides) is deferred to v0.2. Work on v0.1 first, starting with TCGA-BRCA clinical and mutation data, not slides.
 
 This is a non-profit project. ESMO guidelines are used under ESMO's non-commercial terms. Do not use NCCN, NICE, ASCO treatment guideline (reuse not permitted, checked 2026-10-20), or Korean Breast Cancer Society guideline content. This rule covers the guideline RAG; the biomarker module's ASCO/CAP cutoff references were left unchanged. Do not use pathology models that need manual access approval (TITAN, UNI, UNI2-h, CONCH, Virchow2). Patient chart text never goes to an external API; only local models see it. Every output item must cite its source document, page or section, and date. Update `PROJECT.md` when items in its "남은 과제" section are decided.
