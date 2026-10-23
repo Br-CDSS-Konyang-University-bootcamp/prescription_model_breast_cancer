@@ -1,5 +1,5 @@
 진료의뢰 회신서
-From: 가상의원 외과   To: 가상대학교병원 종양내과
+From: 가상의원 외과   To: 가상대학교병원 종양내과   작성일: 2023.6.1
 환자명: 김가상   등록번호: 00000107   F/38
 Dx) Lt. breast ca., IDC, NG3, pT1cN0(0/3)M0, stage IA
     ER+ (Allred 6), PR+ (Allred 8), HER2 1+, Ki-67 40%

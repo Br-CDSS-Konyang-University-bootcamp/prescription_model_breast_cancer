@@ -29,8 +29,8 @@
         "source": {
           "doc_id": "D2",
           "quote": "2023.5.2 가상의원에서 좌측 유방암 진단",
-          "char_start": 422,
-          "char_end": 447
+          "char_start": 438,
+          "char_end": 463
         }
       },
       "histology": {
@@ -40,8 +40,8 @@
         "source": {
           "doc_id": "D3",
           "quote": "Invasive ductal carcinoma, NST",
-          "char_start": 713,
-          "char_end": 743
+          "char_start": 729,
+          "char_end": 759
         }
       },
       "grade": {
@@ -51,8 +51,8 @@
         "source": {
           "doc_id": "D3",
           "quote": "NG3",
-          "char_start": 764,
-          "char_end": 767
+          "char_start": 780,
+          "char_end": 783
         }
       }
     },
@@ -73,8 +73,8 @@
         "source": {
           "doc_id": "D3",
           "quote": "pT1c N0(sn) M0, stage IA (AJCC 8th)",
-          "char_start": 831,
-          "char_end": 866
+          "char_start": 847,
+          "char_end": 882
         }
       },
       "group": {
@@ -84,8 +84,8 @@
         "source": {
           "doc_id": "D3",
           "quote": "stage IA",
-          "char_start": 847,
-          "char_end": 855
+          "char_start": 863,
+          "char_end": 871
         }
       },
       "positive_ln_count": {
@@ -98,8 +98,8 @@
         "source": {
           "doc_id": "D3",
           "quote": "0/3",
-          "char_start": 803,
-          "char_end": 806
+          "char_start": 819,
+          "char_end": 822
         }
       },
       "disease_extent": {
@@ -109,8 +109,8 @@
         "source": {
           "doc_id": "D3",
           "quote": "stage IA",
-          "char_start": 847,
-          "char_end": 855
+          "char_start": 863,
+          "char_end": 871
         }
       },
       "metastatic_sites": {
@@ -120,8 +120,8 @@
         "source": {
           "doc_id": "D3",
           "quote": "pT1c N0(sn) M0",
-          "char_start": 831,
-          "char_end": 845
+          "char_start": 847,
+          "char_end": 861
         }
       },
       "operable": {
@@ -131,8 +131,8 @@
         "source": {
           "doc_id": "D3",
           "quote": "Left breast, partial mastectomy + sentinel LN biopsy",
-          "char_start": 647,
-          "char_end": 699
+          "char_start": 663,
+          "char_end": 715
         }
       },
       "pathologic_size_mm": {
@@ -143,8 +143,8 @@
         "source": {
           "doc_id": "D3",
           "quote": "1.8 cm",
-          "char_start": 782,
-          "char_end": 788
+          "char_start": 798,
+          "char_end": 804
         }
       }
     },
@@ -165,8 +165,8 @@
         "source": {
           "doc_id": "D3",
           "quote": "ER: positive, Allred score 8 (PS 5 + IS 3)",
-          "char_start": 874,
-          "char_end": 916
+          "char_start": 890,
+          "char_end": 932
         }
       },
       "pr_percent": {
@@ -185,8 +185,8 @@
         "source": {
           "doc_id": "D3",
           "quote": "PR: positive, Allred score 8 (PS 5 + IS 3)",
-          "char_start": 919,
-          "char_end": 961
+          "char_start": 935,
+          "char_end": 977
         }
       },
       "her2_ihc": {
@@ -200,8 +200,8 @@
         "source": {
           "doc_id": "D3",
           "quote": "HER2 (4B5): 1+",
-          "char_start": 964,
-          "char_end": 978
+          "char_start": 980,
+          "char_end": 994
         }
       },
       "her2_ish": {
@@ -223,8 +223,8 @@
         "source": {
           "doc_id": "D3",
           "quote": "Ki-67: 40%",
-          "char_start": 981,
-          "char_end": 991
+          "char_start": 997,
+          "char_end": 1007
         }
       }
     },
@@ -236,8 +236,8 @@
         "source": {
           "doc_id": "D2",
           "quote": "여성",
-          "char_start": 418,
-          "char_end": 420
+          "char_start": 434,
+          "char_end": 436
         }
       },
       "age": {
@@ -247,8 +247,8 @@
         "source": {
           "doc_id": "D2",
           "quote": "38세",
-          "char_start": 414,
-          "char_end": 417
+          "char_start": 430,
+          "char_end": 433
         }
       },
       "menopausal_status": {
@@ -258,8 +258,8 @@
         "source": {
           "doc_id": "D2",
           "quote": "폐경 전",
-          "char_start": 485,
-          "char_end": 489
+          "char_start": 501,
+          "char_end": 505
         }
       },
       "menopausal_basis": {
@@ -269,8 +269,8 @@
         "source": {
           "doc_id": "D2",
           "quote": "월경 주기 28일로 규칙적",
-          "char_start": 491,
-          "char_end": 505
+          "char_start": 507,
+          "char_end": 521
         }
       },
       "ecog": {
@@ -281,8 +281,8 @@
         "source": {
           "doc_id": "D2",
           "quote": "ECOG PS 0",
-          "char_start": 515,
-          "char_end": 524
+          "char_start": 531,
+          "char_end": 540
         }
       }
     },
@@ -313,8 +313,8 @@
         "source": {
           "doc_id": "D2",
           "quote": "재발·전이 소견 없음",
-          "char_start": 526,
-          "char_end": 537
+          "char_start": 542,
+          "char_end": 553
         }
       },
       "metastatic_sites": {
