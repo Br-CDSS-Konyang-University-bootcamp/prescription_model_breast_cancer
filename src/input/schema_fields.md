@@ -291,6 +291,7 @@ TCGA 건수 (score 2+ 또는 Equivocal):
 | `duration_days` [제안, A 결정] | 투여일 (일) | 정수 또는 `null` | 해석 | `2025.1.10 ~ 2025.3.10` → `59` | `end_day − start_day` |
 | `cycles` [draft5] | 주기 수와 주기 길이 | `{value, basis, interval_days, interval_basis}` 또는 `null` | 해석 | `AC q3w #4` → `{"value":4,"basis":"recorded","interval_days":21,"interval_basis":"recorded"}` | tcga_mapping.md §3.6 |
 | `progression_day` [draft5] | 진행일 (진단일 = 0) | 정수 또는 `null` | 해석 | `2026.3 CT상 PD` → 진단일 기준 일수 | 없음 (`null`) |
+| `doses[]` [2026-10-23, 검토 전] | 약별 용량. `drugs`의 약마다 하나. 급여 조건이 약을 골라 1회·누적 용량을 볼 때 (cisplatin, anthracycline 등) | `{drug, per_admin, total, basis, source}`. 용량은 `{value, unit}` 또는 `"No value"`, `basis`는 `recorded` / `estimated`(1회 × 주기) | 해석 | `DP: docetaxel 75mg/m2 + cisplatin 75mg/m2 q3w #4` → `[{"drug":"cisplatin","per_admin":{"value":75,"unit":"mg/m2"},"total":{"value":300,"unit":"mg/m2"},"basis":"estimated"}, …]` | 넣지 않음 (anthracycline은 `anthracycline_drug_dose`) |
 | `ongoing` [2026-10-22, 검토 전] | 기준일에 투약 중인지. `end_day` null만으로는 "투약 중"과 "종료 기록 없음"을 가를 수 없어 둔다 | `true` / `false` / `null`(모름) | 사전 | `현재 키스칼리·페마라 복용 중` → `true` (`end_day`는 `null`) | 없음 (`null`) |
 | `stop_reason` | 중단 사유 | `progression` / `toxicity` / `completed` / `planned_switch` / `maintenance` / `other` | 사전 | `PD로 중단` → `"progression"` | 없음 |
 | `best_response` | 최선 반응 | `CR` / `PR` / `SD` / `PD` / `unknown` | 사전 | `완전관해` → `"CR"` | 괄호 안 반응 |
