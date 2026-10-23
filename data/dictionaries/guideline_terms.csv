@@ -103,3 +103,4 @@ confirmed_state.endocrine_relapse_12m,yes,recurring while receiving adjuvant ET,
 confirmed_state.endocrine_relapse_12m,yes,≤12 months after the end of adjuvant ET,en,esmo,,
 confirmed_state.endocrine_relapse_12m,no,recurring >12 months after the end of adjuvant,en,esmo,1,보조 내분비요법 종료 후 12개월 넘어 재발 (ESMO MBC 1차 갈림길: AI-CDK4/6)
 confirmed_state.high_risk_early,yes,high-risk,en,esmo,1,조기 고위험 (ESMO EBC: 연장 내분비요법·abemaciclib·OFS 권고가 high-risk EBC로 갈린다)
+confirmed_state.visceral_crisis,yes,imminent organ failure,en,esmo,1,장기 위기 (ESMO는 visceral crisis 대신 이 표현. M06·M50: 항암 우선)

@@ -1,0 +1,22 @@
+{
+  "format": "C guideline expected v0.1",
+  "patient_ref": "VC-0103",
+  "input": "expected/confirmed_state.json",
+  "decision": {"setting": "metastatic", "subtype": "HR+/HER2-", "line": "1L"},
+  "expected_chunks": ["esmo-mbc-2026-05-luminal-1l-0fd38a"],
+  "expected_parents": ["esmo-mbc-2026-05-luminal-1l"],
+  "expected_algorithm": ["esmo-mbc-2026-05-fig2-a9baa4"],
+  "not_expected": [
+    "esmo-mbc-2026-05-luminal-1l-02649c",
+    "esmo-mbc-2026-05-luminal-1l-05a4c0",
+    "esmo-mbc-2026-05-luminal-1l-1b9047"
+  ],
+  "sources": [
+    {"doc": "ESMO MBC 2026-05", "section": "Management of luminal MBC > First-line treatment", "page": 1205},
+    {"doc": "ESMO MBC 2026-05", "section": "Figure 2", "page": 1206}
+  ],
+  "status": "draft",
+  "reviewer": null,
+  "reviewed_on": null,
+  "note": "보조 AI 복용 중 재발(12개월 이내), PIK3CA·ESR1 음성 → fulvestrant-CDK4/6 권고와 그림 2의 PIK3CA wt 경로. not_expected: 12개월 넘어 재발·de novo 갈래(AI-CDK4/6)와 PIK3CA 변이 권고 2개. 이 권고들이 정답보다 위에 오면 틀린 순위"
+}
