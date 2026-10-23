@@ -1,6 +1,6 @@
 # 유방암 처방 모델 (prescription_model_breast_cancer) — 프로젝트 개요
 
-> 최종 정리: 2026-10-16 (의료진 검토 대신 원문 기반 정답표로 평가 방식 변경, §12) · 기준 문서: 「유방암 CDSS 설계서 v0.1 — 입력·바이오마커·RAG 모듈」(2026-10-06, @선진)
+> 최종 정리: 2026-10-23 (C·D 역할 정리, 급여 조건 구조화를 로컬 LLM으로 변경, §8·§9·§15) · 2026-10-16 (의료진 검토 대신 원문 기반 정답표로 평가 방식 변경, §12) · 기준 문서: 「유방암 CDSS 설계서 v0.1 — 입력·바이오마커·RAG 모듈」(2026-10-06, @선진)
 
 ## 1. 목표와 범위
 
@@ -324,7 +324,7 @@ LLM은 검색된 지침·급여 기준 청크 안에서만 처방 후보와 급�
 3. 공고·공고예고 게시판은 1페이지만 읽는다. 전체 수집(백필)은 처음 한 번만 한다
 4. 새로 반영할 문서만 내려받는다
 5. PDF를 텍스트·표로 변환하고 유방암 관련 약제·요법만 남긴다
-6. Claude API로 조건 단위 JSON(약제, 요법, 투여 단계, 조건, 시행일, 공고번호, 출처 쪽수)을 만든다
+6. 로컬 LLM(모델 미정, 2026-10-23 변경)으로 조건 단위 JSON(약제, 요법, 투여 단계, 조건, 시행일, 공고번호, 출처 쪽수)을 만든다
 7. 스키마 검사와 약제명 사전 대조를 통과한 것만 반영하고, 신설·변경·삭제 목록을 만든다
 8. 청크마다 source_type(baseline / overlay / preview), effective_from, superseded_by를 붙여 색인한다. 검색은 오늘 기준 유효한 baseline·overlay만 쓴다. 색인은 새 공고가 반영될 때만 돌리고, 그때 급여 청크를 모두 지우고 다시 넣는다 (2026-10-20 결정. 지우고 넣는 사이의 짧은 공백은 색인이 드물어 문제 삼지 않는다)
 9. 실패하면 마지막 정상 버전을 유지하고 현재 버전과 경고를 화면에 보여준다
@@ -370,13 +370,14 @@ LLM은 검색된 지침·급여 기준 청크 안에서만 처방 후보와 급�
 
 ## 9. 모델·도구 선택
 
-1차 조합: Docling(파싱) + bge-m3(임베딩) + bge-reranker-v2-m3(재정렬) + Qdrant(하이브리드 검색) + LlamaIndex(RAG) + Claude API(공고·지침) + 로컬 모델(환자 차트) + RAGAS(평가). 버전과 라이선스는 도입 시점에 다시 확인한다.
+1차 조합: Docling(파싱) + bge-m3(임베딩) + bge-reranker-v2-m3(재정렬) + Qdrant(하이브리드 검색) + LlamaIndex(RAG) + Claude API(지침) + 로컬 모델(환자 차트, 급여 공고 구조화) + RAGAS(평가). 버전과 라이선스는 도입 시점에 다시 확인한다.
 
 LLM 분리 (결정): 데이터 민감도로 나눈다.
 
 | 작업 | 환자 정보 | 모델 |
 |---|---|---|
-| 공고책자·개정 공고 구조화, 지침 청크 정리, 평가용 질의 생성 | 없음 | Claude API (claude-sonnet-5-5) |
+| 지침 청크 정리, 평가용 질의 생성 | 없음 | Claude API (claude-sonnet-5-5) |
+| 공고책자·개정 공고 구조화 ([5], D) | 없음 | 로컬 모델 (모델 미정, 2026-10-23 Claude API에서 변경) |
 | IN-2 필드 추출, BM-1 보고서 파싱, LLM 추천 모듈 | 있음 | 로컬 모델 |
 
 - 로컬 모델 후보: Qwen 계열, EXAONE, snuh/hari-q3-8b. 같은 가상 차트 테스트 세트로 추출 정확도와 인용 준수율을 비교해 고른다
@@ -542,6 +543,7 @@ H&E에서 ER/PR/HER2를 예측해 차트 값과의 불일치를 표시하는 QC 
 - [x] 생식세포/체세포 구분 (2026-10-22 변경: `patient_state`에 생식세포 검사 칸 `molecular.germline.{BRCA1, BRCA2, PALB2}`를 둔다. 이 칸이 있으면 `mutations`의 BRCA는 체세포로 보고, 없으면(TCGA) 아래 gBRCA 가정을 유지한다. 4명 검토 전) (2026-10-20 A 결정): `patient_state`에는 구분 칸을 두지 않는다 (`molecular.mutations`에 `origin` 칸 추가 안 함). BRCA 검사는 보통 생식세포 검사이므로 BRCA1/2는 gBRCA로 본다. TCGA BRCA1/2는 종양 검체 결과지만 gBRCA로 가정한다 (2026-10-15 결정 유지). 가상 차트(TCGA가 아닌 차트)도 gBRCA로 본다 (2026-10-21 A 결정). B 요청: `_gene_marker`가 TCGA가 아닌 차트를 sBRCA로 두는 규칙을 gBRCA로 바꾼다. 제안 (4명 검토): biomarker_record도 patient_state처럼 BRCA1, BRCA2를 하나씩만 받는 것이 가장 단순하다. 다만 C의 태그(`gBRCA`, `sBRCA`)와 D의 급여 조건(`gbrca`, `sbrca`)이 지금 biomarker_record의 마커 이름(`gBRCA1/2`, `sBRCA1/2`)에 맞춰 만들어지고 있으므로, 당장은 마커 이름을 그대로 두고 `sBRCA1/2` 레코드를 만들지 않는 것으로 한다. 마커를 하나로 합칠지는 C·D 작업이 안정된 뒤 다시 정한다
 - [ ] ESR1 테스트 범위 확인 (2026-10-15 기록): TCGA 정답 874명 중 ESR1 변이가 있는 환자는 9명뿐이다 (모두 원발 조직 결과). 재검 필요 규칙(원발 결과 + 이후 내분비요법 진행)은 전이성 28명으로 시험할 수 있지만, ESR1 양성 판정(허가 동반진단 변이 목록)은 사례가 적다. MSK-IMPACT는 쓰지 않기로 했으므로(2026-10-15) 부족하면 가상 차트로 사례를 만든다. 지금은 확인만 해 두고 넘어간다
 - [ ] 로컬 LLM 선정 (Qwen 계열, EXAONE, snuh/hari-q3-8b 비교)
+- [ ] 급여 조건 구조화([5], D)용 로컬 LLM 선정 (2026-10-23 추가: Claude API 대신 로컬 모델로 바꾸기로 함, 모델 미정)
 - [ ] 최종 출력 형식 (CLI, 웹 UI, 리포트 등)
 - [ ] 다음 버전: 약물유전체 경고, Oncotype 대리 점수, 멀티모달 QC 연결 (v0.2 문서)
 - [ ] v0.2: H-optimus-0 접근 신청 후 바로 열리는지 확인, 슬라이드 100~200장으로 특징 추출 파이프라인 검증
@@ -578,9 +580,10 @@ team_project/
 1. 모듈 코드는 `src/<모듈>/`, 모듈 테스트는 `tests/<모듈>/`에만 둔다.
 2. 공용 폴더(`schemas/`, `llm/`, `tests/fixtures/`)는 4명이 모두 검토한 뒤에만 바꾼다.
 3. 모듈끼리는 `schemas/`에 정한 JSON 형식으로만 데이터를 주고받는다. 다른 모듈의 내부 함수를 직접 가져다 쓰지 않는다. 예외: D는 `src/rag/`가 공개한 색인 함수를 호출해 급여 청크를 넣는다.
-4. 공용 검색 색인 코드는 `src/rag/`에만 둔다 (C 관리). D는 색인 코드를 따로 만들지 않는다.
-5. 브랜치는 모듈별로 나눈다 (예: `feature/input-deid`, `feature/rag-chunking`). 공용 폴더 변경은 별도 브랜치로 올린다.
-6. 앞 모듈이 끝나지 않았으면 `tests/fixtures/`의 예상 출력을 입력으로 써서 개발한다.
+4. 공용 검색 색인 코드와 검색 코드(지침·급여 모두)는 `src/rag/`에만 둔다 (C 관리). D는 색인·검색 코드를 따로 만들지 않는다 (2026-10-23 확인).
+5. 청크는 출처별로 나눠 만든다 (2026-10-23): ESMO 지침 청크와 형식은 C, 심평원 급여 청크와 형식(`schemas/chunk.json`의 `reimbursement` 칸)은 D.
+6. 브랜치는 모듈별로 나눈다 (예: `feature/input-deid`, `feature/rag-chunking`). 공용 폴더 변경은 별도 브랜치로 올린다.
+7. 앞 모듈이 끝나지 않았으면 `tests/fixtures/`의 예상 출력을 입력으로 써서 개발한다.
 
 ### 15.2 폴더별 사용법과 파일 목록
 
@@ -606,8 +609,8 @@ team_project/
 |---|---|---|---|
 | `src/input/` | A | 비식별화(IN-0)부터 유전자 보고서 전달(IN-7)까지. 환자 텍스트는 `llm/`의 로컬 설정으로만 처리 | 차트 원문 → `patient_state` |
 | `src/biomarker/` | B | BM-1 파싱(로컬 LLM), BM-2·BM-4는 규칙 코드, BM-3은 허가사항 변이 목록·CIViC·ClinVar 로컬 조회. 아형과 치료 상황(현재 범주, 차수)도 산출 | `patient_state` → `biomarker_record` |
-| `src/rag/` | C | 지침 수집·파싱·청킹, 공용 Qdrant 색인, 검색 API. D가 호출할 색인 함수를 여기서 공개 | 지침 PDF, 급여 청크 → 검색 결과(`chunk` 목록) |
-| `src/reimbursement/` | D | 심평원 게시판 수집, 날짜 규칙, SQLite 레지스트리, 급여 청크 생성. 색인 반영은 `src/rag/` 함수 호출 | 심평원 공고 → 급여 `chunk` |
+| `src/rag/` | C | ESMO 지침 수집·파싱·청킹, 공용 Qdrant 색인, 지침·급여 검색 API. D가 호출할 색인 함수를 여기서 공개 | 지침 PDF, 급여 청크 → 검색 결과(`chunk` 목록) |
+| `src/reimbursement/` | D | 심평원 게시판 수집, 날짜 규칙, SQLite 레지스트리, 급여 청크 생성과 형식(`reimbursement` 칸). 조건 구조화는 로컬 LLM. 색인 반영은 `src/rag/` 함수 호출 | 심평원 공고 → 급여 `chunk` |
 | `src/recommend/` | B (2단계) | 프롬프트 구성, 로컬 LLM 호출, 스키마 검증, 환각 방지 후처리, 급여 분류 | `patient_state` + `biomarker_record` + 검색 결과 → `recommendation` |
 | `src/__init__.py` | 공용 | `from src.input import ...` 형태로 가져오기 위한 빈 파일 | — |
 
@@ -723,7 +726,7 @@ python data/script/tcga_brca_crop.py
 
 ### 15.6 담당 C — [3] 지침 RAG + 공용 검색 색인
 
-폴더: `src/rag/`, `tests/rag/`.
+폴더: `src/rag/`, `tests/rag/`. ESMO 지침 청크와 그 형식을 만들고, 지침·급여 청크의 색인과 검색 코드를 맡는다. 급여 청크 자체와 `reimbursement` 칸 형식은 D가 만든다 (2026-10-23).
 
 | 작업 | 내용 |
 |---|---|
@@ -734,20 +737,22 @@ python data/script/tcga_brca_crop.py
 | 알고리즘 도식 | 노드-엣지 텍스트("조건 → 권고")로 변환 후 사람 검수 |
 | 공용 색인 | Qdrant + bge-m3 + BM25 하이브리드. `schemas/chunk.json` 메타데이터. 색인에는 최신 청크만 두고 옛 버전은 파일로 재현 (2026-10-20). D가 호출할 색인 함수 공개 |
 | 검색 API | setting·subtype·line 하드 필터 → biomarker_tags 가중치 → bge-reranker-v2-m3 재정렬. ESMO EBC와 MBC는 출처별로 따로 반환 |
+| 급여 검색 | D의 급여 청크를 찾는 함수(`search_reimbursement`, `search_reimbursement_rows`)와 추천 모듈에 넘길 지침·급여 묶음(`retrieve_for_recommend`). 거르는 규칙(공고예고·대체된 청크·시행 전 청크 제외)은 D와 함께 정한다 |
 | 평가 | 아형 × 세팅 × 차수 조합별 질의의 recall@5. 평가용 질의는 Claude API로 생성 가능 (환자 정보 없음) |
 
 산출물: 지침 청크, 공용 색인, 검색 API. 2단계: 후보 약제명으로 급여 청크를 다시 검색하는 2차 검색 연결, RAGAS 평가.
 
 ### 15.7 담당 D — [5] 급여 기준 자동 업데이트 + 급여 청크
 
-폴더: `src/reimbursement/`, `tests/reimbursement/`.
+폴더: `src/reimbursement/`, `tests/reimbursement/`. 심평원 급여 청크와 그 형식(`schemas/chunk.json`의 `reimbursement` 칸)을 맡는다. 색인·검색 코드는 만들지 않고 C의 `src/rag/` 함수를 쓴다 (2026-10-23).
 
 | 작업 | 내용 |
 |---|---|
 | 수집 | 항암화학요법 게시판(공고책자, 허가초과 항암요법), 공고 게시판, 공고예고 게시판. 다운로드 요청 재현, 안 되면 Playwright. 첨부 형식(PDF/HWP) 확인 |
 | 날짜 규칙 | §8 날짜 비교 규칙 1–5 (책자 날짜 B, 시행일 기준 비교, 예정·진행중 처리, 날짜 표기 통일) |
 | 레지스트리 | SQLite (source, doc_no, board_id, effective_date, posted_date, file_name, file_hash, status) |
-| 구조화 | 유방암 약제·요법만 남기고 Claude API로 조건 단위 JSON 생성 (약제, 요법, 투여 단계, 조건, 시행일, 공고번호, 출처 쪽수). 스키마 검사와 약제명 사전 대조 |
+| 청크 형식 | `schemas/chunk.json`의 `reimbursement` 칸(투여 조건 등) 설계와 개정안 (`src/reimbursement/schema_proposal.md`). 공용 스키마라 바꿀 때는 4명 검토 |
+| 구조화 | 유방암 약제·요법만 남기고 로컬 LLM(모델 미정, 2026-10-23 Claude API에서 변경)으로 조건 단위 JSON 생성 (약제, 요법, 투여 단계, 조건, 시행일, 공고번호, 출처 쪽수). 스키마 검사와 약제명 사전 대조 |
 | 허가초과 | 유방암 인정 요법 21건을 (암종, 약제 조합, 투여대상, 투여단계, 본인부담률)로 저장. 파일명 날짜로 갱신 판단 |
 | 색인 반영 | `src/rag/` 색인 함수로 급여 청크 저장. source_type(baseline / overlay / preview), effective_from, superseded_by 부여 |
 | 실패 처리 | 마지막 정상 버전 유지, 현재 버전과 경고 표시 |
@@ -761,7 +766,7 @@ python data/script/tcga_brca_crop.py
 |---|---|---|
 | `schemas/patient_state.json` | A | B, C, D |
 | `schemas/biomarker_record.json` | B | A, C, D |
-| `schemas/chunk.json` | C | D 필수, A, B |
+| `schemas/chunk.json` | C (`reimbursement` 칸은 D) | D 필수, A, B (`reimbursement` 칸은 C 필수) |
 | `schemas/recommendation.json` | B | A, C, D |
 | `llm/` 공통 인터페이스 | A | 전원 |
 | `tests/fixtures/` 가상 차트 5건 | A | 전원, 모듈별 예상 출력은 각 담당자 |

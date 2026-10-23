@@ -22,6 +22,14 @@
 | `common/vocab.py` | 표준값 사전(`data/dictionaries/field_vocab.csv`) 조회. 정답 생성과 IN-3 정규화가 같은 사전을 쓴다 |
 | `script/tcga_to_patient_state.py` | TCGA 크롭본 → `patient_state` 874명 (2026-10-15). 변환만 하고 기본은 파일을 만들지 않는다. 규칙 명세는 tcga_mapping.md |
 | `truth/tcga_truth.py` | 이전 정답 생성기 (같은 변환 + 파일 저장·스키마 검증·보고서). `tests/input/test_tcga_truth.py`가 쓴다 |
+| `pipeline.py` | 진입점 `run(chart_text, extract, patient_ref=, created_at=)` → `(patient_state, issues)`. `extract`가 IN-2 자리 (LLM 또는 정답 후보) |
+| `candidates.py` | IN-2 후보 형식 `{doc_id, field, quote, specimen, observed_date}`, 정답 → 후보 (`from_expected`) |
+| `deid.py` | IN-0 비식별화 (정규식): 이름·등록번호·주민번호·연락처·주소 → `[이름1]` 등. 대응표는 메모리에만 |
+| `classify.py` | IN-1 문서 나누기·종류·날짜 (원문 기준 위치) |
+| `quote.py` | 인용 확인: 가림 표시 복원 → 원문에서 찾기 (공백 차이만 허용) |
+| `normalize.py` | IN-3 구절 → 표준값 (`field_vocab.csv`, `drug_names.csv`) |
+| `assemble.py` | IN-4~6 값 고르기·충돌·누락, 투약 setting·progression_day, anthracycline 용량, IN-7, `lines.annotate`, 스키마 검증 |
+| `score.py` | 채점: 필드 정확도, 상태 혼동표, 근거 위치(정확 일치·겹침), 인용 준수율. `python -m src.input.score --gold` 또는 `<출력 폴더>` |
 | `chart/fixed_chart.py` | `patient_state` ↔ 고정 형식 차트 원문(`chart.txt`). `render()`는 보고서 4종으로 쓰고, `parse()`는 다시 `patient_state`로 읽으며 원문 위치(`source`)를 채운다 (2026-10-21) |
 
 차트 원문 변환 (고정 형식, 2026-10-21):

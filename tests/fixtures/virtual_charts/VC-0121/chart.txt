@@ -1,0 +1,47 @@
+[다학제 진료 회의록]   2025.3.17   종양내과
+환자명: 김가상   등록번호: 00000121   F/47   주민번호: 780101-2******   연락처: 010-0000-0121
+병원: 가상대학교병원 종양내과   담당의: 이가상
+
+증례: 폐경 전 (월경 규칙적). 2025.3.3 core bx로 진단, cT3N1M0, stage IIIA, HR+/HER2- (HER2 1+), grade 3.
+      ECOG 0. 심장 질환 과거력 없음
+   Echo (2025.3.13): LVEF 64%
+논의: 종양 크고 림프절 양성, Ki-67 높음 → 선행 항암 후 수술.
+결론: 선행 항암 요법 결정
+
+
+SURGICAL PATHOLOGY REPORT
+환자명: 김가상   등록번호: 00000121   F/47
+Received: 2025.3.3   Reported: 2025.3.7
+Specimen: 좌측 유방, 초음파 유도 중심 생검
+
+DIAGNOSIS
+  Invasive ductal carcinoma, NST
+  Histologic grade: Nottingham grade 3
+
+IMMUNOHISTOCHEMISTRY
+  ER : 양성 90%
+  PR : 약양성 5%
+  HER2 (4B5): 1+
+  Ki-67: 45%
+
+Pathologist: 박가상
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000121   F/47
+검사: Breast MRI (contrast)   검사일: 2025.3.8
+
+Findings:
+  좌측 유방 5.6 cm 종괴, 좌측 액와 림프절 2개 비대.
+Conclusion:
+  좌측 액와 림프절 전이 의심
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000121   F/47
+검사: F-18 FDG PET-CT   검사일: 2025.3.11
+
+Findings:
+  좌측 유방 종괴 (SUVmax 9.1), 좌측 액와 림프절 섭취.
+Conclusion:
+  원격 전이 없음

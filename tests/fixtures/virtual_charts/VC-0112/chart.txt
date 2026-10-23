@@ -1,0 +1,71 @@
+<외래 경과기록>   2024.6.1   종양내과
+환자명: 김가상   등록번호: 00000112   F/47   주민번호: 750101-2******   연락처: 010-0000-0112
+병원: 가상대학교병원 종양내과   담당의: 이가상
+
+S) 마른 기침 1개월, 우상복부 불편감.
+   폐경: 폐경 전, 월경 규칙적
+   과거력: 심장 질환 과거력 없음
+   Echo (2024.5.22): LVEF 60%
+O) ECOG PS 0
+
+A) Rt. breast IDC, 2022.9.5 수술로 진단, pT2N1a(2/14), IIB, HR-/HER2+ (IHC 3+)
+   보조 AC #4 → paclitaxel + trastuzumab → trastuzumab, 2024.1.8 총 18회 완료
+   2024.5.7 폐·간 전이 (trastuzumab 종료 4개월 뒤), Brain MRI 음성
+
+P) 전이성 HER2 양성 첫 전신 요법 결정
+
+
+[병리결과보고서]
+환자명: 김가상   등록번호: 00000112   F/46
+접수일: 2022.9.5   보고일: 2022.9.11
+검체: 우측 유방 부분절제술 + 액와 림프절 절제
+
+진단
+  조직형: 침윤성 유관암 (invasive ductal carcinoma, NST)
+  조직학적 등급: III (Nottingham grade 3)
+  종양 크기: 3.1 cm
+  림프절: 전이 2개 / 검사 14개
+  절제연: 음성
+  pTNM: pT2 N1a M0, stage IIB (AJCC 8th)
+
+면역조직화학
+  ER : 음성, Allred score 0 (PS 0 + IS 0)
+  PR : 음성, Allred score 0 (PS 0 + IS 0)
+  HER2 (4B5): 3+
+  Ki-67: 55%
+
+판독의: 박가상
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000112   F/47
+검사: Chest-abdomen CT (contrast)   검사일: 2024.5.7
+
+Findings:
+  양측 폐 다발성 결절 (최대 1.4 cm), 간 S4 2.0 cm 결절.
+Conclusion:
+  폐·간 다발성 전이
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000112   F/47
+검사: Brain MRI (contrast)   검사일: 2024.5.11
+
+Findings:
+  뇌실질 내 조영 증강 병변 없음.
+Conclusion:
+  뇌 전이 없음
+
+
+<병리 조직검사 결과>
+환자명: 김가상   등록번호: 00000112   F/47
+2024.5.18 폐 생검 (2024.5.13 시행). Metastatic carcinoma, consistent with breast primary.
+ER : 음성, Allred score 0 (PS 0 + IS 0), PR : 음성, Allred score 0 (PS 0 + IS 0), HER2 (4B5): 3+.
+
+
+[투약 기록]
+환자명: 김가상   등록번호: 00000112   F/47
+구분    요법                                              시작         종료         주기       반응   중단 사유
+보조    AC (doxorubicin 60mg/m2 + cyclophosphamide 600mg/m2)   2022.10.10   2022.12.12   q3w #4   -   계획된 변경
+보조    paclitaxel 80mg/m2 + trastuzumab   2023.1.2   2023.3.20   weekly #12   -   계획된 변경
+보조    허셉틴 (trastuzumab) 6mg/kg   2023.4.10   2024.1.8   q3w #14   -   완료 (총 18회)

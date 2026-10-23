@@ -1,0 +1,734 @@
+{
+  "schema_version": "0.1-draft6",
+  "patient_ref": "VC-0110",
+  "created_at": "2026-10-23T00:00:00+09:00",
+  "index_day": 2480,
+  "documents": [
+    {
+      "doc_id": "D1",
+      "doc_type": "progress_note",
+      "doc_date": "2025-02-26"
+    },
+    {
+      "doc_id": "D2",
+      "doc_type": "pathology",
+      "doc_date": "2018-05-20"
+    },
+    {
+      "doc_id": "D3",
+      "doc_type": "radiology",
+      "doc_date": "2025-01-28"
+    },
+    {
+      "doc_id": "D4",
+      "doc_type": "radiology",
+      "doc_date": "2025-01-29"
+    },
+    {
+      "doc_id": "D5",
+      "doc_type": "pathology",
+      "doc_date": "2025-02-09"
+    },
+    {
+      "doc_id": "D6",
+      "doc_type": "medication",
+      "doc_date": null
+    }
+  ],
+  "fields": {
+    "diagnosis": {
+      "diagnosis_date": {
+        "status": "present",
+        "value": "2018-05-14",
+        "raw": "2018.5.14",
+        "source": {
+          "doc_id": "D1",
+          "quote": "2018.5.14 수술로 진단",
+          "char_start": 263,
+          "char_end": 279
+        }
+      },
+      "histology": {
+        "status": "present",
+        "value": "IDC",
+        "raw": "침윤성 유관암 (invasive ductal carcinoma, NST)",
+        "source": {
+          "doc_id": "D2",
+          "quote": "침윤성 유관암 (invasive ductal carcinoma, NST)",
+          "char_start": 638,
+          "char_end": 678
+        }
+      },
+      "grade": {
+        "status": "present",
+        "value": 3,
+        "raw": "III (Nottingham grade 3)",
+        "source": {
+          "doc_id": "D2",
+          "quote": "III (Nottingham grade 3)",
+          "char_start": 690,
+          "char_end": 714
+        }
+      }
+    },
+    "stage": {
+      "ctnm": {
+        "status": "not_recorded"
+      },
+      "ptnm": {
+        "status": "present",
+        "value": {
+          "t": "T2",
+          "n": "N0",
+          "m": "M0",
+          "edition": "8th"
+        },
+        "raw": "pT2 N0 M0, stage IIA (AJCC 8th)",
+        "observed_date": "2018-05-14",
+        "source": {
+          "doc_id": "D2",
+          "quote": "pT2 N0 M0, stage IIA (AJCC 8th)",
+          "char_start": 770,
+          "char_end": 801
+        }
+      },
+      "group": {
+        "status": "present",
+        "value": "IIA",
+        "raw": "stage IIA",
+        "source": {
+          "doc_id": "D2",
+          "quote": "stage IIA",
+          "char_start": 781,
+          "char_end": 790
+        }
+      },
+      "positive_ln_count": {
+        "status": "present",
+        "value": {
+          "positive": 0,
+          "examined": 3
+        },
+        "raw": "전이 0개 / 검사 3개",
+        "source": {
+          "doc_id": "D2",
+          "quote": "전이 0개 / 검사 3개",
+          "char_start": 738,
+          "char_end": 751
+        }
+      },
+      "disease_extent": {
+        "status": "present",
+        "value": "early",
+        "raw": "stage IIA",
+        "source": {
+          "doc_id": "D2",
+          "quote": "stage IIA",
+          "char_start": 781,
+          "char_end": 790
+        }
+      },
+      "metastatic_sites": {
+        "status": "present",
+        "value": "[Not Applicable]",
+        "raw": "pT2 N0 M0",
+        "source": {
+          "doc_id": "D2",
+          "quote": "pT2 N0 M0",
+          "char_start": 770,
+          "char_end": 779
+        }
+      },
+      "operable": {
+        "status": "present",
+        "value": "yes",
+        "raw": "좌측 유방 부분절제술 + 감시림프절 생검",
+        "source": {
+          "doc_id": "D2",
+          "quote": "좌측 유방 부분절제술 + 감시림프절 생검",
+          "char_start": 604,
+          "char_end": 626
+        }
+      },
+      "pathologic_size_mm": {
+        "status": "present",
+        "value": 26,
+        "raw": "2.6 cm",
+        "observed_date": "2018-05-14",
+        "source": {
+          "doc_id": "D2",
+          "quote": "2.6 cm",
+          "char_start": 724,
+          "char_end": 730
+        }
+      }
+    },
+    "receptors": {
+      "er_percent": {
+        "status": "present",
+        "value": {
+          "percent": 70,
+          "result": "positive"
+        },
+        "raw": "ER : 양성 70%",
+        "specimen": "metastasis",
+        "observed_date": "2025-02-04",
+        "source": {
+          "doc_id": "D5",
+          "quote": "ER : 양성 70%",
+          "char_start": 1385,
+          "char_end": 1396
+        },
+        "history": [
+          {
+            "status": "present",
+            "value": {
+              "allred": {
+                "total": 7,
+                "ps": 5,
+                "is": 2
+              },
+              "result": "positive"
+            },
+            "raw": "ER : 양성, Allred score 7 (PS 5 + IS 2)",
+            "specimen": "primary",
+            "observed_date": "2018-05-14",
+            "source": {
+              "doc_id": "D2",
+              "quote": "ER : 양성, Allred score 7 (PS 5 + IS 2)",
+              "char_start": 812,
+              "char_end": 849
+            },
+            "superseded_reason": "recurrence"
+          }
+        ]
+      },
+      "pr_percent": {
+        "status": "present",
+        "value": {
+          "percent": 10,
+          "result": "positive"
+        },
+        "raw": "PR : 양성 10%",
+        "specimen": "metastasis",
+        "observed_date": "2025-02-04",
+        "source": {
+          "doc_id": "D5",
+          "quote": "PR : 양성 10%",
+          "char_start": 1398,
+          "char_end": 1409
+        },
+        "history": [
+          {
+            "status": "present",
+            "value": {
+              "allred": {
+                "total": 5,
+                "ps": 3,
+                "is": 2
+              },
+              "result": "positive"
+            },
+            "raw": "PR : 양성, Allred score 5 (PS 3 + IS 2)",
+            "specimen": "primary",
+            "observed_date": "2018-05-14",
+            "source": {
+              "doc_id": "D2",
+              "quote": "PR : 양성, Allred score 5 (PS 3 + IS 2)",
+              "char_start": 852,
+              "char_end": 889
+            },
+            "superseded_reason": "recurrence"
+          }
+        ]
+      },
+      "her2_ihc": {
+        "status": "present",
+        "value": {
+          "score": "3+"
+        },
+        "raw": "HER2 (4B5): 3+",
+        "specimen": "metastasis",
+        "observed_date": "2025-02-04",
+        "source": {
+          "doc_id": "D5",
+          "quote": "HER2 (4B5): 3+",
+          "char_start": 1411,
+          "char_end": 1425
+        },
+        "history": [
+          {
+            "status": "present",
+            "value": {
+              "score": "3+"
+            },
+            "raw": "HER2 (4B5): 3+",
+            "specimen": "primary",
+            "observed_date": "2018-05-14",
+            "source": {
+              "doc_id": "D2",
+              "quote": "HER2 (4B5): 3+",
+              "char_start": 892,
+              "char_end": 906
+            },
+            "superseded_reason": "recurrence"
+          }
+        ]
+      },
+      "her2_ish": {
+        "status": "not_recorded"
+      },
+      "pdl1": {
+        "status": "not_recorded"
+      }
+    },
+    "proliferation": {
+      "ki67_percent": {
+        "status": "present",
+        "value": {
+          "percent": 40
+        },
+        "raw": "Ki-67: 40%",
+        "specimen": "primary",
+        "observed_date": "2018-05-14",
+        "source": {
+          "doc_id": "D2",
+          "quote": "Ki-67: 40%",
+          "char_start": 909,
+          "char_end": 919
+        }
+      }
+    },
+    "patient": {
+      "gender": {
+        "status": "present",
+        "value": "FEMALE",
+        "raw": "F/51",
+        "source": {
+          "doc_id": "D2",
+          "quote": "F/51",
+          "char_start": 563,
+          "char_end": 567
+        }
+      },
+      "age": {
+        "status": "present",
+        "value": 51,
+        "raw": "F/51",
+        "source": {
+          "doc_id": "D2",
+          "quote": "F/51",
+          "char_start": 563,
+          "char_end": 567
+        }
+      },
+      "menopausal_status": {
+        "status": "present",
+        "value": "postmenopausal",
+        "raw": "폐경 후",
+        "source": {
+          "doc_id": "D1",
+          "quote": "폐경 후",
+          "char_start": 162,
+          "char_end": 166
+        }
+      },
+      "menopausal_basis": {
+        "status": "present",
+        "value": "age_amenorrhea",
+        "raw": "LMP 2016년",
+        "source": {
+          "doc_id": "D1",
+          "quote": "LMP 2016년",
+          "char_start": 168,
+          "char_end": 177
+        }
+      },
+      "ecog": {
+        "status": "present",
+        "value": 0,
+        "raw": "ECOG PS 0",
+        "observed_date": "2025-02-26",
+        "source": {
+          "doc_id": "D1",
+          "quote": "ECOG PS 0",
+          "char_start": 233,
+          "char_end": 242
+        }
+      },
+      "cardiac_history": {
+        "status": "present",
+        "value": "no",
+        "raw": "심장 질환 과거력 없음",
+        "source": {
+          "doc_id": "D1",
+          "quote": "심장 질환 과거력 없음",
+          "char_start": 187,
+          "char_end": 199
+        }
+      },
+      "lvef_percent": {
+        "status": "present",
+        "value": 62,
+        "raw": "LVEF 62%",
+        "observed_date": "2025-02-16",
+        "source": {
+          "doc_id": "D1",
+          "quote": "LVEF 62%",
+          "char_start": 221,
+          "char_end": 229
+        }
+      }
+    },
+    "imaging_findings": [
+      {
+        "modality": "CT",
+        "day": 2451,
+        "date": "2025-01-28",
+        "sites": [
+          "liver"
+        ],
+        "certainty": "confirmed",
+        "source": {
+          "doc_id": "D3",
+          "quote": "간 다발성 전이",
+          "char_start": 1085,
+          "char_end": 1093
+        }
+      },
+      {
+        "modality": "bone_scan",
+        "day": 2452,
+        "date": "2025-01-29",
+        "sites": [
+          "bone"
+        ],
+        "certainty": "confirmed",
+        "source": {
+          "doc_id": "D4",
+          "quote": "골전이 (L3, Rt. 6th rib)",
+          "char_start": 1232,
+          "char_end": 1253
+        }
+      }
+    ],
+    "treatment_history": [
+      {
+        "drugs": [
+          "doxorubicin",
+          "cyclophosphamide"
+        ],
+        "setting": "adjuvant",
+        "start_date": "2018-06-13",
+        "end_date": "2018-08-15",
+        "start_day": 30,
+        "end_day": 93,
+        "duration_days": 63,
+        "cycles": {
+          "value": 4,
+          "basis": "recorded",
+          "interval_days": 21,
+          "interval_basis": "recorded"
+        },
+        "progression_day": null,
+        "stop_reason": "planned_switch",
+        "best_response": null,
+        "source": {
+          "doc_id": "D6",
+          "quote": "AC (doxorubicin 60mg/m2 + cyclophosphamide 600mg/m2)   2018.6.13   2018.8.15   q3w #4   -   계획된 변경",
+          "char_start": 1572,
+          "char_end": 1670
+        },
+        "line": null,
+        "endocrine_line": null,
+        "chemo_line": null
+      },
+      {
+        "drugs": [
+          "paclitaxel",
+          "trastuzumab"
+        ],
+        "setting": "adjuvant",
+        "start_date": "2018-09-05",
+        "end_date": "2018-11-21",
+        "start_day": 114,
+        "end_day": 191,
+        "duration_days": 77,
+        "cycles": {
+          "value": 12,
+          "basis": "recorded",
+          "interval_days": 7,
+          "interval_basis": "recorded"
+        },
+        "progression_day": null,
+        "stop_reason": "planned_switch",
+        "best_response": null,
+        "source": {
+          "doc_id": "D6",
+          "quote": "paclitaxel 80mg/m2 + trastuzumab   2018.9.5   2018.11.21   weekly #12   -   계획된 변경",
+          "char_start": 1677,
+          "char_end": 1759
+        },
+        "line": null,
+        "endocrine_line": null,
+        "chemo_line": null
+      },
+      {
+        "drugs": [
+          "letrozole"
+        ],
+        "setting": "adjuvant",
+        "start_date": "2018-11-30",
+        "end_date": "2023-11-30",
+        "start_day": 200,
+        "end_day": 2026,
+        "duration_days": 1826,
+        "cycles": null,
+        "progression_day": null,
+        "stop_reason": "completed",
+        "best_response": null,
+        "source": {
+          "doc_id": "D6",
+          "quote": "페마라 (letrozole) 2.5mg qd   2018.11.30   2023.11.30   -   -   완료 (5년)",
+          "char_start": 1849,
+          "char_end": 1917
+        },
+        "line": null,
+        "endocrine_line": null,
+        "chemo_line": null
+      },
+      {
+        "drugs": [
+          "trastuzumab"
+        ],
+        "setting": "adjuvant",
+        "start_date": "2018-12-12",
+        "end_date": "2019-09-11",
+        "start_day": 212,
+        "end_day": 485,
+        "duration_days": 273,
+        "cycles": {
+          "value": 14,
+          "basis": "recorded",
+          "interval_days": 21,
+          "interval_basis": "recorded"
+        },
+        "progression_day": null,
+        "stop_reason": "completed",
+        "best_response": null,
+        "source": {
+          "doc_id": "D6",
+          "quote": "허셉틴 (trastuzumab) 6mg/kg   2018.12.12   2019.9.11   q3w #14   -   완료 (총 18회)",
+          "char_start": 1766,
+          "char_end": 1842
+        },
+        "line": null,
+        "endocrine_line": null,
+        "chemo_line": null
+      }
+    ],
+    "anthracycline_drug_dose": {
+      "administered": "positive",
+      "drugs": [
+        {
+          "drug": "doxorubicin",
+          "timeline_index": null,
+          "combined_with": [
+            "cyclophosphamide"
+          ],
+          "dose_per_admin": {
+            "value": 60,
+            "unit": "mg/m2"
+          },
+          "cycles": {
+            "value": 4,
+            "basis": "recorded",
+            "interval_days": 21,
+            "interval_basis": "recorded"
+          },
+          "total_dose": {
+            "value": 240,
+            "unit": "mg/m2"
+          },
+          "raw": "AC (doxorubicin 60mg/m2 + cyclophosphamide 600mg/m2)   2018.6.13   2018.8.15   q3w #4   -   계획된 변경",
+          "source": {
+            "doc_id": "D6",
+            "quote": "AC (doxorubicin 60mg/m2 + cyclophosphamide 600mg/m2)   2018.6.13   2018.8.15   q3w #4   -   계획된 변경",
+            "char_start": 1572,
+            "char_end": 1670
+          }
+        }
+      ]
+    },
+    "neoadjuvant_response": {
+      "pcr": {
+        "status": "not_recorded"
+      },
+      "rcb": {
+        "status": "not_recorded"
+      }
+    },
+    "recurrence": {
+      "recurrence_date": {
+        "status": "present",
+        "value": "2025-01-28",
+        "raw": "2025.1.28",
+        "source": {
+          "doc_id": "D1",
+          "quote": "2025.1.28 간·골 전이",
+          "char_start": 418,
+          "char_end": 434
+        }
+      },
+      "adjuvant_endocrine_end_date": {
+        "status": "present",
+        "value": "2023-11-30",
+        "raw": "2023.11.30",
+        "source": {
+          "doc_id": "D1",
+          "quote": "2023.11.30",
+          "char_start": 395,
+          "char_end": 405
+        }
+      },
+      "status": {
+        "status": "present",
+        "value": "distant",
+        "raw": "간·골 전이",
+        "source": {
+          "doc_id": "D1",
+          "quote": "간·골 전이",
+          "char_start": 428,
+          "char_end": 434
+        }
+      },
+      "metastatic_sites": {
+        "status": "present",
+        "value": [
+          "liver",
+          "bone"
+        ],
+        "raw": "간·골 전이",
+        "source": {
+          "doc_id": "D1",
+          "quote": "간·골 전이",
+          "char_start": 428,
+          "char_end": 434
+        }
+      },
+      "metastasis_day": {
+        "status": "present",
+        "value": 2451,
+        "raw": "2025.1.28 간·골 전이",
+        "source": {
+          "doc_id": "D1",
+          "quote": "2025.1.28 간·골 전이",
+          "char_start": 418,
+          "char_end": 434
+        }
+      },
+      "recurrence_day": {
+        "status": "present",
+        "value": 2451,
+        "raw": "2025.1.28 간·골 전이",
+        "source": {
+          "doc_id": "D1",
+          "quote": "2025.1.28 간·골 전이",
+          "char_start": 418,
+          "char_end": 434
+        }
+      },
+      "surgery": {
+        "status": "not_recorded"
+      },
+      "surgery_intent": {
+        "status": "not_recorded"
+      }
+    },
+    "molecular": {
+      "mutations": {
+        "ESR1": {
+          "status": "not_recorded"
+        },
+        "PIK3CA": {
+          "status": "not_recorded"
+        },
+        "AKT1": {
+          "status": "not_recorded"
+        },
+        "PTEN": {
+          "status": "not_recorded"
+        },
+        "BRCA1": {
+          "status": "not_recorded"
+        },
+        "BRCA2": {
+          "status": "not_recorded"
+        },
+        "PALB2": {
+          "status": "not_recorded"
+        }
+      }
+    },
+    "genomic_reports": [],
+    "deemed_lines": [
+      {
+        "rule_id": "DEEM-ANTHRA-TAXANE",
+        "category": "chemo",
+        "status": "met",
+        "basis": "선행·보조요법에 anthracycline과 taxane이 모두 있음",
+        "regimen_refs": [
+          0,
+          1
+        ],
+        "gap_days": null,
+        "notice_page": "61-62"
+      },
+      {
+        "rule_id": "DEEM-SG-1Y",
+        "category": "chemo",
+        "status": "not_met",
+        "basis": "선행·보조요법 letrozole 종료 후 425일 뒤 전이 (기준 365일 초과)",
+        "regimen_refs": [
+          2
+        ],
+        "gap_days": 425,
+        "notice_page": "63"
+      },
+      {
+        "rule_id": "DEEM-HER2ADC-6M",
+        "category": "chemo",
+        "status": "not_met",
+        "basis": "trastuzumab 포함 보조요법 trastuzumab 종료 후 1966일 뒤 전이 (기준 183일 초과)",
+        "regimen_refs": [
+          3
+        ],
+        "gap_days": 1966,
+        "notice_page": "62-63"
+      },
+      {
+        "rule_id": "DEEM-ENDO-ADJ-1Y",
+        "category": "endocrine",
+        "status": "not_met",
+        "basis": "보조 내분비요법 letrozole 종료 후 425일 뒤 전이 (기준 365일 초과)",
+        "regimen_refs": [
+          2
+        ],
+        "gap_days": 425,
+        "notice_page": "57"
+      }
+    ],
+    "at_index": {
+      "age": 57,
+      "recent_therapy_28d": {
+        "status": "no",
+        "basis": "letrozole 기준일 454일 전 종료 (28일 초과)",
+        "regimen_refs": [
+          2
+        ],
+        "gap_days": 454
+      }
+    }
+  },
+  "conflicts": []
+}

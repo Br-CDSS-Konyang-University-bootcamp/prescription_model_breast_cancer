@@ -1,0 +1,21 @@
+case_id,proposal,title,decision_point,test_conditions,pairs
+VC-0110,N01,"HR+/HER2+ 전이 1차, 항암 가능",고식 1차,"HR+/HER2+ 아형 (지금 0건), HER2+ 전이 1차 요법, 유지 요법, 허가초과 후보","간 생검 ER 70% / ER 0% (→ ER- 갈래, 유지 HP만)"
+VC-0111,N02,"HER2+ 전이 2차, 활동성 뇌 전이",고식 2차,"뇌 전이 갈래, 2차 이상 HER2 행, tucatinib 공고 없음, lapatinib + capecitabine의 anthracycline 조건","뇌 전이 활동성 / 안정 (MRI 변화 없음, `158c93` 갈래). 추가 짝: 이전 anthracycline 없음 / 있음 (lapatinib + capecitabine 갈림)"
+VC-0112,N03,HER2+ 보조 trastuzumab 종료 6개월 안 재발,고식 1차 (실제 차수 0),"`DEEM-HER2ADC-6M` met (지금 0건), ESMO는 6~12개월까지 2차로 보는데 공고는 6개월 → 두 기준 차이","trastuzumab 종료 → 전이 183일 / 184일 (6개월 경계, 달력 계산은 G2처럼 확인) / 270일 (ESMO 2차 갈래, 공고 1차)"
+VC-0113,N04,"HR+/HER2- 3차, 이전 고식 항암 없음, HER2-low","고식 3차 (내분비 2차례 후, 고식 항암 실제 0)","MBC 그림 4 T-DXd 갈래, HER2-low T-DXd 공고 없음, 보조 AC → T로 인한 `DEEM-ANTHRA-TAXANE` met → 고식 항암 ""2차"" (eribulin)","간 생검 HER2 1+ / 0 (막 염색 없음, `2f74bb` 갈래). N16은 0 faint"
+VC-0114,N05,"HR+/HER2- 3차 이상, 이전 고식 항암 있음, HER2 0",고식 항암 3차,"MBC 그림 4 이전 ChT 갈래, ER+ sacituzumab 공고 없음, 고식 항암 2차 / 3차 이상 경계",고식 항암 1회(capecitabine만) / 2회(capecitabine → paclitaxel). 1회면 eribulin 4다-1 대상인데 anthracycline 미사용으로 불충족
+VC-0115,N06,"TNBC 2차, gBRCA 야생형 → sacituzumab",고식 2차 (실제 1),"MBC 그림 9, sacituzumab 3차 이상 + `DEEM-SG-1Y` 경계",보조 종료 → 전이 365일 / 366일 (`DEEM-SG-1Y` met / not_met)
+VC-0116,N07,"TNBC 1차 PD-L1 음성, gBRCA 양성",고식 1차,"생식세포 양성 (지금 0건), MBC 그림 8 gBRCA 갈래, 전이 olaparib 공고 없음","생식세포 BRCA1 병원성 / VUS (→ gBRCA wt 갈래 `b39e9e`, IN-7 VUS 시험 겸함)"
+VC-0117,N08,조기 TNBC 선행 pembrolizumab 후 잔존 → capecitabine,수술 후 보조,"EBC 그림 7, 허가초과 인정 (pCR 미달성 pembrolizumab + capecitabine), 40장 pembrolizumab, 보조 capecitabine","잔존 / pCR (ypT0N0 → `dbe131`, capecitabine 대상 아님)"
+VC-0118,N09,조기 TNBC cT1b N0 수술 먼저,보조,"EBC 그림 7 작은 종양 갈래, TC 급여 ""1cm 이상 또는 N+""","ESMO 경계 pT1a 5mm / pT1b 6mm (`5ab655` 보조 없음 고려 / `8ccb0b` ChT). 공고 경계 9mm / 10mm (TC ""1cm 이상"")"
+VC-0119,N10,"HR+/HER2- 고위험 조기, gBRCA 양성 → 보조 olaparib",보조,"EBC 그림 5 olaparib, 40장-30, olaparib과 abemaciclib 동시 금지 (본문 E11)","gBRCA 병원성 / 미시행 (→ olaparib 대신 검사 권고, evaluation_plan §2.2)"
+VC-0120,N11,HER2+ 선행 후 pCR,보조,"EBC 그림 6 pCR 갈래, T-DM1 조건 불충족, 보조 pertuzumab 계속",pCR / 잔존 ypT1a N0 (→ T-DM1). 추가 짝: 진단 시 cN1 / cN0 (`163f7d` HP 1년 / `bcc9bd` trastuzumab 1년)
+VC-0121,N12,HR+/HER2- 선행화학요법 결정,"선행 (치료 전, `treatment_history` 비어 있음)","공고 1. 선행 HER2 음성 (지금 0건), EBC 그림 2 HR+/HER2- 선행","cT3N1 (stage Ⅲ) / cT1cN0 (IA, 선행 급여 stage Ⅱ~Ⅲ 밖)"
+VC-0122,N13,보조 ET 중 재발 + PIK3CA 변이 → inavolisib 3제,고식 1차,"MBC 그림 2 남은 갈래, 40장-29","PIK3CA 검출 / 미검출 (= VC-0103 갈래). 추가 짝: 보조 abemaciclib 사용, 종료 → 전이 365일 / 366일 (40장-29 ""12개월 초과"")"
+VC-0123,N14,"HR+/HER2- 2차, AKT1 변이",고식 내분비 2차,"MBC 그림 3 AKT1·PTEN, 40장-21의 폐경 후 백본","폐경 후 / 폐경 전 (같은 이야기, 46세 월경 있음 → fulvestrant 백본도 급여 아님)"
+VC-0124,N15,HER2 IHC 2+/ISH 비증폭 + ER low 5%,선행,"ER-low (ESMO는 TNBC처럼, 공고는 HR+), HER2 ISH 칸, 선행 단계의 ESMO·공고 차이",ER 9% / 10% / 11% (ESMO 1~9% vs B·evaluation_plan §6의 1~10% 정의 차이 확인용)
+VC-0125,N16,"HER2 IHC 0 faint (초저발현), 전이성 3차","고식 3차, 이전 고식 항암 없음","HER2-ultralow → T-DXd 갈래, 원발과 전이 HER2 차이 (IN-4 겸함)","N04 (HER2 1+), N04 짝 (HER2 0 막 염색 없음) — 세 사례가 0 / 0 faint / 1+ 묶음"
+VC-0126,N17,장기 위기 + ECOG 2,고식 1차,"`visceral_crisis` (지금 0건), ESMO 본문 M06, 안전 검사","장기 위기 있음 / 없음 (같은 간 전이, 간 기능 정상, ECOG 1 → `1ae139` AI-CDK4/6)"
+VC-0127,N18,anthracycline 누적 미달 + 심장 위험 → liposomal doxorubicin,고식 항암 2차,"9장 4나-19 조건 (누적 용량 또는 심장 위험), 심장 칸 yes·종격동 방사선 yes (지금 0건)",심장 위험 있음 / 없음 (→ 누적 미달이라 불충족) / 기록 없음 (→ `covered_conditions_unverified`)
+VC-0128,N19,"폐경 전 전이성 HR+, ribociclib 예외, FSH 판정",고식 1차,"폐경 전 전이성 (지금 0건), 3가 주1 (tamoxifen 보조 중 재발 폐경 전), `menopausal_basis` fsh, ESMO·공고 차이","폐경 전 (FSH 폐경 전 범위) / 폐경 후 (같은 나이, 양측 난소절제 기록) / 기록 없음 (→ confirmed_state_items §7.1 폐경 규칙, 급여 ""확인 필요"")"
+VC-0129,N20,범위 외: 남성 유방암,보조,"안전 검사 ""범위 외 추천 금지"" (PROJECT.md §1 범위 밖, ESMO 본문 E26)",같은 이야기 여성 66세 폐경 후 (일반 보조 AI 갈래)

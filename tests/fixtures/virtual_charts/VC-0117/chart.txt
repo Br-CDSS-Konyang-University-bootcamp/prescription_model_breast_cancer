@@ -1,0 +1,77 @@
+<외래 경과기록>   2024.8.22   종양내과
+환자명: 김가상   등록번호: 00000117   F/44   주민번호: 800101-2******   연락처: 010-0000-0117
+병원: 가상대학교병원 종양내과   담당의: 이가상
+
+S) 수술 부위 통증 호전.
+   폐경: 폐경 전, 월경 규칙적
+   과거력: 심장 질환 과거력 없음
+   Echo (2024.8.12): LVEF 61%
+O) ECOG PS 0
+
+A) Lt. breast IDC, 2024.1.15 core bx로 진단, cT2N1M0, stage IIB, TNBC
+   선행 pembrolizumab + paclitaxel + carboplatin → pembrolizumab + AC 후 수술: ypT1b N1a, 잔존 침윤암 (RCB-II)
+   생식세포 BRCA1/2 음성
+   재발 소견 없음
+
+P) 수술 후 보조 요법 결정 (pembrolizumab 계속 여부, capecitabine)
+
+
+SURGICAL PATHOLOGY REPORT
+환자명: 김가상   등록번호: 00000117   F/44
+Received: 2024.1.15   Reported: 2024.1.19
+Specimen: 좌측 유방, 초음파 유도 중심 생검
+
+DIAGNOSIS
+  Invasive ductal carcinoma, NST
+  Histologic grade: Nottingham grade 3
+
+IMMUNOHISTOCHEMISTRY
+  ER : 음성, Allred score 0 (PS 0 + IS 0)
+  PR : 음성, Allred score 0 (PS 0 + IS 0)
+  HER2 (4B5): 1+
+  Ki-67: 70%
+
+Pathologist: 박가상
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000117   F/44
+검사: Breast ultrasound   검사일: 2024.1.17
+
+Findings:
+  좌측 유방 3시 불규칙 종괴, 좌측 액와 림프절 2개 피질 비후.
+Conclusion:
+  좌측 액와 림프절 전이 의심
+
+
+[유전성 유방암 유전자 검사 결과]
+환자명: 김가상   등록번호: 00000117   F/44
+검사기관: 가상유전체검사센터   보고일: 2024.2.24
+검체: 말초혈액 (germline)
+검사법: BRCA1/BRCA2 전장 염기서열 분석 + MLPA
+
+결과
+  BRCA1: 병원성 변이 검출되지 않음
+  BRCA2: 병원성 변이 검출되지 않음
+
+
+[병리결과보고서]
+환자명: 김가상   등록번호: 00000117   F/44
+보고일: 2024.8.5
+검체: 좌측 유방 부분절제술 + 액와 림프절 절제 (선행 항암 후)
+
+진단
+  잔존 침윤암: 있음 (residual invasive carcinoma)
+  잔존 종양 크기: 0.8 cm
+  림프절: 1/12 (+)
+  ypTNM: ypT1b ypN1a (AJCC 8th)
+  RCB: RCB class II
+
+판독의: 박가상
+
+
+[투약 기록]
+환자명: 김가상   등록번호: 00000117   F/44
+구분    요법                                              시작         종료         주기       반응   중단 사유
+선행    키트루다 (pembrolizumab) + paclitaxel + carboplatin   2024.1.29   2024.4.22   q3w #4   -   계획된 변경
+선행    키트루다 (pembrolizumab) + AC (doxorubicin 60mg/m2 + cyclophosphamide 600mg/m2)   2024.4.29   2024.7.1   q3w #4   PR   완료

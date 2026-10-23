@@ -1,0 +1,65 @@
+[다학제 진료 회의록]   2024.9.28   종양내과
+환자명: 김가상   등록번호: 00000111   F/53   주민번호: 700101-2******   연락처: 010-0000-0111
+병원: 가상대학교병원 종양내과   담당의: 이가상
+
+증례: 폐경 전 (월경 있음). 2023.2.6 core bx로 진단, cT3N2M1, stage IV (de novo, liver), ER/PR 음성, HER2 3+.
+      1차 docetaxel + pertuzumab + trastuzumab #6 → HP 유지 15개월 → 뇌·간 진행.
+      ECOG 1. 심장 질환 과거력 없음
+   Echo (2024.9.23): LVEF 58%
+논의: 새 뇌 전이 3개 (최대 1.8 cm, 두통·어지럼 있음). 신경외과·방사선종양학과: 국소 치료(수술·SRS) 적응 없음.
+결론: 전이성 HER2 양성 2차 전신 요법 결정. anthracycline 사용 이력 없음.
+
+
+SURGICAL PATHOLOGY REPORT
+환자명: 김가상   등록번호: 00000111   F/51
+Received: 2023.2.6   Reported: 2023.2.10
+Specimen: 좌측 유방, 초음파 유도 중심 생검
+
+DIAGNOSIS
+  Invasive ductal carcinoma, NST
+  Histologic grade: Nottingham grade 3
+
+IMMUNOHISTOCHEMISTRY
+  ER : 음성, Allred score 0 (PS 0 + IS 0)
+  PR : 음성, Allred score 0 (PS 0 + IS 0)
+  HER2 (4B5): 3+
+  Ki-67: 45%
+
+Pathologist: 박가상
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000111   F/51
+검사: Chest-abdomen CT (contrast)   검사일: 2023.2.11
+
+Findings:
+  간 S6·S8 다발성 결절, 좌측 액와·쇄골하 림프절 비대.
+Conclusion:
+  간 다발성 전이
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000111   F/53
+검사: Brain MRI (contrast)   검사일: 2024.9.18
+
+Findings:
+  좌측 전두엽 1.8 cm, 우측 두정엽 1.1 cm, 소뇌 0.7 cm 조영 증강 병변, 주위 부종.
+Conclusion:
+  다발성 뇌 전이 (3개), 새로 생김
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000111   F/53
+검사: Abdomen-pelvis CT (contrast)   검사일: 2024.9.16
+
+Findings:
+  간 결절 크기·개수 증가.
+Conclusion:
+  간 전이 진행 (PD)
+
+
+[투약 기록]
+환자명: 김가상   등록번호: 00000111   F/53
+구분    요법                                              시작         종료         주기       반응   중단 사유
+고식    DPH (docetaxel 75mg/m2 + 퍼제타 + 허셉틴)   2023.2.20   2023.6.5   q3w #6   PR   유지요법 전환
+고식    HP 유지 (퍼제타 + 허셉틴)   2023.6.26   2024.9.9   q3w #22   PD   뇌·간 진행

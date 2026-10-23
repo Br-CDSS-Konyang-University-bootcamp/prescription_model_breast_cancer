@@ -25,7 +25,7 @@ def build(er: tuple[int, int] = (5, 3)) -> Chart:
     idx = c.index_date
 
     d = c.doc("progress_note", D(30))
-    d.t("진료의뢰 회신서\nFrom: 가상의원 외과   To: 가상대학교병원 종양내과\n").ident(38, full=False)
+    d.t(f"진료의뢰 회신서\nFrom: 가상의원 외과   To: 가상대학교병원 종양내과   작성일: {kdate(D(30))}\n").ident(38, full=False)
     d.t(f"Dx) Lt. breast ca., IDC, NG3, pT1cN0(0/3)M0, stage IA\n    {short} (Allred {er[0] + er[1]}), PR+ (Allred 8), HER2 1+, Ki-67 40%\n")
     d.t(f"s/p BCS & SLNB ({kdate(D(12))})\nPremenopausal, regular menses. Pls evaluate for adjuvant endocrine tx.\n")
 

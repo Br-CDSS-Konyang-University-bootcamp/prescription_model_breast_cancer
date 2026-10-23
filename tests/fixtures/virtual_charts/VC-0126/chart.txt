@@ -1,0 +1,43 @@
+<외래 경과기록>   2025.6.14   종양내과
+환자명: 김가상   등록번호: 00000126   F/59   주민번호: 660101-2******   연락처: 010-0000-0126
+병원: 가상대학교병원 종양내과   담당의: 이가상
+
+S) 황달, 복부 팽만, 식욕 저하 2주.
+   폐경: 폐경 후 (52세 폐경)
+   과거력: 심장 질환 과거력 없음
+   Echo (2025.6.11): LVEF 58%
+O) ECOG PS 2
+   Lab (2025.6.12): T.bil 3.1 mg/dL, AST 145, ALT 160, ALP 410
+
+A) Lt. breast IDC, 2025.6.2 core bx로 진단, cT2N1M1, stage IV (de novo, liver), HR+/HER2-
+   간 기능 악화를 동반한 visceral crisis로 판단
+
+P) 전이성 1차 요법 결정
+
+
+SURGICAL PATHOLOGY REPORT
+환자명: 김가상   등록번호: 00000126   F/59
+Received: 2025.6.2   Reported: 2025.6.6
+Specimen: 좌측 유방, 초음파 유도 중심 생검
+
+DIAGNOSIS
+  Invasive ductal carcinoma, NST
+  Histologic grade: Nottingham grade 2
+
+IMMUNOHISTOCHEMISTRY
+  ER : 양성, Allred score 8 (PS 5 + IS 3)
+  PR : 양성, Allred score 6 (PS 4 + IS 2)
+  HER2 (4B5): 0 (no staining)
+  Ki-67: 30%
+
+Pathologist: 박가상
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000126   F/59
+검사: Abdomen-pelvis CT (contrast)   검사일: 2025.6.5
+
+Findings:
+  간 양엽에 무수한 저음영 결절, 간내 담관 경도 확장.
+Conclusion:
+  간 다발성 전이

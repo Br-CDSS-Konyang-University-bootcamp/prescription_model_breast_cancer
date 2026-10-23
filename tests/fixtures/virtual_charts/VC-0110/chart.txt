@@ -1,0 +1,74 @@
+<외래 경과기록>   2025.2.26   종양내과
+환자명: 김가상   등록번호: 00000110   F/57   주민번호: 610101-2******   연락처: 010-0000-0110
+병원: 가상대학교병원 종양내과   담당의: 이가상
+
+S) 우상복부 불편감, 허리 통증.
+   폐경: 폐경 후 (LMP 2016년)
+   과거력: 심장 질환 과거력 없음
+   Echo (2025.2.16): LVEF 62%
+O) ECOG PS 0
+
+A) Lt. breast IDC, 2018.5.14 수술로 진단, pT2N0, IIA, HR+/HER2+ (IHC 3+)
+   보조 AC #4 → paclitaxel + trastuzumab → trastuzumab 단독 (총 18회) 완료
+   보조 letrozole 2023.11.30 5년 복용 완료
+   2025.1.28 간·골 전이 (letrozole 종료 14개월 뒤)
+   간 생검: ER 70%, PR 10%, HER2 3+
+
+P) 전이성 HER2 양성 1차 요법 결정 (항암 가능)
+
+
+[병리결과보고서]
+환자명: 김가상   등록번호: 00000110   F/51
+접수일: 2018.5.14   보고일: 2018.5.20
+검체: 좌측 유방 부분절제술 + 감시림프절 생검
+
+진단
+  조직형: 침윤성 유관암 (invasive ductal carcinoma, NST)
+  조직학적 등급: III (Nottingham grade 3)
+  종양 크기: 2.6 cm
+  림프절: 전이 0개 / 검사 3개
+  절제연: 음성
+  pTNM: pT2 N0 M0, stage IIA (AJCC 8th)
+
+면역조직화학
+  ER : 양성, Allred score 7 (PS 5 + IS 2)
+  PR : 양성, Allred score 5 (PS 3 + IS 2)
+  HER2 (4B5): 3+
+  Ki-67: 40%
+
+판독의: 박가상
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000110   F/57
+검사: Abdomen-pelvis CT (contrast)   검사일: 2025.1.28
+
+Findings:
+  간 S5, S7에 2.4 cm, 1.6 cm 저음영 결절.
+Conclusion:
+  간 다발성 전이
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000110   F/57
+검사: Whole body bone scan   검사일: 2025.1.29
+
+Findings:
+  L3 척추체, 우측 6번 늑골 열소 증가.
+Conclusion:
+  골전이 (L3, Rt. 6th rib)
+
+
+<병리 조직검사 결과>
+환자명: 김가상   등록번호: 00000110   F/57
+2025.2.9 간 생검 (2025.2.4 시행). Metastatic carcinoma, consistent with breast primary.
+ER : 양성 70%, PR : 양성 10%, HER2 (4B5): 3+.
+
+
+[투약 기록]
+환자명: 김가상   등록번호: 00000110   F/57
+구분    요법                                              시작         종료         주기       반응   중단 사유
+보조    AC (doxorubicin 60mg/m2 + cyclophosphamide 600mg/m2)   2018.6.13   2018.8.15   q3w #4   -   계획된 변경
+보조    paclitaxel 80mg/m2 + trastuzumab   2018.9.5   2018.11.21   weekly #12   -   계획된 변경
+보조    허셉틴 (trastuzumab) 6mg/kg   2018.12.12   2019.9.11   q3w #14   -   완료 (총 18회)
+보조    페마라 (letrozole) 2.5mg qd   2018.11.30   2023.11.30   -   -   완료 (5년)

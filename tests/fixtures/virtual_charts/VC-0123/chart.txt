@@ -1,0 +1,74 @@
+<외래 경과기록>   2024.1.10   종양내과
+환자명: 김가상   등록번호: 00000123   F/64   주민번호: 580101-2******   연락처: 010-0000-0123
+병원: 가상대학교병원 종양내과   담당의: 이가상
+
+S) 골반 통증 악화.
+   폐경: 폐경 후 (51세 폐경)
+   과거력: 심장 질환 과거력 없음
+   Echo (2023.12.31): LVEF 60%
+O) ECOG PS 1
+
+A) Lt. breast IDC, 2022.1.10 core bx로 진단, cT2N1M1, stage IV (de novo, bone only)
+   1L letrozole + abemaciclib 22개월 → PD (골병변 증가)
+   골 생검: 검체 부족으로 판정 불가 → 원발 조직 NGS: AKT1 E17K 검출
+
+P) 고식 내분비 2차 결정
+
+
+SURGICAL PATHOLOGY REPORT
+환자명: 김가상   등록번호: 00000123   F/62
+Received: 2022.1.10   Reported: 2022.1.14
+Specimen: 좌측 유방, 초음파 유도 중심 생검
+
+DIAGNOSIS
+  Invasive ductal carcinoma, NST
+  Histologic grade: Nottingham grade 2
+
+IMMUNOHISTOCHEMISTRY
+  ER : 양성, Allred score 8 (PS 5 + IS 3)
+  PR : 양성, Allred score 5 (PS 3 + IS 2)
+  HER2 (4B5): 0 (no staining)
+  Ki-67: 15%
+
+Pathologist: 박가상
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000123   F/62
+검사: Whole body bone scan   검사일: 2022.1.15
+
+Findings:
+  흉추·요추·골반 다발성 열소 증가.
+Conclusion:
+  다발성 골전이
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000123   F/64
+검사: Whole body bone scan   검사일: 2023.11.21
+
+Findings:
+  새 열소 3곳 (우측 대퇴골, T6, 좌측 늑골).
+Conclusion:
+  골전이 진행 (PD)
+
+
+[분자병리 검사 결과]
+환자명: 김가상   등록번호: 00000123   F/64
+검사기관: 가상유전체검사센터   보고일: 2023.12.26
+검체: 원발 중심 생검 조직 (2022.1.10)
+검사법: 표적 NGS
+
+검출된 변이 (Clinically significant variants)
+  AKT1   c.49G>A (p.E17K)   VAF 22%
+
+검출되지 않음 (Not detected)
+  PIK3CA, ESR1, PTEN
+
+* 패널 포함 유전자: PIK3CA, ESR1, AKT1, PTEN, ERBB2
+
+
+[투약 기록]
+환자명: 김가상   등록번호: 00000123   F/64
+구분    요법                                              시작         종료         주기       반응   중단 사유
+고식    버제니오 (abemaciclib) 150mg bid + 페마라 (letrozole)   2022.1.30   2023.12.1   -   PD   진행

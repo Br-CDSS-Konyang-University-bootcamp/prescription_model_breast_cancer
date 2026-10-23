@@ -1,0 +1,74 @@
+<외래 경과기록>   2023.4.27   종양내과
+환자명: 김가상   등록번호: 00000122   F/55   주민번호: 650101-2******   연락처: 010-0000-0122
+병원: 가상대학교병원 종양내과   담당의: 이가상
+
+S) 기침 1개월.
+   폐경: 폐경 후 (50세 폐경)
+   과거력: 심장 질환 과거력 없음
+   Echo (2023.4.17): LVEF 62%
+O) ECOG PS 0
+
+A) Lt. breast IDC, 2020.2.17 수술로 진단, pT2N0, IIA
+   보조 letrozole 복용 중 2023.3.23 폐 전이 → letrozole 2023.3.28 중단 (PD)
+   원발 조직 NGS: PIK3CA E545K 검출. 보조 CDK4/6 억제제 사용 없음
+
+P) 전이성 1차 내분비 기반 치료 결정
+
+
+[병리결과보고서]
+환자명: 김가상   등록번호: 00000122   F/52
+접수일: 2020.2.17   보고일: 2020.2.23
+검체: 좌측 유방 부분절제술 + 감시림프절 생검
+
+진단
+  조직형: 침윤성 유관암 (invasive ductal carcinoma, NST)
+  조직학적 등급: II (Nottingham grade 2)
+  종양 크기: 2.4 cm
+  림프절: 전이 0개 / 검사 3개
+  절제연: 음성
+  pTNM: pT2 N0 M0, stage IIA (AJCC 8th)
+
+면역조직화학
+  ER : 양성, Allred score 8 (PS 5 + IS 3)
+  PR : 양성, Allred score 6 (PS 4 + IS 2)
+  HER2 (4B5): 1+
+  Ki-67: 20%
+
+판독의: 박가상
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000122   F/55
+검사: Chest CT (contrast)   검사일: 2023.3.23
+
+Findings:
+  양측 폐 다발성 결절 (최대 1.3 cm).
+Conclusion:
+  폐 다발성 전이 의증
+
+
+<병리 조직검사 결과>
+환자명: 김가상   등록번호: 00000122   F/55
+2023.4.7 폐 생검 (2023.4.2 시행). Metastatic carcinoma, consistent with breast primary.
+ER : 양성, Allred score 8 (PS 5 + IS 3), PR : 양성, Allred score 6 (PS 4 + IS 2), HER2 (4B5): 1+.
+
+
+[분자병리 검사 결과]
+환자명: 김가상   등록번호: 00000122   F/55
+검사기관: 가상유전체검사센터   보고일: 2023.4.12
+검체: 원발 수술 조직 (2020.2.17)
+검사법: 표적 NGS
+
+검출된 변이 (Clinically significant variants)
+  PIK3CA   c.1633G>A (p.E545K)   VAF 31%
+
+검출되지 않음 (Not detected)
+  ESR1, AKT1, PTEN
+
+* 패널 포함 유전자: PIK3CA, ESR1, AKT1, PTEN, ERBB2
+
+
+[투약 기록]
+환자명: 김가상   등록번호: 00000122   F/55
+구분    요법                                              시작         종료         주기       반응   중단 사유
+보조    페마라 (letrozole) 2.5mg qd   2020.3.28   2023.3.28   -   PD   폐 전이

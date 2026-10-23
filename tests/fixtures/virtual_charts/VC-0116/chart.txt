@@ -1,0 +1,72 @@
+<외래 경과기록>   2023.9.24   종양내과
+환자명: 김가상   등록번호: 00000116   F/38   주민번호: 830101-2******   연락처: 010-0000-0116
+병원: 가상대학교병원 종양내과   담당의: 이가상
+
+S) 우상복부 통증.
+   폐경: 폐경 전, 월경 규칙적
+   과거력: 심장 질환 과거력 없음
+   Echo (2023.9.19): LVEF 65%
+O) ECOG PS 0
+
+A) Rt. breast IDC, 2021.11.8 수술로 진단, pT1cN0, IA, TNBC
+   보조 TC (docetaxel + cyclophosphamide) #4
+   2023.8.16 간·종격동 림프절 전이 (보조 종료 18개월 뒤)
+   PD-L1 22C3 CPS 1, 생식세포 BRCA1 병원성 변이
+
+P) 전이성 TNBC 1차 요법 결정
+
+
+[병리결과보고서]
+환자명: 김가상   등록번호: 00000116   F/36
+접수일: 2021.11.8   보고일: 2021.11.14
+검체: 우측 유방 부분절제술 + 감시림프절 생검
+
+진단
+  조직형: 침윤성 유관암 (invasive ductal carcinoma, NST)
+  조직학적 등급: III (Nottingham grade 3)
+  종양 크기: 1.5 cm
+  림프절: 전이 0개 / 검사 3개
+  절제연: 음성
+  pTNM: pT1c N0 M0, stage IA (AJCC 8th)
+
+면역조직화학
+  ER : 음성, Allred score 0 (PS 0 + IS 0)
+  PR : 음성, Allred score 0 (PS 0 + IS 0)
+  HER2 (4B5): 0 (no staining)
+  Ki-67: 75%
+
+판독의: 박가상
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000116   F/37
+검사: Chest-abdomen CT (contrast)   검사일: 2023.8.16
+
+Findings:
+  간 S2·S7 결절 2개 (최대 2.6 cm), 기관분지하 림프절 1.8 cm.
+Conclusion:
+  간·종격동 림프절 전이 의증
+
+
+<병리 조직검사 결과>
+환자명: 김가상   등록번호: 00000116   F/37
+2023.8.30 간 생검 (2023.8.25 시행). Metastatic carcinoma, consistent with breast primary.
+ER : 음성, Allred score 0 (PS 0 + IS 0), PR : 음성, Allred score 0 (PS 0 + IS 0), HER2 (4B5): 0 (no staining).
+PD-L1 IHC: 22C3 pharmDx, CPS 1
+
+
+[유전성 유방암 유전자 검사 결과]
+환자명: 김가상   등록번호: 00000116   F/37
+검사기관: 가상유전체검사센터   보고일: 2023.9.9
+검체: 말초혈액 (germline)
+검사법: BRCA1/BRCA2 전장 염기서열 분석 + MLPA
+
+결과
+  BRCA1   c.5266dupC (p.Q1756Pfs*74)   Pathogenic (병원성)
+  BRCA2: 병원성 변이 검출되지 않음
+
+
+[투약 기록]
+환자명: 김가상   등록번호: 00000116   F/38
+구분    요법                                              시작         종료         주기       반응   중단 사유
+보조    TC (docetaxel 75mg/m2 + cyclophosphamide 600mg/m2)   2021.12.13   2022.2.14   q3w #4   -   완료
