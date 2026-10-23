@@ -29,6 +29,10 @@ TCGA로는 만들 수 없는 최신 치료(CDK4/6 억제제 이후 2차, 면역�
 | [VC-0108](VC-0108/scenario.md) | 70세, 진단 시 뼈 전이만, 1차 ribociclib + letrozole 복용 중 | HR+/HER2- | 전이성(de novo), 골 보호제 | `index_day`, "최근 4주 이내 투여", 투약 중 여부 한계. 골 보호제 급여는 평가에서 제외 (2026-10-19, PROJECT.md §12 한계). 이 사례를 시연용으로만 둘지 바꿀지는 결정 대기 |
 | [VC-0109](VC-0109/scenario.md) | 보조 tamoxifen 3년째 흉벽 국소 재발 → 완치 목적 절제 | HR+/HER2- | 조기, 재발 후 보조 | `recurrence_day`만 있음, `SET-LOCAL-ADJ` |
 
+### 2.1 새 사례 20건 (VC-0110~VC-0129, 2026-10-23)
+
+처방·급여 판정 구간 중 위 10건이 덮지 못한 곳(HR+/HER2+, HER2+ 전이 2차·뇌 전이, `DEEM-HER2ADC-6M`, 조기 TNBC, 생식세포 BRCA, 장기 위기, 범위 외 등)을 채워 30건을 맞춘다. 목록·시험 조건은 [`cases.csv`](cases.csv), 사례마다 `scenario.md`. 기준 문서는 `src/input/virtual_patient_cases_2026-10-23.md` (§3 사례 표가 `scenario.md`로 옮겨진다). `chart.txt`와 A 정답은 `python -m src.input.script.build_virtual_cases`로 만들고, 검사는 `tests/input/test_virtual_cases.py`. 짝 사례는 아직 없다.
+
 ## 3. 폴더 구성
 
 ```

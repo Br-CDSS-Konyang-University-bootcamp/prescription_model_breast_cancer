@@ -1,0 +1,53 @@
+<외래 경과기록>   2024.2.7   종양내과
+환자명: 김가상   등록번호: 00000120   F/50   주민번호: 730101-2******   연락처: 010-0000-0120
+병원: 가상대학교병원 종양내과   담당의: 이가상
+
+S) 특이 증상 없음.
+   폐경: 폐경 후 (LMP 2021년)
+   과거력: 심장 질환 과거력 없음
+   Echo (2024.1.28): LVEF 60%
+O) ECOG PS 0
+
+A) Rt. breast IDC, 2023.8.21 core bx로 진단, cT2N1M0, stage IIB, HR+/HER2+ (IHC 3+)
+   선행 TCHP #6 후 수술: ypT0 ypN0, pCR
+   재발 소견 없음
+
+P) 보조 HER2 표적치료·내분비요법 결정
+
+
+SURGICAL PATHOLOGY REPORT
+환자명: 김가상   등록번호: 00000120   F/50
+Received: 2023.8.21   Reported: 2023.8.25
+Specimen: 우측 유방, 초음파 유도 중심 생검
+
+DIAGNOSIS
+  Invasive ductal carcinoma, NST
+  Histologic grade: Nottingham grade 2
+
+IMMUNOHISTOCHEMISTRY
+  ER : 양성, Allred score 7 (PS 4 + IS 3)
+  PR : 양성, Allred score 4 (PS 3 + IS 1)
+  HER2 (4B5): 3+
+  Ki-67: 40%
+
+Pathologist: 박가상
+
+
+[병리결과보고서]
+환자명: 김가상   등록번호: 00000120   F/50
+보고일: 2024.1.21
+검체: 우측 유방 부분절제술 + 감시림프절 생검 (선행 항암 후)
+
+진단
+  잔존 침윤암: 없음 (no residual invasive carcinoma, pCR)
+  림프절: 0/3
+  ypTNM: ypT0 ypN0 (AJCC 8th)
+  RCB: RCB-0 (pCR)
+
+판독의: 박가상
+
+
+[투약 기록]
+환자명: 김가상   등록번호: 00000120   F/50
+구분    요법                                              시작         종료         주기       반응   중단 사유
+선행    TCHP (탁소텔 + 카보플라틴 + 허셉틴 + 퍼제타)   2023.9.4   2023.12.18   q3w #6   CR   완료

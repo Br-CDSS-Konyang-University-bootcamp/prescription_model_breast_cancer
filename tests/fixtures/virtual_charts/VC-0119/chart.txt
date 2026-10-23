@@ -1,0 +1,77 @@
+<외래 경과기록>   2023.11.11   종양내과
+환자명: 김가상   등록번호: 00000119   F/41   주민번호: 820101-2******   연락처: 010-0000-0119
+병원: 가상대학교병원 종양내과   담당의: 이가상
+
+S) 수술 후 회복 양호.
+   폐경: 폐경 전, 월경 규칙적
+   과거력: 심장 질환 과거력 없음
+   Echo (2023.11.1): LVEF 63%
+O) ECOG PS 0
+
+A) Lt. breast IDC, 2023.4.10 core bx로 진단, cT3N1M0, stage IIIA, HR+/HER2-, grade 3
+   선행 AC #4 → weekly paclitaxel #12 후 수술: ypT2 ypN1a (2/15), 잔존 침윤암
+   생식세포 BRCA2 병원성 변이
+   재발 소견 없음
+
+P) 보조 요법 결정 (내분비요법 + olaparib / abemaciclib)
+
+
+SURGICAL PATHOLOGY REPORT
+환자명: 김가상   등록번호: 00000119   F/41
+Received: 2023.4.10   Reported: 2023.4.14
+Specimen: 좌측 유방, 초음파 유도 중심 생검
+
+DIAGNOSIS
+  Invasive ductal carcinoma, NST
+  Histologic grade: Nottingham grade 3
+
+IMMUNOHISTOCHEMISTRY
+  ER : 양성 80%
+  PR : 양성 30%
+  HER2 (4B5): 0 (no staining)
+  Ki-67: 35%
+
+Pathologist: 박가상
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000119   F/41
+검사: Breast MRI (contrast)   검사일: 2023.4.12
+
+Findings:
+  좌측 유방 5.5 cm 종괴, 좌측 액와 림프절 3개 비대.
+Conclusion:
+  좌측 액와 림프절 전이 의심
+
+
+[유전성 유방암 유전자 검사 결과]
+환자명: 김가상   등록번호: 00000119   F/41
+검사기관: 가상유전체검사센터   보고일: 2023.6.9
+검체: 말초혈액 (germline)
+검사법: BRCA1/BRCA2 전장 염기서열 분석 + MLPA
+
+결과
+  BRCA1: 병원성 변이 검출되지 않음
+  BRCA2   c.5946delT (p.S1982Rfs*22)   Pathogenic (병원성)
+
+
+[병리결과보고서]
+환자명: 김가상   등록번호: 00000119   F/41
+보고일: 2023.10.22
+검체: 좌측 유방 전절제술 + 액와 림프절 절제 (선행 항암 후)
+
+진단
+  잔존 침윤암: 있음 (residual invasive carcinoma)
+  잔존 종양 크기: 2.5 cm
+  림프절: 2/15 (+)
+  ypTNM: ypT2 ypN1a (AJCC 8th)
+  RCB: RCB class II
+
+판독의: 박가상
+
+
+[투약 기록]
+환자명: 김가상   등록번호: 00000119   F/41
+구분    요법                                              시작         종료         주기       반응   중단 사유
+선행    AC (doxorubicin 60mg/m2 + cyclophosphamide 600mg/m2)   2023.4.24   2023.6.26   q3w #4   -   계획된 변경
+선행    paclitaxel 80mg/m2   2023.7.3   2023.9.18   weekly #12   PR   완료

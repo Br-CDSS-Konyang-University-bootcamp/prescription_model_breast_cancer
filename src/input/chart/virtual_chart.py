@@ -107,10 +107,11 @@ class Doc:
 
     def ident(self, age: int, *fs: F, full: bool = True) -> "Doc":
         """환자 식별줄 (IN-0 시험용 가짜 값). 사례 번호를 등록번호·연락처 끝자리로 쓴다. fs는 'F/나이' 구절의 칸."""
-        digits = self.chart.ident_no
-        self.t(f"환자명: 김가상   등록번호: 0000{digits}   ").put(f"F/{age}", *fs)
+        digits, sex = self.chart.ident_no, self.chart.sex
+        self.t(f"환자명: 김가상   등록번호: 0000{digits}   ").put(f"{sex}/{age}", *fs)
         if full:
-            self.t(f"   주민번호: {(self.chart.dx.year - age) % 100:02d}0101-2******   연락처: 010-0000-{digits}")
+            code = 1 if sex == "M" else 2
+            self.t(f"   주민번호: {(self.chart.dx.year - age) % 100:02d}0101-{code}******   연락처: 010-0000-{digits}")
         return self.t("\n")
 
     def row(self, text: str, *, drugs: list[str], setting: str, start: str | None, end: str | None = None,
@@ -146,6 +147,7 @@ class Chart:
         self.ref, self.dx = ref, dt.date.fromisoformat(dx_date)
         self.index_date, self.created_at = index_date, created_at
         self.ident_no = ident_no or "".join(ch for ch in ref if ch.isdigit())
+        self.sex = "F"                          # 식별줄 성별 표기 (남성 사례는 "M")
         if isinstance(index_date, int):          # 진단일 기준 일수로 줘도 된다
             self.index_date = self.on(index_date)
         self.docs: list[Doc] = []

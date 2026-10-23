@@ -1,0 +1,69 @@
+<외래 경과기록>   2024.6.20   종양내과
+환자명: 김가상   등록번호: 00000114   F/66   주민번호: 540101-2******   연락처: 010-0000-0114
+병원: 가상대학교병원 종양내과   담당의: 이가상
+
+S) 호흡곤란 악화, 기침.
+   폐경: 폐경 후 (52세 폐경)
+   과거력: 심장 질환 과거력 없음
+   Echo (2024.6.10): LVEF 59%
+O) ECOG PS 1
+
+A) Rt. breast IDC, 2020.1.13 core bx로 진단, cT2N1M1, stage IV (de novo, bone, lung)
+   ER Allred 8 / PR Allred 5 / HER2 0
+   1L anastrozole + ribociclib 26개월 → PD, 2L fulvestrant → PD
+   고식 항암 capecitabine → PD, paclitaxel → PD. doxorubicin 사용 이력 없음
+
+P) 고식 항암 3차 결정
+
+
+SURGICAL PATHOLOGY REPORT
+환자명: 김가상   등록번호: 00000114   F/62
+Received: 2020.1.13   Reported: 2020.1.17
+Specimen: 우측 유방, 초음파 유도 중심 생검
+
+DIAGNOSIS
+  Invasive ductal carcinoma, NST
+  Histologic grade: Nottingham grade 2
+
+IMMUNOHISTOCHEMISTRY
+  ER : 양성, Allred score 8 (PS 5 + IS 3)
+  PR : 양성, Allred score 5 (PS 3 + IS 2)
+  HER2 (4B5): 0 (no staining)
+  Ki-67: 25%
+
+Pathologist: 박가상
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000114   F/62
+검사: Whole body bone scan   검사일: 2020.1.18
+
+Findings:
+  T10, L1 척추체, 골반 다발성 열소 증가.
+Conclusion:
+  다발성 골전이
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000114   F/62
+검사: Chest CT (contrast)   검사일: 2020.1.18
+
+Findings:
+  양측 폐 다발성 결절 (최대 1.1 cm).
+Conclusion:
+  폐 다발성 전이 의증
+
+
+<병리 조직검사 결과>
+환자명: 김가상   등록번호: 00000114   F/62
+2020.1.27 폐 생검 (2020.1.22 시행). Metastatic carcinoma, consistent with breast primary.
+ER : 양성, Allred score 8 (PS 5 + IS 3), PR : 양성, Allred score 5 (PS 3 + IS 2), HER2 (4B5): 0 (no staining).
+
+
+[투약 기록]
+환자명: 김가상   등록번호: 00000114   F/66
+구분    요법                                              시작         종료         주기       반응   중단 사유
+고식    키스칼리 (ribociclib) + 아리미덱스 (anastrozole)   2020.2.2   2022.4.2   q4w #28   PD   진행
+고식    파슬로덱스 (fulvestrant) 500mg   2022.4.22   2022.10.19   -   PD   진행
+고식    젤로다 (capecitabine) 1000mg/m2 bid   2022.11.8   2023.8.5   q3w #13   PD   진행
+고식    paclitaxel 80mg/m2   2023.8.25   2024.5.31   weekly #12   PD   진행

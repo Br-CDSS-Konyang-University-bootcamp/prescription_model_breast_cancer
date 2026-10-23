@@ -1,0 +1,64 @@
+<외래 경과기록>   2023.5.16   종양내과
+환자명: 김가상   등록번호: 00000127   F/61   주민번호: 580101-2******   연락처: 010-0000-0127
+병원: 가상대학교병원 종양내과   담당의: 이가상
+
+S) 호흡곤란, 기침.
+   폐경: 폐경 후 (53세 폐경)
+   과거력: 협심증 (2017년 스텐트 시술)
+   Echo (2023.5.6): LVEF 48%
+   방사선: 좌측 흉벽·내유림프절 방사선 치료 (50 Gy)
+O) ECOG PS 1
+   Ht 158cm / Wt 58kg
+
+A) Lt. breast IDC, 2019.3.18 수술로 진단, pT2N1a(1/10), IIB, TNBC
+   보조 AC #3 후 심부전 의심으로 중단 → weekly paclitaxel #12
+   2022.10.18 폐 전이
+   1L paclitaxel → PD
+
+P) 고식 항암 2차 결정
+
+
+[병리결과보고서]
+환자명: 김가상   등록번호: 00000127   F/57
+접수일: 2019.3.18   보고일: 2019.3.24
+검체: 좌측 유방 전절제술 + 액와 림프절 절제
+
+진단
+  조직형: 침윤성 유관암 (invasive ductal carcinoma, NST)
+  조직학적 등급: III (Nottingham grade 3)
+  종양 크기: 2.9 cm
+  림프절: 전이 1개 / 검사 10개
+  절제연: 음성
+  pTNM: pT2 N1a M0, stage IIB (AJCC 8th)
+
+면역조직화학
+  ER : 음성, Allred score 0 (PS 0 + IS 0)
+  PR : 음성, Allred score 0 (PS 0 + IS 0)
+  HER2 (4B5): 1+
+  Ki-67: 65%
+
+판독의: 박가상
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000127   F/61
+검사: Chest CT (contrast)   검사일: 2022.10.18
+
+Findings:
+  양측 폐 다발성 결절 (최대 1.9 cm).
+Conclusion:
+  폐 다발성 전이
+
+
+<병리 조직검사 결과>
+환자명: 김가상   등록번호: 00000127   F/61
+2022.10.31 폐 생검 (2022.10.26 시행). Metastatic carcinoma, consistent with breast primary.
+ER : 음성, Allred score 0 (PS 0 + IS 0), PR : 음성, Allred score 0 (PS 0 + IS 0), HER2 (4B5): 1+.
+
+
+[투약 기록]
+환자명: 김가상   등록번호: 00000127   F/61
+구분    요법                                              시작         종료         주기       반응   중단 사유
+보조    AC (doxorubicin 96mg + cyclophosphamide 960mg)   2019.4.22   2019.6.3   q3w #3   -   심부전 의심 (LVEF 저하)
+보조    paclitaxel 80mg/m2   2019.6.24   2019.9.9   weekly #12   -   완료
+고식    paclitaxel 80mg/m2   2022.11.7   2023.4.26   weekly #12   PD   진행
