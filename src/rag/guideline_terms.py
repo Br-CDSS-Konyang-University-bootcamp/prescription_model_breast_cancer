@@ -50,6 +50,9 @@ def query_terms(profile: dict, terms: list[dict] = None) -> list[str]:
     # 조기 고위험 (confirmed_state high_risk_early, ESMO 기준). ESMO EBC 권고의 연장 내분비·abemaciclib·OFS 등이 "high-risk"로 갈린다
     if profile.get("disease") != "metastatic":
         keys.append(("confirmed_state.high_risk_early", profile.get("high_risk_early")))
+    # 장기 위기 (confirmed_state visceral_crisis, 의사 확정). ESMO는 "imminent organ failure"로 쓴다 (M06·M50: 항암 우선)
+    if profile.get("disease") == "metastatic":
+        keys.append(("confirmed_state.visceral_crisis", profile.get("visceral_crisis")))
     if profile.get("disease") == "metastatic" and profile.get("stage_at_diagnosis") == "metastatic":
         keys.append(("stage.disease_extent", "metastatic"))  # 진단 시 IV기 = de novo (재발 전이와 권고가 갈린다)
     out = []

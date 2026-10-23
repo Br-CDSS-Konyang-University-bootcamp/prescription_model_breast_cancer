@@ -4,7 +4,7 @@
 #   python -m src.rag.check_case <confirmed_state.json> --out data/reimbursement/vc0103_candidates.json
 # confirmed_state(의사 확정값) 하나로 retrieve_for_recommend를 실제 색인·모델로 돌려, B에게 넘어갈 지침 청크와
 # 급여 청크, 이번에 찾은 ESMO 권고와 연결되지 않은 급여 행(ESMO 권고가 없거나 다른 차수 권고의 약)을 보여 준다.
-# 가상 차트의 기대 정답(scenario.md)과 눈으로 대조하고, D가 급여 판정을 시험할 후보 목록을 만든다.
+# 같은 폴더에 C 정답 파일 guideline.json이 있으면 정답 순위를 함께 보여 준다. D가 급여 판정을 시험할 후보 목록도 만든다.
 # 먼저 색인이 있어야 한다: 지침 python -m src.rag.run_indexing, 급여 python -m src.reimbursement.index (D의 비공개 청크).
 # --out 파일에는 급여 행 ID와 조건이 들어간다. 공고 원문에서 만든 자료라 git에 올리지 않는다
 # (data/reimbursement/ 아래 .json은 .gitignore가 막는다).
@@ -47,6 +47,20 @@ def summarize(guideline: list[dict], reimbursement: list[dict], reimbursement_on
         "reimbursement": [_row(r) for r in reimbursement],
         "reimbursement_only": [_row(r) for r in reimbursement_only],
     }
+
+
+def compare_expected(expected: dict, guideline: list[dict]) -> dict:
+    """가상 차트 정답(expected/guideline.json)과 검색 결과 비교. 순위는 지침 목록(권고·그림 경로 따로) 안의 1부터.
+    not_expected가 첫 정답보다 위에 오면 wrong_above에 적는다."""
+    recs = [c["chunk_id"] for c in guideline if c.get("chunk_kind") != "algorithm"]
+    algos = [c["chunk_id"] for c in guideline if c.get("chunk_kind") == "algorithm"]
+    rank = {cid: i for i, cid in enumerate(recs, 1)}
+    found = {cid: rank.get(cid) for cid in expected.get("expected_chunks", [])}
+    first = min([r for r in found.values() if r] or [None]) if any(found.values()) else None
+    wrong = [cid for cid in expected.get("not_expected", []) if cid in rank and (first is None or rank[cid] < first)]
+    return {"expected": found, "first_rank": first, "mrr": round(1 / first, 3) if first else 0.0,
+            "algorithm": {cid: (algos.index(cid) + 1 if cid in algos else None) for cid in expected.get("expected_algorithm", [])},
+            "wrong_above": wrong}
 
 
 def main(argv=None):
@@ -95,6 +109,12 @@ def main(argv=None):
     for r in only:
         mark = " (보조약)" if r.get("supportive") else ""
         print(f"  {r['chunk_id']}  {r.get('extra_drugs')}  {r.get('line')}  {r.get('drug_classes')}{mark}")
+
+    expected_path = args.path.parent / "guideline.json"  # 가상 차트 정답 (C 형식), 있으면 비교한다
+    if expected_path.exists():
+        result = compare_expected(json.loads(expected_path.read_text(encoding="utf-8")), guideline)
+        print(f"\n[정답 비교 {expected_path.name}] 정답 순위 {result['expected']} · MRR {result['mrr']} · "
+              f"그림 경로 {result['algorithm']} · 정답보다 위의 오답 {result['wrong_above'] or '없음'}")
 
     if args.out:
         out = args.out.resolve()
