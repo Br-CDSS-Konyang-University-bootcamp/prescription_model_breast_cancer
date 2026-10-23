@@ -22,7 +22,7 @@ A는 원칙적으로 표기만 정리한다. 예외: HER2 IHC의 `result`는 ISH
 | `created_at` | 생성 시각 | ISO 8601 | 자동 | → `"2026-10-12T09:00:00+09:00"` |
 | `index_day` [draft6] | 판정 기준일 (진단일 = 0). 추천·급여 판정을 하는 '지금' 시점 | 정수 또는 `null` | 해석 (차트 작성일 → 진단일 기준 일수) | 진단 2024-03-05, 진료일 2026-10-16 → `955` |
 | `fields.at_index` [2026-10-20, 검토 전] | 기준일 시점 값. `age`(기준일 나이), `recent_therapy_28d`(최근 4주 이내 항암제·호르몬제 투여 `{status, basis, regimen_refs, gap_days}`) | 객체 | 규칙 (`index_day`, 진단 시 나이, `treatment_history[]`로 계산) | `index_day` 1000, letrozole `end_day` 980 → `{"status":"yes","gap_days":20,…}` |
-| `documents[]` | 문서 목록 (IN-1) | `{doc_id, doc_type, doc_date}` | 해석 + 사전 | `[병리결과보고서] 2024.03.05` → `{"doc_id":"D1","doc_type":"pathology","doc_date":"2024-03-05"}` |
+| `documents[]` | 문서 목록 (IN-1). `doc_type`은 `progress_note` / `pathology` / `molecular` / `medication` / `radiology` [2026-10-22, 검토 전] | `{doc_id, doc_type, doc_date}` | 해석 + 사전 | `[병리결과보고서] 2024.03.05` → `{"doc_id":"D1","doc_type":"pathology","doc_date":"2024-03-05"}`, `[영상 판독] 뼈 스캔` → `"radiology"` |
 | `conflicts[]` | 같은 시점에 값이 다른 경우 (IN-5) | `{field, candidates[], note}` | 규칙 | `암 3기` vs `cT2N1M0` → `{"field":"stage.group","candidates":[…III…, …IIB…],"note":"적힌 병기와 TNM 계산 병기가 다름"}` |
 
 ## 2. 추출값 공통 틀
@@ -98,12 +98,15 @@ Mixed·Other의 자유 기재(`gdc_histologic_diagnosis_other`, 예: "infiltrati
 | 필드 | 의미 | 표준값 형태 | 정규화 방식 | 원문 → 정규화 예시 | TCGA 정답 규칙 |
 |---|---|---|---|---|---|
 | `ctnm` | 임상 TNM | `{t, n, m}` | 해석 | `cT2N1M0` → `{"t":"T2","n":"N1","m":"M0"}` | 없음 (TCGA는 병리 병기만 있음) |
-| `ptnm` | 병리 TNM | `{t, n, m, edition}` | 해석 | `pT2 pNX M0, AJCC 7th` → `{"t":"T2","n":"not_assessed","m":"M0","edition":"7th"}` | [A 결정] 아래 |
+| `ptnm` | 병리 TNM (수술을 먼저 한 환자) | `{t, n, m, edition}` | 해석 | `pT2 pNX M0, AJCC 7th` → `{"t":"T2","n":"not_assessed","m":"M0","edition":"7th"}` | [A 결정] 아래 |
+| `yptnm` [2026-10-22, 검토 전] | 선행요법 뒤 수술 병리 병기. status `present` = 결과 있음, `not_done` = 선행요법 뒤 아직 수술 전 (`raw` "예정"), `not_recorded` = 수술했지만 병기 기록 없음. 선행요법을 안 받았으면 칸 없음 | `{t, n, m, edition, residual_size_mm, positive_ln, examined_ln}` (y는 빼고 범주만, M은 선행 전 값) | 해석 | `ypT1c ypN1a (2/12), 잔존 침윤암 1.4cm` → `{"t":"T1c","n":"N1a","m":"M0","residual_size_mm":14,"positive_ln":2,"examined_ln":12}` | 없음 |
 | `group` [합의 예정] | 병기군 | `I`, `IA`, `IIA` … `IV` / `not_assessed` | 해석 | `Stage IIA` → `"IIA"` / `Stage X` → `"not_assessed"` | [A 결정] 아래 |
 | `positive_ln_count` [합의 예정] | 양성 림프절 수 / 검사한 수 | `{positive, examined}` | 해석 | `LN 2/15 (+)` → `{"positive":2,"examined":15}` | [A 결정] 아래 |
 | `disease_extent` | 진단 시 병기 범주 | `early` / `locally_advanced` / `metastatic` | 규칙 | `Stage IIB` → `"early"`, `Stage IIIA` → `"locally_advanced"`, `pT2N1M1` → `"metastatic"` | 아래 |
 | `metastatic_sites` | 진단 시 원격 전이 부위 | `bone` / `liver` / `lung` / `brain` / `distant_ln` / `skin` / `other` 목록, 또는 `[Not Applicable]` / `[Not Available]` | 사전 | `간과 뼈에 다발성 전이` → `["liver","bone"]` | [A 결정] 아래 |
 | `operable` [draft5] | 수술 가능 여부 | `yes` / `no` / `unknown` | 사전 | `inoperable, locally advanced` → `"no"` | 없음 (`not_recorded`) |
+| `clinical_size_mm` [2026-10-22, 검토 전] | 치료 전 임상 종양 크기 (영상·촉진 최대 직경) | 숫자 (mm) | 해석 (cm → mm) | `유방 초음파상 3.2cm 종괴` → `32` | 없음 |
+| `pathologic_size_mm` [2026-10-22, 검토 전] | 수술 검체 침윤암 최대 직경 (관내암 제외). 선행요법 뒤 잔존 크기는 ypTNM 결정 후 | 숫자 (mm) | 해석 (cm → mm) | `invasive tumor size 5.5 x 4.0 cm` → `55` | 없음 |
 
 `ptnm` TCGA 규칙 [A 결정]:
 
@@ -262,7 +265,13 @@ TCGA 건수 (score 2+ 또는 Equivocal):
 | `age` | 진단 시 나이 | 정수 | 해석 | `F/62` → `62` | `gdc_age_at_diagnosis` |
 | `menopausal_status` | 폐경 여부 | `premenopausal` / `perimenopausal` / `postmenopausal` / `indeterminate` | 사전 | `폐경 후 상태` → `"postmenopausal"` | `gdc_menopause_status` |
 | `ecog` | 전신 수행 상태 | `0`~`4` | 해석 | `ECOG PS 1` → `1` | 없음 (합성) |
-| `menopausal_basis` [draft5] | 폐경 판정 근거 | `age_amenorrhea` / `fsh` / `oophorectomy` / `unknown` | 사전 | `양측 난소절제술 후` → `"oophorectomy"` | 없음 (`not_recorded`) |
+| `menopausal_basis` [draft5] | 폐경 판정 근거 | `age_amenorrhea` / `fsh` / `oophorectomy` / `ovarian_radiation` / `hysterectomy` / `unknown` (`ovarian_radiation`·`hysterectomy`는 2026-10-22 추가, 공고 p.48 원문 대조 전) | 사전 | `양측 난소절제술 후` → `"oophorectomy"`, `자궁적출술 후, FSH 68` → `"hysterectomy"` (FSH 값은 `raw`) | 없음 (`not_recorded`) |
+| `cardiac_history` [2026-10-22, 검토 전] | 심장 위험요소·병력 (병명은 `raw`) | `yes` / `no` | 사전 | `HTN, 협심증으로 스텐트 시술` → `"yes"` | 없음 |
+| `lvef_percent` [2026-10-22, 검토 전] | 좌심실 박출률 | 숫자 (%) | 해석 | `Echo: LVEF 62%` → `62` | 없음 |
+| `mediastinal_radiation` [2026-10-22, 검토 전] | 종격동 방사선 치료 이력 | `yes` / `no` | 사전 | `호지킨 림프종으로 종격동 RT (2001)` → `"yes"` | 없음 |
+| `visceral_crisis` [2026-10-22, 검토 전] | 장기 위기. 의사가 적은 판단만 옮김 | `yes` / `no` | 사전 | `visceral crisis 소견` → `"yes"` | 없음 |
+| `comorbidities` [2026-10-22, 검토 전] | 치료 선택에 영향을 주는 동반질환 | 원문 표기 목록 | 그대로 | `간경화 Child B, CKD 4기` → `["간경화 Child B","CKD 4기"]` | 없음 |
+| `height_cm`, `weight_kg` [2026-10-22, 검토 전] | 키, 몸무게 (체표면적 → anthracycline 누적 용량 mg/m²) | 숫자 | 해석 | `Ht 158cm / Wt 55.5kg` → `158`, `55.5` | 없음 |
 
 - 성별은 범위 외 판정(남성 유방암)에 쓰인다
 - 폐경 여부는 적힌 것만 옮긴다. 마지막 생리일(LMP)만 있으면 계산하지 않고 `raw`에 남긴다
@@ -282,6 +291,8 @@ TCGA 건수 (score 2+ 또는 Equivocal):
 | `duration_days` [제안, A 결정] | 투여일 (일) | 정수 또는 `null` | 해석 | `2025.1.10 ~ 2025.3.10` → `59` | `end_day − start_day` |
 | `cycles` [draft5] | 주기 수와 주기 길이 | `{value, basis, interval_days, interval_basis}` 또는 `null` | 해석 | `AC q3w #4` → `{"value":4,"basis":"recorded","interval_days":21,"interval_basis":"recorded"}` | tcga_mapping.md §3.6 |
 | `progression_day` [draft5] | 진행일 (진단일 = 0) | 정수 또는 `null` | 해석 | `2026.3 CT상 PD` → 진단일 기준 일수 | 없음 (`null`) |
+| `doses[]` [2026-10-23, 검토 전] | 약별 용량. `drugs`의 약마다 하나. 급여 조건이 약을 골라 1회·누적 용량을 볼 때 (cisplatin, anthracycline 등) | `{drug, per_admin, total, basis, source}`. 용량은 `{value, unit}` 또는 `"No value"`, `basis`는 `recorded` / `estimated`(1회 × 주기) | 해석 | `DP: docetaxel 75mg/m2 + cisplatin 75mg/m2 q3w #4` → `[{"drug":"cisplatin","per_admin":{"value":75,"unit":"mg/m2"},"total":{"value":300,"unit":"mg/m2"},"basis":"estimated"}, …]` | 넣지 않음 (anthracycline은 `anthracycline_drug_dose`) |
+| `ongoing` [2026-10-22, 검토 전] | 기준일에 투약 중인지. `end_day` null만으로는 "투약 중"과 "종료 기록 없음"을 가를 수 없어 둔다 | `true` / `false` / `null`(모름) | 사전 | `현재 키스칼리·페마라 복용 중` → `true` (`end_day`는 `null`) | 없음 (`null`) |
 | `stop_reason` | 중단 사유 | `progression` / `toxicity` / `completed` / `planned_switch` / `maintenance` / `other` | 사전 | `PD로 중단` → `"progression"` | 없음 |
 | `best_response` | 최선 반응 | `CR` / `PR` / `SD` / `PD` / `unknown` | 사전 | `완전관해` → `"CR"` | 괄호 안 반응 |
 | `line`, `endocrine_line`, `chemo_line` [draft6] | 전이 후 전체 차수, 고식적 내분비 차수, 고식적 항암 차수 (간주 규칙 없음) | 정수 또는 `null` | 계산 (`lines.py`) | 전이 후 letrozole → paclitaxel → `1/1/null`, `2/null/1` | `lines.py` 계산 (tcga_mapping.md §3.6) |
@@ -311,6 +322,8 @@ TCGA 건수 (score 2+ 또는 Equivocal):
 | `deemed_lines[]` [draft6] | 심평원 차수 간주 규칙 4개의 충족 여부 | `{rule_id, category, status, basis, regimen_refs, gap_days, notice_page}` | 계산 (`lines.py`) | 보조 AC → paclitaxel 후 전이 → `DEEM-ANTHRA-TAXANE: met` | tcga_mapping.md §3.6b |
 | `anthracycline_drug_dose` [draft5] | anthracycline 투여 여부와 약별 용량 | `{administered, drugs[]}` | 해석 | `doxorubicin 60 mg/m2 #4` → `{"drug":"doxorubicin","dose_per_admin":{"value":60,"unit":"mg/m2"}, …}` | tcga_mapping.md §3.7a |
 | `molecular.mutations.{유전자}` [draft5] | 유전자별 변이 (ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2) | `{status, result, variants[], specimen}` | 해석 | `PIK3CA H1047R, VAF 31%` → `{"status":"present","result":"detected","variants":[…]}` | `mut_*` (tcga_mapping.md §3.8) |
+| `imaging_findings[]` [2026-10-22, 검토 전] | 영상 소견 (골전이 영상 입증, M 병기 근거) | `{modality, day, date, sites[], certainty, source}` | 해석 + 사전 | `Bone scan: 척추·골반 다발성 골전이` → `{"modality":"bone_scan","sites":["bone"],"certainty":"confirmed"}` | 없음 |
+| `molecular.germline.{BRCA1, BRCA2, PALB2}` [2026-10-22, 검토 전] | 생식세포 검사 (혈액·타액) 결과. `mutations`는 종양 조직·cfDNA. 한 유전자에 두 결과가 있을 수 있어 칸을 나눈다 | `mutations`와 같은 `{status, result, variants[]}` | 해석 | `혈액 BRCA1/2 유전자 검사: 병원성 변이 없음` → `BRCA1`·`BRCA2` `{"status":"present","result":"not_detected","variants":[]}` | 없음 (칸을 두지 않음. B는 `mutations`의 BRCA를 gBRCA로 가정) |
 | `genomic_reports[].specimen` | 검체 | `primary` / `metastasis` / `cfDNA` / `unknown` | 사전 | `혈장 cfDNA NGS` → `"cfDNA"` | 원발(01) 고정 |
 | `genomic_reports[].report_date` | 보고일 | `YYYY-MM-DD` | 해석 | `보고일 2026-07-01` → `"2026-07-01"` | `null` |
 | `genomic_reports[].raw_text` | 보고서 원문 | 문자열 | **그대로** | `ESR1 p.Y537S detected, VAF 4.2%` → 그대로 | `mut_*`, `cna_*`로 가상 보고서 |
