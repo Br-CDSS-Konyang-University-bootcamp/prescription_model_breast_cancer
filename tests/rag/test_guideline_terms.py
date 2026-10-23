@@ -66,6 +66,8 @@ def test_canonical_values_match_schemas_and_drug_dictionary():
     allowed["confirmed_state.endocrine_relapse_12m"] = set(relapse["enum"])
     risk = confirmed["$defs"]["items"]["properties"]["high_risk_early"]["allOf"][1]["properties"]["confirmed"]
     allowed["confirmed_state.high_risk_early"] = set(risk["properties"]["esmo"]["enum"])
+    crisis = confirmed["$defs"]["items"]["properties"]["visceral_crisis"]["allOf"][1]["properties"]["confirmed"]
+    allowed["confirmed_state.visceral_crisis"] = set(crisis["enum"])
     with open(BASE_DIR / "data" / "dictionaries" / "field_vocab.csv", encoding="utf-8-sig", newline="") as f:
         allowed["metastatic_sites"] = {r["canonical"] for r in csv.DictReader(f) if r["field"] == "metastatic_sites"}
     for t in TERMS:

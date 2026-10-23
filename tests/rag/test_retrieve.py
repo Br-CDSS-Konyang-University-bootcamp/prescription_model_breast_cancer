@@ -136,6 +136,20 @@ def test_high_risk_early_goes_into_query_for_early_only():
     assert patient["high_risk_early"] is None and "high-risk" not in search_args(record, **patient)["query_text"]
 
 
+def test_visceral_crisis_goes_into_metastatic_query():
+    # 장기 위기면 ESMO 표현 "imminent organ failure"를 질의에 넣는다 (M06·M50, 2026-10-22 confirmed_state 추가 항목)
+    from src.rag.query import search_args
+    from src.rag.retrieve import from_confirmed_state
+    items = json.loads(json.dumps(VC0103["items"]))
+    items["visceral_crisis"] = {"confirmed": "yes"}
+    record, patient, _ = from_confirmed_state({**VC0103, "items": items})
+    assert patient["visceral_crisis"] == "yes" and "imminent organ failure" in search_args(record, **patient)["query_text"]
+    items["visceral_crisis"] = {"confirmed": "no"}
+    record, patient, _ = from_confirmed_state({**VC0103, "items": items})
+    assert "imminent organ failure" not in search_args(record, **patient)["query_text"]
+    assert from_confirmed_state(VC0103)[1]["visceral_crisis"] is None  # 항목이 없으면 넣지 않는다
+
+
 def test_decision_lines_by_subtype_and_setting():
     from src.rag.retrieve import decision_lines
 
