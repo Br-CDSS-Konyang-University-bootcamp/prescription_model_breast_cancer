@@ -1,4 +1,4 @@
-"""IN-0 비식별화 (src/input/script/pipeline/deid.py)와 파이프라인 연결: 가상 차트 29건의 가짜 식별정보가 하나도 남지 않고 (합격 기준 0건),
+"""IN-0 비식별화 (src/input/script/pipeline.py)와 파이프라인 연결: 가상 차트 29건의 가짜 식별정보가 하나도 남지 않고 (합격 기준 0건),
 임상 글(정답 구절)은 그대로이며, extract(LLM 자리)는 가린 문서만 받는다.
 """
 import json
@@ -6,12 +6,12 @@ import re
 
 import pytest
 
-from src.input.script.evaluation.candidates import from_expected
+from src.input.script.evaluation import from_expected
 from src.input.script.virtual.cases.pairs import PAIRS
 from src.input.script.virtual.virtual_chart import CASES, out_dir
-from src.input.script.pipeline.classify import split
-from src.input.script.pipeline.deid import identifiers, mask
-from src.input.script.pipeline.pipeline import run
+from src.input.script.pipeline import split
+from src.input.script.pipeline import identifiers, mask
+from src.input.script.pipeline import run
 
 ALL = CASES + [p.id for p in PAIRS]
 # 가상 차트 식별정보 (virtual_chart.Doc.ident, 사례 코드의 의료진 이름): 사례와 따로 정규식으로 센다

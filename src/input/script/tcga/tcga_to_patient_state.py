@@ -22,8 +22,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.input.script.rules.lines import GROUP_DAYS, NOT_COUNTED, annotate, load_drug_table
-from src.input.script.rules.vocab import Vocab
+from src.input.script.rules import GROUP_DAYS, NOT_COUNTED, annotate, load_drug_table
+from src.input.script.rules import Vocab
 
 ROOT = Path(__file__).resolve().parents[4]
 CSV = ROOT / "data" / "tcga_brca" / "merged" / "tcga_brca_merging_cropped.csv"
@@ -464,7 +464,7 @@ def build(r) -> dict:
         "conflicts": [],
     }
     follow_recurrence_sites(doc["fields"], nte_site_list(r) if r.stage_disease_extent == "metastatic" else None)
-    return annotate(doc, DRUG_TABLE)  # 차수 3칸과 간주 규칙 (src/input/script/rules/lines.py, draft6)
+    return annotate(doc, DRUG_TABLE)  # 차수 3칸과 간주 규칙 (src/input/script/rules.py, draft6)
 
 
 def follow_recurrence_sites(fields: dict, later: list[str] | None = None) -> None:

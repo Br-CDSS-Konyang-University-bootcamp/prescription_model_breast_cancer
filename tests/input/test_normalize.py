@@ -1,4 +1,4 @@
-"""IN-3 정규화 (src/input/script/pipeline/normalize.py): 가상 차트 30건 정답의 구절마다 정규화한 값이 정답 값과 같은지 본다.
+"""IN-3 정규화 (src/input/script/pipeline.py): 가상 차트 30건 정답의 구절마다 정규화한 값이 정답 값과 같은지 본다.
 
 후보에서 오는 칸(specimen, observed_date)과 4단계가 채우는 칸(progression_day, 차수, 표 첫 칸이 없을 때의 setting),
 그리고 raw(원문 표기)는 비교에서 뺀다.
@@ -9,9 +9,9 @@ import pytest
 
 from src.input.script.virtual.cases.pairs import PAIRS
 from src.input.script.virtual.virtual_chart import CASES, out_dir
-from src.input.script.pipeline.classify import split
-from src.input.script.pipeline.normalize import Context, normalize
-from src.input.script.pipeline.quote import locate
+from src.input.script.pipeline import split
+from src.input.script.pipeline import Context, normalize
+from src.input.script.pipeline import locate
 
 ALL = CASES + [p.id for p in PAIRS]
 FROM_CANDIDATE = {"source", "raw", "history", "superseded_reason", "specimen", "observed_date"}
@@ -98,6 +98,20 @@ def test_wrong_field_is_not_normalized(field, quote):
     """LLM이 칸을 잘못 고른 구절은 값을 만들지 않는다 (VC-0103 hari-q3-8b 시험, 2026-10-23)."""
     doc = split("<외래 경과기록>   2023.5.4\n" + quote + "\n")[0]
     assert normalize(field, quote, Context(doc)) is None
+
+
+def test_gene_detected_without_variant_is_not_negative():
+    """'병원성 변이'만 옮긴 구절을 '검출되지 않음'으로 바꾸지 않는다 (시험 세트 VC-0116·0119, 2026-10-26)."""
+    text = ("[생식세포 유전자 검사 결과]\n검출된 변이\n  BRCA1   c.5266dupC (p.Q1756Pfs*74)   Pathogenic (병원성)\n"
+            "검출되지 않음 (Not detected)\n  BRCA2, PALB2\n")
+    doc = split(text)[0]
+    ctx = Context(doc)
+    assert normalize("molecular.germline.BRCA1", "생식세포 BRCA1 병원성 변이", ctx) is None
+    assert normalize("molecular.germline.BRCA1", "BRCA1   c.5266dupC (p.Q1756Pfs*74)", ctx)["result"] == "detected"
+    assert normalize("molecular.germline.BRCA2", "BRCA2, PALB2", ctx)["result"] == "not_detected"   # 머리말 아래 목록
+    assert normalize("molecular.germline.BRCA2", "BRCA2: 병원성 변이 검출되지 않음", ctx)["result"] == "not_detected"
+    detected_list = split("[NGS]\n검출된 변이\n  BRCA1, BRCA2\n")[0]          # '검출된 변이' 아래 이름만: 알 수 없음
+    assert normalize("molecular.germline.BRCA1", "BRCA1, BRCA2", Context(detected_list)) is None
 
 
 def test_basis_cut_before_hu():

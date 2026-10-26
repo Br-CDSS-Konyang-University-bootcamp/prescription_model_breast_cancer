@@ -279,7 +279,7 @@ TCGA 건수 (score 2+ 또는 Equivocal):
 
 ## 8. 치료 이력 (`fields.treatment_history[]`)
 
-항목 하나가 투약 기록 하나다. 원본 한 기록에 약이 여러 개면(AC 등) 한 항목에 여러 약이 들어간다. 여러 기록을 한 요법으로 묶고 차수를 매기는 일은 A가 변환할 때 한다 (`src/input/script/rules/lines.py`, handoff_to_B.md §6.2) [2026-10-16 변경, draft6].
+항목 하나가 투약 기록 하나다. 원본 한 기록에 약이 여러 개면(AC 등) 한 항목에 여러 약이 들어간다. 여러 기록을 한 요법으로 묶고 차수를 매기는 일은 A가 변환할 때 한다 (`src/input/script/rules.py`, handoff_to_B.md §6.2) [2026-10-16 변경, draft6].
 
 | 필드 | 의미 | 표준값 형태 | 정규화 방식 | 원문 → 정규화 예시 | TCGA 정답 규칙 |
 |---|---|---|---|---|---|

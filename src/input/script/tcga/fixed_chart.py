@@ -26,7 +26,7 @@ import re
 import sys
 from pathlib import Path
 
-from src.input.script.rules.lines import annotate, load_drug_table
+from src.input.script.rules import annotate, load_drug_table
 from src.input.script.tcga.tcga_to_patient_state import ANTHRA, CREATED_AT, GENES, ITEM, SCHEMA_VERSION, cycles_of
 
 DRUG_TABLE = load_drug_table()

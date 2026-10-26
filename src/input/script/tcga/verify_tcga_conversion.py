@@ -19,7 +19,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.input.script.rules.vocab import Vocab
+from src.input.script.rules import Vocab
 
 ROOT = Path(__file__).resolve().parents[4]
 CSV = ROOT / "data" / "tcga_brca" / "merged" / "tcga_brca_merging_cropped.csv"

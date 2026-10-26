@@ -65,7 +65,7 @@ virtual_charts/
 | 단계 | 누가 | 할 일 |
 |---|---|---|
 | 1 | A | `scenario.md`, `chart.txt` |
-| 2 | A | `expected/patient_state.json`. 스키마 검증, 차수·간주 규칙은 `src/input/script/rules/lines.py` 재계산과 일치 |
+| 2 | A | `expected/patient_state.json`. 스키마 검증, 차수·간주 규칙은 `src/input/script/rules.py` 재계산과 일치 |
 | 3 | A가 아닌 1명 | 차트 원문만 보고 `patient_state`를 따로 작성 → 칸별 비교, 다르면 원문을 보고 합의·기록 |
 | 4 | B | `biomarker_record.json` |
 | 5 | C | `guideline.json` |

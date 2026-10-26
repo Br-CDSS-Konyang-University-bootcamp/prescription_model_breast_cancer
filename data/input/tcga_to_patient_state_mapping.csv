@@ -27,7 +27,7 @@
 투약,treatment_history[].best_response,drug_timeline 괄호 안,"Complete Response → CR, Partial → PR, Stable → SD, Clinical Progressive Disease → PD, 없으면 unknown",(Clinical Progressive Disease),"""PD"""
 투약,treatment_history[].setting,drug_start_days; metastasis_dx_days; gdc_history_neoadjuvant_treatment,"시작일 ≥ 전이 기준일 → metastatic, 진단일 전 항암 → neoadjuvant, 선행요법 이력 Yes + 첫 요법 → neoadjuvant, 나머지 → adjuvant",d1696 ≥ 1353,"""metastatic"""
 투약,treatment_history[].progression_day,cbio_PFS_STATUS; cbio_PFS_MONTHS,진단 시 IV기이고 PFS 진행이면 개월 × 30.4375. 그날 쓰던 요법 하나에만,1:PROGRESSION / 44.48 (재발 환자라 해당 없음),null
-투약,treatment_history[].line; endocrine_line; chemo_line,(계산) start_day; setting; best_response; metastasis_day,전이 후 차수 (src/input/script/rules/lines.py). 순차·병용 추가·유지요법은 같은 차수,,3 / null / 1
+투약,treatment_history[].line; endocrine_line; chemo_line,(계산) start_day; setting; best_response; metastasis_day,전이 후 차수 (src/input/script/rules.py). 순차·병용 추가·유지요법은 같은 차수,,3 / null / 1
 투약,treatment_history[].start_date; end_date; stop_reason,(없음),항상 null,,null
 용량,anthracycline_drug_dose.administered,drug_timeline,"doxorubicin·epirubicin·liposomal doxorubicin이 있으면 positive, 투약은 있는데 없으면 negative, 투약 기록 없으면 No value",doxorubicin ...,"""positive"""
 용량,anthracycline_drug_dose.drugs[].dose_per_admin,drug_prescribed_dose; drug_dose_units,"{value, unit}. 병용(+)이면 약 위치 값, 범위(100-102)는 최대값. 크롭 단계에서 mg/m2로 맞춤 (mg는 체표면적 1.84 m2 추정으로 나눔)",63 / mg/m2,"{""value"":63.0,""unit"":""mg/m2""}"

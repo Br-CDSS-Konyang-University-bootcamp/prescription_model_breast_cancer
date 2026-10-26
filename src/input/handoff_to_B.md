@@ -11,7 +11,7 @@
 | 2026-10-13 | BM-3 근거 주석에서 OncoKB를 빼고 대체 출처를 쓰는 제안 (기존 `handoff_to_B_bm3.md`) | **결정** (2026-10-15, 스키마 변경만 4명 합의 필요) |
 | 2026-10-15 | draft5: 차수 재료, 재발·전이, PD-L1, 유전자 변이, anthracycline 용량, gBRCA 규칙 (기존 `handoff_to_B_draft5.md`) | **협의 완료** |
 | 2026-10-16 | B 진행 현황과 남은 작업 순서 정리 (§10). 차수·투여단계·누적 용량 계산은 A로, 국소 재발 후 보조요법은 B로 담당 변경 (§6) | **정리** |
-| 2026-10-16 | §10 갱신: 유전자 7개 BM-2·BM-4 완료(PR #2) 반영, A의 차수 계산 함수(`src/input/script/rules/lines.py`)와 약제 사전 추가 | **정리** |
+| 2026-10-16 | §10 갱신: 유전자 7개 BM-2·BM-4 완료(PR #2) 반영, A의 차수 계산 함수(`src/input/script/rules.py`)와 약제 사전 추가 | **정리** |
 | 2026-10-16 | draft6: 판정 기준일 `index_day`, 첫 재발일 `recurrence.recurrence_day`, 투약별 차수 `line`·`endocrine_line`·`chemo_line`, 차수 간주 규칙 `deemed_lines` (§6.2·§6.3a). 차수 칸 위치 결정 (§10.4). 2026-10-19: 미시행의 `raw` 고정 표기 "결과 대기"·"예정", 유전자 칸에 `raw` 추가 (§0 5번) | **제안** (4명 검토) |
 | 2026-10-21 | BRCA1/2는 TCGA·가상·실제 차트 모두 gBRCA로 본다. sBRCA 레코드는 만들지 않는다 (§4.7). `_gene_marker` 변경 요청, BRCA 마커를 하나로 합치는 제안 | **A 결정, B 반영 요청** |
 
@@ -547,7 +547,7 @@ PROJECT.md §5 판정 기준표에 반영했다 (2026-10-15). 위에서부터 �
 
 ### 6.2 차수 (`treatment_history[].line`, `endocrine_line`, `chemo_line`) [draft6]
 
-A가 변환할 때 계산해 투약마다 넣는다 (`src/input/script/rules/lines.py`의 `palliative_lines`, 2026-10-16). 전이 전 투약·보조약·골 보호제·시작일 없는 투약은 `null`. B는 이 값으로 `setting.line`을 채운다. 규칙:
+A가 변환할 때 계산해 투약마다 넣는다 (`src/input/script/rules.py`의 `palliative_lines`, 2026-10-16). 전이 전 투약·보조약·골 보호제·시작일 없는 투약은 `null`. B는 이 값으로 `setting.line`을 채운다. 규칙:
 
 1. `treatment_history`를 `start_day` 순으로 정렬한다 (`start_day` null은 순서를 알 수 없음).
 2. `start_day ≥ recurrence.metastasis_day`인 기록이 전이 이후 요법이다. 그 전은 선행·보조요법이다.
@@ -826,7 +826,7 @@ B의 기대 출력 (§4 조건을 따른 경우). `oncokb` 칸은 현재 스키�
 
 | 작업 | 담당 | 비고 |
 |---|---|---|
-| §6.2 차수 계산 | **A** (변환 단계) | 2026-10-15에는 B였다. 계산 함수 `src/input/script/rules/lines.py`의 `palliative_lines` (전체·고식적 내분비·고식적 항암 차수를 따로 셈, 2026-10-16). 결과는 draft6의 `treatment_history[].line` 등과 `deemed_lines` (§6.2·§6.3a) |
+| §6.2 차수 계산 | **A** (변환 단계) | 2026-10-15에는 B였다. 계산 함수 `src/input/script/rules.py`의 `palliative_lines` (전체·고식적 내분비·고식적 항암 차수를 따로 셈, 2026-10-16). 결과는 draft6의 `treatment_history[].line` 등과 `deemed_lines` (§6.2·§6.3a) |
 | §6.3 심평원 투여단계 | **A** (변환 단계) | |
 | §6.7 anthracycline 누적 용량 | **A** (변환 단계) | `anthracycline_drug_dose`에 넣는다. 지금 `total_dose`는 TCGA에 적힌 값을 그대로 옮긴 것 |
 | 약제명 사전 | **A** | 차트마다 다른 표기를 같은 약으로 묶기. `drug_classes.csv`에 `drug_subclass` 열 추가됨. 2026-10-16: CDK4/6 억제제·면역관문억제제·지침 약제 18개, 상품명·공고 요법 약어(EC, FEC, CMF, TAC, TCHP, DA, ED, GT) 추가 |

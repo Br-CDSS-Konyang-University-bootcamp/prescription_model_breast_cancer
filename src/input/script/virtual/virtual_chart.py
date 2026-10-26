@@ -22,7 +22,7 @@ from pathlib import Path
 
 from jsonschema import Draft202012Validator
 
-from src.input.script.rules.lines import annotate, load_drug_table
+from src.input.script.rules import annotate, load_drug_table
 
 ROOT = Path(__file__).resolve().parents[4]
 FIXTURES = ROOT / "tests" / "fixtures" / "virtual_charts"

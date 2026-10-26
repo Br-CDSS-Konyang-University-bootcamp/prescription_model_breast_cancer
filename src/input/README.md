@@ -19,13 +19,14 @@
 
 코드:
 
-코드는 모두 `script/` 아래에 기능별 폴더로 나눠 두었다. 파일마다 자세한 설명은 [py_files.md](py_files.md).
+코드는 모두 `script/` 아래에 기능별로 나눠 두었다. `pipeline`·`evaluation`·`rules`는 기능마다 파일 하나이고 (2026-10-26 합침),
+파일 안은 옛 파일 이름의 절로 나뉜다. 자세한 설명은 [py_files.md](py_files.md).
 
-| 폴더 | 파일 | 역할 |
+| 위치 | 절 (옛 파일) | 역할 |
 |---|---|---|
-| `script/pipeline/` | `pipeline.py`, `classify.py`, `deid.py`, `extract.py`, `quote.py`, `normalize.py`, `assemble.py` | 차트 원문 → `patient_state` 처리 단계 (IN-0 ~ IN-7). 진입점 `pipeline.run(chart_text, extract, patient_ref=, created_at=)` → `(patient_state, issues)` |
-| `script/evaluation/` | `candidates.py`, `score.py` | 정답 후보(`from_expected`)와 채점 (필드 정확도, 상태 혼동표, 근거 위치, 인용 준수율) |
-| `script/rules/` | `lines.py`, `vocab.py` | 공용 규칙(차수·간주 규칙·판정 기준일 값, `annotate()`)과 표준값 사전(`field_vocab.csv`). 파이프라인·가상 차트·TCGA 도구가 같이 쓴다 |
+| `script/pipeline.py` | classify, deid, quote, normalize, assemble, pipeline, extract | 차트 원문 → `patient_state` 처리 단계 (IN-0 ~ IN-7). 진입점 `run(chart_text, extract, patient_ref=, created_at=)` → `(patient_state, issues)`. 실행 `python -m src.input.script.pipeline` (LLM 추출 시험) |
+| `script/evaluation.py` | candidates, score | 정답 후보(`from_expected`)와 채점 (필드 정확도, 정밀도·재현율, 상태 혼동표, 근거 위치, 인용 준수율). 실행 `python -m src.input.script.evaluation` |
+| `script/rules.py` | vocab, lines | 공용 규칙(차수·간주 규칙·판정 기준일 값, `annotate()`)과 표준값 사전(`field_vocab.csv`). 파이프라인·가상 차트·TCGA 도구가 같이 쓴다 |
 | `script/virtual/` | `virtual_chart.py`, `build_virtual_cases.py`, `cases/` | 가상 차트와 정답 만들기 (10건 + 짝 사례 19건, 사례 20건) |
 | `script/tcga/` | `tcga_to_patient_state.py`, `verify_tcga_conversion.py`, `tcga_truth.py`, `fixed_chart.py` | TCGA 정답 변환·검증, 고정 형식 차트. 지금은 쓰지 않는다 (2026-10-26) |
 

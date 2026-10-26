@@ -34,9 +34,9 @@ LLM을 붙이기 전에 ① 자리에 정답에서 뽑은 후보를 넣어 ②~�
 ### 실행
 
 ```bash
-python -m src.input.script.pipeline.extract --out data/input/runs/<이름>     # LLM으로 10건 (CPU 약 55분)
-python -m src.input.script.pipeline.extract --replay data/input/runs/<이름>  # 저장한 LLM 후보로 규칙만 다시 (몇 초)
-python -m src.input.script.evaluation.score data/input/runs/<이름>           # 채점
+python -m src.input.script.pipeline --out data/input/runs/<이름>     # LLM으로 10건 (CPU 약 55분)
+python -m src.input.script.pipeline --replay data/input/runs/<이름>  # 저장한 LLM 후보로 규칙만 다시 (몇 초)
+python -m src.input.script.evaluation data/input/runs/<이름>           # 채점
 ```
 
 결과 폴더(`data/input/runs/`, git 제외): `hari-q3-8b-v1`, `-v2`, `-v2r`, `-v3`, `-v3r`

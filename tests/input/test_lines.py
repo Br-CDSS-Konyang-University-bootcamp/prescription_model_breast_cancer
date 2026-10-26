@@ -1,4 +1,4 @@
-"""전이 후 차수 계산 (src/input/script/rules/lines.py) 테스트.
+"""전이 후 차수 계산 (src/input/script/rules.py) 테스트.
 
 실행 (team_project 폴더에서): python -m pytest tests/input/test_lines.py
 """
@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from src.input.script.rules.lines import annotate, at_index, deemed_lines, palliative_lines
+from src.input.script.rules import annotate, at_index, deemed_lines, palliative_lines
 
 ROOT = Path(__file__).resolve().parents[2]
 

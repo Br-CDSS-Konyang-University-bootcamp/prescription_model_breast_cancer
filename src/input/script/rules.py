@@ -1,36 +1,105 @@
-"""전이 후 치료 차수와 심평원 차수 간주 규칙 (전달 문서 handoff_to_B.md §6.2·§6.3).
+"""공용 규칙·사전: 표준값 사전(vocab)과 치료 상황 규칙(lines: 차수·간주 규칙·판정 기준일 값).
 
-patient_state 한 명의 treatment_history로 전이 후 요법마다 차수를 매긴다. 세 가지를 따로 센다.
-- line: 전이 후 전체 차수 (지침용 1L, 2L, >=3L)
-- endocrine_line: 고식적 내분비요법 차수 (심평원 투여단계)
-- chemo_line: 고식적 항암화학요법 차수 (심평원 투여단계). 심평원은 내분비와 항암을 따로 센다 (공고 p.55)
+파이프라인·가상 차트·TCGA 도구가 같이 쓴다.
 
-차수 규칙
-1. 전이 기준일(recurrence.metastasis_day) 이후 시작한 투약이 전이 후 요법이다. 시작일이 없는 투약은 순서를 알 수 없어 뺀다.
-2. 보조약(Supportive Care), 골 보호제(Bone-modifying Agent), 임상시험 백신(Vaccine)은 세지 않는다 (백신은 2026-10-22 사용자 결정).
-3. 시작일이 묶음 첫 투약에서 GROUP_DAYS(28일) 이내인 투약은 한 요법으로 묶는다.
-4. 요법 종류: 항암화학·HER2 표적·면역항암제가 하나라도 있으면 항암, 아니면 내분비요법이 있으면 내분비,
-   그 밖의 표적치료만 있으면 항암. lapatinib + letrozole 같은 HER2 표적 + 내분비 병용은 공고에서 항암화학요법 표에 있다.
-5. 앞 요법이 진행(stop_reason = progression 또는 best_response = PD)으로 끝났으면 다음 요법은 다음 차수다.
-   계획된 순차(planned_switch)·유지요법(maintenance)·독성(toxicity)으로 바뀌었으면 같은 차수다.
-   끝난 이유를 모르면 다음 차수로 세고 notes에 남긴다. 다만 끝난 이유를 몰라도 아래 둘은 같은 차수다 (사용자 결정, 2026-10-20).
-   - 순차 요법: anthracycline 요법이 끝나고 28일 이내에 taxane(± HER2 표적) 요법이 시작됨 (AC → paclitaxel 등)
-   - 병용 추가: 앞 요법이 끝나기 전에 시작됨 (capecitabine 투여 중 bevacizumab 추가 등)
-   - 유지요법: 항암 요법 다음에 내분비 요법이 시작됨 (진행 기록 없음)
-   같은 차수 안에서 요법 종류가 바뀌면(항암 → 내분비 유지 등) 그 종류의 차수는 이 차수에서 처음일 때만 하나 올린다.
-
-간주 규칙 (deemed_lines). 차수 자체는 바꾸지 않고 규칙마다 충족 여부만 낸다. 급여 판정이 행마다 맞는 규칙을 골라 더한다.
-- 선행·보조요법 = setting이 neoadjuvant·adjuvant이고 전이 기준일 전에 시작한 투약 (보조약·골 보호제 제외)
-- 기간은 근거 투약 종료일부터 전이 기준일까지 센다. 종료일이 없으면 시작일로 하한을 잡아, 그래도 기간 안이면 met,
-  아니면 unknown이다 (종료일이 시작일보다 앞설 수 없으므로). 종료일이 없고 ongoing이 true(기준일에 투약 중)면
-  전이 때도 투여 중으로 보고 met이다.
+이 파일은 아래 순서의 절로 되어 있다 (2026-10-26, 옛 script/rules/ 폴더의 파일을 합침).
+절마다 맨 위 주석이 옛 파일의 설명이다.
+- vocab
+- lines
 """
 from __future__ import annotations
 
 import csv
+import re
+from collections import defaultdict
 from pathlib import Path
 
-DRUG_CLASSES_CSV = Path(__file__).resolve().parents[4] / "data" / "dictionaries" / "drug_classes.csv"
+
+# ====================================================================================================
+# vocab (옛 src/input/script/rules/vocab.py)
+# ====================================================================================================
+# 표준값 사전 (data/dictionaries/field_vocab.csv).
+#
+# 같은 뜻의 표현을 필드별 표준값 하나로 바꾼다. TCGA 정답 생성기와 입력 모듈의 정규화(IN-3)가 같은 사전을 쓴다.
+# 비교할 때는 앞뒤 공백을 지우고, 연속 공백을 하나로 줄이고, 대소문자를 무시한다.
+
+VOCAB_CSV = Path(__file__).resolve().parents[3] / "data" / "dictionaries" / "field_vocab.csv"
+
+
+class UnknownExpression(KeyError):
+    """사전에 없는 표현. 정답 생성기는 이 오류로 멈춘다 (사전에 표현을 추가할 것)."""
+
+
+def _key(text: str) -> str:
+    return re.sub(r"\s+", " ", str(text).strip()).casefold()
+
+
+class Vocab:
+    def __init__(self, path: Path = VOCAB_CSV):
+        self.path = Path(path)
+        self._map: dict[str, dict[str, str]] = defaultdict(dict)
+        self._expressions: dict[tuple[str, str], list[str]] = defaultdict(list)
+        with open(self.path, encoding="utf-8-sig", newline="") as f:
+            for row in csv.DictReader(f):
+                field, canonical, expr = row["field"].strip(), row["canonical"].strip(), row["expression"]
+                old = self._map[field].get(_key(expr))
+                if old is not None and old != canonical:
+                    raise ValueError(f"{self.path.name}: {field} '{expr}'가 {old}와 {canonical} 두 값에 대응됨")
+                self._map[field][_key(expr)] = canonical
+                self._expressions[(field, canonical)].append(expr)
+
+    def lookup(self, field: str, expression: str, strict: bool = True) -> str | None:
+        """표현 → 표준값. strict이면 사전에 없을 때 UnknownExpression, 아니면 None."""
+        if field not in self._map:
+            raise KeyError(f"사전에 없는 필드: {field}")
+        canonical = self._map[field].get(_key(expression))
+        if canonical is None and strict:
+            raise UnknownExpression(f"{self.path.name}에 없는 표현: {field} = '{expression}'")
+        return canonical
+
+    def mapping(self, field: str) -> dict[str, str]:
+        """필드의 {정규화된 표현: 표준값} 사본."""
+        return dict(self._map[field])
+
+    def canonical_values(self, field: str) -> list[str]:
+        return sorted(set(self._map[field].values()))
+
+    def expressions(self, field: str, canonical: str) -> list[str]:
+        """표준값 하나에 대응하는 표현들 (가상 차트 생성, LLM 프롬프트 예시용)."""
+        return list(self._expressions[(field, canonical)])
+
+
+# ====================================================================================================
+# lines (옛 src/input/script/rules/lines.py)
+# ====================================================================================================
+# 전이 후 치료 차수와 심평원 차수 간주 규칙 (전달 문서 handoff_to_B.md §6.2·§6.3).
+#
+# patient_state 한 명의 treatment_history로 전이 후 요법마다 차수를 매긴다. 세 가지를 따로 센다.
+# - line: 전이 후 전체 차수 (지침용 1L, 2L, >=3L)
+# - endocrine_line: 고식적 내분비요법 차수 (심평원 투여단계)
+# - chemo_line: 고식적 항암화학요법 차수 (심평원 투여단계). 심평원은 내분비와 항암을 따로 센다 (공고 p.55)
+#
+# 차수 규칙
+# 1. 전이 기준일(recurrence.metastasis_day) 이후 시작한 투약이 전이 후 요법이다. 시작일이 없는 투약은 순서를 알 수 없어 뺀다.
+# 2. 보조약(Supportive Care), 골 보호제(Bone-modifying Agent), 임상시험 백신(Vaccine)은 세지 않는다 (백신은 2026-10-22 사용자 결정).
+# 3. 시작일이 묶음 첫 투약에서 GROUP_DAYS(28일) 이내인 투약은 한 요법으로 묶는다.
+# 4. 요법 종류: 항암화학·HER2 표적·면역항암제가 하나라도 있으면 항암, 아니면 내분비요법이 있으면 내분비,
+#    그 밖의 표적치료만 있으면 항암. lapatinib + letrozole 같은 HER2 표적 + 내분비 병용은 공고에서 항암화학요법 표에 있다.
+# 5. 앞 요법이 진행(stop_reason = progression 또는 best_response = PD)으로 끝났으면 다음 요법은 다음 차수다.
+#    계획된 순차(planned_switch)·유지요법(maintenance)·독성(toxicity)으로 바뀌었으면 같은 차수다.
+#    끝난 이유를 모르면 다음 차수로 세고 notes에 남긴다. 다만 끝난 이유를 몰라도 아래 둘은 같은 차수다 (사용자 결정, 2026-10-20).
+#    - 순차 요법: anthracycline 요법이 끝나고 28일 이내에 taxane(± HER2 표적) 요법이 시작됨 (AC → paclitaxel 등)
+#    - 병용 추가: 앞 요법이 끝나기 전에 시작됨 (capecitabine 투여 중 bevacizumab 추가 등)
+#    - 유지요법: 항암 요법 다음에 내분비 요법이 시작됨 (진행 기록 없음)
+#    같은 차수 안에서 요법 종류가 바뀌면(항암 → 내분비 유지 등) 그 종류의 차수는 이 차수에서 처음일 때만 하나 올린다.
+#
+# 간주 규칙 (deemed_lines). 차수 자체는 바꾸지 않고 규칙마다 충족 여부만 낸다. 급여 판정이 행마다 맞는 규칙을 골라 더한다.
+# - 선행·보조요법 = setting이 neoadjuvant·adjuvant이고 전이 기준일 전에 시작한 투약 (보조약·골 보호제 제외)
+# - 기간은 근거 투약 종료일부터 전이 기준일까지 센다. 종료일이 없으면 시작일로 하한을 잡아, 그래도 기간 안이면 met,
+#   아니면 unknown이다 (종료일이 시작일보다 앞설 수 없으므로). 종료일이 없고 ongoing이 true(기준일에 투약 중)면
+#   전이 때도 투여 중으로 보고 met이다.
+
+DRUG_CLASSES_CSV = Path(__file__).resolve().parents[3] / "data" / "dictionaries" / "drug_classes.csv"
 GROUP_DAYS = 28
 NOT_COUNTED = {"Supportive Care", "Bone-modifying Agent", "Vaccine"}
 NOT_ANTICANCER = NOT_COUNTED | {"Unknown", "Other"}

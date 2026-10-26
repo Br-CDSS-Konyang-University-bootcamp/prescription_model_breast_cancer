@@ -1,4 +1,4 @@
-"""입력 모듈 끝까지 (src/input/script/pipeline/pipeline.py): IN-2 자리에 정답에서 만든 후보를 넣으면 정답 patient_state가 나온다.
+"""입력 모듈 끝까지 (src/input/script/pipeline.py): IN-2 자리에 정답에서 만든 후보를 넣으면 정답 patient_state가 나온다.
 이것이 통과하면 규칙 쪽(문서 나누기·인용 확인·정규화·조립)이 완성된 것이고, LLM을 붙여 달라진 곳은 LLM 오류다.
 raw(원문 표기)와 충돌 설명(note)은 사례 코드가 손으로 쓴 글이라 비교에서 뺀다.
 """
@@ -6,10 +6,10 @@ import json
 
 import pytest
 
-from src.input.script.evaluation.candidates import from_expected
+from src.input.script.evaluation import from_expected
 from src.input.script.virtual.cases.pairs import PAIRS
 from src.input.script.virtual.virtual_chart import CASES, out_dir
-from src.input.script.pipeline.pipeline import run
+from src.input.script.pipeline import run
 
 ALL = CASES + [p.id for p in PAIRS]
 

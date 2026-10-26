@@ -1,6 +1,6 @@
 import pytest
 
-from src.input.script.rules.vocab import UnknownExpression, Vocab
+from src.input.script.rules import UnknownExpression, Vocab
 
 
 @pytest.fixture(scope="module")
