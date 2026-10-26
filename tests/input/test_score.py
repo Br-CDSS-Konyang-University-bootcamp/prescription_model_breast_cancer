@@ -1,7 +1,7 @@
-"""입력 모듈 채점 (src/input/score.py): 정답 그대로면 만점, 일부러 틀린 출력은 그만큼 깎인다."""
+"""입력 모듈 채점 (src/input/script/evaluation/score.py): 정답 그대로면 만점, 일부러 틀린 출력은 그만큼 깎인다."""
 import copy
 
-from src.input.score import compare, expected, main, total
+from src.input.script.evaluation.score import compare, expected, main, total
 
 
 def _scores(want, got):

@@ -28,7 +28,7 @@ TCGA-BRCA 정답 세트(크롭본 874명)에서 범주마다 3명을 골라, 정
 정답은 따로 두지 않는다. 변환기로 만든다 (`team_project` 폴더에서).
 
 ```bash
-python -m src.input.script.tcga_to_patient_state --out <출력 폴더> --ids TCGA-AO-A03N TCGA-5L-AAT0 TCGA-AO-A126 TCGA-A2-A0YG TCGA-E2-A107 TCGA-AR-A0TQ TCGA-A2-A0SV TCGA-LL-A73Z TCGA-B6-A3ZX TCGA-A2-A0EW TCGA-GM-A2DA TCGA-A2-A04P
+python -m src.input.script.tcga.tcga_to_patient_state --out <출력 폴더> --ids TCGA-AO-A03N TCGA-5L-AAT0 TCGA-AO-A126 TCGA-A2-A0YG TCGA-E2-A107 TCGA-AR-A0TQ TCGA-A2-A0SV TCGA-LL-A73Z TCGA-B6-A3ZX TCGA-A2-A0EW TCGA-GM-A2DA TCGA-A2-A04P
 ```
 
 정답의 `source`(원문 인용·위치)와 `documents`는 아직 비어 있다. 이 원문을 기준으로 채우는 것은 다음 작업이다 (tcga_mapping.md §1의 (2)).

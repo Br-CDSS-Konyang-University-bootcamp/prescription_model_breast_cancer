@@ -14,7 +14,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from src.input.truth import tcga_truth as T
+from src.input.script.tcga import tcga_truth as T
 
 EXAMPLES = sorted((Path(__file__).parent / "expected").glob("patient_state_*.json"))
 

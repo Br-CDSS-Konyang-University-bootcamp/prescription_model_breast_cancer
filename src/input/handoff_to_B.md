@@ -11,7 +11,7 @@
 | 2026-10-13 | BM-3 근거 주석에서 OncoKB를 빼고 대체 출처를 쓰는 제안 (기존 `handoff_to_B_bm3.md`) | **결정** (2026-10-15, 스키마 변경만 4명 합의 필요) |
 | 2026-10-15 | draft5: 차수 재료, 재발·전이, PD-L1, 유전자 변이, anthracycline 용량, gBRCA 규칙 (기존 `handoff_to_B_draft5.md`) | **협의 완료** |
 | 2026-10-16 | B 진행 현황과 남은 작업 순서 정리 (§10). 차수·투여단계·누적 용량 계산은 A로, 국소 재발 후 보조요법은 B로 담당 변경 (§6) | **정리** |
-| 2026-10-16 | §10 갱신: 유전자 7개 BM-2·BM-4 완료(PR #2) 반영, A의 차수 계산 함수(`src/input/common/lines.py`)와 약제 사전 추가 | **정리** |
+| 2026-10-16 | §10 갱신: 유전자 7개 BM-2·BM-4 완료(PR #2) 반영, A의 차수 계산 함수(`src/input/script/rules/lines.py`)와 약제 사전 추가 | **정리** |
 | 2026-10-16 | draft6: 판정 기준일 `index_day`, 첫 재발일 `recurrence.recurrence_day`, 투약별 차수 `line`·`endocrine_line`·`chemo_line`, 차수 간주 규칙 `deemed_lines` (§6.2·§6.3a). 차수 칸 위치 결정 (§10.4). 2026-10-19: 미시행의 `raw` 고정 표기 "결과 대기"·"예정", 유전자 칸에 `raw` 추가 (§0 5번) | **제안** (4명 검토) |
 | 2026-10-21 | BRCA1/2는 TCGA·가상·실제 차트 모두 gBRCA로 본다. sBRCA 레코드는 만들지 않는다 (§4.7). `_gene_marker` 변경 요청, BRCA 마커를 하나로 합치는 제안 | **A 결정, B 반영 요청** |
 
@@ -51,7 +51,7 @@
 |---|---|
 | 형식 | `schemas/patient_state.json` (JSON Schema 2020-12). 환자 1명 = JSON 1개 |
 | 개발 중 | 파일로 전달: `tests/fixtures/patient_state/<patient_ref>.json` (예정. 공용 폴더라 4명 합의 후 생성). 지금은 범주별 예시 3명이 `src/input/examples/`에 있다 (§8.1) |
-| TCGA 변환 | `src/input/script/tcga_to_patient_state.py`의 `convert(load_rows())`가 크롭본 874명을 `{patient_id: patient_state}`로 바로 돌려준다. 기본은 파일을 만들지 않는다 (`--out`을 줄 때만 저장). `data/truth/`는 2026-10-16에 지웠다 |
+| TCGA 변환 | `src/input/script/tcga/tcga_to_patient_state.py`의 `convert(load_rows())`가 크롭본 874명을 `{patient_id: patient_state}`로 바로 돌려준다. 기본은 파일을 만들지 않는다 (`--out`을 줄 때만 저장). `data/truth/`는 2026-10-16에 지웠다 |
 | 연결 후 | 함수 반환값: A의 `run(chart_text) → patient_state` 결과를 B의 `assess(patient_state) → biomarker_record`가 받는다. B 코드는 `src/biomarker/BM1_ER,PR,HER2,Ki_67,subtype.py`이고, 파일 이름에 쉼표가 있어 `importlib`로 경로를 지정해 불러온다 (`tests/biomarker/test_bm.py` 참고) |
 | 검증 | A가 보내기 전에 검증한다. B도 받을 때 검증하면 버전 불일치를 바로 알 수 있다 (`schema_version` = `"0.1-draft6"`) |
 | TCGA 정답 세트 | 874명 (§7). 변환 결과를 B에 넣으면 874명 전원 `patient_state`·`biomarker_record` 스키마를 통과한다 (2026-10-16 확인) |
@@ -547,7 +547,7 @@ PROJECT.md §5 판정 기준표에 반영했다 (2026-10-15). 위에서부터 �
 
 ### 6.2 차수 (`treatment_history[].line`, `endocrine_line`, `chemo_line`) [draft6]
 
-A가 변환할 때 계산해 투약마다 넣는다 (`src/input/common/lines.py`의 `palliative_lines`, 2026-10-16). 전이 전 투약·보조약·골 보호제·시작일 없는 투약은 `null`. B는 이 값으로 `setting.line`을 채운다. 규칙:
+A가 변환할 때 계산해 투약마다 넣는다 (`src/input/script/rules/lines.py`의 `palliative_lines`, 2026-10-16). 전이 전 투약·보조약·골 보호제·시작일 없는 투약은 `null`. B는 이 값으로 `setting.line`을 채운다. 규칙:
 
 1. `treatment_history`를 `start_day` 순으로 정렬한다 (`start_day` null은 순서를 알 수 없음).
 2. `start_day ≥ recurrence.metastasis_day`인 기록이 전이 이후 요법이다. 그 전은 선행·보조요법이다.
@@ -806,7 +806,7 @@ B의 기대 출력 (§4 조건을 따른 경우). `oncokb` 칸은 현재 스키�
 | 유전자 7개 BM-2 (1차 규칙, PR #2) | ESR1, PIK3CA, AKT1, PTEN, BRCA1/2, PALB2. 허가 동반진단 변이 목록 또는 절단 변이로 양성, 나머지 검출 변이는 VUS, ESR1 재검 필요 | 같음 (`judge_gene`), `src/biomarker/actionable_variants.csv` |
 | 유전자 BM-4 (PR #2) | 전이성 + 미시행일 때 gBRCA·PALB2, PIK3CA·AKT1·PTEN, ESR1 검사, ESR1 재검 | 같음 (`tests_needed_of`) |
 | TCGA 정답 세트 | 판정할 수 없는 환자를 크롭 단계에서 빼서 874명. ER·PR·HER2·아형이 전원 판정됨 | `data/script/tcga_brca_crop.py` |
-| patient_state 변환 | 크롭본 → patient_state (파일 저장 없이) | `src/input/script/tcga_to_patient_state.py` |
+| patient_state 변환 | 크롭본 → patient_state (파일 저장 없이) | `src/input/script/tcga/tcga_to_patient_state.py` |
 | 테스트 | 판정 규칙 케이스 + TCGA 874명 변환 → BM 출력 스키마 확인 | `tests/biomarker/test_bm.py` |
 
 결정 사항 (2026-10-15):
@@ -826,7 +826,7 @@ B의 기대 출력 (§4 조건을 따른 경우). `oncokb` 칸은 현재 스키�
 
 | 작업 | 담당 | 비고 |
 |---|---|---|
-| §6.2 차수 계산 | **A** (변환 단계) | 2026-10-15에는 B였다. 계산 함수 `src/input/common/lines.py`의 `palliative_lines` (전체·고식적 내분비·고식적 항암 차수를 따로 셈, 2026-10-16). 결과는 draft6의 `treatment_history[].line` 등과 `deemed_lines` (§6.2·§6.3a) |
+| §6.2 차수 계산 | **A** (변환 단계) | 2026-10-15에는 B였다. 계산 함수 `src/input/script/rules/lines.py`의 `palliative_lines` (전체·고식적 내분비·고식적 항암 차수를 따로 셈, 2026-10-16). 결과는 draft6의 `treatment_history[].line` 등과 `deemed_lines` (§6.2·§6.3a) |
 | §6.3 심평원 투여단계 | **A** (변환 단계) | |
 | §6.7 anthracycline 누적 용량 | **A** (변환 단계) | `anthracycline_drug_dose`에 넣는다. 지금 `total_dose`는 TCGA에 적힌 값을 그대로 옮긴 것 |
 | 약제명 사전 | **A** | 차트마다 다른 표기를 같은 약으로 묶기. `drug_classes.csv`에 `drug_subclass` 열 추가됨. 2026-10-16: CDK4/6 억제제·면역관문억제제·지침 약제 18개, 상품명·공고 요법 약어(EC, FEC, CMF, TAC, TCHP, DA, ED, GT) 추가 |

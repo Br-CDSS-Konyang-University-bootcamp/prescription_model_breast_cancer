@@ -14,7 +14,7 @@ from pathlib import Path
 
 from jsonschema import Draft202012Validator
 
-from src.input.script.tcga_to_patient_state import convert, load_rows
+from src.input.script.tcga.tcga_to_patient_state import convert, load_rows
 
 ROOT = Path(__file__).resolve().parents[2]
 

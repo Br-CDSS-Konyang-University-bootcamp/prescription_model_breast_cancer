@@ -10,6 +10,8 @@
 
 문서:
 
+- [py_files.md](py_files.md): 입력 모듈 `.py` 파일마다 이름·기능·실행 명령·테스트 (script/의 pipeline·evaluation·rules·virtual·tcga 폴더별)
+- [llm_extraction_runs.md](llm_extraction_runs.md): LLM 추출 시험 1~3차 기록. 차수마다 고친 규칙·프롬프트와 점수 비교 (2026-10-23 ~ 10-26, hari-q3-8b, 필드 정확도 91.2% → 98.1%)
 - [schema_fields.md](schema_fields.md): `patient_state` 필드별 표준값 형태, 정규화 방식과 예시, B와 합의할 제안
 - [tcga_mapping.md](tcga_mapping.md): TCGA-BRCA 정리본 → `patient_state` 정답 대응표 (평가용 정답과 가상 차트 생성의 기준)
 - [handoff_to_B.md](handoff_to_B.md): B에게 전달하는 문서 (하나로 통합). JSON 구조, B가 받는 값과 정규화, BM-2 판정 조건, BM-3 출처 제안, 치료 상황 규칙(차수, 급여 투여단계), 정답 세트 특성, 예시, 모델 한계, B가 정할 것
@@ -17,27 +19,22 @@
 
 코드:
 
-| 경로 | 내용 |
-|---|---|
-| `common/vocab.py` | 표준값 사전(`data/dictionaries/field_vocab.csv`) 조회. 정답 생성과 IN-3 정규화가 같은 사전을 쓴다 |
-| `script/tcga_to_patient_state.py` | TCGA 크롭본 → `patient_state` 874명 (2026-10-15). 변환만 하고 기본은 파일을 만들지 않는다. 규칙 명세는 tcga_mapping.md |
-| `truth/tcga_truth.py` | 이전 정답 생성기 (같은 변환 + 파일 저장·스키마 검증·보고서). `tests/input/test_tcga_truth.py`가 쓴다 |
-| `pipeline.py` | 진입점 `run(chart_text, extract, patient_ref=, created_at=)` → `(patient_state, issues)`. `extract`가 IN-2 자리 (LLM 또는 정답 후보) |
-| `candidates.py` | IN-2 후보 형식 `{doc_id, field, quote, specimen, observed_date}`, 정답 → 후보 (`from_expected`) |
-| `deid.py` | IN-0 비식별화 (정규식): 이름·등록번호·주민번호·연락처·주소 → `[이름1]` 등. 대응표는 메모리에만 |
-| `classify.py` | IN-1 문서 나누기·종류·날짜 (원문 기준 위치) |
-| `quote.py` | 인용 확인: 가림 표시 복원 → 원문에서 찾기 (공백 차이만 허용) |
-| `normalize.py` | IN-3 구절 → 표준값 (`field_vocab.csv`, `drug_names.csv`) |
-| `assemble.py` | IN-4~6 값 고르기·충돌·누락, 투약 setting·progression_day, anthracycline 용량, IN-7, `lines.annotate`, 스키마 검증 |
-| `score.py` | 채점: 필드 정확도, 상태 혼동표, 근거 위치(정확 일치·겹침), 인용 준수율. `python -m src.input.score --gold` 또는 `<출력 폴더>` |
-| `chart/fixed_chart.py` | `patient_state` ↔ 고정 형식 차트 원문(`chart.txt`). `render()`는 보고서 4종으로 쓰고, `parse()`는 다시 `patient_state`로 읽으며 원문 위치(`source`)를 채운다 (2026-10-21) |
+코드는 모두 `script/` 아래에 기능별 폴더로 나눠 두었다. 파일마다 자세한 설명은 [py_files.md](py_files.md).
+
+| 폴더 | 파일 | 역할 |
+|---|---|---|
+| `script/pipeline/` | `pipeline.py`, `classify.py`, `deid.py`, `extract.py`, `quote.py`, `normalize.py`, `assemble.py` | 차트 원문 → `patient_state` 처리 단계 (IN-0 ~ IN-7). 진입점 `pipeline.run(chart_text, extract, patient_ref=, created_at=)` → `(patient_state, issues)` |
+| `script/evaluation/` | `candidates.py`, `score.py` | 정답 후보(`from_expected`)와 채점 (필드 정확도, 상태 혼동표, 근거 위치, 인용 준수율) |
+| `script/rules/` | `lines.py`, `vocab.py` | 공용 규칙(차수·간주 규칙·판정 기준일 값, `annotate()`)과 표준값 사전(`field_vocab.csv`). 파이프라인·가상 차트·TCGA 도구가 같이 쓴다 |
+| `script/virtual/` | `virtual_chart.py`, `build_virtual_cases.py`, `cases/` | 가상 차트와 정답 만들기 (10건 + 짝 사례 19건, 사례 20건) |
+| `script/tcga/` | `tcga_to_patient_state.py`, `verify_tcga_conversion.py`, `tcga_truth.py`, `fixed_chart.py` | TCGA 정답 변환·검증, 고정 형식 차트. 지금은 쓰지 않는다 (2026-10-26) |
 
 차트 원문 변환 (고정 형식, 2026-10-21):
 
 ```bash
-python -m src.input.chart.fixed_chart                              # TCGA 크롭본 전원 왕복 검사
-python -m src.input.chart.fixed_chart --ids TCGA-A2-A0EW --show    # 한 명의 차트 원문 출력
-python -m src.input.chart.fixed_chart --out <폴더>                 # <폴더>/<환자>/chart.txt, patient_state.json
+python -m src.input.script.tcga.fixed_chart                              # TCGA 크롭본 전원 왕복 검사
+python -m src.input.script.tcga.fixed_chart --ids TCGA-A2-A0EW --show    # 한 명의 차트 원문 출력
+python -m src.input.script.tcga.fixed_chart --out <폴더>                 # <폴더>/<환자>/chart.txt, patient_state.json
 ```
 
 - 형식은 하나로 고정한다: `[병리결과보고서]` → `[분자병리 보고서]` → `<외래 경과기록>` → `[투약 기록]`. 한 줄에 `이름: 값` 하나, 투약 기록은 ` | `로 나눈 표. 미시행은 `미시행`, 기록 없음은 `기록 없음`, 일수는 `D+85`
@@ -49,13 +46,13 @@ python -m src.input.chart.fixed_chart --out <폴더>                 # <폴더>/
 patient_state 변환 (team_project 폴더에서, `team_project` conda 환경):
 
 ```bash
-python -m src.input.script.tcga_to_patient_state                         # 변환만 하고 인원 수 출력
-python -m src.input.script.tcga_to_patient_state --ids TCGA-A2-A0EW --show  # 한 명 결과를 화면에 출력
-python -m src.input.script.tcga_to_patient_state --out <폴더>            # 파일로 저장
+python -m src.input.script.tcga.tcga_to_patient_state                         # 변환만 하고 인원 수 출력
+python -m src.input.script.tcga.tcga_to_patient_state --ids TCGA-A2-A0EW --show  # 한 명 결과를 화면에 출력
+python -m src.input.script.tcga.tcga_to_patient_state --out <폴더>            # 파일로 저장
 ```
 
 - 다른 코드에서는 `convert(load_rows())`로 `{patient_id: patient_state}`를 바로 받는다 (BM 테스트가 이렇게 쓴다)
-- `data/truth/`(이전 생성기의 출력 폴더)는 2026-10-15에 지웠다. 이전 생성기(`truth/tcga_truth.py`)는 남아 있고, 실행하면 `data/truth/`에 파일과 보고서를 다시 만든다
+- `data/truth/`(이전 생성기의 출력 폴더)는 2026-10-15에 지웠다. 이전 생성기(`script/tcga/tcga_truth.py`)는 남아 있고, 실행하면 `data/truth/`에 파일과 보고서를 다시 만든다
 - 사전에 없는 값이 나오면 멈춘다. `field_vocab.csv`에 표현을 추가한다
 - 모든 정답을 `schemas/patient_state.json`으로 검증하고, 하나라도 실패하면 종료 코드 1
 

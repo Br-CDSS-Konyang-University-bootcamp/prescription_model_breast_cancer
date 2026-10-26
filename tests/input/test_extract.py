@@ -1,14 +1,14 @@
-"""IN-2 추출기 (src/input/extract.py)를 가짜 LLM으로 본다: 가린 문서만 보내고, 칸 이름을 enum으로 강제하고,
-날짜 표기를 고치고, LLM이 바꿔 쓴 구절은 인용 확인에서 걸러진다. 실제 모델 시험은 `python -m src.input.extract`.
+"""IN-2 추출기 (src/input/script/pipeline/extract.py)를 가짜 LLM으로 본다: 가린 문서만 보내고, 칸 이름을 enum으로 강제하고,
+날짜 표기를 고치고, LLM이 바꿔 쓴 구절은 인용 확인에서 걸러진다. 실제 모델 시험은 `python -m src.input.script.pipeline.extract`.
 """
 import json
 
 from jsonschema import Draft202012Validator
 
 from llm import LLMConfig
-from src.input.chart.virtual_chart import out_dir
-from src.input.extract import FIELDS, EXAMPLES, make_extract, schema
-from src.input.pipeline import run
+from src.input.script.virtual.virtual_chart import out_dir
+from src.input.script.pipeline.extract import FIELDS, EXAMPLES, make_extract, schema
+from src.input.script.pipeline.pipeline import run
 
 CFG = LLMConfig(provider="ollama", model="fake", patient_data=True)
 

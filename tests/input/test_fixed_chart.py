@@ -1,4 +1,4 @@
-"""patient_state <-> 고정 형식 차트 원문 (src/input/chart/fixed_chart.py) 테스트.
+"""patient_state <-> 고정 형식 차트 원문 (src/input/script/tcga/fixed_chart.py) 테스트.
 
 실행 (team_project 폴더에서): python -m pytest tests/input/test_fixed_chart.py
 """
@@ -9,8 +9,8 @@ from pathlib import Path
 import jsonschema
 import pytest
 
-from src.input.chart import fixed_chart as F
-from src.input.script.tcga_to_patient_state import convert, load_rows
+from src.input.script.tcga import fixed_chart as F
+from src.input.script.tcga.tcga_to_patient_state import convert, load_rows
 
 SCHEMA = Path(__file__).resolve().parents[2] / "schemas" / "patient_state.json"
 

@@ -1,13 +1,13 @@
-"""가상 차트 10건 (tests/fixtures/virtual_charts/): 저장된 chart.txt·정답 patient_state가 사례 코드(src/input/chart/cases/)로
+"""가상 차트 10건 (tests/fixtures/virtual_charts/): 저장된 chart.txt·정답 patient_state가 사례 코드(src/input/script/virtual/cases/)로
 다시 만든 것과 같고, 스키마·인용 위치·문서 범위·근거·차수 재계산이 맞는지 본다.
-사례를 고치면 `python -m src.input.chart.virtual_chart`로 다시 쓴다.
+사례를 고치면 `python -m src.input.script.virtual.virtual_chart`로 다시 쓴다.
 """
 import json
 
 import pytest
 
-from src.input.chart.cases.pairs import BY_ID, PAIRS, get
-from src.input.chart.virtual_chart import CASES, FIXTURES, check, dumps, load_case, out_dir, pairs_index
+from src.input.script.virtual.cases.pairs import BY_ID, PAIRS, get
+from src.input.script.virtual.virtual_chart import CASES, FIXTURES, check, dumps, load_case, out_dir, pairs_index
 
 ALL = CASES + [p.id for p in PAIRS]
 

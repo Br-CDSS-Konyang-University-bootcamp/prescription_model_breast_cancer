@@ -1,4 +1,4 @@
-"""입력 모듈 끝까지 (src/input/pipeline.py): IN-2 자리에 정답에서 만든 후보를 넣으면 정답 patient_state가 나온다.
+"""입력 모듈 끝까지 (src/input/script/pipeline/pipeline.py): IN-2 자리에 정답에서 만든 후보를 넣으면 정답 patient_state가 나온다.
 이것이 통과하면 규칙 쪽(문서 나누기·인용 확인·정규화·조립)이 완성된 것이고, LLM을 붙여 달라진 곳은 LLM 오류다.
 raw(원문 표기)와 충돌 설명(note)은 사례 코드가 손으로 쓴 글이라 비교에서 뺀다.
 """
@@ -6,10 +6,10 @@ import json
 
 import pytest
 
-from src.input.candidates import from_expected
-from src.input.chart.cases.pairs import PAIRS
-from src.input.chart.virtual_chart import CASES, out_dir
-from src.input.pipeline import run
+from src.input.script.evaluation.candidates import from_expected
+from src.input.script.virtual.cases.pairs import PAIRS
+from src.input.script.virtual.virtual_chart import CASES, out_dir
+from src.input.script.pipeline.pipeline import run
 
 ALL = CASES + [p.id for p in PAIRS]
 
@@ -56,6 +56,12 @@ def test_rules_against_llm_mistakes():
     # 나중의 폐 전이를 진단 시 전이 부위로: 진단 시 IIA라 받지 않는다
     got, issues, want = _run_with("VC-0103", [_cand("D1", "stage.metastatic_sites", "lung metastasis")])
     assert got["fields"]["stage"]["metastatic_sites"] == want["fields"]["stage"]["metastatic_sites"]
+    # 재발 상태 후보가 'PD'뿐이어도 재발 부위(lung)가 있으면 원격 전이
+    got, _, want = _run_with("VC-0103", [_cand("D1", "recurrence.status", "PD")], drop_fields={"recurrence.status"})
+    assert got["fields"]["recurrence"]["status"]["value"] == want["fields"]["recurrence"]["status"]["value"] == "distant"
+    # 진단 시 전이 부위 후보가 아예 없어도 pTNM의 M0로 '해당 없음'
+    got, _, want = _run_with("VC-0104", drop_fields={"stage.metastatic_sites"})
+    assert got["fields"]["stage"]["metastatic_sites"]["value"] == "[Not Applicable]"
     # 재발 없는 환자의 재발 부위: 비워 둔다
     got, _, want = _run_with("VC-0107", [_cand("D2", "recurrence.metastatic_sites", "재발·전이 소견 없음")])
     assert got["fields"]["recurrence"]["metastatic_sites"] == {"status": "not_recorded"}

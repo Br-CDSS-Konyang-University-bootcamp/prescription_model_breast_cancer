@@ -1,13 +1,13 @@
-"""정답에서 만든 후보 목록 (src/input/candidates.py): 정답의 근거가 빠짐없이 후보가 되고,
+"""정답에서 만든 후보 목록 (src/input/script/evaluation/candidates.py): 정답의 근거가 빠짐없이 후보가 되고,
 구절만으로(문서 안 첫 위치) 정답 위치를 다시 찾을 수 있는지 본다. LLM 후보도 같은 방식으로 위치를 찾는다.
 """
 import json
 
 import pytest
 
-from src.input.candidates import KEYS, from_expected
-from src.input.chart.cases.pairs import PAIRS
-from src.input.chart.virtual_chart import CASES, DOC_GAP, out_dir
+from src.input.script.evaluation.candidates import KEYS, from_expected
+from src.input.script.virtual.cases.pairs import PAIRS
+from src.input.script.virtual.virtual_chart import CASES, DOC_GAP, out_dir
 
 ALL = CASES + [p.id for p in PAIRS]
 

@@ -1,4 +1,4 @@
-"""크롭본 CSV ↔ patient_state 대조 (src/input/script/verify_tcga_conversion.py) 테스트.
+"""크롭본 CSV ↔ patient_state 대조 (src/input/script/tcga/verify_tcga_conversion.py) 테스트.
 
 실행 (team_project 폴더에서): python -m pytest tests/input/test_verify_conversion.py
 """
@@ -6,8 +6,8 @@ import copy
 
 import pytest
 
-from src.input.script import verify_tcga_conversion as V
-from src.input.script.tcga_to_patient_state import convert, load_rows
+from src.input.script.tcga import verify_tcga_conversion as V
+from src.input.script.tcga.tcga_to_patient_state import convert, load_rows
 
 
 @pytest.fixture(scope="module")

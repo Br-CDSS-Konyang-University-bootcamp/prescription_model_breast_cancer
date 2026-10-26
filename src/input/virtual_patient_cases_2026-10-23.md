@@ -5,8 +5,8 @@
 - 기준: PROJECT.md §12 (2026-10-22 결정: 처방·급여 모듈 평가는 TCGA가 아니라 가상 차트로. TCGA에 등급·Ki-67·PD-L1·pCR·진행일·최신 치료가 없어 조건을 가를 수 없음)
 - 앞 문서 (A 작업 문서 `notes/`, 저장소 밖): `virtual_chart_design.md` §2·§3 (기존 10건), `evaluation_plan_2026-10-23.md` §6.5 (20건 제안, 옛 virtual_chart_coverage)·§2 (짝 사례·빈 값·표현 변형)
 - 조건 원천: `notes/esmo_hira_crosswalk_2026-10-20.md` (§1 E·M 번호, §2 장·연번)
-- 기존 10건 만드는 방법: `src/input/chart/cases/vc_*.py` → `python -m src.input.chart.virtual_chart` → `tests/fixtures/virtual_charts/<사례>/` (`notes/report_templates.md` §1.1)
-- **새 사례 N01~N20 만드는 방법 (2026-10-23):** `src/input/script/build_virtual_cases.py` → `python -m src.input.script.build_virtual_cases` → `tests/fixtures/virtual_charts/<VC-01xx>/chart.txt` + `expected/patient_state.json` + `scenario.md` (이 문서 §3의 해당 표를 옮김), 목록 `tests/fixtures/virtual_charts/cases.csv`. 기존 10건과 같은 폴더. 이 문서가 평가 데이터의 기준이고, 기대 결과를 고칠 때는 이 문서 §3을 고친 뒤 스크립트를 다시 돌린다
+- 기존 10건 만드는 방법: `src/input/script/virtual/cases/vc_*.py` → `python -m src.input.script.virtual.virtual_chart` → `tests/fixtures/virtual_charts/<사례>/` (`notes/report_templates.md` §1.1)
+- **새 사례 N01~N20 만드는 방법 (2026-10-23):** `src/input/script/virtual/build_virtual_cases.py` → `python -m src.input.script.virtual.build_virtual_cases` → `tests/fixtures/virtual_charts/<VC-01xx>/chart.txt` + `expected/patient_state.json` + `scenario.md` (이 문서 §3의 해당 표를 옮김), 목록 `tests/fixtures/virtual_charts/cases.csv`. 기존 10건과 같은 폴더. 이 문서가 평가 데이터의 기준이고, 기대 결과를 고칠 때는 이 문서 §3을 고친 뒤 스크립트를 다시 돌린다
 - 이 문서는 목록만. schemas·`tests/fixtures/`는 이 문서로 바꾸지 않음
 
 ## 표기

@@ -1,7 +1,7 @@
 """사람이 직접 작성한 정답과 생성기 결과 비교.
 
 tests/input/manual_truth/<patient_id>.json (직접 작성, 이름이 .todo.json이면 아직 작성 중이라 건너뜀)
-→ 스키마 검사 → src/input/truth/tcga_truth.py 결과와 칸별 비교.
+→ 스키마 검사 → src/input/script/tcga/tcga_truth.py 결과와 칸별 비교.
 
 다른 칸이 나오면 셋 중 하나다: 내가 틀림 / 생성기 버그 / 규칙이 모호함 (tcga_mapping.md를 고침).
 작업 안내: src/input/truth/manual_truth_worksheet.md
@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pytest
 
-from src.input.truth import tcga_truth as T
+from src.input.script.tcga import tcga_truth as T
 
 COMPUTED_ITEM_KEYS = ("line", "endocrine_line", "chemo_line")  # draft6 계산 칸. 직접 쓰지 않고 test_lines.py에서 검사
 

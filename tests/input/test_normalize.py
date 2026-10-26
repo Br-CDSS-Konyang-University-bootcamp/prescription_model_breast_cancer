@@ -1,4 +1,4 @@
-"""IN-3 정규화 (src/input/normalize.py): 가상 차트 30건 정답의 구절마다 정규화한 값이 정답 값과 같은지 본다.
+"""IN-3 정규화 (src/input/script/pipeline/normalize.py): 가상 차트 30건 정답의 구절마다 정규화한 값이 정답 값과 같은지 본다.
 
 후보에서 오는 칸(specimen, observed_date)과 4단계가 채우는 칸(progression_day, 차수, 표 첫 칸이 없을 때의 setting),
 그리고 raw(원문 표기)는 비교에서 뺀다.
@@ -7,11 +7,11 @@ import json
 
 import pytest
 
-from src.input.chart.cases.pairs import PAIRS
-from src.input.chart.virtual_chart import CASES, out_dir
-from src.input.classify import split
-from src.input.normalize import Context, normalize
-from src.input.quote import locate
+from src.input.script.virtual.cases.pairs import PAIRS
+from src.input.script.virtual.virtual_chart import CASES, out_dir
+from src.input.script.pipeline.classify import split
+from src.input.script.pipeline.normalize import Context, normalize
+from src.input.script.pipeline.quote import locate
 
 ALL = CASES + [p.id for p in PAIRS]
 FROM_CANDIDATE = {"source", "raw", "history", "superseded_reason", "specimen", "observed_date"}
@@ -87,8 +87,23 @@ def test_not_done_and_failure(quote, want):
     ("recurrence.adjuvant_endocrine_end_date", "2023.9.4 간 전이"),  # 종료가 아니라 전이 날짜
     ("recurrence.metastasis_day", "2022.9.4 흉벽 국소 재발"),       # 국소 재발은 원격 전이가 아님
     ("patient.menopausal_basis", "58세 폐경 후"),                   # 58세는 나이
+    # 2차 (2026-10-26)
+    ("recurrence.metastasis_day", "2022.9.29"),                      # 재발 병소 수술일 (날짜만)
+    ("recurrence.recurrence_date", "2022.9.29 흉벽 광범위 절제"),
+    # 3차 (2026-10-26)
+    ("recurrence.adjuvant_endocrine_end_date", "보조 내분비요법 상의 예정"),  # 치료 계획은 검사 '예정'이 아님
+    ("recurrence.status", "PD"),                                            # 치료 반응
 ])
 def test_wrong_field_is_not_normalized(field, quote):
     """LLM이 칸을 잘못 고른 구절은 값을 만들지 않는다 (VC-0103 hari-q3-8b 시험, 2026-10-23)."""
     doc = split("<외래 경과기록>   2023.5.4\n" + quote + "\n")[0]
     assert normalize(field, quote, Context(doc)) is None
+
+
+def test_basis_cut_before_hu():
+    """'58세 폐경 후 여성'에서 LLM이 '58세 폐경'까지만 옮겨도 근거로 보지 않는다."""
+    doc = split("<외래 경과기록>   2023.5.4\n58세 폐경 후 여성.\n")[0]
+    line = "58세 폐경 후 여성."
+    assert normalize("patient.menopausal_basis", "58세 폐경", Context(doc, line)) is None
+    assert normalize("patient.menopausal_basis", "50세 폐경", Context(doc, "폐경: 폐경 후 (50세 폐경)"))["value"] \
+        == "age_amenorrhea"

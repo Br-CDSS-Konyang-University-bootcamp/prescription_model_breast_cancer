@@ -1,8 +1,8 @@
 # 짝 사례 (최소 대조쌍)
 
-> 담당 A · 2026-10-23 · 만드는 곳 `src/input/chart/cases/pairs.py` · 계획 `notes/evaluation_plan_2026-10-23.md` §2.1
+> 담당 A · 2026-10-23 · 만드는 곳 `src/input/script/virtual/cases/pairs.py` · 계획 `notes/evaluation_plan_2026-10-23.md` §2.1
 
-기본 사례에서 판정을 가르는 값 하나만 경계 양쪽으로 바꾼 사례다. **같은 묶음의 기본 사례와 짝 사례를 모두 맞혀야 통과**로 센다. 폴더마다 `chart.txt`와 A 정답 `expected/patient_state.json`이 있고, B·C·D 기대 판정 초안은 `pairs.json`의 `expect`에 있다 (각 담당자가 원문으로 확정). 손으로 고치지 말고 `python -m src.input.chart.virtual_chart`로 다시 만든다.
+기본 사례에서 판정을 가르는 값 하나만 경계 양쪽으로 바꾼 사례다. **같은 묶음의 기본 사례와 짝 사례를 모두 맞혀야 통과**로 센다. 폴더마다 `chart.txt`와 A 정답 `expected/patient_state.json`이 있고, B·C·D 기대 판정 초안은 `pairs.json`의 `expect`에 있다 (각 담당자가 원문으로 확정). 손으로 고치지 말고 `python -m src.input.script.virtual.virtual_chart`로 다시 만든다.
 
 ## G1 보조 내분비 종료 후 재발 기간 (기본 VC-0103)
 

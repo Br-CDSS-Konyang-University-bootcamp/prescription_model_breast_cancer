@@ -1,13 +1,13 @@
-"""IN-1 문서 나누기 (src/input/classify.py)와 인용 확인 (src/input/quote.py)을 가상 차트 30건 정답으로 본다."""
+"""IN-1 문서 나누기 (src/input/script/pipeline/classify.py)와 인용 확인 (src/input/script/pipeline/quote.py)을 가상 차트 30건 정답으로 본다."""
 import json
 
 import pytest
 
-from src.input.candidates import from_expected
-from src.input.chart.cases.pairs import PAIRS
-from src.input.chart.virtual_chart import CASES, out_dir
-from src.input.classify import classify, split
-from src.input.quote import locate
+from src.input.script.evaluation.candidates import from_expected
+from src.input.script.virtual.cases.pairs import PAIRS
+from src.input.script.virtual.virtual_chart import CASES, out_dir
+from src.input.script.pipeline.classify import classify, split
+from src.input.script.pipeline.quote import locate
 
 ALL = CASES + [p.id for p in PAIRS]
 

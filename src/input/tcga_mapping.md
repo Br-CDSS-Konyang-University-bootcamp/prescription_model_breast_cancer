@@ -13,7 +13,7 @@ TCGA 한 행 ──(1) 이 대응표로 변환──▶ 정답 값
 가상 차트 원문 ──입력 모듈──▶ 추출 결과 ──(3) 비교──▶ 필드별 정확도
 ```
 
-- (1)은 규칙 코드다. LLM을 쓰지 않는다. 구현: `src/input/truth/tcga_truth.py` (2026-10-15). 값 대응은 `data/dictionaries/field_vocab.csv`. 결과는 `data/truth/`, 규칙별 건수는 `data/truth/truth_report.txt`.
+- (1)은 규칙 코드다. LLM을 쓰지 않는다. 구현: `src/input/script/tcga/tcga_truth.py` (2026-10-15). 값 대응은 `data/dictionaries/field_vocab.csv`. 결과는 `data/truth/`, 규칙별 건수는 `data/truth/truth_report.txt`.
 - (1)의 결과에는 원문 인용(`source`)이 아직 없다. (2)가 차트 문장을 만들면서 인용과 위치를 채운다.
 - 문서 묶음(`documents`)도 (2)가 만든다 (병리 보고서, 경과기록, 투약 기록, 분자병리 보고서).
 
@@ -48,7 +48,7 @@ TCGA에는 실제 날짜가 없고 "진단 후 일수(d77)"만 있다. **가상 
 - 날짜 속성(`observed_date`, 치료 이력의 `start_date`·`end_date`, 보고서의 `report_date`, 문서의 `doc_date`): `null`
 - [변경, 2026-10-15, 스키마 0.1-draft5] 상대 일수(진단일 = 0인 정수)는 실제 날짜가 아니므로 정답에 넣는다: `treatment_history[].start_day`·`end_day`, `recurrence.metastasis_day`. B가 처방 시작일과 전이 기준일을 비교해 차수를 정하는 데 쓴다. 날짜 칸은 위 규칙대로 비운다.
 - [변경, 2026-10-16, 스키마 0.1-draft6] 판정 기준일 `index_day`(최상위)는 마지막 추적일 `fu_last_days`로 채운다. 776명은 값이 있고 62명은 `null` (2026-10-20, 838명 기준). 마지막 추적일이 음수인 1명(TCGA-A8-A082, -31일)은 크롭 단계에서 부호만 바꿔 31일로 했다 (사용자 결정, 2026-10-20). 0일인 7명은 진단일 이후 추적 기록이 없다. 마지막 추적일보다 늦게 시작하거나 끝난 투약이 있으면 `index_day`를 마지막 투약일(종료일, 없으면 시작일)로 늘린다 (사용자 결정, 2026-10-20). 10명 (TCGA-5T-A9QA, A8-A082, BH-A0DQ, BH-A0E0, BH-A0E1, BH-A0HB, BH-A0HL, BH-A0HO, D8-A1Y0 등). 이 환자들은 기준일이 마지막 투약일이라 `at_index.recent_therapy_28d`가 항상 `yes`(투여일 0일 전)로 나온다. 첫 재발일 `recurrence.recurrence_day`는 §3.7.
-- [추가, 2026-10-20, 4명 검토 전] 기준일 시점 값 `fields.at_index`는 변환 끝에 `index_day`로 계산한다 (`src/input/common/lines.py` `at_index`). `age` = 진단 시 나이 + `index_day` ÷ 365.25의 몫 (`index_day`가 없는 62명은 `null`). `recent_therapy_28d`(최근 4주 이내 항암제·호르몬제 투여): `yes` 34명, `no` 390명, `unknown` 436명 (기준일 없음 62명, 28일 안의 근거 없이 종료일 없는 투약이 있음 374명). TCGA에는 투약 중 여부가 없어 `unknown`이 많다.
+- [추가, 2026-10-20, 4명 검토 전] 기준일 시점 값 `fields.at_index`는 변환 끝에 `index_day`로 계산한다 (`src/input/script/rules/lines.py` `at_index`). `age` = 진단 시 나이 + `index_day` ÷ 365.25의 몫 (`index_day`가 없는 62명은 `null`). `recent_therapy_28d`(최근 4주 이내 항암제·호르몬제 투여): `yes` 34명, `no` 390명, `unknown` 436명 (기준일 없음 62명, 28일 안의 근거 없이 종료일 없는 투약이 있음 374명). TCGA에는 투약 중 여부가 없어 `unknown`이 많다.
 - 가상 차트에도 실제 날짜를 쓰지 않는다. 정답과 맞지 않게 되기 때문이다. 순서는 "수술 후", "재발 후" 같은 표현으로 나타낸다.
 
 ### 2.4 구간 값
@@ -170,7 +170,7 @@ TNM 세부 표기 [합의 예정]: 공백만 지우고 그대로 둔다. `N0 (i-
 | `start_day`, `end_day` [draft5] | `drug_start_days`, `drug_end_days` (2026-10-15 추가. 원본 `pharmaceutical_tx_started_days_to`, `pharmaceutical_tx_ended_days_to`를 `drug_timeline`과 같은 순서로 ` \| `로 이은 열) | 정수. 괄호 코드·`-`이면 `null`. `drug_timeline`은 시작일이 없으면 종료일도 버리지만, 이 열은 종료일을 남긴다 (31건) |
 | `progression_day` [draft5] | `cbio_PFS_STATUS`, `cbio_PFS_MONTHS` | [사용자 결정, 2026-10-20] 진단 시 IV기이고 PFS 상태가 `1:PROGRESSION`이면 PFS 개월 × 30.4375(반올림)을 진행일로 본다. 진행일에 투여 중이었거나 종료 후 30일 이내인 전이 후 항암 투약(골 보호제·보조약 제외)이 한 요법(시작일 28일 이내)이면 그 투약에 넣는다. 4명 4건 (TCGA-A2-A0SV, A2-A0SW, A2-A0T2, LL-A73Z). 두 요법에 걸친 TCGA-AO-A0J5, 그때 쓰던 약이 없는 B6-A3ZX, 재발 환자(PFS 사건일 = 전이 기준일)는 `null` |
 | `cycles` [draft5] | `drug_cycles`, `d시작`·`d종료`, `data/dictionaries/drug_classes.csv`의 `cycle_days` | 아래 규칙 |
-| `line`, `endocrine_line`, `chemo_line` [draft6] | `start_day`, `setting`, `best_response`, `recurrence.metastasis_day`, `drug_classes.csv`의 `drug_class` | `src/input/common/lines.py`의 `palliative_lines` (규칙은 handoff_to_B.md §6.2). 전이 전 투약·보조약·골 보호제·시작일 없는 투약은 `null`. 정답 세트에서 값이 있는 투약 70건, 환자 23명 |
+| `line`, `endocrine_line`, `chemo_line` [draft6] | `start_day`, `setting`, `best_response`, `recurrence.metastasis_day`, `drug_classes.csv`의 `drug_class` | `src/input/script/rules/lines.py`의 `palliative_lines` (규칙은 handoff_to_B.md §6.2). 전이 전 투약·보조약·골 보호제·시작일 없는 투약은 `null`. 정답 세트에서 값이 있는 투약 70건, 환자 23명 |
 
 주기 수 `cycles` 규칙 [사용자 결정, 2026-10-15]:
 
@@ -198,7 +198,7 @@ TNM 세부 표기 [합의 예정]: 공백만 지우고 그대로 둔다. `N0 (i-
 
 ### 3.6b 차수 간주 규칙 (`fields.deemed_lines`) [draft6, 2026-10-16]
 
-`src/input/common/lines.py`의 `deemed_lines`. 규칙 4개를 환자마다 모두 적는다. 기간은 근거 투약 종료일부터 전이 기준일까지 세고, 종료일이 없으면 시작일을 하한으로 쓴다.
+`src/input/script/rules/lines.py`의 `deemed_lines`. 규칙 4개를 환자마다 모두 적는다. 기간은 근거 투약 종료일부터 전이 기준일까지 세고, 종료일이 없으면 시작일을 하한으로 쓴다.
 
 | 규칙 | 공고 | 조건 | met | not_met | unknown | not_applicable |
 |---|---|---|---|---|---|---|
