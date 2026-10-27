@@ -4,7 +4,7 @@
 > 관련 문서: [handoff_to_B.md](handoff_to_B.md) §6.2·§6.3·§6.3a·§6.4 (지금 규칙), [../reimbursement/schema_proposal.md](../reimbursement/schema_proposal.md) (급여 청크의 `line_rule`·`counts_as_prior_line`), PROJECT.md §5
 
 지금 차수 코드(`src/input/script/rules.py`의 `palliative_lines`, `deemed_lines`)를 지우고 이 문서를 기준으로 다시 작성한다.
-지금 코드는 TCGA 데이터의 빈칸을 메우는 추정 규칙(28일 묶기, 끝난 이유를 모르면 다음 차수, 날짜가 겹치면 병용 추가, 항암 다음 내분비는 유지요법)을 가지고 있다.
+지금 코드는 기록 빈칸을 메우는 추정 규칙(28일 묶기, 끝난 이유를 모르면 다음 차수, 날짜가 겹치면 병용 추가, 항암 다음 내분비는 유지요법)을 가지고 있다.
 가상 차트(`tests/fixtures/virtual_charts/`, 30명)는 요법 하나가 한 줄이고 52줄 중 51줄에 `stop_reason`이 있어 이 추정이 필요 없다.
 새 코드는 patient_state에 적힌 값만으로 계산하고, 값이 없으면 추정하지 않고 `unknown`을 낸다.
 

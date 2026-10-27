@@ -6,7 +6,8 @@
 
 - `pipeline.py`, `evaluation.py`, `rules.py`: 기능마다 **파일 하나**. 옛 폴더(`pipeline/`, `evaluation/`, `rules/`)의 파일을 합쳤고 (2026-10-26),
   파일 안은 옛 파일 이름의 **절**로 나뉜다
-- `virtual/`, `tcga/`: **폴더**. 같은 이름의 함수가 여러 파일에 있어 합치지 않았다 (6절)
+- `virtual/`: **폴더**. 같은 이름의 함수가 여러 파일에 있어 합치지 않았다 (6절)
+- `tcga/`: B 테스트가 쓰는 변환기 하나만 남은 폴더 (5절)
 
 ## 구조
 
@@ -15,16 +16,13 @@ src/input/script/
 ├── __init__.py
 ├── pipeline.py     1,306줄  차트 원문 → patient_state 처리 단계 (IN-0 ~ IN-7). 실행 명령 있음
 ├── evaluation.py     284줄  정답 후보와 채점. 실행 명령 있음
-├── rules.py          389줄  공용 규칙·사전 (pipeline·virtual·tcga가 같이 쓴다)
+├── rules.py          389줄  공용 규칙·사전 (pipeline·virtual이 같이 쓴다)
 ├── virtual/                 가상 차트 (모듈 검증용 정답)
 │   ├── virtual_chart.py
 │   ├── build_virtual_cases.py
 │   └── cases/               vc_0101 ~ vc_0109, vc_0106b, pairs
-└── tcga/                    TCGA 도구 (지금은 쓰지 않음)
-    ├── tcga_to_patient_state.py
-    ├── verify_tcga_conversion.py
-    ├── tcga_truth.py
-    └── fixed_chart.py
+└── tcga/                    B 테스트용 변환기만 남김
+    └── tcga_to_patient_state.py
 ```
 
 파일 사이의 관계:
@@ -32,7 +30,7 @@ src/input/script/
 ```
 virtual/ ──만든 정답──▶ evaluation.py ◀──출력── pipeline.py
     │                                              │
-    └──────────────── rules.py ◀───────────────────┘   (tcga/도 rules.py를 쓴다)
+    └──────────────── rules.py ◀───────────────────┘
 ```
 
 ### 합친 파일 읽는 법
@@ -75,8 +73,8 @@ from src.input.script.rules import Vocab, annotate, load_drug_table
 
 | 절 | 시작 줄 | 역할 | 작업 내용 | 쓰는 곳 | 테스트 |
 |---|---|---|---|---|---|
-| `vocab` | 19 | 표준값 사전 | `data/dictionaries/field_vocab.csv`를 읽어 "양성"·"Positive" 같은 표현을 표준값 하나로 바꾼다. 공백·대소문자는 무시하고, 한 표현이 두 값에 대응하면 멈춘다 | `pipeline.py` (normalize), `tcga/` | `test_vocab.py` |
-| `lines` | 73 | 치료 상황 규칙 | 전이 후 차수(`line`, 고식적 내분비 `endocrine_line`, 고식적 항암 `chemo_line`), 심평원 차수 간주 규칙(`deemed_lines`), 판정 기준일 값(`at_index`: 기준일 나이, 최근 4주 투약)을 계산한다. `annotate()`가 셋을 한 번에 채운다 | `pipeline.py` (assemble), `virtual/`, `tcga/` | `test_lines.py` |
+| `vocab` | 19 | 표준값 사전 | `data/dictionaries/field_vocab.csv`를 읽어 "양성"·"Positive" 같은 표현을 표준값 하나로 바꾼다. 공백·대소문자는 무시하고, 한 표현이 두 값에 대응하면 멈춘다 | `pipeline.py` (normalize) | `test_vocab.py` |
+| `lines` | 73 | 치료 상황 규칙 | 전이 후 차수(`line`, 고식적 내분비 `endocrine_line`, 고식적 항암 `chemo_line`), 심평원 차수 간주 규칙(`deemed_lines`), 판정 기준일 값(`at_index`: 기준일 나이, 최근 4주 투약)을 계산한다. `annotate()`가 셋을 한 번에 채운다 | `pipeline.py` (assemble), `virtual/` | `test_lines.py` |
 
 ## 4. `virtual/`: 가상 차트
 
@@ -87,24 +85,15 @@ from src.input.script.rules import Vocab, annotate, load_drug_table
 | `cases/pairs.py` | 짝 사례 19건 | 기본 사례에서 판정을 가르는 값 하나만 바꾸고, A 정답 확인값(`expect_a`)과 B·C·D 기대 판정 초안(`expect`)을 적는다 | `test_virtual_charts.py` |
 | `build_virtual_cases.py` | 가상 사례 20건 생성 (시험 세트) | `virtual_patient_cases_2026-10-23.md` §3의 값으로 VC-0110 ~ VC-0129의 차트·정답·`scenario.md`·`cases.csv`를 만든다 (`virtual_chart.py`의 `Chart`·`F`를 쓴다) | `test_virtual_cases.py` |
 
-## 5. `tcga/`: TCGA 도구 (지금은 쓰지 않음)
+## 5. `tcga/`
 
-TCGA 데이터로 변환·계산 규칙을 점검하던 도구다. 테스트는 그대로 돌고, B 모듈 테스트(`tests/biomarker/test_bm.py`)가 `tcga_to_patient_state`를 쓴다.
-TCGA 원자료 다운로드·병합 스크립트는 `data/script/`에 따로 있다.
+2026-10-27 TCGA 정답 세트 폐기, 평가는 가상 차트로. B 모듈 테스트(`tests/biomarker/test_bm.py`)가 쓰는 `tcga_to_patient_state.py`만 남겼다.
 
-| 파일 | 작업 내용 | 테스트 |
-|---|---|---|
-| `tcga_to_patient_state.py` | TCGA-BRCA 크롭본 CSV → 환자마다 `patient_state` (규칙 명세 `tcga_mapping.md`). 기본은 메모리에서만 변환하고 `--out`이면 저장 | `test_verify_conversion.py`, `test_fixed_chart.py`, `tests/biomarker/test_bm.py` |
-| `verify_tcga_conversion.py` | 변환기를 쓰지 않고 크롭본 원본 칸과 규칙만으로 JSON을 한 칸씩 대조한다 | `test_verify_conversion.py` |
-| `tcga_truth.py` | 이전 정답 생성기 (같은 변환 + 파일 저장·스키마 검증·규칙별 건수 보고서, `data/truth/`) | `test_tcga_truth.py`, `test_manual_truth.py` |
-| `fixed_chart.py` | `patient_state` ↔ 고정 형식 차트 글 (`render`·`parse`). TCGA 838명 모두 왕복이 같아야 한다 | `test_fixed_chart.py` |
-
-## 6. `virtual/`·`tcga/`를 파일 하나로 합치지 않은 이유 (2026-10-26 확인)
+## 6. `virtual/`를 파일 하나로 합치지 않은 이유 (2026-10-26 확인)
 
 | 폴더 | 같은 이름의 정의 | 실행 명령 | 그 밖 |
 |---|---|---|---|
 | `virtual/` | `build` 10개(사례 파일마다), `main` 2개, `ROOT`, `CYC` | 2개 (`virtual_chart`, `build_virtual_cases`) | `virtual_chart.py`가 사례 파일을 이름으로 불러온다 (`cases.vc_0103`) |
-| `tcga/` | 약 45개 (`build`, `stage`, `receptors`, `main` 4개 등. `tcga_truth.py`는 `tcga_to_patient_state.py`의 이전 판이라 같은 이름이 많다) | 4개 | `verify_tcga_conversion.py`가 변환기 파일 이름으로 그 파일을 읽는다 |
 
 그대로 합치면 같은 이름이 서로 덮어쓰고 실행 명령이 하나만 남는다. 합치려면 이름을 바꾸고 실행 명령을 하위 명령으로 나눠야 한다.
 
@@ -127,8 +116,6 @@ python -m src.input.script.evaluation data/input/runs/<이름>                  
 python -m src.input.script.virtual.virtual_chart [--ids VC-0103] [--check]       # 가상 차트 10건 + 짝 사례 만들기·검사
 python -m src.input.script.virtual.build_virtual_cases [--ids VC-0112] [--check] # 가상 사례 20건 만들기·검사
 
-# TCGA (tcga/, 지금은 쓰지 않음)
-python -m src.input.script.tcga.tcga_to_patient_state [--ids ... --show]         # TCGA 변환
 ```
 
 개발 세트(dev)는 규칙·프롬프트를 고칠 때 보는 사례, 시험 세트(test)는 규칙을 고정한 뒤에만 재는 사례다 (과적합 방지, `llm_extraction_runs.md`).

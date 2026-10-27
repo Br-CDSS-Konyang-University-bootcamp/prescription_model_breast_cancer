@@ -186,7 +186,7 @@ def locate(quote: str, doc: Document, mapping: dict[str, str] | None = None) -> 
 # IN-3 정규화 [규칙] (notes/input_module_design.md §2 IN-3).
 #
 # 후보 하나(칸 + 원문 구절)를 표준값으로 바꾼다. LLM은 값을 계산하지 않으므로 여기가 값을 만드는 유일한 곳이다.
-# 표현 사전은 TCGA 정답 생성기와 같은 data/dictionaries/field_vocab.csv(결과 단어·조직형·폐경)와 drug_names.csv(약 이름).
+# 표현 사전은 data/dictionaries/field_vocab.csv(결과 단어·조직형·폐경)와 drug_names.csv(약 이름).
 #
 #     normalize("receptors.er_percent", "ER positive (Allred 8, 5+3)", ctx)
 #     -> {"status": "present", "value": {"allred": {"total": 8, "ps": 5, "is": 3}, "result": "positive"}}
@@ -573,7 +573,7 @@ REVIEW = "_review"     # 정규화 결과에 붙는 확인 요청 표시. 조립
 def _gene(gene: str, q: str, ctx: Context | None = None) -> dict | None:
     """유전자 칸. 구절에 그 유전자 이름이 없으면 None ('BRCA1/2'는 BRCA1·BRCA2 둘 다).
 
-    - 변이 표기(c. / p.)가 있으면 detected. 변이 종류는 TCGA 표기 (fs: c.의 del → Frame_Shift_Del, dup·ins → _Ins)
+    - 변이 표기(c. / p.)가 있으면 detected. 변이 종류는 MAF Variant_Classification 표기 (fs: c.의 del → Frame_Shift_Del, dup·ins → _Ins)
     - '검출되지 않음'류 단어가 있으면 not_detected
     - 유전자 이름만 나열된 구절은 문서에서 바로 위 머리말이 '검출되지 않음'일 때만 not_detected
     - '병원성 변이'처럼 검출을 말하지만 변이 표기가 없으면 detected + 변이 원문만 + 확인 요청 (2026-10-27 2단계).

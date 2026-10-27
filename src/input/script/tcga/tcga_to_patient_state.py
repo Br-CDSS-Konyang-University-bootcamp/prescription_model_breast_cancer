@@ -1,7 +1,7 @@
 """TCGA-BRCA 크롭본 -> patient_state (환자 1명 = dict 1개).
 
-규칙 명세: src/input/tcga_mapping.md, src/input/schema_fields.md. 이 코드는 그 문서를 옮긴 것이다.
-src/input/script/tcga/tcga_truth.py 에서 변환 부분만 옮겨 왔다 (2026-10-15). 스키마 검증·규칙별 건수 보고서는 넣지 않는다.
+2026-10-27 TCGA 정답 세트 폐기 (평가는 가상 차트로). B의 tests/biomarker/test_bm.py가 이 변환기를 쓰므로 이 파일만 남긴다.
+규칙 명세였던 src/input/tcga_mapping.md와 다른 TCGA 도구는 지웠다 (git 이력에 있음).
 
 - 입력: data/tcga_brca/merged/tcga_brca_merging_cropped.csv (크롭본)
 - 출력: 기본은 파일을 만들지 않는다. --out 폴더를 주면 <patient_id>.json 으로 저장한다

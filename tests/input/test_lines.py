@@ -2,14 +2,9 @@
 
 실행 (team_project 폴더에서): python -m pytest tests/input/test_lines.py
 """
-import json
-from pathlib import Path
-
 import pytest
 
 from src.input.script.rules import annotate, at_index, deemed_lines, palliative_lines
-
-ROOT = Path(__file__).resolve().parents[2]
 
 
 def state(history, metastasis_day=100):
@@ -24,16 +19,6 @@ def tx(drugs, start, end=None, stop=None, response=None, setting="metastatic"):
 
 def numbers(result):
     return [(r["drugs"], r["line"], r["endocrine_line"], r["chemo_line"]) for r in result["regimens"]]
-
-
-def test_tcga_example_matches_handoff_8_1():
-    """전달 문서 §8.1: fulvestrant 1L, tamoxifen 2L, liposomal doxorubicin 3L. 내분비 1·2차, 항암 1차. 골 보호제는 뺌."""
-    ps = json.loads((ROOT / "src/input/examples/patient_state_metastatic_TCGA-A2-A0EW.json").read_text(encoding="utf-8"))
-    r = palliative_lines(ps)
-    assert numbers(r) == [(["fulvestrant"], 1, 1, None),
-                          (["tamoxifen"], 2, 2, None),
-                          (["liposomal doxorubicin"], 3, None, 1)]
-    assert r["counts"] == {"line": 3, "endocrine": 2, "chemo": 1}
 
 
 def test_adjuvant_before_metastasis_not_counted():
@@ -125,16 +110,6 @@ def test_no_metastasis_day():
 
 def deem(history, metastasis_day=1000):
     return {d["rule_id"]: d for d in deemed_lines(state(history, metastasis_day))}
-
-
-def test_tcga_example_deemed_rules():
-    """보조 AC → paclitaxel, 보조 AI 3종 후 exemestane 투여 중(1,365일 종료) 1,353일에 원격 전이."""
-    ps = json.loads((ROOT / "src/input/examples/patient_state_metastatic_TCGA-A2-A0EW.json").read_text(encoding="utf-8"))
-    d = {x["rule_id"]: x for x in deemed_lines(ps)}
-    assert (d["DEEM-ANTHRA-TAXANE"]["status"], d["DEEM-ANTHRA-TAXANE"]["regimen_refs"]) == ("met", [0, 2])
-    assert (d["DEEM-SG-1Y"]["status"], d["DEEM-SG-1Y"]["gap_days"]) == ("met", -12)  # 음수 = 투여 중 전이
-    assert d["DEEM-HER2ADC-6M"]["status"] == "not_met"
-    assert (d["DEEM-ENDO-ADJ-1Y"]["status"], d["DEEM-ENDO-ADJ-1Y"]["gap_days"]) == ("met", -12)
 
 
 def test_not_metastatic_all_not_applicable():

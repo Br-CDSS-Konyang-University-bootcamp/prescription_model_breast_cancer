@@ -180,7 +180,7 @@ def germline(c: Chart, day: int, age: int, results: dict[str, tuple | None]):
             continue
         cdna, prot, call = r
         raw = f"{gene}   {cdna} (p.{prot})   {call}"
-        kind = "Frame_Shift_Del" if "del" in cdna else "Frame_Shift_Ins"     # c.5946delT 결실, c.5266dupC 삽입 (TCGA 표기)
+        kind = "Frame_Shift_Del" if "del" in cdna else "Frame_Shift_Ins"     # c.5946delT 결실, c.5266dupC 삽입 (MAF 표기)
         d.t("  ").put(raw, F(f"molecular.germline.{gene}", result="detected",
                              variants=[{"protein_change": prot, "variant_type": kind, "vaf": None,
                                         "raw": raw}])).t("\n")
