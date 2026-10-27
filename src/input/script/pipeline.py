@@ -209,11 +209,15 @@ PLANNED = re.compile(r"시행 예정|예정|예약")
 TEST_FIELDS = ("receptors.", "proliferation.")     # 미시행·결과 대기·예정을 읽는 검사 칸
 NEGATION = re.compile(r"없음|아님|no evidence|negative for", re.I)
 SITES = [  # field_vocab.csv metastatic_sites 표준값 순서
-    ("bone", r"뼈|골|척추|bone|osseous"),
+    ("bone", r"뼈|(?<!쇄)골|척추|bone|osseous"),     # 쇄골상 림프절은 뼈가 아니다
     ("liver", r"(?<![가-힣])간(?![가-힣])|liver|hepatic"),
     ("lung", r"(?<![가-힣])폐(?!경)|lung|pulmonary"),
     ("brain", r"뇌|brain"),
     ("skin", r"피부|skin"),
+    # 원격 림프절만. 같은 쪽 쇄골상·내유 림프절은 국소(N3)라 넣지 않는다. '비대 없음'은 전이가 아니다 (8단계, 2026-10-27)
+    ("distant_ln", r"(?:종격동|기관\s*옆|대동맥\s*(?:주위|옆)|후복막|복강\s*내|경부|반대\s*[측편]\s*(?:액와|쇄골\S*)|원격)\s*"
+                   r"림프절(?!\s*(?:비대\s*)?없음)|(?:mediastinal|para-?aortic|retroperitoneal|cervical|"
+                   r"contralateral\s+(?:axillary|supraclavicular)|distant)\s+(?:lymph\s+nodes?|LNs?)\b"),
 ]
 ROMAN = {"0": "0", "1": "I", "2": "II", "3": "III", "I": "I", "II": "II", "III": "III"}
 
@@ -269,16 +273,21 @@ def _day(date: str | None, dx_date: str | None) -> int | None:
     return (dt.date.fromisoformat(date) - dt.date.fromisoformat(dx_date)).days
 
 
+def _expr_pattern(expr: str) -> str:
+    """사전 표현(소문자) 하나의 정규식. 공백은 여러 칸도 맞고, 영문 끝은 단어 경계를 본다."""
+    pat = r"\s+".join(re.escape(w) for w in expr.split(" "))
+    if expr[0].isascii() and expr[0].isalnum():
+        pat = r"(?<![a-z0-9])" + pat
+    if expr[-1].isascii() and expr[-1].isalnum():
+        pat += r"(?![a-z0-9])"
+    return pat
+
+
 def _vocab(field: str, text: str) -> str | None:
     """사전 표현 중 text에 들어 있는 가장 긴 것의 표준값. 영문 표현은 단어 경계를 본다."""
     best, low = None, text.casefold()
     for expr, canonical in VOCAB.mapping(field).items():
-        pat = r"\s+".join(re.escape(w) for w in expr.split(" "))
-        if expr[0].isascii() and expr[0].isalnum():
-            pat = r"(?<![a-z0-9])" + pat
-        if expr[-1].isascii() and expr[-1].isalnum():
-            pat += r"(?![a-z0-9])"
-        if re.search(pat, low) and (best is None or len(expr) > best[0]):
+        if re.search(_expr_pattern(expr), low) and (best is None or len(expr) > best[0]):
             best = (len(expr), canonical)
     return best and best[1]
 
@@ -316,7 +325,9 @@ def _tnm(q, ctx, *, prefix):
         v["m"] = v["m"] or "M0"
         size = re.search(r"(?:잔존 (?:종양 )?크기|residual (?:tumor )?size)\s*:\s*(.+)", ctx.doc.text, re.I)
         ln = re.search(r"(?:림프절|lymph node)\s*:\s*(\d+)\s*/\s*(\d+)", ctx.doc.text, re.I)
-        v.update({"residual_size_mm": size and _size_mm(size.group(1)),
+        # 크기 줄이 없어도 ypT0이면 잔존 침윤암이 없으므로 0 (9단계, 2026-10-27)
+        residual = size and _size_mm(size.group(1))
+        v.update({"residual_size_mm": 0 if residual is None and v["t"] == "T0" else residual,
                   "positive_ln": ln and int(ln.group(1)), "examined_ln": ln and int(ln.group(2))})
     return v
 
@@ -452,6 +463,11 @@ def _need(pattern: str, parse):
     return wrapped
 
 
+def _need_vocab(field: str):
+    """_need와 같고 칸의 단어는 field_vocab.csv에서 (표준값 yes). 값은 구절의 없음·아님으로 가린다 (10단계, 2026-10-27)."""
+    return lambda q, ctx: _yes_no(q) if _vocab(field, q) else None
+
+
 END_WORD = re.compile(r"종료|중단|완료|끝|stop|discontinu|complet", re.I)
 
 
@@ -525,9 +541,9 @@ PARSERS = {
     "patient.height_cm": _number(r"(\d+(?:\.\d+)?)\s*cm"),
     "patient.weight_kg": _number(r"(\d+(?:\.\d+)?)\s*kg"),
     "patient.lvef_percent": _number(r"(\d+(?:\.\d+)?)\s*%"),
-    "patient.cardiac_history": _need(r"심장|심질환|심부전|관상동맥|심근|부정맥|cardiac|heart|CHF|\bMI\b",
-                                     lambda q, ctx: _yes_no(q)),
-    "patient.mediastinal_radiation": _need(r"종격동|mediastin", lambda q, ctx: _yes_no(q)),
+    "patient.cardiac_history": _need_vocab("patient.cardiac_history"),
+    "patient.mediastinal_radiation": _need_vocab("patient.mediastinal_radiation"),
+    "patient.visceral_crisis": _need_vocab("patient.visceral_crisis"),
     "patient.comorbidities": lambda q, ctx: None if re.search(r"재발|전이|metasta", q, re.I) else [q],
     "neoadjuvant_response.pcr": _pcr,
     "neoadjuvant_response.rcb": _rcb,
@@ -661,19 +677,27 @@ def _treatment(q: str, ctx: Context) -> dict | None:
         return None
     setting = re.search(r"보조|선행|고식", ctx.line)
     s, e = _day(r["start"], ctx.dx_date), _day(r["end"], ctx.dx_date)
-    stop = None
-    for reason, pat in [("planned_switch", r"계획된 변경|planned"), ("toxicity", r"부작용|독성|toxicity|관절통"),
-                        ("completed", r"완료|complete"), ("progression", r"\bPD|진행|progress|전이|재발")]:
-        if re.search(pat, r["tail"], re.I):
-            stop = reason
-            break
     return {"drugs": [g for g, _ in r["drugs"]],
             "setting": setting and {"보조": "adjuvant", "선행": "neoadjuvant", "고식": "metastatic"}[setting.group(0)],
             "start_date": r["start"], "end_date": r["end"], "start_day": s, "end_day": e,
             "duration_days": e - s if s is not None and e is not None else None,
             **({"ongoing": True} if r["ongoing"] else {}),
-            "cycles": r["cycles"], "stop_reason": stop,
+            "cycles": r["cycles"], "stop_reason": _stop_reason(r["tail"]),
             "best_response": _vocab("treatment_history.best_response", r["tail"])}
+
+
+# 중단 사유 단어는 field_vocab.csv의 treatment_history.stop_reason. 한 줄에 둘 이상 맞으면 앞 값
+# ("관절통 (부작용)으로 중단 후 진행" → toxicity). 유지요법 전환·계획된 변경·독성은 같은 차수 (rules.py SAME_LINE_STOPS)
+STOP_REASONS = ("planned_switch", "maintenance", "toxicity", "completed", "progression")
+
+
+def _stop_reason(tail: str) -> str | None:
+    low = tail.casefold()
+    for reason in STOP_REASONS:
+        if any(re.search(_expr_pattern(e.casefold()), low)
+               for e in VOCAB.expressions("treatment_history.stop_reason", reason)):
+            return reason
+    return None
 
 
 def _anthracycline(q: str, ctx: Context) -> dict | None:
@@ -1112,6 +1136,7 @@ FIELDS = {
         "patient.weight_kg": "몸무게",
         "patient.lvef_percent": "좌심실 박출률 (LVEF)",
         "patient.mediastinal_radiation": "종격동 방사선 치료 이력",
+        "patient.visceral_crisis": "의사가 visceral crisis(장기 위기)라고 판단해 적은 구절. 검사 수치만 있으면 내지 않는다",
         "patient.comorbidities": "유방암 말고 함께 앓는 질환 이름 (예: 고혈압, 당뇨, CKD 3a). 질환 하나에 구절 하나. "
                                  "유방암·재발·전이는 넣지 않는다",
         "recurrence.recurrence_date": "첫 재발·전이 날짜와 부위가 든 구절 (예: 2023.4.4 lung metastasis)",

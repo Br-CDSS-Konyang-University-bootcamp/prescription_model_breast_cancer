@@ -137,6 +137,57 @@ def test_endocrine_end_date_reads_line():
     assert normalize(f, "letrozole 2023.3.28 중단", Context(doc, meta))["value"] == "2023-03-28"
 
 
+@pytest.mark.parametrize("tail, want", [
+    ("q3w #6   PR   유지요법 전환", "maintenance"),                 # VC-0111 (R2)
+    ("q3w #3   -   심부전 의심 (LVEF 저하)", "toxicity"),          # VC-0127 (R2)
+    ("-      관절통 (부작용)", "toxicity"),
+    ("q3w #4   -   계획된 변경", "planned_switch"),
+    ("q3w #6   CR   완료", "completed"),
+    ("q4w #21   PD   진행", "progression"),
+    ("관절통 (부작용)으로 중단 후 진행", "toxicity"),                # 둘 다 맞으면 앞 순서
+    ("q3w #6   PR", None),                                          # 반응 PR은 중단 사유가 아님
+])
+def test_stop_reason_from_vocab(tail, want):
+    """중단 사유는 field_vocab.csv 단어로 읽는다 (7단계, 2026-10-27)."""
+    doc = split("<투약 기록>   2024.5.4\n본문\n")[0]
+    q = f"docetaxel 75mg/m2   2023.2.20   2023.6.5   {tail}"
+    assert normalize("treatment_history", q, Context(doc, q))["stop_reason"] == want
+
+
+@pytest.mark.parametrize("field, quote, want", [
+    # 8단계: 원격 림프절 (같은 쪽 쇄골상·내유 림프절은 국소, '비대 없음'은 전이 아님)
+    ("recurrence.metastatic_sites", "간·종격동 림프절 전이", ["liver", "distant_ln"]),        # VC-0116
+    ("recurrence.metastatic_sites", "뼈·종격동 림프절 전이", ["bone", "distant_ln"]),         # VC-0128
+    ("recurrence.metastatic_sites", "para-aortic lymph node metastasis", ["distant_ln"]),
+    ("recurrence.metastatic_sites", "좌측 쇄골상 림프절 전이", None),
+    ("recurrence.metastatic_sites", "내유 림프절 전이", None),
+    # 9단계: ER 약양성은 저발현, PR 약양성은 양성
+    ("receptors.er_percent", "ER 5% (약양성)", {"percent": 5, "result": "low_positive"}),    # VC-0124
+    ("receptors.pr_percent", "PR 약양성 (Allred 3, 2+1)",
+     {"allred": {"total": 3, "ps": 2, "is": 1}, "result": "positive"}),                       # VC-0101
+    ("patient.visceral_crisis", "간 기능 악화를 동반한 visceral crisis로 판단", "yes"),      # VC-0126
+    ("patient.visceral_crisis", "visceral crisis 아님", "no"),
+    ("patient.visceral_crisis", "AST 250, ALT 310", None),                                   # 수치만으로 짐작하지 않음
+    # 10단계: 칸의 단어를 사전에서
+    ("patient.cardiac_history", "협심증 (2017년 스텐트 시술)", "yes"),                       # VC-0127
+    ("patient.cardiac_history", "심장 질환 없음", "no"),
+    ("patient.cardiac_history", "재발·전이 소견 없음", None),
+    ("patient.mediastinal_radiation", "좌측 흉벽·내유림프절 방사선 치료 (50 Gy)", "yes"),    # VC-0127
+    ("patient.mediastinal_radiation", "종격동 방사선 치료력 없음", "no"),
+])
+def test_rules_steps_8_to_10(field, quote, want):
+    doc = split("<외래 경과기록>   2024.5.4\n본문\n")[0]
+    got = normalize(field, quote, Context(doc, quote))
+    assert (got and got["value"]) == want
+
+
+def test_ypt0_residual_size_is_zero():
+    """9단계: 잔존 크기 줄이 없어도 ypT0이면 잔존 0 mm (VC-0120)."""
+    doc = split("[병리결과보고서]   2024.5.4\nypT0 ypN0 (AJCC 8th)\n림프절: 0/3\n")[0]
+    got = normalize("stage.yptnm", "ypT0 ypN0 (AJCC 8th)", Context(doc, "ypT0 ypN0 (AJCC 8th)"))["value"]
+    assert got["residual_size_mm"] == 0 and got["examined_ln"] == 3
+
+
 def test_basis_cut_before_hu():
     """'58세 폐경 후 여성'에서 LLM이 '58세 폐경'까지만 옮겨도 근거로 보지 않는다."""
     doc = split("<외래 경과기록>   2023.5.4\n58세 폐경 후 여성.\n")[0]

@@ -432,7 +432,8 @@ def vc_0125() -> Chart:
         first=dict(label="fulvestrant + palbociclib", name="파슬로덱스 (fulvestrant) + 입랜스 (palbociclib)",
                    drugs=["fulvestrant", "palbociclib"], s=2220, e=2700, cyc=(17, 28), prog=2700),
         second=dict(label="exemestane + everolimus", name="아로마신 (exemestane) + 아피니토 (everolimus)",
-                    drugs=["exemestane", "everolimus"], s=2720, e=2900, prog=2900),
+                    # 진행일 = 진행 CT 날 (idx - 30, 종료 5일 뒤 '간 전이 진행 (PD)', 2026-10-27 A 결정)
+                    drugs=["exemestane", "everolimus"], s=2720, e=2900, prog=2905),
         rebiopsy=her2("0", True), primary_her2=her2("0", False), sites=["liver"], words="간 전이")
 
 
