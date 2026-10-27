@@ -19,6 +19,18 @@ def test_example_matches_schema():
     assert "receptors.er_percent" in schema("pathology")["properties"]["candidates"]["items"]["properties"]["field"]["enum"]
 
 
+def test_germline_report_gets_germline_fields():
+    """머리글이 생식세포(유전성) 검사인 분자병리 문서에는 생식세포 칸만 준다 (3단계, 2026-10-27)."""
+    from src.input.script.pipeline import field_list, split
+    ref = "VC-0116"
+    docs = split((out_dir(ref) / "chart.txt").read_text(encoding="utf-8"))
+    kinds = {d.doc_id: field_list(d) for d in docs}
+    assert kinds["D5"] == "germline"                     # [유전성 유방암 유전자 검사 결과]
+    assert set(FIELDS["germline"]) == {"molecular.germline.BRCA1", "molecular.germline.BRCA2", "molecular.germline.PALB2"}
+    ngs = split("[NGS 보고서]\n검출된 변이\n  PIK3CA   c.3140A>G (p.H1047R)   VAF 28%\n")[0]
+    assert field_list(ngs) == "molecular"
+
+
 def test_pipeline_with_fake_llm():
     ref = "VC-0103"
     chart = (out_dir(ref) / "chart.txt").read_text(encoding="utf-8")

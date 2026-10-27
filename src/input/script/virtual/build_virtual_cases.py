@@ -133,7 +133,15 @@ def image(c: Chart, day: int, age: int, modality: str, exam: str, findings: str,
           certainty: str = "confirmed"):
     d = c.doc("radiology", c.on(day))
     d.t("[영상의학 판독]\n").ident(age, full=False)
-    d.t(f"검사: {exam}   검사일: {kdate(c.on(day))}\n\nFindings:\n  {findings}\nConclusion:\n  ")
+    d.t(f"검사: {exam}   검사일: {kdate(c.on(day))}\n\nFindings:\n  ")
+    # 치료 전 유방 종괴 크기는 임상 크기 정답 (차트에 적힌 값은 칸이 있으면 정답에 넣는다, 2026-10-27 A 결정)
+    m = re.search(r"\S+ 유방 (\d+(?:\.\d+)?) cm 종괴", findings)
+    if m:
+        d.t(findings[:m.start()]).put(m.group(0), F("stage.clinical_size_mm", round(float(m.group(1)) * 10),
+                                                    observed_date=c.on(day))).t(findings[m.end():])
+    else:
+        d.t(findings)
+    d.t("\nConclusion:\n  ")
     d.image(conclusion, modality=modality, date=c.on(day), sites=sites, certainty=certainty).t("\n")
     return d
 
@@ -172,8 +180,9 @@ def germline(c: Chart, day: int, age: int, results: dict[str, tuple | None]):
             continue
         cdna, prot, call = r
         raw = f"{gene}   {cdna} (p.{prot})   {call}"
+        kind = "Frame_Shift_Del" if "del" in cdna else "Frame_Shift_Ins"     # c.5946delT 결실, c.5266dupC 삽입 (TCGA 표기)
         d.t("  ").put(raw, F(f"molecular.germline.{gene}", result="detected",
-                             variants=[{"protein_change": prot, "variant_type": "Frame_Shift_Ins", "vaf": None,
+                             variants=[{"protein_change": prot, "variant_type": kind, "vaf": None,
                                         "raw": raw}])).t("\n")
     d.genomic_report(None, c.on(day))
     return d
@@ -224,7 +233,8 @@ def meno(d, status: str, basis: str, text: str, within_status: str, within_basis
 
 
 def meds(c: Chart, age: int, rows: list[dict]):
-    """투약 기록 표. 행 = dict(name, drugs, setting, s, e, cyc=(n, 간격), resp, why, stop, prog, ongoing, anthra)."""
+    """투약 기록 표. 행 = dict(name, drugs, setting, s, e, cyc=(n, 간격), resp, why, stop, prog, ongoing, anthra).
+    prog는 차트에 근거가 있어야 한다: 진행 영상·전이 날짜가 차트에 없으면 종료일 (2026-10-27 A 결정)."""
     D = c.on
     d = c.doc("medication", None)
     d.t("[투약 기록]\n").ident(age, full=False)
@@ -409,9 +419,9 @@ def vc_0113() -> Chart:
     return _luminal_late(
         "VC-0113", "2014-03-10", 51, 60, adj_ai=("letrozole", "페마라"), mets=2600, idx=3460,
         first=dict(label="letrozole + palbociclib", name="입랜스 (palbociclib) + 페마라 (letrozole)",
-                   drugs=["palbociclib", "letrozole"], s=2620, e=3230, cyc=(21, 28), prog=3225),
+                   drugs=["palbociclib", "letrozole"], s=2620, e=3230, cyc=(21, 28), prog=3230),
         second=dict(label="exemestane + everolimus", name="아로마신 (exemestane) + 아피니토 (everolimus)",
-                    drugs=["exemestane", "everolimus"], s=3245, e=3430, prog=3425),
+                    drugs=["exemestane", "everolimus"], s=3245, e=3430, prog=3430),
         rebiopsy=her2("1+"), primary_her2=her2("1+"), sites=["liver", "bone"], words="간·골 전이")
 
 
@@ -420,9 +430,9 @@ def vc_0125() -> Chart:
     return _luminal_late(
         "VC-0125", "2018-01-15", 50, 58, adj_ai=("anastrozole", "아리미덱스"), mets=2200, idx=2935,
         first=dict(label="fulvestrant + palbociclib", name="파슬로덱스 (fulvestrant) + 입랜스 (palbociclib)",
-                   drugs=["fulvestrant", "palbociclib"], s=2220, e=2700, cyc=(17, 28), prog=2695),
+                   drugs=["fulvestrant", "palbociclib"], s=2220, e=2700, cyc=(17, 28), prog=2700),
         second=dict(label="exemestane + everolimus", name="아로마신 (exemestane) + 아피니토 (everolimus)",
-                    drugs=["exemestane", "everolimus"], s=2720, e=2900, prog=2895),
+                    drugs=["exemestane", "everolimus"], s=2720, e=2900, prog=2900),
         rebiopsy=her2("0", True), primary_her2=her2("0", False), sites=["liver"], words="간 전이")
 
 
@@ -450,12 +460,12 @@ def vc_0114() -> Chart:
     meta_path(c, 9, 62, "폐", [er(5, 3, "positive"), er(3, 2, "positive", "PR"), her2("0", False)])
     meds(c, 66, [
         dict(name="키스칼리 (ribociclib) + 아리미덱스 (anastrozole)", drugs=["ribociclib", "anastrozole"],
-             setting="metastatic", s=20, e=810, cyc=(28, 28), resp="PD", why="진행", stop="progression", prog=805),
+             setting="metastatic", s=20, e=810, cyc=(28, 28), resp="PD", why="진행", stop="progression", prog=810),
         dict(name="파슬로덱스 (fulvestrant) 500mg", drugs=["fulvestrant"], setting="metastatic", s=830, e=1010,
-             resp="PD", why="진행", stop="progression", prog=1005),
+             resp="PD", why="진행", stop="progression", prog=1010),
         dict(name="젤로다 (capecitabine) 1000mg/m2 bid", drugs=["capecitabine"], setting="metastatic", s=1030, e=1300,
-             cyc=(13, 21), resp="PD", why="진행", stop="progression", prog=1295),
-        wpac(1320, 1600, setting="metastatic", why="진행", stop="progression", resp="PD", prog=1595),
+             cyc=(13, 21), resp="PD", why="진행", stop="progression", prog=1300),
+        wpac(1320, 1600, setting="metastatic", why="진행", stop="progression", resp="PD", prog=1600),
     ])
     return c
 
@@ -485,7 +495,7 @@ def vc_0115() -> Chart:
     meds(c, 42, [
         ac(35, 98), wpac(119, 196),
         dict(name="gemcitabine 1000mg/m2 + carboplatin AUC 2 (d1, d8)", drugs=["gemcitabine", "carboplatin"],
-             setting="metastatic", s=525, e=735, cyc=(10, 21), resp="PD", why="진행", stop="progression", prog=730),
+             setting="metastatic", s=525, e=735, cyc=(10, 21), resp="PD", why="진행", stop="progression", prog=735),
     ])
     return c
 
@@ -789,7 +799,7 @@ def vc_0127() -> Chart:
              anthra=[{"drug": "doxorubicin", "dose_per_admin": {"value": 96, "unit": "mg"}, "cycles": CYC(3, 21),
                       "total_dose": {"value": 288, "unit": "mg"}}]),
         wpac(98, 175),
-        wpac(1330, 1500, setting="metastatic", why="진행", stop="progression", resp="PD", prog=1495),
+        wpac(1330, 1500, setting="metastatic", why="진행", stop="progression", resp="PD", prog=1500),
     ])
     return c
 

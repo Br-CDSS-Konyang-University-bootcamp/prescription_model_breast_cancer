@@ -452,6 +452,25 @@ def _need(pattern: str, parse):
     return wrapped
 
 
+END_WORD = re.compile(r"종료|중단|완료|끝|stop|discontinu|complet", re.I)
+
+
+def _endocrine_end(q, ctx):
+    """보조 내분비요법 종료일. 종료 단어는 구절이나 그 줄에 있으면 된다 (정답 구절은 날짜만, 5단계 2026-10-27).
+    줄에 약 이름이 있으면 내분비약이 하나는 있어야 하고 (허셉틴 '18회 완료' 등은 받지 않음),
+    날짜만 옮긴 구절은 그 줄의 마지막 날짜여야 한다 (투약 표의 시작일·전이일을 받지 않음)."""
+    line = ctx.line or q
+    if not (END_WORD.search(q) or END_WORD.search(line)):
+        return None
+    drugs = [g for g, _ in _drugs(line)]
+    if drugs and not any(DRUG_TABLE.get(g, ("",))[0] == "Hormone Therapy" for g in drugs):
+        return None
+    date = parse_date(q)
+    if date and not END_WORD.search(q) and DATE.findall(line)[-1:] != DATE.findall(q)[:1]:
+        return None
+    return date
+
+
 def _recurrence_status(q, ctx):
     if NEGATION.search(q):
         return "none"
@@ -513,8 +532,7 @@ PARSERS = {
     "neoadjuvant_response.pcr": _pcr,
     "neoadjuvant_response.rcb": _rcb,
     "recurrence.recurrence_date": _need(r"전이|재발|metasta|recur", lambda q, ctx: parse_date(q)),
-    "recurrence.adjuvant_endocrine_end_date": _need(r"종료|중단|완료|끝|stop|discontinu|complet",
-                                                    lambda q, ctx: parse_date(q)),
+    "recurrence.adjuvant_endocrine_end_date": _endocrine_end,
     "recurrence.status": _recurrence_status,
     "recurrence.metastatic_sites": _metastatic_sites,
     "recurrence.metastasis_day": _metastasis_day,
@@ -529,18 +547,22 @@ PARSERS = {
 VARIANT = re.compile(r"\b([A-Z][A-Z0-9]+)\s+c\.(\S+)\s*\(p\.([^)]+)\)(?:\s*VAF\s*(\d+(?:\.\d+)?)\s*%)?")
 
 
-GENE_NEG = re.compile(r"검출되지 않|미검출|not detected|negative|음성", re.I)
+GENE_NEG = re.compile(r"검출되지 않|미검출|not detected|negative|음성|변이 없음|\bno (?:pathogenic )?(?:variant|mutation)|"
+                      r"not identified|not found", re.I)
+GENE_POS = re.compile(r"병원성|pathogenic|검출됨|검출되었|변이 있음|양성|positive|\bdetected", re.I)
 GENE_HEADS = re.compile(r"(검출되지 않|미검출|not detected)|(검출된 변이|detected variants|clinically significant)", re.I)
+REVIEW = "_review"     # 정규화 결과에 붙는 확인 요청 표시. 조립(assemble)이 떼어 issues에 needs_review로 남긴다
 
 
 def _gene(gene: str, q: str, ctx: Context | None = None) -> dict | None:
     """유전자 칸. 구절에 그 유전자 이름이 없으면 None ('BRCA1/2'는 BRCA1·BRCA2 둘 다).
 
-    - 변이 표기(c. / p.)가 있으면 detected
+    - 변이 표기(c. / p.)가 있으면 detected. 변이 종류는 TCGA 표기 (fs: c.의 del → Frame_Shift_Del, dup·ins → _Ins)
     - '검출되지 않음'류 단어가 있으면 not_detected
     - 유전자 이름만 나열된 구절은 문서에서 바로 위 머리말이 '검출되지 않음'일 때만 not_detected
-    - '병원성 변이'처럼 검출을 말하지만 변이 표기가 없으면 None (확인 요청). 예전에는 not_detected로 봐서
-      양성 결과가 음성으로 바뀌었다 (시험 세트 VC-0116·0119, 2026-10-26)
+    - '병원성 변이'처럼 검출을 말하지만 변이 표기가 없으면 detected + 변이 원문만 + 확인 요청 (2026-10-27 2단계).
+      예전에는 not_detected로 봐서 양성 결과가 음성으로 바뀌었다 (시험 세트 VC-0116·0119)
+    - 그 밖에 무엇인지 알 수 없는 구절은 None
     """
     named = re.search(rf"(?<![A-Z0-9]){gene}(?![0-9])", q) or (
         gene in ("BRCA1", "BRCA2") and re.search(r"BRCA\s*1\s*/\s*2", q))
@@ -552,9 +574,10 @@ def _gene(gene: str, q: str, ctx: Context | None = None) -> dict | None:
     for m in VARIANT.finditer(q):
         if m.group(1) != gene:
             continue
-        p = m.group(3)
+        p, cdna = m.group(3), m.group(2)
+        frame = "Frame_Shift_Del" if "del" in cdna else "Frame_Shift_Ins" if re.search("dup|ins", cdna) else "Frame_Shift"
         kind = ("Nonsense_Mutation" if re.fullmatch(r"[A-Z]\d+\*", p) else
-                "Frame_Shift" if "fs" in p else "Missense_Mutation" if re.fullmatch(r"[A-Z]\d+[A-Z]", p) else None)
+                frame if "fs" in p else "Missense_Mutation" if re.fullmatch(r"[A-Z]\d+[A-Z]", p) else None)
         variants.append({"protein_change": p, "variant_type": kind,
                          "vaf": m.group(4) and round(float(m.group(4)) / 100, 6),
                          "raw": re.sub(r"\s+", " ", m.group(0))})
@@ -562,7 +585,12 @@ def _gene(gene: str, q: str, ctx: Context | None = None) -> dict | None:
         return {"status": "present", "result": "detected", "variants": variants}
     if GENE_NEG.search(q) or (re.fullmatch(r"[A-Z0-9/,\s]+", q) and _under_negative_heading(q, ctx)):
         return {"status": "present", "result": "not_detected", "variants": []}
-    return None      # '병원성 변이'처럼 검출을 말하지만 변이 표기가 없거나, 무엇인지 알 수 없는 구절
+    if GENE_POS.search(q):
+        raw = re.sub(r"\s+", " ", q.strip())
+        return {"status": "present", "result": "detected",
+                "variants": [{"protein_change": None, "variant_type": None, "vaf": None, "raw": raw}],
+                REVIEW: "변이 표기(c. / p.)가 없는 검출 구절: 원문에서 변이를 확인할 것"}
+    return None
 
 
 def _under_negative_heading(q: str, ctx: Context | None) -> bool:
@@ -723,6 +751,8 @@ GROUP_ORDER = ["diagnosis", "stage", "receptors", "proliferation", "patient", "i
                "anthracycline_drug_dose", "neoadjuvant_response", "recurrence", "molecular", "genomic_reports"]
 LIST_FIELDS = {"treatment_history", "imaging_findings"}
 DERIVED = {"anthracycline_drug_dose.drugs"}     # 투약 줄에서 계산하므로 후보를 쓰지 않는다
+DE_NOVO_EMPTY = {"recurrence.status", "recurrence.metastatic_sites", "recurrence.recurrence_date",
+                 "recurrence.recurrence_day"}  # 진단 시 IV기면 비우는 재발 칸
 
 
 def assemble(docs: list[Document], candidates: list[dict], *, patient_ref: str, created_at: str,
@@ -749,6 +779,9 @@ def assemble(docs: list[Document], candidates: list[dict], *, patient_ref: str, 
         if out is None:
             issues.append({"reason": "not_normalized", "candidate": c})
             continue
+        if REVIEW in out:                  # 값은 쓰되 확인 요청을 남긴다 (화면 1에서 보여 줄 목록)
+            issues.append({"reason": "needs_review", "candidate": c, "note": out[REVIEW]})
+            out = {k: v for k, v in out.items() if k != REVIEW}
         items.append((c, doc, src, out))
 
     # ypTNM이 있는 문서의 크기·림프절은 선행요법 뒤 잔존 값이라 yptnm에만 둔다 (pathologic_size_mm 스키마 설명)
@@ -779,6 +812,9 @@ def assemble(docs: list[Document], candidates: list[dict], *, patient_ref: str, 
         if field == "recurrence.metastatic_sites" and status == "none":
             # 재발이 없으면 재발 부위 칸은 비워 둔다 (정답 표기, 2026-10-23 A 결정)
             its = _drop(its, lambda out: True, issues, "재발 없음")
+        if field in DE_NOVO_EMPTY and extent == "metastatic":
+            # 진단 시 IV기는 재발이 아니라 재발 칸은 비운다 (진행 소견을 재발 부위로 낸 후보, 2026-10-27 A 결정)
+            its = _drop(its, lambda out: True, issues, "진단 시 IV기")
         if not its:
             continue
         entries = [_entry(c, doc, src, out) for c, doc, src, out in its]
@@ -807,7 +843,8 @@ def assemble(docs: list[Document], candidates: list[dict], *, patient_ref: str, 
         if tnm:
             fields["stage"]["metastatic_sites"] = {"status": "present", "value": "[Not Applicable]",
                                                    "raw": tnm["raw"], "source": tnm["source"]}
-    # 재발 상태 후보가 없거나 버려졌어도 재발·전이 부위가 있으면 원격 전이다 (LLM이 상태 칸에 'PD'를 내는 경우)
+    # 재발 상태 후보가 없거나 버려졌어도 재발·전이 부위가 있으면 원격 전이다 (LLM이 상태 칸에 'PD'를 내는 경우).
+    # 진단 시 IV기면 재발 부위 후보를 위에서 모두 빼서 여기 오지 않는다
     sites = fields["recurrence"].get("metastatic_sites", {})
     if fields["recurrence"].get("status", {}).get("status") == "not_recorded" and isinstance(sites.get("value"), list):
         fields["recurrence"]["status"] = {"status": "present", "value": "distant", "raw": sites["raw"],
@@ -816,7 +853,8 @@ def assemble(docs: list[Document], candidates: list[dict], *, patient_ref: str, 
     rows =[(c, doc, src, out) for c, doc, src, out in items if c["field"] == "treatment_history"]
     rows.sort(key=lambda r: (r[3]["start_day"] is None, r[3]["start_day"] or 0))
     history = [{**out, "source": src} for _, _, src, out in rows]
-    _fill_treatment(history, fields)
+    images = [{**out, "source": src} for c, _, src, out in items if c["field"] == "imaging_findings"]
+    _fill_treatment(history, fields, images)
     anthra = []
     for (c, doc, src, out) in rows:
         a = normalize("anthracycline_drug_dose.drugs", src["quote"], Context.of(doc, src["char_start"], dx))
@@ -825,7 +863,6 @@ def assemble(docs: list[Document], candidates: list[dict], *, patient_ref: str, 
     fields["treatment_history"] = history
     fields["anthracycline_drug_dose"] = {
         "administered": "positive" if anthra else "negative" if history else "No value", "drugs": anthra}
-    images = [{**out, "source": src} for c, _, src, out in items if c["field"] == "imaging_findings"]
     if images:
         fields["imaging_findings"] = images
     fields["genomic_reports"] = [_genomic_report(d, fields) for d in docs if d.doc_type == "molecular"]
@@ -939,8 +976,13 @@ def _day_of(fields: dict, path: str) -> int | None:
     return (dt.date.fromisoformat(cur["observed_date"]) - dt.date.fromisoformat(dx)).days
 
 
-def _fill_treatment(history: list[dict], fields: dict) -> None:
+PROGRESSION_IMAGE = re.compile(r"진행|PD|새로|증가|악화|progress|new|increas", re.I)
+
+
+def _fill_treatment(history: list[dict], fields: dict, images: list[dict] = ()) -> None:
     mday = _value(fields, "recurrence.metastasis_day")
+    # 진행을 보인 영상의 날 (정답은 영상으로 진행을 확인한 날, 6단계 2026-10-27)
+    scans = [i["day"] for i in images if i.get("day") is not None and PROGRESSION_IMAGE.search(i["source"]["quote"])]
     surgery = _day_of(fields, "stage.yptnm") or _day_of(fields, "stage.ptnm")
     events = [d for d in (_value(fields, "recurrence.recurrence_day"), mday) if d is not None]
     for t in history:
@@ -954,8 +996,10 @@ def _fill_treatment(history: list[dict], fields: dict) -> None:
                 t["setting"] = "adjuvant"
         prog = None
         if t["stop_reason"] == "progression":
+            # 진행 영상: 투약 뒤 ~ 종료 4주 뒤 (종료 뒤 찍은 영상으로 바꾸는 일이 있다) → 투약 기간 안 재발·전이일 → 종료일
+            seen = [d for d in scans if s is not None and e is not None and s < d <= e + 28]
             inside = [d for d in events if s is not None and e is not None and s <= d <= e]
-            prog = min(inside) if inside else e
+            prog = min(seen) if seen else min(inside) if inside else e
         t["progression_day"] = prog
         keys = ["drugs", "setting", "start_date", "end_date", "start_day", "end_day", "duration_days", "ongoing",
                 "cycles", "progression_day", "stop_reason", "best_response", "source"]
@@ -1100,7 +1144,24 @@ FIELDS = {
                                     f"검출되지 않았으면 {g}가 든 '검출되지 않음' 목록 줄. 패널 포함 유전자 목록은 넣지 않는다"
         for g in ("ESR1", "PIK3CA", "AKT1", "PTEN", "BRCA1", "BRCA2", "PALB2")
     },
+    # 분자병리 문서 중 머리글이 생식세포(유전성) 검사인 보고서 (field_list 참고, 2026-10-27 3단계)
+    "germline": {
+        f"molecular.germline.{g}": f"생식세포 {g} 결과: 변이가 있으면 그 변이 줄 (유전자, c., p., 판정), "
+                                   f"없으면 {g}가 든 '검출되지 않음' 줄"
+        for g in ("BRCA1", "BRCA2", "PALB2")
+    },
 }
+# 분자병리 문서 머리글에 이 말이 있으면 생식세포 칸 목록을 준다. 체세포 칸만 주면 LLM이 생식세포 결과를
+# 체세포 BRCA 칸에 넣었다 (시험 세트 VC-0115~0119, 2026-10-26)
+GERMLINE_HEADER = re.compile(r"유전성|생식세포|germline|hereditary", re.I)
+
+
+def field_list(doc: Document) -> str | None:
+    """이 문서에 줄 칸 목록의 이름 (FIELDS 키). 칸 목록이 없는 문서 종류는 None."""
+    if doc.doc_type == "molecular" and GERMLINE_HEADER.search(doc.text.split("\n", 1)[0]):
+        return "germline"
+    return doc.doc_type if doc.doc_type in FIELDS else None
+
 
 SYSTEM = """너는 유방암 환자 차트에서 값이 적힌 구절을 찾는 도구다. 값을 계산하거나 해석하지 않는다.
 
@@ -1182,6 +1243,19 @@ EXAMPLES = {
         + [{"field": f"molecular.mutations.{g}", "quote": "ESR1, AKT1, PTEN", "specimen": "metastasis",
             "observed_date": None} for g in ("ESR1", "AKT1", "PTEN")],
     ),
+    "germline": (
+        "[Hereditary cancer panel report]\n환자명: [이름1]   등록번호: [등록번호1]   F/39\n"
+        "보고일: 2018.11.2\n검체: 말초혈액\n\nResults\n"
+        "  BRCA1: No pathogenic variant identified\n"
+        "  BRCA2   c.3847_3848delGT (p.V1283Kfs*2)   Pathogenic\n"
+        "  PALB2: No pathogenic variant identified\n",
+        [{"field": "molecular.germline.BRCA1", "quote": "BRCA1: No pathogenic variant identified", "specimen": None,
+          "observed_date": None},
+         {"field": "molecular.germline.BRCA2", "quote": "BRCA2   c.3847_3848delGT (p.V1283Kfs*2)   Pathogenic",
+          "specimen": None, "observed_date": None},
+         {"field": "molecular.germline.PALB2", "quote": "PALB2: No pathogenic variant identified", "specimen": None,
+          "observed_date": None}],
+    ),
 }
 
 
@@ -1189,7 +1263,7 @@ NO_QUOTE = {"null", "none", "n/a", "-"}
 
 
 def schema(doc_type: str) -> dict:
-    """LLM 출력 스키마. 칸 이름은 이 문서 종류의 칸 목록 안에서만."""
+    """LLM 출력 스키마. 칸 이름은 이 칸 목록(FIELDS 키: 문서 종류 또는 germline) 안에서만."""
     return {"type": "object", "required": ["candidates"], "additionalProperties": False, "properties": {
         "candidates": {"type": "array", "items": {
             "type": "object", "required": ["field", "quote", "specimen", "observed_date"], "additionalProperties": False,
@@ -1201,8 +1275,9 @@ def schema(doc_type: str) -> dict:
 
 
 def messages(doc: Document) -> list[dict]:
-    fields = "\n".join(f"- {k}: {v}" for k, v in FIELDS[doc.doc_type].items())
-    ex_text, ex_out = EXAMPLES[doc.doc_type]
+    kind = field_list(doc)
+    fields = "\n".join(f"- {k}: {v}" for k, v in FIELDS[kind].items())
+    ex_text, ex_out = EXAMPLES[kind]
     user = "칸 목록:\n{fields}\n\n문서:\n<<<\n{text}\n>>>"
     return [{"role": "system", "content": SYSTEM},
             {"role": "user", "content": user.format(fields=fields, text=ex_text)},
@@ -1218,9 +1293,10 @@ def _iso(date: str | None) -> str | None:
 
 def extract_doc(doc: Document, config: LLMConfig, complete: Callable = complete_json) -> list[dict]:
     """문서 하나의 후보 목록 (candidates.py 형식). 칸 목록이 없는 문서 종류는 빈 목록."""
-    if doc.doc_type not in FIELDS:
+    kind = field_list(doc)
+    if kind is None:
         return []
-    out = complete(messages(doc), schema(doc.doc_type), config)
+    out = complete(messages(doc), schema(kind), config)
     # 빈 칸에 "null" 같은 글자를 구절로 쓴 것은 후보가 아니다 (인용 준수율에 넣지 않는다)
     return [{"doc_id": doc.doc_id, "field": c["field"], "quote": c["quote"], "specimen": c["specimen"],
              "observed_date": _iso(c["observed_date"])} for c in out["candidates"]
@@ -1307,13 +1383,14 @@ def main(argv=None) -> int:
         want = json.loads((out_dir(ref) / "expected" / "patient_state.json").read_text(encoding="utf-8"))
         mapping = identifiers(chart)
         for doc in split(chart):
-            if doc.doc_type not in FIELDS or (args.docs and doc.doc_id not in args.docs):
+            kind = field_list(doc)
+            if kind is None or (args.docs and doc.doc_id not in args.docs):
                 continue
             t = time.perf_counter()
             got = extract_doc(replace(doc, text=mask(doc.text, mapping)), cfg)
             sec = time.perf_counter() - t
             gold = {(c["field"], c["quote"]) for c in from_expected(want)
-                    if c["doc_id"] == doc.doc_id and c["field"] in FIELDS[doc.doc_type]}
+                    if c["doc_id"] == doc.doc_id and c["field"] in FIELDS[kind]}
             print(f"\n== {ref} {doc.doc_id} ({doc.doc_type}) {sec:.0f}초, 후보 {len(got)}개, 정답 {len(gold)}개", flush=True)
             found = set()
             for c in got:

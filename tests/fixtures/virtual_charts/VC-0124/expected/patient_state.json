@@ -115,6 +115,18 @@
       },
       "operable": {
         "status": "not_recorded"
+      },
+      "clinical_size_mm": {
+        "status": "present",
+        "value": 35,
+        "raw": "좌측 유방 3.5 cm 종괴",
+        "observed_date": "2025-05-15",
+        "source": {
+          "doc_id": "D3",
+          "quote": "좌측 유방 3.5 cm 종괴",
+          "char_start": 812,
+          "char_end": 827
+        }
       }
     },
     "receptors": {

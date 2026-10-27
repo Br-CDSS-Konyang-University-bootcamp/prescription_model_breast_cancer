@@ -106,12 +106,35 @@ def test_gene_detected_without_variant_is_not_negative():
             "검출되지 않음 (Not detected)\n  BRCA2, PALB2\n")
     doc = split(text)[0]
     ctx = Context(doc)
-    assert normalize("molecular.germline.BRCA1", "생식세포 BRCA1 병원성 변이", ctx) is None
-    assert normalize("molecular.germline.BRCA1", "BRCA1   c.5266dupC (p.Q1756Pfs*74)", ctx)["result"] == "detected"
+    # 2단계 (2026-10-27): 검출로 보고 변이 원문만 남기며 확인 요청 표시를 붙인다
+    out = normalize("molecular.germline.BRCA1", "생식세포 BRCA1 병원성 변이", ctx)
+    assert out["result"] == "detected" and out["variants"] == [
+        {"protein_change": None, "variant_type": None, "vaf": None, "raw": "생식세포 BRCA1 병원성 변이"}]
+    assert "_review" in out
+    ins = normalize("molecular.germline.BRCA1", "BRCA1   c.5266dupC (p.Q1756Pfs*74)", ctx)["variants"][0]
+    assert (ins["protein_change"], ins["variant_type"]) == ("Q1756Pfs*74", "Frame_Shift_Ins")
+    dele = normalize("molecular.germline.BRCA2", "BRCA2   c.5946delT (p.S1982Rfs*22)", ctx)["variants"][0]
+    assert dele["variant_type"] == "Frame_Shift_Del"
     assert normalize("molecular.germline.BRCA2", "BRCA2, PALB2", ctx)["result"] == "not_detected"   # 머리말 아래 목록
     assert normalize("molecular.germline.BRCA2", "BRCA2: 병원성 변이 검출되지 않음", ctx)["result"] == "not_detected"
     detected_list = split("[NGS]\n검출된 변이\n  BRCA1, BRCA2\n")[0]          # '검출된 변이' 아래 이름만: 알 수 없음
     assert normalize("molecular.germline.BRCA1", "BRCA1, BRCA2", Context(detected_list)) is None
+
+
+def test_endocrine_end_date_reads_line():
+    """보조 내분비 종료일: 날짜만 옮긴 구절도 줄을 보고 받고, 내분비약이 아닌 치료의 완료는 받지 않는다 (5단계, 2026-10-27)."""
+    f = "recurrence.adjuvant_endocrine_end_date"
+    doc = split("<외래 경과기록>   2024.5.4\n본문\n")[0]
+    line = "   보조 letrozole 2023.11.30 5년 복용 완료"
+    assert normalize(f, "2023.11.30", Context(doc, line))["value"] == "2023-11-30"
+    her = "   보조 AC #4 → paclitaxel + trastuzumab → trastuzumab, 2024.1.8 총 18회 완료"     # VC-0112 (L5)
+    assert normalize(f, "2024.1.8 총 18회 완료", Context(doc, her)) is None
+    row = "보조    페마라 (letrozole) 2.5mg qd   2018.11.30   2023.11.30   -   -   완료 (5년)"
+    assert normalize(f, "2018.11.30", Context(doc, row)) is None                            # 투약 표의 시작일
+    assert normalize(f, "2023.11.30", Context(doc, row))["value"] == "2023-11-30"
+    meta = "   보조 letrozole 복용 중 2023.3.23 폐 전이 → letrozole 2023.3.28 중단 (PD)"
+    assert normalize(f, "2023.3.23", Context(doc, meta)) is None                             # 전이일
+    assert normalize(f, "letrozole 2023.3.28 중단", Context(doc, meta))["value"] == "2023-03-28"
 
 
 def test_basis_cut_before_hu():

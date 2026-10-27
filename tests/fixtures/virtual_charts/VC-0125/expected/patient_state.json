@@ -523,7 +523,7 @@
           "interval_days": 28,
           "interval_basis": "recorded"
         },
-        "progression_day": 2695,
+        "progression_day": 2700,
         "stop_reason": "progression",
         "best_response": "PD",
         "source": {
@@ -548,7 +548,7 @@
         "end_day": 2900,
         "duration_days": 180,
         "cycles": null,
-        "progression_day": 2895,
+        "progression_day": 2900,
         "stop_reason": "progression",
         "best_response": "PD",
         "source": {

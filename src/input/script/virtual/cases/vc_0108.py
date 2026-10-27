@@ -28,7 +28,8 @@ def build() -> Chart:
                     F("stage.group", "IV", within="stage IV"), F("stage.disease_extent", "metastatic", within="stage IV"))
     d.t(" ").put("(de novo, bone only)", F("stage.metastatic_sites", ["bone"]), F("recurrence.metastasis_day", 0))
     d.t("\n   ER Allred 8 / PR Allred 5 / HER2 0\n   1L ribociclib + letrozole 10개월째 복용 중, SD\n   ")
-    d.put("재발 아님 (진단 시 IV기)", F("recurrence.status", "none")).t("\n\n")
+    # 진단 시 IV기는 재발이 아니라 재발 칸은 비운다 (2026-10-27 A 결정, 시험 세트 VC-0110~0129와 같은 표기)
+    d.t("재발 아님 (진단 시 IV기)").t("\n\n")
     d.t("P) 골 보호제 시작 결정, ribociclib + letrozole 유지\n")
 
     d = c.doc("pathology", D(4))
@@ -51,7 +52,8 @@ def build() -> Chart:
     d = c.doc("radiology", D(5))
     d.t("[PET-CT 판독지]\n").ident(70, full=False)
     d.t(f"검사: F-18 FDG PET-CT   검사일: {kdate(D(5))}\n\nFindings:\n")
-    d.t("  우측 유방 2.7 cm 종괴(SUVmax 6.2), 우측 액와 림프절 섭취 증가. 골병변은 bone scan과 일치.\nConclusion:\n  ")
+    d.t("  ").put("우측 유방 2.7 cm 종괴", F("stage.clinical_size_mm", 27, observed_date=D(5)))
+    d.t("(SUVmax 6.2), 우측 액와 림프절 섭취 증가. 골병변은 bone scan과 일치.\nConclusion:\n  ")
     d.image("골전이 외 원격 전이 없음", modality="PET", date=D(5), sites=["bone"], certainty="confirmed").t("\n")
 
     d = c.doc("medication", None)

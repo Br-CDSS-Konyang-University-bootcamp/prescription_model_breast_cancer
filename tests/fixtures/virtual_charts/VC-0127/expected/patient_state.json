@@ -509,7 +509,7 @@
           "interval_days": 7,
           "interval_basis": "recorded"
         },
-        "progression_day": 1495,
+        "progression_day": 1500,
         "stop_reason": "progression",
         "best_response": "PD",
         "source": {

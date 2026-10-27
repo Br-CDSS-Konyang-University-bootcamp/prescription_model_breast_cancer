@@ -75,6 +75,29 @@ def test_rules_against_llm_mistakes():
     assert got["fields"]["recurrence"]["metastasis_day"]["value"] == 0
     assert [t["setting"] for t in got["fields"]["treatment_history"]] == ["metastatic"]
     assert got["fields"]["treatment_history"] == want["fields"]["treatment_history"]
+    # 진단 시 IV기: 진행 소견을 재발 부위·상태로 내도 재발 칸은 비운다 (4단계, 2026-10-27)
+    got, _, want = _run_with("VC-0108", [_cand("D1", "recurrence.metastatic_sites", "(de novo, bone only)"),
+                                         _cand("D1", "recurrence.status", "(de novo, bone only)")])
+    for k in ("status", "metastatic_sites"):
+        assert got["fields"]["recurrence"][k] == want["fields"]["recurrence"][k] == {"status": "not_recorded"}
+    assert got["fields"]["recurrence"]["metastasis_day"]["value"] == 0
+
+
+def test_progression_day_from_imaging():
+    """진행일은 진행을 보인 영상의 날: 종료일 전(VC-0123 골스캔)이든 종료 1주 뒤(VC-0111 CT)든 (6단계, 2026-10-27)."""
+    for ref, drug, day in [("VC-0123", "abemaciclib", 680), ("VC-0111", "pertuzumab", 588)]:
+        got, _, _ = _run_with(ref)
+        t = next(t for t in got["fields"]["treatment_history"] if t["drugs"][0] == drug)
+        assert t["progression_day"] == day
+
+
+def test_needs_review_goes_to_issues():
+    """변이 표기 없는 '병원성 변이' 구절: 값은 '검출', 확인 요청은 issues에 (patient_state에는 표시를 남기지 않는다)."""
+    got, issues, want = _run_with("VC-0116", [_cand("D1", "molecular.germline.BRCA1", "생식세포 BRCA1 병원성 변이")],
+                                  drop_fields={"molecular.germline.BRCA1"})
+    g = got["fields"]["molecular"]["germline"]["BRCA1"]
+    assert g["result"] == "detected" and "_review" not in g
+    assert [i["reason"] for i in issues if i.get("reason") == "needs_review"] == ["needs_review"]
 
 
 def test_age_and_repeated_mentions():
