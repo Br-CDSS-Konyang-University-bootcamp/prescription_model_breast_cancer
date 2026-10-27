@@ -16,6 +16,7 @@
 - [tcga_mapping.md](tcga_mapping.md): TCGA-BRCA 정리본 → `patient_state` 정답 대응표 (평가용 정답과 가상 차트 생성의 기준)
 - [handoff_to_B.md](handoff_to_B.md): B에게 전달하는 문서 (하나로 통합). JSON 구조, B가 받는 값과 정규화, BM-2 판정 조건, BM-3 출처 제안, 치료 상황 규칙(차수, 급여 투여단계), 정답 세트 특성, 예시, 모델 한계, B가 정할 것
 - [patient_state_structure.md](patient_state_structure.md): `patient_state` JSON 구조 그림
+- [line_rules.md](line_rules.md): ESMO 처방 기준 차수와 심평원 급여 투여단계 규칙 명세 (차수 코드 재작성 기준, 열린 결정 4개)
 
 코드:
 
