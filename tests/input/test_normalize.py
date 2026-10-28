@@ -211,6 +211,23 @@ def test_treatment_doses(row, want):
     assert [(d["drug"], pair(d["per_admin"]), pair(d["total"])) for d in got] == want
 
 
+def test_rules_against_overextraction_2026_10_28():
+    """GPU 재실행(과거력 예문 추가)에서 LLM이 지나치게 뽑은 구절을 막는다."""
+    doc = split("<외래 경과기록>   2024.5.4\n본문\n")[0]
+    f = "patient.comorbidities"
+    assert normalize(f, "고지혈증", Context(doc, "   과거력: 심장 질환 과거력 없음, 고지혈증"))["value"] == ["고지혈증"]
+    assert normalize(f, "심장 질환 과거력 없음", Context(doc, "   과거력: 심장 질환 과거력 없음")) is None     # 없음
+    assert normalize(f, "협심증 (2017년 스텐트 시술)", Context(doc, "   과거력: 협심증 (2017년 스텐트 시술)")) is None  # 심장 칸
+    assert normalize(f, "기침 3주.", Context(doc, "S) 기침 3주.")) is None                                  # 증상 줄
+    assert normalize(f, " ", Context(doc, "   과거력:  ")) is None
+    # 재발 수술 목적은 그 줄에 수술·절제가 있을 때만
+    assert normalize("recurrence.surgery_intent", "고식", Context(doc, "P) 고식 항암 3차 결정")) is None
+    assert normalize("recurrence.surgery_intent", "완치 목적", Context(doc, "흉벽 재발 병소 절제 (완치 목적)"))["value"] \
+        == "curative"
+    # TNM M0는 재발 부위가 아니다
+    assert normalize("recurrence.metastatic_sites", "M0", Context(doc, "cT3N1M0")) is None
+
+
 def test_basis_cut_before_hu():
     """'58세 폐경 후 여성'에서 LLM이 '58세 폐경'까지만 옮겨도 근거로 보지 않는다."""
     doc = split("<외래 경과기록>   2023.5.4\n58세 폐경 후 여성.\n")[0]

@@ -460,6 +460,9 @@ def _metastasis_day(q, ctx):
     return _day_field(q, ctx)
 
 
+SURGERY = re.compile(r"수술|절제|surgery|resection|excision|mastectomy", re.I)
+
+
 def _need(pattern: str, parse):
     """구절에 그 칸의 단어가 있을 때만 정규화한다. LLM이 '재발·전이 소견 없음' 같은 구절을 여러 칸에 넣는 것을 막는다."""
     def wrapped(q, ctx):
@@ -548,17 +551,23 @@ PARSERS = {
     "patient.cardiac_history": _need_vocab("patient.cardiac_history"),
     "patient.mediastinal_radiation": _need_vocab("patient.mediastinal_radiation"),
     "patient.visceral_crisis": _need_vocab("patient.visceral_crisis"),
-    "patient.comorbidities": lambda q, ctx: None if re.search(r"재발|전이|metasta", q, re.I) else [q],
+    # 재발·전이, '없음' 구절, 심장 병명(cardiac_history 칸), 빈 구절, S) 줄의 증상('기침 3주.')은
+    # 동반질환으로 받지 않는다 (2026-10-28 GPU 재실행)
+    "patient.comorbidities": lambda q, ctx: None if not q.strip() or re.search(r"재발|전이|metasta", q, re.I)
+                                            or NEGATION.search(q) or _vocab("patient.cardiac_history", q)
+                                            or ctx.line.lstrip().startswith("S)") else [q],
     "neoadjuvant_response.pcr": _pcr,
     "neoadjuvant_response.rcb": _rcb,
     "recurrence.recurrence_date": _need(r"전이|재발|metasta|recur", lambda q, ctx: parse_date(q)),
     "recurrence.adjuvant_endocrine_end_date": _endocrine_end,
     "recurrence.status": _recurrence_status,
-    "recurrence.metastatic_sites": _metastatic_sites,
+    # TNM의 M0는 진단 시 병기다. 재발 부위 칸에는 받지 않는다 (2026-10-28, 시험 VC-0121 hari)
+    "recurrence.metastatic_sites": lambda q, ctx: None if re.fullmatch(r"\s*[cpy]*M[01X]\s*", q) else _metastatic_sites(q, ctx),
     "recurrence.metastasis_day": _metastasis_day,
     "recurrence.recurrence_day": _day_field,
-    "recurrence.surgery": _need(r"수술|절제|surgery|resection|excision|mastectomy", lambda q, ctx: _yes_no(q)),
-    "recurrence.surgery_intent": _intent,
+    "recurrence.surgery": _need(SURGERY.pattern, lambda q, ctx: _yes_no(q)),
+    # 수술 목적은 그 줄에 수술·절제가 있을 때만 ('고식 항암'의 '고식'을 받지 않는다, 2026-10-28 시험 VC-0114·0127)
+    "recurrence.surgery_intent": lambda q, ctx: _intent(q, ctx) if SURGERY.search(q + " " + ctx.line) else None,
     "recurrence.later_distant": _need(r"원격|distant", lambda q, ctx: _yes_no(q)),
 }
 
@@ -1237,14 +1246,15 @@ FIELDS = {
         "patient.menopausal_status": "폐경 상태 (폐경 전, 폐경 후)",
         "patient.menopausal_basis": "폐경 판단 근거 (LMP, 폐경 나이, 월경 여부, FSH, 난소절제)",
         "patient.ecog": "ECOG 수행 상태",
-        "patient.cardiac_history": "심장 질환 과거력",
+        "patient.cardiac_history": "심장 질환 과거력. '과거력' 줄의 심장 병명 구절 (협심증, 심부전, 부정맥 등). "
+                                   "심장 질환이 없다고 적혀 있으면 그 구절도 낸다",
         "patient.height_cm": "키",
         "patient.weight_kg": "몸무게",
         "patient.lvef_percent": "좌심실 박출률 (LVEF)",
         "patient.mediastinal_radiation": "종격동 방사선 치료 이력",
         "patient.visceral_crisis": "의사가 visceral crisis(장기 위기)라고 판단해 적은 구절. 검사 수치만 있으면 내지 않는다",
-        "patient.comorbidities": "유방암 말고 함께 앓는 질환 이름 (예: 고혈압, 당뇨, CKD 3a). 질환 하나에 구절 하나. "
-                                 "유방암·재발·전이는 넣지 않는다",
+        "patient.comorbidities": "유방암 말고 함께 앓는 질환 이름 (예: 고혈압, 당뇨, CKD 3a). 주로 '과거력' 줄에 있다. "
+                                 "질환 하나에 구절 하나. 유방암·재발·전이와 심장 질환(cardiac_history 칸)은 넣지 않는다",
         "recurrence.recurrence_date": "첫 재발·전이 날짜와 부위가 든 구절 (예: 2023.4.4 lung metastasis)",
         "recurrence.recurrence_day": "recurrence_date와 같은 구절",
         "recurrence.metastasis_day": "원격 전이 날짜가 든 구절. 진단 시 IV기면 de novo라고 적힌 구절",
@@ -1325,7 +1335,8 @@ EXAMPLES = {
     ),
     "progress_note": (
         "<외래 경과기록>   2019.3.2   종양내과\n환자명: [이름1]   등록번호: [등록번호1]   F/58\n\n"
-        "S) 폐경: 폐경 후 (55세 폐경)\nO) ECOG PS 1\n"
+        "S) 폐경: 폐경 후 (55세 폐경)\n   과거력: 고혈압 (약 복용 중), 심질환 없음\n"
+        "   심초음파 (2019.2.20): LVEF 58%\nO) ECOG PS 1\n"
         "A) Lt. breast IDC, 2017.5.10 core bx로 진단, 수술 후 보조요법\n"
         "   보조 letrozole 2017.6.20~ 복용 중 2019.1.15 간 전이 → letrozole 2019.1.20 중단\n"
         "P) 전이성 1차 치료 상의\n",
@@ -1333,6 +1344,9 @@ EXAMPLES = {
          {"field": "patient.age", "quote": "F/58", "specimen": None, "observed_date": None},
          {"field": "patient.menopausal_status", "quote": "폐경 후", "specimen": None, "observed_date": None},
          {"field": "patient.menopausal_basis", "quote": "55세 폐경", "specimen": None, "observed_date": None},
+         {"field": "patient.comorbidities", "quote": "고혈압 (약 복용 중)", "specimen": None, "observed_date": None},
+         {"field": "patient.cardiac_history", "quote": "심질환 없음", "specimen": None, "observed_date": None},
+         {"field": "patient.lvef_percent", "quote": "LVEF 58%", "specimen": None, "observed_date": "2019-02-20"},
          {"field": "patient.ecog", "quote": "ECOG PS 1", "specimen": None, "observed_date": "2019-03-02"},
          {"field": "diagnosis.histology", "quote": "IDC", "specimen": None, "observed_date": None},
          {"field": "diagnosis.diagnosis_date", "quote": "2017.5.10 core bx로 진단", "specimen": None,
