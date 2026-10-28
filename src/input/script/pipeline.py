@@ -1032,6 +1032,10 @@ def _choose(field: str, entries: list[dict]):
         pick = min(e["_date"] for e in pool)
     else:
         pool = meta or entries
+        if field.startswith("molecular."):
+            # 변이 표기(c. / p.)가 있는 후보를 날짜보다 먼저 고른다. 경과기록 요약('생식세포 BRCA1 병원성 변이')이
+            # 보고서보다 늦은 날짜라 골려 변이 상세가 빠지던 것 (2026-10-28 GPU 재실행, 시험 VC-0116·0119)
+            pool = [e for e in pool if any(v.get("protein_change") for v in e.get("variants") or [])] or pool
         pick = max(e["_date"] for e in pool)
     top = [e for e in pool if e["_date"] == pick]
     if len({_value_key(e) for e in top}) > 1:
