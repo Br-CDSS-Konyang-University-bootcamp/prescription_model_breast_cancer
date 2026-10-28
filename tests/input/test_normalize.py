@@ -211,6 +211,20 @@ def test_treatment_doses(row, want):
     assert [(d["drug"], pair(d["per_admin"]), pair(d["total"])) for d in got] == want
 
 
+@pytest.mark.parametrize("row, drugs", [
+    ("아로마신 25mg qd + 아피니토 10mg qd   2024.1.2   2024.7.1   -   PD   진행", ["exemestane", "everolimus"]),
+    ("엔허투 5.4mg/kg   2024.1.2   2024.7.1   q3w #9   PD   진행", ["trastuzumab deruxtecan"]),
+    ("캐싸일라 3.6mg/kg   2024.1.2   2024.7.1   q3w #9   PD   진행", ["trastuzumab emtansine"]),
+    ("트라스투주맙 데룩스테칸 5.4mg/kg   2024.1.2   2024.7.1   q3w #9   PD   진행", ["trastuzumab deruxtecan"]),  # 긴 이름 우선
+    ("파클리탁셀 80mg/m2 + 트라스투주맙   2024.1.2   2024.3.25   weekly #12   -   완료", ["paclitaxel", "trastuzumab"]),
+    ("키트루다 + 젬자 + 파라플라틴   2024.1.2   2024.7.1   q3w #8   PR   진행", ["pembrolizumab", "gemcitabine"]),
+])
+def test_brand_and_korean_generic_names(row, drugs):
+    """상품명·한글 일반명만 적힌 투약 줄 (drug_names.csv, 2026-10-28). 사전에 없는 이름(파라플라틴)은 빠진다."""
+    doc = split("[투약 기록]   2024.8.1\n본문\n")[0]
+    assert normalize("treatment_history", row, Context(doc, row))["drugs"] == drugs
+
+
 def test_rules_against_overextraction_2026_10_28():
     """GPU 재실행(과거력 예문 추가)에서 LLM이 지나치게 뽑은 구절을 막는다."""
     doc = split("<외래 경과기록>   2024.5.4\n본문\n")[0]
