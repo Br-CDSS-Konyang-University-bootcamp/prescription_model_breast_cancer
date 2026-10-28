@@ -460,6 +460,32 @@
           "char_start": 1395,
           "char_end": 1496
         },
+        "doses": [
+          {
+            "drug": "doxorubicin",
+            "per_admin": {
+              "value": 96,
+              "unit": "mg"
+            },
+            "total": {
+              "value": 288,
+              "unit": "mg"
+            },
+            "basis": "estimated"
+          },
+          {
+            "drug": "cyclophosphamide",
+            "per_admin": {
+              "value": 960,
+              "unit": "mg"
+            },
+            "total": {
+              "value": 2880,
+              "unit": "mg"
+            },
+            "basis": "estimated"
+          }
+        ],
         "line": null,
         "endocrine_line": null,
         "chemo_line": null
@@ -489,6 +515,20 @@
           "char_start": 1503,
           "char_end": 1566
         },
+        "doses": [
+          {
+            "drug": "paclitaxel",
+            "per_admin": {
+              "value": 80,
+              "unit": "mg/m2"
+            },
+            "total": {
+              "value": 960,
+              "unit": "mg/m2"
+            },
+            "basis": "estimated"
+          }
+        ],
         "line": null,
         "endocrine_line": null,
         "chemo_line": null
@@ -518,6 +558,20 @@
           "char_start": 1573,
           "char_end": 1638
         },
+        "doses": [
+          {
+            "drug": "paclitaxel",
+            "per_admin": {
+              "value": 80,
+              "unit": "mg/m2"
+            },
+            "total": {
+              "value": 960,
+              "unit": "mg/m2"
+            },
+            "basis": "estimated"
+          }
+        ],
         "line": 1,
         "endocrine_line": null,
         "chemo_line": 1

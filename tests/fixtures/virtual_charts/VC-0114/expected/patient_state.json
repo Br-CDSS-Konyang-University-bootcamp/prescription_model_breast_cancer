@@ -445,6 +445,17 @@
           "char_start": 1652,
           "char_end": 1716
         },
+        "doses": [
+          {
+            "drug": "fulvestrant",
+            "per_admin": {
+              "value": 500,
+              "unit": "mg"
+            },
+            "total": "No value",
+            "basis": "estimated"
+          }
+        ],
         "line": 2,
         "endocrine_line": 2,
         "chemo_line": null
@@ -474,6 +485,17 @@
           "char_start": 1723,
           "char_end": 1798
         },
+        "doses": [
+          {
+            "drug": "capecitabine",
+            "per_admin": {
+              "value": 1000,
+              "unit": "mg/m2"
+            },
+            "total": "No value",
+            "basis": "estimated"
+          }
+        ],
         "line": 3,
         "endocrine_line": null,
         "chemo_line": 1
@@ -503,6 +525,20 @@
           "char_start": 1805,
           "char_end": 1870
         },
+        "doses": [
+          {
+            "drug": "paclitaxel",
+            "per_admin": {
+              "value": 80,
+              "unit": "mg/m2"
+            },
+            "total": {
+              "value": 960,
+              "unit": "mg/m2"
+            },
+            "basis": "estimated"
+          }
+        ],
         "line": 4,
         "endocrine_line": null,
         "chemo_line": 2

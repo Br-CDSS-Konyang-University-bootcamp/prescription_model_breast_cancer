@@ -188,6 +188,26 @@ def test_ypt0_residual_size_is_zero():
     assert got["residual_size_mm"] == 0 and got["examined_ln"] == 3
 
 
+@pytest.mark.parametrize("row, want", [
+    ("AC (doxorubicin 60mg/m2 + cyclophosphamide 600mg/m2)   2020.1.6   2020.3.9   q3w #4   -   계획된 변경",
+     [("doxorubicin", (60, "mg/m2"), (240, "mg/m2")), ("cyclophosphamide", (600, "mg/m2"), (2400, "mg/m2"))]),
+    ("놀바덱스 (tamoxifen) 20mg qd   2018.1.2   2023.1.2   -   -   완료", [("tamoxifen", (20, "mg"), "No value")]),
+    ("입랜스 (palbociclib) 125mg + 페마라 2.5mg   2021.5.12   2023.1.12   q4w #21   PD   진행",      # 매일 먹는 약
+     [("palbociclib", (125, "mg"), "No value"), ("letrozole", (2.5, "mg"), "No value")]),
+    ("gemcitabine 1000mg/m2 + carboplatin AUC 2 (d1, d8)   2022.12.12   2023.7.10   q3w #10   PD   진행",
+     [("gemcitabine", (1000, "mg/m2"), (20000, "mg/m2")), ("carboplatin", (2, "AUC"), "No value")]),
+    ("엔허투 (trastuzumab deruxtecan) 5.4mg/kg   2024.1.2   2025.1.2   q3w #23   PD   진행",
+     [("trastuzumab deruxtecan", (5.4, "mg/kg"), (124.2, "mg/kg"))]),
+    ("TCHP (탁소텔 + 카보플라틴 + 허셉틴 + 퍼제타)   2023.9.4   2023.12.18   q3w #6   CR   완료", []),   # 용량 없음
+])
+def test_treatment_doses(row, want):
+    """약별 용량 doses (2026-10-28): 적힌 약만, 매일 먹는 약·AUC는 총량 No value."""
+    doc = split("[투약 기록]   2024.5.4\n본문\n")[0]
+    got = normalize("treatment_history", row, Context(doc, row)).get("doses", [])
+    pair = lambda x: x if x == "No value" else (x["value"], x["unit"])                      # noqa: E731
+    assert [(d["drug"], pair(d["per_admin"]), pair(d["total"])) for d in got] == want
+
+
 def test_basis_cut_before_hu():
     """'58세 폐경 후 여성'에서 LLM이 '58세 폐경'까지만 옮겨도 근거로 보지 않는다."""
     doc = split("<외래 경과기록>   2023.5.4\n58세 폐경 후 여성.\n")[0]

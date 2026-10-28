@@ -20,11 +20,15 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import csv
+import re
+
 from jsonschema import Draft202012Validator
 
 from src.input.script.rules import annotate, load_drug_table
 
 ROOT = Path(__file__).resolve().parents[4]
+DRUG_NAMES_CSV = ROOT / "data" / "dictionaries" / "drug_names.csv"
 FIXTURES = ROOT / "tests" / "fixtures" / "virtual_charts"
 SCHEMA = ROOT / "schemas" / "patient_state.json"
 SCHEMA_VERSION = "0.1-draft6"
@@ -217,6 +221,9 @@ class Chart:
                     **({"ongoing": item["ongoing"]} if "ongoing" in item else {}),
                     "cycles": item["cycles"], "progression_day": self.day(r["_progression"]),
                     "stop_reason": item["stop_reason"], "best_response": item["best_response"], "source": src(d, sp)}
+            doses = row_doses(sp.text, item["drugs"], item["cycles"])
+            if doses:
+                item["doses"] = doses
             history.append(item)
             for a in r["_anthra"]:
                 anthra.append({"drug": a["drug"], "timeline_index": None,
@@ -280,6 +287,61 @@ def _delete(fields: dict, path: str) -> None:
     for g in groups:
         cur = cur[g]
     cur.pop(key, None)
+
+
+# ---------- 투약 용량 (treatment_history[].doses, 2026-10-28) ----------
+# 정답을 만드는 쪽이라 입력 파이프라인(pipeline.py _doses)과 따로 쓴다. 두 구현이 서로를 검사한다.
+# - 용량이 적힌 약만 넣는다 (TCHP처럼 약 이름만 있으면 뺀다)
+# - 1회 용량은 약 이름 바로 뒤 숫자 + 단위 (mg/m2, mg/kg, mg) 또는 AUC. 상품명 뒤 "(일반명)" 다음 숫자도 같다
+# - 총량: 매일 먹는 약(ORAL_DAILY, 또는 qd·bid), AUC(carboplatin, 목표 노출량), 주기 수가 없는 줄은 "No value".
+#   그 밖에는 1회 용량 × 주기 수 (d1, d8이면 주기당 2회), basis estimated
+DOSE = re.compile(r"\s*\)?\s*(?:(\d+(?:\.\d+)?)\s*(mg/m2|mg/kg|mg)(?![a-z/])|AUC\s*(\d+(?:\.\d+)?))", re.I)
+ORAL = re.compile(r"\b(?:qd|bid|tid)\b", re.I)
+# 매일 먹는 약: 줄에 qd가 없어도 주기 수로 총량을 셀 수 없다 (drug_classes.csv에 투여 경로 칸이 없어 여기 둔다)
+ORAL_DAILY = {"tamoxifen", "anastrozole", "letrozole", "exemestane", "megestrol", "palbociclib", "ribociclib",
+              "abemaciclib", "everolimus", "capecitabine", "lapatinib", "tucatinib", "neratinib", "olaparib",
+              "talazoparib", "alpelisib", "capivasertib", "inavolisib", "elacestrant", "imlunestrant"}
+
+
+def _drug_names() -> dict[str, str]:
+    """표기(소문자) → 일반명. 병용 표기(AC 등)는 넣지 않는다 (용량은 성분 이름 뒤에 있다)."""
+    with open(DRUG_NAMES_CSV, encoding="utf-8-sig", newline="") as f:
+        return {r["raw_name"].strip().casefold(): r["generic_names"] for r in csv.DictReader(f)
+                if "+" not in r["generic_names"]}
+
+
+def row_doses(text: str, drugs: list[str], cycles: dict | None) -> list[dict]:
+    """근거 위치는 투약 줄의 source 하나로 충분해 원소마다 두지 않는다 (source가 있으면 후보로 다시 읽힌다)."""
+    names = _drug_names()
+    low = text.casefold()
+    out = []
+    for drug in drugs:
+        dose = None
+        for name in sorted((n for n, g in names.items() if g == drug), key=len, reverse=True):
+            for m in re.finditer(re.escape(name), low):
+                d = DOSE.match(text, m.end())
+                if d:
+                    dose = d
+                    break
+            if dose:
+                break
+        if not dose:
+            continue
+        per = ({"value": _num(dose.group(1)), "unit": dose.group(2)} if dose.group(1)
+               else {"value": _num(dose.group(3)), "unit": "AUC"})
+        tail = text[dose.end():dose.end() + 25]
+        per_cycle = 2 if re.search(r"d1,\s*d8", text) else 1
+        if drug in ORAL_DAILY or ORAL.match(tail.strip()) or not cycles or per["unit"] == "AUC":   # AUC는 목표 노출량
+            total = "No value"
+        else:
+            total = {"value": _num(str(round(per["value"] * cycles["value"] * per_cycle, 3))), "unit": per["unit"]}
+        out.append({"drug": drug, "per_admin": per, "total": total, "basis": "estimated"})
+    return out
+
+
+def _num(s: str):
+    x = float(s)
+    return int(x) if x.is_integer() else x
 
 
 # ---------- 공통 글 ----------

@@ -448,6 +448,32 @@
           "char_start": 1687,
           "char_end": 1785
         },
+        "doses": [
+          {
+            "drug": "doxorubicin",
+            "per_admin": {
+              "value": 60,
+              "unit": "mg/m2"
+            },
+            "total": {
+              "value": 240,
+              "unit": "mg/m2"
+            },
+            "basis": "estimated"
+          },
+          {
+            "drug": "cyclophosphamide",
+            "per_admin": {
+              "value": 600,
+              "unit": "mg/m2"
+            },
+            "total": {
+              "value": 2400,
+              "unit": "mg/m2"
+            },
+            "basis": "estimated"
+          }
+        ],
         "line": null,
         "endocrine_line": null,
         "chemo_line": null
@@ -477,6 +503,20 @@
           "char_start": 1792,
           "char_end": 1856
         },
+        "doses": [
+          {
+            "drug": "paclitaxel",
+            "per_admin": {
+              "value": 80,
+              "unit": "mg/m2"
+            },
+            "total": {
+              "value": 960,
+              "unit": "mg/m2"
+            },
+            "basis": "estimated"
+          }
+        ],
         "line": null,
         "endocrine_line": null,
         "chemo_line": null
@@ -507,6 +547,29 @@
           "char_start": 1863,
           "char_end": 1958
         },
+        "doses": [
+          {
+            "drug": "gemcitabine",
+            "per_admin": {
+              "value": 1000,
+              "unit": "mg/m2"
+            },
+            "total": {
+              "value": 20000,
+              "unit": "mg/m2"
+            },
+            "basis": "estimated"
+          },
+          {
+            "drug": "carboplatin",
+            "per_admin": {
+              "value": 2,
+              "unit": "AUC"
+            },
+            "total": "No value",
+            "basis": "estimated"
+          }
+        ],
         "line": 1,
         "endocrine_line": null,
         "chemo_line": 1

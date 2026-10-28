@@ -488,6 +488,32 @@
           "char_start": 2043,
           "char_end": 2141
         },
+        "doses": [
+          {
+            "drug": "doxorubicin",
+            "per_admin": {
+              "value": 60,
+              "unit": "mg/m2"
+            },
+            "total": {
+              "value": 240,
+              "unit": "mg/m2"
+            },
+            "basis": "estimated"
+          },
+          {
+            "drug": "cyclophosphamide",
+            "per_admin": {
+              "value": 600,
+              "unit": "mg/m2"
+            },
+            "total": {
+              "value": 2400,
+              "unit": "mg/m2"
+            },
+            "basis": "estimated"
+          }
+        ],
         "line": null,
         "endocrine_line": null,
         "chemo_line": null
@@ -517,6 +543,20 @@
           "char_start": 2148,
           "char_end": 2212
         },
+        "doses": [
+          {
+            "drug": "paclitaxel",
+            "per_admin": {
+              "value": 80,
+              "unit": "mg/m2"
+            },
+            "total": {
+              "value": 960,
+              "unit": "mg/m2"
+            },
+            "basis": "estimated"
+          }
+        ],
         "line": null,
         "endocrine_line": null,
         "chemo_line": null
@@ -541,6 +581,17 @@
           "char_start": 2219,
           "char_end": 2287
         },
+        "doses": [
+          {
+            "drug": "letrozole",
+            "per_admin": {
+              "value": 2.5,
+              "unit": "mg"
+            },
+            "total": "No value",
+            "basis": "estimated"
+          }
+        ],
         "line": null,
         "endocrine_line": null,
         "chemo_line": null
@@ -571,6 +622,26 @@
           "char_start": 2294,
           "char_end": 2374
         },
+        "doses": [
+          {
+            "drug": "palbociclib",
+            "per_admin": {
+              "value": 125,
+              "unit": "mg"
+            },
+            "total": "No value",
+            "basis": "estimated"
+          },
+          {
+            "drug": "letrozole",
+            "per_admin": {
+              "value": 2.5,
+              "unit": "mg"
+            },
+            "total": "No value",
+            "basis": "estimated"
+          }
+        ],
         "line": 1,
         "endocrine_line": 1,
         "chemo_line": null

@@ -439,6 +439,32 @@
           "char_start": 1572,
           "char_end": 1670
         },
+        "doses": [
+          {
+            "drug": "doxorubicin",
+            "per_admin": {
+              "value": 60,
+              "unit": "mg/m2"
+            },
+            "total": {
+              "value": 240,
+              "unit": "mg/m2"
+            },
+            "basis": "estimated"
+          },
+          {
+            "drug": "cyclophosphamide",
+            "per_admin": {
+              "value": 600,
+              "unit": "mg/m2"
+            },
+            "total": {
+              "value": 2400,
+              "unit": "mg/m2"
+            },
+            "basis": "estimated"
+          }
+        ],
         "line": null,
         "endocrine_line": null,
         "chemo_line": null
@@ -469,6 +495,20 @@
           "char_start": 1677,
           "char_end": 1759
         },
+        "doses": [
+          {
+            "drug": "paclitaxel",
+            "per_admin": {
+              "value": 80,
+              "unit": "mg/m2"
+            },
+            "total": {
+              "value": 960,
+              "unit": "mg/m2"
+            },
+            "basis": "estimated"
+          }
+        ],
         "line": null,
         "endocrine_line": null,
         "chemo_line": null
@@ -493,6 +533,17 @@
           "char_start": 1849,
           "char_end": 1917
         },
+        "doses": [
+          {
+            "drug": "letrozole",
+            "per_admin": {
+              "value": 2.5,
+              "unit": "mg"
+            },
+            "total": "No value",
+            "basis": "estimated"
+          }
+        ],
         "line": null,
         "endocrine_line": null,
         "chemo_line": null
@@ -522,6 +573,20 @@
           "char_start": 1766,
           "char_end": 1842
         },
+        "doses": [
+          {
+            "drug": "trastuzumab",
+            "per_admin": {
+              "value": 6,
+              "unit": "mg/kg"
+            },
+            "total": {
+              "value": 84,
+              "unit": "mg/kg"
+            },
+            "basis": "estimated"
+          }
+        ],
         "line": null,
         "endocrine_line": null,
         "chemo_line": null

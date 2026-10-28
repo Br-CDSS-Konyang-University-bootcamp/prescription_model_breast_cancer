@@ -426,6 +426,17 @@
           "char_start": 1637,
           "char_end": 1701
         },
+        "doses": [
+          {
+            "drug": "letrozole",
+            "per_admin": {
+              "value": 2.5,
+              "unit": "mg"
+            },
+            "total": "No value",
+            "basis": "estimated"
+          }
+        ],
         "line": null,
         "endocrine_line": null,
         "chemo_line": null

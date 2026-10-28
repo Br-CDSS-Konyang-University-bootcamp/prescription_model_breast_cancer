@@ -20,7 +20,7 @@
 | `patient.height_cm`, `weight_kg` | `anthracycline_cumulative`, `prior_regimens.doses` | ✔ (mg → mg/m²) | | ✔ | **안 읽음 (mg/m²만 계산)** |
 | `imaging_findings[]` | `bone_metastasis_imaging` | ✔ | | ✔ | **안 읽음 (전이 부위 목록으로 판정)** |
 | `treatment_history[].ongoing` | `prior_regimens.ongoing` | | | ✔ | A가 `at_index`에 반영해 간접 사용 |
-| `treatment_history[].doses[]` | `prior_regimens.doses` | ✔ | | ✔ | 안 읽음 (`anthracycline_drug_dose` 사용 중) |
+| `treatment_history[].doses[]` | `prior_regimens.doses` | ✔ | | ✔ | 안 읽음 (`anthracycline_drug_dose` 사용 중). A는 2026-10-28부터 채움 (가상 차트 투약 줄 95개, 규칙 `schema_fields.md` §8) |
 | `patient.visceral_crisis` | `visceral_crisis` | | ✔ 검색 질의 | | C 읽음 |
 | `patient.comorbidities` | `contraindicated_classes` | ✔ 추천 | ✔ | | **아무도 안 읽음** |
 | `at_index.age`, `recent_therapy_28d` | `age_at_index`, `recent_therapy_28d` | ✔ | | ✔ | B·D 읽음 |

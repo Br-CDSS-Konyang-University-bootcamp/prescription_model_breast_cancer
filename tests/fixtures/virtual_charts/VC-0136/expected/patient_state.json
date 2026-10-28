@@ -511,6 +511,32 @@
           "char_start": 2192,
           "char_end": 2310
         },
+        "doses": [
+          {
+            "drug": "doxorubicin",
+            "per_admin": {
+              "value": 60,
+              "unit": "mg/m2"
+            },
+            "total": {
+              "value": 240,
+              "unit": "mg/m2"
+            },
+            "basis": "estimated"
+          },
+          {
+            "drug": "cyclophosphamide",
+            "per_admin": {
+              "value": 600,
+              "unit": "mg/m2"
+            },
+            "total": {
+              "value": 2400,
+              "unit": "mg/m2"
+            },
+            "basis": "estimated"
+          }
+        ],
         "line": null,
         "endocrine_line": null,
         "chemo_line": null
@@ -540,6 +566,20 @@
           "char_start": 2317,
           "char_end": 2385
         },
+        "doses": [
+          {
+            "drug": "pembrolizumab",
+            "per_admin": {
+              "value": 200,
+              "unit": "mg"
+            },
+            "total": {
+              "value": 1800,
+              "unit": "mg"
+            },
+            "basis": "estimated"
+          }
+        ],
         "line": null,
         "endocrine_line": null,
         "chemo_line": null
