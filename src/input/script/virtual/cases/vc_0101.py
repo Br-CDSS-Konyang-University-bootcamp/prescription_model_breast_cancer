@@ -32,7 +32,9 @@ def build(her2: str = "1+") -> Chart:
     d.t("S) 허리 통증 지속, 식욕 저하.\n   폐경: ")
     d.put("폐경 후 (LMP 2009년)", F("patient.menopausal_status", "postmenopausal", within="폐경 후"),
           F("patient.menopausal_basis", "age_amenorrhea", within="LMP 2009년")).t("\n   과거력: ")
-    d.put("심장 질환 과거력 없음", F("patient.cardiac_history", "no")).t(", 고지혈증\n\n")
+    d.put("심장 질환 과거력 없음", F("patient.cardiac_history", "no")).t(", ")
+    # 차트에 적힌 동반질환은 정답에 넣는다 (2026-10-28, GPU 재실행에서 LLM이 찾았는데 정답에 없었음)
+    d.put("고지혈증", F("patient.comorbidities", ["고지혈증"])).t("\n\n")
     d.t("O) ").put("ECOG PS 1", F("patient.ecog", 1, observed_date=idx)).t("\n   ")
     d.put("Ht 156cm / Wt 58kg", F("patient.height_cm", 156, within="Ht 156cm"),
           F("patient.weight_kg", 58, within="Wt 58kg")).t("\n")

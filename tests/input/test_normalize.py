@@ -174,6 +174,9 @@ def test_stop_reason_from_vocab(tail, want):
     ("patient.cardiac_history", "재발·전이 소견 없음", None),
     ("patient.mediastinal_radiation", "좌측 흉벽·내유림프절 방사선 치료 (50 Gy)", "yes"),    # VC-0127
     ("patient.mediastinal_radiation", "종격동 방사선 치료력 없음", "no"),
+    # 2026-10-28: 병기군을 'IIIA'만 옮겨도 받는다 (VC-0106b, hari). 다른 글이 붙으면 받지 않는다
+    ("stage.group", "IIIA", "IIIA"),
+    ("stage.group", "IIIA 결절", None),
 ])
 def test_rules_steps_8_to_10(field, quote, want):
     doc = split("<외래 경과기록>   2024.5.4\n본문\n")[0]
@@ -206,6 +209,96 @@ def test_treatment_doses(row, want):
     got = normalize("treatment_history", row, Context(doc, row)).get("doses", [])
     pair = lambda x: x if x == "No value" else (x["value"], x["unit"])                      # noqa: E731
     assert [(d["drug"], pair(d["per_admin"]), pair(d["total"])) for d in got] == want
+
+
+@pytest.mark.parametrize("row, drugs", [
+    ("아로마신 25mg qd + 아피니토 10mg qd   2024.1.2   2024.7.1   -   PD   진행", ["exemestane", "everolimus"]),
+    ("엔허투 5.4mg/kg   2024.1.2   2024.7.1   q3w #9   PD   진행", ["trastuzumab deruxtecan"]),
+    ("캐싸일라 3.6mg/kg   2024.1.2   2024.7.1   q3w #9   PD   진행", ["trastuzumab emtansine"]),
+    ("트라스투주맙 데룩스테칸 5.4mg/kg   2024.1.2   2024.7.1   q3w #9   PD   진행", ["trastuzumab deruxtecan"]),  # 긴 이름 우선
+    ("파클리탁셀 80mg/m2 + 트라스투주맙   2024.1.2   2024.3.25   weekly #12   -   완료", ["paclitaxel", "trastuzumab"]),
+    ("키트루다 + 젬자 + 파라플라틴   2024.1.2   2024.7.1   q3w #8   PR   진행", ["pembrolizumab", "gemcitabine"]),
+])
+def test_brand_and_korean_generic_names(row, drugs):
+    """상품명·한글 일반명만 적힌 투약 줄 (drug_names.csv, 2026-10-28). 사전에 없는 이름(파라플라틴)은 빠진다."""
+    doc = split("[투약 기록]   2024.8.1\n본문\n")[0]
+    assert normalize("treatment_history", row, Context(doc, row))["drugs"] == drugs
+
+
+@pytest.mark.parametrize("field, quote, want", [
+    # 날짜 표기 (일 없는 날짜·상대 날짜는 받지 않는다)
+    ("diagnosis.diagnosis_date", "2021-03-05 core bx로 진단", "2021-03-05"),
+    ("diagnosis.diagnosis_date", "2021년 3월 5일 core bx로 진단", "2021-03-05"),
+    ("diagnosis.diagnosis_date", "21/03/05 core bx로 진단", "2021-03-05"),
+    # 2026-10-28 방침: 일 없는 날짜는 월까지, 상대 날짜는 문서 날짜(2024.5.4)에서 빼서 연도만 (둘 다 확인 요청)
+    ("diagnosis.diagnosis_date", "2021년 3월 진단", "2021-03"),
+    ("diagnosis.diagnosis_date", "2021.3 core bx로 진단", "2021-03"),
+    ("recurrence.recurrence_date", "3년 전 간 전이", "2021"),
+    ("recurrence.recurrence_date", "6개월 전 폐 전이", "2023"),
+    # 비율 구간·부등호
+    ("receptors.pr_percent", "PR : 음성 (<1%)", {"range": [0, 0], "result": "negative"}),
+    ("proliferation.ki67_percent", "Ki-67 15~20%", {"range": [15, 20]}),
+    ("receptors.pdl1", "PD-L1 22C3 CPS ≥10", {"assay": "22C3", "score_type": "CPS", "score": 10}),
+    # HER2 다른 이름, ISH 한글 판정
+    ("receptors.her2_ihc", "HER-2/neu 2+", {"score": "2+"}),
+    ("receptors.her2_ihc", "c-erbB2 : 2+ (equivocal)", {"score": "2+"}),
+    ("receptors.her2_ish", "FISH 음성 (HER2/CEP17 1.4)", {"result": "not_amplified", "method": "FISH"}),
+    # TNM 쉼표·괄호, 폐경 (+), ECOG 생략 (Allred의 PS는 받지 않는다)
+    ("stage.ptnm", "pT2, N1(2/14), M0", {"t": "T2", "n": "N1", "m": "M0", "edition": None}),
+    ("patient.menopausal_status", "menopause (+)", "postmenopausal"),
+    ("patient.ecog", "PS 1", 1),
+    ("patient.ecog", "ER Allred 7 (PS 4 + IS 3)", None),
+    ("patient.ecog", "KPS 80", 1),                       # 2026-10-28 방침: 표로 바꾼다 (확인 요청)
+    ("patient.ecog", "Karnofsky 90", 0),
+    ("patient.ecog", "ECOG PS 2 (KPS 60)", 2),           # ECOG가 적혀 있으면 그 값
+])
+def test_expression_variants_2026_10_28(field, quote, want):
+    """표현 변형 (사례 목록 문서 10-23 §5 I03~I05)."""
+    doc = split("<외래 경과기록>   2024.5.4\n본문\n")[0]
+    got = normalize(field, quote, Context(doc, quote, "2020-01-06"))
+    assert (got and got["value"]) == want
+
+
+def test_converted_values_ask_for_review():
+    """바꿔 읽은 값(일 없는 날짜, 상대 날짜, KPS)에는 확인 요청 표시가 붙는다. 일수는 세지 않는다."""
+    from src.input.script.pipeline import REVIEW, _day
+    doc = split("<외래 경과기록>   2024.5.4\n본문\n")[0]
+    for f, q in [("diagnosis.diagnosis_date", "2021년 3월 진단"), ("recurrence.recurrence_date", "3년 전 간 전이"),
+                 ("patient.ecog", "KPS 80")]:
+        assert REVIEW in normalize(f, q, Context(doc, q))
+    assert REVIEW not in normalize("diagnosis.diagnosis_date", "2021.3.5 진단", Context(doc, "2021.3.5 진단"))
+    assert _day("2021-03", "2020-01-06") is None and _day("2021-03-05", "2021-03") is None
+    md = split("[투약 기록]   2024.5.4\n본문\n")[0]
+    row = "AC x4 → T x12 (2021.3 ~ 2021.8)"
+    got = normalize("treatment_history", row, Context(md, row, "2020-01-06"))
+    assert (got["start_date"], got["end_date"], got["start_day"]) == ("2021-03", "2021-08", None) and REVIEW in got
+
+
+def test_medication_row_variants_2026_10_28():
+    doc = split("[투약 기록]   2024.5.4\n본문\n")[0]
+    row = "paclitaxel 80mg/m2  21/03/05 ~ 21/05/21  weekly x12  완료"
+    got = normalize("treatment_history", row, Context(doc, row))
+    assert (got["start_date"], got["end_date"], got["cycles"]["value"]) == ("2021-03-05", "2021-05-21", 12)
+    row = "doxorubicin 누적 240mg/m2"                                   # 적힌 총량
+    assert normalize("treatment_history", row, Context(doc, row))["doses"] == [
+        {"drug": "doxorubicin", "per_admin": "No value", "total": {"value": 240, "unit": "mg/m2"}, "basis": "recorded"}]
+
+
+def test_rules_against_overextraction_2026_10_28():
+    """GPU 재실행(과거력 예문 추가)에서 LLM이 지나치게 뽑은 구절을 막는다."""
+    doc = split("<외래 경과기록>   2024.5.4\n본문\n")[0]
+    f = "patient.comorbidities"
+    assert normalize(f, "고지혈증", Context(doc, "   과거력: 심장 질환 과거력 없음, 고지혈증"))["value"] == ["고지혈증"]
+    assert normalize(f, "심장 질환 과거력 없음", Context(doc, "   과거력: 심장 질환 과거력 없음")) is None     # 없음
+    assert normalize(f, "협심증 (2017년 스텐트 시술)", Context(doc, "   과거력: 협심증 (2017년 스텐트 시술)")) is None  # 심장 칸
+    assert normalize(f, "기침 3주.", Context(doc, "S) 기침 3주.")) is None                                  # 증상 줄
+    assert normalize(f, " ", Context(doc, "   과거력:  ")) is None
+    # 재발 수술 목적은 그 줄에 수술·절제가 있을 때만
+    assert normalize("recurrence.surgery_intent", "고식", Context(doc, "P) 고식 항암 3차 결정")) is None
+    assert normalize("recurrence.surgery_intent", "완치 목적", Context(doc, "흉벽 재발 병소 절제 (완치 목적)"))["value"] \
+        == "curative"
+    # TNM M0는 재발 부위가 아니다
+    assert normalize("recurrence.metastatic_sites", "M0", Context(doc, "cT3N1M0")) is None
 
 
 def test_basis_cut_before_hu():

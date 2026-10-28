@@ -23,7 +23,7 @@ import sys
 import time
 from dataclasses import dataclass, replace
 from pathlib import Path
-from typing import Callable
+from typing import Callable, NamedTuple
 
 import requests
 from jsonschema import Draft202012Validator
@@ -44,7 +44,16 @@ from src.input.script.rules import Vocab, annotate, load_drug_table
 # - 날짜: medication은 null. 그 밖에는 머리글 줄의 날짜, 없으면 보고일·검사일·작성일 같은 이름 붙은 날짜, 없으면 본문 첫 날짜
 
 HEADER = re.compile(r"^(\[[^\]]+\]|<[^>]+>|■)")
-DATE = re.compile(r"(\d{4})\.(\d{1,2})\.(\d{1,2})")
+# 날짜 표기 (2026-10-28 표현 변형): 2021.3.5 / 2021-03-05 / 2021/03/05 / 2021년 3월 5일 / 21/03/05 (두 자리 연도는 2000년대).
+# 연·월·일 세 숫자는 _ymd로 꺼낸다. 일이 없는 날짜(2021년 3월)와 상대 날짜(3년 전)는 받지 않는다 (일수 계산이 필요한 칸이 많다)
+DATE = re.compile(r"(\d{4})\s*[.\-/]\s*(\d{1,2})\s*[.\-/]\s*(\d{1,2})(?!\d)"
+                  r"|(\d{4})\s*년\s*(\d{1,2})\s*월\s*(\d{1,2})\s*일"
+                  r"|(?<![\d./])(\d{2})/(\d{1,2})/(\d{1,2})(?![\d/])")
+
+
+def _ymd(m: re.Match) -> tuple[int, int, int]:
+    y, mo, d = (int(g) for g in [g for g in m.groups() if g is not None][-3:])
+    return (2000 + y if y < 100 else y), mo, d
 NAMED_DATE = re.compile(r"(보고일|Reported|검사일|수술일|작성일)\s*:\s*" + DATE.pattern)
 # 앞에서부터 처음 맞는 종류 (분자병리를 병리보다 먼저 본다)
 TYPE_WORDS = [
@@ -102,7 +111,7 @@ def _date(header: str, text: str) -> str | None:
     m = DATE.search(header) or NAMED_DATE.search(text) or DATE.search(text)
     if not m:
         return None
-    y, mo, d = (int(g) for g in m.groups()[-3:])
+    y, mo, d = _ymd(m)
     return f"{y:04d}-{mo:02d}-{d:02d}"
 
 
@@ -174,7 +183,10 @@ def locate(quote: str, doc: Document, mapping: dict[str, str] | None = None) -> 
         chars = [re.escape(ch) for ch in quote if not ch.isspace()]
         m = re.search(r"\s*".join(chars), doc.text) if chars else None
         if not m:
-            return None
+            # 원문 'BRCA1/2'를 칸에 맞춰 'BRCA1'·'BRCA2'로 나눠 옮긴 구절은 원문 표기로 되돌려 찾는다 (2026-10-28).
+            # 유전자 이름만 바꾼 경우만 받는다. 단어를 빼거나 바꾼 구절은 지어낸 구절과 구별할 수 없어 버린다
+            wide = re.sub(r"BRCA[12](?![/\d])", "BRCA1/2", quote)
+            return locate(wide, doc) if wide != quote else None
         span = m.span()
     return {"doc_id": doc.doc_id, "quote": doc.text[span[0]:span[1]],
             "char_start": doc.start + span[0], "char_end": doc.start + span[1]}
@@ -253,7 +265,15 @@ def normalize(field: str, quote: str, ctx: Context) -> dict | None:
             return {"status": "not_done", "raw": "예정"}
     parse = PARSERS.get(field)
     value = parse(quote, ctx) if parse else None
+    if isinstance(value, Reviewed):            # 값은 쓰되 확인 요청 (조립이 issues에 needs_review로 남긴다)
+        return {"status": "present", "value": value.value, REVIEW: value.note}
     return None if value is None else {"status": "present", "value": value}
+
+
+class Reviewed(NamedTuple):
+    """바꿔 읽은 값 (일 없는 날짜, 상대 날짜, KPS → ECOG). note는 확인 요청 문구."""
+    value: object
+    note: str
 
 
 # ---------- 공통 ----------
@@ -262,13 +282,43 @@ def _num(s: str):
     return int(x) if x.is_integer() else x
 
 
-def parse_date(text: str) -> str | None:
+def parse_date(text: str, doc_date: str | None = None) -> str | None:
+    """YYYY-MM-DD. 2026-10-28 방침: 일이 없는 날짜(2021년 3월, 2021.3)는 YYYY-MM, 상대 날짜(3년 전, 6개월 전)는
+    문서 날짜에서 빼서 연도(YYYY)만. 둘 다 일수(*_day)는 계산하지 않는다 (_day). 날짜가 없으면 None."""
     m = DATE.search(text)
-    return None if not m else dt.date(*(int(g) for g in m.groups())).isoformat()
+    if m:
+        try:
+            return dt.date(*_ymd(m)).isoformat()
+        except ValueError:        # 13월·32일처럼 날짜가 아닌 숫자
+            return None
+    m = PARTIAL_DATE.search(text)
+    if m:
+        y, mo = (int(g) for g in [g for g in m.groups() if g is not None])
+        return f"{y:04d}-{mo:02d}" if 1 <= mo <= 12 else None
+    m = RELATIVE_DATE.search(text)
+    if m and doc_date and len(doc_date) == 10:
+        n, unit = int(m.group(1)), m.group(2)
+        days = {"년": 365.25, "개월": 30.44, "달": 30.44, "주": 7, "일": 1}[unit] * n
+        return str((dt.date.fromisoformat(doc_date) - dt.timedelta(days=round(days))).year)
+    return None
+
+
+PARTIAL_DATE = re.compile(r"((?:19|20)\d{2})\s*년\s*(\d{1,2})\s*월(?!\s*\d+\s*일)"
+                          r"|(?<![\d.])((?:19|20)\d{2})[.\-/](\d{1,2})(?![\d.\-/])")
+RELATIVE_DATE = re.compile(r"(\d+)\s*(년|개월|달|주|일)\s*전")
+
+
+def _date_value(q: str, ctx) -> "str | Reviewed | None":
+    """날짜 칸 값. 일 없는 날짜·상대 날짜는 확인 요청을 붙인다."""
+    v = parse_date(q, ctx.doc.doc_date if ctx else None)
+    if v and len(v) < 10:
+        how = "상대 날짜를 문서 날짜 기준 연도로 바꿈" if len(v) == 4 else "일이 없는 날짜: 월까지만 담음"
+        return Reviewed(v, f"{how} (일수 계산 안 함): 원문에서 날짜를 확인할 것")
+    return v
 
 
 def _day(date: str | None, dx_date: str | None) -> int | None:
-    if date is None or dx_date is None:
+    if date is None or dx_date is None or len(date) != 10 or len(dx_date) != 10:    # 부분 날짜는 일수를 세지 않는다
         return None
     return (dt.date.fromisoformat(date) - dt.date.fromisoformat(dx_date)).days
 
@@ -312,8 +362,9 @@ def _grade(q, ctx):
 
 
 def _tnm(q, ctx, *, prefix):
-    m = re.search(r"(yp|p|c)?T(is|[0-4][a-d]?|X)\s*(?:\(\w+\))?\s*(?:y?p|c)?N([0-3][a-c]?(?:mi)?|X)\s*(?:\(\w+\))?"
-                  r"\s*(?:[cp]?M([01X]))?", q)
+    # 'T2, N1(2/14), M0'처럼 쉼표·괄호(림프절 수)가 끼어도 읽는다 (2026-10-28 표현 변형)
+    m = re.search(r"(yp|p|c)?T(is|[0-4][a-d]?|X)\s*(?:\([^)]*\))?[\s,]*(?:y?p|c)?N([0-3][a-c]?(?:mi)?|X)\s*(?:\([^)]*\))?"
+                  r"[\s,]*(?:[cp]?M([01X]))?", q)
     # 접두어가 칸과 다르면 받지 않는다 (경과기록의 pT2N0M0를 ctnm 칸에 넣은 경우 등). 접두어가 없으면 받는다
     if not m or m.group(1) not in (None, prefix):
         return None
@@ -334,7 +385,8 @@ def _tnm(q, ctx, *, prefix):
 
 def _group(q, ctx):
     m = re.search(r"stage\s*(IV|III[A-C]?|II[AB]?|I[AB]?|0)(?![A-Za-z])", q, re.I) \
-        or re.search(r"(IV|III[A-C]?|II[AB]?|I[AB]?)\s*기", q)
+        or re.search(r"(IV|III[A-C]?|II[AB]?|I[AB]?)\s*기", q) \
+        or re.fullmatch(r"\s*(IV|III[A-C]?|II[AB]?|I[AB]?)\s*", q)    # LLM이 'IIIA'만 옮긴 경우 (2026-10-28)
     return m and m.group(1).upper()
 
 
@@ -364,9 +416,7 @@ def _receptor(field):
             total = int(m.group(1))
             ps, is_ = (int(m.group(2)), int(m.group(3))) if m.group(2) else (0, 0) if total == 0 else (None, None)
             v["allred"] = {"total": total, **({"ps": ps, "is": is_} if ps is not None else {})}
-        p = re.search(r"(\d+(?:\.\d+)?)\s*%", q)
-        if p:
-            v["percent"] = _num(p.group(1))
+        v.update(_pct_or_range(q))
         result = _vocab(f"receptors.{field}.result", q)
         if result:
             v["result"] = result
@@ -375,7 +425,8 @@ def _receptor(field):
 
 
 def _her2_ihc(q, ctx):
-    m = re.search(r"HER2\s*(?:\([^)]*\))?\s*(?:IHC)?\s*:?\s*([0-3])(\+?)", q)
+    # HER-2/neu, c-erbB2, ERBB2도 HER2 (2026-10-28 표현 변형)
+    m = re.search(r"(?:HER-?2(?:/neu)?|c-?erbB-?2|ERBB2)\s*(?:\([^)]*\))?\s*(?:IHC)?\s*:?\s*([0-3])(\+?)", q, re.I)
     if not m:
         return None
     v = {"score": m.group(1) + m.group(2)}
@@ -395,14 +446,27 @@ def _her2_ish(q, ctx):
 
 def _pdl1(q, ctx):
     assay = re.search(r"22C3|SP142|SP263", q)
-    score = re.search(r"\b(CPS|IC|TPS)\b\s*:?\s*(\d+(?:\.\d+)?)", q)
+    score = re.search(r"\b(CPS|IC|TPS)\b\s*:?\s*(?:≥|>=)?\s*(\d+(?:\.\d+)?)", q)      # 'CPS ≥10'은 10
     return score and {"assay": assay.group(0) if assay else "unknown", "score_type": score.group(1),
                       "score": _num(score.group(2))}
 
 
-def _percent(q, ctx):
+def _pct_or_range(q: str) -> dict:
+    """비율 하나는 percent, 구간은 range (2026-10-28 표현 변형). '<1%'는 [0, 0] (스키마 range 설명), '<10%'는 [0, 9],
+    '15~20%'·'15-20%'는 [15, 20]. 구간을 한 숫자로 줄이면 경계(Ki-67 20%, ER 1·10%) 판정이 바뀐다."""
+    m = re.search(r"<\s*(\d+(?:\.\d+)?)\s*%", q)
+    if m:
+        hi = _num(m.group(1))
+        return {"range": [0, 0 if hi <= 1 else _num(str(hi - 1))]}
+    m = re.search(r"(\d+(?:\.\d+)?)\s*%?\s*[~\-–]\s*(\d+(?:\.\d+)?)\s*%", q)
+    if m:
+        return {"range": [_num(m.group(1)), _num(m.group(2))]}
     m = re.search(r"(\d+(?:\.\d+)?)\s*%", q)
-    return m and {"percent": _num(m.group(1))}
+    return {"percent": _num(m.group(1))} if m else {}
+
+
+def _percent(q, ctx):
+    return _pct_or_range(q) or None
 
 
 def _age(q, ctx):
@@ -432,6 +496,16 @@ def _menopausal_basis(q, ctx):
     return None
 
 
+def _kps(q: str) -> "Reviewed | None":
+    """ECOG 없이 KPS만 적혔으면 표로 바꾼다 (2026-10-28 방침): 90~100 → 0, 70~80 → 1, 50~60 → 2, 30~40 → 3, 10~20 → 4."""
+    m = re.search(r"(?:KPS|Karnofsky)\s*:?\s*(\d{2,3})(?!\d)", q, re.I)
+    if not m or not 10 <= int(m.group(1)) <= 100:
+        return None
+    k = int(m.group(1))
+    ecog = 0 if k >= 90 else 1 if k >= 70 else 2 if k >= 50 else 3 if k >= 30 else 4
+    return Reviewed(ecog, f"KPS {k}을 ECOG {ecog}로 바꿈 (표로 바꾼 근사값)")
+
+
 def _number(pattern):
     def parse(q, ctx):
         m = re.search(pattern, q, re.I)
@@ -454,6 +528,9 @@ def _metastasis_day(q, ctx):
     if re.search(r"국소|locoregional|local", q, re.I) and not re.search(r"전이|metasta", q, re.I):
         return None
     return _day_field(q, ctx)
+
+
+SURGERY = re.compile(r"수술|절제|surgery|resection|excision|mastectomy", re.I)
 
 
 def _need(pattern: str, parse):
@@ -484,7 +561,7 @@ def _endocrine_end(q, ctx):
     date = parse_date(q)
     if date and not END_WORD.search(q) and DATE.findall(line)[-1:] != DATE.findall(q)[:1]:
         return None
-    return date
+    return _date_value(q, ctx) if date else None
 
 
 def _recurrence_status(q, ctx):
@@ -513,7 +590,7 @@ def _intent(q, ctx):
 
 
 PARSERS = {
-    "diagnosis.diagnosis_date": lambda q, ctx: parse_date(q),
+    "diagnosis.diagnosis_date": _date_value,
     "diagnosis.histology": lambda q, ctx: _vocab("diagnosis.histology", q),
     "diagnosis.grade": _grade,
     "stage.ctnm": lambda q, ctx: _tnm(q, ctx, prefix="c"),
@@ -537,24 +614,33 @@ PARSERS = {
     "patient.age": _age,
     "patient.menopausal_status": lambda q, ctx: _vocab("patient.menopausal_status", q),
     "patient.menopausal_basis": _menopausal_basis,
-    "patient.ecog": _number(r"ECOG\s*(?:PS)?\s*:?\s*([0-4])"),
+    # 'PS 1'처럼 ECOG를 빼고 써도 받는다. Allred의 PS(비율 점수)는 받지 않는다 (2026-10-28 표현 변형)
+    "patient.ecog": lambda q, ctx: None if re.search(r"Allred|\bIS\b", q, re.I) else
+                    _number(r"(?:ECOG\s*(?:PS)?|(?<![A-Za-z])PS)\s*:?\s*([0-4])(?!\d)")(q, ctx) if
+                    re.search(r"ECOG|(?<![A-Za-z])PS", q, re.I) else _kps(q),
     "patient.height_cm": _number(r"(\d+(?:\.\d+)?)\s*cm"),
     "patient.weight_kg": _number(r"(\d+(?:\.\d+)?)\s*kg"),
     "patient.lvef_percent": _number(r"(\d+(?:\.\d+)?)\s*%"),
     "patient.cardiac_history": _need_vocab("patient.cardiac_history"),
     "patient.mediastinal_radiation": _need_vocab("patient.mediastinal_radiation"),
     "patient.visceral_crisis": _need_vocab("patient.visceral_crisis"),
-    "patient.comorbidities": lambda q, ctx: None if re.search(r"재발|전이|metasta", q, re.I) else [q],
+    # 재발·전이, '없음' 구절, 심장 병명(cardiac_history 칸), 빈 구절, S) 줄의 증상('기침 3주.')은
+    # 동반질환으로 받지 않는다 (2026-10-28 GPU 재실행)
+    "patient.comorbidities": lambda q, ctx: None if not q.strip() or re.search(r"재발|전이|metasta", q, re.I)
+                                            or NEGATION.search(q) or _vocab("patient.cardiac_history", q)
+                                            or ctx.line.lstrip().startswith("S)") else [q],
     "neoadjuvant_response.pcr": _pcr,
     "neoadjuvant_response.rcb": _rcb,
-    "recurrence.recurrence_date": _need(r"전이|재발|metasta|recur", lambda q, ctx: parse_date(q)),
+    "recurrence.recurrence_date": _need(r"전이|재발|metasta|recur", _date_value),
     "recurrence.adjuvant_endocrine_end_date": _endocrine_end,
     "recurrence.status": _recurrence_status,
-    "recurrence.metastatic_sites": _metastatic_sites,
+    # TNM의 M0는 진단 시 병기다. 재발 부위 칸에는 받지 않는다 (2026-10-28, 시험 VC-0121 hari)
+    "recurrence.metastatic_sites": lambda q, ctx: None if re.fullmatch(r"\s*[cpy]*M[01X]\s*", q) else _metastatic_sites(q, ctx),
     "recurrence.metastasis_day": _metastasis_day,
     "recurrence.recurrence_day": _day_field,
-    "recurrence.surgery": _need(r"수술|절제|surgery|resection|excision|mastectomy", lambda q, ctx: _yes_no(q)),
-    "recurrence.surgery_intent": _intent,
+    "recurrence.surgery": _need(SURGERY.pattern, lambda q, ctx: _yes_no(q)),
+    # 수술 목적은 그 줄에 수술·절제가 있을 때만 ('고식 항암'의 '고식'을 받지 않는다, 2026-10-28 시험 VC-0114·0127)
+    "recurrence.surgery_intent": lambda q, ctx: _intent(q, ctx) if SURGERY.search(q + " " + ctx.line) else None,
     "recurrence.later_distant": _need(r"원격|distant", lambda q, ctx: _yes_no(q)),
 }
 
@@ -651,17 +737,18 @@ def _drugs(text: str) -> list[tuple[str, list[int]]]:
 
 
 def _cycles(q: str) -> dict | None:
-    m = re.search(r"(?:q(\d)w|(weekly)|(\d+)\s*일)?\s*#\s*(\d+)", q)
+    # 주기 수: '#12', 'x12', '×12', '12회', '12 cycles' (2026-10-28 표현 변형)
+    m = re.search(r"(?:q(\d)w|(weekly)|(\d+)\s*일)?\s*(?:[#x×]\s*(\d+)(?!\s*(?:mg|일))|(\d+)\s*(?:회|cycles?\b))", q, re.I)
     if not m:
         return None
     interval = int(m.group(1)) * 7 if m.group(1) else 7 if m.group(2) else int(m.group(3)) if m.group(3) else None
-    return {"value": int(m.group(4)), "basis": "recorded", "interval_days": interval,
+    return {"value": int(m.group(4) or m.group(5)), "basis": "recorded", "interval_days": interval,
             "interval_basis": "recorded" if interval else None}
 
 
 def _regimen(q: str, ctx: Context) -> dict:
     """투약 한 줄의 공통 부분: 약(첫 날짜 앞), 날짜, 주기, 날짜 뒤 글(반응·중단 사유)."""
-    dates = list(DATE.finditer(q))
+    dates = list(DATE.finditer(q)) or list(PARTIAL_DATE.finditer(q))     # 일이 없는 날짜만 있으면 월까지 (일수 없음)
     head = q[:dates[0].start()] if dates else q
     tail = q[dates[-1].end():] if dates else ""
     return {"drugs": _drugs(head), "head": head, "tail": tail,
@@ -684,13 +771,17 @@ def _treatment(q: str, ctx: Context) -> dict | None:
             **({"ongoing": True} if r["ongoing"] else {}),
             "cycles": r["cycles"], "stop_reason": _stop_reason(r["tail"]),
             "best_response": _vocab("treatment_history.best_response", r["tail"]),
-            **({"doses": doses} if (doses := _doses(q, r)) else {})}
+            **({"doses": doses} if (doses := _doses(q, r)) else {}),
+            **({REVIEW: "일이 없는 투약 날짜: 월까지만 담음 (일수 계산 안 함)"}
+               if any(d and len(d) < 10 for d in (r["start"], r["end"])) else {})}
 
 
 # 약별 용량 (treatment_history[].doses, 2026-10-28). 가상 차트 생성기(virtual_chart.row_doses)와 따로 쓴다.
 # 용량이 적힌 약만. 1회 용량은 약 이름(상품명이면 뒤의 "(일반명)") 바로 뒤 숫자 + mg/m2·mg/kg·mg, 또는 AUC.
 # 총량은 1회 × 주기 수 (d1, d8이면 주기당 2회). 매일 먹는 약, AUC(목표 노출량), 주기 수가 없으면 "No value"
-DOSE_AT = re.compile(r"\s*\)?\s*(?:(\d+(?:\.\d+)?)\s*(mg/m2|mg/kg|mg)(?![a-z/])|AUC\s*(\d+(?:\.\d+)?))", re.I)
+# 약 이름 뒤에 '누적'·'총'이 오면 적힌 총량이다 (doxorubicin 누적 240mg/m2 → total recorded, 2026-10-28 표현 변형)
+DOSE_AT = re.compile(r"\s*\)?\s*(누적|총|cumulative|total)?\s*"
+                     r"(?:(\d+(?:\.\d+)?)\s*(mg/m2|mg/kg|mg)(?![a-z/])|AUC\s*(\d+(?:\.\d+)?))", re.I)
 DAILY_ORAL = {"tamoxifen", "anastrozole", "letrozole", "exemestane", "megestrol", "palbociclib", "ribociclib",
               "abemaciclib", "everolimus", "capecitabine", "lapatinib", "tucatinib", "neratinib", "olaparib",
               "talazoparib", "alpelisib", "capivasertib", "inavolisib", "elacestrant", "imlunestrant"}
@@ -703,7 +794,10 @@ def _doses(q: str, r: dict) -> list[dict]:
         m = next((m for m in (DOSE_AT.match(r["head"], e) for e in ends) if m), None)
         if not m:
             continue
-        per = {"value": _num(m.group(1)), "unit": m.group(2)} if m.group(1) else {"value": _num(m.group(3)), "unit": "AUC"}
+        per = {"value": _num(m.group(2)), "unit": m.group(3)} if m.group(2) else {"value": _num(m.group(4)), "unit": "AUC"}
+        if m.group(1):
+            out.append({"drug": g, "per_admin": "No value", "total": per, "basis": "recorded"})
+            continue
         daily = g in DAILY_ORAL or re.match(r"\s*(?:qd|bid|tid)\b", r["head"][m.end():], re.I)
         total = "No value" if daily or not r["cycles"] or per["unit"] == "AUC" else \
             {"value": _num(str(round(per["value"] * r["cycles"]["value"] * twice, 3))), "unit": per["unit"]}
@@ -910,6 +1004,13 @@ def assemble(docs: list[Document], candidates: list[dict], *, patient_ref: str, 
                                           "source": sites["source"]}
 
     rows =[(c, doc, src, out) for c, doc, src, out in items if c["field"] == "treatment_history"]
+    # 투약 기록 문서가 있으면 다른 문서의 요약 줄('보조 AC x4 → T x12 (2021.3 ~ 2021.8)')은 쓰지 않는다 (2026-10-28 방침).
+    # 투약 기록이 없을 때만 요약 줄을 담는다 (일 없는 날짜는 월까지, 확인 요청)
+    if any(d.doc_type == "medication" for d in docs):
+        for r in rows:
+            if r[1].doc_type != "medication":
+                issues.append({"reason": "rule", "candidate": r[0], "note": "투약 기록이 있어 요약 줄을 쓰지 않음"})
+        rows = [r for r in rows if r[1].doc_type == "medication"]
     rows.sort(key=lambda r: (r[3]["start_day"] is None, r[3]["start_day"] or 0))
     history = [{**out, "source": src} for _, _, src, out in rows]
     images = [{**out, "source": src} for c, _, src, out in items if c["field"] == "imaging_findings"]
@@ -920,6 +1021,7 @@ def assemble(docs: list[Document], candidates: list[dict], *, patient_ref: str, 
         if a:
             anthra.append({**a, "raw": src["quote"], "source": src})
     fields["treatment_history"] = history
+    _endocrine_end_from_rows(fields, history)
     fields["anthracycline_drug_dose"] = {
         "administered": "positive" if anthra else "negative" if history else "No value", "drugs": anthra}
     if images:
@@ -1120,6 +1222,19 @@ def _fill_treatment(history: list[dict], fields: dict, images: list[dict] = ()) 
         t.update(ordered)
 
 
+def _endocrine_end_from_rows(fields: dict, history: list[dict]) -> None:
+    """보조 내분비 종료일 후보가 없으면 투약 표의 보조 내분비 줄 종료일로 채운다 (근거 = 그 투약 줄, 2026-10-28).
+    경과기록의 종료 구절을 LLM이 놓쳐도 같은 날짜가 투약 표에 있다 (시험 VC-0122). 투약 중인 줄은 쓰지 않는다."""
+    if fields["recurrence"].get("adjuvant_endocrine_end_date", {}).get("status") != "not_recorded":
+        return
+    rows = [t for t in history if t["setting"] == "adjuvant" and t.get("end_date") and not t.get("ongoing")
+            and any(DRUG_TABLE.get(g, ("",))[0] == "Hormone Therapy" for g in t["drugs"])]
+    if rows:
+        t = max(rows, key=lambda t: t["end_date"])
+        fields["recurrence"]["adjuvant_endocrine_end_date"] = {"status": "present", "value": t["end_date"],
+                                                               "raw": t["source"]["quote"], "source": t["source"]}
+
+
 def _genomic_report(doc: Document, fields: dict) -> dict:
     """IN-7. 문서 원문을 해석하지 않고 넘긴다. 검체는 이 문서에서 나온 유전자 칸의 검체, 없으면 '검체:' 줄."""
     genes = list(fields["molecular"].get("mutations", {}).values()) + list(fields["molecular"].get("germline", {}).values())
@@ -1219,14 +1334,15 @@ FIELDS = {
         "patient.menopausal_status": "폐경 상태 (폐경 전, 폐경 후)",
         "patient.menopausal_basis": "폐경 판단 근거 (LMP, 폐경 나이, 월경 여부, FSH, 난소절제)",
         "patient.ecog": "ECOG 수행 상태",
-        "patient.cardiac_history": "심장 질환 과거력",
+        "patient.cardiac_history": "심장 질환 과거력. '과거력' 줄의 심장 병명 구절 (협심증, 심부전, 부정맥 등). "
+                                   "심장 질환이 없다고 적혀 있으면 그 구절도 낸다",
         "patient.height_cm": "키",
         "patient.weight_kg": "몸무게",
         "patient.lvef_percent": "좌심실 박출률 (LVEF)",
         "patient.mediastinal_radiation": "종격동 방사선 치료 이력",
         "patient.visceral_crisis": "의사가 visceral crisis(장기 위기)라고 판단해 적은 구절. 검사 수치만 있으면 내지 않는다",
-        "patient.comorbidities": "유방암 말고 함께 앓는 질환 이름 (예: 고혈압, 당뇨, CKD 3a). 질환 하나에 구절 하나. "
-                                 "유방암·재발·전이는 넣지 않는다",
+        "patient.comorbidities": "유방암 말고 함께 앓는 질환 이름 (예: 고혈압, 당뇨, CKD 3a). 주로 '과거력' 줄에 있다. "
+                                 "질환 하나에 구절 하나. 유방암·재발·전이와 심장 질환(cardiac_history 칸)은 넣지 않는다",
         "recurrence.recurrence_date": "첫 재발·전이 날짜와 부위가 든 구절 (예: 2023.4.4 lung metastasis)",
         "recurrence.recurrence_day": "recurrence_date와 같은 구절",
         "recurrence.metastasis_day": "원격 전이 날짜가 든 구절. 진단 시 IV기면 de novo라고 적힌 구절",
@@ -1307,7 +1423,8 @@ EXAMPLES = {
     ),
     "progress_note": (
         "<외래 경과기록>   2019.3.2   종양내과\n환자명: [이름1]   등록번호: [등록번호1]   F/58\n\n"
-        "S) 폐경: 폐경 후 (55세 폐경)\nO) ECOG PS 1\n"
+        "S) 폐경: 폐경 후 (55세 폐경)\n   과거력: 고혈압 (약 복용 중), 심질환 없음\n"
+        "   심초음파 (2019.2.20): LVEF 58%\nO) ECOG PS 1\n"
         "A) Lt. breast IDC, 2017.5.10 core bx로 진단, 수술 후 보조요법\n"
         "   보조 letrozole 2017.6.20~ 복용 중 2019.1.15 간 전이 → letrozole 2019.1.20 중단\n"
         "P) 전이성 1차 치료 상의\n",
@@ -1315,6 +1432,9 @@ EXAMPLES = {
          {"field": "patient.age", "quote": "F/58", "specimen": None, "observed_date": None},
          {"field": "patient.menopausal_status", "quote": "폐경 후", "specimen": None, "observed_date": None},
          {"field": "patient.menopausal_basis", "quote": "55세 폐경", "specimen": None, "observed_date": None},
+         {"field": "patient.comorbidities", "quote": "고혈압 (약 복용 중)", "specimen": None, "observed_date": None},
+         {"field": "patient.cardiac_history", "quote": "심질환 없음", "specimen": None, "observed_date": None},
+         {"field": "patient.lvef_percent", "quote": "LVEF 58%", "specimen": None, "observed_date": "2019-02-20"},
          {"field": "patient.ecog", "quote": "ECOG PS 1", "specimen": None, "observed_date": "2019-03-02"},
          {"field": "diagnosis.histology", "quote": "IDC", "specimen": None, "observed_date": None},
          {"field": "diagnosis.diagnosis_date", "quote": "2017.5.10 core bx로 진단", "specimen": None,
@@ -1430,7 +1550,7 @@ def main(argv=None) -> int:
 
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--ids", nargs="+", help="사례 (기본: 문서 보기는 VC-0103, --out은 --set)")
-    ap.add_argument("--set", default="dev", choices=["dev", "pairs", "test", "holdout"],
+    ap.add_argument("--set", default="dev", choices=["dev", "pairs", "test", "holdout", "variants"],
                     help="--out의 사례 묶음: dev 10건 (기본), pairs 짝 19건, test 새 20건 (규칙 고정 뒤에만), "
                          "holdout 보류 18건 (성능 보고에만, 틀린 칸을 보고 규칙을 고치지 않는다)")
     ap.add_argument("--docs", nargs="*", help="문서 ID (없으면 칸 목록이 있는 문서 모두)")

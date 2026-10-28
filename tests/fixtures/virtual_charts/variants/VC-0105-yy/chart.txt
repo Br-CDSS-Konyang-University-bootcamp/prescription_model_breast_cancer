@@ -1,0 +1,66 @@
+SURGICAL PATHOLOGY REPORT
+환자명: 김가상   등록번호: 00000105   F/49
+Received: 23/01/09   Reported: 23/01/13
+Specimen: Left breast, US-guided core needle biopsy
+
+DIAGNOSIS
+  Invasive ductal carcinoma, NST
+  Histologic grade: Nottingham grade 3 (3+3+2=8)
+
+IMMUNOHISTOCHEMISTRY
+  ER: negative, Allred score 0 (PS 0 + IS 0)
+  PR: negative, Allred score 0 (PS 0 + IS 0)
+  HER2 (4B5): 3+
+  Ki-67: 50%
+
+Pathologist: 박가상
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000105   F/49
+검사: Breast ultrasound   검사일: 23/01/11
+
+Findings:
+  좌측 유방 2시 방향 불규칙 종괴. 좌측 액와 림프절 2개 피질 비후.
+Conclusion:
+  좌측 유방 2.8 cm 종괴 (BI-RADS 5), 좌측 액와 림프절 전이 의심
+
+
+[병리결과보고서]
+환자명: 김가상   등록번호: 00000105   F/49
+보고일: 23/06/14
+검체: 좌측 유방 부분절제술 + 감시림프절 생검 (선행 항암 후)
+
+진단
+  잔존 침윤암: 있음 (residual invasive carcinoma)
+  잔존 종양 크기: 1.4 cm
+  림프절: 1/3 (+), 최대 전이 4 mm
+  ypTNM: ypT1c ypN1a (sn) (AJCC 8th)
+  RCB: RCB class II
+
+판독의: 박가상
+
+
+<외래 경과기록>   23/07/08   종양내과
+환자명: 김가상   등록번호: 00000105   F/49   주민번호: 740101-2******   연락처: 010-0000-0105
+병원: 가상대학교병원 종양내과   담당의: 이가상
+
+S) 수술 후 특별한 불편감 없음.
+   폐경: 폐경 전, 월경 규칙적
+   과거력: 심장 질환 과거력 없음
+
+O) ECOG PS 0
+   Echo (23/06/28): LVEF 62%
+
+A) Lt. breast IDC, 23/01/09 core bx로 진단
+   cT2N1M0, stage IIB, HER2+ (IHC 3+), ER/PR 음성
+   선행 TCHP #6 후 수술: ypT1c ypN1a, 잔존 침윤암 (RCB-II)
+   재발 소견 없음
+
+P) 보조 HER2 표적치료 결정
+
+
+[투약 기록]
+환자명: 김가상   등록번호: 00000105   F/49
+구분    요법                                                 시작         종료         주기     반응   중단 사유
+선행    TCHP (탁소텔 + 카보플라틴 + 허셉틴 + 퍼제타)   23/01/23   23/05/08   q3w #6   PR     완료

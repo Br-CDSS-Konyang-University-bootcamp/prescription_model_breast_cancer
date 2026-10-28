@@ -9,7 +9,7 @@ import pytest
 from src.input.script.evaluation import from_expected
 from src.input.script.virtual.cases.pairs import PAIRS
 from src.input.script.virtual.virtual_chart import CASES, out_dir
-from src.input.script.pipeline import run
+from src.input.script.pipeline import locate, run, split
 
 ALL = CASES + [p.id for p in PAIRS]
 
@@ -56,6 +56,28 @@ def test_gene_prefers_candidate_with_variant():
     got, issues, want = _run_with("VC-0116", [_cand("D1", "molecular.germline.BRCA1", "생식세포 BRCA1 병원성 변이")])
     assert got["fields"]["molecular"]["germline"]["BRCA1"]["variants"][0]["protein_change"] == "Q1756Pfs*74"
     assert _strip(got["fields"]["molecular"]["germline"]["BRCA1"]) == _strip(want["fields"]["molecular"]["germline"]["BRCA1"])
+
+
+def test_rules_after_gpu_rerun_2026_10_28():
+    """GPU 재실행(2026-10-28)에서 LLM이 놓치거나 바꿔 옮긴 구절을 규칙으로 받는다."""
+    # 'BRCA1/2'를 칸에 맞춰 'BRCA1'·'BRCA2'로 나눠 옮김 → 원문 표기로 되돌려 찾는다 (VC-0104)
+    bad = [_cand("D1", f"molecular.germline.{g}", f"생식세포 {g} 검사: 시행하지 않음") for g in ("BRCA1", "BRCA2")]
+    got, issues, want = _run_with("VC-0104", bad, drop_fields=("molecular.germline.BRCA1", "molecular.germline.BRCA2"))
+    for g in ("BRCA1", "BRCA2"):
+        assert got["fields"]["molecular"]["germline"][g]["status"] == "not_done"
+    # 단어를 뺀 구절은 계속 버린다 (지어낸 구절과 구별할 수 없다)
+    assert locate("수술 후 원격 전이 없음", split("<외래 경과기록>   2024.1.2\n수술 후 영상에서 원격 전이 없음\n")[0]) is None
+    # 보조 내분비 종료일 후보가 없으면 투약 표의 보조 내분비 줄 종료일 (VC-0122)
+    got, issues, want = _run_with("VC-0122", drop_fields=("recurrence.adjuvant_endocrine_end_date",))
+    assert got["fields"]["recurrence"]["adjuvant_endocrine_end_date"]["value"] == "2023-03-28"
+
+
+def test_summary_line_ignored_when_medication_record_exists():
+    """투약 기록 문서가 있으면 경과기록의 요약 줄은 투약 이력에 넣지 않는다 (2026-10-28 방침)."""
+    summary = _cand("D1", "treatment_history", "보조 letrozole 복용 중 2023.3.23 폐 전이 → letrozole 2023.3.28 중단 (PD)")
+    got, issues, want = _run_with("VC-0122", [summary])
+    assert len(got["fields"]["treatment_history"]) == len(want["fields"]["treatment_history"])
+    assert any(i["note"] == "투약 기록이 있어 요약 줄을 쓰지 않음" for i in issues if i["reason"] == "rule")
 
 
 def test_rules_against_llm_mistakes():

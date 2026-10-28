@@ -394,6 +394,19 @@
           "char_end": 198
         }
       },
+      "comorbidities": {
+        "status": "present",
+        "value": [
+          "고지혈증"
+        ],
+        "raw": "고지혈증",
+        "source": {
+          "doc_id": "D1",
+          "quote": "고지혈증",
+          "char_start": 200,
+          "char_end": 204
+        }
+      },
       "height_cm": {
         "status": "present",
         "value": 156,

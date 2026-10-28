@@ -119,3 +119,7 @@ patient.mediastinal_radiation,yes,internal mammary,en,chart,
 patient.visceral_crisis,yes,visceral crisis,en,chart,이 칸의 단어. 의사가 적은 판단만 (검사 수치로 짐작하지 않음)
 patient.visceral_crisis,yes,장기 위기,ko,chart,
 patient.visceral_crisis,yes,내장 위기,ko,chart,
+receptors.her2_ish.result,not_amplified,음성,ko,chart,ISH 칸에서만 (FISH 음성). 2026-10-28 표현 변형
+receptors.her2_ish.result,amplified,양성,ko,chart,
+patient.menopausal_status,postmenopausal,menopause (+),en,chart,2026-10-28 표현 변형
+patient.menopausal_status,premenopausal,menopause (-),en,chart,
