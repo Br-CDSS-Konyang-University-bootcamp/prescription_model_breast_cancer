@@ -1,0 +1,498 @@
+{
+  "schema_version": "0.1-draft6",
+  "patient_ref": "VC-0108-korean",
+  "created_at": "2026-10-23T00:00:00+09:00",
+  "index_day": 320,
+  "documents": [
+    {
+      "doc_id": "D1",
+      "doc_type": "progress_note",
+      "doc_date": "2025-01-04"
+    },
+    {
+      "doc_id": "D2",
+      "doc_type": "pathology",
+      "doc_date": "2024-02-23"
+    },
+    {
+      "doc_id": "D3",
+      "doc_type": "radiology",
+      "doc_date": "2024-02-24"
+    },
+    {
+      "doc_id": "D4",
+      "doc_type": "radiology",
+      "doc_date": "2024-02-24"
+    },
+    {
+      "doc_id": "D5",
+      "doc_type": "medication",
+      "doc_date": null
+    }
+  ],
+  "fields": {
+    "diagnosis": {
+      "diagnosis_date": {
+        "status": "present",
+        "value": "2024-02-19",
+        "raw": "2024년 2월 19일",
+        "source": {
+          "doc_id": "D1",
+          "quote": "2024년 2월 19일 core bx로 진단",
+          "char_start": 302,
+          "char_end": 326
+        }
+      },
+      "histology": {
+        "status": "present",
+        "value": "IDC",
+        "raw": "침윤성 유관암 (IDC)",
+        "source": {
+          "doc_id": "D2",
+          "quote": "침윤성 유관암 (IDC)",
+          "char_start": 624,
+          "char_end": 637
+        }
+      },
+      "grade": {
+        "status": "present",
+        "value": 2,
+        "raw": "II",
+        "source": {
+          "doc_id": "D2",
+          "quote": "II",
+          "char_start": 649,
+          "char_end": 651
+        }
+      }
+    },
+    "stage": {
+      "ctnm": {
+        "status": "present",
+        "value": {
+          "t": "T2",
+          "n": "N1",
+          "m": "M1",
+          "edition": null
+        },
+        "raw": "cT2N1M1",
+        "observed_date": "2024-02-24",
+        "source": {
+          "doc_id": "D1",
+          "quote": "cT2N1M1",
+          "char_start": 330,
+          "char_end": 337
+        }
+      },
+      "ptnm": {
+        "status": "not_recorded"
+      },
+      "group": {
+        "status": "present",
+        "value": "IV",
+        "raw": "stage IV",
+        "source": {
+          "doc_id": "D1",
+          "quote": "stage IV",
+          "char_start": 339,
+          "char_end": 347
+        }
+      },
+      "positive_ln_count": {
+        "status": "not_recorded"
+      },
+      "disease_extent": {
+        "status": "present",
+        "value": "metastatic",
+        "raw": "stage IV",
+        "source": {
+          "doc_id": "D1",
+          "quote": "stage IV",
+          "char_start": 339,
+          "char_end": 347
+        }
+      },
+      "metastatic_sites": {
+        "status": "present",
+        "value": [
+          "bone"
+        ],
+        "raw": "(de novo, bone only)",
+        "source": {
+          "doc_id": "D1",
+          "quote": "(de novo, bone only)",
+          "char_start": 348,
+          "char_end": 368
+        }
+      },
+      "operable": {
+        "status": "not_recorded"
+      },
+      "clinical_size_mm": {
+        "status": "present",
+        "value": 27,
+        "raw": "우측 유방 2.7 cm 종괴",
+        "observed_date": "2024-02-24",
+        "source": {
+          "doc_id": "D4",
+          "quote": "우측 유방 2.7 cm 종괴",
+          "char_start": 1053,
+          "char_end": 1068
+        }
+      }
+    },
+    "receptors": {
+      "er_percent": {
+        "status": "present",
+        "value": {
+          "allred": {
+            "total": 8,
+            "ps": 5,
+            "is": 3
+          },
+          "result": "positive"
+        },
+        "raw": "ER : 양성, Allred score 8 (PS 5 + IS 3)",
+        "specimen": "primary",
+        "observed_date": "2024-02-19",
+        "source": {
+          "doc_id": "D2",
+          "quote": "ER : 양성, Allred score 8 (PS 5 + IS 3)",
+          "char_start": 662,
+          "char_end": 699
+        }
+      },
+      "pr_percent": {
+        "status": "present",
+        "value": {
+          "allred": {
+            "total": 5,
+            "ps": 3,
+            "is": 2
+          },
+          "result": "positive"
+        },
+        "raw": "PR : 양성, Allred score 5 (PS 3 + IS 2)",
+        "specimen": "primary",
+        "observed_date": "2024-02-19",
+        "source": {
+          "doc_id": "D2",
+          "quote": "PR : 양성, Allred score 5 (PS 3 + IS 2)",
+          "char_start": 702,
+          "char_end": 739
+        }
+      },
+      "her2_ihc": {
+        "status": "present",
+        "value": {
+          "score": "0",
+          "faint": false
+        },
+        "raw": "HER2 (4B5): 0 (no staining)",
+        "specimen": "primary",
+        "observed_date": "2024-02-19",
+        "source": {
+          "doc_id": "D2",
+          "quote": "HER2 (4B5): 0 (no staining)",
+          "char_start": 742,
+          "char_end": 769
+        }
+      },
+      "her2_ish": {
+        "status": "not_recorded"
+      },
+      "pdl1": {
+        "status": "not_recorded"
+      }
+    },
+    "proliferation": {
+      "ki67_percent": {
+        "status": "not_recorded"
+      }
+    },
+    "patient": {
+      "gender": {
+        "status": "present",
+        "value": "FEMALE",
+        "raw": "F/70",
+        "source": {
+          "doc_id": "D2",
+          "quote": "F/70",
+          "char_start": 554,
+          "char_end": 558
+        }
+      },
+      "age": {
+        "status": "present",
+        "value": 70,
+        "raw": "F/70",
+        "source": {
+          "doc_id": "D2",
+          "quote": "F/70",
+          "char_start": 554,
+          "char_end": 558
+        }
+      },
+      "menopausal_status": {
+        "status": "present",
+        "value": "postmenopausal",
+        "raw": "폐경 후",
+        "source": {
+          "doc_id": "D1",
+          "quote": "폐경 후",
+          "char_start": 168,
+          "char_end": 172
+        }
+      },
+      "menopausal_basis": {
+        "status": "present",
+        "value": "age_amenorrhea",
+        "raw": "50세 폐경",
+        "source": {
+          "doc_id": "D1",
+          "quote": "50세 폐경",
+          "char_start": 174,
+          "char_end": 180
+        }
+      },
+      "ecog": {
+        "status": "present",
+        "value": 1,
+        "raw": "ECOG PS 1",
+        "observed_date": "2025-01-04",
+        "source": {
+          "doc_id": "D1",
+          "quote": "ECOG PS 1",
+          "char_start": 225,
+          "char_end": 234
+        }
+      },
+      "comorbidities": {
+        "status": "present",
+        "value": [
+          "CKD 3a (eGFR 52)"
+        ],
+        "raw": "CKD 3a (eGFR 52)",
+        "source": {
+          "doc_id": "D1",
+          "quote": "CKD 3a (eGFR 52)",
+          "char_start": 190,
+          "char_end": 206
+        }
+      },
+      "cardiac_history": {
+        "status": "present",
+        "value": "no",
+        "raw": "심장 질환 과거력 없음",
+        "source": {
+          "doc_id": "D1",
+          "quote": "심장 질환 과거력 없음",
+          "char_start": 208,
+          "char_end": 220
+        }
+      }
+    },
+    "imaging_findings": [
+      {
+        "modality": "bone_scan",
+        "day": 5,
+        "date": "2024-02-24",
+        "sites": [
+          "bone"
+        ],
+        "certainty": "confirmed",
+        "source": {
+          "doc_id": "D3",
+          "quote": "척추·골반 다발성 골전이",
+          "char_start": 938,
+          "char_end": 951
+        }
+      },
+      {
+        "modality": "PET",
+        "day": 5,
+        "date": "2024-02-24",
+        "sites": [
+          "bone"
+        ],
+        "certainty": "confirmed",
+        "source": {
+          "doc_id": "D4",
+          "quote": "골전이 외 원격 전이 없음",
+          "char_start": 1133,
+          "char_end": 1147
+        }
+      }
+    ],
+    "treatment_history": [
+      {
+        "drugs": [
+          "ribociclib",
+          "letrozole"
+        ],
+        "setting": "metastatic",
+        "start_date": "2024-03-10",
+        "end_date": null,
+        "start_day": 20,
+        "end_day": null,
+        "duration_days": null,
+        "ongoing": true,
+        "cycles": null,
+        "progression_day": null,
+        "stop_reason": null,
+        "best_response": "SD",
+        "source": {
+          "doc_id": "D5",
+          "quote": "키스칼리 600mg qd (3주 복용 1주 휴약) + 페마라 2.5mg qd : 2024년 3월 10일 ~ 현재 복용 중, SD",
+          "char_start": 1196,
+          "char_end": 1267
+        },
+        "doses": [
+          {
+            "drug": "ribociclib",
+            "per_admin": {
+              "value": 600,
+              "unit": "mg"
+            },
+            "total": "No value",
+            "basis": "estimated"
+          },
+          {
+            "drug": "letrozole",
+            "per_admin": {
+              "value": 2.5,
+              "unit": "mg"
+            },
+            "total": "No value",
+            "basis": "estimated"
+          }
+        ],
+        "line": 1,
+        "endocrine_line": 1,
+        "chemo_line": null
+      }
+    ],
+    "anthracycline_drug_dose": {
+      "administered": "negative",
+      "drugs": []
+    },
+    "neoadjuvant_response": {
+      "pcr": {
+        "status": "not_recorded"
+      },
+      "rcb": {
+        "status": "not_recorded"
+      }
+    },
+    "recurrence": {
+      "recurrence_date": {
+        "status": "not_recorded"
+      },
+      "adjuvant_endocrine_end_date": {
+        "status": "not_recorded"
+      },
+      "status": {
+        "status": "not_recorded"
+      },
+      "metastatic_sites": {
+        "status": "not_recorded"
+      },
+      "metastasis_day": {
+        "status": "present",
+        "value": 0,
+        "raw": "(de novo, bone only)",
+        "source": {
+          "doc_id": "D1",
+          "quote": "(de novo, bone only)",
+          "char_start": 348,
+          "char_end": 368
+        }
+      },
+      "recurrence_day": {
+        "status": "not_recorded"
+      },
+      "surgery": {
+        "status": "not_recorded"
+      },
+      "surgery_intent": {
+        "status": "not_recorded"
+      }
+    },
+    "molecular": {
+      "mutations": {
+        "ESR1": {
+          "status": "not_recorded"
+        },
+        "PIK3CA": {
+          "status": "not_recorded"
+        },
+        "AKT1": {
+          "status": "not_recorded"
+        },
+        "PTEN": {
+          "status": "not_recorded"
+        },
+        "BRCA1": {
+          "status": "not_recorded"
+        },
+        "BRCA2": {
+          "status": "not_recorded"
+        },
+        "PALB2": {
+          "status": "not_recorded"
+        }
+      }
+    },
+    "genomic_reports": [],
+    "deemed_lines": [
+      {
+        "rule_id": "DEEM-ANTHRA-TAXANE",
+        "category": "chemo",
+        "status": "not_met",
+        "basis": "선행·보조요법에 anthracycline · taxane 없음",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "61-62"
+      },
+      {
+        "rule_id": "DEEM-SG-1Y",
+        "category": "chemo",
+        "status": "not_met",
+        "basis": "선행·보조요법 없음",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "63"
+      },
+      {
+        "rule_id": "DEEM-HER2ADC-6M",
+        "category": "chemo",
+        "status": "not_met",
+        "basis": "trastuzumab 포함 보조요법 없음",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "62-63"
+      },
+      {
+        "rule_id": "DEEM-ENDO-ADJ-1Y",
+        "category": "endocrine",
+        "status": "not_met",
+        "basis": "보조 내분비요법 없음",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "57"
+      }
+    ],
+    "at_index": {
+      "age": 70,
+      "recent_therapy_28d": {
+        "status": "yes",
+        "basis": "ribociclib+letrozole 기준일에 투여 중 (투약 중 표시)",
+        "regimen_refs": [
+          0
+        ],
+        "gap_days": 0
+      }
+    }
+  },
+  "conflicts": []
+}

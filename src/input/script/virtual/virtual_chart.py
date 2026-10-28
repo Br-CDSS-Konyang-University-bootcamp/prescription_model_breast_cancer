@@ -12,6 +12,7 @@ usage (team_project 폴더에서):
 from __future__ import annotations
 
 import argparse
+import contextlib
 import copy
 import datetime as dt
 import importlib
@@ -356,10 +357,25 @@ def allred_text(ps: int, is_: int) -> str:
     return f"Allred score {ps + is_} (PS {ps} + IS {is_})"
 
 
+DATE_STYLE = "dot"     # 표현 변형 사례(build_variant_cases.py)가 date_style()로 바꾼다
+
+
 def kdate(date: str) -> str:
-    """2021-03-05 -> 2021.3.5"""
+    """2021-03-05 -> 2021.3.5 (기본). 표현 변형: dash 2021-03-05, korean 2021년 3월 5일, yy 21/03/05"""
     y, m, d = date.split("-")
-    return f"{y}.{int(m)}.{int(d)}"
+    return {"dot": f"{y}.{int(m)}.{int(d)}", "dash": f"{y}-{m}-{d}", "korean": f"{y}년 {int(m)}월 {int(d)}일",
+            "yy": f"{y[2:]}/{m}/{d}"}[DATE_STYLE]
+
+
+@contextlib.contextmanager
+def date_style(name: str):
+    """이 안에서 만든 차트는 날짜를 name 형식으로 쓴다. 값(정답)은 그대로다."""
+    global DATE_STYLE
+    old, DATE_STYLE = DATE_STYLE, name
+    try:
+        yield
+    finally:
+        DATE_STYLE = old
 
 
 # ---------- 검사 ----------
@@ -408,7 +424,11 @@ def load_case(ref: str) -> Chart:
 
 def out_dir(ref: str) -> Path:
     from src.input.script.virtual.cases.pairs import BY_ID
-    return FIXTURES / "pairs" / ref if ref in BY_ID else FIXTURES / ref
+    if ref in BY_ID:
+        return FIXTURES / "pairs" / ref
+    if re.search(r"-(dash|korean|yy)$", ref):          # 표현 변형 사례 (build_variant_cases.py)
+        return FIXTURES / "variants" / ref
+    return FIXTURES / ref
 
 
 def dumps(ps: dict) -> str:

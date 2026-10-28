@@ -106,6 +106,9 @@ def case_set(name: str) -> list[str]:
     if name == "holdout":
         from src.input.script.virtual.build_holdout_cases import BUILDERS
         return list(BUILDERS)
+    if name == "variants":
+        from src.input.script.virtual.build_variant_cases import VARIANTS
+        return list(VARIANTS)
     return {"dev": CASES, "pairs": [p.id for p in PAIRS], "all": ALL}[name]
 
 
@@ -266,7 +269,7 @@ def main(argv=None) -> int:
     ap.add_argument("pred_dir", nargs="?", type=Path, help="<폴더>/<사례>/patient_state.json")
     ap.add_argument("--gold", action="store_true", help="정답 후보로 파이프라인을 돌려 채점")
     ap.add_argument("--ids", nargs="*", help="사례 (기본: --gold는 --set, 출력 폴더는 그 안에 있는 사례)")
-    ap.add_argument("--set", default="all", choices=["dev", "pairs", "test", "holdout", "all"], help="--gold의 사례 묶음 (기본 all = dev + pairs)")
+    ap.add_argument("--set", default="all", choices=["dev", "pairs", "test", "holdout", "variants", "all"], help="--gold의 사례 묶음 (기본 all = dev + pairs)")
     ap.add_argument("--show-wrong", type=int, default=30)
     args = ap.parse_args(argv)
     if not args.gold and args.pred_dir is None:

@@ -225,6 +225,45 @@ def test_brand_and_korean_generic_names(row, drugs):
     assert normalize("treatment_history", row, Context(doc, row))["drugs"] == drugs
 
 
+@pytest.mark.parametrize("field, quote, want", [
+    # 날짜 표기 (일 없는 날짜·상대 날짜는 받지 않는다)
+    ("diagnosis.diagnosis_date", "2021-03-05 core bx로 진단", "2021-03-05"),
+    ("diagnosis.diagnosis_date", "2021년 3월 5일 core bx로 진단", "2021-03-05"),
+    ("diagnosis.diagnosis_date", "21/03/05 core bx로 진단", "2021-03-05"),
+    ("diagnosis.diagnosis_date", "2021년 3월 진단", None),
+    ("recurrence.recurrence_date", "3년 전 간 전이", None),
+    # 비율 구간·부등호
+    ("receptors.pr_percent", "PR : 음성 (<1%)", {"range": [0, 0], "result": "negative"}),
+    ("proliferation.ki67_percent", "Ki-67 15~20%", {"range": [15, 20]}),
+    ("receptors.pdl1", "PD-L1 22C3 CPS ≥10", {"assay": "22C3", "score_type": "CPS", "score": 10}),
+    # HER2 다른 이름, ISH 한글 판정
+    ("receptors.her2_ihc", "HER-2/neu 2+", {"score": "2+"}),
+    ("receptors.her2_ihc", "c-erbB2 : 2+ (equivocal)", {"score": "2+"}),
+    ("receptors.her2_ish", "FISH 음성 (HER2/CEP17 1.4)", {"result": "not_amplified", "method": "FISH"}),
+    # TNM 쉼표·괄호, 폐경 (+), ECOG 생략 (Allred의 PS는 받지 않는다)
+    ("stage.ptnm", "pT2, N1(2/14), M0", {"t": "T2", "n": "N1", "m": "M0", "edition": None}),
+    ("patient.menopausal_status", "menopause (+)", "postmenopausal"),
+    ("patient.ecog", "PS 1", 1),
+    ("patient.ecog", "ER Allred 7 (PS 4 + IS 3)", None),
+    ("patient.ecog", "KPS 80", None),                    # ECOG로 바꾸지 않는다 (정할 것)
+])
+def test_expression_variants_2026_10_28(field, quote, want):
+    """표현 변형 (사례 목록 문서 10-23 §5 I03~I05)."""
+    doc = split("<외래 경과기록>   2024.5.4\n본문\n")[0]
+    got = normalize(field, quote, Context(doc, quote, "2020-01-06"))
+    assert (got and got["value"]) == want
+
+
+def test_medication_row_variants_2026_10_28():
+    doc = split("[투약 기록]   2024.5.4\n본문\n")[0]
+    row = "paclitaxel 80mg/m2  21/03/05 ~ 21/05/21  weekly x12  완료"
+    got = normalize("treatment_history", row, Context(doc, row))
+    assert (got["start_date"], got["end_date"], got["cycles"]["value"]) == ("2021-03-05", "2021-05-21", 12)
+    row = "doxorubicin 누적 240mg/m2"                                   # 적힌 총량
+    assert normalize("treatment_history", row, Context(doc, row))["doses"] == [
+        {"drug": "doxorubicin", "per_admin": "No value", "total": {"value": 240, "unit": "mg/m2"}, "basis": "recorded"}]
+
+
 def test_rules_against_overextraction_2026_10_28():
     """GPU 재실행(과거력 예문 추가)에서 LLM이 지나치게 뽑은 구절을 막는다."""
     doc = split("<외래 경과기록>   2024.5.4\n본문\n")[0]

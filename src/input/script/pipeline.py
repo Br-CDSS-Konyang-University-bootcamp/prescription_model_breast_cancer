@@ -44,7 +44,16 @@ from src.input.script.rules import Vocab, annotate, load_drug_table
 # - 날짜: medication은 null. 그 밖에는 머리글 줄의 날짜, 없으면 보고일·검사일·작성일 같은 이름 붙은 날짜, 없으면 본문 첫 날짜
 
 HEADER = re.compile(r"^(\[[^\]]+\]|<[^>]+>|■)")
-DATE = re.compile(r"(\d{4})\.(\d{1,2})\.(\d{1,2})")
+# 날짜 표기 (2026-10-28 표현 변형): 2021.3.5 / 2021-03-05 / 2021/03/05 / 2021년 3월 5일 / 21/03/05 (두 자리 연도는 2000년대).
+# 연·월·일 세 숫자는 _ymd로 꺼낸다. 일이 없는 날짜(2021년 3월)와 상대 날짜(3년 전)는 받지 않는다 (일수 계산이 필요한 칸이 많다)
+DATE = re.compile(r"(\d{4})\s*[.\-/]\s*(\d{1,2})\s*[.\-/]\s*(\d{1,2})(?!\d)"
+                  r"|(\d{4})\s*년\s*(\d{1,2})\s*월\s*(\d{1,2})\s*일"
+                  r"|(?<![\d./])(\d{2})/(\d{1,2})/(\d{1,2})(?![\d/])")
+
+
+def _ymd(m: re.Match) -> tuple[int, int, int]:
+    y, mo, d = (int(g) for g in [g for g in m.groups() if g is not None][-3:])
+    return (2000 + y if y < 100 else y), mo, d
 NAMED_DATE = re.compile(r"(보고일|Reported|검사일|수술일|작성일)\s*:\s*" + DATE.pattern)
 # 앞에서부터 처음 맞는 종류 (분자병리를 병리보다 먼저 본다)
 TYPE_WORDS = [
@@ -102,7 +111,7 @@ def _date(header: str, text: str) -> str | None:
     m = DATE.search(header) or NAMED_DATE.search(text) or DATE.search(text)
     if not m:
         return None
-    y, mo, d = (int(g) for g in m.groups()[-3:])
+    y, mo, d = _ymd(m)
     return f"{y:04d}-{mo:02d}-{d:02d}"
 
 
@@ -267,7 +276,10 @@ def _num(s: str):
 
 def parse_date(text: str) -> str | None:
     m = DATE.search(text)
-    return None if not m else dt.date(*(int(g) for g in m.groups())).isoformat()
+    try:
+        return None if not m else dt.date(*_ymd(m)).isoformat()
+    except ValueError:            # 13월·32일처럼 날짜가 아닌 숫자
+        return None
 
 
 def _day(date: str | None, dx_date: str | None) -> int | None:
@@ -315,8 +327,9 @@ def _grade(q, ctx):
 
 
 def _tnm(q, ctx, *, prefix):
-    m = re.search(r"(yp|p|c)?T(is|[0-4][a-d]?|X)\s*(?:\(\w+\))?\s*(?:y?p|c)?N([0-3][a-c]?(?:mi)?|X)\s*(?:\(\w+\))?"
-                  r"\s*(?:[cp]?M([01X]))?", q)
+    # 'T2, N1(2/14), M0'처럼 쉼표·괄호(림프절 수)가 끼어도 읽는다 (2026-10-28 표현 변형)
+    m = re.search(r"(yp|p|c)?T(is|[0-4][a-d]?|X)\s*(?:\([^)]*\))?[\s,]*(?:y?p|c)?N([0-3][a-c]?(?:mi)?|X)\s*(?:\([^)]*\))?"
+                  r"[\s,]*(?:[cp]?M([01X]))?", q)
     # 접두어가 칸과 다르면 받지 않는다 (경과기록의 pT2N0M0를 ctnm 칸에 넣은 경우 등). 접두어가 없으면 받는다
     if not m or m.group(1) not in (None, prefix):
         return None
@@ -368,9 +381,7 @@ def _receptor(field):
             total = int(m.group(1))
             ps, is_ = (int(m.group(2)), int(m.group(3))) if m.group(2) else (0, 0) if total == 0 else (None, None)
             v["allred"] = {"total": total, **({"ps": ps, "is": is_} if ps is not None else {})}
-        p = re.search(r"(\d+(?:\.\d+)?)\s*%", q)
-        if p:
-            v["percent"] = _num(p.group(1))
+        v.update(_pct_or_range(q))
         result = _vocab(f"receptors.{field}.result", q)
         if result:
             v["result"] = result
@@ -379,7 +390,8 @@ def _receptor(field):
 
 
 def _her2_ihc(q, ctx):
-    m = re.search(r"HER2\s*(?:\([^)]*\))?\s*(?:IHC)?\s*:?\s*([0-3])(\+?)", q)
+    # HER-2/neu, c-erbB2, ERBB2도 HER2 (2026-10-28 표현 변형)
+    m = re.search(r"(?:HER-?2(?:/neu)?|c-?erbB-?2|ERBB2)\s*(?:\([^)]*\))?\s*(?:IHC)?\s*:?\s*([0-3])(\+?)", q, re.I)
     if not m:
         return None
     v = {"score": m.group(1) + m.group(2)}
@@ -399,14 +411,27 @@ def _her2_ish(q, ctx):
 
 def _pdl1(q, ctx):
     assay = re.search(r"22C3|SP142|SP263", q)
-    score = re.search(r"\b(CPS|IC|TPS)\b\s*:?\s*(\d+(?:\.\d+)?)", q)
+    score = re.search(r"\b(CPS|IC|TPS)\b\s*:?\s*(?:≥|>=)?\s*(\d+(?:\.\d+)?)", q)      # 'CPS ≥10'은 10
     return score and {"assay": assay.group(0) if assay else "unknown", "score_type": score.group(1),
                       "score": _num(score.group(2))}
 
 
-def _percent(q, ctx):
+def _pct_or_range(q: str) -> dict:
+    """비율 하나는 percent, 구간은 range (2026-10-28 표현 변형). '<1%'는 [0, 0] (스키마 range 설명), '<10%'는 [0, 9],
+    '15~20%'·'15-20%'는 [15, 20]. 구간을 한 숫자로 줄이면 경계(Ki-67 20%, ER 1·10%) 판정이 바뀐다."""
+    m = re.search(r"<\s*(\d+(?:\.\d+)?)\s*%", q)
+    if m:
+        hi = _num(m.group(1))
+        return {"range": [0, 0 if hi <= 1 else _num(str(hi - 1))]}
+    m = re.search(r"(\d+(?:\.\d+)?)\s*%?\s*[~\-–]\s*(\d+(?:\.\d+)?)\s*%", q)
+    if m:
+        return {"range": [_num(m.group(1)), _num(m.group(2))]}
     m = re.search(r"(\d+(?:\.\d+)?)\s*%", q)
-    return m and {"percent": _num(m.group(1))}
+    return {"percent": _num(m.group(1))} if m else {}
+
+
+def _percent(q, ctx):
+    return _pct_or_range(q) or None
 
 
 def _age(q, ctx):
@@ -544,7 +569,9 @@ PARSERS = {
     "patient.age": _age,
     "patient.menopausal_status": lambda q, ctx: _vocab("patient.menopausal_status", q),
     "patient.menopausal_basis": _menopausal_basis,
-    "patient.ecog": _number(r"ECOG\s*(?:PS)?\s*:?\s*([0-4])"),
+    # 'PS 1'처럼 ECOG를 빼고 써도 받는다. Allred의 PS(비율 점수)는 받지 않는다 (2026-10-28 표현 변형)
+    "patient.ecog": lambda q, ctx: None if re.search(r"Allred|\bIS\b", q, re.I) else
+                    _number(r"(?:ECOG\s*(?:PS)?|(?<![A-Za-z])PS)\s*:?\s*([0-4])(?!\d)")(q, ctx),
     "patient.height_cm": _number(r"(\d+(?:\.\d+)?)\s*cm"),
     "patient.weight_kg": _number(r"(\d+(?:\.\d+)?)\s*kg"),
     "patient.lvef_percent": _number(r"(\d+(?:\.\d+)?)\s*%"),
@@ -664,11 +691,12 @@ def _drugs(text: str) -> list[tuple[str, list[int]]]:
 
 
 def _cycles(q: str) -> dict | None:
-    m = re.search(r"(?:q(\d)w|(weekly)|(\d+)\s*일)?\s*#\s*(\d+)", q)
+    # 주기 수: '#12', 'x12', '×12', '12회', '12 cycles' (2026-10-28 표현 변형)
+    m = re.search(r"(?:q(\d)w|(weekly)|(\d+)\s*일)?\s*(?:[#x×]\s*(\d+)(?!\s*(?:mg|일))|(\d+)\s*(?:회|cycles?\b))", q, re.I)
     if not m:
         return None
     interval = int(m.group(1)) * 7 if m.group(1) else 7 if m.group(2) else int(m.group(3)) if m.group(3) else None
-    return {"value": int(m.group(4)), "basis": "recorded", "interval_days": interval,
+    return {"value": int(m.group(4) or m.group(5)), "basis": "recorded", "interval_days": interval,
             "interval_basis": "recorded" if interval else None}
 
 
@@ -703,7 +731,9 @@ def _treatment(q: str, ctx: Context) -> dict | None:
 # 약별 용량 (treatment_history[].doses, 2026-10-28). 가상 차트 생성기(virtual_chart.row_doses)와 따로 쓴다.
 # 용량이 적힌 약만. 1회 용량은 약 이름(상품명이면 뒤의 "(일반명)") 바로 뒤 숫자 + mg/m2·mg/kg·mg, 또는 AUC.
 # 총량은 1회 × 주기 수 (d1, d8이면 주기당 2회). 매일 먹는 약, AUC(목표 노출량), 주기 수가 없으면 "No value"
-DOSE_AT = re.compile(r"\s*\)?\s*(?:(\d+(?:\.\d+)?)\s*(mg/m2|mg/kg|mg)(?![a-z/])|AUC\s*(\d+(?:\.\d+)?))", re.I)
+# 약 이름 뒤에 '누적'·'총'이 오면 적힌 총량이다 (doxorubicin 누적 240mg/m2 → total recorded, 2026-10-28 표현 변형)
+DOSE_AT = re.compile(r"\s*\)?\s*(누적|총|cumulative|total)?\s*"
+                     r"(?:(\d+(?:\.\d+)?)\s*(mg/m2|mg/kg|mg)(?![a-z/])|AUC\s*(\d+(?:\.\d+)?))", re.I)
 DAILY_ORAL = {"tamoxifen", "anastrozole", "letrozole", "exemestane", "megestrol", "palbociclib", "ribociclib",
               "abemaciclib", "everolimus", "capecitabine", "lapatinib", "tucatinib", "neratinib", "olaparib",
               "talazoparib", "alpelisib", "capivasertib", "inavolisib", "elacestrant", "imlunestrant"}
@@ -716,7 +746,10 @@ def _doses(q: str, r: dict) -> list[dict]:
         m = next((m for m in (DOSE_AT.match(r["head"], e) for e in ends) if m), None)
         if not m:
             continue
-        per = {"value": _num(m.group(1)), "unit": m.group(2)} if m.group(1) else {"value": _num(m.group(3)), "unit": "AUC"}
+        per = {"value": _num(m.group(2)), "unit": m.group(3)} if m.group(2) else {"value": _num(m.group(4)), "unit": "AUC"}
+        if m.group(1):
+            out.append({"drug": g, "per_admin": "No value", "total": per, "basis": "recorded"})
+            continue
         daily = g in DAILY_ORAL or re.match(r"\s*(?:qd|bid|tid)\b", r["head"][m.end():], re.I)
         total = "No value" if daily or not r["cycles"] or per["unit"] == "AUC" else \
             {"value": _num(str(round(per["value"] * r["cycles"]["value"] * twice, 3))), "unit": per["unit"]}
@@ -1462,7 +1495,7 @@ def main(argv=None) -> int:
 
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--ids", nargs="+", help="사례 (기본: 문서 보기는 VC-0103, --out은 --set)")
-    ap.add_argument("--set", default="dev", choices=["dev", "pairs", "test", "holdout"],
+    ap.add_argument("--set", default="dev", choices=["dev", "pairs", "test", "holdout", "variants"],
                     help="--out의 사례 묶음: dev 10건 (기본), pairs 짝 19건, test 새 20건 (규칙 고정 뒤에만), "
                          "holdout 보류 18건 (성능 보고에만, 틀린 칸을 보고 규칙을 고치지 않는다)")
     ap.add_argument("--docs", nargs="*", help="문서 ID (없으면 칸 목록이 있는 문서 모두)")
