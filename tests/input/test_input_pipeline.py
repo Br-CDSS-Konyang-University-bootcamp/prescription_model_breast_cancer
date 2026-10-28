@@ -51,6 +51,13 @@ def _cand(doc_id, field, quote):
     return {"doc_id": doc_id, "field": field, "quote": quote, "specimen": None, "observed_date": None}
 
 
+def test_gene_prefers_candidate_with_variant():
+    """경과기록 요약(변이 표기 없음, 날짜가 늦음)과 유전자 보고서의 변이 줄이 함께 오면 변이 줄을 고른다 (2026-10-28)."""
+    got, issues, want = _run_with("VC-0116", [_cand("D1", "molecular.germline.BRCA1", "생식세포 BRCA1 병원성 변이")])
+    assert got["fields"]["molecular"]["germline"]["BRCA1"]["variants"][0]["protein_change"] == "Q1756Pfs*74"
+    assert _strip(got["fields"]["molecular"]["germline"]["BRCA1"]) == _strip(want["fields"]["molecular"]["germline"]["BRCA1"])
+
+
 def test_rules_against_llm_mistakes():
     """10건 LLM 시험(2026-10-23)에서 칸을 잘못 고른 후보가 들어와도 정답과 같게 조립한다."""
     # 나중의 폐 전이를 진단 시 전이 부위로: 진단 시 IIA라 받지 않는다
