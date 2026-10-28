@@ -1,0 +1,85 @@
+<외래 경과기록>   2024.9.30   종양내과
+환자명: 김가상   등록번호: 00000140   F/52   주민번호: 710101-2******   연락처: 010-0000-0140
+병원: 가상대학교병원 종양내과   담당의: 이가상
+
+S) 골반 통증 악화.
+   폐경: 폐경 후 (50세 폐경)
+   과거력: 심장 질환 과거력 없음
+   Echo (2024.9.20): LVEF 63%
+O) ECOG PS 1
+
+A) Lt. breast IDC, 2023.1.9 core bx로 진단, cT2N1M1, stage IV (de novo, bone only), HR+/HER2-
+   1L letrozole + ribociclib 19개월 → PD (골병변 증가)
+   가족력 (어머니 난소암)으로 생식세포 검사: BRCA2 병원성 변이
+
+P) 고식 2차 결정
+
+
+SURGICAL PATHOLOGY REPORT
+환자명: 김가상   등록번호: 00000140   F/51
+Received: 2023.1.9   Reported: 2023.1.13
+Specimen: 좌측 유방, 초음파 유도 중심 생검
+
+DIAGNOSIS
+  Invasive ductal carcinoma, NST
+  Histologic grade: Nottingham grade 2
+
+IMMUNOHISTOCHEMISTRY
+  ER : 양성, Allred score 8 (PS 5 + IS 3)
+  PR : 양성, Allred score 6 (PS 4 + IS 2)
+  HER2 (4B5): 0 (no staining)
+  Ki-67: 20%
+
+Pathologist: 박가상
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000140   F/51
+검사: Whole body bone scan   검사일: 2023.1.14
+
+Findings:
+  흉추·골반 다발성 열소 증가.
+Conclusion:
+  다발성 골전이
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000140   F/52
+검사: Whole body bone scan   검사일: 2024.8.19
+
+Findings:
+  새 열소 2곳 (좌측 대퇴골, T9).
+Conclusion:
+  골전이 진행 (PD)
+
+
+[분자병리 검사 결과]
+환자명: 김가상   등록번호: 00000140   F/52
+검사기관: 가상유전체검사센터   보고일: 2024.8.31
+검체: 원발 중심 생검 조직 (2023.1.9)
+검사법: 표적 NGS
+
+검출된 변이 (Clinically significant variants)
+  없음
+
+검출되지 않음 (Not detected)
+  PIK3CA, ESR1, AKT1, PTEN
+
+* 패널 포함 유전자: PIK3CA, ESR1, AKT1, PTEN, ERBB2
+
+
+[유전성 유방암 유전자 검사 결과]
+환자명: 김가상   등록번호: 00000140   F/52
+검사기관: 가상유전체검사센터   보고일: 2024.9.12
+검체: 말초혈액 (germline)
+검사법: BRCA1/BRCA2 전장 염기서열 분석 + MLPA
+
+결과
+  BRCA1: 병원성 변이 검출되지 않음
+  BRCA2   c.9097dupA (p.T3033Nfs*11)   Pathogenic (병원성)
+
+
+[투약 기록]
+환자명: 김가상   등록번호: 00000140   F/52
+구분    요법                                              시작         종료         주기       반응   중단 사유
+고식    키스칼리 (ribociclib) + 페마라 (letrozole)   2023.1.27   2024.8.21   q4w #20   PD   진행

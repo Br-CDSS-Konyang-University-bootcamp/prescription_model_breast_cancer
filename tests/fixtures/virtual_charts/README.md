@@ -4,7 +4,7 @@
 
 TCGA로는 만들 수 없는 최신 치료(CDK4/6 억제제 이후 2차, 면역항암제, 보조 CDK4/6 등)의 지침·급여 경계 사례를 입력 모듈부터 추천까지(A → B → C/D → [4]) 끝까지 돌려 보기 위한 가상 환자다. 모두 가상 환자이고 실제 환자 정보는 없다.
 
-**지금 상태 (2026-10-23): 10건 모두 `chart.txt`와 A 정답 `expected/patient_state.json`이 있다.** 둘은 `src/input/chart/cases/`의 사례 코드에서 함께 만든다 (`python -m src.input.chart.virtual_chart`). 글을 쓰는 순간 값과 원문 위치를 기록하므로 위치가 어긋나지 않는다. 손으로 고치지 말고 사례 코드를 고친 뒤 다시 만든다. 검사: `tests/input/test_virtual_charts.py`. 2026-10-22 선택 칸(영상 판독, ypTNM, 크기, 심장·동반질환, 생식세포, `ongoing`)을 쓰므로 브랜치 `feat/virtual-chart-schema-fields`의 스키마가 기준이다 (4명 검토 전). B·C·D 정답은 아직 VC-0103만 있다. 판정 경계를 시험하는 짝 사례 20건은 [`pairs/`](pairs/README.md)에 있다 (값 하나만 바꾼 변형, 2026-10-23).
+**지금 상태 (2026-10-23): 10건 모두 `chart.txt`와 A 정답 `expected/patient_state.json`이 있다.** 둘은 `src/input/script/virtual/cases/`의 사례 코드에서 함께 만든다 (`python -m src.input.script.virtual.virtual_chart`). 글을 쓰는 순간 값과 원문 위치를 기록하므로 위치가 어긋나지 않는다. 손으로 고치지 말고 사례 코드를 고친 뒤 다시 만든다. 검사: `tests/input/test_virtual_charts.py`. 2026-10-22 선택 칸(영상 판독, ypTNM, 크기, 심장·동반질환, 생식세포, `ongoing`)을 쓰므로 브랜치 `feat/virtual-chart-schema-fields`의 스키마가 기준이다 (4명 검토 전). B·C·D 정답은 아직 VC-0103만 있다. 판정 경계를 시험하는 짝 사례 20건은 [`pairs/`](pairs/README.md)에 있다 (값 하나만 바꾼 변형, 2026-10-23).
 
 ## 1. 다른 데이터와의 관계
 
@@ -31,7 +31,7 @@ TCGA로는 만들 수 없는 최신 치료(CDK4/6 억제제 이후 2차, 면역�
 
 ### 2.1 새 사례 20건 (VC-0110~VC-0129, 2026-10-23)
 
-처방·급여 판정 구간 중 위 10건이 덮지 못한 곳(HR+/HER2+, HER2+ 전이 2차·뇌 전이, `DEEM-HER2ADC-6M`, 조기 TNBC, 생식세포 BRCA, 장기 위기, 범위 외 등)을 채워 30건을 맞춘다. 목록·시험 조건은 [`cases.csv`](cases.csv), 사례마다 `scenario.md`. 기준 문서는 `src/input/virtual_patient_cases_2026-10-23.md` (§3 사례 표가 `scenario.md`로 옮겨진다). `chart.txt`와 A 정답은 `python -m src.input.script.build_virtual_cases`로 만들고, 검사는 `tests/input/test_virtual_cases.py`. 짝 사례는 아직 없다.
+처방·급여 판정 구간 중 위 10건이 덮지 못한 곳(HR+/HER2+, HER2+ 전이 2차·뇌 전이, `DEEM-HER2ADC-6M`, 조기 TNBC, 생식세포 BRCA, 장기 위기, 범위 외 등)을 채워 30건을 맞춘다. 목록·시험 조건은 [`cases.csv`](cases.csv), 사례마다 `scenario.md`. 기준 문서는 `src/input/virtual_patient_cases_2026-10-23.md` (§3 사례 표가 `scenario.md`로 옮겨진다). `chart.txt`와 A 정답은 `python -m src.input.script.virtual.build_virtual_cases`로 만들고, 검사는 `tests/input/test_virtual_cases.py`. 짝 사례는 아직 없다.
 
 ## 3. 폴더 구성
 
@@ -65,7 +65,7 @@ virtual_charts/
 | 단계 | 누가 | 할 일 |
 |---|---|---|
 | 1 | A | `scenario.md`, `chart.txt` |
-| 2 | A | `expected/patient_state.json`. 스키마 검증, 차수·간주 규칙은 `src/input/common/lines.py` 재계산과 일치 |
+| 2 | A | `expected/patient_state.json`. 스키마 검증, 차수·간주 규칙은 `src/input/script/rules.py` 재계산과 일치 |
 | 3 | A가 아닌 1명 | 차트 원문만 보고 `patient_state`를 따로 작성 → 칸별 비교, 다르면 원문을 보고 합의·기록 |
 | 4 | B | `biomarker_record.json` |
 | 5 | C | `guideline.json` |

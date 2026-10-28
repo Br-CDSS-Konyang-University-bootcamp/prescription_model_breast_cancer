@@ -1,13 +1,13 @@
-"""가상 환자 사례 N01~N20 (src/input/script/build_virtual_cases.py, tests/fixtures/virtual_charts/VC-0110~VC-0129):
+"""가상 환자 사례 N01~N20 (src/input/script/virtual/build_virtual_cases.py, tests/fixtures/virtual_charts/VC-0110~VC-0129):
 저장된 chart.txt·정답 patient_state·scenario.md가 사례 코드와 사례 목록 문서 §3으로 다시 만든 것과 같고,
-스키마·인용 위치·차수 재계산 검사를 통과하는지 본다. 사례를 고치면 `python -m src.input.script.build_virtual_cases`로 다시 쓴다.
+스키마·인용 위치·차수 재계산 검사를 통과하는지 본다. 사례를 고치면 `python -m src.input.script.virtual.build_virtual_cases`로 다시 쓴다.
 """
 import json
 
 import pytest
 
-from src.input.chart.virtual_chart import check, dumps
-from src.input.script.build_virtual_cases import BUILDERS, OUT, cases_csv, read_sections, scenario
+from src.input.script.virtual.virtual_chart import check, dumps
+from src.input.script.virtual.build_virtual_cases import BUILDERS, OUT, cases_csv, read_sections, scenario
 
 SECTIONS = read_sections()
 

@@ -412,7 +412,7 @@
           "interval_days": 28,
           "interval_basis": "recorded"
         },
-        "progression_day": 805,
+        "progression_day": 810,
         "stop_reason": "progression",
         "best_response": "PD",
         "source": {
@@ -436,7 +436,7 @@
         "end_day": 1010,
         "duration_days": 180,
         "cycles": null,
-        "progression_day": 1005,
+        "progression_day": 1010,
         "stop_reason": "progression",
         "best_response": "PD",
         "source": {
@@ -465,7 +465,7 @@
           "interval_days": 21,
           "interval_basis": "recorded"
         },
-        "progression_day": 1295,
+        "progression_day": 1300,
         "stop_reason": "progression",
         "best_response": "PD",
         "source": {
@@ -494,7 +494,7 @@
           "interval_days": 7,
           "interval_basis": "recorded"
         },
-        "progression_day": 1595,
+        "progression_day": 1600,
         "stop_reason": "progression",
         "best_response": "PD",
         "source": {

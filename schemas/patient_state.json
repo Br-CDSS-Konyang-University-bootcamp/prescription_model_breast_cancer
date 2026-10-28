@@ -178,7 +178,7 @@
                 "description": "투여 주기 수 (trastuzumab 18주기, T-DM1 14주기 등 급여 조건). 매일 먹는 약(내분비요법 경구제 등)은 null"},
               "stop_reason": {"enum": ["progression", "toxicity", "completed", "planned_switch", "maintenance", "other", null], "description": "planned_switch = 계획된 순차 요법(AC→T 등), maintenance = 유지요법 전환. 둘 다 같은 차수로 센다"},
               "best_response": {"enum": ["CR", "PR", "SD", "PD", "unknown", null]},
-              "line": {"type": ["integer", "null"], "minimum": 1, "description": "전이 후 전체 차수 (지침용, 간주 규칙 없음). 전이 전 투약·보조약·골 보호제는 null. 계산 규칙은 src/input/common/lines.py, handoff_to_B.md §6.2"},
+              "line": {"type": ["integer", "null"], "minimum": 1, "description": "전이 후 전체 차수 (지침용, 간주 규칙 없음). 전이 전 투약·보조약·골 보호제는 null. 계산 규칙은 src/input/script/rules.py, handoff_to_B.md §6.2"},
               "endocrine_line": {"type": ["integer", "null"], "minimum": 1, "description": "고식적 내분비요법 차수 (심평원 투여단계, 간주 규칙 없음). 이 투약이 내분비요법이 아니면 null"},
               "chemo_line": {"type": ["integer", "null"], "minimum": 1, "description": "고식적 항암화학요법 차수 (심평원 투여단계, 간주 규칙 없음). 항암·HER2 표적·면역항암제가 들어간 요법. 이 투약이 항암이 아니면 null"},
               "source": {"anyOf": [{"$ref": "#/$defs/source"}, {"type": "null"}]}
@@ -206,7 +206,7 @@
         },
         "at_index": {
           "type": "object",
-          "description": "판정 기준일(index_day) 시점 값 (2026-10-20 추가, 4명 검토 전). A가 변환 끝에 계산한다 (src/input/common/lines.py at_index). 급여 조건을 일수 계산 없이 읽게 한다",
+          "description": "판정 기준일(index_day) 시점 값 (2026-10-20 추가, 4명 검토 전). A가 변환 끝에 계산한다 (src/input/script/rules.py at_index). 급여 조건을 일수 계산 없이 읽게 한다",
           "required": ["age", "recent_therapy_28d"],
           "additionalProperties": false,
           "properties": {

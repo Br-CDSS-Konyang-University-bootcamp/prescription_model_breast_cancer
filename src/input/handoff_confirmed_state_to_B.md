@@ -71,7 +71,7 @@ Draft202012Validator(schema).validate(data)
 |---|---|---|
 | 1 | `setting.line`의 뜻: 받은 차수인가, 결정할 차수인가 | 결정할 차수. 지금 `assess()`는 전이 후 투약이 없으면 `unknown`이다. 그래서 VC-0103 예시는 의사가 1L로 고친 값(`status: changed`)이다 |
 | 2 | 내분비·항암 차수 분리 | `assess()` 출력에도 `line_endocrine`·`line_chemo`를 두어 화면 1 기본값으로 쓴다 |
-| 3 | 비TCGA BRCA 이름 | gBRCA (A 결정 2026-10-21). 예시의 gBRCA 값은 `assess()`가 낸 `sBRCA1/2`를 옮긴 것이다 |
+| 3 | 차트의 BRCA 이름 | gBRCA (A 결정 2026-10-21). 예시의 gBRCA 값은 `assess()`가 낸 `sBRCA1/2`를 옮긴 것이다 |
 | 4 | 검사 권고(`tests_needed`)를 2단계에 넘기는 방법 | `confirmed_state`에 `tests_needed` 칸을 추가해 화면 1의 권고 목록을 그대로 넘기는 안. 스키마 변경이 필요해 지금은 넣지 않았다 |
 | 5 | 계산 항목 위치 | `endocrine_relapse_12m`은 A의 `deemed_lines`(DEEM-ENDO-ADJ-1Y)로 채운다. `dfi_days`·`high_risk_early`는 A(`lines.py`) 또는 B 중에서 정한다 |
 

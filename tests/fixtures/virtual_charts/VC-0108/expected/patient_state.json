@@ -127,6 +127,18 @@
       },
       "operable": {
         "status": "not_recorded"
+      },
+      "clinical_size_mm": {
+        "status": "present",
+        "value": 27,
+        "raw": "우측 유방 2.7 cm 종괴",
+        "observed_date": "2024-02-24",
+        "source": {
+          "doc_id": "D4",
+          "quote": "우측 유방 2.7 cm 종괴",
+          "char_start": 1032,
+          "char_end": 1047
+        }
       }
     },
     "receptors": {
@@ -360,15 +372,7 @@
         "status": "not_recorded"
       },
       "status": {
-        "status": "present",
-        "value": "none",
-        "raw": "재발 아님 (진단 시 IV기)",
-        "source": {
-          "doc_id": "D1",
-          "quote": "재발 아님 (진단 시 IV기)",
-          "char_start": 445,
-          "char_end": 461
-        }
+        "status": "not_recorded"
       },
       "metastatic_sites": {
         "status": "not_recorded"

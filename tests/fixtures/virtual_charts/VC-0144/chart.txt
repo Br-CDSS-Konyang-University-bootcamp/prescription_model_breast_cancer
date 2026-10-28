@@ -1,0 +1,36 @@
+[다학제 진료 회의록]   2025.8.14   종양내과
+환자명: 김가상   등록번호: 00000144   F/34   주민번호: 910101-2******   연락처: 010-0000-0144
+병원: 가상대학교병원 종양내과   담당의: 이가상
+
+증례: 폐경 전, 현재 임신 22주 (산부인과 추적 중). 2025.8.4 core bx로 진단, cT2N1M0, stage IIB, ER-/PR-/HER2 3+, grade 3.
+      ECOG 0.
+논의: 임신 중 유방암. 산부인과·종양내과 협진 필요, 항HER2 치료는 임신 중 금기.
+결론: 치료 계획 협진 후 결정
+
+
+SURGICAL PATHOLOGY REPORT
+환자명: 김가상   등록번호: 00000144   F/34
+Received: 2025.8.4   Reported: 2025.8.8
+Specimen: 좌측 유방, 초음파 유도 중심 생검
+
+DIAGNOSIS
+  Invasive ductal carcinoma, NST
+  Histologic grade: Nottingham grade 3
+
+IMMUNOHISTOCHEMISTRY
+  ER : 음성, Allred score 0 (PS 0 + IS 0)
+  PR : 음성, Allred score 0 (PS 0 + IS 0)
+  HER2 (4B5): 3+
+  Ki-67: 40%
+
+Pathologist: 박가상
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000144   F/34
+검사: Breast ultrasound   검사일: 2025.8.7
+
+Findings:
+  좌측 유방 2.8 cm 종괴, 좌측 액와 림프절 1개 피질 비후.
+Conclusion:
+  좌측 액와 림프절 전이 의심

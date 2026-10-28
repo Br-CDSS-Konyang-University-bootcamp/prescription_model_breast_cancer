@@ -1,0 +1,86 @@
+<외래 경과기록>   2025.1.14   종양내과
+환자명: 김가상   등록번호: 00000139   F/63   주민번호: 530101-2******   연락처: 010-0000-0139
+병원: 가상대학교병원 종양내과   담당의: 이가상
+
+S) 우상복부 불편감.
+   폐경: 폐경 후 (52세 폐경)
+   과거력: 심장 질환 과거력 없음
+   Echo (2025.1.4): LVEF 62%
+O) ECOG PS 1
+
+A) Lt. breast IDC, 2016.4.11 수술로 진단, pT2N0, IIA, HR+/HER2-
+   보조 anastrozole 2021.5.15 5년 복용 완료
+   2023.5.25 뼈·간 전이 (anastrozole 종료 2년 뒤)
+   1L letrozole + palbociclib 18개월 → PD. 간 재생검 NGS: 표적 변이 없음
+
+P) 고식 내분비 2차 결정 (CDK4/6 억제제 계속 여부 포함)
+
+
+[병리결과보고서]
+환자명: 김가상   등록번호: 00000139   F/55
+접수일: 2016.4.11   보고일: 2016.4.17
+검체: 좌측 유방 부분절제술 + 감시림프절 생검
+
+진단
+  조직형: 침윤성 유관암 (invasive ductal carcinoma, NST)
+  조직학적 등급: II (Nottingham grade 2)
+  종양 크기: 2.3 cm
+  림프절: 전이 0개 / 검사 3개
+  절제연: 음성
+  pTNM: pT2 N0 M0, stage IIA (AJCC 8th)
+
+면역조직화학
+  ER : 양성, Allred score 8 (PS 5 + IS 3)
+  PR : 양성, Allred score 6 (PS 4 + IS 2)
+  HER2 (4B5): 1+
+  Ki-67: 15%
+
+판독의: 박가상
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000139   F/62
+검사: Abdomen-pelvis CT (contrast)   검사일: 2023.5.25
+
+Findings:
+  간 S6 1.8 cm 결절, L1 척추체 골용해성 병변.
+Conclusion:
+  간·골 전이
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000139   F/63
+검사: Abdomen-pelvis CT (contrast)   검사일: 2024.12.5
+
+Findings:
+  간 결절 크기 증가, 새 결절 2개.
+Conclusion:
+  간 전이 진행 (PD)
+
+
+<병리 조직검사 결과>
+환자명: 김가상   등록번호: 00000139   F/63
+2024.12.20 간 생검 (2024.12.15 시행). Metastatic carcinoma, consistent with breast primary.
+ER : 양성, Allred score 8 (PS 5 + IS 3), PR : 양성, Allred score 5 (PS 3 + IS 2), HER2 (4B5): 1+.
+
+
+[분자병리 검사 결과]
+환자명: 김가상   등록번호: 00000139   F/63
+검사기관: 가상유전체검사센터   보고일: 2024.12.30
+검체: 간 생검 조직 (2024.12.15)
+검사법: 표적 NGS
+
+검출된 변이 (Clinically significant variants)
+  없음
+
+검출되지 않음 (Not detected)
+  PIK3CA, ESR1, AKT1, PTEN
+
+* 패널 포함 유전자: PIK3CA, ESR1, AKT1, PTEN, ERBB2
+
+
+[투약 기록]
+환자명: 김가상   등록번호: 00000139   F/63
+구분    요법                                              시작         종료         주기       반응   중단 사유
+보조    아리미덱스 (anastrozole) 1mg qd   2016.5.11   2021.5.15   -   -   완료 (5년)
+고식    입랜스 (palbociclib) + 페마라 (letrozole)   2023.6.9   2024.12.10   q4w #19   PD   진행

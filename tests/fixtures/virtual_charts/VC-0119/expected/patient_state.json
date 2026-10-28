@@ -139,6 +139,18 @@
           "char_end": 1280
         }
       },
+      "clinical_size_mm": {
+        "status": "present",
+        "value": 55,
+        "raw": "좌측 유방 5.5 cm 종괴",
+        "observed_date": "2023-04-12",
+        "source": {
+          "doc_id": "D3",
+          "quote": "좌측 유방 5.5 cm 종괴",
+          "char_start": 893,
+          "char_end": 908
+        }
+      },
       "yptnm": {
         "status": "present",
         "value": {
@@ -523,7 +535,7 @@
           "variants": [
             {
               "protein_change": "S1982Rfs*22",
-              "variant_type": "Frame_Shift_Ins",
+              "variant_type": "Frame_Shift_Del",
               "vaf": null,
               "raw": "BRCA2   c.5946delT (p.S1982Rfs*22)   Pathogenic (병원성)"
             }

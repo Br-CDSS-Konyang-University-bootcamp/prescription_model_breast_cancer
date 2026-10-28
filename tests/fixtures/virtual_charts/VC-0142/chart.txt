@@ -1,0 +1,61 @@
+<외래 경과기록>   2025.6.13   종양내과
+환자명: 김가상   등록번호: 00000142   F/60   주민번호: 650101-2******   연락처: 010-0000-0142
+병원: 가상대학교병원 종양내과   담당의: 이가상
+
+S) 우상복부 통증, 체중 감소.
+   폐경: 폐경 후 (53세 폐경)
+   과거력: 심장 질환 과거력 없음
+   Echo (2025.6.8): LVEF 61%
+O) ECOG PS 1
+
+A) Lt. breast IDC, 2025.5.19 core bx로 진단, cT2N1M1, stage IV (de novo, liver)
+   간 생검: ER 5% (약양성), PR 0%, HER2 0, PD-L1 22C3 CPS 20. 생식세포 BRCA1/2 음성
+   ER 저발현 — 호르몬 수용체 양성으로 볼지, 삼중음성에 준해 치료할지 논의
+
+P) 전이성 1차 요법 결정
+
+
+SURGICAL PATHOLOGY REPORT
+환자명: 김가상   등록번호: 00000142   F/60
+Received: 2025.5.19   Reported: 2025.5.23
+Specimen: 좌측 유방, 초음파 유도 중심 생검
+
+DIAGNOSIS
+  Invasive ductal carcinoma, NST
+  Histologic grade: Nottingham grade 3
+
+IMMUNOHISTOCHEMISTRY
+  ER : 약양성 5%
+  PR : 음성 0%
+  HER2 (4B5): 0 (no staining)
+  Ki-67: 55%
+
+Pathologist: 박가상
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000142   F/60
+검사: Abdomen-pelvis CT (contrast)   검사일: 2025.5.23
+
+Findings:
+  간 S5·S7 저음영 결절 3개 (최대 3.0 cm).
+Conclusion:
+  간 다발성 전이
+
+
+<병리 조직검사 결과>
+환자명: 김가상   등록번호: 00000142   F/60
+2025.6.2 간 생검 (2025.5.28 시행). Metastatic carcinoma, consistent with breast primary.
+ER : 약양성 5%, PR : 음성 0%, HER2 (4B5): 0 (no staining).
+PD-L1 IHC: 22C3 pharmDx, CPS 20
+
+
+[유전성 유방암 유전자 검사 결과]
+환자명: 김가상   등록번호: 00000142   F/60
+검사기관: 가상유전체검사센터   보고일: 2025.6.6
+검체: 말초혈액 (germline)
+검사법: BRCA1/BRCA2 전장 염기서열 분석 + MLPA
+
+결과
+  BRCA1: 병원성 변이 검출되지 않음
+  BRCA2: 병원성 변이 검출되지 않음

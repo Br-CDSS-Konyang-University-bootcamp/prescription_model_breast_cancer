@@ -1,0 +1,53 @@
+<외래 경과기록>   2025.7.27   종양내과
+환자명: 김가상   등록번호: 00000137   F/78   주민번호: 470101-2******   연락처: 010-0000-0137
+병원: 가상대학교병원 종양내과   담당의: 이가상
+
+S) 요통, 거동 불편 (보행 보조기 사용).
+   폐경: 폐경 후 (50세 폐경)
+   과거력: 만성 신장병 3b (eGFR 38)
+   심장 질환 과거력 없음
+   Echo (2025.7.22): LVEF 57%
+O) ECOG PS 3
+
+A) Rt. breast IDC, 2025.7.7 core bx로 진단, cT2N1M1, stage IV (de novo, bone, lung), HR+/HER2+ (IHC 3+)
+   고령·수행 상태 저하로 세포독성 항암 치료는 어렵다고 판단 (보호자와 상의함)
+
+P) 전이성 1차 요법 결정: 내분비요법 + 항HER2 요법
+
+
+SURGICAL PATHOLOGY REPORT
+환자명: 김가상   등록번호: 00000137   F/78
+Received: 2025.7.7   Reported: 2025.7.11
+Specimen: 우측 유방, 초음파 유도 중심 생검
+
+DIAGNOSIS
+  Invasive ductal carcinoma, NST
+  Histologic grade: Nottingham grade 2
+
+IMMUNOHISTOCHEMISTRY
+  ER : 양성 80%
+  PR : 양성 20%
+  HER2 (4B5): 3+
+  Ki-67: 25%
+
+Pathologist: 박가상
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000137   F/78
+검사: Whole body bone scan   검사일: 2025.7.13
+
+Findings:
+  L2·L4 척추체, 골반 열소 증가.
+Conclusion:
+  다발성 골전이
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000137   F/78
+검사: Chest CT (contrast)   검사일: 2025.7.13
+
+Findings:
+  양측 폐 다발성 결절 (최대 1.2 cm).
+Conclusion:
+  폐 다발성 전이 의증

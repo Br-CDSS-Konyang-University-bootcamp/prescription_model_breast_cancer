@@ -1,14 +1,14 @@
-"""IN-2 추출기 (src/input/extract.py)를 가짜 LLM으로 본다: 가린 문서만 보내고, 칸 이름을 enum으로 강제하고,
-날짜 표기를 고치고, LLM이 바꿔 쓴 구절은 인용 확인에서 걸러진다. 실제 모델 시험은 `python -m src.input.extract`.
+"""IN-2 추출기 (src/input/script/pipeline.py)를 가짜 LLM으로 본다: 가린 문서만 보내고, 칸 이름을 enum으로 강제하고,
+날짜 표기를 고치고, LLM이 바꿔 쓴 구절은 인용 확인에서 걸러진다. 실제 모델 시험은 `python -m src.input.script.pipeline`.
 """
 import json
 
 from jsonschema import Draft202012Validator
 
 from llm import LLMConfig
-from src.input.chart.virtual_chart import out_dir
-from src.input.extract import FIELDS, EXAMPLES, make_extract, schema
-from src.input.pipeline import run
+from src.input.script.virtual.virtual_chart import out_dir
+from src.input.script.pipeline import FIELDS, EXAMPLES, make_extract, schema
+from src.input.script.pipeline import run
 
 CFG = LLMConfig(provider="ollama", model="fake", patient_data=True)
 
@@ -17,6 +17,18 @@ def test_example_matches_schema():
     for doc_type, (_, out) in EXAMPLES.items():
         assert list(Draft202012Validator(schema(doc_type)).iter_errors({"candidates": out})) == []
     assert "receptors.er_percent" in schema("pathology")["properties"]["candidates"]["items"]["properties"]["field"]["enum"]
+
+
+def test_germline_report_gets_germline_fields():
+    """머리글이 생식세포(유전성) 검사인 분자병리 문서에는 생식세포 칸만 준다 (3단계, 2026-10-27)."""
+    from src.input.script.pipeline import field_list, split
+    ref = "VC-0116"
+    docs = split((out_dir(ref) / "chart.txt").read_text(encoding="utf-8"))
+    kinds = {d.doc_id: field_list(d) for d in docs}
+    assert kinds["D5"] == "germline"                     # [유전성 유방암 유전자 검사 결과]
+    assert set(FIELDS["germline"]) == {"molecular.germline.BRCA1", "molecular.germline.BRCA2", "molecular.germline.PALB2"}
+    ngs = split("[NGS 보고서]\n검출된 변이\n  PIK3CA   c.3140A>G (p.H1047R)   VAF 28%\n")[0]
+    assert field_list(ngs) == "molecular"
 
 
 def test_pipeline_with_fake_llm():
