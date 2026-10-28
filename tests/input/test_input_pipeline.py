@@ -72,6 +72,14 @@ def test_rules_after_gpu_rerun_2026_10_28():
     assert got["fields"]["recurrence"]["adjuvant_endocrine_end_date"]["value"] == "2023-03-28"
 
 
+def test_summary_line_ignored_when_medication_record_exists():
+    """투약 기록 문서가 있으면 경과기록의 요약 줄은 투약 이력에 넣지 않는다 (2026-10-28 방침)."""
+    summary = _cand("D1", "treatment_history", "보조 letrozole 복용 중 2023.3.23 폐 전이 → letrozole 2023.3.28 중단 (PD)")
+    got, issues, want = _run_with("VC-0122", [summary])
+    assert len(got["fields"]["treatment_history"]) == len(want["fields"]["treatment_history"])
+    assert any(i["note"] == "투약 기록이 있어 요약 줄을 쓰지 않음" for i in issues if i["reason"] == "rule")
+
+
 def test_rules_against_llm_mistakes():
     """10건 LLM 시험(2026-10-23)에서 칸을 잘못 고른 후보가 들어와도 정답과 같게 조립한다."""
     # 나중의 폐 전이를 진단 시 전이 부위로: 진단 시 IIA라 받지 않는다

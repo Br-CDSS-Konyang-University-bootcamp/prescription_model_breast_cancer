@@ -230,8 +230,11 @@ def test_brand_and_korean_generic_names(row, drugs):
     ("diagnosis.diagnosis_date", "2021-03-05 core bx로 진단", "2021-03-05"),
     ("diagnosis.diagnosis_date", "2021년 3월 5일 core bx로 진단", "2021-03-05"),
     ("diagnosis.diagnosis_date", "21/03/05 core bx로 진단", "2021-03-05"),
-    ("diagnosis.diagnosis_date", "2021년 3월 진단", None),
-    ("recurrence.recurrence_date", "3년 전 간 전이", None),
+    # 2026-10-28 방침: 일 없는 날짜는 월까지, 상대 날짜는 문서 날짜(2024.5.4)에서 빼서 연도만 (둘 다 확인 요청)
+    ("diagnosis.diagnosis_date", "2021년 3월 진단", "2021-03"),
+    ("diagnosis.diagnosis_date", "2021.3 core bx로 진단", "2021-03"),
+    ("recurrence.recurrence_date", "3년 전 간 전이", "2021"),
+    ("recurrence.recurrence_date", "6개월 전 폐 전이", "2023"),
     # 비율 구간·부등호
     ("receptors.pr_percent", "PR : 음성 (<1%)", {"range": [0, 0], "result": "negative"}),
     ("proliferation.ki67_percent", "Ki-67 15~20%", {"range": [15, 20]}),
@@ -245,13 +248,30 @@ def test_brand_and_korean_generic_names(row, drugs):
     ("patient.menopausal_status", "menopause (+)", "postmenopausal"),
     ("patient.ecog", "PS 1", 1),
     ("patient.ecog", "ER Allred 7 (PS 4 + IS 3)", None),
-    ("patient.ecog", "KPS 80", None),                    # ECOG로 바꾸지 않는다 (정할 것)
+    ("patient.ecog", "KPS 80", 1),                       # 2026-10-28 방침: 표로 바꾼다 (확인 요청)
+    ("patient.ecog", "Karnofsky 90", 0),
+    ("patient.ecog", "ECOG PS 2 (KPS 60)", 2),           # ECOG가 적혀 있으면 그 값
 ])
 def test_expression_variants_2026_10_28(field, quote, want):
     """표현 변형 (사례 목록 문서 10-23 §5 I03~I05)."""
     doc = split("<외래 경과기록>   2024.5.4\n본문\n")[0]
     got = normalize(field, quote, Context(doc, quote, "2020-01-06"))
     assert (got and got["value"]) == want
+
+
+def test_converted_values_ask_for_review():
+    """바꿔 읽은 값(일 없는 날짜, 상대 날짜, KPS)에는 확인 요청 표시가 붙는다. 일수는 세지 않는다."""
+    from src.input.script.pipeline import REVIEW, _day
+    doc = split("<외래 경과기록>   2024.5.4\n본문\n")[0]
+    for f, q in [("diagnosis.diagnosis_date", "2021년 3월 진단"), ("recurrence.recurrence_date", "3년 전 간 전이"),
+                 ("patient.ecog", "KPS 80")]:
+        assert REVIEW in normalize(f, q, Context(doc, q))
+    assert REVIEW not in normalize("diagnosis.diagnosis_date", "2021.3.5 진단", Context(doc, "2021.3.5 진단"))
+    assert _day("2021-03", "2020-01-06") is None and _day("2021-03-05", "2021-03") is None
+    md = split("[투약 기록]   2024.5.4\n본문\n")[0]
+    row = "AC x4 → T x12 (2021.3 ~ 2021.8)"
+    got = normalize("treatment_history", row, Context(md, row, "2020-01-06"))
+    assert (got["start_date"], got["end_date"], got["start_day"]) == ("2021-03", "2021-08", None) and REVIEW in got
 
 
 def test_medication_row_variants_2026_10_28():
