@@ -1,0 +1,19 @@
+case_id,proposal,title,decision_point,test_conditions,pairs
+VC-0130,N21,"HER2+ cT1 cN0 수술 먼저, pT1a N0",보조,"조기 HER2+ cT1 cN0 수술 먼저 갈래 (지금 0건), 9장 2-20 trastuzumab ""림프절 양성 또는 종양 1cm 초과"" 불충족, weekly paclitaxel + trastuzumab 보조 행 없음","pT1c 11 mm N0 (2-20 충족, ESMO 같은 갈래) / pT2 N0 (`f25e5f` ChT-trastuzumab 1년) / pN1 (`549ca3` ChT-HP, 2-22 pertuzumab). 아직 만들지 않음"
+VC-0131,N22,폐경 전 Luminal A 1기,보조,"EBC 그림 4 폐경 전 Luminal A 1기 → tamoxifen (지금 0건), 9장 2-4~6 AI + LHRH 조건 (40세 미만·림프절 양성·분화도 2~3) 불충족","39세 G2 (AI + LHRH 급여 조건 충족인데 ESMO 1순위는 tamoxifen → ""급여되지만 지침 1순위 아님""). 아직 만들지 않음"
+VC-0132,N23,HR+/HER2- Luminal A-like stage IIIA,보조,"EBC 그림 5 Luminal A 고위험 갈래 (지금 0건), 9장 2. 주2 abemaciclib 고위험 (림프절 4개 이상)","림프절 2개 + 3 cm + G2 (주2 불충족) / gBRCA2 병원성 (`f453eb` olaparib, abemaciclib과 동시 금지). 아직 만들지 않음"
+VC-0133,N24,폐경 후 보조 bisphosphonate 결정,보조,"EBC 그림 2 보조 bisphosphonate (지금 0건), zoledronic acid 재발 예방 행 없음 (골전이 조건과 섞지 않기), 투약 중(`ongoing`) 보조 내분비",보조 exemestane 처음부터 (2-1~3: tamoxifen 2~3년 뒤 전환만 급여). 아직 만들지 않음
+VC-0134,N25,"고위험 보조 letrozole 5년 완료, 연장 결정",보조 (연장),"연장 내분비요법 (본문 E04), 9장 2-2 나는 tamoxifen 5년 뒤 letrozole만, AI 5년 뒤 AI 연장 행 없음",tamoxifen 5년 완료 뒤 (2-2 나 letrozole `covered`). 아직 만들지 않음
+VC-0135,N26,"TNBC cT1c N0 선행 후 잔존, gBRCA1",보조,"EBC 그림 7 `<cT2 N0` 갈래 (지금 0건), 잔존 + gBRCA 병원성 → olaparib, 40장-30은 HR+ 백본만 (TNBC 보조 olaparib 행 없음), 임상 병기 Ⅰ기","gBRCA 야생형 (`a20657` capecitabine, 2-18 `covered`) / cT2 (2.1 cm) cN0 (≥cT2 갈래, 선행 pembrolizumab). 아직 만들지 않음"
+VC-0136,N27,조기 pembrolizumab 후 간 전이 TNBC,고식 1차,"9장 4가-6 ""이전 면역관문억제제 사용 시 제외"" (KEYNOTE-522 환자), ESMO M45는 금지하지 않음, DFI 6개월 이상","조기 pembrolizumab 없음 (같은 경과, 4가-6 충족). 아직 만들지 않음"
+VC-0137,N28,"78세 HR+/HER2+ de novo, 항암 어려움",고식 1차,"MBC 그림 5 ER+ 항암 불가 갈래 (지금 0건), 9장 4나-18 trastuzumab + anastrozole, 4가-3 lapatinib + letrozole (폐경 후, 이전 trastuzumab·AI 없음)",보조 trastuzumab 받은 재발 (두 행 모두 불충족) / ER- 항암 불가 (`a0919f`). 아직 만들지 않음
+VC-0138,N29,"HER2+ 전이 3차, T-DXd 후",고식 3차,"MBC 그림 7 (지금 0건), 9장 4라-21 T-DM1, 4라-20 lapatinib + capecitabine (anthracycline·taxane·trastuzumab 모두 사용), tucatinib 행 없음, T-DXd 재추천 금지",활동성 뇌 전이 + 국소 치료 적응 (`4d7ea5`) / 보조 anthracycline 없음 (4라-20 불충족). 아직 만들지 않음
+VC-0139,N30,"HR+/HER2- 2차, 1차 CDK4/6 후 표적 변이 없음",고식 내분비 2차,"MBC 그림 3 표적 변이 없음 갈래 (지금 0건), 9장 3다 이전 CDK4/6 사용 시 제외 (바꿔 쓰기 불가), 3다-2 exemestane + everolimus (anastrozole·letrozole 실패), 3나-6 fulvestrant",폐경 전 (fulvestrant 기반 백본 급여 아님). 아직 만들지 않음
+VC-0140,N31,"HR+/HER2- 2차, 생식세포 BRCA2 병원성",고식 2차,"MBC 그림 3 gBRCA 갈래 (지금 0건), 전이성 olaparib 행 없음, talazoparib 유방암 행 없음, 생식세포 칸 → gBRCA (B)","생식세포 PALB2 병원성 (`d5aff4`, [II, B]) / 체세포 BRCA2만 검출 (gBRCA 아님). 아직 만들지 않음"
+VC-0141,N32,"HR+/HER2- 뼈 전이만, 내분비 적합",고식 내분비 3차,"MBC 그림 4 내분비 적합 갈래 (지금 0건), 3차 이상에서 항암으로 넘어가지 않기",간 전이 빠른 진행 → 내분비 부적합 (N04·N16 갈래). 아직 만들지 않음
+VC-0142,N33,"전이성 ER-low, PD-L1 CPS 20",고식 1차,"ER-low (5%)를 HR+로 보는 규칙 (B `ER_LOW_IS_HR_POSITIVE`, 9장 0. 공통)이 B 아형, C 검색 갈래, D 급여 판정에서 같게 쓰이는지. 4가-6 (TNBC) 불충족","ER 0% (진짜 TNBC, `e2f44c`, 4가-6 충족) / ER 12% (분명한 HR+). 아직 만들지 않음"
+VC-0143,N34,"단일 골전이, 소수 전이",고식 1차,"MBC 그림 10 소수 전이 (지금 0건), 1차 CDK4/6 + AI (보조 letrozole 종료 1년 넘어 재발), zoledronic acid 골전이 조건 (최근 4주 투여)",골전이 3곳 + 간 (소수 전이 아님). 아직 만들지 않음
+VC-0144,N35,범위 밖: 임신 22주 HER2+,선행,"안전 검사 ""범위 외 추천 금지"" (PROJECT.md §1), 임신 중 항HER2 금기","같은 이야기, 출산 뒤 6개월 (범위 안, 선행 TCHP 갈래). 아직 만들지 않음"
+VC-0111-g20a,G20,"VC-0111 + 뇌 전이 국소 치료 적응, 뇌 밖 진행 있음",고식 2차,MBC 그림 6 활동성 뇌 전이 + 국소 치료 적응 + 뇌 밖 진행 갈래,"기본 VC-0111 (국소 치료 적응 없음, `ff7b69`) / VC-0111-g20b (뇌 밖 진행 없음)"
+VC-0111-g20b,G20,"VC-0111 + 뇌 전이 국소 치료 적응, 뇌 밖 진행 없음",고식 2차,MBC 그림 6 활동성 뇌 전이 + 국소 치료 적응 + 뇌 밖 진행 없음 갈래 → 지금 전신 치료 유지,VC-0111-g20a (뇌 밖 진행 있음)
+VC-0115-g21,G21,VC-0115 + 생식세포 BRCA1 병원성,고식 2차,"MBC 그림 9 gBRCA 갈래 (지금 0건), 전이성 olaparib 행 없음, carboplatin 기반 급여","기본 VC-0115 (gBRCA 야생형, `c541f9` sacituzumab)"

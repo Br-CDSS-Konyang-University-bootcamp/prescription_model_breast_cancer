@@ -1,0 +1,598 @@
+{
+  "schema_version": "0.1-draft6",
+  "patient_ref": "VC-0143",
+  "created_at": "2026-10-23T00:00:00+09:00",
+  "index_day": 2470,
+  "documents": [
+    {
+      "doc_id": "D1",
+      "doc_type": "progress_note",
+      "doc_date": "2025-05-11"
+    },
+    {
+      "doc_id": "D2",
+      "doc_type": "pathology",
+      "doc_date": "2018-08-12"
+    },
+    {
+      "doc_id": "D3",
+      "doc_type": "radiology",
+      "doc_date": "2025-04-01"
+    },
+    {
+      "doc_id": "D4",
+      "doc_type": "pathology",
+      "doc_date": "2025-04-21"
+    },
+    {
+      "doc_id": "D5",
+      "doc_type": "medication",
+      "doc_date": null
+    }
+  ],
+  "fields": {
+    "diagnosis": {
+      "diagnosis_date": {
+        "status": "present",
+        "value": "2018-08-06",
+        "raw": "2018.8.6",
+        "source": {
+          "doc_id": "D1",
+          "quote": "2018.8.6 수술로 진단",
+          "char_start": 157,
+          "char_end": 172
+        }
+      },
+      "histology": {
+        "status": "present",
+        "value": "IDC",
+        "raw": "침윤성 유관암 (invasive ductal carcinoma, NST)",
+        "source": {
+          "doc_id": "D2",
+          "quote": "침윤성 유관암 (invasive ductal carcinoma, NST)",
+          "char_start": 562,
+          "char_end": 602
+        }
+      },
+      "grade": {
+        "status": "present",
+        "value": 2,
+        "raw": "II (Nottingham grade 2)",
+        "source": {
+          "doc_id": "D2",
+          "quote": "II (Nottingham grade 2)",
+          "char_start": 614,
+          "char_end": 637
+        }
+      }
+    },
+    "stage": {
+      "ctnm": {
+        "status": "not_recorded"
+      },
+      "ptnm": {
+        "status": "present",
+        "value": {
+          "t": "T2",
+          "n": "N1a",
+          "m": "M0",
+          "edition": "8th"
+        },
+        "raw": "pT2 N1a M0, stage IIB (AJCC 8th)",
+        "observed_date": "2018-08-06",
+        "source": {
+          "doc_id": "D2",
+          "quote": "pT2 N1a M0, stage IIB (AJCC 8th)",
+          "char_start": 694,
+          "char_end": 726
+        }
+      },
+      "group": {
+        "status": "present",
+        "value": "IIB",
+        "raw": "stage IIB",
+        "source": {
+          "doc_id": "D2",
+          "quote": "stage IIB",
+          "char_start": 706,
+          "char_end": 715
+        }
+      },
+      "positive_ln_count": {
+        "status": "present",
+        "value": {
+          "positive": 1,
+          "examined": 14
+        },
+        "raw": "전이 1개 / 검사 14개",
+        "source": {
+          "doc_id": "D2",
+          "quote": "전이 1개 / 검사 14개",
+          "char_start": 661,
+          "char_end": 675
+        }
+      },
+      "disease_extent": {
+        "status": "present",
+        "value": "early",
+        "raw": "stage IIB",
+        "source": {
+          "doc_id": "D2",
+          "quote": "stage IIB",
+          "char_start": 706,
+          "char_end": 715
+        }
+      },
+      "metastatic_sites": {
+        "status": "present",
+        "value": "[Not Applicable]",
+        "raw": "pT2 N1a M0",
+        "source": {
+          "doc_id": "D2",
+          "quote": "pT2 N1a M0",
+          "char_start": 694,
+          "char_end": 704
+        }
+      },
+      "operable": {
+        "status": "present",
+        "value": "yes",
+        "raw": "우측 유방 부분절제술 + 액와 림프절 절제",
+        "source": {
+          "doc_id": "D2",
+          "quote": "우측 유방 부분절제술 + 액와 림프절 절제",
+          "char_start": 527,
+          "char_end": 550
+        }
+      },
+      "pathologic_size_mm": {
+        "status": "present",
+        "value": 24,
+        "raw": "2.4 cm",
+        "observed_date": "2018-08-06",
+        "source": {
+          "doc_id": "D2",
+          "quote": "2.4 cm",
+          "char_start": 647,
+          "char_end": 653
+        }
+      }
+    },
+    "receptors": {
+      "er_percent": {
+        "status": "present",
+        "value": {
+          "allred": {
+            "total": 8,
+            "ps": 5,
+            "is": 3
+          },
+          "result": "positive"
+        },
+        "raw": "ER : 양성, Allred score 8 (PS 5 + IS 3)",
+        "specimen": "metastasis",
+        "observed_date": "2025-04-16",
+        "source": {
+          "doc_id": "D4",
+          "quote": "ER : 양성, Allred score 8 (PS 5 + IS 3)",
+          "char_start": 1159,
+          "char_end": 1196
+        },
+        "history": [
+          {
+            "status": "present",
+            "value": {
+              "allred": {
+                "total": 8,
+                "ps": 5,
+                "is": 3
+              },
+              "result": "positive"
+            },
+            "raw": "ER : 양성, Allred score 8 (PS 5 + IS 3)",
+            "specimen": "primary",
+            "observed_date": "2018-08-06",
+            "source": {
+              "doc_id": "D2",
+              "quote": "ER : 양성, Allred score 8 (PS 5 + IS 3)",
+              "char_start": 737,
+              "char_end": 774
+            },
+            "superseded_reason": "recurrence"
+          }
+        ]
+      },
+      "pr_percent": {
+        "status": "present",
+        "value": {
+          "allred": {
+            "total": 6,
+            "ps": 4,
+            "is": 2
+          },
+          "result": "positive"
+        },
+        "raw": "PR : 양성, Allred score 6 (PS 4 + IS 2)",
+        "specimen": "metastasis",
+        "observed_date": "2025-04-16",
+        "source": {
+          "doc_id": "D4",
+          "quote": "PR : 양성, Allred score 6 (PS 4 + IS 2)",
+          "char_start": 1198,
+          "char_end": 1235
+        },
+        "history": [
+          {
+            "status": "present",
+            "value": {
+              "allred": {
+                "total": 6,
+                "ps": 4,
+                "is": 2
+              },
+              "result": "positive"
+            },
+            "raw": "PR : 양성, Allred score 6 (PS 4 + IS 2)",
+            "specimen": "primary",
+            "observed_date": "2018-08-06",
+            "source": {
+              "doc_id": "D2",
+              "quote": "PR : 양성, Allred score 6 (PS 4 + IS 2)",
+              "char_start": 777,
+              "char_end": 814
+            },
+            "superseded_reason": "recurrence"
+          }
+        ]
+      },
+      "her2_ihc": {
+        "status": "present",
+        "value": {
+          "score": "1+"
+        },
+        "raw": "HER2 (4B5): 1+",
+        "specimen": "metastasis",
+        "observed_date": "2025-04-16",
+        "source": {
+          "doc_id": "D4",
+          "quote": "HER2 (4B5): 1+",
+          "char_start": 1237,
+          "char_end": 1251
+        },
+        "history": [
+          {
+            "status": "present",
+            "value": {
+              "score": "1+"
+            },
+            "raw": "HER2 (4B5): 1+",
+            "specimen": "primary",
+            "observed_date": "2018-08-06",
+            "source": {
+              "doc_id": "D2",
+              "quote": "HER2 (4B5): 1+",
+              "char_start": 817,
+              "char_end": 831
+            },
+            "superseded_reason": "recurrence"
+          }
+        ]
+      },
+      "her2_ish": {
+        "status": "not_recorded"
+      },
+      "pdl1": {
+        "status": "not_recorded"
+      }
+    },
+    "proliferation": {
+      "ki67_percent": {
+        "status": "present",
+        "value": {
+          "percent": 15
+        },
+        "raw": "Ki-67: 15%",
+        "specimen": "primary",
+        "observed_date": "2018-08-06",
+        "source": {
+          "doc_id": "D2",
+          "quote": "Ki-67: 15%",
+          "char_start": 834,
+          "char_end": 844
+        }
+      }
+    },
+    "patient": {
+      "gender": {
+        "status": "present",
+        "value": "FEMALE",
+        "raw": "F/56",
+        "source": {
+          "doc_id": "D2",
+          "quote": "F/56",
+          "char_start": 487,
+          "char_end": 491
+        }
+      },
+      "age": {
+        "status": "present",
+        "value": 56,
+        "raw": "F/56",
+        "source": {
+          "doc_id": "D2",
+          "quote": "F/56",
+          "char_start": 487,
+          "char_end": 491
+        }
+      },
+      "menopausal_status": {
+        "status": "present",
+        "value": "postmenopausal",
+        "raw": "폐경 후",
+        "source": {
+          "doc_id": "D1",
+          "quote": "폐경 후",
+          "char_start": 142,
+          "char_end": 146
+        }
+      },
+      "menopausal_basis": {
+        "status": "present",
+        "value": "age_amenorrhea",
+        "raw": "50세 폐경",
+        "source": {
+          "doc_id": "D1",
+          "quote": "50세 폐경",
+          "char_start": 148,
+          "char_end": 154
+        }
+      },
+      "ecog": {
+        "status": "present",
+        "value": 0,
+        "raw": "ECOG 0",
+        "observed_date": "2025-05-11",
+        "source": {
+          "doc_id": "D1",
+          "quote": "ECOG 0",
+          "char_start": 290,
+          "char_end": 296
+        }
+      },
+      "cardiac_history": {
+        "status": "present",
+        "value": "no",
+        "raw": "심장 질환 과거력 없음",
+        "source": {
+          "doc_id": "D1",
+          "quote": "심장 질환 과거력 없음",
+          "char_start": 298,
+          "char_end": 310
+        }
+      },
+      "lvef_percent": {
+        "status": "present",
+        "value": 62,
+        "raw": "LVEF 62%",
+        "observed_date": "2025-05-01",
+        "source": {
+          "doc_id": "D1",
+          "quote": "LVEF 62%",
+          "char_start": 331,
+          "char_end": 339
+        }
+      }
+    },
+    "imaging_findings": [
+      {
+        "modality": "PET",
+        "day": 2430,
+        "date": "2025-04-01",
+        "sites": [
+          "bone"
+        ],
+        "certainty": "suspected",
+        "source": {
+          "doc_id": "D3",
+          "quote": "T8 단일 골전이 의심",
+          "char_start": 1008,
+          "char_end": 1020
+        }
+      }
+    ],
+    "treatment_history": [
+      {
+        "drugs": [
+          "letrozole"
+        ],
+        "setting": "adjuvant",
+        "start_date": "2018-09-05",
+        "end_date": "2023-09-05",
+        "start_day": 30,
+        "end_day": 1856,
+        "duration_days": 1826,
+        "cycles": null,
+        "progression_day": null,
+        "stop_reason": "completed",
+        "best_response": null,
+        "source": {
+          "doc_id": "D5",
+          "quote": "페마라 (letrozole) 2.5mg qd   2018.9.5   2023.9.5   -   -   완료 (5년)",
+          "char_start": 1398,
+          "char_end": 1462
+        },
+        "line": null,
+        "endocrine_line": null,
+        "chemo_line": null
+      }
+    ],
+    "anthracycline_drug_dose": {
+      "administered": "negative",
+      "drugs": []
+    },
+    "neoadjuvant_response": {
+      "pcr": {
+        "status": "not_recorded"
+      },
+      "rcb": {
+        "status": "not_recorded"
+      }
+    },
+    "recurrence": {
+      "recurrence_date": {
+        "status": "present",
+        "value": "2025-04-01",
+        "raw": "2025.4.1",
+        "source": {
+          "doc_id": "D1",
+          "quote": "2025.4.1 T8 단일 골전이",
+          "char_start": 242,
+          "char_end": 260
+        }
+      },
+      "adjuvant_endocrine_end_date": {
+        "status": "present",
+        "value": "2023-09-05",
+        "raw": "2023.9.5",
+        "source": {
+          "doc_id": "D1",
+          "quote": "2023.9.5",
+          "char_start": 223,
+          "char_end": 231
+        }
+      },
+      "status": {
+        "status": "present",
+        "value": "distant",
+        "raw": "T8 단일 골전이",
+        "source": {
+          "doc_id": "D1",
+          "quote": "T8 단일 골전이",
+          "char_start": 251,
+          "char_end": 260
+        }
+      },
+      "metastatic_sites": {
+        "status": "present",
+        "value": [
+          "bone"
+        ],
+        "raw": "T8 단일 골전이",
+        "source": {
+          "doc_id": "D1",
+          "quote": "T8 단일 골전이",
+          "char_start": 251,
+          "char_end": 260
+        }
+      },
+      "metastasis_day": {
+        "status": "present",
+        "value": 2430,
+        "raw": "2025.4.1 T8 단일 골전이",
+        "source": {
+          "doc_id": "D1",
+          "quote": "2025.4.1 T8 단일 골전이",
+          "char_start": 242,
+          "char_end": 260
+        }
+      },
+      "recurrence_day": {
+        "status": "present",
+        "value": 2430,
+        "raw": "2025.4.1 T8 단일 골전이",
+        "source": {
+          "doc_id": "D1",
+          "quote": "2025.4.1 T8 단일 골전이",
+          "char_start": 242,
+          "char_end": 260
+        }
+      },
+      "surgery": {
+        "status": "not_recorded"
+      },
+      "surgery_intent": {
+        "status": "not_recorded"
+      }
+    },
+    "molecular": {
+      "mutations": {
+        "ESR1": {
+          "status": "not_recorded"
+        },
+        "PIK3CA": {
+          "status": "not_recorded"
+        },
+        "AKT1": {
+          "status": "not_recorded"
+        },
+        "PTEN": {
+          "status": "not_recorded"
+        },
+        "BRCA1": {
+          "status": "not_recorded"
+        },
+        "BRCA2": {
+          "status": "not_recorded"
+        },
+        "PALB2": {
+          "status": "not_recorded"
+        }
+      }
+    },
+    "genomic_reports": [],
+    "deemed_lines": [
+      {
+        "rule_id": "DEEM-ANTHRA-TAXANE",
+        "category": "chemo",
+        "status": "not_met",
+        "basis": "선행·보조요법에 anthracycline · taxane 없음",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "61-62"
+      },
+      {
+        "rule_id": "DEEM-SG-1Y",
+        "category": "chemo",
+        "status": "not_met",
+        "basis": "선행·보조요법 letrozole 종료 후 574일 뒤 전이 (기준 365일 초과)",
+        "regimen_refs": [
+          0
+        ],
+        "gap_days": 574,
+        "notice_page": "63"
+      },
+      {
+        "rule_id": "DEEM-HER2ADC-6M",
+        "category": "chemo",
+        "status": "not_met",
+        "basis": "trastuzumab 포함 보조요법 없음",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "62-63"
+      },
+      {
+        "rule_id": "DEEM-ENDO-ADJ-1Y",
+        "category": "endocrine",
+        "status": "not_met",
+        "basis": "보조 내분비요법 letrozole 종료 후 574일 뒤 전이 (기준 365일 초과)",
+        "regimen_refs": [
+          0
+        ],
+        "gap_days": 574,
+        "notice_page": "57"
+      }
+    ],
+    "at_index": {
+      "age": 62,
+      "recent_therapy_28d": {
+        "status": "no",
+        "basis": "letrozole 기준일 614일 전 종료 (28일 초과)",
+        "regimen_refs": [
+          0
+        ],
+        "gap_days": 614
+      }
+    }
+  },
+  "conflicts": []
+}

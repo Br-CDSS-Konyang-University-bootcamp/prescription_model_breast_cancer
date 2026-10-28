@@ -1,0 +1,95 @@
+<외래 경과기록>   2024.10.22   종양내과
+환자명: 김가상   등록번호: 00000136   F/49   주민번호: 730101-2******   연락처: 010-0000-0136
+병원: 가상대학교병원 종양내과   담당의: 이가상
+
+S) 우상복부 불편감.
+   폐경: 폐경 전, 월경 불규칙
+   과거력: 심장 질환 과거력 없음
+   Echo (2024.10.12): LVEF 62%
+O) ECOG PS 0
+
+A) Lt. breast IDC, 2022.3.7 core bx로 진단, cT2N1M0, stage IIB, TNBC
+   선행 KEYNOTE-522 요법 (pembrolizumab + paclitaxel + carboplatin → pembrolizumab + AC) 후 수술: pCR
+   보조 pembrolizumab 9회 2023.3.25 완료
+   2024.9.23 간 전이 (pembrolizumab 종료 18개월 뒤)
+   간 생검: TNBC, PD-L1 22C3 CPS 15. 생식세포 BRCA1/2 음성
+
+P) 전이성 TNBC 1차 요법 결정 (이전 면역항암제 사용)
+
+
+SURGICAL PATHOLOGY REPORT
+환자명: 김가상   등록번호: 00000136   F/47
+Received: 2022.3.7   Reported: 2022.3.11
+Specimen: 좌측 유방, 초음파 유도 중심 생검
+
+DIAGNOSIS
+  Invasive ductal carcinoma, NST
+  Histologic grade: Nottingham grade 3
+
+IMMUNOHISTOCHEMISTRY
+  ER : 음성, Allred score 0 (PS 0 + IS 0)
+  PR : 음성, Allred score 0 (PS 0 + IS 0)
+  HER2 (4B5): 1+
+  Ki-67: 80%
+
+Pathologist: 박가상
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000136   F/47
+검사: Breast MRI (contrast)   검사일: 2022.3.10
+
+Findings:
+  좌측 유방 3.1 cm 종괴, 좌측 액와 림프절 2개 비대.
+Conclusion:
+  좌측 액와 림프절 전이 의심
+
+
+[유전성 유방암 유전자 검사 결과]
+환자명: 김가상   등록번호: 00000136   F/47
+검사기관: 가상유전체검사센터   보고일: 2022.4.6
+검체: 말초혈액 (germline)
+검사법: BRCA1/BRCA2 전장 염기서열 분석 + MLPA
+
+결과
+  BRCA1: 병원성 변이 검출되지 않음
+  BRCA2: 병원성 변이 검출되지 않음
+
+
+[병리결과보고서]
+환자명: 김가상   등록번호: 00000136   F/47
+보고일: 2022.9.20
+검체: 좌측 유방 부분절제술 + 액와 림프절 절제 (선행 항암 후)
+
+진단
+  잔존 침윤암: 없음 (no residual invasive carcinoma, pCR)
+  림프절: 0/9
+  ypTNM: ypT0 ypN0 (AJCC 8th)
+  RCB: RCB-0 (pCR)
+
+판독의: 박가상
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000136   F/49
+검사: Abdomen-pelvis CT (contrast)   검사일: 2024.9.23
+
+Findings:
+  간 S4·S6·S8 다발성 저음영 결절 (최대 3.2 cm).
+Conclusion:
+  간 다발성 전이
+
+
+<병리 조직검사 결과>
+환자명: 김가상   등록번호: 00000136   F/49
+2024.10.7 간 생검 (2024.10.2 시행). Metastatic carcinoma, consistent with breast primary.
+ER : 음성, Allred score 0 (PS 0 + IS 0), PR : 음성, Allred score 0 (PS 0 + IS 0), HER2 (4B5): 0 (no staining).
+PD-L1 IHC: 22C3 pharmDx, CPS 15
+
+
+[투약 기록]
+환자명: 김가상   등록번호: 00000136   F/49
+구분    요법                                              시작         종료         주기       반응   중단 사유
+선행    키트루다 (pembrolizumab) + paclitaxel + carboplatin   2022.3.21   2022.6.13   q3w #4   -   계획된 변경
+선행    키트루다 (pembrolizumab) + AC (doxorubicin 60mg/m2 + cyclophosphamide 600mg/m2)   2022.6.20   2022.8.22   q3w #4   CR   완료
+보조    키트루다 (pembrolizumab) 200mg   2022.10.8   2023.3.25   q3w #9   -   완료

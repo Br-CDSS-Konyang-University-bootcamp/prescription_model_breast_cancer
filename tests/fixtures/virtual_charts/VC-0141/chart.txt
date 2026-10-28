@@ -1,0 +1,95 @@
+<외래 경과기록>   2023.7.22   종양내과
+환자명: 김가상   등록번호: 00000141   F/70   주민번호: 500101-2******   연락처: 010-0000-0141
+병원: 가상대학교병원 종양내과   담당의: 이가상
+
+S) 우측 고관절 통증 경미, 일상생활 가능.
+   폐경: 폐경 후 (51세 폐경)
+   과거력: 심장 질환 과거력 없음
+   Echo (2023.7.12): LVEF 60%
+O) ECOG PS 1
+
+A) Rt. breast IDC, 2020.2.3 core bx로 진단, cT2N0M1, stage IV (de novo, bone only), HR+/HER2-
+   1L anastrozole + palbociclib 30개월 → PD, 2L exemestane + everolimus 10개월 → PD (뼈 병변만 천천히 진행)
+   내장 전이 없음, 증상 경미 → 내분비 치료 지속 가능하다고 판단
+
+P) 고식 내분비 3차 결정
+
+
+SURGICAL PATHOLOGY REPORT
+환자명: 김가상   등록번호: 00000141   F/67
+Received: 2020.2.3   Reported: 2020.2.7
+Specimen: 우측 유방, 초음파 유도 중심 생검
+
+DIAGNOSIS
+  Invasive ductal carcinoma, NST
+  Histologic grade: Nottingham grade 2
+
+IMMUNOHISTOCHEMISTRY
+  ER : 양성, Allred score 8 (PS 5 + IS 3)
+  PR : 양성, Allred score 7 (PS 4 + IS 3)
+  HER2 (4B5): 1+
+  Ki-67: 12%
+
+Pathologist: 박가상
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000141   F/67
+검사: Whole body bone scan   검사일: 2020.2.8
+
+Findings:
+  흉추·요추·우측 장골 열소 증가.
+Conclusion:
+  다발성 골전이
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000141   F/69
+검사: Whole body bone scan   검사일: 2022.8.6
+
+Findings:
+  새 열소 2곳 (좌측 늑골, T11).
+Conclusion:
+  골전이 진행 (PD)
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000141   F/70
+검사: Whole body bone scan   검사일: 2023.6.27
+
+Findings:
+  우측 대퇴골 근위부 열소 증가.
+Conclusion:
+  골전이 진행 (PD)
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000141   F/70
+검사: Chest-abdomen CT (contrast)   검사일: 2023.6.29
+
+Findings:
+  간·폐 실질 이상 없음.
+Conclusion:
+  흉복부 내장 전이 소견 없음
+
+
+[분자병리 검사 결과]
+환자명: 김가상   등록번호: 00000141   F/70
+검사기관: 가상유전체검사센터   보고일: 2023.7.7
+검체: 혈장 cfDNA (2023.7.2)
+검사법: 표적 NGS
+
+검출된 변이 (Clinically significant variants)
+  없음
+
+검출되지 않음 (Not detected)
+  PIK3CA, ESR1, AKT1, PTEN
+
+* 패널 포함 유전자: PIK3CA, ESR1, AKT1, PTEN, ERBB2
+
+
+[투약 기록]
+환자명: 김가상   등록번호: 00000141   F/70
+구분    요법                                              시작         종료         주기       반응   중단 사유
+고식    아리미덱스 (anastrozole) + 입랜스 (palbociclib)   2020.2.18   2022.8.16   q4w #32   PD   진행
+고식    아로마신 (exemestane) + 아피니토 (everolimus)   2022.8.31   2023.7.2   -   PD   진행

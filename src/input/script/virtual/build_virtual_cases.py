@@ -312,19 +312,22 @@ def vc_0110() -> Chart:
     return c
 
 
-def vc_0111() -> Chart:
-    """N02 HER2+ 전이 2차, 활동성 뇌 전이."""
-    c = Chart("VC-0111", "2023-02-06", 600)
+def vc_0111(ref: str = "VC-0111", local: bool = False, extracns_pd: bool = True) -> Chart:
+    """N02 HER2+ 전이 2차, 활동성 뇌 전이.
+    짝 G20 (src/input/virtual_patient_cases_2026-10-27.md): local = 국소 치료 적응 있음, extracns_pd = 뇌 밖(간) 진행."""
+    c = Chart(ref, "2023-02-06", 600)
     D = c.on
     d = note(c, 53, "[다학제 진료 회의록]", "종양내과")
     d.t("증례: ").put("폐경 전 (월경 있음)", F("patient.menopausal_status", "premenopausal", within="폐경 전"),
                     F("patient.menopausal_basis", "age_amenorrhea", within="월경 있음")).t(". ")
     dx(d, c).t(", ")
     de_novo(d, c, ("T3", "N2"), ["liver"], "liver").t(", ER/PR 음성, HER2 3+.\n")
-    d.t("      1차 docetaxel + pertuzumab + trastuzumab #6 → HP 유지 15개월 → 뇌·간 진행.\n      ")
+    where = "뇌·간 진행" if extracns_pd else "뇌 진행 (간 병변 안정)"
+    d.t(f"      1차 docetaxel + pertuzumab + trastuzumab #6 → HP 유지 15개월 → {where}.\n      ")
     d.put("ECOG 1", F("patient.ecog", 1, observed_date=c.index_date)).t(". ")
     heart(d, c, 58, 595, "심장 질환 과거력 없음")
-    d.t("논의: 새 뇌 전이 3개 (최대 1.8 cm, 두통·어지럼 있음). 신경외과·방사선종양학과: 국소 치료(수술·SRS) 적응 없음.\n")
+    local_txt = "국소 치료 적응 있음 (SRS 예정)" if local else "국소 치료(수술·SRS) 적응 없음"
+    d.t(f"논의: 새 뇌 전이 3개 (최대 1.8 cm, 두통·어지럼 있음). 신경외과·방사선종양학과: {local_txt}.\n")
     d.t("결론: 전이성 HER2 양성 2차 전신 요법 결정. anthracycline 사용 이력 없음.\n")
 
     core_path(c, 51, grade=3, recs=[er(0, 0, "negative"), er(0, 0, "negative", "PR"), her2("3+")], ki67=45)
@@ -332,12 +335,18 @@ def vc_0111() -> Chart:
           "간 다발성 전이", ["liver"])
     image(c, 590, 53, "MRI", "Brain MRI (contrast)", "좌측 전두엽 1.8 cm, 우측 두정엽 1.1 cm, 소뇌 0.7 cm 조영 증강 병변, 주위 부종.",
           "다발성 뇌 전이 (3개), 새로 생김", ["brain"])
-    image(c, 588, 53, "CT", "Abdomen-pelvis CT (contrast)", "간 결절 크기·개수 증가.", "간 전이 진행 (PD)", ["liver"])
+    if extracns_pd:
+        image(c, 588, 53, "CT", "Abdomen-pelvis CT (contrast)", "간 결절 크기·개수 증가.", "간 전이 진행 (PD)", ["liver"])
+    else:
+        image(c, 588, 53, "CT", "Abdomen-pelvis CT (contrast)", "간 결절 크기·개수 변화 없음.", "간 전이 안정 (SD)",
+              ["liver"])
     meds(c, 53, [
         dict(name="DPH (docetaxel 75mg/m2 + 퍼제타 + 허셉틴)", drugs=["docetaxel", "pertuzumab", "trastuzumab"],
              setting="metastatic", s=14, e=119, cyc=(6, 21), resp="PR", why="유지요법 전환", stop="maintenance"),
+        # 진행일 = 진행을 보인 첫 영상 (간 CT 588, 간이 안정이면 뇌 MRI 590)
         dict(name="HP 유지 (퍼제타 + 허셉틴)", drugs=["pertuzumab", "trastuzumab"], setting="metastatic", s=140,
-             e=581, cyc=(22, 21), resp="PD", why="뇌·간 진행", stop="progression", prog=588),
+             e=581, cyc=(22, 21), resp="PD", why="뇌·간 진행" if extracns_pd else "뇌 진행", stop="progression",
+             prog=588 if extracns_pd else 590),
     ])
     return c
 
@@ -471,9 +480,10 @@ def vc_0114() -> Chart:
     return c
 
 
-def vc_0115() -> Chart:
-    """N06 TNBC, 보조 종료 300일 뒤 폐 전이, 1차 gemcitabine + carboplatin 진행, gBRCA 음성."""
-    c = Chart("VC-0115", "2021-07-05", 750)
+def vc_0115(ref: str = "VC-0115", gbrca1: tuple | None = None) -> Chart:
+    """N06 TNBC, 보조 종료 300일 뒤 폐 전이, 1차 gemcitabine + carboplatin 진행, gBRCA 음성.
+    짝 G21 (src/input/virtual_patient_cases_2026-10-27.md): gbrca1 = 생식세포 BRCA1 병원성 변이 (cDNA, 단백 변화, 판정)."""
+    c = Chart(ref, "2021-07-05", 750)
     d = note(c, 42)
     d.t("S) 기침, 흉통.\n   폐경: ")
     meno(d, "premenopausal", "age_amenorrhea", "폐경 전, 월경 규칙적", "폐경 전", "월경 규칙적").t("\n   과거력: ")
@@ -482,7 +492,7 @@ def vc_0115() -> Chart:
     d.t("A) Lt. breast IDC, ")
     dx(d, c, "수술로 진단").t(", pT2N1a(2/10), IIB, TNBC\n   보조 AC #4 → weekly paclitaxel #12\n   ")
     distant(d, c, 496, ["lung"], "폐 전이").t(" (보조 종료 300일 뒤)\n")
-    d.t("   1L gemcitabine + carboplatin 7개월 → PD\n   생식세포 BRCA1/2 음성\n\n")
+    d.t(f"   1L gemcitabine + carboplatin 7개월 → PD\n   {'생식세포 BRCA1 병원성 변이' if gbrca1 else '생식세포 BRCA1/2 음성'}\n\n")
     d.t("P) 전이성 TNBC 2차 요법 결정\n")
 
     surgery_path(c, 0, 40, op="좌측 유방 부분절제술 + 액와 림프절 절제", grade=3, size_mm=34, ln=(2, 10),
@@ -492,7 +502,7 @@ def vc_0115() -> Chart:
           ["lung"], "suspected")
     meta_path(c, 505, 41, "폐", [er(0, 0, "negative"), er(0, 0, "negative", "PR"), her2("0", False)],
               pdl1=("22C3 pharmDx, CPS 2", {"assay": "22C3", "score_type": "CPS", "score": 2}))
-    germline(c, 520, 41, {"BRCA1": None, "BRCA2": None})
+    germline(c, 520, 41, {"BRCA1": gbrca1, "BRCA2": None})
     meds(c, 42, [
         ac(35, 98), wpac(119, 196),
         dict(name="gemcitabine 1000mg/m2 + carboplatin AUC 2 (d1, d8)", drugs=["gemcitabine", "carboplatin"],

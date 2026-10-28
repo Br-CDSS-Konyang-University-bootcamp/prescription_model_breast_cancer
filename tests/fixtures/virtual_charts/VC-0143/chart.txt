@@ -1,0 +1,54 @@
+[다학제 진료 회의록]   2025.5.11   종양내과
+환자명: 김가상   등록번호: 00000143   F/62   주민번호: 560101-2******   연락처: 010-0000-0143
+병원: 가상대학교병원 종양내과   담당의: 이가상
+
+증례: 폐경 후 (50세 폐경). 2018.8.6 수술로 진단, pT2N1a(1/14), IIB, HR+/HER2-.
+      보조 letrozole 2023.9.5 5년 복용 완료, 2025.4.1 T8 단일 골전이 (letrozole 종료 19개월 뒤).
+      ECOG 0. 심장 질환 과거력 없음
+   Echo (2025.5.1): LVEF 62%
+논의: PET-CT에서 T8 외 병변 없음 → 소수 전이 (oligometastatic disease). 방사선종양학과: T8 SBRT 가능.
+결론: T8 SBRT + 전신 내분비 기반 치료
+
+
+[병리결과보고서]
+환자명: 김가상   등록번호: 00000143   F/56
+접수일: 2018.8.6   보고일: 2018.8.12
+검체: 우측 유방 부분절제술 + 액와 림프절 절제
+
+진단
+  조직형: 침윤성 유관암 (invasive ductal carcinoma, NST)
+  조직학적 등급: II (Nottingham grade 2)
+  종양 크기: 2.4 cm
+  림프절: 전이 1개 / 검사 14개
+  절제연: 음성
+  pTNM: pT2 N1a M0, stage IIB (AJCC 8th)
+
+면역조직화학
+  ER : 양성, Allred score 8 (PS 5 + IS 3)
+  PR : 양성, Allred score 6 (PS 4 + IS 2)
+  HER2 (4B5): 1+
+  Ki-67: 15%
+
+판독의: 박가상
+
+
+[영상의학 판독]
+환자명: 김가상   등록번호: 00000143   F/62
+검사: F-18 FDG PET-CT   검사일: 2025.4.1
+
+Findings:
+  T8 척추체 단일 FDG 섭취 (SUVmax 6.8), 그 밖 이상 섭취 없음.
+Conclusion:
+  T8 단일 골전이 의심
+
+
+<병리 조직검사 결과>
+환자명: 김가상   등록번호: 00000143   F/62
+2025.4.21 T8 척추체 생검 (2025.4.16 시행). Metastatic carcinoma, consistent with breast primary.
+ER : 양성, Allred score 8 (PS 5 + IS 3), PR : 양성, Allred score 6 (PS 4 + IS 2), HER2 (4B5): 1+.
+
+
+[투약 기록]
+환자명: 김가상   등록번호: 00000143   F/62
+구분    요법                                              시작         종료         주기       반응   중단 사유
+보조    페마라 (letrozole) 2.5mg qd   2018.9.5   2023.9.5   -   -   완료 (5년)

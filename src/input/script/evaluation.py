@@ -87,7 +87,8 @@ def _candidate(field: str, entry: dict) -> dict:
 # - 재현율: 정답에 값이 있는 칸(not_recorded가 아님) 중 맞은 칸. 낮으면 있는 값을 놓친다
 #
 # 사례 묶음 (--set): dev = 가상 차트 10건 (규칙·프롬프트를 고칠 때 본 사례), pairs = 짝 사례 19건,
-# test = 새 사례 20건 VC-0110 ~ VC-0129 (규칙을 고정한 뒤에만 잰다, notes 과적합 주의)
+# test = 새 사례 20건 VC-0110 ~ VC-0129 (규칙을 고정한 뒤에만 잰다, notes 과적합 주의),
+# holdout = 보류 세트 18건 VC-0130 ~ VC-0144 + 짝 G20·G21 (규칙을 고칠 때 보지 않는다, virtual_patient_cases_2026-10-27.md §5)
 #
 # usage (team_project 폴더에서):
 #     python -m src.input.script.evaluation --gold [--set test]   # 정답 후보로 파이프라인을 돌려 채점 (규칙 쪽 점검)
@@ -98,9 +99,12 @@ STATUSES = ["present", "not_done", "not_recorded", "conflict"]
 
 
 def case_set(name: str) -> list[str]:
-    """dev (10건) / pairs (짝 19건) / test (새 20건) / all (dev + pairs)."""
+    """dev (10건) / pairs (짝 19건) / test (새 20건) / holdout (보류 18건) / all (dev + pairs)."""
     if name == "test":
         from src.input.script.virtual.build_virtual_cases import BUILDERS
+        return list(BUILDERS)
+    if name == "holdout":
+        from src.input.script.virtual.build_holdout_cases import BUILDERS
         return list(BUILDERS)
     return {"dev": CASES, "pairs": [p.id for p in PAIRS], "all": ALL}[name]
 
@@ -262,7 +266,7 @@ def main(argv=None) -> int:
     ap.add_argument("pred_dir", nargs="?", type=Path, help="<폴더>/<사례>/patient_state.json")
     ap.add_argument("--gold", action="store_true", help="정답 후보로 파이프라인을 돌려 채점")
     ap.add_argument("--ids", nargs="*", help="사례 (기본: --gold는 --set, 출력 폴더는 그 안에 있는 사례)")
-    ap.add_argument("--set", default="all", choices=["dev", "pairs", "test", "all"], help="--gold의 사례 묶음 (기본 all = dev + pairs)")
+    ap.add_argument("--set", default="all", choices=["dev", "pairs", "test", "holdout", "all"], help="--gold의 사례 묶음 (기본 all = dev + pairs)")
     ap.add_argument("--show-wrong", type=int, default=30)
     args = ap.parse_args(argv)
     if not args.gold and args.pred_dir is None:

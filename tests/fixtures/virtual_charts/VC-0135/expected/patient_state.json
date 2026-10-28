@@ -1,0 +1,619 @@
+{
+  "schema_version": "0.1-draft6",
+  "patient_ref": "VC-0135",
+  "created_at": "2026-10-23T00:00:00+09:00",
+  "index_day": 210,
+  "documents": [
+    {
+      "doc_id": "D1",
+      "doc_type": "progress_note",
+      "doc_date": "2025-06-02"
+    },
+    {
+      "doc_id": "D2",
+      "doc_type": "pathology",
+      "doc_date": "2024-11-08"
+    },
+    {
+      "doc_id": "D3",
+      "doc_type": "radiology",
+      "doc_date": "2024-11-06"
+    },
+    {
+      "doc_id": "D4",
+      "doc_type": "molecular",
+      "doc_date": "2024-11-29"
+    },
+    {
+      "doc_id": "D5",
+      "doc_type": "pathology",
+      "doc_date": "2025-05-15"
+    },
+    {
+      "doc_id": "D6",
+      "doc_type": "medication",
+      "doc_date": null
+    }
+  ],
+  "fields": {
+    "diagnosis": {
+      "diagnosis_date": {
+        "status": "present",
+        "value": "2024-11-04",
+        "raw": "2024.11.4",
+        "source": {
+          "doc_id": "D1",
+          "quote": "2024.11.4 core bx로 진단",
+          "char_start": 253,
+          "char_end": 274
+        }
+      },
+      "histology": {
+        "status": "present",
+        "value": "IDC",
+        "raw": "Invasive ductal carcinoma, NST",
+        "source": {
+          "doc_id": "D2",
+          "quote": "Invasive ductal carcinoma, NST",
+          "char_start": 626,
+          "char_end": 656
+        }
+      },
+      "grade": {
+        "status": "present",
+        "value": 3,
+        "raw": "Nottingham grade 3",
+        "source": {
+          "doc_id": "D2",
+          "quote": "Nottingham grade 3",
+          "char_start": 677,
+          "char_end": 695
+        }
+      }
+    },
+    "stage": {
+      "ctnm": {
+        "status": "present",
+        "value": {
+          "t": "T1c",
+          "n": "N0",
+          "m": "M0",
+          "edition": null
+        },
+        "raw": "cT1cN0M0",
+        "observed_date": "2024-11-04",
+        "source": {
+          "doc_id": "D1",
+          "quote": "cT1cN0M0",
+          "char_start": 276,
+          "char_end": 284
+        }
+      },
+      "ptnm": {
+        "status": "not_recorded"
+      },
+      "group": {
+        "status": "present",
+        "value": "IA",
+        "raw": "stage IA",
+        "source": {
+          "doc_id": "D1",
+          "quote": "stage IA",
+          "char_start": 286,
+          "char_end": 294
+        }
+      },
+      "positive_ln_count": {
+        "status": "not_recorded"
+      },
+      "disease_extent": {
+        "status": "present",
+        "value": "early",
+        "raw": "stage IA",
+        "source": {
+          "doc_id": "D1",
+          "quote": "stage IA",
+          "char_start": 286,
+          "char_end": 294
+        }
+      },
+      "metastatic_sites": {
+        "status": "present",
+        "value": "[Not Applicable]",
+        "raw": "cT1cN0M0",
+        "source": {
+          "doc_id": "D1",
+          "quote": "cT1cN0M0",
+          "char_start": 276,
+          "char_end": 284
+        }
+      },
+      "operable": {
+        "status": "present",
+        "value": "yes",
+        "raw": "좌측 유방 부분절제술 + 감시림프절 생검 (선행 항암 후)",
+        "source": {
+          "doc_id": "D5",
+          "quote": "좌측 유방 부분절제술 + 감시림프절 생검 (선행 항암 후)",
+          "char_start": 1327,
+          "char_end": 1359
+        }
+      },
+      "clinical_size_mm": {
+        "status": "present",
+        "value": 18,
+        "raw": "좌측 유방 1.8 cm 종괴",
+        "observed_date": "2024-11-06",
+        "source": {
+          "doc_id": "D3",
+          "quote": "좌측 유방 1.8 cm 종괴",
+          "char_start": 943,
+          "char_end": 958
+        }
+      },
+      "yptnm": {
+        "status": "present",
+        "value": {
+          "t": "T1b",
+          "n": "N0",
+          "m": "M0",
+          "edition": "8th",
+          "residual_size_mm": 6,
+          "positive_ln": 0,
+          "examined_ln": 2
+        },
+        "raw": "ypT1b ypN0 (AJCC 8th)",
+        "observed_date": "2025-05-08",
+        "source": {
+          "doc_id": "D5",
+          "quote": "ypT1b ypN0 (AJCC 8th)",
+          "char_start": 1446,
+          "char_end": 1467
+        }
+      }
+    },
+    "receptors": {
+      "er_percent": {
+        "status": "present",
+        "value": {
+          "allred": {
+            "total": 0,
+            "ps": 0,
+            "is": 0
+          },
+          "result": "negative"
+        },
+        "raw": "ER : 음성, Allred score 0 (PS 0 + IS 0)",
+        "specimen": "primary",
+        "observed_date": "2024-11-04",
+        "source": {
+          "doc_id": "D2",
+          "quote": "ER : 음성, Allred score 0 (PS 0 + IS 0)",
+          "char_start": 720,
+          "char_end": 757
+        }
+      },
+      "pr_percent": {
+        "status": "present",
+        "value": {
+          "allred": {
+            "total": 0,
+            "ps": 0,
+            "is": 0
+          },
+          "result": "negative"
+        },
+        "raw": "PR : 음성, Allred score 0 (PS 0 + IS 0)",
+        "specimen": "primary",
+        "observed_date": "2024-11-04",
+        "source": {
+          "doc_id": "D2",
+          "quote": "PR : 음성, Allred score 0 (PS 0 + IS 0)",
+          "char_start": 760,
+          "char_end": 797
+        }
+      },
+      "her2_ihc": {
+        "status": "present",
+        "value": {
+          "score": "1+"
+        },
+        "raw": "HER2 (4B5): 1+",
+        "specimen": "primary",
+        "observed_date": "2024-11-04",
+        "source": {
+          "doc_id": "D2",
+          "quote": "HER2 (4B5): 1+",
+          "char_start": 800,
+          "char_end": 814
+        }
+      },
+      "her2_ish": {
+        "status": "not_recorded"
+      },
+      "pdl1": {
+        "status": "not_recorded"
+      }
+    },
+    "proliferation": {
+      "ki67_percent": {
+        "status": "present",
+        "value": {
+          "percent": 70
+        },
+        "raw": "Ki-67: 70%",
+        "specimen": "primary",
+        "observed_date": "2024-11-04",
+        "source": {
+          "doc_id": "D2",
+          "quote": "Ki-67: 70%",
+          "char_start": 817,
+          "char_end": 827
+        }
+      }
+    },
+    "patient": {
+      "gender": {
+        "status": "present",
+        "value": "FEMALE",
+        "raw": "F/38",
+        "source": {
+          "doc_id": "D2",
+          "quote": "F/38",
+          "char_start": 536,
+          "char_end": 540
+        }
+      },
+      "age": {
+        "status": "present",
+        "value": 38,
+        "raw": "F/38",
+        "source": {
+          "doc_id": "D2",
+          "quote": "F/38",
+          "char_start": 536,
+          "char_end": 540
+        }
+      },
+      "menopausal_status": {
+        "status": "present",
+        "value": "premenopausal",
+        "raw": "폐경 전",
+        "source": {
+          "doc_id": "D1",
+          "quote": "폐경 전",
+          "char_start": 156,
+          "char_end": 160
+        }
+      },
+      "menopausal_basis": {
+        "status": "present",
+        "value": "age_amenorrhea",
+        "raw": "월경 규칙적",
+        "source": {
+          "doc_id": "D1",
+          "quote": "월경 규칙적",
+          "char_start": 162,
+          "char_end": 168
+        }
+      },
+      "ecog": {
+        "status": "present",
+        "value": 0,
+        "raw": "ECOG PS 0",
+        "observed_date": "2025-06-02",
+        "source": {
+          "doc_id": "D1",
+          "quote": "ECOG PS 0",
+          "char_start": 223,
+          "char_end": 232
+        }
+      },
+      "cardiac_history": {
+        "status": "present",
+        "value": "no",
+        "raw": "심장 질환 과거력 없음",
+        "source": {
+          "doc_id": "D1",
+          "quote": "심장 질환 과거력 없음",
+          "char_start": 177,
+          "char_end": 189
+        }
+      },
+      "lvef_percent": {
+        "status": "present",
+        "value": 65,
+        "raw": "LVEF 65%",
+        "observed_date": "2025-05-23",
+        "source": {
+          "doc_id": "D1",
+          "quote": "LVEF 65%",
+          "char_start": 211,
+          "char_end": 219
+        }
+      }
+    },
+    "imaging_findings": [
+      {
+        "modality": "ultrasound",
+        "day": 2,
+        "date": "2024-11-06",
+        "sites": [],
+        "certainty": "suspected",
+        "source": {
+          "doc_id": "D3",
+          "quote": "좌측 유방암 의심 (BI-RADS 5), 액와 림프절 전이 소견 없음",
+          "char_start": 996,
+          "char_end": 1034
+        }
+      }
+    ],
+    "treatment_history": [
+      {
+        "drugs": [
+          "paclitaxel",
+          "carboplatin"
+        ],
+        "setting": "neoadjuvant",
+        "start_date": "2024-11-18",
+        "end_date": "2025-02-03",
+        "start_day": 14,
+        "end_day": 91,
+        "duration_days": 77,
+        "cycles": {
+          "value": 12,
+          "basis": "recorded",
+          "interval_days": 7,
+          "interval_basis": "recorded"
+        },
+        "progression_day": null,
+        "stop_reason": "planned_switch",
+        "best_response": null,
+        "source": {
+          "doc_id": "D6",
+          "quote": "paclitaxel 80mg/m2 + carboplatin AUC 2   2024.11.18   2025.2.3   weekly #12   -   계획된 변경",
+          "char_start": 1642,
+          "char_end": 1730
+        },
+        "line": null,
+        "endocrine_line": null,
+        "chemo_line": null
+      },
+      {
+        "drugs": [
+          "doxorubicin",
+          "cyclophosphamide"
+        ],
+        "setting": "neoadjuvant",
+        "start_date": "2025-02-10",
+        "end_date": "2025-04-14",
+        "start_day": 98,
+        "end_day": 161,
+        "duration_days": 63,
+        "cycles": {
+          "value": 4,
+          "basis": "recorded",
+          "interval_days": 21,
+          "interval_basis": "recorded"
+        },
+        "progression_day": null,
+        "stop_reason": "completed",
+        "best_response": null,
+        "source": {
+          "doc_id": "D6",
+          "quote": "AC (doxorubicin 60mg/m2 + cyclophosphamide 600mg/m2)   2025.2.10   2025.4.14   q3w #4   -   완료",
+          "char_start": 1737,
+          "char_end": 1831
+        },
+        "line": null,
+        "endocrine_line": null,
+        "chemo_line": null
+      }
+    ],
+    "anthracycline_drug_dose": {
+      "administered": "positive",
+      "drugs": [
+        {
+          "drug": "doxorubicin",
+          "timeline_index": null,
+          "combined_with": [
+            "cyclophosphamide"
+          ],
+          "dose_per_admin": {
+            "value": 60,
+            "unit": "mg/m2"
+          },
+          "cycles": {
+            "value": 4,
+            "basis": "recorded",
+            "interval_days": 21,
+            "interval_basis": "recorded"
+          },
+          "total_dose": {
+            "value": 240,
+            "unit": "mg/m2"
+          },
+          "raw": "AC (doxorubicin 60mg/m2 + cyclophosphamide 600mg/m2)   2025.2.10   2025.4.14   q3w #4   -   완료",
+          "source": {
+            "doc_id": "D6",
+            "quote": "AC (doxorubicin 60mg/m2 + cyclophosphamide 600mg/m2)   2025.2.10   2025.4.14   q3w #4   -   완료",
+            "char_start": 1737,
+            "char_end": 1831
+          }
+        }
+      ]
+    },
+    "neoadjuvant_response": {
+      "pcr": {
+        "status": "present",
+        "value": "no",
+        "raw": "있음 (residual invasive carcinoma)",
+        "source": {
+          "doc_id": "D5",
+          "quote": "있음 (residual invasive carcinoma)",
+          "char_start": 1374,
+          "char_end": 1406
+        }
+      },
+      "rcb": {
+        "status": "present",
+        "value": "RCB-I",
+        "raw": "RCB class I",
+        "source": {
+          "doc_id": "D5",
+          "quote": "RCB class I",
+          "char_start": 1475,
+          "char_end": 1486
+        }
+      }
+    },
+    "recurrence": {
+      "recurrence_date": {
+        "status": "not_recorded"
+      },
+      "adjuvant_endocrine_end_date": {
+        "status": "not_recorded"
+      },
+      "status": {
+        "status": "present",
+        "value": "none",
+        "raw": "재발 소견 없음",
+        "source": {
+          "doc_id": "D1",
+          "quote": "재발 소견 없음",
+          "char_start": 423,
+          "char_end": 431
+        }
+      },
+      "metastatic_sites": {
+        "status": "not_recorded"
+      },
+      "metastasis_day": {
+        "status": "not_recorded"
+      },
+      "recurrence_day": {
+        "status": "not_recorded"
+      },
+      "surgery": {
+        "status": "not_recorded"
+      },
+      "surgery_intent": {
+        "status": "not_recorded"
+      }
+    },
+    "molecular": {
+      "mutations": {
+        "ESR1": {
+          "status": "not_recorded"
+        },
+        "PIK3CA": {
+          "status": "not_recorded"
+        },
+        "AKT1": {
+          "status": "not_recorded"
+        },
+        "PTEN": {
+          "status": "not_recorded"
+        },
+        "BRCA1": {
+          "status": "not_recorded"
+        },
+        "BRCA2": {
+          "status": "not_recorded"
+        },
+        "PALB2": {
+          "status": "not_recorded"
+        }
+      },
+      "germline": {
+        "BRCA1": {
+          "status": "present",
+          "result": "detected",
+          "variants": [
+            {
+              "protein_change": "E23Vfs*17",
+              "variant_type": "Frame_Shift_Del",
+              "vaf": null,
+              "raw": "BRCA1   c.68_69delAG (p.E23Vfs*17)   Pathogenic (병원성)"
+            }
+          ],
+          "source": {
+            "doc_id": "D4",
+            "quote": "BRCA1   c.68_69delAG (p.E23Vfs*17)   Pathogenic (병원성)",
+            "char_start": 1185,
+            "char_end": 1238
+          }
+        },
+        "BRCA2": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "source": {
+            "doc_id": "D4",
+            "quote": "BRCA2: 병원성 변이 검출되지 않음",
+            "char_start": 1241,
+            "char_end": 1262
+          }
+        }
+      }
+    },
+    "genomic_reports": [
+      {
+        "doc_id": "D4",
+        "report_date": "2024-11-29",
+        "specimen": null,
+        "raw_text": "[유전성 유방암 유전자 검사 결과]\n환자명: 김가상   등록번호: 00000135   F/38\n검사기관: 가상유전체검사센터   보고일: 2024.11.29\n검체: 말초혈액 (germline)\n검사법: BRCA1/BRCA2 전장 염기서열 분석 + MLPA\n\n결과\n  BRCA1   c.68_69delAG (p.E23Vfs*17)   Pathogenic (병원성)\n  BRCA2: 병원성 변이 검출되지 않음"
+      }
+    ],
+    "deemed_lines": [
+      {
+        "rule_id": "DEEM-ANTHRA-TAXANE",
+        "category": "chemo",
+        "status": "not_applicable",
+        "basis": "전이 기준일 없음 (전이성 아님)",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "61-62"
+      },
+      {
+        "rule_id": "DEEM-SG-1Y",
+        "category": "chemo",
+        "status": "not_applicable",
+        "basis": "전이 기준일 없음 (전이성 아님)",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "63"
+      },
+      {
+        "rule_id": "DEEM-HER2ADC-6M",
+        "category": "chemo",
+        "status": "not_applicable",
+        "basis": "전이 기준일 없음 (전이성 아님)",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "62-63"
+      },
+      {
+        "rule_id": "DEEM-ENDO-ADJ-1Y",
+        "category": "endocrine",
+        "status": "not_applicable",
+        "basis": "전이 기준일 없음 (전이성 아님)",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "57"
+      }
+    ],
+    "at_index": {
+      "age": 38,
+      "recent_therapy_28d": {
+        "status": "no",
+        "basis": "doxorubicin+cyclophosphamide 기준일 49일 전 종료 (28일 초과)",
+        "regimen_refs": [
+          1
+        ],
+        "gap_days": 49
+      }
+    }
+  },
+  "conflicts": []
+}
