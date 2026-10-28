@@ -174,7 +174,10 @@ def locate(quote: str, doc: Document, mapping: dict[str, str] | None = None) -> 
         chars = [re.escape(ch) for ch in quote if not ch.isspace()]
         m = re.search(r"\s*".join(chars), doc.text) if chars else None
         if not m:
-            return None
+            # 원문 'BRCA1/2'를 칸에 맞춰 'BRCA1'·'BRCA2'로 나눠 옮긴 구절은 원문 표기로 되돌려 찾는다 (2026-10-28).
+            # 유전자 이름만 바꾼 경우만 받는다. 단어를 빼거나 바꾼 구절은 지어낸 구절과 구별할 수 없어 버린다
+            wide = re.sub(r"BRCA[12](?![/\d])", "BRCA1/2", quote)
+            return locate(wide, doc) if wide != quote else None
         span = m.span()
     return {"doc_id": doc.doc_id, "quote": doc.text[span[0]:span[1]],
             "char_start": doc.start + span[0], "char_end": doc.start + span[1]}
@@ -334,7 +337,8 @@ def _tnm(q, ctx, *, prefix):
 
 def _group(q, ctx):
     m = re.search(r"stage\s*(IV|III[A-C]?|II[AB]?|I[AB]?|0)(?![A-Za-z])", q, re.I) \
-        or re.search(r"(IV|III[A-C]?|II[AB]?|I[AB]?)\s*기", q)
+        or re.search(r"(IV|III[A-C]?|II[AB]?|I[AB]?)\s*기", q) \
+        or re.fullmatch(r"\s*(IV|III[A-C]?|II[AB]?|I[AB]?)\s*", q)    # LLM이 'IIIA'만 옮긴 경우 (2026-10-28)
     return m and m.group(1).upper()
 
 
@@ -920,6 +924,7 @@ def assemble(docs: list[Document], candidates: list[dict], *, patient_ref: str, 
         if a:
             anthra.append({**a, "raw": src["quote"], "source": src})
     fields["treatment_history"] = history
+    _endocrine_end_from_rows(fields, history)
     fields["anthracycline_drug_dose"] = {
         "administered": "positive" if anthra else "negative" if history else "No value", "drugs": anthra}
     if images:
@@ -1118,6 +1123,19 @@ def _fill_treatment(history: list[dict], fields: dict, images: list[dict] = ()) 
         ordered = {k: t[k] for k in keys if k in t}
         t.clear()
         t.update(ordered)
+
+
+def _endocrine_end_from_rows(fields: dict, history: list[dict]) -> None:
+    """보조 내분비 종료일 후보가 없으면 투약 표의 보조 내분비 줄 종료일로 채운다 (근거 = 그 투약 줄, 2026-10-28).
+    경과기록의 종료 구절을 LLM이 놓쳐도 같은 날짜가 투약 표에 있다 (시험 VC-0122). 투약 중인 줄은 쓰지 않는다."""
+    if fields["recurrence"].get("adjuvant_endocrine_end_date", {}).get("status") != "not_recorded":
+        return
+    rows = [t for t in history if t["setting"] == "adjuvant" and t.get("end_date") and not t.get("ongoing")
+            and any(DRUG_TABLE.get(g, ("",))[0] == "Hormone Therapy" for g in t["drugs"])]
+    if rows:
+        t = max(rows, key=lambda t: t["end_date"])
+        fields["recurrence"]["adjuvant_endocrine_end_date"] = {"status": "present", "value": t["end_date"],
+                                                               "raw": t["source"]["quote"], "source": t["source"]}
 
 
 def _genomic_report(doc: Document, fields: dict) -> dict:

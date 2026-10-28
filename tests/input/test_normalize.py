@@ -174,6 +174,9 @@ def test_stop_reason_from_vocab(tail, want):
     ("patient.cardiac_history", "재발·전이 소견 없음", None),
     ("patient.mediastinal_radiation", "좌측 흉벽·내유림프절 방사선 치료 (50 Gy)", "yes"),    # VC-0127
     ("patient.mediastinal_radiation", "종격동 방사선 치료력 없음", "no"),
+    # 2026-10-28: 병기군을 'IIIA'만 옮겨도 받는다 (VC-0106b, hari). 다른 글이 붙으면 받지 않는다
+    ("stage.group", "IIIA", "IIIA"),
+    ("stage.group", "IIIA 결절", None),
 ])
 def test_rules_steps_8_to_10(field, quote, want):
     doc = split("<외래 경과기록>   2024.5.4\n본문\n")[0]
