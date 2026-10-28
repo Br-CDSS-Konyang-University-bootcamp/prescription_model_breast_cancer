@@ -112,3 +112,77 @@ def test_age_and_repeated_mentions():
     assert got["fields"]["patient"]["age"] == want["fields"]["patient"]["age"]          # F/52 (D2, 2021)
     assert "history" not in got["fields"]["patient"]["gender"]
     assert got["fields"]["at_index"] == want["fields"]["at_index"]
+
+
+def _vc0105(chart_edits, add):
+    """VC-0105(선행 TCHP, cT2N1 IIB)의 차트를 고치고 병기 후보를 바꿔 조립한다."""
+    ref = "VC-0105"
+    chart = (out_dir(ref) / "chart.txt").read_text(encoding="utf-8")
+    for old, new in chart_edits:
+        assert old in chart
+        chart = chart.replace(old, new)
+    want = json.loads((out_dir(ref) / "expected" / "patient_state.json").read_text(encoding="utf-8"))
+    stage = ("stage.ctnm", "stage.group", "stage.disease_extent", "stage.metastatic_sites")
+    cands = [c for c in from_expected(want) if c["field"] not in stage] + list(add)
+    return run(chart, lambda docs: cands, patient_ref=ref, created_at=want["created_at"])
+
+
+def test_diagnosis_extent_ignores_post_neoadjuvant_stage():
+    """선행요법 뒤 병기(ypStage)가 진단 시 병기군·범주를 덮거나 같은 날 충돌로 지우지 않는다 (2026-10-27)."""
+    yp = ("ypT1c ypN1a, 잔존", "ypT1c ypN1a, ypStage IIA, 잔존")
+    # 진단 병기는 1월 영상 판독에만, 7월 경과기록에는 선행 후 병기만
+    got, issues = _vc0105(
+        [("좌측 액와 림프절 전이 의심", "좌측 액와 림프절 전이 의심\n  임상 병기: cT3N1M0, stage IIIA"),
+         ("   cT2N1M0, stage IIB, HER2+", "   HER2+"), yp],
+        [_cand("D2", "stage.ctnm", "cT3N1M0"), _cand("D2", "stage.group", "stage IIIA"),
+         _cand("D2", "stage.disease_extent", "stage IIIA"), _cand("D2", "stage.metastatic_sites", "cT3N1M0"),
+         _cand("D4", "stage.group", "ypStage IIA"), _cand("D4", "stage.disease_extent", "ypStage IIA")])
+    stage = got["fields"]["stage"]
+    assert (stage["group"]["value"], stage["disease_extent"]["value"]) == ("IIIA", "locally_advanced")
+    assert sum(i.get("note") == "선행요법 뒤 병기 (진단 시 병기군 아님)" for i in issues) == 2
+    # 같은 날 경과기록에 두 병기를 함께 적음
+    got, _ = _vc0105(
+        [("cT2N1M0, stage IIB", "cT3N1M0, stage IIIA"), yp],
+        [_cand("D4", "stage.ctnm", "cT3N1M0"), _cand("D4", "stage.group", "stage IIIA"),
+         _cand("D4", "stage.disease_extent", "stage IIIA"), _cand("D4", "stage.metastatic_sites", "cT3N1M0"),
+         _cand("D4", "stage.group", "ypStage IIA"), _cand("D4", "stage.disease_extent", "ypStage IIA")])
+    assert got["conflicts"] == []
+    assert got["fields"]["stage"]["disease_extent"]["value"] == "locally_advanced"
+
+
+def test_diagnosis_extent_from_tnm():
+    """병기군 구절이 없으면 ctnm으로 범주를 정한다. 구절이 해부학적 범주와 다르면 TNM 값을 쓰고 확인 요청."""
+    # 병기군 구절 없음: cT3N1M0 → IIIA
+    got, issues = _vc0105([("cT2N1M0, stage IIB", "cT3N1M0")],
+                          [_cand("D4", "stage.ctnm", "cT3N1M0"), _cand("D4", "stage.metastatic_sites", "cT3N1M0")])
+    ext = got["fields"]["stage"]["disease_extent"]
+    assert (ext["value"], ext["source"]["quote"]) == ("locally_advanced", "cT3N1M0")
+    assert issues == []
+    # 차트에는 IIA(예후 병기 등)로 적혔지만 해부학적으로 T3N1 = IIIA
+    got, issues = _vc0105([("cT2N1M0, stage IIB", "cT3N1M0, stage IIA")],
+                          [_cand("D4", "stage.ctnm", "cT3N1M0"), _cand("D4", "stage.group", "stage IIA"),
+                           _cand("D4", "stage.disease_extent", "stage IIA"), _cand("D4", "stage.metastatic_sites", "cT3N1M0")])
+    assert got["fields"]["stage"]["group"]["value"] == "IIA"
+    assert got["fields"]["stage"]["disease_extent"]["value"] == "locally_advanced"
+    assert [i["reason"] for i in issues] == ["needs_review"]
+
+
+@pytest.mark.parametrize("tnm, m, want", [
+    ({"t": "T3", "n": "N1mi"}, "M0", "locally_advanced"),   # N1mi가 내려가는 것은 T0~T1뿐
+    ({"t": "T1c", "n": "N1mi"}, "M0", "early"),             # IB
+    ({"t": "T3", "n": "N0"}, "M0", "early"),                # IIB
+    ({"t": "T2", "n": "N3a"}, None, "locally_advanced"),    # IIIC
+    ({"t": "T4d", "n": "N0"}, "M0", "locally_advanced"),    # 염증성 IIIB
+    ({"t": "TX", "n": "N2"}, "M0", "locally_advanced"),     # 어떤 T든 N2는 III기
+    ({"t": "TX", "n": "N1"}, "M0", None),
+    ({"t": "T2", "n": "N1"}, "M1", "metastatic"),
+])
+def test_anatomic_extent(tnm, m, want):
+    from src.input.script.pipeline import _anatomic_extent
+    assert _anatomic_extent(tnm, m) == want
+
+
+def test_tnm_with_prefixed_m_and_fna_suffix():
+    """림프절 세침흡인(FNA) 양성은 임상 N에 (f)를 붙인다 (AJCC 8판, cN1(f)). 각 범주에 c가 붙어도 M을 읽는다."""
+    from src.input.script.pipeline import _tnm
+    assert _tnm("cT2 cN1(f) cM0", None, prefix="c") == {"t": "T2", "n": "N1", "m": "M0", "edition": None}

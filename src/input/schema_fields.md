@@ -122,11 +122,16 @@ TNM·병기군 표기 규칙 [A 결정]:
 - 세부 표기는 공백만 지우고 그대로 둔다 [합의 예정]: `N0 (i-)` → `N0(i-)`, `N0 (i+)` → `N0(i+)`, `N1mi`, `N0 (mol+)` → `N0(mol+)`, `cM0 (i+)` → `cM0(i+)`
 - 병기군: `Stage X` → `not_assessed`. `Stage` 뒤의 로마숫자와 A~C를 그대로 쓴다 (`Stage IIA` → `IIA`, `Stage IV` → `IV`)
 
-`disease_extent` 규칙 (사용자 결정, 2026-10-13):
+`disease_extent` 규칙 (사용자 결정 2026-10-13, 2026-10-27 TNM 우선으로 변경. 코드: `src/input/script/pipeline.py`의 `_set_extent`):
 
-- 병기군 I~II → `early`(조기), III → `locally_advanced`(국소 진행성, 심평원 급여 조건의 3기), IV → `metastatic`(전이성)
-- 병기군이 없거나 `not_assessed`이면 TNM으로 정한다: M1 → `metastatic`, M0·MX이면서 T4 또는 N2~N3 → `locally_advanced` (AJCC 규칙). 그 밖은 정할 수 없으므로 `not_recorded`
 - 진단 시 범주다. 재발 후 현재 상태는 B의 `biomarker_record.setting.disease`가 정한다
+- 진단 시 TNM으로 계산한다 (AJCC 8판 해부학적 병기표). 진단 시 TNM은 선행요법 환자(`yptnm` 칸이 있거나 선행 투약이 있음)는 `ctnm`, 수술을 먼저 했으면 `ptnm`, 둘 다 아니면 `ctnm`이다. `yptnm`은 쓰지 않는다. M은 `ctnm`·`ptnm` 중 하나라도 M1이면 M1
+- M1 → `metastatic`. T4, N2, N3, T3N1 (N1mi 포함) → `locally_advanced` (III기). 그 밖은 `early`. N1mi가 따로 내려가는 것은 T0~T1 N1mi(IB기)뿐이다
+- T나 N을 모르면(없음, X) TNM으로 정할 수 없으므로 병기군 구절(I~II → `early`, III → `locally_advanced`, IV → `metastatic`)을 쓴다
+- 병기군 구절이 계산값과 다르면 계산값을 쓰고 issues에 확인 요청(`needs_review`)을 남긴다. 차트의 병기군은 AJCC 8판 예후 병기(등급·ER·PR·HER2 반영)일 수 있어 해부학적 병기와 다를 수 있다. `stage.group`에는 차트에 적힌 병기군을 그대로 둔다
+- 선행요법 뒤 병기 구절(`ypStage IIA`, `ypT1c ypN1a, stage IIA`)은 `group`·`disease_extent` 후보에서 뺀다. AJCC 8판은 선행요법 뒤 병기군을 매기지 않는다 (post-neoadjuvant prognostic stage는 준비 중). ypT·ypN·잔존 크기·림프절 수는 `yptnm`, pCR·RCB는 `neoadjuvant_response`에 둔다
+- 스키마 `disease_extent` 설명("병기군이 없으면 TNM", T3N1 빠짐)은 이 규칙에 맞춰 고칠 제안이다 (4명 검토 전)
+- 림프절 세침흡인(FNA)이나 중심부 바늘 생검 양성은 임상 N이다 (AJCC 8판 `cN1(f)`). `ctnm`의 `n`에 넣고 (f)는 지금 버린다
 
 ## 5. 수용체 (`fields.receptors`)
 

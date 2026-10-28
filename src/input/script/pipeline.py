@@ -313,7 +313,7 @@ def _grade(q, ctx):
 
 def _tnm(q, ctx, *, prefix):
     m = re.search(r"(yp|p|c)?T(is|[0-4][a-d]?|X)\s*(?:\(\w+\))?\s*(?:y?p|c)?N([0-3][a-c]?(?:mi)?|X)\s*(?:\(\w+\))?"
-                  r"\s*(?:M([01X]))?", q)
+                  r"\s*(?:[cp]?M([01X]))?", q)
     # 접두어가 칸과 다르면 받지 않는다 (경과기록의 pT2N0M0를 ctnm 칸에 넣은 경우 등). 접두어가 없으면 받는다
     if not m or m.group(1) not in (None, prefix):
         return None
@@ -825,10 +825,20 @@ def assemble(docs: list[Document], candidates: list[dict], *, patient_ref: str, 
     for it in items:
         if it[0]["field"] not in LIST_FIELDS:
             by_field.setdefault(it[0]["field"], []).append(it)
-    # 다른 칸을 보고 거르는 칸이 있어 병기 범주·재발 상태를 먼저 정한다
-    first = ("stage.disease_extent", "recurrence.status")
-    for field in sorted(by_field, key=lambda f: f not in first):
+    # 다른 칸을 보고 거르는 칸이 있어 병기 범주·재발 상태를 먼저 정한다. 병기 범주는 TNM으로 계산하므로 TNM이 그보다 먼저다
+    first = ("stage.ctnm", "stage.ptnm", "stage.yptnm", "stage.disease_extent", "recurrence.status")
+    by_field.setdefault("stage.disease_extent", [])     # 범주 후보가 없어도 TNM으로 계산한다
+    for field in sorted(by_field, key=lambda f: first.index(f) if f in first else len(first)):
         its = by_field[field]
+        if field in ("stage.group", "stage.disease_extent"):
+            # 선행요법 뒤 병기(ypStage)는 진단 시 병기군이 아니다. AJCC 8판은 선행 후 병기군을 매기지 않고
+            # ypT·ypN만 stage.yptnm에 둔다 (2026-10-27 A 결정)
+            yp = [it for it in its if YP_STAGE.search(it[2]["quote"])]
+            issues += [{"reason": "rule", "candidate": it[0], "note": "선행요법 뒤 병기 (진단 시 병기군 아님)"} for it in yp]
+            its = [it for it in its if it not in yp]
+        if field == "stage.disease_extent":
+            _set_extent(fields, its, items, conflicts, issues)
+            continue
         extent, status = _value(fields, "stage.disease_extent"), _value(fields, "recurrence.status")
         if field == "stage.metastatic_sites" and extent in ("early", "locally_advanced"):
             # 진단 시 IV기가 아니면 진단 시 전이 부위는 없다 (나중 전이를 이 칸에 넣은 후보를 뺀다)
@@ -901,6 +911,55 @@ def assemble(docs: list[Document], candidates: list[dict], *, patient_ref: str, 
     if errors:
         issues.append({"reason": "schema", "errors": errors})
     return ps, issues
+
+
+YP_STAGE = re.compile(r"y[pc]\s*-?\s*stage|y[pc]T", re.I)
+
+
+def _anatomic_extent(tnm: dict, m: str | None) -> str | None:
+    """AJCC 8판 해부학적 병기표의 범주. M1 → IV기, T4·N2·N3·T3N1(N1mi 포함) → III기, T·N을 모르면 None.
+    N1mi가 따로 내려가는 것은 T0~T1 N1mi(IB기)뿐이라 T3N1mi는 IIIA기다."""
+    t, n = tnm.get("t") or "", tnm.get("n") or ""
+    if (m or "").startswith("M1"):
+        return "metastatic"
+    if t.startswith("T4") or n.startswith(("N2", "N3")) or (t.startswith("T3") and n.startswith("N1")):
+        return "locally_advanced"
+    if not t.startswith("T") or not n.startswith("N") or "X" in t + n:
+        return None
+    return "early"
+
+
+def _set_extent(fields: dict, its: list, items: list, conflicts: list, issues: list) -> None:
+    """stage.disease_extent = 진단 시 범주 (2026-10-27 A 결정).
+    진단 시 TNM: 선행요법 환자(yptnm 칸 또는 선행 투약이 있음)는 ctnm, 수술을 먼저 했으면 ptnm, 없으면 ctnm.
+    yptnm은 쓰지 않는다. M은 다른 칸에 M1이 있으면 M1. 그 TNM의 해부학적 범주(_anatomic_extent)를 쓰고,
+    TNM으로 정할 수 없을 때만 차트의 병기군 구절을 쓴다. 구절과 다르면 확인 요청을 남긴다 (예후 병기일 수 있음)."""
+    stage = fields["stage"]
+    neo = "yptnm" in stage or any(c["field"] == "treatment_history" and out.get("setting") == "neoadjuvant"
+                                  for c, _, _, out in items)
+    keys = ("ctnm",) if neo else ("ptnm", "ctnm")
+    key = next((k for k in keys if _value(fields, f"stage.{k}")), None)
+    m1 = next((k for k in ("ctnm", "ptnm") if ((_value(fields, f"stage.{k}") or {}).get("m") or "").startswith("M1")), None)
+    computed = _anatomic_extent(_value(fields, f"stage.{key}") if key else {}, "M1" if m1 else None)
+    if m1 and computed == "metastatic":
+        key = m1
+    chosen = _choose("stage.disease_extent", [_entry(c, doc, src, out) for c, doc, src, out in its]) if its else None
+    conflict = isinstance(chosen, dict) and "conflict" in chosen
+    if computed is None:
+        if conflict:
+            conflicts.append(chosen["conflict"])
+            stage.pop("disease_extent", None)
+        elif chosen:
+            _set(fields, "stage.disease_extent", chosen)
+        return
+    if chosen and not conflict and chosen.get("value") == computed:
+        _set(fields, "stage.disease_extent", chosen)
+        return
+    tnm = stage[key]
+    stage["disease_extent"] = {"status": "present", "value": computed, "raw": tnm["raw"], "source": tnm["source"]}
+    for c, *_ in its:
+        issues.append({"reason": "needs_review", "candidate": c,
+                       "note": f"차트 병기군과 {key} 해부학적 병기 범주({computed})가 다름 (예후 병기일 수 있음)"})
 
 
 def _drop(its: list, test, issues: list, note: str) -> list:
