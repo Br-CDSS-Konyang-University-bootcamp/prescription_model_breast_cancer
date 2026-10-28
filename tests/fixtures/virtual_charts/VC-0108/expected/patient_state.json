@@ -347,6 +347,26 @@
           "char_start": 1175,
           "char_end": 1243
         },
+        "doses": [
+          {
+            "drug": "ribociclib",
+            "per_admin": {
+              "value": 600,
+              "unit": "mg"
+            },
+            "total": "No value",
+            "basis": "estimated"
+          },
+          {
+            "drug": "letrozole",
+            "per_admin": {
+              "value": 2.5,
+              "unit": "mg"
+            },
+            "total": "No value",
+            "basis": "estimated"
+          }
+        ],
         "line": 1,
         "endocrine_line": 1,
         "chemo_line": null

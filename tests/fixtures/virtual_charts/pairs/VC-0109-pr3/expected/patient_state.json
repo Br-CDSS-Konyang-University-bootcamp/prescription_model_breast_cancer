@@ -317,6 +317,17 @@
           "char_start": 1338,
           "char_end": 1400
         },
+        "doses": [
+          {
+            "drug": "tamoxifen",
+            "per_admin": {
+              "value": 20,
+              "unit": "mg"
+            },
+            "total": "No value",
+            "basis": "estimated"
+          }
+        ],
         "line": null,
         "endocrine_line": null,
         "chemo_line": null

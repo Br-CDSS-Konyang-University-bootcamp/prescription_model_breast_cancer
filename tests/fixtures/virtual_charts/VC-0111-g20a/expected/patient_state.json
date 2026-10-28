@@ -370,6 +370,20 @@
           "char_start": 1519,
           "char_end": 1601
         },
+        "doses": [
+          {
+            "drug": "docetaxel",
+            "per_admin": {
+              "value": 75,
+              "unit": "mg/m2"
+            },
+            "total": {
+              "value": 450,
+              "unit": "mg/m2"
+            },
+            "basis": "estimated"
+          }
+        ],
         "line": 1,
         "endocrine_line": null,
         "chemo_line": 1

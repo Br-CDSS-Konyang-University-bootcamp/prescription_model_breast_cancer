@@ -395,6 +395,17 @@
           "char_start": 1681,
           "char_end": 1745
         },
+        "doses": [
+          {
+            "drug": "anastrozole",
+            "per_admin": {
+              "value": 1,
+              "unit": "mg"
+            },
+            "total": "No value",
+            "basis": "estimated"
+          }
+        ],
         "line": null,
         "endocrine_line": null,
         "chemo_line": null

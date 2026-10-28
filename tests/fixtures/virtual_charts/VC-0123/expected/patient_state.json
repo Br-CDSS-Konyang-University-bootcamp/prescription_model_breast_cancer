@@ -350,6 +350,17 @@
           "char_start": 1544,
           "char_end": 1628
         },
+        "doses": [
+          {
+            "drug": "abemaciclib",
+            "per_admin": {
+              "value": 150,
+              "unit": "mg"
+            },
+            "total": "No value",
+            "basis": "estimated"
+          }
+        ],
         "line": 1,
         "endocrine_line": 1,
         "chemo_line": null

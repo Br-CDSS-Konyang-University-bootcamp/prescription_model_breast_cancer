@@ -449,6 +449,32 @@
           "char_start": 1676,
           "char_end": 1769
         },
+        "doses": [
+          {
+            "drug": "docetaxel",
+            "per_admin": {
+              "value": 75,
+              "unit": "mg/m2"
+            },
+            "total": {
+              "value": 300,
+              "unit": "mg/m2"
+            },
+            "basis": "estimated"
+          },
+          {
+            "drug": "cyclophosphamide",
+            "per_admin": {
+              "value": 600,
+              "unit": "mg/m2"
+            },
+            "total": {
+              "value": 2400,
+              "unit": "mg/m2"
+            },
+            "basis": "estimated"
+          }
+        ],
         "line": null,
         "endocrine_line": null,
         "chemo_line": null

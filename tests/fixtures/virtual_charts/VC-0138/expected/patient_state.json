@@ -488,6 +488,32 @@
           "char_start": 1926,
           "char_end": 2022
         },
+        "doses": [
+          {
+            "drug": "doxorubicin",
+            "per_admin": {
+              "value": 60,
+              "unit": "mg/m2"
+            },
+            "total": {
+              "value": 240,
+              "unit": "mg/m2"
+            },
+            "basis": "estimated"
+          },
+          {
+            "drug": "cyclophosphamide",
+            "per_admin": {
+              "value": 600,
+              "unit": "mg/m2"
+            },
+            "total": {
+              "value": 2400,
+              "unit": "mg/m2"
+            },
+            "basis": "estimated"
+          }
+        ],
         "line": null,
         "endocrine_line": null,
         "chemo_line": null
@@ -518,6 +544,20 @@
           "char_start": 2029,
           "char_end": 2111
         },
+        "doses": [
+          {
+            "drug": "paclitaxel",
+            "per_admin": {
+              "value": 80,
+              "unit": "mg/m2"
+            },
+            "total": {
+              "value": 960,
+              "unit": "mg/m2"
+            },
+            "basis": "estimated"
+          }
+        ],
         "line": null,
         "endocrine_line": null,
         "chemo_line": null
@@ -547,6 +587,20 @@
           "char_start": 2118,
           "char_end": 2192
         },
+        "doses": [
+          {
+            "drug": "trastuzumab",
+            "per_admin": {
+              "value": 6,
+              "unit": "mg/kg"
+            },
+            "total": {
+              "value": 84,
+              "unit": "mg/kg"
+            },
+            "basis": "estimated"
+          }
+        ],
         "line": null,
         "endocrine_line": null,
         "chemo_line": null
@@ -578,6 +632,20 @@
           "char_start": 2199,
           "char_end": 2281
         },
+        "doses": [
+          {
+            "drug": "docetaxel",
+            "per_admin": {
+              "value": 75,
+              "unit": "mg/m2"
+            },
+            "total": {
+              "value": 450,
+              "unit": "mg/m2"
+            },
+            "basis": "estimated"
+          }
+        ],
         "line": 1,
         "endocrine_line": null,
         "chemo_line": 1
@@ -637,6 +705,20 @@
           "char_start": 2356,
           "char_end": 2437
         },
+        "doses": [
+          {
+            "drug": "trastuzumab deruxtecan",
+            "per_admin": {
+              "value": 5.4,
+              "unit": "mg/kg"
+            },
+            "total": {
+              "value": 124.2,
+              "unit": "mg/kg"
+            },
+            "basis": "estimated"
+          }
+        ],
         "line": 2,
         "endocrine_line": null,
         "chemo_line": 2

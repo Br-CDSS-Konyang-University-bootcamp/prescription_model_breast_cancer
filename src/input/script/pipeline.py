@@ -683,7 +683,32 @@ def _treatment(q: str, ctx: Context) -> dict | None:
             "duration_days": e - s if s is not None and e is not None else None,
             **({"ongoing": True} if r["ongoing"] else {}),
             "cycles": r["cycles"], "stop_reason": _stop_reason(r["tail"]),
-            "best_response": _vocab("treatment_history.best_response", r["tail"])}
+            "best_response": _vocab("treatment_history.best_response", r["tail"]),
+            **({"doses": doses} if (doses := _doses(q, r)) else {})}
+
+
+# 약별 용량 (treatment_history[].doses, 2026-10-28). 가상 차트 생성기(virtual_chart.row_doses)와 따로 쓴다.
+# 용량이 적힌 약만. 1회 용량은 약 이름(상품명이면 뒤의 "(일반명)") 바로 뒤 숫자 + mg/m2·mg/kg·mg, 또는 AUC.
+# 총량은 1회 × 주기 수 (d1, d8이면 주기당 2회). 매일 먹는 약, AUC(목표 노출량), 주기 수가 없으면 "No value"
+DOSE_AT = re.compile(r"\s*\)?\s*(?:(\d+(?:\.\d+)?)\s*(mg/m2|mg/kg|mg)(?![a-z/])|AUC\s*(\d+(?:\.\d+)?))", re.I)
+DAILY_ORAL = {"tamoxifen", "anastrozole", "letrozole", "exemestane", "megestrol", "palbociclib", "ribociclib",
+              "abemaciclib", "everolimus", "capecitabine", "lapatinib", "tucatinib", "neratinib", "olaparib",
+              "talazoparib", "alpelisib", "capivasertib", "inavolisib", "elacestrant", "imlunestrant"}
+
+
+def _doses(q: str, r: dict) -> list[dict]:
+    out = []
+    twice = 2 if re.search(r"d1,\s*d8", q) else 1
+    for g, ends in r["drugs"]:
+        m = next((m for m in (DOSE_AT.match(r["head"], e) for e in ends) if m), None)
+        if not m:
+            continue
+        per = {"value": _num(m.group(1)), "unit": m.group(2)} if m.group(1) else {"value": _num(m.group(3)), "unit": "AUC"}
+        daily = g in DAILY_ORAL or re.match(r"\s*(?:qd|bid|tid)\b", r["head"][m.end():], re.I)
+        total = "No value" if daily or not r["cycles"] or per["unit"] == "AUC" else \
+            {"value": _num(str(round(per["value"] * r["cycles"]["value"] * twice, 3))), "unit": per["unit"]}
+        out.append({"drug": g, "per_admin": per, "total": total, "basis": "estimated"})
+    return out
 
 
 # 중단 사유 단어는 field_vocab.csv의 treatment_history.stop_reason. 한 줄에 둘 이상 맞으면 앞 값
@@ -1085,7 +1110,7 @@ def _fill_treatment(history: list[dict], fields: dict, images: list[dict] = ()) 
             prog = min(seen) if seen else min(inside) if inside else e
         t["progression_day"] = prog
         keys = ["drugs", "setting", "start_date", "end_date", "start_day", "end_day", "duration_days", "ongoing",
-                "cycles", "progression_day", "stop_reason", "best_response", "source"]
+                "cycles", "progression_day", "stop_reason", "best_response", "source", "doses"]
         ordered = {k: t[k] for k in keys if k in t}
         t.clear()
         t.update(ordered)
@@ -1401,8 +1426,9 @@ def main(argv=None) -> int:
 
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--ids", nargs="+", help="사례 (기본: 문서 보기는 VC-0103, --out은 --set)")
-    ap.add_argument("--set", default="dev", choices=["dev", "pairs", "test"],
-                    help="--out의 사례 묶음: dev 10건 (기본), pairs 짝 19건, test 새 20건 (규칙 고정 뒤에만)")
+    ap.add_argument("--set", default="dev", choices=["dev", "pairs", "test", "holdout"],
+                    help="--out의 사례 묶음: dev 10건 (기본), pairs 짝 19건, test 새 20건 (규칙 고정 뒤에만), "
+                         "holdout 보류 18건 (성능 보고에만, 틀린 칸을 보고 규칙을 고치지 않는다)")
     ap.add_argument("--docs", nargs="*", help="문서 ID (없으면 칸 목록이 있는 문서 모두)")
     ap.add_argument("--model", help="llm/config.toml [extract]의 모델 대신")
     ap.add_argument("--host", help="Ollama 주소 대신 (예: SSH 터널 http://127.0.0.1:11435). 서버 주소를 바로 쓰지 말 것 (암호화 안 됨)")
