@@ -12,7 +12,7 @@
 
 | 칸 (patient_state) | confirmed_state 항목 | B | C | D | 지금 코드 |
 |---|---|---|---|---|---|
-| `molecular.germline.{BRCA1, BRCA2, PALB2}` | `markers.gBRCA` | ✔ 읽기 | ✔ (B 표지 사용) | ✔ (B 표지 사용) | **B가 안 읽음** |
+| `molecular.germline.{BRCA1, BRCA2, PALB2}` (1순위), 없으면 `mutations`의 같은 유전자 (2순위) | `markers.gBRCA` | ✔ 읽기 | ✔ (B 표지 사용) | ✔ (B 표지 사용) | **B가 안 읽음 (양성이 not_recorded로 나옴)** |
 | `stage.clinical_size_mm`, `pathologic_size_mm` | `stage.size_mm` (basis c/p) | ✔ 급여 조건 | | ✔ 급여 조건 | **아무도 안 읽음** |
 | `stage.yptnm` | `stage.t`·`stage.n` 설명 | ✔ | ✔ | ✔ | **아무도 안 읽음** |
 | `patient.cardiac_history`, `lvef_percent` | `cardiac_risk` | ✔ 급여 조건 | | ✔ 급여 조건 | **B·D 모두 "칸 없음"으로 처리** |
@@ -30,9 +30,12 @@
 
 ### 1.1 바이오마커 (`BM1_ER,PR,HER2,Ki_67,subtype.py`)
 
-- [ ] **생식세포 칸 읽기.** `molecular.germline.{BRCA1, BRCA2, PALB2}`가 있으면 그 결과로 `gBRCA1/2`·`gPALB2`를 만들고, `molecular.mutations`의 BRCA는 체세포로 본다. 칸이 없으면 지금처럼 `mutations`의 BRCA를 gBRCA로 본다 (PROJECT.md §14, 2026-10-22). 지금 코드에는 `germline` 참조가 없다
-  - 시험: VC-0116 (생식세포 BRCA1 병원성), VC-0119 (BRCA2 병원성), VC-0115·0117 (음성), 보류 VC-0135·0140, VC-0115-g21
-  - `mutations`에도 BRCA 결과가 있는 경우 (생식세포 음성 + 종양 양성 등) 어떻게 이름 붙일지 정하기
+- [ ] **gBRCA는 생식세포 칸을 먼저 쓴다 (2026-10-28 A 결정, PROJECT.md §14).** 유전자마다 (BRCA1, BRCA2, PALB2)
+  1. **1순위:** `molecular.germline.<유전자>` (생식세포 검사)에 결과가 있으면 (`status: present`) 그 결과로 `gBRCA1`·`gBRCA2`·`gPALB2` 레코드를 만든다
+  2. **2순위:** 생식세포 결과가 없으면 (칸이 없거나 `present`가 아니면) `molecular.mutations.<유전자>` (체세포·종양 조직·cfDNA)의 결과를 쓴다
+  - 지금 코드는 `mutations`만 읽어서 (801·921행) 생식세포 결과를 버린다. 2026-10-28 `assess()` 실행 결과: VC-0116 (생식세포 BRCA1 병원성) → `gBRCA1: not_recorded`, VC-0119 (BRCA2 병원성) → `gBRCA2: not_recorded`, 보류 VC-0135 → `gBRCA1: not_recorded`. 양성이 기록 없음으로 바뀌어 PARP 억제제 판정이 빠진다
+  - 시험: VC-0116·0119 (생식세포 양성), VC-0115·0117 (생식세포 음성), VC-0102 (생식세포 칸 없음 + 종양 NGS 미검출 → 2순위), 보류 VC-0135·0140, VC-0115-g21
+  - B가 정할 것: 생식세포가 `not_done`(미시행)이라 2순위를 쓸 때도 생식세포 검사 권고(BM-4)를 그대로 내는지, 레코드 근거에 어느 칸을 썼는지 적는 방식
 - [ ] 생식세포 검사가 `not_recorded`일 때 검사 권고(BM-4)를 내지 않는지 (권고는 `not_done`일 때만, PROJECT.md §14). 보류 VC-0132
 - [ ] ER-low → HR+ (`ER_LOW_IS_HR_POSITIVE`) 확인만. 보류 VC-0142
 
