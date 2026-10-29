@@ -1,15 +1,15 @@
 drug,markers,statuses,disease,source,note
-alpelisib,PIK3CA,positive,,"심평원 공고책자 2026-10-01판 p.166 (병용 연번 22 허가사항, hira-booklet-20261001-combo-r22)",
-inavolisib,PIK3CA,positive,,"심평원 공고책자 2026-10-01판 p.168–169 (병용 연번 29 허가사항, hira-booklet-20261001-combo-r29)",
-capivasertib,PIK3CA|AKT1|PTEN,positive,,"심평원 공고책자 2026-10-01판 p.165–166 (병용 연번 21 허가사항, hira-booklet-20261001-combo-r21); ESMO MBC 2026 p.1205",셋 중 하나라도 양성이면 된다
+alpelisib,PIK3CA,positive,,"심평원 공고책자 2026-11-01판 p.167 (병용 연번 23 허가사항, hira-booklet-20261101-combo-r23)",
+inavolisib,PIK3CA,positive,,"심평원 공고책자 2026-11-01판 p.170 (병용 연번 30 허가사항, hira-booklet-20261101-combo-r30)",
+capivasertib,PIK3CA|AKT1|PTEN,positive,,"심평원 공고책자 2026-11-01판 p.167 (병용 연번 22 허가사항, hira-booklet-20261101-combo-r22); ESMO MBC 2026 p.1205",셋 중 하나라도 양성이면 된다
 elacestrant,ESR1,positive,,ESMO MBC 2026 p.1206,심평원 행은 D 확인 전
 imlunestrant,ESR1,positive,,ESMO MBC 2026 p.1206,심평원 행은 D 확인 전
-olaparib,gBRCA1|gBRCA2|PALB2,positive,,"심평원 공고책자 2026-10-01판 p.169–171 (병용 연번 30 허가사항, hira-booklet-20261001-combo-r30); ESMO EBC 2024 p.172–173; ESMO MBC 2026 p.1206·1212 (생식세포 PALB2)",PALB2는 ESMO 근거만
+olaparib,gBRCA1|gBRCA2|PALB2,positive,,"심평원 공고책자 2026-11-01판 p.171–173 (병용 연번 31 허가사항, hira-booklet-20261101-combo-r31); ESMO EBC 2024 p.172–173; ESMO MBC 2026 p.1206·1212 (생식세포 PALB2)",PALB2는 ESMO 근거만
 talazoparib,gBRCA1|gBRCA2|PALB2,positive,,ESMO MBC 2026 p.1206·1212,심평원 행은 D 확인 전
-pembrolizumab,PD-L1,positive,metastatic,"심평원 공고책자 2026-10-01판 p.58 (CPS≥10, 22C3; hira-booklet-20261001-bc-pal-chemo-1l-r06·r07); ESMO EBC 2024 p.173 (조기 TNBC 선행·보조는 PD-L1 조건 없이 권고)",전이성에서만 PD-L1이 필요하다
+pembrolizumab,PD-L1,positive,metastatic,"심평원 공고책자 2026-11-01판 p.59 (CPS≥10, 22C3; hira-booklet-20261101-bc-pal-chemo-1l-r06·r07); ESMO EBC 2024 p.173 (조기 TNBC 선행·보조는 PD-L1 조건 없이 권고)",전이성에서만 PD-L1이 필요하다
 atezolizumab,PD-L1,positive,metastatic,ESMO MBC 2026 p.1212 (SP142 IC≥1%),심평원 행은 D 확인 전
-trastuzumab,HER2,positive,,"심평원 공고책자 2026-10-01판 p.48 (유방암 원칙의 HER2 양성 정의, hira-booklet-20261001-bc-principle)",
-pertuzumab,HER2,positive,,"심평원 공고책자 2026-10-01판 p.48 (유방암 원칙의 HER2 양성 정의, hira-booklet-20261001-bc-principle)",
-trastuzumab emtansine,HER2,positive,,"심평원 공고책자 2026-10-01판 p.48 (유방암 원칙의 HER2 양성 정의, hira-booklet-20261001-bc-principle)",
-lapatinib,HER2,positive,,"심평원 공고책자 2026-10-01판 p.48 (유방암 원칙의 HER2 양성 정의, hira-booklet-20261001-bc-principle)",
-trastuzumab deruxtecan,HER2,positive|low|ultralow,,"심평원 공고책자 2026-10-01판 p.63 (급여는 HER2 양성만, 고식적 항암 2차 이상 연번 22, hira-booklet-20261001-bc-pal-chemo-2lplus-r22); ESMO MBC 2026 p.1206–1207 (HER2 저발현·초저발현)",급여는 양성만이고 저발현·초저발현은 지침 근거
+trastuzumab,HER2,positive,,"심평원 공고책자 2026-11-01판 p.48 (유방암 원칙의 HER2 양성 정의, hira-booklet-20261101-bc-principle)",
+pertuzumab,HER2,positive,,"심평원 공고책자 2026-11-01판 p.48 (유방암 원칙의 HER2 양성 정의, hira-booklet-20261101-bc-principle)",
+trastuzumab emtansine,HER2,positive,,"심평원 공고책자 2026-11-01판 p.48 (유방암 원칙의 HER2 양성 정의, hira-booklet-20261101-bc-principle)",
+lapatinib,HER2,positive,,"심평원 공고책자 2026-11-01판 p.48 (유방암 원칙의 HER2 양성 정의, hira-booklet-20261101-bc-principle)",
+trastuzumab deruxtecan,HER2,positive|low|ultralow,,"심평원 공고책자 2026-11-01판 p.64 (급여는 HER2 양성만, 고식적 항암 2차 이상 연번 22, hira-booklet-20261101-bc-pal-chemo-2lplus-r22); ESMO MBC 2026 p.1206–1207 (HER2 저발현·초저발현)",급여는 양성만이고 저발현·초저발현은 지침 근거
