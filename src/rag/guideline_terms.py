@@ -53,6 +53,9 @@ def query_terms(profile: dict, terms: list[dict] = None) -> list[str]:
     # 장기 위기 (confirmed_state visceral_crisis, 의사 확정). ESMO는 "imminent organ failure"로 쓴다 (M06·M50: 항암 우선)
     if profile.get("disease") == "metastatic":
         keys.append(("confirmed_state.visceral_crisis", profile.get("visceral_crisis")))
+        # 동반질환으로 쓰지 못하는 약 계열이 있음 (contraindicated_classes). ESMO M05·M35: CDK4/6이나 항HER2를 못 쓰면 내분비 단독.
+        # 금기 약이 든 권고를 빼거나 경고하는 일은 B(추천)가 한다. C는 그런 환자에게 맞는 권고를 찾아 주기만 한다
+        keys.append(("confirmed_state.contraindicated_classes", profile.get("contraindicated")))
     if profile.get("disease") == "metastatic" and profile.get("stage_at_diagnosis") == "metastatic":
         keys.append(("stage.disease_extent", "metastatic"))  # 진단 시 IV기 = de novo (재발 전이와 권고가 갈린다)
     out = []

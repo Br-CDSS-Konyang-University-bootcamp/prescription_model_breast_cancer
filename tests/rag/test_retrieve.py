@@ -12,8 +12,10 @@ pytest.importorskip("qdrant_client")
 from qdrant_client import QdrantClient  # noqa: E402
 
 BASE_DIR = Path(__file__).resolve().parents[2]
-PATIENT = json.loads((BASE_DIR / "tests" / "input" / "expected" /
-                      "patient_state_metastatic_TCGA-A2-A0EW.json").read_text(encoding="utf-8"))
+# 옛 방식(patient_state + biomarker_record) 입력. TCGA 예시가 삭제돼(2026-10-27, A) 가상 차트 VC-0101로 바꿨다:
+# 보조 AC-T·AI 뒤 뼈·간 전이, 1차 CDK4/6 + AI 진행, ESR1 변이로 내분비 2차 결정
+PATIENT = json.loads((BASE_DIR / "tests" / "fixtures" / "virtual_charts" / "VC-0101" / "expected" /
+                      "patient_state.json").read_text(encoding="utf-8"))
 RECORD = {
     "subtype": "HR+/HER2-",
     "setting": {"disease": "metastatic", "line": "2L"},
@@ -62,9 +64,9 @@ def index(monkeypatch):
 def test_patient_from_state_reads_schema_fields():
     from src.rag.retrieve import patient_from_state
     p = patient_from_state(PATIENT, "metastatic")
-    assert p["metastatic_sites"] == ["bone"] and p["menopausal_status"] == "postmenopausal"
-    assert p["stage_at_diagnosis"] == "locally_advanced" and p["pcr"] is None
-    assert {"AI_nonsteroidal", "SERD"} <= set(p["prior_subclasses"])  # 보조 AI와 전이 후 fulvestrant
+    assert p["metastatic_sites"] == ["bone", "liver"] and p["menopausal_status"] == "postmenopausal"
+    assert p["stage_at_diagnosis"] == "early" and p["pcr"] is None
+    assert {"AI_nonsteroidal", "CDK4/6_inhibitor"} <= set(p["prior_subclasses"])  # 보조 AI와 전이 후 CDK4/6
     assert "Bone-modifying Agent" not in p["prior_classes"]  # 골 보호제는 이전 치료로 넣지 않는다
     assert patient_from_state(PATIENT, "early")["prior_subclasses"] == []  # 전이성일 때만
 
@@ -75,7 +77,7 @@ def test_retrieve_returns_guideline_with_parents_and_matching_reimbursement(inde
     calls, real = [], searcher.search_guidelines
     monkeypatch.setattr(searcher, "search_guidelines", lambda **kw: calls.append(kw) or real(**kw))
     guideline, reimbursement = retrieve_for_recommend(PATIENT, RECORD, as_of="2026-10-20", rerank=False)
-    # 주 검색 1번 + 뼈 전이 추가 검색 1번 (de novo 아님: 진단 시 국소 진행성) + 알고리즘 그림 경로 검색 1번 (주 검색과 같은 조건).
+    # 주 검색 1번 + 뼈 전이 추가 검색 1번 (간은 부위별 질의 없음, de novo 아님: 진단 시 조기) + 알고리즘 그림 경로 검색 1번 (주 검색과 같은 조건).
     # 모두 부모를 붙여 달라고 부른다
     assert [kw["query_text"].split()[0] for kw in calls] == ["second-line", "bone", "second-line"]
     assert [kw.get("chunk_kind", "recommendation") for kw in calls] == ["recommendation", "recommendation", "algorithm"]
@@ -148,6 +150,19 @@ def test_visceral_crisis_goes_into_metastatic_query():
     record, patient, _ = from_confirmed_state({**VC0103, "items": items})
     assert "imminent organ failure" not in search_args(record, **patient)["query_text"]
     assert from_confirmed_state(VC0103)[1]["visceral_crisis"] is None  # 항목이 없으면 넣지 않는다
+
+
+def test_contraindicated_classes_go_into_metastatic_query():
+    # 쓰지 못하는 약 계열이 있으면 "comorbidities"를 질의에 넣어 내분비 단독 권고(ESMO M05·M35)를 찾는다 (2026-10-29)
+    from src.rag.query import search_args
+    from src.rag.retrieve import from_confirmed_state
+    items = json.loads(json.dumps(VC0103["items"]))
+    items["contraindicated_classes"] = {"confirmed": ["CDK4/6_inhibitor"]}
+    record, patient, _ = from_confirmed_state({**VC0103, "items": items})
+    assert patient["contraindicated"] == "present" and "comorbidities" in search_args(record, **patient)["query_text"]
+    items["contraindicated_classes"] = {"confirmed": []}
+    record, patient, _ = from_confirmed_state({**VC0103, "items": items})
+    assert patient["contraindicated"] is None and "comorbidities" not in search_args(record, **patient)["query_text"]
 
 
 def test_decision_lines_by_subtype_and_setting():
