@@ -256,6 +256,14 @@ def patient(ref="TCGA-XX-0001", extent="metastatic", recurrence="none", er=None,
 TNBC = dict(er=f({"percent": 0}), pr=f({"percent": 0}), ihc=f({"score": "0"}))
 
 
+def with_germline(germline, **tumor):
+    """생식세포 칸(molecular.germline)을 더한 VC 환자. tumor는 mutations에서 바꿀 유전자 칸."""
+    ps = patient(ref="VC-1")
+    ps["fields"]["molecular"]["mutations"].update(tumor)
+    ps["fields"]["molecular"]["germline"] = germline
+    return ps
+
+
 def genes_with(field):
     """유전자 7개를 모두 같은 칸(미시행·기록 없음 등)으로 채운 molecular.mutations."""
     return {g: dict(field) for g in ("ESR1", "PIK3CA", "AKT1", "PTEN", "BRCA1", "BRCA2", "PALB2")}
@@ -313,6 +321,25 @@ ASSESS_CASES = [
 
 
 MIS, NON, FS = "Missense_Mutation", "Nonsense_Mutation", "Frame_Shift_Del"
+
+GERMLINE_CASES = [
+    # (id, patient_state, 정답 marker, 정답 상태, 정답 이유 시작, BM-4 권고 rule_id 포함 여부, 메모)
+    # 생식세포 칸 우선 (A 결정 2026-10-28, PROJECT.md §14, draft7 체크리스트 §1.1)
+    ("GL01", with_germline({"BRCA1": gene(("Q1756Pfs*74", FS), specimen=None)}, BRCA1=NR),
+     "gBRCA1", "positive", "생식세포 검사: ", False, "VC-0116처럼 생식세포 양성 + 종양 기록 없음 -> 양성"),
+    ("GL02", with_germline({"BRCA2": gene(specimen=None)}, BRCA2=gene(("X2602_splice", "Splice_Site"))),
+     "gBRCA2", "negative", "생식세포 검사: ", False, "생식세포 음성이면 종양 양성보다 생식세포 결과를 쓴다"),
+    ("GL03", with_germline({"BRCA1": NR}, BRCA1=gene(("Q934*", NON))),
+     "gBRCA1", "positive", "종양 검사 결과 (생식세포 검사 결과 없음): ", False,
+     "생식세포 결과가 없으면 2순위로 종양 결과"),
+    ("GL04", with_germline({"PALB2": ND}, PALB2=NR),
+     "PALB2", "not_done", "생식세포 검사: ", True, "둘 다 결과 없음 -> 생식세포 미시행, 검사 권고"),
+    ("GL05", with_germline({"BRCA2": NR}, BRCA2=NR),
+     "gBRCA2", "not_recorded", "생식세포 검사: ", False, "기록 없음은 권고하지 않음 (PROJECT.md §14, VC-0132)"),
+    ("GL06", patient(ref="VC-1", mutations={**genes_with({"status": "present", "result": "not_detected",
+                                                          "variants": []}), "BRCA1": gene(("Q934*", NON))}),
+     "gBRCA1", "positive", "BRCA1 ", False, "생식세포 칸이 없으면(TCGA 등) 지금처럼 mutations만"),
+]
 
 GENE_CASES = [
     # (id, 유전자, patient_ref, 칸, 정답 marker, 정답 상태, 정답 태그, 메모)
@@ -644,6 +671,17 @@ def main():
         detail = f"{out['subtype']} {out['setting']['disease']} {sorted(tests)}"
         if not ok:
             detail += f"  / 정답: {exp_sub} {exp_disease} {sorted(exp_tests)} {errors[:1]}"
+        report(case_id, ok, note, detail)
+
+    for case_id, ps, marker, exp_status, exp_reason, exp_test, note in GERMLINE_CASES:
+        out = assess(ps)
+        rec = next(r for r in out["records"] if r["marker"] == marker)
+        test = f"BM4-{marker.upper()}" in {t["rule_id"] for t in out["tests_needed"]}
+        ok = (rec["status"] == exp_status and rec["reason"].startswith(exp_reason) and test == exp_test
+              and not list(validator.iter_errors(out)))
+        detail = f"{marker} {rec['status']} 권고 {test}"
+        if not ok:
+            detail += f"  / 정답: {exp_status} 권고 {exp_test} / {rec['reason'][:80]}"
         report(case_id, ok, note, detail)
 
     pending = assess(patient(mutations=genes_with({"status": "not_done", "raw": "결과 대기"})))["tests_needed"]
