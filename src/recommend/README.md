@@ -19,6 +19,7 @@
 | `prompt.py` | 프롬프트: 환자 요약(구조화 값만, 차트 원문 인용은 넣지 않음), 바이오마커 상태값과 이유, 검사 공백, 지침 청크(ID·출처·쪽·근거 수준·부모 소단원), 급여 청크(공고 번호·시행일). 문장마다 `[청크ID]`를 붙이라고 지시 |
 | `postprocess.py` | 환각 방지 후처리 (아래 표) |
 | `validate.py` | `schemas/recommendation.json` 형식 검사 |
+| `clinical_notes.py` | 참고란 (`recommendation.json` `clinical_notes`, 2026-10-29). 동반질환·ECOG·장기 위기·의사가 확정한 금기 계열을 정해진 문장 틀로 적고, 넘어온 지침 청크 중 동반질환 관련 ESMO 청크 ID를 붙인다. 금기 계열 약이 든 후보는 빼지 않고 `applies_to`로 표시만 한다. `recommend(..., confirmed_state=...)`로 의사 확정값을 넘긴다 |
 | `conditions_eval.py` | 급여 조건 판정기 (아래 "급여 조건 판정기"). `make_conditions_checker(patient_state, biomarker_record)`를 `recommend()`의 `conditions_checker`로 넘긴다 |
 | `drug_biomarker.csv` | 약 → 필요한 바이오마커와 상태값. 출처는 D가 쓰는 심평원 공고책자 2026-10-01판(제2026-210호)의 인쇄 쪽·chunk_id(D 확인 2026-10-21)와 ESMO 쪽. 공고 문구는 옮기지 않는다. `disease` 칸이 있으면 그 범주에서만 적용 (pembrolizumab·atezolizumab은 전이성에서만 PD-L1 필요) |
 

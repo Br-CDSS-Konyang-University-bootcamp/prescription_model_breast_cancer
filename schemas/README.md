@@ -272,6 +272,7 @@ TCGA 정답은 실제 날짜가 없으므로, 날짜 칸은 추출값이면 `sta
 | `tests_needed[]` | 검사 권고. `blocks_therapy`에 이 검사가 없어 추천 대신 권고로 바꾼 치료를 적는다 |
 | `out_of_scope`, `out_of_scope_reason` | 범위 외이거나 검색 결과가 없으면 추천을 만들지 않는다 |
 | `conflicts[]` | 예: 지침 권고 차수와 급여 기준 차수가 다름 |
+| `clinical_notes[]` | 참고란 (선택, 2026-10-29 추가). 동반질환·ECOG·장기 위기·의사가 확정한 금기 계열과 관련 지침 청크 ID. 후보를 빼거나 바꾸지 않고 보여 주기만 한다. `topic`, `text`(규칙 코드가 만든 문장), `source_fields`, `citations`, `applies_to`(걸리는 후보 요법). 근거: `src/recommend/proposal_clinical_notes_2026-10-29.md` |
 | `index_status` | 화면 하단 요약 (공고책자 날짜, 덧씌운 공고, 예정·진행중 개수). D가 값을 제공 |
 
 스키마가 강제하는 규칙: `citations`는 1개 이상이고, 급여 분류가 `no_criteria`가 아니면 `reimbursement_citations`도 1개 이상이어야 한다.
