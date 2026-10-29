@@ -52,6 +52,10 @@ def _or(values):
 
 
 # ------------------------------------------------------------ 환자 값 읽기
+# 환자 칸 yes/no를 D 조건의 true/false로 읽는 조건 (LVEF 수치는 공고 기준을 D가 적은 뒤 연결한다)
+YES_NO_FIELDS = ("cardiac_history", "mediastinal_radiation")
+# 값 자체가 true/false인 조건. 그 밖의 조건에서 _value가 bool을 돌려주면 항목을 바로 정한 것이다
+BOOL_FIELDS = ("bone_metastasis",) + YES_NO_FIELDS
 def _present(field):
     """patient_state 칸 하나의 값. 값이 없으면 None."""
     return field.get("value") if isinstance(field, dict) and field.get("status") == "present" else None
@@ -255,7 +259,9 @@ def _value(field, it, patient_state, record):
         if not items or any(not isinstance(x, dict) or x.get("unit") != "mg/m2" for x in doses):
             return None
         return sum(x["value"] for x in doses)
-    return None   # cardiac_history, mediastinal_radiation 등 환자 JSON에 칸이 없는 조건
+    if field in YES_NO_FIELDS:   # 심장 병력·종격동 방사선 (2026-10-22 칸 추가, draft7 체크리스트 §1.2). 기록 없음은 알 수 없음
+        return {"yes": True, "no": False}.get(_present(patient.get(field)))
+    return None   # 환자 JSON에 칸이 없는 조건
 
 
 def _compare(op, have, want):
@@ -307,7 +313,7 @@ def _evaluate_one(it, patient_state, record):
             return None if not fields.get("treatment_history") else not any(has)
         return None
     have = _value(field, it, patient_state, record)
-    if isinstance(have, bool) and field != "bone_metastasis":
+    if isinstance(have, bool) and field not in BOOL_FIELDS:
         return have      # 맞는 요법이 없어 항목을 바로 정한 경우 (False)
     if field == "t_stage":
         return None if have is None else _compare_ranged(op, have, want, T_ORDER, T_GENERIC)

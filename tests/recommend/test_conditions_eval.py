@@ -200,3 +200,24 @@ def test_d_requests_2026_10_22():
     empty = patient(treatment_history=[])
     assert ev(cond([item("prior_drugs", "not_contains", ["letrozole"])]), ps=empty) == "unknown"
     assert ev(cond([item("prior_drugs", "not_contains", ["tamoxifen"])])) == "met"                # 기록이 있으면 판정
+
+
+def test_cardiac_and_mediastinal_fields():
+    """심장 병력·종격동 방사선 칸 (2026-10-22 추가, draft7 체크리스트 §1.2): yes/no를 조건의 true/false로 읽는다."""
+    base = patient()["fields"]["patient"]
+    yes = patient(patient={**base, "cardiac_history": present("yes"), "mediastinal_radiation": present("yes")})
+    no = patient(patient={**base, "cardiac_history": present("no"), "mediastinal_radiation": present("no")})
+    blank = patient(patient={**base, "cardiac_history": {"status": "not_recorded"},
+                             "mediastinal_radiation": {"status": "not_recorded"}})
+    for field in ("cardiac_history", "mediastinal_radiation"):
+        c = cond([item(field, "eq", True)])
+        assert ev(c, ps=yes) == "met"
+        assert ev(c, ps=no) == "not_met"
+        assert ev(c, ps=blank) == "unknown"                       # 기록 없음은 알 수 없음
+        assert ev(cond([item(field, "eq", False)]), ps=no) == "met"
+    # 지어낸 조건: 누적 용량 기준 또는 심장 위험·종격동 방사선 중 하나 (any_of)
+    either = cond(any_of=[{"text": "누적 용량 또는 심장 위험", "items": [
+        item("cumulative_dose_mg_m2", "gte", 240), item("cardiac_history", "eq", True),
+        item("mediastinal_radiation", "eq", True)]}])
+    assert ev(either, ps=yes) == "met"
+    assert ev(either, ps=no) == "unknown"                         # 누적 용량을 몰라 알 수 없음
