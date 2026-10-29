@@ -1,4 +1,4 @@
-"""보류 세트 가상 환자 N21~N35 (VC-0130~VC-0144)와 짝 G20·G21 차트 만들기: src/input/virtual_patient_cases_2026-10-27.md §3.
+"""보류 세트 가상 환자 N21~N35 (VC-0130~VC-0144)와 짝 G20·G21 차트 만들기: src/input/virtual_patient_cases.md §3.
 
 ESMO 권고와 심평원 급여가 갈리는 환자, 아직 0건인 ESMO 경로를 덮는 사례다. build_virtual_cases.py(N01~N20)와 같은 Chart 도구·
 문서 도구를 쓰고, 기대 결과는 문서 §3의 사례 표를 scenario.md로 옮긴다. 기대 결과를 고칠 때는 문서를 고친다.
@@ -28,7 +28,7 @@ from src.input.script.virtual.build_virtual_cases import (
     meta_path, ngs, note, pct, surgery_path, vc_0111, vc_0115, wpac)
 from src.input.script.virtual.virtual_chart import Chart, F, check, dumps, kdate
 
-CASES_MD = ROOT / "src" / "input" / "virtual_patient_cases_2026-10-27.md"
+CASES_MD = ROOT / "src" / "input" / "virtual_patient_cases.md"
 INDEX = OUT / "holdout_cases.csv"
 
 
@@ -498,6 +498,8 @@ def sections() -> dict[str, dict]:
     for block in re.split(r"\n(?=### [NG]\d\d )", part)[1:]:
         head, *lines = block.strip().splitlines()
         m = re.match(r"### ([NG]\d\d) (.+?) \((VC-\d{4}(?:-[a-z0-9]+)?)\)", head)
+        if not m:            # 같은 §3의 N01~N20 절('(VC-0110 가번호)')은 build_virtual_cases가 읽는다
+            continue
         rows = {}
         for ln in lines:
             cells = [x.strip() for x in ln.strip().strip("|").split("|")]
@@ -509,7 +511,7 @@ def sections() -> dict[str, dict]:
 
 def scenario(ref: str, sec: dict) -> str:
     return (f"# {ref} ({sec['n']}) {sec['title']}\n\n"
-            f"> 합성 사례 (가상 환자), 보류 세트. 출처: `src/input/virtual_patient_cases_2026-10-27.md` §3 {sec['n']}. "
+            f"> 합성 사례 (가상 환자), 보류 세트. 출처: `src/input/virtual_patient_cases.md` §3 {sec['n']}. "
             f"차트·A 정답은 `python -m src.input.script.virtual.build_holdout_cases`로 만든다. "
             f"기대 결과는 A 초안이고 B·C·D·[4] 담당자가 원문으로 확정한다.\n\n"
             + sec["text"].split("\n", 1)[1].strip() + "\n")

@@ -88,7 +88,7 @@ def _candidate(field: str, entry: dict) -> dict:
 #
 # 사례 묶음 (--set): dev = 가상 차트 10건 (규칙·프롬프트를 고칠 때 본 사례), pairs = 짝 사례 19건,
 # test = 새 사례 20건 VC-0110 ~ VC-0129 (규칙을 고정한 뒤에만 잰다, notes 과적합 주의),
-# holdout = 보류 세트 18건 VC-0130 ~ VC-0144 + 짝 G20·G21 (규칙을 고칠 때 보지 않는다, virtual_patient_cases_2026-10-27.md §5)
+# holdout = 보류 세트 18건 VC-0130 ~ VC-0144 + 짝 G20·G21 (규칙을 고칠 때 보지 않는다, virtual_patient_cases.md §8)
 #
 # usage (team_project 폴더에서):
 #     python -m src.input.script.evaluation --gold [--set test]   # 정답 후보로 파이프라인을 돌려 채점 (규칙 쪽 점검)

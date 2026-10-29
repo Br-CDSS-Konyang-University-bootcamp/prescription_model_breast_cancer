@@ -1,48 +1,85 @@
 # 가상 환자 사례 목록 (처방·급여 판정 구간별)
 
-작성: 2026-10-23. 담당 A. 옛 `AB_gap_tasks.md`(A-16~A-24, 지금 없음)를 대체하는 사례 출처 문서.
+작성: 2026-10-23 (N01~N20), 2026-10-27 (N21~N35, 보류 세트), 2026-10-28 (두 문서를 합침). 담당 A. 옛 `AB_gap_tasks.md`(A-16~A-24, 지금 없음)를 대체하는 사례 출처 문서.
 
 - 기준: PROJECT.md §12 (2026-10-22 결정: 처방·급여 모듈 평가는 TCGA가 아니라 가상 차트로. TCGA에 등급·Ki-67·PD-L1·pCR·진행일·최신 치료가 없어 조건을 가를 수 없음)
-- 앞 문서 (A 작업 문서 `notes/`, 저장소 밖): `virtual_chart_design.md` §2·§3 (기존 10건), `evaluation_plan_2026-10-23.md` §6.5 (20건 제안, 옛 virtual_chart_coverage)·§2 (짝 사례·빈 값·표현 변형)
+- 앞 문서 (A 작업 문서 `notes/`, 저장소 밖): `virtual_chart_design.md` §2·§3 (기존 10건), `evaluation_plan_2026-10-23.md` §6.5 (20건 제안)·§2 (짝 사례·빈 값·표현 변형)
 - 조건 원천: `notes/esmo_hira_crosswalk_2026-10-20.md` (§1 E·M 번호, §2 장·연번)
-- 기존 10건 만드는 방법: `src/input/script/virtual/cases/vc_*.py` → `python -m src.input.script.virtual.virtual_chart` → `tests/fixtures/virtual_charts/<사례>/` (`notes/report_templates.md` §1.1)
-- **새 사례 N01~N20 만드는 방법 (2026-10-23):** `src/input/script/virtual/build_virtual_cases.py` → `python -m src.input.script.virtual.build_virtual_cases` → `tests/fixtures/virtual_charts/<VC-01xx>/chart.txt` + `expected/patient_state.json` + `scenario.md` (이 문서 §3의 해당 표를 옮김), 목록 `tests/fixtures/virtual_charts/cases.csv`. 기존 10건과 같은 폴더. 이 문서가 평가 데이터의 기준이고, 기대 결과를 고칠 때는 이 문서 §3을 고친 뒤 스크립트를 다시 돌린다
-- 이 문서는 목록만. schemas·`tests/fixtures/`는 이 문서로 바꾸지 않음
+- **이 문서 §3이 사례별 `scenario.md`의 원본이다.** 기대 결과를 고칠 때는 §3을 고친 뒤 생성기를 다시 돌린다. schemas·`tests/fixtures/`를 이 문서로 직접 바꾸지 않는다
+
+만드는 방법 (모두 `team_project` 폴더에서, 결과는 `tests/fixtures/virtual_charts/`):
+
+| 세트 | 사례 | 생성기 | 결과 |
+|---|---|---|---|
+| 개발 | VC-0101~0109, VC-0106b (10건) | `src/input/script/virtual/cases/vc_*.py` → `python -m src.input.script.virtual.virtual_chart` | `<사례>/` (`notes/report_templates.md` §1.1) |
+| 짝 | G1~G6 (19건) | `cases/pairs.py` (같은 명령) | `pairs/<사례>/`, `pairs/pairs.json` |
+| 시험 | N01~N20 = VC-0110~0129 | `python -m src.input.script.virtual.build_virtual_cases` | `<사례>/` + `scenario.md`, `cases.csv` |
+| 보류 | N21~N35 = VC-0130~0144, 짝 G20·G21 (18건) | `python -m src.input.script.virtual.build_holdout_cases` | `<사례>/` + `scenario.md`, `holdout_cases.csv` |
+| 표현 변형 | 개발 5건 × 날짜 형식 3 (15건) | `python -m src.input.script.virtual.build_variant_cases` | `variants/<사례>-<형식>/` |
 
 ## 표기
 
 | 표기 | 뜻 |
 |---|---|
-| **N01~N20** | 새 사례 제안 번호. evaluation_plan §6.5의 # 1~20과 같은 순서. 가번호 VC-0110~VC-0129 (만들 때 확정) |
+| **N01~N20** | 시험 세트 사례 (VC-0110~VC-0129). evaluation_plan §6.5의 # 1~20과 같은 순서 |
+| **N21~N35** | 보류 세트 사례 (VC-0130~VC-0144, 2026-10-27). DCIS 단독 사례는 빼고 다시 번호를 매김 (모델 범위 밖) |
 | **I01~I12** | 입력 모듈(IN-0~IN-7) 시험용 사례·변형 (§5) |
-| **G1~G6** | 이미 만든 짝 사례 묶음 (`cases/pairs.py`, 19건) |
-| **G7~** | 아직 안 만든 짝 사례 묶음 (§4) |
-| ESMO 위치 | 그림 번호 + 원문 쪽 + 경로 청크 ID 끝자리 (`data/chunks/esmo_algorithm_chunks.json`). 그림 밖 권고는 "본문" + E·M 번호 (본문 쪽은 C 확인) |
+| **G1~G6** | 만든 짝 사례 묶음 (`cases/pairs.py`, 19건) |
+| **G7~G19** | 아직 안 만든 짝 사례 묶음 (§4) |
+| **G20·G21** | 보류 세트 짝 (VC-0111-g20a·g20b, VC-0115-g21, §3) |
+| **R01~R11** | 옛 예비 사례 번호. 대부분 N21~N35로 만들었다 (§2.9) |
+| ESMO 위치 | 그림 번호 + 원문 쪽 + 경로 청크 ID 끝자리 (`data/chunks/esmo_algorithm_chunks.json`, 검수 상태는 `esmo_algorithm_review.csv`). 그림 밖 권고는 "본문" + E·M 번호 (본문 쪽은 C 확인) |
 | 공고 위치 | 공고책자 2026-10-01의 장·연번 (9장 48~63쪽, 40장 165~171쪽 안). **행별 쪽과 행 단위 조건은 D 확인 필요** (이 PC에 D의 급여 청크 파일 없음) |
 | ⚑D | 급여 행 단위 대조가 D 확인 전인 칸 |
-| 기대 결과 | 전부 A 초안. **B·C·D·[4] 각 담당자가 원문으로 확정** (virtual_chart_design §6 단계 4~7) |
+| 기대 결과 | 전부 A 초안. **B·C·D·[4] 각 담당자가 원문으로 확정** (virtual_chart_design §6 단계 4~7). 일수는 진단일 = 0 |
 
 ## 목차
 
 | 번호 | 제목 | 내용 |
 |---|---|---|
-| 0 | 요약 | 30건 구성, 우선순위 요지 |
-| 1 | 기존 사례 | 10건 + 짝 19건, 옛 출처와의 관계 |
-| 2 | 판정 구간별 덮는 사례·빈 곳 | ESMO 갈래, 급여 조건, 간주 규칙, 안전 |
-| 3 | 새 사례 20건 상세 | 시험 조건, 이야기 핵심 값, 짝, 모듈별 기대 결과 초안 |
-| 4 | 기존 사례에 더할 짝·빈 값 변형 | G7~G16 |
+| 0 | 요약 | 세트 구성, 보류 세트 사례 목록 |
+| 1 | 기존 사례 | 개발 10건 + 짝 19건, 옛 출처와의 관계 |
+| 2 | 판정 구간별 덮는 사례·빈 곳 | ESMO 갈래, 급여 조건, 간주 규칙, 안전, 예비 사례와 보류 세트 대응 |
+| 3 | 사례 상세 | N01~N35, G20·G21: 시험 조건, 이야기 핵심 값, 짝, 모듈별 기대 결과 초안 |
+| 4 | 짝·빈 값·표현 변형 | G7~G19 (안 만듦), 표현 변형 사례 |
 | 5 | 입력 모듈 시험용 사례 | IN-0~IN-7 |
-| 6 | 우선순위 (30건 기준) | 순위, 예비 사례 |
-| 7 | 확인 필요 | D·C·B 확인 목록 |
+| 6 | 만든 상태 | 무엇을 만들었고 무엇이 남았나 |
+| 7 | 스키마·규칙에 필요한 것 | 칸이 없는 값 |
+| 8 | 보류 세트로 쓰는 방법 | 규칙을 고칠 때 보지 않는다 |
+| 9 | 확인 필요 | D·C·B·A 확인 목록 |
 
 ---
 
 ## 0. 요약
 
-- 30건 = 기존 기본 사례 10건 + 새 기본 사례 20건 (N01~N20). 짝 사례·변형은 30건에 세지 않음 (같은 환자의 경계값 변형이라 독립 사례 아님)
-- 새 20건의 목표: 사례가 0건인 ESMO 그림 6개(EBC 7, MBC 4·5·6·7·9), HR+/HER2+ 아형, 허가초과 인정, 고식적 항암 2차 이상, `DEEM-HER2ADC-6M` met, 생식세포 양성, 장기 위기
-- 30건이 되면 덮는 ESMO 경로 약 10 → 31개 (77개 중), 아형 HR+/HER2- 12 · HER2+ 8 · TNBC 8 · 국소 재발 1 · 범위 외 1
-- 입력 모듈 시험용(§5)은 PROJECT §15.4 추출 정확도 세트 쪽. 대부분 기존 사례의 변형으로 만듦
+- 기본 사례 45건 = 개발 10 + 시험 20 (N01~N20) + 보류 15 (N21~N35). 짝 사례 22건 (G1~G6 19, G20·G21 3)과 표현 변형 15건은 같은 환자의 변형이라 기본 사례 수에 세지 않는다
+- 시험 20건의 목표 (2026-10-23): 사례가 0건이던 ESMO 그림 6개(EBC 7, MBC 4·5·6·7·9), HR+/HER2+ 아형, 허가초과 인정, 고식적 항암 2차 이상, `DEEM-HER2ADC-6M` met, 생식세포 양성, 장기 위기
+- 보류 15건의 목표 (2026-10-27): ① ESMO 권고와 심평원 급여가 갈리는 환자 (지침에는 있는데 급여가 안 되거나, 급여는 되는데 지침 1순위가 아님) ② 아직 0건인 ESMO 경로 ③ 급여 조건의 경계값 ④ 안전 검사·범위 밖. 시험 세트는 입력 규칙 0~10단계를 고칠 때 이미 봐서 (`notes/input_test_errors_2026-10-26.md`), 처음 보는 사례로 재는 세트가 따로 필요했다
+- 덮는 ESMO 경로: 시험 20건까지 25 → 보류 세트까지 51개 (77개 중, fixture의 scenario·cases.csv에 경로 ID가 나오는 것으로 셈. 짝 사례 칸에만 적고 만들지 않은 경로도 들어 있다)
+- 2026-10-28 결정: ER-low는 HR+로 본다 (B `ER_LOW_IS_HR_POSITIVE`, 2026-10-15). N33은 이 규칙이 B·C·D에서 같게 쓰이는지 확인하는 사례다
+- 입력 모듈 시험용(§5)은 PROJECT §15.4 추출 정확도 세트 쪽. 대부분 기존 사례의 변형으로 만든다
+
+보류 세트 사례 목록 (상세는 §3):
+
+| 번호 | 사례 | 결정 시점 | 갈라야 하는 것 | ESMO 경로 | 급여 행 ⚑D |
+|---|---|---|---|---|---|
+| N21 (VC-0130) | HER2+ pT1a (8 mm) N0, 수술 먼저 | 보조 | ① ESMO paclitaxel + trastuzumab, 공고 trastuzumab "1cm 초과 또는 N+" | 그림 6 `207157`, 그림 2 `c9e462` | 9장 2-20 |
+| N22 (VC-0131) | 폐경 전 45세 Luminal A 1기 | 보조 | ① ESMO tamoxifen, AI + LHRH 급여 조건 불충족 | 그림 4 `08ac92` | 9장 2-7, 2-4~6 |
+| N23 (VC-0132) | Luminal A-like stage IIIA, 림프절 5개 | 보조 | ② Luminal A인데 고위험 → ChT 후 abemaciclib, ③ 주2 "림프절 4개 이상" | 그림 5 `21a119` | 9장 2. 주2, 2-10~17 |
+| N24 (VC-0133) | 폐경 후 보조 anastrozole 중 bisphosphonate 결정 | 보조 | ① ESMO 보조 bisphosphonate, 공고 재발 예방 행 없음 | 그림 2 `74bcdc`, 본문 E07 | Ⅳ zoledronic acid |
+| N25 (VC-0134) | 고위험 보조 letrozole 5년 완료, 연장 결정 | 보조 (연장) | ① ESMO 연장 7~8년, 공고 AI 5년 뒤 AI 연장 행 없음 | 본문 E04 | 9장 2-2 나 |
+| N26 (VC-0135) | TNBC cT1c N0 선행 후 잔존, gBRCA1 | 보조 | ① ESMO olaparib, 공고 TNBC 보조 olaparib 행 없음 / capecitabine 2-18 급여 | 그림 7 `474a0a`, 그림 2 `ed4466` | 40장-30, 9장 2-18 |
+| N27 (VC-0136) | 조기 pembrolizumab 후 간 전이 TNBC, CPS 15 | 고식 1차 | ① 공고 4가-6 이전 ICI 제외, ESMO는 금지 안 함 (M45) | 그림 8 `e2f44c` | 9장 4가-6·7 |
+| N28 (VC-0137) | 78세 HR+/HER2+ de novo, ECOG 3, 항암 어려움 | 고식 1차 | ② 항암 불가 갈래, 4나-18·4가-3 충족 | 그림 5 `eaa54b` | 9장 4나-18, 4가-3 |
+| N29 (VC-0138) | HER2+ 전이 3차 (T-DXd 후), 뇌 전이 없음 | 고식 3차 | ② 그림 7, T-DM1·lapatinib + capecitabine 급여, tucatinib 행 없음 | 그림 7 `c5908c` | 9장 4라-19~21 |
+| N30 (VC-0139) | HR+/HER2- 2차, 1차 CDK4/6 후 표적 변이 없음 | 고식 내분비 2차 | ① ESMO CDK4/6 바꿔 쓰기, 공고 3다 불가 | 그림 3 `0f09b4` | 9장 3다-2·7~9, 3나-6 |
+| N31 (VC-0140) | HR+/HER2- 2차, 생식세포 BRCA2 병원성 | 고식 2차 | ① ESMO PARP 억제제, 공고 행 없음 | 그림 3 `8bf8f8` | (행 없음) |
+| N32 (VC-0141) | HR+/HER2- 뼈 전이만, 내분비 2차례 뒤 내분비 적합 | 고식 내분비 3차 | ② 3차 이상인데 내분비 적합 → 안 쓴 2차 선택지 | 그림 4 `535699` | 9장 3나·3다 |
+| N33 (VC-0142) | 전이성 ER 5% (저발현), PD-L1 CPS 20 | 고식 1차 | ER-low = HR+ 규칙이 B·C·D에서 같게 쓰이는지 | 그림 2 `1ae139` | 9장 0. 공통, 3가, 4가-6 |
+| N34 (VC-0143) | 단일 골전이 (소수 전이) | 고식 1차 | ② 소수 전이: 다학제·국소 치료 + 전신 치료 | 그림 10 `44ccc9`, 그림 2 `1ae139` | 9장 3가, Ⅳ zoledronic acid |
+| N35 (VC-0144) | 범위 밖: 임신 22주 HER2+ | 선행 | ④ 추천하지 않고 범위 밖 표시 | — | — |
+| G20 (VC-0111-g20a·g20b) | VC-0111 + 뇌 전이 국소 치료 적응 | 고식 2차 | ② 그림 6 국소 치료 갈래, 뇌 밖 진행 유무 | 그림 6 `f13555` / `c58fb4` | 9장 4라 |
+| G21 (VC-0115-g21) | VC-0115 + 생식세포 BRCA1 병원성 | 고식 2차 | ① ESMO olaparib, 공고 행 없음 / carboplatin 기반 급여 | 그림 9 `856d0a` | 9장 4라-4 |
 
 ---
 
@@ -231,11 +268,34 @@ evaluation_plan §2.1에는 "6묶음 20건"으로 적혀 있음. `pairs.py` 목�
 | 동반질환 금기 약 계열 | 없음 | N17 (ECOG 2·간 기능), N18 (심장) |
 | 범위 외 추천 금지 (남성, DCIS, 임신) | 없음 | N20, 예비 R08·R09 |
 
+### 2.9 예비 사례(R)와 보류 세트 대응 (2026-10-27)
+
+2026-10-23에 31건 이후 예비로 둔 R01~R11은 대부분 보류 세트로 만들었다. 위 2.1~2.8의 "새로 필요" 칸에 R 번호가 남은 곳은 이 표로 읽는다.
+
+| 예비 | 내용 | 만든 사례 |
+|---|---|---|
+| R01 | HER2+ 전이 3차 이상 (T-DXd 후) | N29 (VC-0138) |
+| R02 | HER2+ 전이 1차 ER+ 항암 불가 → ET + 항HER2 | N28 (VC-0137) |
+| R03 | HER2+ pT1a N0 수술 먼저 | N21 (VC-0130) |
+| R04 | 폐경 전 Luminal A 1기 → tamoxifen 단독 | N22 (VC-0131) |
+| R05 | HR+ 2차 gBRCA·gPALB2 / TNBC 2차 gBRCA | N31 (VC-0140), G21 (VC-0115-g21) |
+| R06 | 조기 pembrolizumab 받은 전이 TNBC | N27 (VC-0136) |
+| R07 | 소수 전이 | N34 (VC-0143) |
+| R08 | DCIS 단독 | 만들지 않음 (모델 범위 밖, 2026-10-28) |
+| R09 | 임신 중 유방암 | N35 (VC-0144) |
+| R10 | HR+ 2차 표적 변이 없음 (CDK4/6 바꿔 쓰기) | N30 (VC-0139) |
+| R11 | 동반질환 금기 (`contraindicated_classes`) | 아직 없음 |
+
+보류 세트가 새로 덮은 갈래:
+
+- ESMO: EBC 그림 6 cT1 cN0 수술 먼저 (`207157`, 짝 `f25e5f`·`549ca3`), 그림 2 `c9e462`·`74bcdc` (보조 bisphosphonate)·`ed4466`, 그림 4 `08ac92`, 그림 5 `21a119`, 그림 7 `474a0a` (짝 `a20657`). MBC 그림 3 `0f09b4`·`8bf8f8` (짝 `d5aff4`), 그림 4 `535699`, 그림 5 `eaa54b` (짝 `a0919f`), 그림 6 `f13555`·`c58fb4`, 그림 7 `c5908c` (짝 `4d7ea5`), 그림 9 `856d0a`, 그림 10 `44ccc9`
+- 공고: 2-20 trastuzumab "1cm 초과 또는 N+", 2-2 나 연장 (AI 5년 뒤 AI 연장 행 없음), zoledronic acid 재발 예방 행 없음, TNBC 보조 olaparib 행 없음, 3다 CDK4/6 바꿔 쓰기 불가, 전이성 olaparib·talazoparib 행 없음, 4나-18·4가-3, 4라-19~21, 4가-6 "이전 면역관문억제제 사용 시 제외"
+
 ---
 
-## 3. 새 사례 20건 상세
+## 3. 사례 상세
 
-일수는 진단일 = 0. 날짜·식별정보·문서 형식은 virtual_chart_design §4를 따름. 기대 결과는 전부 초안이고 담당자가 원문으로 확정.
+일수는 진단일 = 0. 날짜·식별정보·문서 형식은 virtual_chart_design §4를 따른다. 기대 결과는 전부 초안이고 담당자가 원문으로 확정한다.
 
 ### N01 HR+/HER2+ 전이 1차, 항암 가능 (VC-0110 가번호)
 
@@ -497,9 +557,245 @@ evaluation_plan §2.1에는 "6묶음 20건"으로 적혀 있음. `pairs.py` 목�
 | D ⚑D | 판정하지 않음 또는 범위 외 표시 (D와 형식 합의) |
 | 추천 | 허용: 없음 ("범위 외, 의사 판단"). 금지: 어떤 약제든 추천 |
 
----
+### N21 HER2+ cT1 cN0 수술 먼저, pT1a N0 (VC-0130)
 
-## 4. 기존 사례에 더할 짝·빈 값 변형
+| 항목 | 내용 |
+|---|---|
+| 시험할 조건 | 조기 HER2+ cT1 cN0 수술 먼저 갈래 (지금 0건), 9장 2-20 trastuzumab "림프절 양성 또는 종양 1cm 초과" 불충족, weekly paclitaxel + trastuzumab 보조 행 없음 |
+| 이야기 핵심 값 | 52세 폐경 후. 초음파 우측 유방 0.9 cm 종괴, 액와 이상 없음. 수술 pT1a (8 mm) pN0 (0/2), IA, G2, ER 0 / PR 0 / HER2 3+, Ki-67 30% |
+| 결정 시점 | 보조 |
+| 짝 사례 | pT1c 11 mm N0 (2-20 충족, ESMO 같은 갈래) / pT2 N0 (`f25e5f` ChT-trastuzumab 1년) / pN1 (`549ca3` ChT-HP, 2-22 pertuzumab). 아직 만들지 않음 |
+| B | HR-/HER2+, early, 보조 |
+| C | EBC 그림 6 `207157` (pT1 pN0 → paclitaxel 12주 + trastuzumab 18주기), 그림 2 `c9e462` |
+| D ⚑D | trastuzumab 2-20 → `no_criteria` (1cm 이하, N0). paclitaxel + trastuzumab 보조 행 없음. 짝 11 mm: trastuzumab `covered`, 요법 행은 D 확인 |
+| 추천 | 허용: paclitaxel + trastuzumab (ESMO), 급여 아님 표시. 금지: 내분비요법 (HR-) |
+
+### N22 폐경 전 Luminal A 1기 (VC-0131)
+
+| 항목 | 내용 |
+|---|---|
+| 시험할 조건 | EBC 그림 4 폐경 전 Luminal A 1기 → tamoxifen (지금 0건), 9장 2-4~6 AI + LHRH 조건 (40세 미만·림프절 양성·분화도 2~3) 불충족 |
+| 이야기 핵심 값 | 45세 폐경 전 (LMP 3주 전). 수술 pT1c (1.4 cm) pN0 (0/3), IA, G1, ER Allred 8 / PR Allred 7 / HER2 1+, Ki-67 8% |
+| 결정 시점 | 보조 |
+| 짝 사례 | 39세 G2 (AI + LHRH 급여 조건 충족인데 ESMO 1순위는 tamoxifen → "급여되지만 지침 1순위 아님"). 아직 만들지 않음 |
+| B | HR+/HER2-, 폐경 전, Ki-67 negative (20% 미만) |
+| C | EBC 그림 4 `08ac92` tamoxifen |
+| D ⚑D | tamoxifen 2-7 → `covered`. AI + LHRH 2-4~6 → `no_criteria` (조건 불충족) |
+| 추천 | 허용: tamoxifen. 금지: 항암 (저위험) |
+
+### N23 HR+/HER2- Luminal A-like stage IIIA (VC-0132)
+
+| 항목 | 내용 |
+|---|---|
+| 시험할 조건 | EBC 그림 5 Luminal A 고위험 갈래 (지금 0건), 9장 2. 주2 abemaciclib 고위험 (림프절 4개 이상) |
+| 이야기 핵심 값 | 58세 폐경 후. MRI 좌측 유방 5.2 cm 종괴. 수술 pT3 (5.5 cm) pN2a (5/18), IIIA, G2, ER Allred 8 / PR Allred 6 / HER2 0, Ki-67 12%. 생식세포 검사 기록 없음 |
+| 결정 시점 | 보조 |
+| 짝 사례 | 림프절 2개 + 3 cm + G2 (주2 불충족) / gBRCA2 병원성 (`f453eb` olaparib, abemaciclib과 동시 금지). 아직 만들지 않음 |
+| B | HR+/HER2-, Luminal A-like, locally_advanced, 생식세포 BRCA 검사 권고 (미시행이 아니라 기록 없음이면 권고 안 함, B 규칙 확인) |
+| C | EBC 그림 5 `21a119` (ChT → ET + abemaciclib 2년) |
+| D ⚑D | AC → paclitaxel 2-10~17 (stage Ⅱ~Ⅲ) → `covered`. abemaciclib 주2 → `covered` (림프절 4개 이상) |
+| 추천 | 허용: AC → paclitaxel 후 AI + abemaciclib. 금지: 내분비 단독 (고위험) |
+
+### N24 폐경 후 보조 bisphosphonate 결정 (VC-0133)
+
+| 항목 | 내용 |
+|---|---|
+| 시험할 조건 | EBC 그림 2 보조 bisphosphonate (지금 0건), zoledronic acid 재발 예방 행 없음 (골전이 조건과 섞지 않기), 투약 중(`ongoing`) 보조 내분비 |
+| 이야기 핵심 값 | 63세 폐경 후 (55세 폐경). 골밀도 요추 T-score -1.8. 수술 pT2 pN1a (2/12), IIB, G2, ER 90% / PR 40% / HER2 1+, Ki-67 15%. Oncotype DX RS 12로 항암 생략. 보조 anastrozole 수술 뒤 day 81부터 복용 중 |
+| 결정 시점 | 보조 |
+| 짝 사례 | 보조 exemestane 처음부터 (2-1~3: tamoxifen 2~3년 뒤 전환만 급여). 아직 만들지 않음 |
+| B | HR+/HER2-, 폐경 후, early, 보조 |
+| C | EBC 그림 2 `74bcdc` (보조 bisphosphonate), 그림 4 `0196bf` (AI), 본문 E07 |
+| D ⚑D | anastrozole 2-1 → `covered`. zoledronic acid → `no_criteria` (고칼슘혈증·골전이만) |
+| 추천 | 허용: AI 계속 + bisphosphonate (ESMO, 급여 아님 표시) |
+
+### N25 고위험 보조 letrozole 5년 완료, 연장 결정 (VC-0134)
+
+| 항목 | 내용 |
+|---|---|
+| 시험할 조건 | 연장 내분비요법 (본문 E04), 9장 2-2 나는 tamoxifen 5년 뒤 letrozole만, AI 5년 뒤 AI 연장 행 없음 |
+| 이야기 핵심 값 | 61세 폐경 후. 수술 pT2 pN2a (6/15), IIIA, HR+/HER2-. 보조 AC #4 → weekly paclitaxel #12 → letrozole 5년 (day 215~2041) 완료, 재발 없음. 결정 day 2070 |
+| 결정 시점 | 보조 (연장) |
+| 짝 사례 | tamoxifen 5년 완료 뒤 (2-2 나 letrozole `covered`). 아직 만들지 않음 |
+| B | HR+/HER2-, early (재발 없음), 보조 |
+| C | 본문 E04 (고위험 연장 내분비 7~8년) |
+| D ⚑D | AI 연장 → `no_criteria`. tamoxifen 전환 → D 확인 (2-2 나는 tamoxifen 먼저인 순서만) |
+| 추천 | 허용: 연장 내분비 (급여 아님 표시) |
+
+### N26 TNBC cT1c N0 선행 후 잔존, gBRCA1 (VC-0135)
+
+| 항목 | 내용 |
+|---|---|
+| 시험할 조건 | EBC 그림 7 `<cT2 N0` 갈래 (지금 0건), 잔존 + gBRCA 병원성 → olaparib, 40장-30은 HR+ 백본만 (TNBC 보조 olaparib 행 없음), 임상 병기 Ⅰ기 |
+| 이야기 핵심 값 | 38세 폐경 전. 초음파 좌측 유방 1.8 cm 종괴, 액와 이상 없음 → cT1c cN0, IA, G3, ER 0 / PR 0 / HER2 1+, Ki-67 70%. 생식세포 BRCA1 c.68_69delAG 병원성. 선행 weekly paclitaxel + carboplatin #12 → AC #4. 수술 ypT1b (6 mm) ypN0 (0/2), RCB-I |
+| 결정 시점 | 보조 |
+| 짝 사례 | gBRCA 야생형 (`a20657` capecitabine, 2-18 `covered`) / cT2 (2.1 cm) cN0 (≥cT2 갈래, 선행 pembrolizumab). 아직 만들지 않음 |
+| B | TNBC (HER2-low), gBRCA1 양성, early, 보조. pCR no |
+| C | EBC 그림 7 `474a0a` (잔존 + gBRCAm → olaparib 1년), 그림 2 `ed4466` |
+| D ⚑D | olaparib → `no_criteria` (40장-30은 HR+ 백본만). capecitabine 2-18 → `covered`. 이미 받은 선행 AC→P의 1나 "stage Ⅱ~Ⅲ" 문제는 판정 대상 아님 (참고) |
+| 추천 | 허용: olaparib (ESMO, 급여 아님 표시), capecitabine. 금지: 내분비요법 |
+
+### N27 조기 pembrolizumab 후 간 전이 TNBC (VC-0136)
+
+| 항목 | 내용 |
+|---|---|
+| 시험할 조건 | 9장 4가-6 "이전 면역관문억제제 사용 시 제외" (KEYNOTE-522 환자), ESMO M45는 금지하지 않음, DFI 6개월 이상 |
+| 이야기 핵심 값 | 49세 폐경 전. cT2 cN1, IIB, TNBC. 선행 pembrolizumab + paclitaxel + carboplatin → pembrolizumab + AC, 수술 ypT0 ypN0 (pCR). 보조 pembrolizumab 9회 (day 383 완료). day 931 간 다발성 전이 (종료 18개월 뒤). 간 생검 ER 0 / PR 0 / HER2 0, PD-L1 22C3 CPS 15. 생식세포 BRCA1/2 음성 |
+| 결정 시점 | 고식 1차 |
+| 짝 사례 | 조기 pembrolizumab 없음 (같은 경과, 4가-6 충족). 아직 만들지 않음 |
+| B | TNBC, PD-L1 positive (CPS 15), metastatic, 1차. 간주 규칙 `DEEM-ANTHRA-TAXANE` met (선행 AC + paclitaxel) |
+| C | MBC 그림 8 `e2f44c` (pembrolizumab-ChT, 이전 ICI 자료 적음 메모) |
+| D ⚑D | pembrolizumab + ChT 4가-6 → `no_criteria` (이전 ICI). ChT 단독 4나 → `covered`. `DEEM-ANTHRA-TAXANE` met이 4가 "1차" 판정에 쓰이는지 D 확인 |
+| 추천 | 허용: ChT (taxane 등), pembrolizumab-ChT (ESMO, 급여 아님 표시). 금지: 내분비요법 |
+
+### N28 78세 HR+/HER2+ de novo, 항암 어려움 (VC-0137)
+
+| 항목 | 내용 |
+|---|---|
+| 시험할 조건 | MBC 그림 5 ER+ 항암 불가 갈래 (지금 0건), 9장 4나-18 trastuzumab + anastrozole, 4가-3 lapatinib + letrozole (폐경 후, 이전 trastuzumab·AI 없음) |
+| 이야기 핵심 값 | 78세 폐경 후. 만성 신장병 3b (eGFR 38), LVEF 57%. ECOG 3. de novo cT2N1M1 (뼈·폐). 중심 생검 ER 80% / PR 20% / HER2 3+. 경과기록 "고령·수행 상태 저하로 세포독성 항암 치료는 어렵다고 판단". 투약 이력 없음 |
+| 결정 시점 | 고식 1차 |
+| 짝 사례 | 보조 trastuzumab 받은 재발 (두 행 모두 불충족) / ER- 항암 불가 (`a0919f`). 아직 만들지 않음 |
+| B | HR+/HER2+, metastatic, 1차 |
+| C | MBC 그림 5 `eaa54b` (ET-trastuzumab, ET-HP, ET-lapatinib 등) |
+| D ⚑D | trastuzumab + anastrozole 4나-18 → `covered`. lapatinib + letrozole 4가-3 → `covered` |
+| 추천 | 허용: 내분비 + 항HER2. 금지: THP 등 세포독성 항암 1순위 (의사가 항암 어렵다고 판단) |
+| 차트에 없는 칸 | "항암 어려움" 판단은 `patient_state`에 칸이 없다 (경과기록 문장만). §4 |
+
+### N29 HER2+ 전이 3차, T-DXd 후 (VC-0138)
+
+| 항목 | 내용 |
+|---|---|
+| 시험할 조건 | MBC 그림 7 (지금 0건), 9장 4라-21 T-DM1, 4라-20 lapatinib + capecitabine (anthracycline·taxane·trastuzumab 모두 사용), tucatinib 행 없음, T-DXd 재추천 금지 |
+| 이야기 핵심 값 | 55세 폐경 후. 수술 pT2N1a (1/12), IIB, HR-/HER2+. 보조 AC #4 → paclitaxel + trastuzumab → trastuzumab (총 18회, day 485 완료). day 1400 간·폐 전이. 1차 DPH #6 → HP 유지 (PD, day 1895 CT). 2차 T-DXd #23 (PD, day 2398 CT). Brain MRI 전이 없음 |
+| 결정 시점 | 고식 3차 |
+| 짝 사례 | 활동성 뇌 전이 + 국소 치료 적응 (`4d7ea5`) / 보조 anthracycline 없음 (4라-20 불충족). 아직 만들지 않음 |
+| B | HR-/HER2+, metastatic, 고식 항암 3차. `DEEM-ANTHRA-TAXANE` met, `DEEM-HER2ADC-6M` not_met (종료 뒤 2년) |
+| C | MBC 그림 7 `c5908c` (T-DXd 후 → T-DM1, tucatinib-trastuzumab-capecitabine, lapatinib 병용) |
+| D ⚑D | T-DM1 4라-21 → `covered`. lapatinib + capecitabine 4라-20 → `covered`. tucatinib → `no_criteria` |
+| 추천 | 허용: T-DM1, lapatinib + capecitabine. 금지: T-DXd·HP 재추천 (진행) |
+
+### N30 HR+/HER2- 2차, 1차 CDK4/6 후 표적 변이 없음 (VC-0139)
+
+| 항목 | 내용 |
+|---|---|
+| 시험할 조건 | MBC 그림 3 표적 변이 없음 갈래 (지금 0건), 9장 3다 이전 CDK4/6 사용 시 제외 (바꿔 쓰기 불가), 3다-2 exemestane + everolimus (anastrozole·letrozole 실패), 3나-6 fulvestrant |
+| 이야기 핵심 값 | 63세 폐경 후. 수술 pT2N0, IIA, HR+/HER2-. 보조 anastrozole 5년 (day 1860 완료). day 2600 뼈·간 전이 (종료 2년 뒤). 1차 letrozole + palbociclib 18개월 (PD, day 3160 CT). 간 재생검 ER·PR 양성, HER2 1+, NGS PIK3CA·ESR1·AKT1·PTEN 미검출 |
+| 결정 시점 | 고식 내분비 2차 |
+| 짝 사례 | 폐경 전 (fulvestrant 기반 백본 급여 아님). 아직 만들지 않음 |
+| B | HR+/HER2- (HER2-low), 고식 내분비 2차, 표적 변이 음성 |
+| C | MBC 그림 3 `0f09b4` (exemestane-everolimus, fulvestrant-everolimus, fulvestrant-CDK4/6 바꿔 쓰기, fulvestrant) |
+| D ⚑D | exemestane + everolimus 3다-2 → `covered`. fulvestrant 3나-6 → `covered`. fulvestrant + CDK4/6 3다-7~9 → `no_criteria` (이전 CDK4/6) |
+| 추천 | 허용: exemestane + everolimus, fulvestrant. 금지: letrozole + palbociclib 재추천 |
+
+### N31 HR+/HER2- 2차, 생식세포 BRCA2 병원성 (VC-0140)
+
+| 항목 | 내용 |
+|---|---|
+| 시험할 조건 | MBC 그림 3 gBRCA 갈래 (지금 0건), 전이성 olaparib 행 없음, talazoparib 유방암 행 없음, 생식세포 칸 → gBRCA (B) |
+| 이야기 핵심 값 | 52세 폐경 후. de novo cT2N1M1 (뼈만). 1차 letrozole + ribociclib 19개월 (PD, day 588 골스캔). 원발 NGS PIK3CA·ESR1·AKT1·PTEN 미검출. 가족력으로 생식세포 검사: BRCA2 c.9097dupA (p.T3033Nfs*11) 병원성 |
+| 결정 시점 | 고식 2차 |
+| 짝 사례 | 생식세포 PALB2 병원성 (`d5aff4`, [II, B]) / 체세포 BRCA2만 검출 (gBRCA 아님). 아직 만들지 않음 |
+| B | HR+/HER2-, gBRCA2 양성, 고식 내분비 2차 |
+| C | MBC 그림 3 `8bf8f8` (olaparib, talazoparib) |
+| D ⚑D | olaparib → `no_criteria`, talazoparib → `no_criteria`. 내분비 대안은 N30과 같음 (fulvestrant + CDK4/6은 이전 CDK4/6으로 불충족) |
+| 추천 | 허용: olaparib (ESMO, 급여 아님 표시), exemestane + everolimus |
+
+### N32 HR+/HER2- 뼈 전이만, 내분비 적합 (VC-0141)
+
+| 항목 | 내용 |
+|---|---|
+| 시험할 조건 | MBC 그림 4 내분비 적합 갈래 (지금 0건), 3차 이상에서 항암으로 넘어가지 않기 |
+| 이야기 핵심 값 | 70세 폐경 후. de novo cT2N0M1 (뼈만). 1차 anastrozole + palbociclib 30개월 (PD), 2차 exemestane + everolimus 10개월 (PD, 뼈만). CT 내장 전이 없음. cfDNA PIK3CA·ESR1·AKT1·PTEN 미검출. 경과기록 "내분비 치료 지속 가능하다고 판단" |
+| 결정 시점 | 고식 내분비 3차 |
+| 짝 사례 | 간 전이 빠른 진행 → 내분비 부적합 (N04·N16 갈래). 아직 만들지 않음 |
+| B | HR+/HER2- (HER2-low), 고식 내분비 3차, 고식 항암 0 |
+| C | MBC 그림 4 `535699` (안 쓴 2차 선택지: fulvestrant 등) |
+| D ⚑D | fulvestrant 3나-6 → `covered`. fulvestrant + CDK4/6 → `no_criteria` (이전 CDK4/6) |
+| 추천 | 허용: fulvestrant. 금지: 항암 1순위, 진행한 요법 재추천 |
+| 차트에 없는 칸 | "내분비 치료 지속 가능" 판단은 칸이 없다 (경과기록 문장만). §4 |
+
+### N33 전이성 ER-low, PD-L1 CPS 20 (VC-0142)
+
+| 항목 | 내용 |
+|---|---|
+| 시험할 조건 | ER-low (5%)를 HR+로 보는 규칙 (B `ER_LOW_IS_HR_POSITIVE`, 9장 0. 공통)이 B 아형, C 검색 갈래, D 급여 판정에서 같게 쓰이는지. 4가-6 (TNBC) 불충족 |
+| 이야기 핵심 값 | 60세 폐경 후. de novo cT2N1M1 (간). 원발·간 생검 ER 5% (약양성) / PR 0% / HER2 0. 간 생검 PD-L1 22C3 CPS 20. 생식세포 BRCA1/2 음성. 경과기록 "ER 저발현, HR+로 볼지 삼중음성에 준할지 논의" |
+| 결정 시점 | 고식 1차 |
+| 짝 사례 | ER 0% (진짜 TNBC, `e2f44c`, 4가-6 충족) / ER 12% (분명한 HR+). 아직 만들지 않음 |
+| B | ER low → 아형 HR+/HER2-, 태그 `ER-low`, PD-L1 positive |
+| C | MBC 그림 2 `1ae139` (de novo, AI + CDK4/6). ESMO MBC가 ER-low를 따로 다루는지는 C 확인 (조기는 본문 E20) |
+| D ⚑D | CDK4/6 + AI 3가 → `covered`. pembrolizumab + ChT 4가-6 → `no_criteria` (TNBC 아님) |
+| 추천 | 허용: AI + CDK4/6. 금지: pembrolizumab을 급여 요법으로 표시 |
+
+### N34 단일 골전이, 소수 전이 (VC-0143)
+
+| 항목 | 내용 |
+|---|---|
+| 시험할 조건 | MBC 그림 10 소수 전이 (지금 0건), 1차 CDK4/6 + AI (보조 letrozole 종료 1년 넘어 재발), zoledronic acid 골전이 조건 (최근 4주 투여) |
+| 이야기 핵심 값 | 62세 폐경 후. 수술 pT2N1a (1/14), IIB, HR+/HER2-. 보조 letrozole 5년 (day 1856 완료). day 2430 PET-CT T8 단일 섭취, day 2445 T8 생검 전이성 유방암 (ER·PR 양성, HER2 1+). 다학제 "소수 전이, T8 SBRT 가능" |
+| 결정 시점 | 고식 1차 |
+| 짝 사례 | 골전이 3곳 + 간 (소수 전이 아님). 아직 만들지 않음 |
+| B | HR+/HER2-, metastatic, 1차. `DEEM-ENDO-ADJ-1Y` not_met (종료 19개월 뒤). 최근 4주 투여 no |
+| C | MBC 그림 10 `44ccc9` (다학제, 국소 치료 고려), 그림 2 `1ae139` (AI + CDK4/6) |
+| D ⚑D | CDK4/6 + AI 3가 → `covered` (비스테로이드 AI 보조 종료 1년 뒤). zoledronic acid → 조건 확인 필요 (영상·생검 입증, 최근 4주 이내 항암·호르몬제 투여 없음) |
+| 추천 | 허용: AI + CDK4/6 + 국소 치료 고려 |
+| 차트에 없는 칸 | 소수 전이 판단은 칸이 없다 (전이 부위 수와 다학제 문장만). §4 |
+
+### N35 범위 밖: 임신 22주 HER2+ (VC-0144)
+
+| 항목 | 내용 |
+|---|---|
+| 시험할 조건 | 안전 검사 "범위 외 추천 금지" (PROJECT.md §1), 임신 중 항HER2 금기 |
+| 이야기 핵심 값 | 34세, 임신 22주. cT2 cN1, IIB, G3, ER 0 / PR 0 / HER2 3+, Ki-67 40%. 초음파 좌측 유방 2.8 cm 종괴. 다학제 "항HER2 치료는 임신 중 금기, 협진 후 결정" |
+| 결정 시점 | 선행 |
+| 짝 사례 | 같은 이야기, 출산 뒤 6개월 (범위 안, 선행 TCHP 갈래). 아직 만들지 않음 |
+| B | 범위 밖 표시 (임신) |
+| C | 추천 없음 |
+| D ⚑D | 판정 없음 |
+| 추천 | 추천하지 않음. trastuzumab·pertuzumab이 나오면 안전 위반 |
+| 차트에 없는 칸 | 임신 여부 칸이 없다 (경과기록 문장만). §4 |
+
+### G20 VC-0111 + 뇌 전이 국소 치료 적응, 뇌 밖 진행 있음 (VC-0111-g20a)
+
+| 항목 | 내용 |
+|---|---|
+| 시험할 조건 | MBC 그림 6 활동성 뇌 전이 + 국소 치료 적응 + 뇌 밖 진행 갈래 |
+| 이야기 핵심 값 | VC-0111과 같고, 다학제 결론만 "국소 치료 적응 있음 (SRS 예정)" |
+| 결정 시점 | 고식 2차 |
+| 짝 사례 | 기본 VC-0111 (국소 치료 적응 없음, `ff7b69`) / VC-0111-g20b (뇌 밖 진행 없음) |
+| B | VC-0111과 같음 |
+| C | MBC 그림 6 `f13555` (국소 치료 → T-DXd 우선, tucatinib 병용, T-DM1) |
+| D ⚑D | VC-0111과 같음 (T-DXd 4라-22 `covered`, T-DM1 `covered`, tucatinib `no_criteria`) |
+| 추천 | 허용: SRS + T-DXd |
+
+### G20 VC-0111 + 뇌 전이 국소 치료 적응, 뇌 밖 진행 없음 (VC-0111-g20b)
+
+| 항목 | 내용 |
+|---|---|
+| 시험할 조건 | MBC 그림 6 활동성 뇌 전이 + 국소 치료 적응 + 뇌 밖 진행 없음 갈래 → 지금 전신 치료 유지 |
+| 이야기 핵심 값 | VC-0111에서 국소 치료 적응 있음 (SRS 예정), 간 CT "간 전이 안정 (SD)", HP 유지 진행 사유 "뇌 진행" (진행일 = 뇌 MRI day 590) |
+| 결정 시점 | 고식 2차 |
+| 짝 사례 | VC-0111-g20a (뇌 밖 진행 있음) |
+| B | VC-0111과 같음 (진행일만 590) |
+| C | MBC 그림 6 `c58fb4` (국소 치료 후 지금 전신 치료 유지) |
+| D ⚑D | HP 유지 계속 → 4가-5 요법 안의 유지 (D 확인) |
+| 추천 | 허용: SRS + HP 유지 계속. 2차 전신 요법으로 바꾸는 것은 1순위 아님 |
+
+### G21 VC-0115 + 생식세포 BRCA1 병원성 (VC-0115-g21)
+
+| 항목 | 내용 |
+|---|---|
+| 시험할 조건 | MBC 그림 9 gBRCA 갈래 (지금 0건), 전이성 olaparib 행 없음, carboplatin 기반 급여 |
+| 이야기 핵심 값 | VC-0115와 같고, 생식세포 검사 결과만 BRCA1 c.68_69delAG (p.E23Vfs*17) 병원성 |
+| 결정 시점 | 고식 2차 |
+| 짝 사례 | 기본 VC-0115 (gBRCA 야생형, `c541f9` sacituzumab) |
+| B | TNBC, gBRCA1 양성, 고식 항암 2차. 간주 규칙은 VC-0115와 같음 |
+| C | MBC 그림 9 `856d0a` (olaparib, talazoparib, carboplatin 기반) |
+| D ⚑D | olaparib → `no_criteria`. carboplatin 기반 4라-4 → `covered` (1차 gemcitabine + carboplatin 진행 뒤라 다시 쓰는지 D 확인). sacituzumab 4마-2는 VC-0115와 같음 |
+| 추천 | 허용: olaparib (ESMO, 급여 아님 표시), sacituzumab |
+
+## 4. 짝·빈 값·표현 변형
 
 evaluation_plan §2.1 표의 아직 안 만든 줄 + §2.2 빈 값 변형. 모두 `cases/vc_*.py` 매개변수로 만들고, 30건에 세지 않음.
 
@@ -519,6 +815,8 @@ evaluation_plan §2.1 표의 아직 안 만든 줄 + §2.2 빈 값 변형. 모�
 | G19 | as_of 날짜 | VC-0103 | 개정 공고 시행 전날 / 당일, 공고예고만 있는 약 | 예고는 판정에 안 씀, "진행중" 태그 | evaluation_plan §2.5 (개정 공고 자료 D 확인) |
 
 G9는 비워 둠 (크기·림프절·등급을 G8 하나로 합침).
+
+**표현 변형 사례 (2026-10-28, 만듦):** 개발 세트 5건(VC-0101·0104·0105·0108·0109)을 날짜 형식만 바꿔 (`2021-03-05`, `2021년 3월 5일`, `21/03/05`) 다시 쓴 15건. 값은 원래 사례와 같다 (`tests/input/test_variant_cases.py`). 생성기는 `build_variant_cases.py` (`virtual_chart.date_style`), 채점은 `--set variants`. 수용체·HER2·주기 표기 변형은 아직 단위 테스트만 있다 (`tests/input/test_normalize.py::test_expression_variants_2026_10_28`)
 
 ---
 
@@ -543,61 +841,54 @@ G9는 비워 둠 (크기·림프절·등급을 G8 하나로 합침).
 
 ---
 
-## 6. 우선순위 (30건 기준)
+## 6. 만든 상태 (2026-10-28)
 
-### 6.1 새 20건 순서
+| 묶음 | 상태 |
+|---|---|
+| 개발 10건, 짝 G1~G6 19건 | 만듦 |
+| 시험 N01~N20 | 만듦 (2026-10-23) |
+| 보류 N21~N35, 짝 G20·G21 | 만듦 (2026-10-28) |
+| 표현 변형 (날짜 형식) 15건 | 만듦 (2026-10-28) |
+| 사례별 짝 (§3 각 사례의 "짝 사례" 행) | 안 만듦. 보류 세트 사례에는 "아직 만들지 않음"으로 적혀 있다 |
+| 짝 G7~G19 (§4) | 안 만듦 |
+| 입력 모듈 시험용 I01~I12 (§5) | I03·I04 일부만 (표현 변형 사례, 단위 테스트) |
+| R11 동반질환 금기 | 안 만듦 |
 
-기준: (1) 지금 0건인 구간을 몇 개 채우나 (2) 급여 분류 공백(허가초과, 고식 항암 2차 이상, 간주 met) (3) 안전 검사 (4) 만들기 쉬움(기존 사례 재사용).
-
-| 순위 | 사례 | 묶음 | 채우는 0건 구간 | 이유 |
-|---|---|---|---|---|
-| 1 | N01 HR+/HER2+ 전이 1차 | 1차 묶음 (먼저) | HR+/HER2+ 아형, MBC 그림 5, 허가초과 후보 | 아형 공백이 가장 큼 |
-| 2 | N03 HER2+ 6개월 안 재발 | 1차 묶음 | `DEEM-HER2ADC-6M` met, M37 | 간주 규칙 4개 중 하나가 0건 |
-| 3 | N02 HER2+ 2차 뇌 전이 | 1차 묶음 | MBC 그림 6, 4라 행, 뇌 전이 | HER2+ 전이 3그림 0건 |
-| 4 | N08 조기 TNBC 잔존 | 1차 묶음 | EBC 그림 7, 허가초과 인정, 2-18, 40장-20 | 허가초과 인정 0건 |
-| 5 | N06 TNBC 2차 | 1차 묶음 | MBC 그림 9, 4마-2, SG-1Y 경계 | TNBC 2차 0건 |
-| 6 | N04 HR+ 3차 HER2-low | 1차 묶음 | MBC 그림 4, 4다-1 | 고식 항암 2차 0건 |
-| 7 | N05 HR+ 3차 이전 ChT | 1차 묶음 | 4마-1, ER+ sacituzumab 공고 없음 | 고식 항암 3차 이상 0건 |
-| 8 | N07 TNBC gBRCA 양성 | 1차 묶음 | 생식세포 양성, MBC 그림 8 gBRCA | 생식세포 칸 미사용 |
-| 9 | N17 장기 위기 | 2차 묶음 | `visceral_crisis`, 안전 검사 | 안전 0건 |
-| 10 | N20 남성 (범위 외) | 2차 묶음 | 범위 외 안전 검사 | 안전 0건, 만들기 쉬움 |
-| 11 | N10 보조 olaparib | 2차 묶음 | EBC 그림 5 olaparib, 40장-30, E11 | 안전(동시 금지) |
-| 12 | N11 HER2+ pCR | 2차 묶음 | EBC 그림 6 pCR | VC-0105 재사용 |
-| 13 | N12 HR+ 선행 | 2차 묶음 | 9장 1나 | 공고 1. 음성 0건 |
-| 14 | N19 폐경 전 전이 | 2차 묶음 | 폐경 전 전이, FSH, 3가 주1 | 폐경 칸 공백 |
-| 15 | N13 inavolisib | 3차 묶음 | MBC 그림 2 남은 갈래, 40장-29 | VC-0103 재사용 |
-| 16 | N14 AKT1 | 3차 묶음 | MBC 그림 3 AKT1·PTEN, 40장-21 | VC-0102 재사용 |
-| 17 | N18 liposomal doxorubicin | 3차 묶음 | 4나-19, 심장 칸 yes | G12·G13과 같이 |
-| 18 | N15 ER-low + HER2 2+/ISH- | 3차 묶음 | ER-low, ISH 칸 | B 정의 확인이 먼저 |
-| 19 | N09 TNBC cT1b | 3차 묶음 | EBC 그림 7 작은 종양 | |
-| 20 | N16 HER2 ultralow | 3차 묶음 | ultralow T-DXd | N04와 묶음, G6 her2-0f가 B 쪽은 덮음 |
-
-- 1차 묶음 8건이 끝나면 아형 HER2+ 4건, TNBC 4건이 됨. 이 시점에 VC-0103 정답 형식(B·C·D·[4])으로 정답을 같이 씀
-- 짝 사례 G7~G19는 기본 사례를 만들 때 같이 (1차 묶음 중 G17·G18 먼저: `unknown`·빈 값 0건)
-
-### 6.2 예비 (31건 이후)
-
-| ID | 사례 | 채우는 구간 | 근거 위치 |
-|---|---|---|---|
-| R01 | HER2+ 전이 3차 이상 (T-DXd 후) | MBC 그림 7 | 1211쪽 `c5908c` 등, 9장 4라-19·20 ⚑D |
-| R02 | HER2+ 전이 1차 ER+ 항암 불가 → ET + 항HER2 | MBC 그림 5 `eaa54b`, 9장 4가-3·4나-18 | 1209쪽 ⚑D |
-| R03 | HER2+ pT1a N0 수술 먼저 | EBC 그림 6 `207157`, trastuzumab 1cm 초과 조건 불충족 | 168쪽, 9장 2-20 ⚑D |
-| R04 | 폐경 전 Luminal A 1기 → tamoxifen 단독 | EBC 그림 4 `08ac92`, 그림 5 저위험 | 165·166쪽, 9장 2-7 ⚑D |
-| R05 | HR+ 2차 gPALB2 / TNBC 2차 gBRCA | MBC 그림 3 `d5aff4`, 그림 9 `856d0a` | 1207·1214쪽 |
-| R06 | 조기 pembrolizumab 받은 전이 TNBC | 9장 4가-6 이전 ICI 제외 | ⚑D |
-| R07 | 소수 전이 | MBC 그림 10 `44ccc9` | 1215쪽 |
-| R08 | DCIS 단독 | 범위 외 | 본문 E26 |
-| R09 | 임신 중 유방암 | 범위 외 | PROJECT.md §1 |
-| R10 | HR+ 2차 표적 변이 없음 (CDK4/6 바꿔 쓰기 요청) | MBC 그림 3 `0f09b4`, 3다 바꿔 쓰기 불가 | 1207쪽 ⚑D |
-| R11 | 동반질환 금기 (`contraindicated_classes`) | 안전 검사 | evaluation_plan §2.4 |
+옛 우선순위 (2026-10-23 §6.1 새 20건 순서, §6.2 예비 31건 이후)는 모두 만들었거나 §2.9로 옮겨서 뺐다.
 
 ---
 
-## 7. 확인 필요
+## 7. 스키마·규칙에 필요한 것
+
+`patient_state`에 담을 칸이 없는 값. 지금은 차트 문장으로만 쓰고 정답 JSON에는 들어 있지 않다. 스키마 작업에서 정한다.
+
+| 값 | 쓰는 사례 | 지금 | 제안 |
+|---|---|---|---|
+| 항암 불가 판단 ("항암 치료 어렵다") | N28 | `contraindicated_classes`는 `confirmed_state`에만 | `patient`에 의사 판단 칸 (`visceral_crisis`와 같은 방식) |
+| 내분비 적합 / 부적합 판단 | N32, N04·N16 | 없음 | 의사 판단 칸 |
+| 뇌 전이 활동성·국소 치료 적응 | G20, VC-0111 | `imaging_findings`에 부위만 | 영상 판독의 활동성 + 의사 판단 |
+| 소수 전이 | N34 | 없음 | 전이 부위 수로 계산할지, 의사 판단 칸으로 둘지 |
+| 임신 | N35 | 없음 | `patient.pregnancy` |
+| 이전 면역관문억제제 | N27 | `treatment_history[].drugs`로 가능 | 그대로. D 규칙이 선행·보조 pembrolizumab을 "이전 사용"으로 보는지 확인 |
+| 골밀도 | N24 | 없음 (경과기록 문장만) | 보조 bisphosphonate 판정에 쓰면 칸 추가 |
+
+---
+
+## 8. 보류 세트로 쓰는 방법
+
+- 보류 세트 18건 (기본 15 + 짝 3)은 입력 규칙·프롬프트를 고칠 때 틀린 칸을 보지 않는다. 성능 보고에만 쓴다
+- 규칙을 고칠 때는 개발 세트(VC-0101~0109), 시험 세트(VC-0110~0129), 표현 변형 세트를 쓴다
+- 채점: `python -m src.input.script.evaluation --gold --set holdout` (규칙만), LLM 출력은 `python -m src.input.script.evaluation <폴더>`. LLM 실행은 `python -m src.input.script.pipeline --set holdout --out <폴더>`
+- 처음 잰 값 (2026-10-28, 규칙만): 필드 정확도 99.9%, 틀린 칸 1개 (VC-0143 보조 내분비 종료일). 같은 날 시험 VC-0122에서 나온 규칙(보조 내분비 투약 줄 종료일로 채움)으로 함께 고쳐져 지금은 100%
+- 차트 문장은 같은 생성기 도구로 써서 시험 세트와 비슷하다. 표현 다양성은 제한점으로 남는다 (`notes/input_llm_principles_priorities_2026-10-23.md` §3-6, §4 표현 변형 사례)
+
+---
+
+## 9. 확인 필요
 
 | 누가 | 무엇 | 관련 |
 |---|---|---|
-| D | **급여 행 단위 대조 전체** (§2.6 ⚑D 칸, §3 D 행). 이 PC에 D의 급여 청크 파일 없음 | 전 사례 |
+| D | **급여 행 단위 대조 전체** (§2.6 ⚑D 칸, §3 D 행. 이 PC에 D의 급여 청크 파일 없음). 특히 2-20 "1cm 초과"의 10 mm 경계, 4가-6 "이전 면역관문억제제"에 선행·보조가 드는지, `DEEM-ANTHRA-TAXANE` met이 4가 "1차"에 쓰이는지, 4나-18·4가-3 "이전 trastuzumab" 범위, carboplatin 재사용 | 전 사례, 특히 N21, N27, N28, G21 |
 | D | 허가초과 인정 21건 목록 (N01 palbociclib + trastuzumab, N08 pembrolizumab + capecitabine 포함 여부) | N01, N08 |
 | D | 간주 규칙을 4다·4마 차수에 쓰는 방식 | N04, N05, N06 |
 | D | 9장 2-22~24 보조 pertuzumab와 선행 요법 연속의 구분 | N11 |
@@ -607,10 +898,15 @@ G9는 비워 둠 (크기·림프절·등급을 G8 하나로 합침).
 | C | 그림 밖 권고(M06, M37, M26, E10, E11, E20)의 본문 쪽 | N03, N10, N15, N17, N18 |
 | C | MBC 그림 4 "이전 ChT"에 보조 ChT가 드는지 | N04, N16 |
 | C | ESMO 원문 기호(≥·≤) 9곳 (esmo_hira_crosswalk §1.4) | G7, N13, G1 |
+| C | 그림 7 `f52123`·`e281ed` (`<cT2 N0` 갈래 뒤 pembrolizumab 상자)가 그림과 맞는지 | N26 |
+| C | 전이성 ER-low를 ESMO MBC가 따로 다루는지 (조기는 E20) | N33 |
+| C | 그림 5 Luminal A 갈래의 "high risk"와 "Stage III or high-risk stage II" 구분 | N23 |
+| B | gBRCA를 생식세포 칸(`molecular.germline`)에서 먼저 읽고, 없으면 `mutations`의 BRCA를 쓰기 (2026-10-28 결정). 지금 코드는 `mutations`만 읽어 생식세포 양성이 `not_recorded`로 나온다 (`draft7_checklist_BCD_2026-10-28.md` §1.1) | VC-0104, N07, N10, N26, N31, G21 |
 | B | ER-low 상한 (ESMO 1~9% vs evaluation_plan §6 1~10%) | N15 짝 |
 | B | VUS, 생식세포/체세포 표기 형식 | N07 짝, I11 |
 | B | cfDNA와 조직 결과가 다를 때 규칙 | I07 |
 | B | 남성·범위 외 표시 방식 | N20, I12 |
-| B | 지금 코드가 차트 BRCA를 sBRCA로 이름 붙여 gBRCA 권고가 안 나옴 (옛 AB_gap N-3, virtual_chart_design §3 VC-0104) | VC-0104, N07, N10 |
+| B | 생식세포 검사 기록이 없을 때 (미시행이 아니라 `not_recorded`) 검사 권고를 내는지 | N23 |
 | A | 투약 중(`end_day` null)과 종료일 기록 없음 구분 (옛 AB_gap J-4, design §3 VC-0108) | VC-0108, G14, G17 |
 | A | "검사 거부" 표기 (IN-6 표에 없음) | I09 |
+| A | §7 칸 | N28, N32, N34, N35 |
