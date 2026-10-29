@@ -16,6 +16,7 @@
 - [patient_state_structure.md](patient_state_structure.md): `patient_state` JSON 구조 그림
 - [virtual_patient_cases.md](virtual_patient_cases.md): 가상 환자 사례 목록 (개발·시험·보류·표현 변형 세트, 사례별 기대 결과)
 - [line_rules.md](line_rules.md): ESMO 처방 기준 차수와 심평원 급여 투여단계 규칙 명세 (차수 코드 재작성 기준, 열린 결정 4개)
+- [integration_status_2026-10-29.md](integration_status_2026-10-29.md): 처방 모듈 통합 점검 (구동 순서별 문제, B·C·D 업무와 빠진 부분 담당, 치료 단계별 모듈 역할)
 - B·C·D 전달: [handoff_to_B.md](handoff_to_B.md) (JSON 구조, BM-2 판정 조건, BM-3 출처, 치료 상황 규칙), [handoff_confirmed_state_to_B.md](handoff_confirmed_state_to_B.md) (confirmed_state 연결), [draft7_checklist_BCD_2026-10-28.md](draft7_checklist_BCD_2026-10-28.md) (draft7 후보 칸 확인 체크리스트)
 
 코드:
