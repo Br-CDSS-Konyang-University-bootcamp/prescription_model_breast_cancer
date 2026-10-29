@@ -58,7 +58,7 @@ def test_patient_values_and_missing_fields():
     assert ev(cond([item("recurrence_operable", "eq", "no")])) == "unknown"                       # 환자 JSON에 칸 없음
     assert ev(cond([item("cardiac_history", "eq", True)])) == "unknown"
     assert ev(cond([item("bone_metastasis", "eq", True)])) == "unknown"   # 전이 부위에 뼈만 있고 영상 소견 없음
-    assert ev(cond([item("ln_status", "eq", "positive")])) == "met"
+    assert ev(cond([item("pn_status", "eq", "positive")])) == "met"
 
 
 def test_stage_comparisons():
@@ -67,9 +67,9 @@ def test_stage_comparisons():
     assert ev(cond([item("stage_group", "gte", "IIIA")])) == "met"
     ps = patient(stage={"group": present("III"), "ptnm": present({"t": "T1", "n": "N0", "m": "M0"})})
     assert ev(cond([item("stage_group", "gte", "IIIB")]), ps=ps) == "unknown"                     # 주 병기만 있으면 알 수 없음
-    assert ev(cond([item("t_stage", "gte", "T1c")]), ps=ps) == "unknown"                          # T1은 T1a~c 범위
-    assert ev(cond([item("t_stage", "gte", "T2")]), ps=ps) == "not_met"
-    assert ev(cond([item("t_stage", "gte", "T2")])) == "met"
+    assert ev(cond([item("pt_stage", "gte", "T1c")]), ps=ps) == "unknown"                          # T1은 T1a~c 범위
+    assert ev(cond([item("pt_stage", "gte", "T2")]), ps=ps) == "not_met"
+    assert ev(cond([item("pt_stage", "gte", "T2")])) == "met"
 
 
 def test_any_of_exceptions_and_unless():
@@ -237,3 +237,42 @@ def test_bone_metastasis_by_imaging():
     assert ev(c, ps=with_imaging(("PET", ["bone"], "suspected"))) == "unknown"               # VC-0143 의심만
     assert ev(c, ps=with_imaging(("CT", ["liver"], "confirmed"), sites=["liver"])) == "not_met"
     assert ev(c, ps=with_imaging(("CT", ["liver"], "confirmed"), sites=["liver", "bone"])) == "unknown"
+
+
+def test_stage_by_treatment_timing():
+    """치료 시기별 병기 (D 2026-10-29, draft7 체크리스트 §4): 임상은 ct_·cn_·clinical_size_mm, 병리는 pt_·pn_·pathologic_size_mm."""
+    neo = patient(stage={"ctnm": present({"t": "T2", "n": "N1", "m": "M0"}), "clinical_size_mm": present(25),
+                         "ptnm": {"status": "not_recorded"}})
+    assert ev(cond([item("ct_stage", "gte", "T2")]), ps=neo) == "met"
+    assert ev(cond([item("cn_status", "eq", "positive")]), ps=neo) == "met"
+    assert ev(cond([item("clinical_size_mm", "gt", 20)]), ps=neo) == "met"
+    assert ev(cond([item("pt_stage", "gte", "T2")]), ps=neo) == "unknown"           # pT가 없으면 cT로 대신하지 않는다
+    assert ev(cond([item("pn_status", "eq", "positive")]), ps=neo) == "unknown"
+    assert ev(cond([item("pathologic_size_mm", "gte", 10)]), ps=neo) == "unknown"
+    five = patient(stage={"ptnm": present({"t": "T2", "n": "N1mi", "m": "M0"}), "pathologic_size_mm": present(50)})
+    assert ev(cond([item("pathologic_size_mm", "gte", 50)]), ps=five) == "met"      # 정확히 5.0cm는 T2지만 5cm 이상
+    assert ev(cond([item("pn_status", "eq", "positive")]), ps=five) == "met"        # N1mi는 양성
+    for n in ("pN0(i+)", "N0(mol+)", "cN0(i-)"):
+        ps = patient(stage={"ptnm": present({"t": "T1", "n": n, "m": "M0"})})
+        assert ev(cond([item("pn_status", "eq", "negative")]), ps=ps) == "met"
+
+
+def test_cumulative_dose_mg_to_mg_m2():
+    """누적 용량 (D FIELDS 2026-10-29): doses[]의 total을 더하고, mg이면 Mosteller 체표면적으로 나눈다."""
+    def with_doses(total, unit="mg", height=158, weight=58):
+        ps = patient(treatment_history=[{"drugs": ["doxorubicin", "cyclophosphamide"], "setting": "adjuvant",
+                                         "start_day": 100, "end_day": 160, "line": None,
+                                         "doses": [{"drug": "doxorubicin", "per_admin": {"value": 96, "unit": unit},
+                                                    "total": total if total == "No value" else {"value": total, "unit": unit},
+                                                    "basis": "estimated"}]}])
+        if height is not None:
+            ps["fields"]["patient"]["height_cm"] = present(height)
+            ps["fields"]["patient"]["weight_kg"] = present(weight)
+        return ps
+    c240 = cond([item("cumulative_dose_mg_m2", "gte", 240, of={"drugs": ["doxorubicin"]})])
+    c180 = cond([item("cumulative_dose_mg_m2", "gte", 180, of={"drugs": ["doxorubicin"]})])
+    assert ev(c240, ps=with_doses(288)) == "not_met"                                 # VC-0127: 288mg ÷ 1.596m² = 180.5
+    assert ev(c180, ps=with_doses(288)) == "met"
+    assert ev(c240, ps=with_doses(288, height=None)) == "unknown"                   # 키·몸무게 없음
+    assert ev(c240, ps=with_doses("No value")) == "unknown"
+    assert ev(c240, ps=with_doses(300, unit="mg/m2")) == "met"                       # 이미 mg/m²
