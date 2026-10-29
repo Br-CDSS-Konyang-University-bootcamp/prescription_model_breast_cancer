@@ -30,10 +30,10 @@ out = complete_json(
 
 | 칸 | 쓰는 곳 | 모델 | 비고 |
 |---|---|---|---|
-| `[extract]` | [1] IN-2 필드 추출 | `hf.co/mradermacher/hari-q3-8b-GGUF:Q4_K_M` | 2026-10-19 결정 (`notes/llm_components.md`) |
-| `[extract_dev]` | 개발·시험 | `hf.co/mradermacher/hari-q3-8b-GGUF:Q4_K_M` | 2026-10-20 hari로 통일. 비교할 때만 `load_config("extract", model="qwen2.5:7b")` |
+| `[extract]` | [1] IN-2 필드 추출 | `qwen3:14b` | 2026-10-29 A가 선택 (hari-q3-8b와 비교, `src/input/llm_performance.md`) |
+| `[extract_dev]` | [1] 개발·시험 | `qwen3:14b` | `[extract]`와 같은 모델. 비교할 때만 `load_config("extract", model="...")` |
 
-다른 모듈은 자기 칸을 추가해 쓴다 (예: `[biomarker_parse]`, `[recommend]`).
+입력 모듈 모델은 다른 단계와 별개다. 다른 모듈은 자기 칸을 추가해 쓴다 (예: `[biomarker_parse]`, `[recommend]`, 급여 조건 구조화).
 
 ## 지금 구현된 것
 
@@ -46,7 +46,7 @@ out = complete_json(
 ## 준비
 
 1. Ollama 설치 (각자 PC, conda 밖)
-2. 모델 받기: `ollama pull qwen2.5:7b`, `ollama pull hf.co/mradermacher/hari-q3-8b-GGUF:Q4_K_M`
-3. 테스트 (team_project 폴더에서): `python -m pytest tests/llm`. 마지막 테스트는 Ollama가 켜져 있을 때만 실제 `[extract]` 모델(hari-q3-8b)로 돈다.
+2. 모델 받기: `ollama pull qwen3:14b`
+3. 테스트 (team_project 폴더에서): `python -m pytest tests/llm`. 마지막 테스트는 Ollama가 켜져 있을 때만 실제 `[extract]` 모델(qwen3:14b)로 돈다.
 
 CPU만 있는 PC에서는 7~8B 모델이 초당 약 7~8 토큰이라 차트 문서 하나에 1~3분 걸린다.

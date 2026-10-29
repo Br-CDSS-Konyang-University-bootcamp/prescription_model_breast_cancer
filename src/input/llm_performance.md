@@ -19,8 +19,8 @@
 - hari는 원문 인용을 바꿔 써서 위치를 못 찾는 일이 있다 (`놀바덱스` → `놀바.dex`, BRCA 변이 표기 변경). 인용이 틀리면 규칙이 값을 버리므로 치료 줄 하나가 통째로 빠진다.
 - 속도는 hari가 낫지만, 한 사례당 qwen도 GPU에서 평균 13초 정도라 문제되지 않는다.
 
-`llm/config.toml`의 `[extract]` 모델은 아직 `hf.co/mradermacher/hari-q3-8b-GGUF:Q4_K_M`이다.
-`llm/`은 공용 폴더라 네 명 검토 뒤에 `qwen3:14b`로 바꾼다. 그 전에는 실행할 때 `--model qwen3:14b`를 붙인다.
+`llm/config.toml`의 `[extract]`·`[extract_dev]`를 `qwen3:14b`로 바꿨다 (2026-10-29, 입력 모듈 모델은 A가 정함).
+다른 단계(BM-1 보고서 파싱, LLM 추천, 급여 조건 구조화)의 LLM은 별개로 각자 칸을 두고 정한다.
 
 ## 세트별 점수
 

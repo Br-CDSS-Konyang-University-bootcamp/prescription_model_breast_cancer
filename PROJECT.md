@@ -542,7 +542,7 @@ H&E에서 ER/PR/HER2를 예측해 차트 값과의 불일치를 표시하는 QC 
 - [x] `setting.disease`·`setting.line`과 바이오마커 상태값에서 `indeterminate`를 없애고 `unknown`을 쓴다 (2026-10-15). 차수는 아직 계산하지 않아 `line`은 모두 `unknown`
 - [ ] 생식세포/체세포 구분 (2026-10-28 A 결정, B 코드 반영 전): `patient_state`는 생식세포 검사(혈액·타액)를 `molecular.germline.{BRCA1, BRCA2, PALB2}`에, 종양 조직·cfDNA 결과를 `molecular.mutations`에 따로 담는다 (2026-10-22 칸 추가, 4명 검토 전). gBRCA 판정은 유전자마다 ① 생식세포 칸에 결과가 있으면 그 결과를 쓰고, ② 없으면 후순위로 `mutations`의 같은 유전자 결과를 쓴다. B는 지금 `mutations`만 읽어 생식세포 양성이 `not_recorded`로 나오므로 이 순서대로 고친다 (`src/input/draft7_checklist_BCD_2026-10-28.md` §1.1). 마커 이름: C의 태그(`gBRCA`, `sBRCA`)와 D의 급여 조건(`gbrca`, `sbrca`)이 biomarker_record의 마커 이름(`gBRCA1/2`, `sBRCA1/2`)에 맞춰 만들어져 있어, 당장은 이름을 그대로 두고 `sBRCA1/2` 레코드는 만들지 않는다. 마커를 하나로 합칠지는 C·D 작업이 안정된 뒤 다시 정한다
 - [ ] ESR1 테스트 범위 확인 (2026-10-15 기록): TCGA 정답 874명 중 ESR1 변이가 있는 환자는 9명뿐이다 (모두 원발 조직 결과). 재검 필요 규칙(원발 결과 + 이후 내분비요법 진행)은 전이성 28명으로 시험할 수 있지만, ESR1 양성 판정(허가 동반진단 변이 목록)은 사례가 적다. MSK-IMPACT는 쓰지 않기로 했으므로(2026-10-15) 부족하면 가상 차트로 사례를 만든다. 지금은 확인만 해 두고 넘어간다
-- [ ] 로컬 LLM 선정 (Qwen 계열, EXAONE, snuh/hari-q3-8b 비교)
+- [x] 입력 모듈(IN-2) 로컬 LLM 선정: `qwen3:14b` (2026-10-29, A 결정). GPU 서버에서 hari-q3-8b와 개발·시험·보류·표현 변형 63건으로 비교, 처음 보는 사례에서 틀린 칸 5 대 10 (`src/input/llm_performance.md`). BM-1 보고서 파싱·LLM 추천 모듈의 로컬 LLM은 따로 정한다
 - [ ] 급여 조건 구조화([5], D)용 로컬 LLM 선정 (2026-10-23 추가: Claude API 대신 로컬 모델로 바꾸기로 함, 모델 미정)
 - [ ] 최종 출력 형식 (CLI, 웹 UI, 리포트 등)
 - [ ] 다음 버전: 약물유전체 경고, Oncotype 대리 점수, 멀티모달 QC 연결 (v0.2 문서)
