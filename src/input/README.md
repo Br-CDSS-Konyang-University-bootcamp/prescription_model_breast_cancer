@@ -10,12 +10,14 @@
 
 문서:
 
-- [py_files.md](py_files.md): 입력 모듈 `.py` 파일마다 이름·기능·실행 명령·테스트 (script/의 pipeline·evaluation·rules·virtual 폴더별)
-- [llm_extraction_runs.md](llm_extraction_runs.md): LLM 추출 시험 1~3차 기록. 차수마다 고친 규칙·프롬프트와 점수 비교 (2026-10-23 ~ 10-26, hari-q3-8b, 필드 정확도 91.2% → 98.1%)
-- [schema_fields.md](schema_fields.md): `patient_state` 필드별 표준값 형태, 정규화 방식과 예시, B와 합의할 제안
-- [handoff_to_B.md](handoff_to_B.md): B에게 전달하는 문서 (하나로 통합). JSON 구조, B가 받는 값과 정규화, BM-2 판정 조건, BM-3 출처 제안, 치료 상황 규칙(차수, 급여 투여단계), 정답 세트 특성, 예시, 모델 한계, B가 정할 것
+- [llm_performance.md](llm_performance.md): **입력 모듈 최종 성능** (LLM 모델 선택, 세트별 점수, 남은 오류, 다시 재는 방법)
+- [py_files.md](py_files.md): 입력 모듈 `.py` 파일마다 이름·기능·실행 명령·테스트, GPU 서버 실행
+- [schema_fields.md](schema_fields.md): `patient_state` 필드별 표준값 형태, 정규화 방식과 예시, 바꿔 읽는 값(부분 날짜·KPS 등) 방침
 - [patient_state_structure.md](patient_state_structure.md): `patient_state` JSON 구조 그림
+- [virtual_patient_cases.md](virtual_patient_cases.md): 가상 환자 사례 목록 (개발·시험·보류·표현 변형 세트, 사례별 기대 결과)
 - [line_rules.md](line_rules.md): ESMO 처방 기준 차수와 심평원 급여 투여단계 규칙 명세 (차수 코드 재작성 기준, 열린 결정 4개)
+- [integration_status_2026-10-29.md](integration_status_2026-10-29.md): 처방 모듈 통합 점검 (구동 순서별 문제, B·C·D 업무와 빠진 부분 담당, 치료 단계별 모듈 역할)
+- B·C·D 전달: [handoff_to_B.md](handoff_to_B.md) (JSON 구조, BM-2 판정 조건, BM-3 출처, 치료 상황 규칙), [handoff_confirmed_state_to_B.md](handoff_confirmed_state_to_B.md) (confirmed_state 연결), [draft7_checklist_BCD_2026-10-28.md](draft7_checklist_BCD_2026-10-28.md) (draft7 후보 칸 확인 체크리스트)
 
 코드:
 
@@ -27,7 +29,7 @@
 | `script/pipeline.py` | classify, deid, quote, normalize, assemble, pipeline, extract | 차트 원문 → `patient_state` 처리 단계 (IN-0 ~ IN-7). 진입점 `run(chart_text, extract, patient_ref=, created_at=)` → `(patient_state, issues)`. 실행 `python -m src.input.script.pipeline` (LLM 추출 시험) |
 | `script/evaluation.py` | candidates, score | 정답 후보(`from_expected`)와 채점 (필드 정확도, 정밀도·재현율, 상태 혼동표, 근거 위치, 인용 준수율). 실행 `python -m src.input.script.evaluation` |
 | `script/rules.py` | vocab, lines | 공용 규칙(차수·간주 규칙·판정 기준일 값, `annotate()`)과 표준값 사전(`field_vocab.csv`). 파이프라인과 가상 차트가 같이 쓴다 |
-| `script/virtual/` | `virtual_chart.py`, `build_virtual_cases.py`, `cases/` | 가상 차트와 정답 만들기 (10건 + 짝 사례 19건, 사례 20건) |
+| `script/virtual/` | `virtual_chart.py`, `build_virtual_cases.py`, `build_holdout_cases.py`, `build_variant_cases.py`, `cases/` | 가상 차트와 정답 만들기 (개발 10건 + 짝 19건, 시험 20건, 보류 18건, 표현 변형 15건) |
 | `script/tcga/` | `tcga_to_patient_state.py` | B 테스트(`tests/biomarker/test_bm.py`)가 쓰는 변환기만 남김 |
 
 2026-10-27 TCGA 정답 세트 폐기, 평가는 가상 차트로 (B 테스트용 변환기 `script/tcga/tcga_to_patient_state.py`만 남김).

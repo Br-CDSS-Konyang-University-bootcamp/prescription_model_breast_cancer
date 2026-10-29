@@ -84,6 +84,8 @@ from src.input.script.rules import Vocab, annotate, load_drug_table
 | `cases/vc_0101.py` ~ `vc_0109.py`, `vc_0106b.py` | 가상 차트 10건 사례 코드 (개발 세트) | 파일마다 `build()`가 차트 하나를 만든다. 일부는 짝 사례용 매개변수가 있다 (예: VC-0103 `adj_gap`, VC-0107 `er`) | `test_virtual_charts.py` |
 | `cases/pairs.py` | 짝 사례 19건 | 기본 사례에서 판정을 가르는 값 하나만 바꾸고, A 정답 확인값(`expect_a`)과 B·C·D 기대 판정 초안(`expect`)을 적는다 | `test_virtual_charts.py` |
 | `build_virtual_cases.py` | 가상 사례 20건 생성 (시험 세트) | `virtual_patient_cases.md` §3의 값으로 VC-0110 ~ VC-0129의 차트·정답·`scenario.md`·`cases.csv`를 만든다 (`virtual_chart.py`의 `Chart`·`F`를 쓴다) | `test_virtual_cases.py` |
+| `build_holdout_cases.py` | 보류 세트 18건 생성 | `virtual_patient_cases.md` §3의 N21~N35·G20·G21로 VC-0130 ~ VC-0144와 짝 3건의 차트·정답·`scenario.md`·`holdout_cases.csv`. 규칙을 고칠 때 보지 않는 세트 | `test_holdout_cases.py` |
+| `build_variant_cases.py` | 표현 변형 15건 생성 | 개발 세트 5건을 날짜 형식만 바꿔 (`virtual_chart.date_style`) `variants/`에 쓴다. 값은 원래 사례와 같다 | `test_variant_cases.py` |
 
 ## 5. `tcga/`
 
@@ -93,7 +95,7 @@ from src.input.script.rules import Vocab, annotate, load_drug_table
 
 | 폴더 | 같은 이름의 정의 | 실행 명령 | 그 밖 |
 |---|---|---|---|
-| `virtual/` | `build` 10개(사례 파일마다), `main` 2개, `ROOT`, `CYC` | 2개 (`virtual_chart`, `build_virtual_cases`) | `virtual_chart.py`가 사례 파일을 이름으로 불러온다 (`cases.vc_0103`) |
+| `virtual/` | `build` 10개(사례 파일마다), `main` 4개, `ROOT`, `CYC` | 4개 (`virtual_chart`, `build_virtual_cases`, `build_holdout_cases`, `build_variant_cases`) | `virtual_chart.py`가 사례 파일을 이름으로 불러온다 (`cases.vc_0103`) |
 
 그대로 합치면 같은 이름이 서로 덮어쓰고 실행 명령이 하나만 남는다. 합치려면 이름을 바꾸고 실행 명령을 하위 명령으로 나눠야 한다.
 
@@ -103,22 +105,26 @@ from src.input.script.rules import Vocab, annotate, load_drug_table
 # LLM 추출 (pipeline.py)
 python -m src.input.script.pipeline --ids VC-0103 --docs D4                      # 문서 하나: LLM 후보와 정답 대조, 시간
 python -m src.input.script.pipeline --out data/input/runs/<이름>                  # 개발 세트 10건을 끝까지 돌려 저장 (CPU 약 1시간)
-python -m src.input.script.pipeline --set test --out data/input/runs/<이름>       # 시험 세트 20건 (규칙을 고정한 뒤에만, 약 2시간)
+python -m src.input.script.pipeline --set test --out data/input/runs/<이름>       # 시험 세트 20건 (CPU 약 2시간)
+python -m src.input.script.pipeline --set holdout --out data/input/runs/<이름>    # 보류 세트 18건 (성능 보고에만)
+python -m src.input.script.pipeline --set variants --out data/input/runs/<이름>   # 표현 변형 15건
 python -m src.input.script.pipeline --replay data/input/runs/<이름>               # 저장한 LLM 후보로 규칙만 다시 (몇 초)
 python -m src.input.script.pipeline --host http://127.0.0.1:11435 --out ...      # GPU 서버 (SSH 터널을 연 뒤, 아래 참고)
 
 # 채점 (evaluation.py)
 python -m src.input.script.evaluation --gold                                      # 정답 후보로 돌려 채점 (기본 dev + pairs, 규칙 점검)
-python -m src.input.script.evaluation --gold --set test                           # 시험 세트를 정답 후보로 (규칙만의 일반화 확인)
+python -m src.input.script.evaluation --gold --set test                           # 다른 세트: test, holdout, variants
 python -m src.input.script.evaluation data/input/runs/<이름>                       # 저장한 출력 채점 (폴더 안의 사례 전부)
 
 # 가상 차트 (virtual/)
 python -m src.input.script.virtual.virtual_chart [--ids VC-0103] [--check]       # 가상 차트 10건 + 짝 사례 만들기·검사
-python -m src.input.script.virtual.build_virtual_cases [--ids VC-0112] [--check] # 가상 사례 20건 만들기·검사
+python -m src.input.script.virtual.build_virtual_cases [--ids VC-0112] [--check] # 시험 세트 20건 만들기·검사
+python -m src.input.script.virtual.build_holdout_cases [--check]                 # 보류 세트 18건
+python -m src.input.script.virtual.build_variant_cases [--check]                 # 표현 변형 15건
 
 ```
 
-개발 세트(dev)는 규칙·프롬프트를 고칠 때 보는 사례, 시험 세트(test)는 규칙을 고정한 뒤에만 재는 사례다 (과적합 방지, `llm_extraction_runs.md`).
+개발 세트(dev)와 시험 세트(test)는 규칙·프롬프트를 고칠 때 본 사례다. 보류 세트(holdout)는 고칠 때 보지 않고 성능 보고에만 쓴다 (`virtual_patient_cases.md` §8). 최신 점수는 [llm_performance.md](llm_performance.md).
 
 ## GPU 서버로 돌리기 (SSH 터널)
 
@@ -127,7 +133,7 @@ python -m src.input.script.virtual.build_virtual_cases [--ids VC-0112] [--check]
 
 ```bash
 # 이 PC에서 (창을 열어 둔다): 이 PC 11435 → 서버 Ollama 11500
-ssh -p <포트> -N -L 11435:127.0.0.1:11500 <계정>@<서버>
+ssh -p <포트> -N -L 11435:127.0.0.1:11500 <계정>@<서버>     # 팀 GPU 서버는 포트 2222
 ```
 
 서버 쪽 설치·실행(관리자 권한 없이 계정 폴더에)은 `~/ollama`에 공식 `ollama-linux-amd64.tar.zst`를 풀고

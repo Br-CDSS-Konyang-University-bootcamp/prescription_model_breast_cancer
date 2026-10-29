@@ -1,6 +1,6 @@
 """llm/ 공용 인터페이스 테스트.
 
-가짜 응답으로 도는 테스트는 Ollama 없이 돈다. 마지막 테스트만 실제 Ollama([extract] 모델, hari-q3-8b)가 켜져 있을 때 돈다.
+가짜 응답으로 도는 테스트는 Ollama 없이 돈다. 마지막 테스트만 실제 Ollama([extract] 모델, qwen3:14b)가 켜져 있을 때 돈다.
 실행 (team_project 폴더에서): python -m pytest tests/llm
 """
 import json

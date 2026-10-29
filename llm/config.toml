@@ -2,18 +2,19 @@
 # 환자 데이터를 다루는 작업은 patient_data = true (로컬 provider만 허용).
 # API 키는 여기 두지 않는다 (.env).
 
-# [1] 입력 모듈 IN-2 필드 추출 (A). 모델 결정: notes/llm_components.md (2026-10-19, snuh/hari-q3-8b Q4_K_M)
+# [1] 입력 모듈 IN-2 필드 추출 (A). 모델 결정: qwen3:14b (2026-10-29, A가 선택. 근거 src/input/llm_performance.md)
+# 다른 단계(BM-1 보고서 파싱, LLM 추천, 급여 조건 구조화)의 LLM은 별개로, 자기 칸을 따로 추가한다.
 [extract]
 provider = "ollama"
-model = "hf.co/mradermacher/hari-q3-8b-GGUF:Q4_K_M"
+model = "qwen3:14b"
 patient_data = true
 temperature = 0
 device = "auto"
 
-# 개발·시험용 (2026-10-20: hari-q3-8b로 통일. 비교할 때만 load_config("extract", model="qwen2.5:7b"))
+# 입력 모듈 개발·시험용 ([extract]와 같은 모델. 비교할 때만 load_config("extract", model="hf.co/mradermacher/hari-q3-8b-GGUF:Q4_K_M"))
 [extract_dev]
 provider = "ollama"
-model = "hf.co/mradermacher/hari-q3-8b-GGUF:Q4_K_M"
+model = "qwen3:14b"
 patient_data = true
 temperature = 0
 device = "auto"
