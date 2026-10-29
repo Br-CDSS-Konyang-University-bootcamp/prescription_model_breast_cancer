@@ -151,6 +151,22 @@ def _days_since(fields, of, end_value):
     return end_value - max(ends)
 
 
+def _bone_by_imaging(fields):
+    """영상 소견(imaging_findings)에 확정(confirmed)된 뼈 전이가 있으면 True. 뼈가 의심으로만 적혔거나
+    전이 부위 목록에만 있으면 영상 입증을 알 수 없어 None. 영상 소견과 전이 부위 어디에도 뼈가 없으면 False."""
+    imaging = fields.get("imaging_findings")
+    imaging = imaging if isinstance(imaging, list) else []
+    bone = [i for i in imaging if "bone" in (i.get("sites") or [])]
+    if any(i.get("certainty") == "confirmed" for i in bone):
+        return True
+    stage, recurrence = fields.get("stage") or {}, fields.get("recurrence") or {}
+    lists = [s for s in (_present(stage.get("metastatic_sites")), _present(recurrence.get("metastatic_sites")))
+             if isinstance(s, list)]
+    if bone or any("bone" in s for s in lists):
+        return None
+    return False if (imaging or lists) else None
+
+
 def _value(field, it, patient_state, record):
     """조건 항목의 field에 해당하는 환자 값. 판정할 수 없으면 None. 항목 자체를 바로 정할 수 있으면 bool."""
     fields = (patient_state or {}).get("fields") or {}
@@ -217,12 +233,8 @@ def _value(field, it, patient_state, record):
     if field == "pdl1_22c3_cps":
         v = _present((fields.get("receptors") or {}).get("pdl1")) or {}
         return v.get("score") if v.get("assay") == "22C3" and v.get("score_type") == "CPS" else None
-    if field == "bone_metastasis":
-        sites = [_present(stage.get("metastatic_sites")), _present(recurrence.get("metastatic_sites"))]
-        lists = [s for s in sites if isinstance(s, list)]
-        if any("bone" in s for s in lists):
-            return True
-        return False if lists else None
+    if field == "bone_metastasis":   # "영상으로 골전이 입증" (draft7 체크리스트 §1.2, 2026-10-29)
+        return _bone_by_imaging(fields)
     if field in ("palliative_endocrine_lines", "palliative_chemo_lines"):
         key = "endocrine_line" if "endocrine" in field else "chemo_line"
         rows = fields.get("treatment_history")
