@@ -13,6 +13,7 @@ D 코드는 불러오지 않고 공용 형식(schemas/chunk.json, src/reimbursem
 행 판정: 하나라도 거짓이면 not_met, 거짓 없이 알 수 없음이 있으면 unknown, 모두 참이면 met.
 """
 import csv
+import math
 from pathlib import Path
 
 DRUG_CLASSES_CSV = Path(__file__).resolve().parents[2] / "data" / "dictionaries" / "drug_classes.csv"
@@ -151,6 +152,64 @@ def _days_since(fields, of, end_value):
     return end_value - max(ends)
 
 
+# D FIELDS 이름 -> (patient_state stage 칸, T 또는 N). 옛 t_stage·ln_status는 D가 없앴다 (2026-10-29)
+STAGE_FIELDS = {"ct_stage": ("ctnm", "t"), "cn_status": ("ctnm", "n"),
+                "pt_stage": ("ptnm", "t"), "pn_status": ("ptnm", "n")}
+
+
+def _n_status(n):
+    """N 범주 -> positive / negative / None. 앞의 c·p를 떼고 N1·N2·N3(N1mi 포함)은 양성, N0(i-·i+·mol+ 포함)은 음성."""
+    n = (n or "").lstrip("cp")
+    if n.startswith(("N1", "N2", "N3")):
+        return "positive"
+    return "negative" if n.startswith("N0") else None
+
+
+def _bsa(fields):
+    """체표면적(m²), Mosteller 공식 √(키cm × 몸무게kg ÷ 3600) (D와 합의 2026-10-29). 키·몸무게가 없으면 None."""
+    patient = fields.get("patient") or {}
+    h, w = _present(patient.get("height_cm")), _present(patient.get("weight_kg"))
+    if not all(isinstance(x, (int, float)) and not isinstance(x, bool) and x > 0 for x in (h, w)):
+        return None
+    return math.sqrt(h * w / 3600)
+
+
+def _cumulative_mg_m2(fields, of):
+    """of.drugs 약의 누적 용량(mg/m²). treatment_history[].doses[]의 total을 모두 더하고, mg이면 체표면적으로 나눈다
+    (D FIELDS 2026-10-29). 그 약이 든 기록에 doses가 하나도 없으면 옛 anthracycline_drug_dose(mg/m²만)를 쓴다.
+    일부 기록에만 doses가 있거나, 'No value'·다른 단위·키·몸무게 없음이면 알 수 없음."""
+    drugs = [d.lower() for d in (of or {}).get("drugs") or []]
+    rows = [t for t in fields.get("treatment_history") or [] if not drugs or any(d in drugs for d in t.get("drugs") or [])]
+    with_doses = [t for t in rows if t.get("doses")]
+    if not with_doses:
+        items = [d for d in (fields.get("anthracycline_drug_dose") or {}).get("drugs") or []
+                 if not drugs or d.get("drug") in drugs]
+        totals = [d.get("total_dose") for d in items]
+        if not items or any(not isinstance(x, dict) or x.get("unit") != "mg/m2" for x in totals):
+            return None
+        return sum(x["value"] for x in totals)
+    if len(with_doses) < len(rows):
+        return None
+    total, bsa = 0.0, None
+    for t in with_doses:
+        for d in t["doses"]:
+            if drugs and d.get("drug") not in drugs:
+                continue
+            x = d.get("total")
+            if not isinstance(x, dict):
+                return None
+            if x.get("unit") == "mg/m2":
+                total += x["value"]
+            elif x.get("unit") == "mg":
+                bsa = bsa or _bsa(fields)
+                if bsa is None:
+                    return None
+                total += x["value"] / bsa
+            else:
+                return None
+    return round(total, 1)
+
+
 def _bone_by_imaging(fields):
     """영상 소견(imaging_findings)에 확정(confirmed)된 뼈 전이가 있으면 True. 뼈가 의심으로만 적혔거나
     전이 부위 목록에만 있으면 영상 입증을 알 수 없어 None. 영상 소견과 전이 부위 어디에도 뼈가 없으면 False."""
@@ -213,19 +272,20 @@ def _value(field, it, patient_state, record):
     if field == "operable":
         v = _present(stage.get("operable"))
         return v if v in ("yes", "no") else None
-    if field == "t_stage":
-        tnm = _present(stage.get("ptnm")) or _present(stage.get("ctnm")) or {}
-        return tnm.get("t")
+    # 치료 시기별 병기 (D 2026-10-29, draft7 체크리스트 §4): 선행요법 행은 임상(c), 수술후보조 행은 병리(p).
+    # 그 시기의 칸이 비면 다른 병기로 대신하지 않고 알 수 없음
+    if field in STAGE_FIELDS:
+        kind, part = STAGE_FIELDS[field]
+        value = (_present(stage.get(kind)) or {}).get(part)
+        return _n_status(value) if part == "n" else value
+    if field in ("clinical_size_mm", "pathologic_size_mm"):   # mm 그대로 (T 범주로 바꾸지 않는다)
+        v = _present(stage.get(field))
+        return v if isinstance(v, (int, float)) and not isinstance(v, bool) else None
     if field == "stage_group":
         return _present(stage.get("group"))
     if field == "positive_ln_count":
         v = (_present(stage.get("positive_ln_count")) or {}).get("positive")
         return v if isinstance(v, int) else None
-    if field == "ln_status":
-        n = ((_present(stage.get("ptnm")) or {}).get("n") or "").lstrip("pc")
-        if n.startswith(("N1", "N2", "N3")):
-            return "positive"
-        return "negative" if n.startswith("N0") else None
     if field == "grade":
         return _present((fields.get("diagnosis") or {}).get("grade"))
     if field == "pcr":
@@ -264,13 +324,7 @@ def _value(field, it, patient_state, record):
             return None
         return sum(t["cycles"]["value"] for t in rows)
     if field == "cumulative_dose_mg_m2":
-        drugs = [d.lower() for d in (of or {}).get("drugs") or []]
-        items = [d for d in (fields.get("anthracycline_drug_dose") or {}).get("drugs") or []
-                 if not drugs or d.get("drug") in drugs]
-        doses = [d.get("total_dose") for d in items]
-        if not items or any(not isinstance(x, dict) or x.get("unit") != "mg/m2" for x in doses):
-            return None
-        return sum(x["value"] for x in doses)
+        return _cumulative_mg_m2(fields, of)
     if field in YES_NO_FIELDS:   # 심장 병력·종격동 방사선 (2026-10-22 칸 추가, draft7 체크리스트 §1.2). 기록 없음은 알 수 없음
         return {"yes": True, "no": False}.get(_present(patient.get(field)))
     return None   # 환자 JSON에 칸이 없는 조건
@@ -327,7 +381,7 @@ def _evaluate_one(it, patient_state, record):
     have = _value(field, it, patient_state, record)
     if isinstance(have, bool) and field not in BOOL_FIELDS:
         return have      # 맞는 요법이 없어 항목을 바로 정한 경우 (False)
-    if field == "t_stage":
+    if field in ("ct_stage", "pt_stage"):
         return None if have is None else _compare_ranged(op, have, want, T_ORDER, T_GENERIC)
     if field == "stage_group":
         return None if have is None else _compare_ranged(op, have, want, STAGE_ORDER, STAGE_GENERIC)

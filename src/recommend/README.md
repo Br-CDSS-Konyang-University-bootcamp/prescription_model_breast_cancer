@@ -65,6 +65,8 @@ B 임시안 (팀 문서에 없음, 팀 확인 필요. 차수 세기는 A, `prior
 - 판정 기준일 값: `age_at_index`(`fields.at_index.age`), `recent_therapy_28d`(`fields.at_index.recent_therapy_28d.status`, `unknown`이면 알 수 없음). A가 계산한다
 - 심장 병력·종격동 방사선 (2026-10-29, `src/input/draft7_checklist_BCD_2026-10-28.md` §1.2): `fields.patient.cardiac_history`·`mediastinal_radiation`의 `yes`/`no`를 조건의 `true`/`false`로 읽는다. 기록 없음이면 알 수 없음. LVEF(`lvef_percent`)는 공고의 심장 위험요소 기준을 D가 적은 뒤 연결한다 (지금은 읽지 않음)
 - 골전이 `bone_metastasis` (2026-10-29, 같은 체크리스트 §1.2, 공고 조건 "영상으로 입증"): `fields.imaging_findings[]`에 `bone` + `certainty: confirmed`가 있으면 `true`. 뼈가 의심(`suspected`)으로만 있거나 전이 부위 목록(`metastatic_sites`)에만 있으면 알 수 없음. 영상 소견과 전이 부위 어디에도 뼈가 없으면 `false`. 영상 소견 칸이 없는 TCGA는 뼈 전이 환자가 알 수 없음이 된다
+- 치료 시기별 병기 (D FIELDS 2026-10-29, draft7 체크리스트 §4): 선행요법 행은 `ct_stage`·`cn_status`(`stage.ctnm`)·`clinical_size_mm`, 수술후보조 행은 `pt_stage`·`pn_status`(`stage.ptnm`)·`pathologic_size_mm`. 크기는 mm 그대로 비교한다. N은 앞의 c·p를 떼고 N1·N2·N3(N1mi 포함)은 양성, N0(i-·i+·mol+ 포함)은 음성. 그 시기의 칸이 비면 다른 병기로 대신하지 않고 알 수 없음. 옛 `t_stage`·`ln_status`는 D가 없애 읽지 않는다. 선행요법 뒤 수술후보조 행에서 진단 시 cN과 ypN 중 무엇을 볼지는 팀 안건(D)
+- 누적 용량 `cumulative_dose_mg_m2` (D FIELDS 2026-10-29): `treatment_history[].doses[]`에서 `of.drugs` 약의 `total`을 모두 더하고, 단위가 mg이면 `patient.height_cm`·`weight_kg`의 체표면적(Mosteller √(키cm × 몸무게kg ÷ 3600))으로 나눈다. 키·몸무게가 없거나 `No value`·다른 단위면 알 수 없음. 그 약이 든 기록에 `doses`가 하나도 없으면 옛 `anthracycline_drug_dose`(mg/m²만)를 쓰고, 일부 기록에만 있으면 알 수 없음
 - `counts_as_prior_line`에 D가 `rule_id`를 적으면 대응표 대신 그 간주 규칙을 그대로 본다 (D 요청 2026-10-22)
 - `prior_failed`(실패한 이전 약): `stop_reason`이 `progression`이거나 `best_response`가 `PD`인 줄만 실패로 센다. 그런 줄이 없고 중단 이유와 반응이 비어 있는 줄이 있으면 알 수 없음, 다른 이유(부작용·치료 완료 등)로만 끝났으면 실패 아님
 - 조건에 쓰인 칸 중 위 목록에 없는 것(예: 아직 저장 칸이 없는 칸)은 알 수 없음
