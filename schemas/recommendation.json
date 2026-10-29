@@ -68,6 +68,22 @@
     "out_of_scope": {"type": "boolean"},
     "out_of_scope_reason": {"type": ["string", "null"], "description": "예: DCIS, 남성 유방암, 검색 결과 없음"},
     "conflicts": {"type": "array", "items": {"type": "string"}, "description": "예: 지침 권고 차수와 급여 기준 차수가 다름"},
+    "clinical_notes": {
+      "type": "array",
+      "description": "의사가 처방을 고를 때 참고할 환자 상태와 관련 지침 권고. 시스템이 약을 빼거나 바꾸지 않고 보여 주기만 한다. 없으면 빈 목록 (2026-10-29 추가, src/recommend/proposal_clinical_notes_2026-10-29.md)",
+      "items": {
+        "type": "object",
+        "required": ["topic", "text", "source_fields"],
+        "additionalProperties": false,
+        "properties": {
+          "topic": {"enum": ["comorbidity", "performance_status", "visceral_crisis", "contraindicated_classes"]},
+          "text": {"type": "string", "description": "B 규칙 코드가 정해진 틀로 만드는 문장. LLM이 쓰지 않고, 지침 원문을 옮기지 않는다"},
+          "source_fields": {"type": "array", "items": {"type": "string"}, "description": "문장에 쓴 환자 칸 경로. 예: confirmed_state.items.contraindicated_classes"},
+          "citations": {"type": "array", "items": {"type": "string"}, "description": "관련 지침 청크 ID. recommend()에 넘어온 지침 청크 안의 ID만"},
+          "applies_to": {"type": "array", "items": {"type": "string"}, "description": "이 참고가 걸리는 후보 요법(options[].therapy). 없으면 환자 전체에 대한 참고"}
+        }
+      }
+    },
     "index_status": {
       "type": "object",
       "description": "화면 하단 한 줄 요약 (D 제공)",

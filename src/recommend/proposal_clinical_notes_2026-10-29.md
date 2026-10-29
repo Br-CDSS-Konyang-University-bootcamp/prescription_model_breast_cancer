@@ -1,7 +1,7 @@
 # 제안: 추천 결과에 참고란(`clinical_notes`) 추가
 
 > 작성 B · 2026-10-29 · 받는 사람 A, C, D (4명 검토) · 대상 `schemas/recommendation.json`
-> 이 문서는 제안이다. 공용 스키마는 4명 검토가 끝난 뒤에 바꾼다 (CLAUDE.md "Shared folders").
+> **확정 (2026-10-29):** 팀에 공유한 뒤 "B가 정해 알려 달라"는 답을 받아 이 제안대로 반영했다. 금기 계열 후보는 빼지 않고 `applies_to`로 표시만 한다. `schemas/recommendation.json`의 `clinical_notes`, `src/recommend/clinical_notes.py`
 
 ## 1. 배경
 

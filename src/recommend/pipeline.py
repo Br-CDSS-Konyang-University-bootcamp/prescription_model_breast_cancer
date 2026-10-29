@@ -9,6 +9,7 @@ import json
 from datetime import date, datetime
 
 from llm import LLMOutputError
+from src.recommend.clinical_notes import clinical_notes
 from src.recommend.postprocess import postprocess
 from src.recommend.prompt import build_prompt
 from src.recommend.validate import validate
@@ -36,8 +37,9 @@ def _merge_tests(llm_tests, bm_tests):
 
 
 def recommend(patient_state, biomarker_record, guideline_chunks, reimbursement_chunks, llm, index_status,
-              model_name, today=None, conditions_checker=None):
-    """환자 한 명 -> (recommendation, 후처리 로그, 형식 오류 목록). 형식 오류가 비어 있어야 쓸 수 있다."""
+              model_name, today=None, conditions_checker=None, confirmed_state=None):
+    """환자 한 명 -> (recommendation, 후처리 로그, 형식 오류 목록). 형식 오류가 비어 있어야 쓸 수 있다.
+    confirmed_state(화면 1 의사 확정값)를 주면 참고란에 장기 위기·금기 계열을 의사 확정값으로 넣는다."""
     today = today or date.today()
     base = {"schema_version": SCHEMA_VERSION, "patient_ref": biomarker_record.get("patient_ref"),
             "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"), "model": model_name,
@@ -56,5 +58,6 @@ def recommend(patient_state, biomarker_record, guideline_chunks, reimbursement_c
                                 conditions_checker)
     log += post_log
     rec["tests_needed"] = _merge_tests(rec["tests_needed"], biomarker_record.get("tests_needed"))
+    rec["clinical_notes"] = clinical_notes(patient_state, rec["options"], guideline_chunks, confirmed_state)
     result = {**base, **rec}
     return result, log, validate(result)
