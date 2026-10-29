@@ -57,7 +57,7 @@ def test_patient_values_and_missing_fields():
     assert ev(cond([item("disease", "eq", "metastatic")])) == "met"
     assert ev(cond([item("recurrence_operable", "eq", "no")])) == "unknown"                       # 환자 JSON에 칸 없음
     assert ev(cond([item("cardiac_history", "eq", True)])) == "unknown"
-    assert ev(cond([item("bone_metastasis", "eq", True)])) == "met"
+    assert ev(cond([item("bone_metastasis", "eq", True)])) == "unknown"   # 전이 부위에 뼈만 있고 영상 소견 없음
     assert ev(cond([item("ln_status", "eq", "positive")])) == "met"
 
 
@@ -221,3 +221,19 @@ def test_cardiac_and_mediastinal_fields():
         item("mediastinal_radiation", "eq", True)]}])
     assert ev(either, ps=yes) == "met"
     assert ev(either, ps=no) == "unknown"                         # 누적 용량을 몰라 알 수 없음
+
+
+def test_bone_metastasis_by_imaging():
+    """"영상으로 골전이 입증" (draft7 체크리스트 §1.2): imaging_findings에 뼈가 confirmed로 있어야 충족."""
+    c = cond([item("bone_metastasis", "eq", True)])
+
+    def with_imaging(*finds, sites=None):
+        ps = patient(imaging_findings=[{"modality": m, "sites": s, "certainty": cert} for m, s, cert in finds])
+        if sites is not None:
+            ps["fields"]["recurrence"]["metastatic_sites"] = present(sites)
+        return ps
+
+    assert ev(c, ps=with_imaging(("bone_scan", ["bone"], "confirmed"))) == "met"              # VC-0108
+    assert ev(c, ps=with_imaging(("PET", ["bone"], "suspected"))) == "unknown"               # VC-0143 의심만
+    assert ev(c, ps=with_imaging(("CT", ["liver"], "confirmed"), sites=["liver"])) == "not_met"
+    assert ev(c, ps=with_imaging(("CT", ["liver"], "confirmed"), sites=["liver", "bone"])) == "unknown"

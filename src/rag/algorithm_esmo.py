@@ -1,5 +1,6 @@
 # src/rag/algorithm_esmo.py
-# 실행: team_project 폴더에서 python -m src.rag.algorithm_esmo  (확인용 출력: --show, 그림 하나만: --show mbc 2)
+# 실행: team_project 폴더에서 python -m src.rag.algorithm_esmo  (확인용 출력: --show, 그림 하나만: --show mbc 2,
+#   경로가 틀렸을 때 상자 좌표·연결선 판단: --debug mbc 4)
 # 입력: data/guidelines/esmo_*.pdf (convert_pdf_to_md.py와 같은 PDF)
 # 출력: data/chunks/esmo_algorithm_chunks.json
 #
@@ -19,6 +20,7 @@ import csv
 import json
 import math
 import re
+import sys
 from pathlib import Path
 
 from .chunk_common import CHUNKS_DIR, attach_parent, clean_text, find_biomarker_tags, find_drugs, make_chunk, stable_key
@@ -240,9 +242,23 @@ def _crosses(s, t):
     return d1 * d2 < 0 and d3 * d4 < 0
 
 
-def _tip_on_line(a, b):
-    """화살촉 끝이 다른 연결선에 꽂힘 (점선 화살표가 갈림길 선을 가리키는 경우). 상자 홈처럼 조금 떨어져 있다."""
-    return a[0] == "a" and b[0] == "s" and _seg_dist(a[1][1], b[1][0], b[1][1]) <= TIP_TOUCH
+def _nearest(p, a, b):
+    """선분 a-b 위에서 점 p에 가장 가까운 점."""
+    dx, dy = b[0] - a[0], b[1] - a[1]
+    length2 = dx * dx + dy * dy
+    t = 0 if length2 == 0 else max(0, min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / length2))
+    return (a[0] + t * dx, a[1] + t * dy)
+
+
+def _tip_on_line(a, b, boxes=()):
+    """화살촉 끝이 다른 연결선에 꽂힘 (점선 화살표가 갈림길 선을 가리키는 경우). 상자 홈처럼 조금 떨어져 있다.
+    그 선의 가장 가까운 점이 상자 안이면 꽂힌 것이 아니다: 화살표는 상자로 들어가고, 선은 같은 상자에서 나간다
+    (MBC 그림 4 오른쪽 위 T-DXd 상자. 들어오는 화살촉 끝과 상자 뒤에서 시작해 아래로 나가는 선이 5pt 떨어져
+    한 묶음이 되어 화살표 방향을 거꾸로 읽었다, 2026-10-29 --debug로 확인)"""
+    if not (a[0] == "a" and b[0] == "s" and _seg_dist(a[1][1], b[1][0], b[1][1]) <= TIP_TOUCH):
+        return False
+    near = _nearest(a[1][1], b[1][0], b[1][1])
+    return not any(r.contains(near) for r in boxes)
 
 
 class _Union:
@@ -259,8 +275,9 @@ class _Union:
         self.parent[self.find(i)] = self.find(j)
 
 
-def connector_groups(segments, arrows, joints, touch=TOUCH):
-    """끝이 서로 닿는 선·화살촉·이음 장식을 묶는다. → 묶음 목록 [{segments, arrows, dashed}]"""
+def connector_groups(segments, arrows, joints, touch=TOUCH, boxes=()):
+    """끝이 서로 닿는 선·화살촉·이음 장식을 묶는다. → 묶음 목록 [{segments, arrows, dashed}]
+    boxes: 상자 rect 목록. 화살촉이 상자 안에서 시작하는 선에 '꽂힌' 것으로 보지 않게 한다 (_tip_on_line)"""
     items = [("s", s) for s in segments] + [("a", a) for a in arrows] + [("j", j) for j in joints]
     u = _Union(len(items))
 
@@ -286,7 +303,7 @@ def connector_groups(segments, arrows, joints, touch=TOUCH):
             b = items[j]
             if (any(touches(p, b) for p in ends(a)) or any(touches(p, a) for p in ends(b))
                     or (a[0] == b[0] == "s" and _crosses(a[1], b[1]))
-                    or _tip_on_line(a, b) or _tip_on_line(b, a)):
+                    or _tip_on_line(a, b, boxes) or _tip_on_line(b, a, boxes)):
                 u.join(i, j)
     groups = {}
     for i, item in enumerate(items):
@@ -425,9 +442,10 @@ def load_figure_text(path: Path = FIGURE_TEXT_CSV) -> dict:
     return table
 
 
-def build_graph(page, region, figure_text=()):
+def build_graph(page, region, figure_text=(), debug=None):
     """→ (상자 목록 [{rect, text, dashed}], 간선 목록 [(출발, 도착, 이름표, 점선)], 남은 글자, 경고)
-    figure_text: PDF에 글자가 없는 그림의 상자 글자 [(x, y, 글자)] (load_figure_text)"""
+    figure_text: PDF에 글자가 없는 그림의 상자 글자 [(x, y, 글자)] (load_figure_text)
+    debug: 목록을 주면 상자 좌표와 연결선 묶음마다 닿은 상자·화살촉 끝·판단한 방향을 글로 적어 넣는다 (--debug)"""
     boxes, segments, arrows, joints = classify(page.get_drawings(), region)
     spans = _spans(page, region)
     nodes, used, warnings = [], set(), []
@@ -450,7 +468,12 @@ def build_graph(page, region, figure_text=()):
     free = [s for i, s in enumerate(spans) if i not in used]
 
     edges = []
-    groups = connector_groups(segments, arrows, joints)
+    groups = connector_groups(segments, arrows, joints, boxes=[r for r, _ in boxes])
+    if debug is not None:
+        debug.append(f"상자 {len(nodes)}개 (번호: 왼쪽 위 x0,y0 - 오른쪽 아래 x1,y1 · 글자 앞부분)")
+        for i, n in enumerate(nodes):
+            r = n["rect"]
+            debug.append(f"  [{i}] ({r.x0:.0f},{r.y0:.0f})-({r.x1:.0f},{r.y1:.0f}){' 점선' if n['dashed'] else ''} · {n['text'][:40]}")
     for g in groups:
         targets = {i for i, n in enumerate(nodes)
                    if any(_rect_dist(tip, n["rect"]) <= TIP_TOUCH for _, tip in g["arrows"])}
@@ -462,12 +485,19 @@ def build_graph(page, region, figure_text=()):
             for j in g["joints"]:
                 if _rect_dist((j.x0 + j.width / 2, j.y0 + j.height / 2), n["rect"]) <= j.width:
                     touched.add(i)
+        if debug is not None:
+            segs = " ".join(f"({a[0]:.0f},{a[1]:.0f})~({b[0]:.0f},{b[1]:.0f})" for a, b, _ in g["segments"])
+            tips = " ".join(f"({t[0]:.0f},{t[1]:.0f})" for _, t in g["arrows"])
+            debug.append(f"연결 묶음 {len(debug)}: 선 {len(g['segments'])}개 {segs} | 화살촉 끝 {tips or '없음'} | "
+                         f"닿은 상자 {sorted(touched)} | 화살촉이 가리킨 상자 {sorted(targets)}")
         if len(touched) < 2:
             continue
         sources = touched - targets
         if not targets:  # 화살촉 없는 연결: 위 상자 → 아래 상자
             top = min(touched, key=lambda i: nodes[i]["rect"].y0)
             sources, targets = {top}, touched - {top}
+        if debug is not None:
+            debug.append(f"  → 판단: {sorted(sources)} 에서 {sorted(targets)} 로")
         if not sources:
             warnings.append(f"출발 상자 없는 연결: {[nodes[i]['text'][:30] for i in targets]}")
             continue
@@ -680,6 +710,26 @@ def write_review_sheet(chunks: list[dict], path: Path = REVIEW_CSV) -> None:
         writer.writerows(rows)
 
 
+def debug_figure(stem: str, number: int, pdf_dir: Path = GUIDELINES_DIR) -> list[str]:
+    """그림 하나의 상자 좌표와 연결선 묶음 판단을 글로 돌려준다 (경로가 틀렸을 때 원인을 찾는 용도, 저장 안 함)."""
+    import pymupdf
+    _install_symbol_fix(pymupdf)
+    pdf_path = pdf_dir / f"{stem}.pdf"
+    pdf = pymupdf.open(str(pdf_path))
+    texts = load_figure_text()
+    for page in pdf:
+        for num, title, caption_rect in find_figures(page):
+            if num != number:
+                continue
+            region = figure_region(page, caption_rect)
+            lines = [f"{stem} Figure {number} (PDF {page.number + 1}쪽) 영역 {region}"]
+            nodes, edges, leftover, warnings = build_graph(page, region, texts.get((pdf_path.name, number), ()), debug=lines)
+            lines.append(f"간선 {len(edges)}개: " + ", ".join(f"{s}->{t}" + (f"({lab})" if lab else "") for s, t, lab, _ in edges))
+            lines += [f"[경고] {w}" for w in warnings] + ([f"이름표 못 붙인 글자: {leftover}"] if leftover else [])
+            return lines
+    return [f"{stem}에서 Figure {number}를 찾지 못함"]
+
+
 def process_all(pdf_dir: Path = GUIDELINES_DIR, show=None) -> list[dict]:
     all_chunks, missing = [], []
     for stem in FIGURES:
@@ -710,8 +760,19 @@ def main():
     ap = argparse.ArgumentParser(description="ESMO 알고리즘 그림 → 경로 청크")
     ap.add_argument("--show", nargs=2, metavar=("DOC", "FIGURE"),
                     help="저장하지 않고 그림 하나의 경로만 출력. 예: --show mbc 2")
+    ap.add_argument("--debug", nargs=2, metavar=("DOC", "FIGURE"),
+                    help="저장하지 않고 그림 하나의 상자 좌표와 연결선 판단을 출력 (경로 오류 원인 찾기). 예: --debug mbc 4")
     ap.add_argument("--pdf-dir", type=Path, default=GUIDELINES_DIR, help="PDF 폴더 (기본 data/guidelines)")
     args = ap.parse_args()
+    if args.debug:
+        stem = next((s for s in FIGURES if s.startswith(f"esmo_{args.debug[0]}_")), None)
+        if stem is None:
+            sys.exit(f"문서 이름은 {[s.split('_')[1] for s in FIGURES]} 중 하나")
+        for stream in (sys.stdout,):  # Windows 콘솔에서 글자가 깨지지 않게
+            if hasattr(stream, "reconfigure"):
+                stream.reconfigure(encoding="utf-8")
+        print("\n".join(debug_figure(stem, int(args.debug[1]), args.pdf_dir)))
+        return
     process_all(args.pdf_dir, show=(args.show[0], int(args.show[1])) if args.show else None)
 
 
