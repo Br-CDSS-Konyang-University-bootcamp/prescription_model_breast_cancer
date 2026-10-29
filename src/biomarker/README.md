@@ -105,6 +105,6 @@ PD-L1 판정 (2026-10-16, 전달 문서 6.5절). 입력 `receptors.pdl1` (`assay
 - 간주 규칙(`deemed_lines`)은 두 칸에 넣지 않는다. 충족한 간주 규칙은 `setting.reason`에 적고, 급여 판정은 [4] 추천 모듈이 급여 행마다 "결정할 차수 + 그 행의 간주 규칙"으로 한다 (6.3a절).
 - TCGA 838명 전이성 23명: 내분비 1L 9, 2L 7, >=3L 3, not_applicable 4 / 항암 1L 19, 2L 1, >=3L 3 (2026-10-21).
 - TCGA 838명 (2026-10-20 정답 세트 838명, 2026-10-21 다시 셈): 전이성 23명 중 1L 11, 2L 6, >=3L 6. 조기·국소 진행성은 adjuvant 607, neoadjuvant 2, unknown 206.
-- 판정 기준일(`index_day`) 이후 투약을 빼는 처리는 아직 없다 (TCGA는 기준일이 마지막 추적일이라 영향 없음).
+- 판정 기준일(`index_day`) 뒤에 시작한 투약(`start_day` > `index_day`)은 차수·이전 약 계열·ESR1 재검 판단에서 뺀다 (2026-10-29, A의 `at_index` 계산과 같은 기준, `_before_index`). `start_day`가 없는 투약은 남기고, `index_day`가 없는 TCGA는 그대로다. 가상 차트 중 기준일 뒤 투약이 있는 사례는 아직 없다.
 
 테스트 실행 (`team_project` 폴더에서): `python -m pytest tests/biomarker` 또는 케이스별 출력은 `python -m tests.biomarker.test_bm`
