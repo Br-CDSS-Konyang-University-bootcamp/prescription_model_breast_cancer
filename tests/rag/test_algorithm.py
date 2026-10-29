@@ -69,6 +69,17 @@ def test_boxes_arrows_and_labels_become_paths(figure_page):
     assert text.startswith("Previously untreated MBC (optional: ctDNA testing) →")
 
 
+def test_debug_lists_boxes_and_connector_decisions(figure_page):
+    # --debug: 경로가 틀렸을 때 원인을 찾으려고 상자 좌표와 연결선 묶음마다 방향 판단을 적는다. 결과는 바뀌지 않는다
+    lines = []
+    with_debug = alg.build_graph(figure_page, pymupdf.Rect(10, 10, 390, 250), debug=lines)
+    plain = alg.build_graph(figure_page, pymupdf.Rect(10, 10, 390, 250))
+    assert [e[:2] for e in with_debug[1]] == [e[:2] for e in plain[1]]
+    assert lines[0].startswith("상자 ") and any("Previously untreated MBC" in x for x in lines)
+    assert any(x.startswith("연결 묶음") and "화살촉 끝" in x for x in lines)
+    assert any(x.strip().startswith("→ 판단:") for x in lines)
+
+
 def test_box_text_marks_superscripts_and_splits_items():
     R = pymupdf.Rect
     spans = [(R(0, 0, 50, 8), "AI-ribociclib [I, A]", 7.0, 7.0), (R(51, 0, 54, 4), "c", 4.5, 4.0),

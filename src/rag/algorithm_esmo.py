@@ -1,5 +1,6 @@
 # src/rag/algorithm_esmo.py
-# 실행: team_project 폴더에서 python -m src.rag.algorithm_esmo  (확인용 출력: --show, 그림 하나만: --show mbc 2)
+# 실행: team_project 폴더에서 python -m src.rag.algorithm_esmo  (확인용 출력: --show, 그림 하나만: --show mbc 2,
+#   경로가 틀렸을 때 상자 좌표·연결선 판단: --debug mbc 4)
 # 입력: data/guidelines/esmo_*.pdf (convert_pdf_to_md.py와 같은 PDF)
 # 출력: data/chunks/esmo_algorithm_chunks.json
 #
@@ -19,6 +20,7 @@ import csv
 import json
 import math
 import re
+import sys
 from pathlib import Path
 
 from .chunk_common import CHUNKS_DIR, attach_parent, clean_text, find_biomarker_tags, find_drugs, make_chunk, stable_key
@@ -425,9 +427,10 @@ def load_figure_text(path: Path = FIGURE_TEXT_CSV) -> dict:
     return table
 
 
-def build_graph(page, region, figure_text=()):
+def build_graph(page, region, figure_text=(), debug=None):
     """→ (상자 목록 [{rect, text, dashed}], 간선 목록 [(출발, 도착, 이름표, 점선)], 남은 글자, 경고)
-    figure_text: PDF에 글자가 없는 그림의 상자 글자 [(x, y, 글자)] (load_figure_text)"""
+    figure_text: PDF에 글자가 없는 그림의 상자 글자 [(x, y, 글자)] (load_figure_text)
+    debug: 목록을 주면 상자 좌표와 연결선 묶음마다 닿은 상자·화살촉 끝·판단한 방향을 글로 적어 넣는다 (--debug)"""
     boxes, segments, arrows, joints = classify(page.get_drawings(), region)
     spans = _spans(page, region)
     nodes, used, warnings = [], set(), []
@@ -451,6 +454,11 @@ def build_graph(page, region, figure_text=()):
 
     edges = []
     groups = connector_groups(segments, arrows, joints)
+    if debug is not None:
+        debug.append(f"상자 {len(nodes)}개 (번호: 왼쪽 위 x0,y0 - 오른쪽 아래 x1,y1 · 글자 앞부분)")
+        for i, n in enumerate(nodes):
+            r = n["rect"]
+            debug.append(f"  [{i}] ({r.x0:.0f},{r.y0:.0f})-({r.x1:.0f},{r.y1:.0f}){' 점선' if n['dashed'] else ''} · {n['text'][:40]}")
     for g in groups:
         targets = {i for i, n in enumerate(nodes)
                    if any(_rect_dist(tip, n["rect"]) <= TIP_TOUCH for _, tip in g["arrows"])}
@@ -462,12 +470,19 @@ def build_graph(page, region, figure_text=()):
             for j in g["joints"]:
                 if _rect_dist((j.x0 + j.width / 2, j.y0 + j.height / 2), n["rect"]) <= j.width:
                     touched.add(i)
+        if debug is not None:
+            segs = " ".join(f"({a[0]:.0f},{a[1]:.0f})~({b[0]:.0f},{b[1]:.0f})" for a, b, _ in g["segments"])
+            tips = " ".join(f"({t[0]:.0f},{t[1]:.0f})" for _, t in g["arrows"])
+            debug.append(f"연결 묶음 {len(debug)}: 선 {len(g['segments'])}개 {segs} | 화살촉 끝 {tips or '없음'} | "
+                         f"닿은 상자 {sorted(touched)} | 화살촉이 가리킨 상자 {sorted(targets)}")
         if len(touched) < 2:
             continue
         sources = touched - targets
         if not targets:  # 화살촉 없는 연결: 위 상자 → 아래 상자
             top = min(touched, key=lambda i: nodes[i]["rect"].y0)
             sources, targets = {top}, touched - {top}
+        if debug is not None:
+            debug.append(f"  → 판단: {sorted(sources)} 에서 {sorted(targets)} 로")
         if not sources:
             warnings.append(f"출발 상자 없는 연결: {[nodes[i]['text'][:30] for i in targets]}")
             continue
@@ -680,6 +695,26 @@ def write_review_sheet(chunks: list[dict], path: Path = REVIEW_CSV) -> None:
         writer.writerows(rows)
 
 
+def debug_figure(stem: str, number: int, pdf_dir: Path = GUIDELINES_DIR) -> list[str]:
+    """그림 하나의 상자 좌표와 연결선 묶음 판단을 글로 돌려준다 (경로가 틀렸을 때 원인을 찾는 용도, 저장 안 함)."""
+    import pymupdf
+    _install_symbol_fix(pymupdf)
+    pdf_path = pdf_dir / f"{stem}.pdf"
+    pdf = pymupdf.open(str(pdf_path))
+    texts = load_figure_text()
+    for page in pdf:
+        for num, title, caption_rect in find_figures(page):
+            if num != number:
+                continue
+            region = figure_region(page, caption_rect)
+            lines = [f"{stem} Figure {number} (PDF {page.number + 1}쪽) 영역 {region}"]
+            nodes, edges, leftover, warnings = build_graph(page, region, texts.get((pdf_path.name, number), ()), debug=lines)
+            lines.append(f"간선 {len(edges)}개: " + ", ".join(f"{s}->{t}" + (f"({lab})" if lab else "") for s, t, lab, _ in edges))
+            lines += [f"[경고] {w}" for w in warnings] + ([f"이름표 못 붙인 글자: {leftover}"] if leftover else [])
+            return lines
+    return [f"{stem}에서 Figure {number}를 찾지 못함"]
+
+
 def process_all(pdf_dir: Path = GUIDELINES_DIR, show=None) -> list[dict]:
     all_chunks, missing = [], []
     for stem in FIGURES:
@@ -710,8 +745,19 @@ def main():
     ap = argparse.ArgumentParser(description="ESMO 알고리즘 그림 → 경로 청크")
     ap.add_argument("--show", nargs=2, metavar=("DOC", "FIGURE"),
                     help="저장하지 않고 그림 하나의 경로만 출력. 예: --show mbc 2")
+    ap.add_argument("--debug", nargs=2, metavar=("DOC", "FIGURE"),
+                    help="저장하지 않고 그림 하나의 상자 좌표와 연결선 판단을 출력 (경로 오류 원인 찾기). 예: --debug mbc 4")
     ap.add_argument("--pdf-dir", type=Path, default=GUIDELINES_DIR, help="PDF 폴더 (기본 data/guidelines)")
     args = ap.parse_args()
+    if args.debug:
+        stem = next((s for s in FIGURES if s.startswith(f"esmo_{args.debug[0]}_")), None)
+        if stem is None:
+            sys.exit(f"문서 이름은 {[s.split('_')[1] for s in FIGURES]} 중 하나")
+        for stream in (sys.stdout,):  # Windows 콘솔에서 글자가 깨지지 않게
+            if hasattr(stream, "reconfigure"):
+                stream.reconfigure(encoding="utf-8")
+        print("\n".join(debug_figure(stem, int(args.debug[1]), args.pdf_dir)))
+        return
     process_all(args.pdf_dir, show=(args.show[0], int(args.show[1])) if args.show else None)
 
 
