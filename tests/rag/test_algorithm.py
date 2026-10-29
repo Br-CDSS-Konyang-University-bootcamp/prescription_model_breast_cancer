@@ -80,6 +80,23 @@ def test_debug_lists_boxes_and_connector_decisions(figure_page):
     assert any(x.strip().startswith("→ 판단:") for x in lines)
 
 
+def test_arrow_into_box_does_not_join_line_leaving_same_box():
+    # MBC 그림 4 (2026-10-29 --debug): 위 상자 → 화살표 → T-DXd 상자, 그 상자 뒤에서 시작한 선이 아래 합류선(PD)으로 나간다.
+    # 화살촉 끝(y 239)과 나가는 선의 시작(y 244, 상자 안)이 5pt 떨어져 한 묶음이 되면 방향을 거꾸로 읽는다
+    R = pymupdf.Rect
+    box = R(477, 240, 547, 263)
+    arrow = ([(507, 234), (515, 234), (511, 239)], (511, 239))
+    shaft = ((511, 206), (511, 236), False)
+    leaving = ((511, 244), (511, 279), False)
+    bus = ((186, 279), (511, 279), False)
+    groups = alg.connector_groups([shaft, leaving, bus], [arrow], [], boxes=[box])
+    assert sorted(len(g["segments"]) for g in groups) == [1, 2]
+    into = next(g for g in groups if g["arrows"])
+    assert into["segments"] == [shaft]
+    # 상자 밖 선에 꽂힌 화살촉(점선 화살표가 갈림길 선을 가리키는 경우)은 지금처럼 같은 묶음
+    assert len(alg.connector_groups([shaft, leaving, bus], [arrow], [])) == 1
+
+
 def test_box_text_marks_superscripts_and_splits_items():
     R = pymupdf.Rect
     spans = [(R(0, 0, 50, 8), "AI-ribociclib [I, A]", 7.0, 7.0), (R(51, 0, 54, 4), "c", 4.5, 4.0),

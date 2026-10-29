@@ -242,9 +242,23 @@ def _crosses(s, t):
     return d1 * d2 < 0 and d3 * d4 < 0
 
 
-def _tip_on_line(a, b):
-    """화살촉 끝이 다른 연결선에 꽂힘 (점선 화살표가 갈림길 선을 가리키는 경우). 상자 홈처럼 조금 떨어져 있다."""
-    return a[0] == "a" and b[0] == "s" and _seg_dist(a[1][1], b[1][0], b[1][1]) <= TIP_TOUCH
+def _nearest(p, a, b):
+    """선분 a-b 위에서 점 p에 가장 가까운 점."""
+    dx, dy = b[0] - a[0], b[1] - a[1]
+    length2 = dx * dx + dy * dy
+    t = 0 if length2 == 0 else max(0, min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / length2))
+    return (a[0] + t * dx, a[1] + t * dy)
+
+
+def _tip_on_line(a, b, boxes=()):
+    """화살촉 끝이 다른 연결선에 꽂힘 (점선 화살표가 갈림길 선을 가리키는 경우). 상자 홈처럼 조금 떨어져 있다.
+    그 선의 가장 가까운 점이 상자 안이면 꽂힌 것이 아니다: 화살표는 상자로 들어가고, 선은 같은 상자에서 나간다
+    (MBC 그림 4 오른쪽 위 T-DXd 상자. 들어오는 화살촉 끝과 상자 뒤에서 시작해 아래로 나가는 선이 5pt 떨어져
+    한 묶음이 되어 화살표 방향을 거꾸로 읽었다, 2026-10-29 --debug로 확인)"""
+    if not (a[0] == "a" and b[0] == "s" and _seg_dist(a[1][1], b[1][0], b[1][1]) <= TIP_TOUCH):
+        return False
+    near = _nearest(a[1][1], b[1][0], b[1][1])
+    return not any(r.contains(near) for r in boxes)
 
 
 class _Union:
@@ -261,8 +275,9 @@ class _Union:
         self.parent[self.find(i)] = self.find(j)
 
 
-def connector_groups(segments, arrows, joints, touch=TOUCH):
-    """끝이 서로 닿는 선·화살촉·이음 장식을 묶는다. → 묶음 목록 [{segments, arrows, dashed}]"""
+def connector_groups(segments, arrows, joints, touch=TOUCH, boxes=()):
+    """끝이 서로 닿는 선·화살촉·이음 장식을 묶는다. → 묶음 목록 [{segments, arrows, dashed}]
+    boxes: 상자 rect 목록. 화살촉이 상자 안에서 시작하는 선에 '꽂힌' 것으로 보지 않게 한다 (_tip_on_line)"""
     items = [("s", s) for s in segments] + [("a", a) for a in arrows] + [("j", j) for j in joints]
     u = _Union(len(items))
 
@@ -288,7 +303,7 @@ def connector_groups(segments, arrows, joints, touch=TOUCH):
             b = items[j]
             if (any(touches(p, b) for p in ends(a)) or any(touches(p, a) for p in ends(b))
                     or (a[0] == b[0] == "s" and _crosses(a[1], b[1]))
-                    or _tip_on_line(a, b) or _tip_on_line(b, a)):
+                    or _tip_on_line(a, b, boxes) or _tip_on_line(b, a, boxes)):
                 u.join(i, j)
     groups = {}
     for i, item in enumerate(items):
@@ -453,7 +468,7 @@ def build_graph(page, region, figure_text=(), debug=None):
     free = [s for i, s in enumerate(spans) if i not in used]
 
     edges = []
-    groups = connector_groups(segments, arrows, joints)
+    groups = connector_groups(segments, arrows, joints, boxes=[r for r, _ in boxes])
     if debug is not None:
         debug.append(f"상자 {len(nodes)}개 (번호: 왼쪽 위 x0,y0 - 오른쪽 아래 x1,y1 · 글자 앞부분)")
         for i, n in enumerate(nodes):
