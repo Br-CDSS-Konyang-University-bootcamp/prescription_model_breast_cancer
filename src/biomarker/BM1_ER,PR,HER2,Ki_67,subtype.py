@@ -794,13 +794,42 @@ def judge_esr1(field, fields):
     return rec
 
 
+# 생식세포 검사 칸(molecular.germline)이 있는 유전자. 결과가 있으면 종양 결과(mutations)보다 먼저 쓴다
+# (A 결정 2026-10-28, PROJECT.md §14 생식세포/체세포 구분)
+GERMLINE_GENES = ("BRCA1", "BRCA2", "PALB2")
+FIELD_SOURCE_TEXT = {"germline": "생식세포 검사: ", "tumor": "종양 검사 결과 (생식세포 검사 결과 없음): "}
+
+
+def gene_field_of(molecular, gene):
+    """유전자 칸과 출처 -> (칸, "germline" | "tumor" | None).
+    BRCA1·BRCA2·PALB2는 ① 생식세포 칸에 결과(present)가 있으면 그 칸, ② 없으면 mutations의 결과,
+    ③ 둘 다 결과가 없으면 생식세포 칸의 상태(미시행·기록 없음)를 쓴다. 생식세포 칸이 없으면(TCGA 등)
+    지금처럼 mutations만 보고 출처는 None이다."""
+    molecular = molecular or {}
+    tumor = (molecular.get("mutations") or {}).get(gene)
+    germ = (molecular.get("germline") or {}).get(gene) if gene in GERMLINE_GENES else None
+    if germ is None:
+        return tumor, None
+    if germ.get("status") == "present":
+        return germ, "germline"
+    if (tumor or {}).get("status") == "present":
+        return tumor, "tumor"
+    return germ, "germline"
+
+
 def assess_genes(patient_state):
     """patient_state 한 명 -> 유전자 7개 레코드 목록."""
     fields = (patient_state or {}).get("fields") or {}
     patient_ref = (patient_state or {}).get("patient_ref", "")
-    mutations = (fields.get("molecular") or {}).get("mutations") or {}
-    return [judge_esr1(mutations.get("ESR1"), fields) if g == "ESR1"
-            else judge_gene(g, mutations.get(g), patient_ref) for g in GENES]
+    molecular = fields.get("molecular") or {}
+    out = []
+    for g in GENES:
+        field, source = gene_field_of(molecular, g)
+        rec = judge_esr1(field, fields) if g == "ESR1" else judge_gene(g, field, patient_ref)
+        if source:
+            rec["reason"] = FIELD_SOURCE_TEXT[source] + rec["reason"]
+        out.append(rec)
+    return out
 
 
 # ---------------------------------------------------------------- 치료 상황
@@ -918,7 +947,8 @@ def tests_needed_of(by, subtype, disease, fields):
     """검사 공백 (PROJECT.md 5절). 미시행(not_done)만 권고하고, 기록 없음은 권고하지 않는다 (PROJECT.md 4절)."""
     out = []
     receptors = fields.get("receptors") or {}
-    mutations = (fields.get("molecular") or {}).get("mutations") or {}
+    molecular = fields.get("molecular") or {}
+    mutations = molecular.get("mutations") or {}
 
     def add(test, reason, rule_id, field=None):
         """field가 미시행이면서 raw가 "결과 대기"·"예정"이면 검사 권고 대신 결과 확인으로 바꾼다."""
@@ -951,7 +981,7 @@ def tests_needed_of(by, subtype, disease, fields):
         for m in ("gBRCA1", "gBRCA2", "PALB2"):
             if by.get(m, {}).get("status") == "not_done":
                 add(f"{m} (생식세포 검사)", f"전이성 HER2 음성인데 {m} 미시행. PARP 억제제 대상 확인", f"BM4-{m.upper()}",
-                    mutations.get(m.lstrip("g")))
+                    gene_field_of(molecular, m.lstrip("g"))[0])
     if subtype == "HR+/HER2-":
         for m in ("PIK3CA", "AKT1", "PTEN"):
             if by.get(m, {}).get("status") == "not_done":
