@@ -83,7 +83,7 @@ from src.input.script.rules import Vocab, annotate, load_drug_table
 | `virtual_chart.py` | 가상 차트 작성 도구 | `Chart`·`Doc`·`F`로 사례 코드가 글을 쓰는 순간 값과 원문 위치를 함께 기록해 `chart.txt`와 정답 `patient_state.json`이 어긋나지 않게 만든다. 스키마·인용 위치·차수 재계산을 검사한다. 다른 파일이 쓰는 `CASES`, `out_dir`도 여기 있다 | `test_virtual_charts.py` |
 | `cases/vc_0101.py` ~ `vc_0109.py`, `vc_0106b.py` | 가상 차트 10건 사례 코드 (개발 세트) | 파일마다 `build()`가 차트 하나를 만든다. 일부는 짝 사례용 매개변수가 있다 (예: VC-0103 `adj_gap`, VC-0107 `er`) | `test_virtual_charts.py` |
 | `cases/pairs.py` | 짝 사례 19건 | 기본 사례에서 판정을 가르는 값 하나만 바꾸고, A 정답 확인값(`expect_a`)과 B·C·D 기대 판정 초안(`expect`)을 적는다 | `test_virtual_charts.py` |
-| `build_virtual_cases.py` | 가상 사례 20건 생성 (시험 세트) | `virtual_patient_cases_2026-10-23.md` §3의 값으로 VC-0110 ~ VC-0129의 차트·정답·`scenario.md`·`cases.csv`를 만든다 (`virtual_chart.py`의 `Chart`·`F`를 쓴다) | `test_virtual_cases.py` |
+| `build_virtual_cases.py` | 가상 사례 20건 생성 (시험 세트) | `virtual_patient_cases.md` §3의 값으로 VC-0110 ~ VC-0129의 차트·정답·`scenario.md`·`cases.csv`를 만든다 (`virtual_chart.py`의 `Chart`·`F`를 쓴다) | `test_virtual_cases.py` |
 
 ## 5. `tcga/`
 

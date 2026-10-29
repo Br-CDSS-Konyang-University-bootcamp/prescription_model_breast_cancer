@@ -6,7 +6,7 @@
 
 - "지금 코드"는 2026-10-28 `feat/input-pipeline`에서 찾아본 결과다. 담당자가 다르게 구현했으면 고쳐 적어 주세요
 - 흐름: A의 `patient_state` → 의사가 화면 1에서 `schemas/confirmed_state.json` 항목으로 확정 → 2단계(C 검색, D 급여, B 추천)는 확정값만 읽는다 ([handoff_confirmed_state_to_B.md](handoff_confirmed_state_to_B.md)). 지금 B의 `conditions_eval.py`와 D의 `conditions.py`는 `patient_state` 경로를 직접 읽는다. 둘 중 어느 쪽을 기준으로 할지는 §5에서 정한다
-- 시험할 가상 차트: `tests/fixtures/virtual_charts/<사례>/expected/patient_state.json`. VC-0130 이후는 보류 세트라 규칙을 맞출 때 쓰지 않는다 ([virtual_patient_cases_2026-10-27.md](virtual_patient_cases_2026-10-27.md) §5)
+- 시험할 가상 차트: `tests/fixtures/virtual_charts/<사례>/expected/patient_state.json`. VC-0130 이후는 보류 세트라 규칙을 맞출 때 쓰지 않는다 ([virtual_patient_cases.md](virtual_patient_cases.md) §8)
 
 ## 0. 한눈에
 
@@ -74,7 +74,7 @@
 
 ### 3.2 급여 판정 확인 (가상 차트 기대 결과)
 
-- [ ] 보류 세트 `scenario.md`의 D 행 (⚑D) 확인. 특히 2-20 "1cm 초과"에서 10 mm, 4가-6 "이전 면역관문억제제"에 선행·보조 pembrolizumab이 드는지, `DEEM-ANTHRA-TAXANE` met이 4가 "1차" 판정에 쓰이는지 ([virtual_patient_cases_2026-10-27.md](virtual_patient_cases_2026-10-27.md) §6)
+- [ ] 보류 세트 `scenario.md`의 D 행 (⚑D) 확인. 특히 2-20 "1cm 초과"에서 10 mm, 4가-6 "이전 면역관문억제제"에 선행·보조 pembrolizumab이 드는지, `DEEM-ANTHRA-TAXANE` met이 4가 "1차" 판정에 쓰이는지 ([virtual_patient_cases.md](virtual_patient_cases.md) §9)
 
 ## 4. 치료 시기별 병기 (B·D 공통)
 

@@ -1,4 +1,4 @@
-"""가상 환자 사례 N01~N20 (VC-0110~VC-0129) 차트 만들기: src/input/virtual_patient_cases_2026-10-23.md §3.
+"""가상 환자 사례 N01~N20 (VC-0110~VC-0129) 차트 만들기: src/input/virtual_patient_cases.md §3.
 
 사례 목록 문서 §3의 "이야기 핵심 값"을 차트 글로 쓰고, 값을 쓰는 순간 정답 patient_state의 값과 원문 위치를 함께 기록한다
 (src/input/script/virtual/virtual_chart.py의 Chart·F를 그대로 쓴다). 차수·간주 규칙은 lines.annotate로 계산하고, 스키마·인용 위치를 검사한다.
@@ -29,7 +29,7 @@ from pathlib import Path
 from src.input.script.virtual.virtual_chart import Chart, F, allred, allred_text, check, dumps, kdate
 
 ROOT = Path(__file__).resolve().parents[4]
-CASES_MD = ROOT / "src" / "input" / "virtual_patient_cases_2026-10-23.md"
+CASES_MD = ROOT / "src" / "input" / "virtual_patient_cases.md"
 OUT = ROOT / "tests" / "fixtures" / "virtual_charts"
 
 CYC = lambda n, days: {"value": n, "basis": "recorded", "interval_days": days, "interval_basis": "recorded"}  # noqa: E731
@@ -314,7 +314,7 @@ def vc_0110() -> Chart:
 
 def vc_0111(ref: str = "VC-0111", local: bool = False, extracns_pd: bool = True) -> Chart:
     """N02 HER2+ 전이 2차, 활동성 뇌 전이.
-    짝 G20 (src/input/virtual_patient_cases_2026-10-27.md): local = 국소 치료 적응 있음, extracns_pd = 뇌 밖(간) 진행."""
+    짝 G20 (src/input/virtual_patient_cases.md): local = 국소 치료 적응 있음, extracns_pd = 뇌 밖(간) 진행."""
     c = Chart(ref, "2023-02-06", 600)
     D = c.on
     d = note(c, 53, "[다학제 진료 회의록]", "종양내과")
@@ -482,7 +482,7 @@ def vc_0114() -> Chart:
 
 def vc_0115(ref: str = "VC-0115", gbrca1: tuple | None = None) -> Chart:
     """N06 TNBC, 보조 종료 300일 뒤 폐 전이, 1차 gemcitabine + carboplatin 진행, gBRCA 음성.
-    짝 G21 (src/input/virtual_patient_cases_2026-10-27.md): gbrca1 = 생식세포 BRCA1 병원성 변이 (cDNA, 단백 변화, 판정)."""
+    짝 G21 (src/input/virtual_patient_cases.md): gbrca1 = 생식세포 BRCA1 병원성 변이 (cDNA, 단백 변화, 판정)."""
     c = Chart(ref, "2021-07-05", 750)
     d = note(c, 42)
     d.t("S) 기침, 흉통.\n   폐경: ")
@@ -897,7 +897,7 @@ def read_sections(md: str = None) -> dict[str, dict]:
 
 def scenario(ref: str, sec: dict) -> str:
     return (f"# {ref} ({sec['n']}) {sec['title']}\n\n"
-            f"> 합성 사례 (가상 환자). 출처: `src/input/virtual_patient_cases_2026-10-23.md` §3 {sec['n']}. "
+            f"> 합성 사례 (가상 환자). 출처: `src/input/virtual_patient_cases.md` §3 {sec['n']}. "
             f"차트·A 정답은 `python -m src.input.script.virtual.build_virtual_cases`로 만든다. "
             f"기대 결과는 A 초안이고 B·C·D·[4] 담당자가 원문으로 확정한다.\n\n"
             + sec["text"].split("\n", 1)[1].strip() + "\n")

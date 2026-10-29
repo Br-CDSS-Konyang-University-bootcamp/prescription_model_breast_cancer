@@ -253,7 +253,7 @@ def test_brand_and_korean_generic_names(row, drugs):
     ("patient.ecog", "ECOG PS 2 (KPS 60)", 2),           # ECOG가 적혀 있으면 그 값
 ])
 def test_expression_variants_2026_10_28(field, quote, want):
-    """표현 변형 (사례 목록 문서 10-23 §5 I03~I05)."""
+    """표현 변형 (virtual_patient_cases.md §5 I03~I05)."""
     doc = split("<외래 경과기록>   2024.5.4\n본문\n")[0]
     got = normalize(field, quote, Context(doc, quote, "2020-01-06"))
     assert (got and got["value"]) == want
