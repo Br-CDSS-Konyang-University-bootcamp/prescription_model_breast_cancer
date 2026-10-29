@@ -162,9 +162,9 @@ evaluation_plan §2.1에는 "6묶음 20건"으로 적혀 있음. `pairs.py` 목�
 | 2차 gBRCA / gPALB2 | 그림 3 `8bf8f8` / `d5aff4` | 없음 | 예비 R05 |
 | 2차 표적 변이 없음 (everolimus, CDK4/6 바꿔 쓰기 등) | 그림 3 `0f09b4` | 없음 (VC-0101은 ESR1 갈래) | 예비 |
 | 3차 이상, 내분비 적합 → 안 쓴 2차 선택지 | 그림 4 (1208쪽) `535699` | 없음 | 예비 |
-| 3차 이상, 이전 ChT 없음, HER2-low·ultralow → T-DXd | 그림 4 `4e3ecd`·`76de27`·`ddbc18` | 없음 | N04, N16 |
-| 3차 이상, 이전 ChT 없음, HER2 0 → ChT | 그림 4 `2f74bb`·`c401eb`·`930a6b` | 없음 | N04 짝 |
-| 3차 이상, 이전 ChT 있음 → sacituzumab·Dato-DXd / HER2-low T-DXd | 그림 4 `b93339`·`1ab440`·`88ce0e` / `9af0ad`·`12dec2`·`b89463` | 없음 | N05 |
+| 3차 이상, 이전 ChT 없음, HER2-low·ultralow → T-DXd | 그림 4 `76de27`·`ddbc18` | 없음 | N04, N16 |
+| 3차 이상, 이전 ChT 없음, HER2 0 → ChT | 그림 4 `c401eb`·`930a6b` | 없음 | N04 짝 |
+| 3차 이상, 이전 ChT 있음 → sacituzumab·Dato-DXd / HER2-low T-DXd | 그림 4 `1ab440`·`88ce0e` / `a7b5ac`·`1679ae` | 없음 | N05 |
 
 ### 2.3 ESMO 전이성 HER2+ (MBC 그림 5~7)
 
@@ -343,9 +343,9 @@ evaluation_plan §2.1에는 "6묶음 20건"으로 적혀 있음. `pairs.py` 목�
 | 시험할 조건 | MBC 그림 4 T-DXd 갈래, HER2-low T-DXd 공고 없음, 보조 AC → T로 인한 `DEEM-ANTHRA-TAXANE` met → 고식 항암 "2차" (eribulin) |
 | 이야기 핵심 값 | 60세 폐경 후. 보조 AC×4 → paclitaxel×12 → letrozole 5년. 재발 후 1차 letrozole + palbociclib PD(20개월), 2차 exemestane + everolimus PD(6개월). 간 생검 HER2 IHC 1+. 의사 문장 "내분비 치료 더 이상 부적합" |
 | 결정 시점 | 고식 3차 (내분비 2차례 후, 고식 항암 실제 0) |
-| 짝 사례 | 간 생검 HER2 1+ / 0 (막 염색 없음, `2f74bb` 갈래). N16은 0 faint |
+| 짝 사례 | 간 생검 HER2 1+ / 0 (막 염색 없음, `c401eb`·`930a6b` 갈래). N16은 0 faint |
 | B | HER2 low, `endocrine_line` 2, `chemo_line` 0, `DEEM-ANTHRA-TAXANE` met |
-| C | MBC 그림 4 (1208쪽) `4e3ecd` (이전 ChT 없음 → T-DXd). ESMO "이전 ChT"에 보조 ChT가 드는지 C 확인. 짝: `2f74bb` |
+| C | MBC 그림 4 (1208쪽) `76de27`·`ddbc18` (이전 ChT 없음 → T-DXd). ESMO "이전 ChT"에 보조 ChT가 드는지 C 확인. 짝: `c401eb`·`930a6b` |
 | D ⚑D | T-DXd → `no_criteria` (공고는 HER2 양성만). eribulin 4다-1 → `covered` 기대 (간주 1차 + anthracycline·taxane 모두 경험 → 2차, 간주를 4다 차수에 쓰는지 D 확인). capecitabine 4나-17 → `covered`. bevacizumab + paclitaxel 4가-4 → paclitaxel 이미 사용 → 불충족 |
 | 추천 | 허용: T-DXd(공고 없음 표시와 함께) 또는 ChT. 금지: palbociclib·everolimus 재추천 |
 
@@ -358,7 +358,7 @@ evaluation_plan §2.1에는 "6묶음 20건"으로 적혀 있음. `pairs.py` 목�
 | 결정 시점 | 고식 항암 3차 |
 | 짝 사례 | 고식 항암 1회(capecitabine만) / 2회(capecitabine → paclitaxel). 1회면 eribulin 4다-1 대상인데 anthracycline 미사용으로 불충족 |
 | B | HER2 negative(0), `chemo_line` 2 (실제), 간주 규칙 4개 not_met (선행·보조요법 없음) |
-| C | MBC 그림 4 `b93339` (sacituzumab·Dato-DXd → T-DXd). HER2 0이라 T-DXd 갈래 아님 |
+| C | MBC 그림 4 `1ab440`·`88ce0e` (sacituzumab·Dato-DXd). HER2 0이라 T-DXd 갈래(`a7b5ac`·`1679ae`), PD 뒤 HER2 low 갈래(`1ab440`) 아님 |
 | D ⚑D | sacituzumab 4마-2 → `no_criteria` (삼중음성만). eribulin 4마-1 → `covered` (3차 이상). 짝(1회): 4다-1 조건 불충족 (anthracycline 없음) |
 | 추천 | 금지: capecitabine·paclitaxel 재추천, HER2 표적 |
 
@@ -501,7 +501,7 @@ evaluation_plan §2.1에는 "6묶음 20건"으로 적혀 있음. `pairs.py` 목�
 | 결정 시점 | 고식 3차, 이전 고식 항암 없음 |
 | 짝 사례 | N04 (HER2 1+), N04 짝 (HER2 0 막 염색 없음) — 세 사례가 0 / 0 faint / 1+ 묶음 |
 | B | HER2 ultralow (공고 기준 음성), 재생검 값이 `value`, 원발 0은 `history[]`. N04와 달리 보조 AI 종료 159일 뒤 재발이라 `DEEM-ENDO-ADJ-1Y` met, 1차는 fulvestrant + palbociclib |
-| C | MBC 그림 4 `4e3ecd` (low or ultralow → T-DXd), `76de27` (PD 후 HER2 low만) |
+| C | MBC 그림 4 `76de27`·`ddbc18` (low or ultralow → T-DXd). PD 뒤 HER2 low면 `76de27`, 아니면 `ddbc18` |
 | D ⚑D | T-DXd → `no_criteria`. 나머지 N04와 같음 |
 | 추천 | ultralow를 "HER2 양성"으로 쓰지 않음 |
 

@@ -9,6 +9,6 @@
 | 결정 시점 | 고식 3차, 이전 고식 항암 없음 |
 | 짝 사례 | N04 (HER2 1+), N04 짝 (HER2 0 막 염색 없음) — 세 사례가 0 / 0 faint / 1+ 묶음 |
 | B | HER2 ultralow (공고 기준 음성), 재생검 값이 `value`, 원발 0은 `history[]`. N04와 달리 보조 AI 종료 159일 뒤 재발이라 `DEEM-ENDO-ADJ-1Y` met, 1차는 fulvestrant + palbociclib |
-| C | MBC 그림 4 `4e3ecd` (low or ultralow → T-DXd), `76de27` (PD 후 HER2 low만) |
+| C | MBC 그림 4 `76de27`·`ddbc18` (low or ultralow → T-DXd). PD 뒤 HER2 low면 `76de27`, 아니면 `ddbc18` |
 | D ⚑D | T-DXd → `no_criteria`. 나머지 N04와 같음 |
 | 추천 | ultralow를 "HER2 양성"으로 쓰지 않음 |

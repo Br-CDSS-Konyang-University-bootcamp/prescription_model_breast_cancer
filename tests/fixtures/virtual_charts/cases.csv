@@ -2,7 +2,7 @@ case_id,proposal,title,decision_point,test_conditions,pairs
 VC-0110,N01,"HR+/HER2+ 전이 1차, 항암 가능",고식 1차,"HR+/HER2+ 아형 (지금 0건), HER2+ 전이 1차 요법, 유지 요법, 허가초과 후보","간 생검 ER 70% / ER 0% (→ ER- 갈래, 유지 HP만)"
 VC-0111,N02,"HER2+ 전이 2차, 활동성 뇌 전이",고식 2차,"뇌 전이 갈래, 2차 이상 HER2 행, tucatinib 공고 없음, lapatinib + capecitabine의 anthracycline 조건","뇌 전이 활동성 / 안정 (MRI 변화 없음, `158c93` 갈래). 추가 짝: 이전 anthracycline 없음 / 있음 (lapatinib + capecitabine 갈림)"
 VC-0112,N03,HER2+ 보조 trastuzumab 종료 6개월 안 재발,고식 1차 (실제 차수 0),"`DEEM-HER2ADC-6M` met (지금 0건), ESMO는 6~12개월까지 2차로 보는데 공고는 6개월 → 두 기준 차이","trastuzumab 종료 → 전이 183일 / 184일 (6개월 경계, 달력 계산은 G2처럼 확인) / 270일 (ESMO 2차 갈래, 공고 1차)"
-VC-0113,N04,"HR+/HER2- 3차, 이전 고식 항암 없음, HER2-low","고식 3차 (내분비 2차례 후, 고식 항암 실제 0)","MBC 그림 4 T-DXd 갈래, HER2-low T-DXd 공고 없음, 보조 AC → T로 인한 `DEEM-ANTHRA-TAXANE` met → 고식 항암 ""2차"" (eribulin)","간 생검 HER2 1+ / 0 (막 염색 없음, `2f74bb` 갈래). N16은 0 faint"
+VC-0113,N04,"HR+/HER2- 3차, 이전 고식 항암 없음, HER2-low","고식 3차 (내분비 2차례 후, 고식 항암 실제 0)","MBC 그림 4 T-DXd 갈래, HER2-low T-DXd 공고 없음, 보조 AC → T로 인한 `DEEM-ANTHRA-TAXANE` met → 고식 항암 ""2차"" (eribulin)","간 생검 HER2 1+ / 0 (막 염색 없음, `c401eb`·`930a6b` 갈래). N16은 0 faint"
 VC-0114,N05,"HR+/HER2- 3차 이상, 이전 고식 항암 있음, HER2 0",고식 항암 3차,"MBC 그림 4 이전 ChT 갈래, ER+ sacituzumab 공고 없음, 고식 항암 2차 / 3차 이상 경계",고식 항암 1회(capecitabine만) / 2회(capecitabine → paclitaxel). 1회면 eribulin 4다-1 대상인데 anthracycline 미사용으로 불충족
 VC-0115,N06,"TNBC 2차, gBRCA 야생형 → sacituzumab",고식 2차 (실제 1),"MBC 그림 9, sacituzumab 3차 이상 + `DEEM-SG-1Y` 경계",보조 종료 → 전이 365일 / 366일 (`DEEM-SG-1Y` met / not_met)
 VC-0116,N07,"TNBC 1차 PD-L1 음성, gBRCA 양성",고식 1차,"생식세포 양성 (지금 0건), MBC 그림 8 gBRCA 갈래, 전이 olaparib 공고 없음","생식세포 BRCA1 병원성 / VUS (→ gBRCA wt 갈래 `b39e9e`, IN-7 VUS 시험 겸함)"

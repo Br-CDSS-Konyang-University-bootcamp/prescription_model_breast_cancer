@@ -9,6 +9,6 @@
 | 결정 시점 | 고식 항암 3차 |
 | 짝 사례 | 고식 항암 1회(capecitabine만) / 2회(capecitabine → paclitaxel). 1회면 eribulin 4다-1 대상인데 anthracycline 미사용으로 불충족 |
 | B | HER2 negative(0), `chemo_line` 2 (실제), 간주 규칙 4개 not_met (선행·보조요법 없음) |
-| C | MBC 그림 4 `b93339` (sacituzumab·Dato-DXd → T-DXd). HER2 0이라 T-DXd 갈래 아님 |
+| C | MBC 그림 4 `1ab440`·`88ce0e` (sacituzumab·Dato-DXd). HER2 0이라 T-DXd 갈래(`a7b5ac`·`1679ae`), PD 뒤 HER2 low 갈래(`1ab440`) 아님 |
 | D ⚑D | sacituzumab 4마-2 → `no_criteria` (삼중음성만). eribulin 4마-1 → `covered` (3차 이상). 짝(1회): 4다-1 조건 불충족 (anthracycline 없음) |
 | 추천 | 금지: capecitabine·paclitaxel 재추천, HER2 표적 |
