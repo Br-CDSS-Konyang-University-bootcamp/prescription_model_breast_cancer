@@ -684,6 +684,18 @@ def main():
             detail += f"  / 정답: {exp_status} 권고 {exp_test} / {rec['reason'][:80]}"
         report(case_id, ok, note, detail)
 
+    # 판정 기준일 뒤에 시작한 투약은 보지 않는다 (B README 차수 절, 2026-10-29)
+    first = tx(["letrozole", "palbociclib"], "metastatic", 1500, 1, endo=1, resp="PD")
+    later = tx(["fulvestrant"], "metastatic", 1800, 2, endo=2, resp="PD")
+    for case_id, index_day, want, note in (("IX01", 1700, "2L", "기준일 1700 뒤 2차(1800 시작)는 빼서 2차를 결정할 차례"),
+                                           ("IX02", 1900, ">=3L", "기준일 1900이면 2차 진행까지 봐서 3차"),
+                                           ("IX03", None, ">=3L", "기준일이 없으면(TCGA) 그대로")):
+        ps = patient(ref="VC-1", treatments=[first, later])
+        if index_day is not None:
+            ps["index_day"] = index_day
+        got = assess(ps)["setting"]["line"]
+        report(case_id, got == want, note, f"setting.line {got}" + ("" if got == want else f" / 정답 {want}"))
+
     pending = assess(patient(mutations=genes_with({"status": "not_done", "raw": "결과 대기"})))["tests_needed"]
     pik = next(t for t in pending if t["rule_id"] == "BM4-PIK3CA-PENDING")
     report("A23", pik["test"] == "PIK3CA 결과 확인" and "결과 확인 필요" in pik["reason"], "결과 확인 문구",

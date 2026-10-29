@@ -1006,9 +1006,24 @@ def assess_receptors(patient_state):
     ]
 
 
+def _before_index(patient_state):
+    """판정 기준일(index_day) 뒤에 시작한 투약을 뺀 patient_state 사본. A의 at_index 계산과 같은 기준
+    (start_day가 없거나 index_day 이하, src/input/script/rules.py). index_day가 없으면(TCGA 등) 그대로 둔다."""
+    index_day = (patient_state or {}).get("index_day")
+    fields = (patient_state or {}).get("fields") or {}
+    history = fields.get("treatment_history")
+    if index_day is None or not history:
+        return patient_state
+    kept = [t for t in history if t.get("start_day") is None or t["start_day"] <= index_day]
+    if len(kept) == len(history):
+        return patient_state
+    return {**patient_state, "fields": {**fields, "treatment_history": kept}}
+
+
 def assess(patient_state):
     """patient_state 한 명 -> biomarker_record 전체.
-    patient_state 의 필드 이름이 바뀌면 이 함수만 고친다."""
+    patient_state 의 필드 이름이 바뀌면 이 함수만 고친다. 판정 기준일 뒤에 시작한 투약은 보지 않는다."""
+    patient_state = _before_index(patient_state)
     fields = (patient_state or {}).get("fields") or {}
     patient_ref = (patient_state or {}).get("patient_ref", "")
 
