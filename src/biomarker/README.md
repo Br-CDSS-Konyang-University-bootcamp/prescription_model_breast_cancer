@@ -29,7 +29,7 @@ PD-L1 판정 (2026-10-16, 전달 문서 6.5절). 입력 `receptors.pdl1` (`assay
 
 | 검사법 + 점수 종류 | 양성 기준 | 약제 | 근거 | 태그 | 규칙 ID |
 |---|---|---|---|---|---|
-| 22C3 + CPS | 10 이상 | pembrolizumab + 항암 (TNBC 1차) | 심평원 공고책자 2026-10-01판 p.58 (`hira-booklet-20261001-bc-pal-chemo-1l-r06`·`r07`) | `PD-L1+` | `BM2-PDL1-22C3` |
+| 22C3 + CPS | 10 이상 | pembrolizumab + 항암 (TNBC 1차) | 심평원 공고책자 2026-11-01판 p.59 (`hira-booklet-20261101-bc-pal-chemo-1l-r06`·`r07`) | `PD-L1+` | `BM2-PDL1-22C3` |
 | SP142 + IC | 1% 이상 | atezolizumab + nab-paclitaxel | ESMO MBC | `PD-L1+` | `BM2-PDL1-SP142` |
 | 그 밖 (SP263, TPS 등) | 판정하지 않음 → `unknown` | | | | `BM2-PDL1-ASSAY` |
 
@@ -55,8 +55,8 @@ PD-L1 판정 (2026-10-16, 전달 문서 6.5절). 입력 `receptors.pdl1` (`assay
 - 국내 기준 확인 (2026-10-22): 심평원 공고책자(D 확인)와 식약처 허가사항 효능·효과 모두 capivasertib·alpelisib·inavolisib의 대상을 해당 유전자의 변이 유무로만 정하고, 특정 변이 목록·검사법은 정하지 않는다 (원문 문구는 옮기지 않는다). elacestrant는 국내 허가가 없다. 그래서 세부 범위는 FDA 동반진단 목록을 따르고 "판단 기준: FDA"로 표시한다 (A 결정 2026-10-22). 약마다 기준이 다른 문제(alpelisib은 11개, capivasertib·inavolisib는 승인 검사로 검출된 변이)는 판정 구조 변경이라 회의 안건이다
 - PTEN을 변이 유무로 보는 이유: 팀 회의(2026-10-20)에서 PTEN 결과를 positive/negative로 통일하고 VEP를 쓰지 않기로 했다. 절단형 여부와 ClinVar 판정은 근거로만 적는다.
 - CIViC는 판정에 쓰지 않는다 (팀 회의 2026-10-20: 약이 듣는지는 판정하지 않는다). 그래서 `off-label-variant` 태그도 붙이지 않는다.
-- 근거 표시 (팀 회의 2026-10-20 5번): 이유 끝에 ` / 근거: ` 뒤로 변이 이름·종류(절단형 표시)·VAF, 허가 동반진단 목록 해당 여부(PIK3CA·AKT1·ESR1), ClinVar 판정(BRCA1·BRCA2·PALB2·PTEN), CIViC 근거(PIK3CA·AKT1·PTEN, "판정에 쓰지 않음"), 급여 근거(심평원 공고책자 2026-10-01판 쪽 번호와 D의 chunk_id, 또는 "B가 연결한 심평원 행 없음 (D 확인 전)"), 지침 근거(ESMO 쪽 번호)를 적는다. 스키마에 칸이 있는 변이 이름·VAF·ClinVar는 `evidence`에도 넣는다. 변이 종류·허가 목록·CIViC·급여·지침 칸은 스키마 변경이라 4명 검토 뒤에 옮긴다. 문서 문장은 옮기지 않고 문서와 쪽만 적는다 (심평원 공고 판권면의 복제 금지 문구).
-- 급여·지침 쪽 번호: 코드의 `REIMBURSEMENT_BASIS`(D가 쓰는 심평원 공고책자 2026-10-01판(제2026-210호)의 인쇄 쪽과 D의 chunk_id, D 확인 2026-10-21. 공고 문구는 옮기지 않는다), `GUIDELINE_BASIS`(`data/chunks/esmo_chunks.json`의 ESMO 쪽). 급여 근거는 D가 확인해 준 행(2026-10-21)만 적고, 공고 내용 해석(급여·비급여 여부 등)은 적지 않는다. 급여 판정은 D의 청크로 한다. ESR1·PALB2·체세포 BRCA는 B가 연결한 심평원 행이 없어 "D 확인 전"으로 적는다.
+- 근거 표시 (팀 회의 2026-10-20 5번): 이유 끝에 ` / 근거: ` 뒤로 변이 이름·종류(절단형 표시)·VAF, 허가 동반진단 목록 해당 여부(PIK3CA·AKT1·ESR1), ClinVar 판정(BRCA1·BRCA2·PALB2·PTEN), CIViC 근거(PIK3CA·AKT1·PTEN, "판정에 쓰지 않음"), 급여 근거(심평원 공고책자 2026-11-01판 쪽 번호와 D의 chunk_id, 또는 "B가 연결한 심평원 행 없음 (D 확인 전)"), 지침 근거(ESMO 쪽 번호)를 적는다. 스키마에 칸이 있는 변이 이름·VAF·ClinVar는 `evidence`에도 넣는다. 변이 종류·허가 목록·CIViC·급여·지침 칸은 스키마 변경이라 4명 검토 뒤에 옮긴다. 문서 문장은 옮기지 않고 문서와 쪽만 적는다 (심평원 공고 판권면의 복제 금지 문구).
+- 급여·지침 쪽 번호: 코드의 `REIMBURSEMENT_BASIS`(D가 쓰는 심평원 공고책자 2026-11-01판(제2026-232호)의 인쇄 쪽과 D의 chunk_id, D 확인 2026-10-21, 11-01판 쪽·ID D 확인 2026-10-29. 공고 문구는 옮기지 않는다), `GUIDELINE_BASIS`(`data/chunks/esmo_chunks.json`의 ESMO 쪽). 급여 근거는 D가 확인해 준 행(2026-10-21)만 적고, 공고 내용 해석(급여·비급여 여부 등)은 적지 않는다. 급여 판정은 D의 청크로 한다. ESR1·PALB2·체세포 BRCA는 B가 연결한 심평원 행이 없어 "D 확인 전"으로 적는다.
 - BRCA1/2 레코드 이름: TCGA·가상·실제 차트 모두 검사 종류와 관계없이 `gBRCA1/2` (전달 문서 4.7절, A 결정 2026-10-21. TCGA는 종양 엑솜을 생식세포 검사로 가정). `sBRCA1/2` 레코드는 만들지 않는다 (체세포 BRCA 근거 권고는 다루지 않음, 모델 한계).
 - 읽는 칸 (A 결정 2026-10-28, PROJECT.md §14, `src/input/draft7_checklist_BCD_2026-10-28.md` §1.1, B 반영 2026-10-29): BRCA1·BRCA2·PALB2는 ① 생식세포 칸 `molecular.germline.<유전자>`에 결과(`present`)가 있으면 그 결과, ② 없으면 `molecular.mutations.<유전자>`(종양 조직·cfDNA)의 결과, ③ 둘 다 결과가 없으면 생식세포 칸의 상태(미시행·기록 없음)를 쓴다 (코드 `gene_field_of`). 이유 앞에 `생식세포 검사: ` 또는 `종양 검사 결과 (생식세포 검사 결과 없음): `를 붙인다. 생식세포 칸이 없으면(TCGA) 지금처럼 `mutations`만 보고 이유도 그대로다. 생식세포 미시행이지만 종양 결과가 있으면 종양 결과로 판정하고 생식세포 검사 권고(BM-4)는 내지 않는다 (B 판단, 팀 확인 전)
 - 태그(`rag_tags`)는 청크 `biomarker_tags`와 같은 어휘를 쓴다 (C의 `src/rag/rag_guideline_chunking_design_update.md` 3.5절 표준 태그): `PIK3CA-mut`, `AKT1-mut`, `PTEN-alt`, `ESR1-mut`, `gBRCA`, `sBRCA`, `gPALB2`, `PD-L1+`.

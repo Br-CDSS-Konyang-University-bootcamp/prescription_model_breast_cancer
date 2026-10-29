@@ -42,7 +42,7 @@ PR_POSITIVE_MIN = 9            # range 최대값·percent가 이 값(%) 이상�
 KI67_HIGH_MIN = 20
 
 # PD-L1 약제별 기준 (전달 문서 6.5절). 검사법과 점수 종류가 기준과 다르면 판정하지 않는다
-PDL1_22C3_CPS_MIN = 10         # pembrolizumab + 항암 (TNBC 1차): 22C3 CPS 이 값 이상 양성 (공고책자 2026-10-01판 p.58)
+PDL1_22C3_CPS_MIN = 10         # pembrolizumab + 항암 (TNBC 1차): 22C3 CPS 이 값 이상 양성 (공고책자 2026-11-01판 p.59)
 PDL1_SP142_IC_MIN = 1          # atezolizumab + nab-paclitaxel: SP142 IC 이 값(%) 이상 양성 (ESMO MBC)
 
 # 이전 약제 계열에서 뺄 계열 (차수에 들어가지 않는 약)
@@ -464,7 +464,7 @@ def molecular_subtype_of(subtype, ki67):
 # (검사법, 점수 종류) -> (양성 최소값, 약, 근거, 태그). 전달 문서 6.5절, PROJECT.md 5절.
 # 태그는 C의 표준 태그 PD-L1+ (rag_guideline_chunking_design_update.md 3.5절)
 PDL1_RULES = {
-    ("22C3", "CPS"): (PDL1_22C3_CPS_MIN, "pembrolizumab", "심평원 공고책자 2026-10-01판 p.58 (hira-booklet-20261001-bc-pal-chemo-1l-r06·r07)",
+    ("22C3", "CPS"): (PDL1_22C3_CPS_MIN, "pembrolizumab", "심평원 공고책자 2026-11-01판 p.59 (hira-booklet-20261101-bc-pal-chemo-1l-r06·r07)",
                        "PD-L1+"),
     ("SP142", "IC"): (PDL1_SP142_IC_MIN, "atezolizumab", "ESMO MBC", "PD-L1+"),
 }
@@ -515,16 +515,16 @@ GENE_TAGS = {"PIK3CA": "PIK3CA-mut", "AKT1": "AKT1-mut", "PTEN": "PTEN-alt", "ES
              "PALB2": "gPALB2", "gBRCA1": "gBRCA", "gBRCA2": "gBRCA", "sBRCA1": "sBRCA", "sBRCA2": "sBRCA"}
 
 # 근거 표시용 출처 (팀 회의 2026-10-20 5번). 판정에는 쓰지 않는다. 문서 문장은 옮기지 않고 문서·쪽만 적는다.
-# 급여: D의 공고책자 2026-10-01판(제2026-210호) 인쇄 쪽과 D의 chunk_id (D 확인 2026-10-21). 공고 문구와 공고 내용 해석은
+# 급여: D의 공고책자 2026-11-01판(제2026-232호) 인쇄 쪽과 D의 chunk_id (D 확인 2026-10-21, 11-01판 쪽·ID D 확인 2026-10-29). 공고 문구와 공고 내용 해석은
 # 옮기지 않는다 (급여 판정은 D의 청크로 한다). 여기 없는 마커는 B가 연결한 행이 없다는 뜻이다
-_HIRA = "심평원 공고책자 2026-10-01판"
+_HIRA = "심평원 공고책자 2026-11-01판"
 REIMBURSEMENT_BASIS = {
-    "PIK3CA": f"{_HIRA} p.165–169 (병용 연번 21 capivasertib, 22 alpelisib, 29 inavolisib; "
-              f"hira-booklet-20261001-combo-r21·r22·r29)",
-    "AKT1": f"{_HIRA} p.165–166 (병용 연번 21 capivasertib; hira-booklet-20261001-combo-r21)",
-    "PTEN": f"{_HIRA} p.165–166 (병용 연번 21 capivasertib; hira-booklet-20261001-combo-r21)",
-    "gBRCA1": f"{_HIRA} p.169–171 (병용 연번 30 olaparib; hira-booklet-20261001-combo-r30)",
-    "gBRCA2": f"{_HIRA} p.169–171 (병용 연번 30 olaparib; hira-booklet-20261001-combo-r30)",
+    "PIK3CA": f"{_HIRA} p.167·170 (병용 연번 22 capivasertib, 23 alpelisib, 30 inavolisib; "
+              f"hira-booklet-20261101-combo-r22·r23·r30)",
+    "AKT1": f"{_HIRA} p.167 (병용 연번 22 capivasertib; hira-booklet-20261101-combo-r22)",
+    "PTEN": f"{_HIRA} p.167 (병용 연번 22 capivasertib; hira-booklet-20261101-combo-r22)",
+    "gBRCA1": f"{_HIRA} p.171–173 (병용 연번 31 olaparib; hira-booklet-20261101-combo-r31)",
+    "gBRCA2": f"{_HIRA} p.171–173 (병용 연번 31 olaparib; hira-booklet-20261101-combo-r31)",
 }
 # 지침: data/chunks/esmo_chunks.json의 ESMO 권고 쪽 번호
 GUIDELINE_BASIS = {
