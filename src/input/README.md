@@ -31,6 +31,9 @@
 | `script/rules.py` | vocab, lines | 공용 규칙(차수·간주 규칙·판정 기준일 값, `annotate()`)과 표준값 사전(`field_vocab.csv`). 파이프라인과 가상 차트가 같이 쓴다 |
 | `script/virtual/` | `virtual_chart.py`, `build_virtual_cases.py`, `build_holdout_cases.py`, `build_variant_cases.py`, `cases/` | 가상 차트와 정답 만들기 (개발 10건 + 짝 19건, 시험 20건, 보류 18건, 표현 변형 15건) |
 | `script/tcga/` | `tcga_to_patient_state.py` | B 테스트(`tests/biomarker/test_bm.py`)가 쓰는 변환기만 남김 |
+| `script/confirmed.py` | (새 파일) | 화면 1 확정값. `build_draft(patient_state, biomarker_record)` → 초안 (시스템 값이 없거나 `unknown`인 칸은 비우고 `needs`에 표시), `set_item(draft, key, value, reason)` (status 자동, 스키마 밖 값은 거부), `finalize(draft, confirmed_by)` → `data/input/confirmed/<patient_ref>/v<n>.json` (덮어쓰지 않음). `dfi_days`·`high_risk_early`도 여기서 계산 |
+
+화면 1 확정값 규칙 (2026-10-30): gBRCA·sBRCA는 1·2를 하나로 합친다 (하나라도 positive → positive, vus → vus, 둘 다 negative → negative, 한쪽만 negative이고 나머지가 기록 없음 → 의사 확인). 재진(follow_up)은 버전 번호·`supersedes`만 채우고 `previous`·`carried`는 아직 없다.
 
 2026-10-27 TCGA 정답 세트 폐기, 평가는 가상 차트로 (B 테스트용 변환기 `script/tcga/tcga_to_patient_state.py`만 남김).
 
