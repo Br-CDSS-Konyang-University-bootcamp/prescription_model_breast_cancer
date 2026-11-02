@@ -18,3 +18,15 @@ model = "qwen3:14b"
 patient_data = true
 temperature = 0
 device = "auto"
+
+# [4] LLM 추천 (B). 모델: qwen3:14b (2026-11-02, B가 정함. A·C·D 확인). 선택 이유는 src/recommend/README.md "LLM 모델".
+# A 비교(src/input/llm_performance.md)에서 B 일에도 필요한 근거 위치 정확도·처음 보는 사례 처리가 더 좋았고, 팀이 이미 쓰는 모델이다.
+# 추천 성능은 아직 재지 않았다: 연결 뒤 가상 환자로 재서(허용 선택지 비율, 안전 위반 0건) 부족하면 다시 고른다.
+# 질문지에 지침·급여 청크가 함께 들어가 기본 문맥 8192보다 크게 둔다.
+[recommend]
+provider = "ollama"
+model = "qwen3:14b"
+patient_data = true
+temperature = 0
+device = "auto"
+num_ctx = 16384
