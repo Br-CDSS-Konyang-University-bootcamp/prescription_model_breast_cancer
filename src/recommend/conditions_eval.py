@@ -157,6 +157,27 @@ STAGE_FIELDS = {"ct_stage": ("ctnm", "t"), "cn_status": ("ctnm", "n"),
                 "pt_stage": ("ptnm", "t"), "pn_status": ("ptnm", "n")}
 
 
+# 선행요법을 받은 환자의 보조 행에서 대신 읽을 yptnm 칸 (D 요청 2026-11-02, draft7 체크리스트 §4)
+POST_NEO_FIELDS = {"pt_stage": "t", "pn_status": "n", "pathologic_size_mm": "residual_size_mm"}
+
+
+def _had_neoadjuvant(fields):
+    """선행요법을 받은 환자인지: yptnm이 있거나 treatment_history에 선행(neoadjuvant) 투약이 있으면 예."""
+    if _present((fields.get("stage") or {}).get("yptnm")):
+        return True
+    return any(t.get("setting") == "neoadjuvant" for t in fields.get("treatment_history") or [])
+
+
+def _duration_days(t, index_day):
+    """투여일. duration_days가 없고 판정 기준일에 투약 중(ongoing true)이면 기준일 - 시작일 (D 요청 2026-11-02)."""
+    if t.get("duration_days") is not None:
+        return t["duration_days"]
+    if t.get("ongoing") is True and index_day is not None and t.get("start_day") is not None \
+            and index_day >= t["start_day"]:
+        return index_day - t["start_day"]
+    return None
+
+
 def _n_status(n):
     """N 범주 -> positive / negative / None. 앞의 c·p를 떼고 N1·N2·N3(N1mi 포함)은 양성, N0(i-·i+·mol+ 포함)은 음성."""
     n = (n or "").lstrip("cp")
@@ -273,7 +294,17 @@ def _value(field, it, patient_state, record):
         v = _present(stage.get("operable"))
         return v if v in ("yes", "no") else None
     # 치료 시기별 병기 (D 2026-10-29, draft7 체크리스트 §4): 선행요법 행은 임상(c), 수술후보조 행은 병리(p).
+    # 선행요법을 받은 환자의 보조 행은 pT·pN·병리 크기 대신 yptnm(t, n, residual_size_mm)을 읽는다 (D 요청 2026-11-02).
     # 그 시기의 칸이 비면 다른 병기로 대신하지 않고 알 수 없음
+    post_neo = field in POST_NEO_FIELDS and _had_neoadjuvant(fields)
+    if post_neo:
+        yp = _present(stage.get("yptnm")) or {}
+        value = yp.get(POST_NEO_FIELDS[field])
+        if field == "pn_status":
+            return _n_status(value)
+        if field == "pathologic_size_mm":
+            return value if isinstance(value, (int, float)) and not isinstance(value, bool) else None
+        return value
     if field in STAGE_FIELDS:
         kind, part = STAGE_FIELDS[field]
         value = (_present(stage.get(kind)) or {}).get(part)
@@ -315,9 +346,10 @@ def _value(field, it, patient_state, record):
         return _days_since(fields, of, (patient_state or {}).get("index_day"))
     if field == "treatment_years":
         rows = _entries(fields, of)
-        if not rows or any(t.get("duration_days") is None for t in rows):
+        days = [_duration_days(t, (patient_state or {}).get("index_day")) for t in rows]
+        if not rows or any(d is None for d in days):
             return None
-        return sum(t["duration_days"] for t in rows) / 365
+        return sum(days) / 365
     if field == "cycles_total":
         rows = _entries(fields, of)
         if not rows or any(not t.get("cycles") for t in rows):
@@ -449,6 +481,12 @@ def evaluate_conditions(cond, patient_state, record):
     if line is not True:
         (failed if line is False else unknown).append(f"투여단계 {(cond.get('line_rule') or {}).get('line')}")
     total = _and([all_of, stage, any_of, line])
+    # human_review·unmapped에 글이 남으면 다른 항목을 다 만족해도 충족이 아니라 알 수 없음 (설계 §9.4, D 요청 2026-11-02).
+    # 공고 원문 구절이라 개수만 적는다
+    left = len(cond.get("human_review") or []) + len(cond.get("unmapped") or [])
+    if left and total is True:
+        total = None
+        unknown.append(f"판정하지 못한 조건 {left}개 (사람 확인 필요)")
     return {"status": {True: "met", False: "not_met", None: "unknown"}[total], "failed": failed, "unknown": unknown}
 
 
