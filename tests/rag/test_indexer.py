@@ -312,6 +312,47 @@ def test_relapse_within_12_months_picks_the_fulvestrant_branch(memory_index):
     assert plain[fulv] == plain[ai]  # 값이 없으면 바꾸지 않는다
 
 
+def test_menopausal_status_pushes_back_opposite_side_recommendations(memory_index):
+    # 폐경 후 환자에게 폐경 전·이행기 OFS 권고가 상위에 왔다 (VC-0103 check_case, 2026-11-02). 확정 폐경 상태와 반대쪽만
+    # 대상으로 하는 권고·그림 경로를 뒤로 보낸다. 두 쪽을 다 말하는 것과 그림 각주는 보지 않는다
+    rag_client, indexer = memory_index
+    from src.rag import searcher
+    from src.rag.chunk_store import load_guideline_chunks, select_index_chunks
+
+    indexer.index_chunks(select_index_chunks(load_guideline_chunks()))
+    args = dict(query_text="x", setting="early", subtype="HR+/HER2-", top_k=200, rerank=False, chunk_kind=None)
+    pre, post, both = ("esmo-ebc-2024-02-hrpos-6308eb", "esmo-ebc-2024-02-hrpos-0656d9",
+                       "esmo-ebc-2024-02-fig2-74bcdc")  # 폐경 전 / 폐경 후 / "폐경 전 OFS와 폐경 후" 둘 다
+
+    def scores(**kw):
+        return {r["chunk_id"]: r["score"] for r in searcher.search_guidelines(**args, **kw)}
+
+    plain, after, before = scores(), scores(menopausal_status="postmenopausal"), scores(menopausal_status="premenopausal")
+    assert after[pre] == plain[pre] - 1.0 and after[post] == plain[post]
+    assert before[post] == plain[post] - 1.0 and before[pre] == plain[pre]
+    assert scores(menopausal_status="perimenopausal")[post] == before[post]  # 이행기는 폐경 전으로 본다
+    assert after[both] == before[both] == plain[both]
+    # 전이성 그림 경로는 각주에 "pre- and perimenopausal women"이 있어도 감점하지 않는다
+    meta = dict(args, setting="metastatic", line="1L")
+    fig = "esmo-mbc-2026-05-fig2-a9baa4"
+    plain_m = {r["chunk_id"]: r["score"] for r in searcher.search_guidelines(**meta)}
+    after_m = {r["chunk_id"]: r["score"] for r in searcher.search_guidelines(**meta, menopausal_status="postmenopausal")}
+    assert after_m[fig] == plain_m[fig] and after_m["esmo-mbc-2026-05-luminal-1l-c0c05b"] < plain_m["esmo-mbc-2026-05-luminal-1l-c0c05b"]
+
+
+def test_menopause_rule_never_penalizes_an_eval_answer():
+    # 평가 문제집의 정답 권고가 그 문항의 폐경 상태 때문에 감점되면 안 된다
+    import sys, types
+    sys.modules.setdefault("sentence_transformers", types.SimpleNamespace(SentenceTransformer=None, CrossEncoder=None))
+    from src.rag.chunk_store import load_guideline_chunks
+    from src.rag.evaluate import load_cases
+    from src.rag.searcher import _menopause_adjust
+    text = {c["chunk_id"]: c["text"] for c in load_guideline_chunks()}
+    bad = [(c["case_id"], cid) for c in load_cases() for cid in c["expected_chunks"]
+           if _menopause_adjust(text[cid], c.get("menopausal_status"))]
+    assert bad == []
+
+
 def test_superseded_guideline_chunks_are_not_searched(memory_index):
     # 개정으로 대체된 청크는 색인에 남아 있어도 찾지 않는다 (PROJECT.md §6)
     rag_client, indexer = memory_index
