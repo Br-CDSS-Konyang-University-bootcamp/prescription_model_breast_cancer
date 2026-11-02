@@ -76,7 +76,9 @@ def test_retrieve_returns_guideline_with_parents_and_matching_reimbursement(inde
     from src.rag.retrieve import retrieve_for_recommend
     calls, real = [], searcher.search_guidelines
     monkeypatch.setattr(searcher, "search_guidelines", lambda **kw: calls.append(kw) or real(**kw))
-    guideline, reimbursement = retrieve_for_recommend(PATIENT, RECORD, as_of="2026-10-20", rerank=False)
+    from src.rag.retrieve import OldInputWarning
+    with pytest.warns(OldInputWarning, match="confirmed_state"):  # 옛 방식은 재발 시점 값이 빠져 틀릴 수 있다고 알린다
+        guideline, reimbursement = retrieve_for_recommend(PATIENT, RECORD, as_of="2026-10-20", rerank=False)
     # 주 검색 1번 + 뼈 전이 추가 검색 1번 (간은 부위별 질의 없음, de novo 아님: 진단 시 조기) + 알고리즘 그림 경로 검색 1번 (주 검색과 같은 조건).
     # 모두 부모를 붙여 달라고 부른다
     assert [kw["query_text"].split()[0] for kw in calls] == ["second-line", "bone", "second-line"]

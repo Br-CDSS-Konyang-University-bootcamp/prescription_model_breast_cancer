@@ -33,3 +33,25 @@ def test_negated_mentions_get_no_positive_tag():
     assert find_biomarker_tags("PIK3CA wt → Fulvestrant-palbociclib") == []
     assert find_biomarker_tags("gBRCA1/2-wt or untested") == []
     assert find_biomarker_tags("PD-L1- → gBRCA mutated [ESCAT I-A]") == ["gBRCA"]
+
+
+def test_class_names_are_expanded_to_drugs():
+    # ESMO는 계열 이름으로 쓴다 (A 통합 점검 2026-10-29 §1.2): "AI—CDK4/6 inhibitor"에 letrozole이 없으면
+    # B 후처리가 letrozole + palbociclib 후보를 지운다. 좁은 계열만 풀고 ET·ChT 같은 넓은 계열은 풀지 않는다
+    from src.rag.chunk_common import find_drugs
+    drugs = find_drugs("AI—CDK4/6 inhibitor is recommended for patients with ER-positive, HER2-negative MBC")
+    assert {"letrozole", "anastrozole", "exemestane", "palbociclib", "ribociclib", "abemaciclib"} <= set(drugs)
+    assert find_drugs("an AI or tamoxifen followed by an AI")[0] == "tamoxifen"  # 적힌 약이 앞, 푼 약이 뒤
+    assert {"goserelin", "leuprolide"} <= set(find_drugs("OFS-tamoxifen or OFS-AI"))
+    assert "tesetaxel" not in find_drugs("taxane monotherapy") and "paclitaxel" in find_drugs("taxane monotherapy")
+    assert find_drugs("ET alone") == [] and find_drugs("Chemotherapy (ChT)") == []  # 넓은 계열은 풀지 않음
+    assert find_drugs("MAIN analysis") == []  # 대문자 줄임말은 단어로만
+
+
+def test_stored_chunk_drugs_are_up_to_date():
+    # 청크 JSON의 drugs가 지금 규칙으로 다시 계산한 값과 같아야 한다 (사전·계열 규칙을 바꾸면 python -m src.rag.refresh_drugs)
+    import json
+    from src.rag.refresh_drugs import ALGORITHM_JSON, ESMO_JSON, chunk_drugs
+    for path in (ESMO_JSON, ALGORITHM_JSON):
+        stale = [c["chunk_id"] for c in json.loads(path.read_text(encoding="utf-8")) if chunk_drugs(c) != c["drugs"]]
+        assert stale == [], f"{path.name}: python -m src.rag.refresh_drugs 필요 {stale[:3]}"
