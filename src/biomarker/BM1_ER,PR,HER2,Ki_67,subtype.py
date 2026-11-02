@@ -875,7 +875,13 @@ def line_of(fields, disease):
     timed = [t for t in history if t.get("setting") in ("neoadjuvant", "adjuvant")
              and any(classes.get(d, "Unknown") not in NON_ANTICANCER_CLASSES for d in t["drugs"])]
     if not timed:
-        return "unknown", "선행·보조요법 기록 없음"
+        # 수술을 이미 했으면(병리 병기 ptnm 있음) 이번에 정할 치료는 보조뿐이다. 선행요법 뒤 수술 병기는 ptnm이 아니라
+        # yptnm에 들어가므로(patient_state 스키마) ptnm은 수술을 먼저 한 환자다. 수술 전이면 선행·수술 먼저는 의사가 정한다
+        # (B 제안·사용자 확인 2026-11-02, A 확정값 초안의 setting.phase 빈칸 16명 중 수술한 환자)
+        ptnm = (fields.get("stage") or {}).get("ptnm") or {}
+        if ptnm.get("status") == "present":
+            return "adjuvant", "선행·보조요법 기록 없음, 수술 먼저 함(병리 병기 있음) -> 이번에 정할 치료는 보조"
+        return "unknown", "선행·보조요법 기록 없음, 수술 전 -> 선행·수술 먼저는 의사가 정함"
     timed.sort(key=lambda t: (t.get("start_day") is None, t.get("start_day") or 0))
     last = timed[-1]
     return last["setting"], f"마지막 투약 {' + '.join(last['drugs'])} ({last['setting']})"

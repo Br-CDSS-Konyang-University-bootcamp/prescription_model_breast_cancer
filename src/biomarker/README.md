@@ -90,7 +90,8 @@ PD-L1 판정 (2026-10-16, 전달 문서 6.5절). 입력 `receptors.pdl1` (`assay
 | metastatic | `1L` | 전이 후 고식적 투약 없음: 이번에 결정할 차수는 1차 (2026-10-22, `handoff_confirmed_state_to_B.md` §6 1번 A 제안·B 찬성. 전에는 `unknown`) |
 | metastatic | `unknown` | 전이 후 투약은 있지만 `line` 값이 없음 |
 | early, locally_advanced | `neoadjuvant` / `adjuvant` | 마지막 선행·보조 투약에 A가 적은 `treatment_history[].setting`을 그대로 쓴다. 보조약·골 보호제는 빼고 본다 (6.2절 규칙 3) |
-| early, locally_advanced | `unknown` | 선행·보조 투약 없음 |
+| early, locally_advanced | `adjuvant` | 선행·보조 투약 없음 + 병리 병기(`stage.ptnm`) 있음: 수술을 먼저 했으니 이번에 정할 치료는 보조 (2026-11-02, 선행요법 뒤 수술 병기는 `yptnm`에 들어가 `ptnm`은 수술 먼저 한 환자). A 확정값 초안의 `setting.phase` 빈칸이 가상 차트 16명 → 3명 |
+| early, locally_advanced | `unknown` | 선행·보조 투약 없음 + 수술 전: 선행요법을 할지 수술을 먼저 할지는 의사가 정한다 |
 
 전이성이면 `setting.line_endocrine`·`setting.line_chemo`도 낸다 (A 전달 문서 `handoff_confirmed_state_to_B.md` §6 2번, 2026-10-21 A 동의). **이번에 결정할** 고식적 내분비·항암 차수를 따로 센 값으로, 화면 1(`confirmed_state`)의 기본값이다 (공고 p.55 따로 셈). 조기·국소 진행성은 이 두 칸을 만들지 않는다.
 
@@ -104,7 +105,7 @@ PD-L1 판정 (2026-10-16, 전달 문서 6.5절). 입력 `receptors.pdl1` (`assay
 
 - 간주 규칙(`deemed_lines`)은 두 칸에 넣지 않는다. 충족한 간주 규칙은 `setting.reason`에 적고, 급여 판정은 [4] 추천 모듈이 급여 행마다 "결정할 차수 + 그 행의 간주 규칙"으로 한다 (6.3a절).
 - TCGA 838명 전이성 23명: 내분비 1L 9, 2L 7, >=3L 3, not_applicable 4 / 항암 1L 19, 2L 1, >=3L 3 (2026-10-21).
-- TCGA 838명 (2026-10-20 정답 세트 838명, 2026-10-21 다시 셈): 전이성 23명 중 1L 11, 2L 6, >=3L 6. 조기·국소 진행성은 adjuvant 607, neoadjuvant 2, unknown 206.
+- TCGA 838명 (2026-10-20 정답 세트 838명, 2026-10-21 다시 셈): 전이성 23명 중 1L 11, 2L 6, >=3L 6. 조기·국소 진행성은 adjuvant 607, neoadjuvant 2, unknown 206. 2026-11-02부터 수술 먼저 한 환자(병리 병기 있음)는 adjuvant라 adjuvant 813, neoadjuvant 2.
 - 판정 기준일(`index_day`) 뒤에 시작한 투약(`start_day` > `index_day`)은 차수·이전 약 계열·ESR1 재검 판단에서 뺀다 (2026-10-29, A의 `at_index` 계산과 같은 기준, `_before_index`). `start_day`가 없는 투약은 남기고, `index_day`가 없는 TCGA는 그대로다. 가상 차트 중 기준일 뒤 투약이 있는 사례는 아직 없다.
 
 테스트 실행 (`team_project` 폴더에서): `python -m pytest tests/biomarker` 또는 케이스별 출력은 `python -m tests.biomarker.test_bm`
