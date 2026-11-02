@@ -41,7 +41,7 @@ def bm(**statuses):
 
 
 def opt(**kw):
-    o = {"therapy": "fulvestrant + capivasertib", "drugs": ["fulvestrant", "capivasertib"],
+    o = {"therapy": "fulvestrant + capivasertib", "drugs": ["fulvestrant", "capivasertib"], "evidence": "LoE I, GoR A",
          "rationale": "PIK3CA 변이 환자에게 권고된다 [g-capi].", "citations": ["g-capi"],
          "reimbursement": "covered_conditions_unverified", "reimbursement_reason": "fulvestrant 급여",
          "reimbursement_citations": ["r-fulv"]}

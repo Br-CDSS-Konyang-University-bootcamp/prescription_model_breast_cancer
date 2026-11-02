@@ -2,7 +2,8 @@
 
 검색과 LLM은 넘겨받기만 한다 (CLAUDE.md: 모듈끼리는 schemas/ 형식으로만 주고받는다).
 - guideline_chunks, reimbursement_chunks: schemas/chunk.json 형식 목록 (C의 검색 결과, D의 급여 청크)
-- llm: 함수 (프롬프트 글) -> 답 사전 또는 답 글(JSON). 로컬 모델만 쓴다. llm_link.make_llm()이 llm/ 공용 인터페이스로 만든다
+- llm: 함수 (프롬프트 글) -> 답 사전 또는 답 글(JSON). 로컬 모델만 쓴다. llm_link.make_llm()이 llm/ 공용 인터페이스로 만든다.
+  함수에 prompt_budget(토큰) 속성이 있으면 질문지를 그 안에 맞춘다 (make_llm은 num_ctx - max_tokens로 붙인다)
 - index_status: 화면 하단 요약 (D 제공, schemas/recommendation.json)
 """
 import json
@@ -11,7 +12,7 @@ from datetime import date, datetime
 from llm import LLMOutputError
 from src.recommend.clinical_notes import clinical_notes
 from src.recommend.postprocess import postprocess
-from src.recommend.prompt import build_prompt
+from src.recommend.prompt import fit_prompt
 from src.recommend.validate import validate
 
 SCHEMA_VERSION = "0.1-draft"
@@ -39,14 +40,16 @@ def _merge_tests(llm_tests, bm_tests):
 def recommend(patient_state, biomarker_record, guideline_chunks, reimbursement_chunks, llm, index_status,
               model_name, today=None, conditions_checker=None, confirmed_state=None):
     """환자 한 명 -> (recommendation, 후처리 로그, 형식 오류 목록). 형식 오류가 비어 있어야 쓸 수 있다.
+    질문지 길이 때문에 뺀 청크는 후처리에서도 받지 않은 청크로 본다 (모델이 보지 못한 청크를 인용할 수 없으므로).
     confirmed_state(화면 1 의사 확정값)를 주면 참고란에 장기 위기·금기 계열을 의사 확정값으로 넣는다."""
     today = today or date.today()
     base = {"schema_version": SCHEMA_VERSION, "patient_ref": biomarker_record.get("patient_ref"),
             "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"), "model": model_name,
             "index_status": index_status}
-    log = []
+    prompt, guideline_chunks, reimbursement_chunks, log = fit_prompt(
+        patient_state, biomarker_record, guideline_chunks, reimbursement_chunks, getattr(llm, "prompt_budget", None))
     try:
-        answer = llm(build_prompt(patient_state, biomarker_record, guideline_chunks, reimbursement_chunks))
+        answer = llm(prompt)
         raw = answer if isinstance(answer, dict) else _parse(answer)   # llm_link는 사전, 글로 답하는 함수는 글
     except (ValueError, LLMOutputError) as e:
         raw = {"options": [], "out_of_scope": True, "out_of_scope_reason": f"LLM 답을 읽을 수 없음 ({e})"}

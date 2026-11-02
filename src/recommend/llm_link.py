@@ -50,4 +50,5 @@ def make_llm(task="recommend", config=None, complete=complete_json):
     def ask(prompt):
         check_local(config)
         return complete([{"role": "user", "content": prompt}], schema, config)
+    ask.prompt_budget = config.num_ctx - config.max_tokens   # 질문지 + 답이 num_ctx 안에 들도록 (A 전달 2026-11-02)
     return ask

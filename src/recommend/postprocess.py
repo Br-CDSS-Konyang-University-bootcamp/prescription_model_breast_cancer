@@ -10,6 +10,8 @@ LLM이 낸 추천을 받은 청크와 B의 판정에 비추어 고친다. 규칙
    허가초과 인정은 허가초과 청크(HIRA-offlabel)를 인용할 때만. 급여 조건은 conditions_checker(conditions_eval.py)로 판정한다:
    충족이면 "급여", 불충족이면 "급여 기준 없음", 알 수 없으면(판정기 없음 포함) "급여(조건 확인 필요)".
 6. 지침 청크가 하나도 없으면 추천을 만들지 않고 범위 외로 알린다.
+7. drugs가 비면 인용한 지침 청크의 drugs 중 요법 이름(therapy)에 적힌 약으로, evidence가 비면 인용한 지침 청크의
+   LoE·GoR로 채운다 (A 전달 handoff_recommend_prompt_to_B_2026-11-02.md §6 4번, LLM이 두 칸을 비워 냄).
 지운 것과 바꾼 것은 모두 로그로 돌려준다.
 """
 import csv
@@ -71,6 +73,27 @@ def _drug_in_chunks(drug, chunks):
         return True
     terms = [CLASS_TERMS[k] for k in _drug_classes().get(d, set()) if k in CLASS_TERMS]
     return any(rx.search(c.get("text") or "") for rx in terms for c in chunks)
+
+
+def _fill_drugs_evidence(option, chunks):
+    """7번. 빈 drugs·evidence를 인용한 지침 청크에서 채운다. 채운 칸 이름 목록."""
+    filled = []
+    if not option.get("drugs"):
+        therapy = (option.get("therapy") or "").lower()
+        drugs = []
+        for c in chunks:
+            for d in c.get("drugs") or []:
+                if d.lower() not in [x.lower() for x in drugs] and re.search(rf"\b{re.escape(d.lower())}\b", therapy):
+                    drugs.append(d)
+        if drugs:
+            option["drugs"] = drugs
+            filled.append("drugs")
+    if not (option.get("evidence") or "").strip():
+        ev = next((c.get("evidence") for c in chunks if (c.get("evidence") or {}).get("loe")), None)
+        if ev:
+            option["evidence"] = f"LoE {ev['loe']}" + (f", GoR {ev['gor']}" if ev.get("gor") else "")
+            filled.append("evidence")
+    return filled
 
 
 def _valid_reimb(chunk, today):
@@ -169,6 +192,9 @@ def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursemen
             log.append(f"후보 삭제: {name} (지침 인용이 있는 근거 문장 없음)")
             continue
         o["citations"] = cites
+        filled = _fill_drugs_evidence(o, [guide_by_id[i] for i in cites])
+        if filled:
+            log.append(f"{name}: 빈 칸을 인용한 지침 청크에서 채움 ({', '.join(filled)})")
         missing = [d for d in o.get("drugs") or [] if not _drug_in_chunks(d, [guide_by_id[i] for i in cites])]
         if missing:
             log.append(f"후보 삭제: {name} (인용한 지침 청크에 약 이름 없음: {missing})")
