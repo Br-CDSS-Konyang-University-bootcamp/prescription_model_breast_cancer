@@ -59,7 +59,8 @@ _NUM = "number"
 _DRUGS = "drugs"           # 값이 약 이름·계열 이름 목록 (사전 검사)
 
 # field -> (환자 JSON 경로, 허용 op, 값 종류 또는 허용값 목록, 설명). 설명은 프롬프트에도 들어간다.
-# patient_state 경로는 0.1-draft6 기준 (A의 patient_state_structure.md, 2026-10-20). 공통 추출 칸(◆)은 값이 .value에 있어
+# patient_state 경로는 0.1-draft6 기준 (A의 patient_state_structure.md, 2026-10-20)에 draft7 후보 칸
+# (A의 draft7_checklist_BCD_2026-10-28 §3: 크기, 치료 시기별 병기, 심장, 영상 골전이, 용량)을 더했다. 공통 추출 칸(◆)은 값이 .value에 있어
 # 경로에 .value까지 적는다. treatment_history[], deemed_lines[], at_index, anthracycline_drug_dose,
 # molecular.mutations.*는 틀 없이 키를 그대로 쓴다.
 # 날짜는 모두 진단일 = 0인 정수 일수(*_day)다.
@@ -103,13 +104,28 @@ FIELDS: dict[str, tuple[str, list[str], object, str]] = {
     "recurrence_operable": ("patient_state.fields.recurrence.surgery.value = yes 이고 surgery_intent.value = curative -> yes "
                             "(절제함). 그 밖(no, unknown, palliative)은 알 수 없음 (사유: 재발 병소 절제 가능 여부 확인 필요)",
                             ["eq"], ["yes", "no"], "'절제 불가능한 국소 재발성' -> eq no"),
-    "t_stage": ("patient_state.fields.stage.ctnm.value.t / ptnm.value.t", ["eq", "in", "gt", "gte"], T_STAGES,
-                "'염증성' -> eq T4d, '직경 > 2㎝' -> gte T2, '1cm 이상'·'1cm 초과' -> gte T1c, '≥ 5 cm' -> gte T3"),
+    # 병기·크기는 치료 시기에 맞는 칸을 고른다 (A draft7 체크리스트 §4, 2026-10-28): 선행요법 행은 임상(c),
+    # 수술후보조요법 행은 병리(p). 그 칸이 비면 다른 병기로 대신하지 않고 알 수 없음.
+    # 선행요법 뒤 수술 병기는 ptnm이 아니라 yptnm에 있으므로, 선행요법을 받은 환자의 p 칸은 알 수 없음이 된다
+    "ct_stage": ("patient_state.fields.stage.ctnm.value.t (임상 T)", ["eq", "in", "gt", "gte"], T_STAGES,
+                 "선행요법 행의 T 조건. '염증성' -> eq T4d"),
+    "pt_stage": ("patient_state.fields.stage.ptnm.value.t (수술을 먼저 한 환자의 병리 T)", ["eq", "in", "gt", "gte"], T_STAGES,
+                 "수술후보조요법 행의 T 조건. 크기(cm)로 적힌 조건은 T 범주로 바꾸지 않고 pathologic_size_mm를 쓴다"),
+    # 크기는 cm 경계를 T 범주로 바꾸지 않는다 (정확히 5.0 cm는 T2인데 '≥ 5 cm'를 만족함). 값은 mm
+    "clinical_size_mm": ("patient_state.fields.stage.clinical_size_mm.value (치료 전 임상 종양 크기, mm)",
+                         ["gt", "gte", "lt", "lte"], _NUM, "선행요법 행의 크기 조건. '직경 > 2㎝' -> gt 20"),
+    "pathologic_size_mm": ("patient_state.fields.stage.pathologic_size_mm.value (수술 검체 침윤암 최대 직경, mm. "
+                           "선행요법 뒤 잔존 크기는 여기에 없음)", ["gt", "gte", "lt", "lte"], _NUM,
+                           "수술후보조요법 행의 크기 조건. '1cm 이상' -> gte 10, '1cm를 초과' -> gt 10, "
+                           "'종양 크기 > 2 cm' -> gt 20, '≥ 5 cm' -> gte 50"),
     "stage_group": ("patient_state.fields.stage.group.value", ["eq", "in", "gte", "lte"], STAGES,
                     "'stage Ⅱ∼Ⅲ' -> 항목 둘 (gte II, lte III), 'stage ⅢA 이상' -> gte IIIA. "
                     "로마숫자 Ⅰ~Ⅳ는 I~IV로 옮기고 하위 병기(A·B·C)는 붙이지 않는다 (III는 IIIA~IIIC 포함)"),
-    "ln_status": ("patient_state.fields.stage.ptnm.value.n (양성: N1*·N2*·N3*, N1mi 포함 / 음성: N0, N0(i-), N0(i+), N0(mol+))",
-                  ["eq"], _POSNEG, "'림프절 양성' -> eq positive, '림프절 음성' -> eq negative"),
+    # 림프절 양성: N1*·N2*·N3* (N1mi 포함) / 음성: N0, N0(i-), N0(i+), N0(mol+). 앞의 c·p 글자는 떼고 본다
+    "cn_status": ("patient_state.fields.stage.ctnm.value.n (임상 N)", ["eq"], _POSNEG,
+                  "선행요법 행의 '림프절 양성' -> eq positive"),
+    "pn_status": ("patient_state.fields.stage.ptnm.value.n (수술을 먼저 한 환자의 병리 N)", ["eq"], _POSNEG,
+                  "수술후보조요법 행의 '림프절 양성' -> eq positive, '림프절 음성' -> eq negative"),
     "positive_ln_count": ("patient_state.fields.stage.positive_ln_count.value.positive", ["eq", "gt", "gte", "lt", "lte"], _NUM,
                           "전이된 림프절 갯수가 적힌 경우만. '4개 이상' -> gte 4, '1-3개' -> 항목 둘 (gte 1, lte 3)"),
     "grade": ("patient_state.fields.diagnosis.grade.value", ["eq", "in", "gte"], _NUM,
@@ -123,7 +139,10 @@ FIELDS: dict[str, tuple[str, list[str], object, str]] = {
     "pten": ("biomarker_record.records[PTEN].status", ["eq"], _POSNEG, "PTEN 변이"),
     "gbrca": ("biomarker_record.records[gBRCA1|gBRCA2].status", ["eq"], _POSNEG, "'gBRCA 변이' -> eq positive"),
     "sbrca": ("biomarker_record.records[sBRCA1|sBRCA2].status", ["eq"], _POSNEG, "체세포 BRCA 변이"),
-    "bone_metastasis": ("patient_state.fields.stage.metastatic_sites.value / recurrence.metastatic_sites.value에 bone", ["eq"], [True, False],
+    # 공고는 '영상으로 입증'이라 전이 부위 목록이 아니라 영상 소견을 본다 (A draft7 체크리스트 §3.1)
+    "bone_metastasis": ("patient_state.fields.imaging_findings[]에 sites bone + certainty confirmed가 있으면 true. "
+                        "뼈가 의심(suspected)으로만 있거나 stage·recurrence.metastatic_sites에만 있으면 알 수 없음, "
+                        "영상 소견과 전이 부위 어디에도 뼈가 없으면 false", ["eq"], [True, False],
                         "'골전이(영상의학적으로 입증)' -> eq true"),
     "prior_drugs": ("patient_state.fields.treatment_history[].drugs", ["contains", "not_contains"], _DRUGS,
                     "이전에 받은(contains) / 받은 적이 없는(not_contains) 약·계열. 값 목록은 contains면 모두 받았어야 하고 "
@@ -149,7 +168,7 @@ FIELDS: dict[str, tuple[str, list[str], object, str]] = {
                                "(A의 deemed_lines DEEM-ENDO-ADJ-1Y와 같은 기준: 종료일부터 전이 기준일까지)", ["gt", "lte"], _NUM,
                                "고식적 단계에서 '수술후보조요법 투여 중 또는 종료 후 1년 이내에 진행' -> lte 365 (진행 = 전이, B 확인). "
                                "고식적 내분비 1차(3가)의 '종료 후 1년 이후 재발'·'1년 이내 재발'도 이 칸 (A 답변 2026-10-21: "
-                               "DEEM-ENDO-ADJ-1Y로 판정). 병용 연번 29의 'CDK4/6 종료 후 12개월 초과'는 of CDK4/6로 gt 365. "
+                               "DEEM-ENDO-ADJ-1Y로 판정). 병용 연번 30(2026-11-01판)의 'CDK4/6 종료 후 12개월 초과'는 of CDK4/6로 gt 365. "
                                "그 밖의 '재발'로 적힌 기간은 days_end_to_recurrence. 국소 재발만 있어 전이 기준일이 없으면 알 수 없음"),
     "days_end_to_progression": ("patient_state.fields.treatment_history[].progression_day - end_day", ["lte", "gt"], _NUM,
                                 "'고식적요법 투여 중 또는 종료 후 1달 이내에 진행' -> lte 30"),
@@ -160,16 +179,28 @@ FIELDS: dict[str, tuple[str, list[str], object, str]] = {
     "cycles_total": ("patient_state.fields.treatment_history[].cycles.value 합 (basis가 estimated인 값이 들어가면 추정값으로 표시)",
                      ["lte", "eq"], _NUM,
                      "'총 trastuzumab 투여 주기 18주기 이하' -> lte 18, of.drugs [trastuzumab]"),
-    "cumulative_dose_mg_m2": ("patient_state.fields.anthracycline_drug_dose.drugs[].total_dose.value (unit이 mg/m2인 값만. "
-                              "다른 단위나 'No value'면 알 수 없음. anthracycline만 담기므로 cisplatin 누적은 늘 알 수 없음)",
+    # 용량은 A가 2026-10-28부터 treatment_history[].doses[]에 채운다 (draft7 체크리스트 §0). 단위는 원문 그대로라
+    # mg이면 판정 쪽이 키·몸무게로 mg/m2로 바꾼다. 체표면적은 Mosteller 공식 (B 제안, D 동의 2026-10-29)
+    "cumulative_dose_mg_m2": ("patient_state.fields.treatment_history[].doses[] 중 of.drugs 약의 total을 모두 더한 값 (mg/m2). "
+                              "단위가 mg면 patient.height_cm·weight_kg의 체표면적(Mosteller: √(키cm × 몸무게kg ÷ 3600))으로 "
+                              "나눈다. 키·몸무게가 없거나 'No value'면 "
+                              "알 수 없음. doses가 없는 기록은 anthracycline_drug_dose.drugs[].total_dose.value (mg/m2만)",
                               ["gt", "gte"], _NUM,
-                              "'doxorubicin 누적 240mg/m2 이상' -> gte 240, of.drugs [doxorubicin]"),
-    # 심장 병력·종격동 방사선은 TCGA에 없어 이번 모델(v0.1)에서 뺀다 (A 결정 2026-10-20, PROJECT.md §12 한계).
-    # liposomal doxorubicin은 누적용량 기준을 만족하면 이 조건 없이 판정하고, 못 미치면 '심장 위험요소 확인 필요'
-    "cardiac_history": ("(없음: 이번 모델 제외, PROJECT.md §12) 늘 알 수 없음", ["eq"], [True, False],
-                        "'심장위험요소'·'울혈 심부전증 병력 등 병발 심장질환' -> eq true"),
-    "mediastinal_radiation": ("(없음: 이번 모델 제외, PROJECT.md §12) 늘 알 수 없음", ["eq"], [True, False],
-                              "'종격동 방사선 치료' 경험 -> eq true"),
+                              "'doxorubicin 누적 240mg/m2 이상' -> gte 240, of.drugs [doxorubicin]. "
+                              "'cisplatin 총 투여용량 300mg/㎡ 이상' -> gte 300, of.drugs [cisplatin]"),
+    "per_admin_dose_mg_m2": ("patient_state.fields.treatment_history[].doses[] 중 of.drugs 약의 per_admin (1회 용량, mg/m2) 중 "
+                             "가장 큰 값. 단위 바꾸기와 알 수 없음은 cumulative_dose_mg_m2와 같다. 공고의 '1 cycle당'은 "
+                             "한 주기에 한 번 주는 요법이면 1회 용량과 같고, 나눠 주는 요법은 주기 용량을 알 수 없으므로 "
+                             "1회 용량이 기준 이상이면 참, 기준보다 작으면 알 수 없음 (거짓으로 두지 않음)", ["gt", "gte"], _NUM,
+                             "'시스플라틴 고용량 투여(1 cycle당 100㎎/㎡ 이상)' -> gte 100, of.drugs [cisplatin]"),
+    # 2026-10-22에 칸이 생겨 이번 모델 제외 조항을 없앴다 (PROJECT.md §12). 값은 yes -> true, no -> false,
+    # 기록 없음은 알 수 없음. liposomal doxorubicin은 누적용량 기준을 만족하면 이 조건 없이 판정한다
+    "cardiac_history": ("patient_state.fields.patient.cardiac_history.value (yes -> true, no -> false)", ["eq"], [True, False],
+                        "4나-19 '심장위험요소'는 공고 원문의 '관상동맥질환, 부정맥, 울혈성 심부전 등의 심장질환 병력'이다 "
+                        "(LVEF 기준은 원문에 없음. 종격동 방사선요법 치료력은 mediastinal_radiation). "
+                        "Ⅳ dexrazoxane의 '울혈 심부전증 병력 등 병발 심장질환' -> eq true"),
+    "mediastinal_radiation": ("patient_state.fields.patient.mediastinal_radiation.value (yes -> true, no -> false)",
+                              ["eq"], [True, False], "'종격동 방사선 치료' 경험 -> eq true"),
 }
 
 _VALUE = {"anyOf": [{"type": "string"}, {"type": "number"}, {"type": "boolean"},
@@ -547,8 +578,46 @@ class ClaudeCodeStructurer:
         return f"claude-code:{self.model}"
 
 
-# 기본 구조화 순서: Claude API(.env 키, 크레딧) -> 안 되면 Claude Code(구독)
-STRUCTURERS = (ClaudeStructurer, ClaudeCodeStructurer)
+OLLAMA_HOST = "http://127.0.0.1:11500"    # GPU 서버의 Ollama를 SSH 터널로 이 포트에 연다 (README "로컬 LLM")
+
+
+class OllamaStructurer:
+    """로컬 모델(Ollama)로 조건 JSON을 받는다 (PROJECT.md §9, 2026-10-23 Claude API에서 로컬 모델로 바꿈, 모델 미정).
+    공용 llm/의 complete_json을 쓴다. 모델 선정 전이라 llm/config.toml에 칸을 두지 않고 환경 변수로 받는다:
+    REIMB_OLLAMA_MODEL (없으면 이 방식을 건너뜀), REIMB_OLLAMA_HOST (기본 OLLAMA_HOST).
+    프롬프트·출력 형식·검사는 Claude 방식과 같다."""
+
+    def __init__(self, model: str | None = None, host: str | None = None, timeout: int = 900):
+        import requests
+        model = model or os.environ.get("REIMB_OLLAMA_MODEL")
+        if not model:
+            raise StructurerUnavailable("로컬 모델 미지정 (REIMB_OLLAMA_MODEL)")
+        host = (host or os.environ.get("REIMB_OLLAMA_HOST") or OLLAMA_HOST).rstrip("/")
+        try:
+            tags = requests.get(f"{host}/api/tags", timeout=60).json()     # 터널 첫 연결이 10초를 넘긴 적이 있음
+        except (requests.RequestException, ValueError) as e:
+            raise StructurerUnavailable(f"Ollama 서버에 연결 안 됨: {host} (SSH 터널 확인)") from e
+        if model not in {m.get("name") for m in tags.get("models", [])}:
+            raise StructurerUnavailable(f"Ollama에 모델 없음: {model} (서버에서 ollama pull)")
+        from llm import LLMConfig
+        # 시스템 프롬프트(어휘 목록)가 길어 문맥을 넉넉히 둔다. 생각 모드는 끈다 (llm/ 기본값과 같음)
+        self.config = LLMConfig(provider="ollama", model=model, patient_data=False, host=host,
+                                num_ctx=16384, max_tokens=8192, timeout=timeout, retries=1)
+
+    def __call__(self, text: str, context: str) -> tuple[dict, dict]:
+        from llm import complete_json
+        cond = complete_json([{"role": "system", "content": SYSTEM},
+                              {"role": "user", "content": _user_message(text, context)}],
+                             output_schema(), self.config)
+        return cond, {"via": "ollama", "model": self.config.model}
+
+    @property
+    def label(self) -> str:
+        return f"ollama:{self.config.model}"
+
+
+# 기본 구조화 순서: 로컬 모델(REIMB_OLLAMA_MODEL이 있을 때) -> Claude API(.env 키, 크레딧) -> Claude Code(구독)
+STRUCTURERS = (OllamaStructurer, ClaudeStructurer, ClaudeCodeStructurer)
 
 
 def _next_structurer(factories: list, reasons: list[str]):

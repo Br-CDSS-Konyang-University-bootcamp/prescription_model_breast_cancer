@@ -43,6 +43,9 @@ op는 설계의 8개에 `contains`(이전 치료에 있어야 함)를 더했다.
 읽는 법 (2026-10-19, 131개 행을 채우며 정한 것):
 
 - `all_of`는 모두 만족해야 한다. `any_of`는 묶음 목록이고, 묶음마다 항목 하나 이상을 만족해야 한다.
+- `human_review`·`unmapped`에 글이 있으면 다른 항목을 모두 만족해도 충족이 아니라 알 수 없음(`covered_conditions_unverified`)이다
+  (설계 §9.4, `conditions.py` 머리 설명). 판정하지 못한 조건이 남아 있기 때문이다. `notes`는 처방 조건이라 판정에 넣지 않는다.
+  예: zoledronic acid 가(고칼슘혈증)는 항목 없이 `unmapped`만 있어, 이 규칙이 없으면 아무 환자나 충족이 된다 (2026-10-29 보류 세트 VC-0133에서 발견).
 - `any_of_exceptions`의 각 예외는 `all_of` 항목을 모두 만족하면, `any_of` 묶음이 실패해도 통과로 본다.
   예: '전이성 또는 절제 불가능한 국소 재발성'은 `any_of`에 전이성, 예외에 국소 재발 + 절제 불가.
 - `prior_drugs contains [A, B]`는 A와 B를 모두 받은 것이다. `not_contains [A, B]`는 둘 다 받은 적이 없는 것이다.
@@ -52,7 +55,8 @@ op는 설계의 8개에 `contains`(이전 치료에 있어야 함)를 더했다.
   항목마다 한 번씩 더한 값이다. 예: 'trastuzumab ± pertuzumab 투여 주기 18주기 이하' -> `of.drugs [trastuzumab, pertuzumab]`,
   'trastuzumab + pertuzumab 6주기' 항목은 6으로 센다 (12가 아님).
 - 공고 표현을 칸·값으로 옮기는 기준은 팀 사전 `data/dictionaries/reimbursement_terms.csv`다 (2026-10-20 대조, 테스트로 확인).
-  고식적요법은 `of.setting [metastatic]`, 림프절 양성·음성은 `ln_status`(N 병기), HER2 음성은 `[negative, low, ultralow]`
+  고식적요법은 `of.setting [metastatic]`, 림프절 양성·음성은 N 병기(선행요법 행은 `cn_status` = 임상 N, 수술후보조요법 행은 `pn_status` = 병리 N.
+  사전은 `stage.ptnm.n`만 적음, 2026-10-29 A draft7 체크리스트 §4로 나눔), HER2 음성은 `[negative, low, ultralow]`
   (값은 B의 `biomarker_record` 값 기준. 사전에는 `zero`가 있지만 B는 IHC 0을 `negative`로 내보내고 `zero`를 쓰지 않으므로 뺐다, 2026-10-20),
   국소진행성·전이성은 사전 값(early / locally_advanced / metastatic)을 쓰되 칸은 `biomarker_record.setting.disease`다.
   사전은 `stage.disease_extent`(진단 시)로 적었지만, 스키마 설명("재발 후 상태는 `biomarker_record.setting.disease`")과
@@ -60,6 +64,15 @@ op는 설계의 8개에 `contains`(이전 치료에 있어야 함)를 더했다.
   진단 후 원격 재발한 환자가 빠진다. 국소 재발은 `setting.disease`에 들어가지 않으므로 '재발성'은 `recurrence`로 따로 적는다.
   (사전의 칸을 `setting.disease`로 맞출지 팀에 확인 필요)
 - `stage_group`의 `III`는 IIIA~IIIC를 포함한다 (사전: stage Ⅲ = `III`). 판정할 때 하위 병기는 주 병기로 비교한다.
+- 병기·크기는 치료 시기에 맞는 칸을 고른다 (A draft7 체크리스트 §4, 2026-10-29 반영). 그 칸이 비면 다른 병기로 대신하지 않고 알 수 없음.
+
+  | 행 | T | N | 크기 (mm, T 범주로 바꾸지 않음) |
+  |---|---|---|---|
+  | 선행요법 (`bc-neo-*`) | `ct_stage` (`stage.ctnm.t`) | `cn_status` (`stage.ctnm.n`) | `clinical_size_mm` ('직경 > 2㎝' → gt 20) |
+  | 수술후보조요법 (`bc-adj-*`, 병용 ribociclib 보조) | `pt_stage` (`stage.ptnm.t`) | `pn_status` (`stage.ptnm.n`) | `pathologic_size_mm` ('1cm 이상' → gte 10, '1cm를 초과' → gt 10, '> 2 cm' → gt 20) |
+
+  선행요법 뒤 수술 병기는 `ptnm`이 아니라 `yptnm`에 있어, 선행요법을 받은 환자의 보조요법 행 병리 조건은 알 수 없음이 된다.
+  그런 환자에게 진단 시 cN과 ypN 중 무엇을 볼지는 공고 문구로 정하기 어려워 팀에 묻는다. `stage_group`은 임상·병리 구분이 없어 그대로 둔다 (A 과제).
 
 ## 검토 의견
 
@@ -109,20 +122,22 @@ op는 설계의 8개에 `contains`(이전 치료에 있어야 함)를 더했다.
 
 | 공고 규칙 | 급여 청크 | `deemed_lines[].rule_id` |
 |---|---|---|
-| anthracycline·taxane 포함 선행·보조 → 1차로 간주 | 고식적 항암 2차 이상 연번 2~18, 병용요법 연번 24 (`counts_as_prior_line`) | `DEEM-ANTHRA-TAXANE` |
+| anthracycline·taxane 포함 선행·보조 → 1차로 간주 | 고식적 항암 2차 이상 연번 2~18, 병용요법 연번 25 (`counts_as_prior_line`) | `DEEM-ANTHRA-TAXANE` |
 | 선행·보조 종료 1년 이내 재발 → 1차로 간주 | sacituzumab govitecan (`counts_as_prior_line`, `within_days` 365) | `DEEM-SG-1Y` |
 | 보조요법 중·종료 6개월 이내 재발도 인정 | T-DM1, T-DXd (`prior_failed`의 `unless`, 183일). 투여단계(2차 이상)도 이 규칙으로 1차를 받은 것으로 보므로 `counts_as_prior_line`에 `rule_id: DEEM-HER2ADC-6M`으로도 적는다 (2026-10-22, B 요청) | `DEEM-HER2ADC-6M` |
-| 보조 내분비요법 중·종료 1년 이내 진행도 인정 | 고식적 내분비 2차 이상 연번 4~9, 병용 연번 29 (`any_of`의 `days_end_to_metastasis` lte 365: A와 같이 종료일부터 **전이 기준일**까지, B 확인 2026-10-20). 투여단계(2차 이상)도 이 규칙으로 1차를 받은 것으로 보므로 `counts_as_prior_line`에 `rule_id: DEEM-ENDO-ADJ-1Y`로도 적는다 (2026-10-22, VC-0103). 적용 행은 공고 원문에 이 문구가 있는 행뿐이고 (같은 소단원의 연번 1~3에는 없음), A handoff §6.3a 표의 '쓰는 요법'(AI·exemestane + LHRH, CDK4/6 + fulvestrant)과 같다 | `DEEM-ENDO-ADJ-1Y` |
+| 보조 내분비요법 중·종료 1년 이내 진행도 인정 | 고식적 내분비 2차 이상 연번 4~9, 병용 연번 30 (`any_of`의 `days_end_to_metastasis` lte 365: A와 같이 종료일부터 **전이 기준일**까지, B 확인 2026-10-20). 투여단계(2차 이상)도 이 규칙으로 1차를 받은 것으로 보므로 `counts_as_prior_line`에 `rule_id: DEEM-ENDO-ADJ-1Y`로도 적는다 (2026-10-22, VC-0103). 적용 행은 공고 원문에 이 문구가 있는 행뿐이고 (같은 소단원의 연번 1~3에는 없음), A handoff §6.3a 표의 '쓰는 요법'(AI·exemestane + LHRH, CDK4/6 + fulvestrant)과 같다 | `DEEM-ENDO-ADJ-1Y` |
 
 `counts_as_prior_line` 항목에 `rule_id`가 있으면 판정 쪽은 그 규칙의 `deemed_lines[].status`를 그대로 본다. 없으면 지금처럼
 약(anthracycline·taxane → `DEEM-ANTHRA-TAXANE`)과 `within_days` 365(→ `DEEM-SG-1Y`)로 맞춘다.
 예: VC-0103(보조 anastrozole 중 폐 전이)은 DEEM-ENDO-ADJ-1Y가 met이라 전이 후 첫 내분비 치료가 공고상 '2차 이상' 행(CDK4/6 + fulvestrant)의 대상이다.
 | 보조로 비스테로이드성 AI를 썼으면 종료 1년 **이후** 재발 / 폐경 전 보조 내분비·항암 종료 1년 **이내** 재발 | 고식적 내분비 1차(3가) 연번 1~6 (`unless`의 `days_end_to_metastasis` gt 365, 예외의 lte 365) | `DEEM-ENDO-ADJ-1Y`와 같은 기준 (1년 이후 = not_met). A 답변 2026-10-21 |
-| (간주 규칙 아님) 보조 CDK4/6 억제제 종료 후 12개월 **초과** | 병용 연번 29 (`days_end_to_metastasis` gt 365, of CDK4/6) | DEEM 값을 쓰지 않음: 기준 약(CDK4/6)과 경계(초과)가 다르고 끝점(전이 기준일)만 같음 (A 답변 2026-10-21) |
+| (간주 규칙 아님) 보조 CDK4/6 억제제 종료 후 12개월 **초과** | 병용 연번 30 (`days_end_to_metastasis` gt 365, of CDK4/6) | DEEM 값을 쓰지 않음: 기준 약(CDK4/6)과 경계(초과)가 다르고 끝점(전이 기준일)만 같음 (A 답변 2026-10-21) |
 
 A가 전이 기준일로 세라고 한 것은 3가뿐이라, 그 밖에 '재발'로 적힌 기간 조건은 첫 재발일(`days_end_to_recurrence`) 그대로 둔다:
-고식적 내분비 2차 이상 연번 4~6, 고식적 항암 1차 연번 3·4, 1차 이상 연번 18, 2차 이상 연번 21·22, 병용 연번 21.
-같은 원칙을 적용할지는 A에게 확인 중이다 (2026-10-21). 전이 기준일로 세면 국소 재발만 있는 환자는 알 수 없음이 된다.
+고식적 내분비 2차 이상 연번 4~6, 고식적 항암 1차 연번 3·4, 1차 이상 연번 18, 2차 이상 연번 21·22, 병용 연번 22.
+(병용요법 연번은 2026-11-01판 기준이다. 비소세포폐암 연번 11이 새로 생겨 10-01판보다 유방암 행이 1씩 크다.)
+2026-10-22 결정: 이 행들은 공고 문구대로 첫 재발일까지 센다. A는 지금 데이터(TCGA는 전이일을 첫 재발일로 채운 경우가 있음)로는 판단할 수 없다고 답했고, 이미 정한 3가는 그대로 둔다.
+가상차트에 국소 재발 후 나중에 전이되는 환자가 생기면 다시 본다. 전이 기준일로 세면 국소 재발만 있는 환자는 알 수 없음이 된다.
 
 판정 쪽은 `deemed_lines[]`의 `status`가 `met`이면 그 규칙을 충족한 것으로, `unknown`이면 확인 필요로 본다.
 
@@ -157,16 +172,21 @@ A가 전이 기준일로 세라고 한 것은 3가뿐이라, 그 밖에 '재발'
   - 재발 병소 절제 가능 여부(`recurrence_operable`): 데이터에 없고 의학적 판단이라, 재발 후 실제 수술 여부로 대신한다.
     `recurrence.surgery = yes`이고 `surgery_intent = curative`면 절제했으므로 '절제 불가능한 국소 재발성'은 거짓.
     그 밖(`no`, `unknown`, `palliative`)은 알 수 없음, 사유 "재발 병소 절제 가능 여부 확인 필요". 수술하지 않은 것을 절제 불가로 읽지 않는다.
-  - 심장 병력·종격동 방사선(`cardiac_history`, `mediastinal_radiation`): 이번 모델 제외 (PROJECT.md §12). 늘 알 수 없음.
-    liposomal doxorubicin(고식적 항암 1차 이상 연번 19)은 누적용량 기준을 만족하면 이 조건 없이 충족, 투여했는데 못 미치면
-    `covered_conditions_unverified`와 사유 "심장 위험요소 확인 필요". D 조건은 '누적용량 또는 심장 위험요소' 묶음이라 이 규칙대로 나온다.
+- 심장 병력·종격동 방사선(`cardiac_history`, `mediastinal_radiation`): 2026-10-22에 `patient` 칸이 생겨 제외 조항을 없앴다
+  (A draft7 체크리스트 §3.1). `yes` → true, `no` → false, 기록 없음은 알 수 없음. 4나-19 '심장위험요소'의 공고 원문 정의는
+  "관상동맥질환, 부정맥, 울혈성 심부전 등의 심장질환 병력, 종격동 방사선요법 치료력"이고 LVEF 기준은 없다 (`lvef_percent`는 읽지 않음).
+  liposomal doxorubicin(고식적 항암 1차 이상 연번 19)은 '누적용량 또는 심장 위험요소' 묶음이라, 누적용량을 만족하면 심장 칸 없이 충족한다.
+- 골전이 '영상으로 입증'(`bone_metastasis`): `imaging_findings[]`에 bone + `certainty: confirmed`가 있으면 참, 의심으로만 있거나
+  전이 부위 목록에만 있으면 알 수 없음 (체크리스트 §3.1).
+- 누적 용량(`cumulative_dose_mg_m2`): `treatment_history[].doses[]`의 `total`을 `of.drugs` 약만 더한다. 단위가 mg면 키·몸무게로
+  mg/m²로 바꾼다 (체표면적 공식은 B가 정함). sodium thiosulfate의 cisplatin 총량도 이 칸으로 판정할 수 있다.
 - 병용요법(40장) 표의 허가사항 열도 급여 조건이다 (2026-10-21 D 결정, A에게 근거 전달).
   40장 머리 원칙(165쪽, 제2025-133호): 기존 항암요법에 타 항암제를 병용할 때 "가) 병용요법은 식품의약품안전처의 허가사항 범위 이내,
   나) 투여대상은 기존 항암요법의 급여범위 이내"를 **모두** 만족해야 기존 요법의 본인부담률을 적용한다.
-  그래서 허가사항 열(예: 연번 21·22의 PIK3CA 변이, 23·24의 PD-L1 CPS≥10, 30의 gBRCA)과 급여기준 열을 함께 판정한다.
+  그래서 허가사항 열(예: 2026-11-01판 연번 22·23의 PIK3CA 변이, 24·25의 PD-L1 CPS≥10, 31의 gBRCA)과 급여기준 열을 함께 판정한다.
   허가 여부를 D가 따로 판단하는 것이 아니라 공고 표에 적힌 내용을 공고 조건대로 적용하므로 PROJECT.md §2와 부딪히지 않는다.
   공고는 "허가사항은 공고 시점의 허가이므로 투여 전 변경 여부를 확인"하라고 적고 있어, 이 문구는 상위 청크(`…-combo`)에 있다.
-  (A 답변 2026-10-21은 연번 21의 허가사항 조건을 빼자고 했으나 위 원칙에 따라 남긴다.)
+  (A 답변 2026-10-21은 연번 21(10-01판, 11-01판 22)의 허가사항 조건을 빼자고 했으나 위 원칙에 따라 남긴다.)
 - 최근 4주 투약: A가 계산한 `at_index.recent_therapy_28d`를 그대로 쓴다 (zoledronic acid 골전이, `recent_therapy_28d eq yes`, A §6-1).
 - 나이: `age`는 진단 시 나이(`patient.age`)로 선행·수술후보조 대상 조건에, `age_at_index`는 판정 기준일 나이(`at_index.age`)로
   투여 시점 조건(G-CSF·denosumab '만 19세 이상', dexrazoxane '70세 이상')에 쓴다 (A §6-2).

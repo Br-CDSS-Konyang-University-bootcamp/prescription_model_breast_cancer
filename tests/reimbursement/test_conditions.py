@@ -251,6 +251,32 @@ def test_claude_code_text_result_and_errors(monkeypatch):
         cm.ClaudeCodeStructurer(exe="claude")("본문", "")
 
 
+def test_ollama_structurer(monkeypatch):
+    """로컬 모델: REIMB_OLLAMA_MODEL이 없거나 서버·모델이 없으면 건너뛰고, 있으면 공용 llm.complete_json으로 부른다."""
+    import types
+    import requests
+    import llm
+    monkeypatch.delenv("REIMB_OLLAMA_MODEL", raising=False)
+    with pytest.raises(cm.StructurerUnavailable):
+        cm.OllamaStructurer()
+    tags = {"models": [{"name": "qwen3:32b"}]}
+    monkeypatch.setattr(requests, "get", lambda url, timeout: types.SimpleNamespace(json=lambda: tags))
+    with pytest.raises(cm.StructurerUnavailable):
+        cm.OllamaStructurer(model="exaone3.5:32b")                        # 서버에 없는 모델
+    seen = {}
+
+    def fake(messages, schema, config):
+        seen.update(messages=messages, schema=schema, config=config)
+        return GOOD
+    monkeypatch.setattr(llm, "complete_json", fake)
+    monkeypatch.setenv("REIMB_OLLAMA_MODEL", "qwen3:32b")
+    s = cm.OllamaStructurer()
+    assert s("본문", "안내")[0] == GOOD and s.label == "ollama:qwen3:32b"
+    assert seen["messages"][0] == {"role": "system", "content": cm.SYSTEM}
+    assert "[급여 기준 본문]\n본문" in seen["messages"][1]["content"] and seen["schema"] == cm.output_schema()
+    assert seen["config"].host == cm.OLLAMA_HOST and not seen["config"].think
+
+
 def test_find_claude_code_env(monkeypatch):
     monkeypatch.setenv("CLAUDE_CODE_EXE", "/x/claude")
     assert cm.find_claude_code() == "/x/claude"
@@ -323,7 +349,8 @@ def test_fields_follow_team_terms_dictionary():
     b_status = next(s for s in _enums(schema, "status") if "ultralow" in s)     # records[].status (마커 판정값)
     assert set(cm.FIELDS["her2"][2]) <= b_status and "zero" not in b_status | set(cm.FIELDS["her2"][2])
     assert set(split(terms["HER2 음성"]["json_value"])) - {"zero"} <= set(cm.FIELDS["her2"][2])
-    assert "stage.ptnm" in cm.FIELDS["ln_status"][0]                          # 림프절 양성·음성은 N 병기
+    # 림프절 양성·음성은 N 병기. 사전은 병리 N이고, 선행요법 행은 임상 N을 따로 둔다 (A draft7 체크리스트 §4)
+    assert "stage.ptnm.value.n" in cm.FIELDS["pn_status"][0] and "stage.ctnm.value.n" in cm.FIELDS["cn_status"][0]
     assert terms["림프절 양성"]["json_field"] == "stage.ptnm.n"
     # 국소진행성·전이성: 값은 사전(stage.disease_extent)과 같고, 칸은 재발 후 상태까지 담은 setting.disease
     # (스키마 설명 "재발 후 상태는 biomarker_record.setting.disease")
@@ -345,13 +372,33 @@ def test_fields_follow_input_paths():
     assert cm.FIELDS["recent_therapy_28d"][2] == ["yes", "no"]
     assert "days_since_last_dose" not in cm.FIELDS
     assert "best_response = PD" in cm.FIELDS["prior_failed"][0]
-    # A 답변 2026-10-21: 재발 병소 절제 가능 여부는 재발 후 수술 여부로 대신, 심장·종격동은 이번 모델 제외
+    # A 답변 2026-10-21: 재발 병소 절제 가능 여부는 재발 후 수술 여부로 대신
     assert "recurrence.surgery" in cm.FIELDS["recurrence_operable"][0] and "curative" in cm.FIELDS["recurrence_operable"][0]
-    assert all("PROJECT.md §12" in cm.FIELDS[f][0] for f in ("cardiac_history", "mediastinal_radiation"))
+    # 2026-10-22 칸 추가로 심장·종격동 제외 조항을 없앴다 (draft7 체크리스트 §3.1)
+    assert cm.FIELDS["cardiac_history"][0].startswith("patient_state.fields.patient.cardiac_history.value")
+    assert cm.FIELDS["mediastinal_radiation"][0].startswith("patient_state.fields.patient.mediastinal_radiation.value")
+    assert "imaging_findings" in cm.FIELDS["bone_metastasis"][0] and "confirmed" in cm.FIELDS["bone_metastasis"][0]
+    assert "doses[]" in cm.FIELDS["cumulative_dose_mg_m2"][0] and "height_cm" in cm.FIELDS["cumulative_dose_mg_m2"][0]
+    assert "Mosteller" in cm.FIELDS["cumulative_dose_mg_m2"][0]                  # B 제안, D 동의 2026-10-29
+    assert "per_admin" in cm.FIELDS["per_admin_dose_mg_m2"][0]                  # sodium thiosulfate '1 cycle당 100㎎/㎡ 이상'
     # patient_state_structure.md: 공통 추출 칸(◆)은 값이 .value 아래
     for f in ("menopause", "sex", "age", "recurrence", "operable", "stage_group", "positive_ln_count", "grade", "pcr",
               "days_end_to_recurrence", "days_end_to_metastasis"):
         assert ".value" in cm.FIELDS[f][0], f
+
+
+def test_stage_fields_by_treatment_timing():
+    """치료 시기별 병기 (draft7 체크리스트 §4): 선행은 임상, 보조는 병리. 크기는 T 범주가 아니라 mm. 칸은 patient_state에 있다."""
+    assert "t_stage" not in cm.FIELDS and "ln_status" not in cm.FIELDS
+    schema = json.loads((cm.ROOT / "schemas" / "patient_state.json").read_text(encoding="utf-8"))
+    stage = schema["properties"]["fields"]["properties"]["stage"]["properties"]
+    patient = schema["properties"]["fields"]["properties"]["patient"]["properties"]
+    for f, where in [("ct_stage", "ctnm"), ("cn_status", "ctnm"), ("pt_stage", "ptnm"), ("pn_status", "ptnm"),
+                     ("clinical_size_mm", "clinical_size_mm"), ("pathologic_size_mm", "pathologic_size_mm")]:
+        assert f"stage.{where}.value" in cm.FIELDS[f][0] and where in stage, f
+    for f in ("cardiac_history", "mediastinal_radiation", "height_cm", "weight_kg"):
+        assert f in patient, f
+    assert cm.FIELDS["clinical_size_mm"][2] == cm._NUM and "gt 20" in cm.FIELDS["clinical_size_mm"][3]
 
 
 def test_prompt_lists_every_field():

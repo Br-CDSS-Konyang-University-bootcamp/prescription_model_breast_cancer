@@ -301,6 +301,9 @@ def norm_regimen(s: str) -> str:
     return re.sub(r"\s+", "", s)
 
 
+LEADING_LABEL = re.compile(r"^\[[^\]]*\]")    # 정규화한 요법 이름 앞의 '[neoadjuvant]' 등
+
+
 def _check_notice(b: Booklet, n: NoticeDoc, r: Report) -> None:
     if n.doc_no != b.doc_no:
         r.info.append(f"공고 제{n.doc_no}호는 이 책자(제{b.doc_no}호)의 마지막 공고가 아니라 대조 생략")
@@ -321,6 +324,11 @@ def _check_notice(b: Booklet, n: NoticeDoc, r: Report) -> None:
             continue
         reg = norm_regimen(c.regimen)
         hits = [m.start() for m in re.finditer(re.escape(reg), text)]
+        if not hits and LEADING_LABEL.match(reg):
+            # 공고는 '[Neoadjuvant] Nivolumab + …'처럼 앞에 설명 꼬리표를 붙이는데
+            # 책자 표에는 꼬리표 없이 적은 행이 있다 (제2026-232호 비소세포폐암 11)
+            reg = LEADING_LABEL.sub("", reg)
+            hits = [m.start() for m in re.finditer(re.escape(reg), text)]
         label = f"{c.kind} [{key}] {c.regimen}"
         if c.kind == "삭제":
             if hits:

@@ -12,6 +12,8 @@ RAW = ROOT / "data/reimbursement/raw"
 CACHE = ROOT / "data/reimbursement/cache"
 BOOKLET_PDF = RAW / "공고책자_20261001.pdf"
 NOTICE_PDF = RAW / "공고전문_20261001.pdf"
+BOOKLET_1101_PDF = RAW / "공고책자_20261101.pdf"
+NOTICE_1101_PDF = RAW / "공고전문_20261101.pdf"
 
 
 
@@ -30,3 +32,20 @@ def notice():
         pytest.skip("공고전문 PDF 없음")
     from src.reimbursement.notice import load_notice
     return load_notice(NOTICE_PDF)
+
+
+@pytest.fixture(scope="session")
+def booklet_1101():
+    """2026-11-01 책자 (제2026-232호). 공고 앞에 꼬리표가 붙은 요법이 있다."""
+    if not BOOKLET_1101_PDF.exists():
+        pytest.skip("2026-11-01 공고책자 PDF 없음")
+    from src.reimbursement.booklet import load_booklet
+    return load_booklet(BOOKLET_1101_PDF, CACHE)
+
+
+@pytest.fixture(scope="session")
+def notice_1101():
+    if not NOTICE_1101_PDF.exists():
+        pytest.skip("2026-11-01 공고전문 PDF 없음")
+    from src.reimbursement.notice import load_notice
+    return load_notice(NOTICE_1101_PDF)

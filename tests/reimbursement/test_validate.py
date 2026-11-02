@@ -30,6 +30,19 @@ def test_real_notice_matches(booklet, notice):
     assert not [w for w in r.warnings if "변경 표시가 없음" in w]
 
 
+def test_notice_label_before_regimen(booklet_1101, notice_1101):
+    """제2026-232호의 '[Neoadjuvant] Nivolumab + …'는 책자에 꼬리표 없이 적혀 있다."""
+    assert any(c.regimen.startswith("[Neoadjuvant]") for c in notice_1101.changes)
+    r = validate_booklet(booklet_1101, notice=notice_1101,
+                         previous_doc_no="2026-210", previous_file_date=date(2026, 10, 1))
+    assert r.ok, r.render()
+    # 꼬리표를 뗀 이름도 책자에 없으면 여전히 오류
+    raw = [p.replace("→ nivolumab\nnivolumab\nEGFR 변이 또는 ALK", "→ nivolumav\nnivolumab\nEGFR 변이 또는 ALK")
+           for p in booklet_1101.raw_pages]
+    r = validate_booklet(_rebuild(booklet_1101, raw), notice=notice_1101)
+    assert any("책자에 없음" in e and "Nivolumab" in e for e in r.errors)
+
+
 def test_detects_missing_breast_section(booklet):
     raw = list(booklet.raw_pages)
     i = _page_of(booklet, "유방암(Breast Cancer)\n[유방암")

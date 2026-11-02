@@ -1,6 +1,6 @@
 {
  "case": "VC-0103",
- "description": "가상 차트 VC-0103 (보조 anastrozole 중 폐 전이, 전이 후 1차 내분비 치료 결정)의 급여 검색·판정 기대값. 공고책자 2026-10-01판 기준. 공고 원문은 넣지 않는다 (chunk_id·쪽·공고 번호만).",
+ "description": "가상 차트 VC-0103 (보조 anastrozole 중 폐 전이, 전이 후 1차 내분비 치료 결정)의 급여 검색·판정 기대값. 공고책자 2026-11-01판(제2026-232호) 기준. 2026-10-01판에서 쪽과 병용요법 연번(+1)만 바뀜. 공고 원문은 넣지 않는다 (chunk_id·쪽·공고 번호만).",
  "sources": {
   "chart": "tests/fixtures/virtual_charts/VC-0103/chart.txt",
   "patient_state": "tests/fixtures/virtual_charts/VC-0103/expected/patient_state.json",
@@ -47,34 +47,34 @@
    "abemaciclib"
   ],
   "must_include": [
-   "hira-booklet-20261001-bc-pal-endo-1l-r01",
-   "hira-booklet-20261001-bc-pal-endo-1l-r02",
-   "hira-booklet-20261001-bc-pal-endo-1l-r03",
-   "hira-booklet-20261001-bc-pal-endo-1l-r04",
-   "hira-booklet-20261001-bc-pal-endo-1l-r05",
-   "hira-booklet-20261001-bc-pal-endo-1l-r06",
-   "hira-booklet-20261001-bc-pal-endo-1lplus-r06",
-   "hira-booklet-20261001-bc-pal-endo-2lplus-r07",
-   "hira-booklet-20261001-bc-pal-endo-2lplus-r08",
-   "hira-booklet-20261001-bc-pal-endo-2lplus-r09",
-   "hira-booklet-20261001-combo-r21",
-   "hira-booklet-20261001-combo-r22",
-   "hira-booklet-20261001-combo-r29"
+   "hira-booklet-20261101-bc-pal-endo-1l-r01",
+   "hira-booklet-20261101-bc-pal-endo-1l-r02",
+   "hira-booklet-20261101-bc-pal-endo-1l-r03",
+   "hira-booklet-20261101-bc-pal-endo-1l-r04",
+   "hira-booklet-20261101-bc-pal-endo-1l-r05",
+   "hira-booklet-20261101-bc-pal-endo-1l-r06",
+   "hira-booklet-20261101-bc-pal-endo-1lplus-r06",
+   "hira-booklet-20261101-bc-pal-endo-2lplus-r07",
+   "hira-booklet-20261101-bc-pal-endo-2lplus-r08",
+   "hira-booklet-20261101-bc-pal-endo-2lplus-r09",
+   "hira-booklet-20261101-combo-r22",
+   "hira-booklet-20261101-combo-r23",
+   "hira-booklet-20261101-combo-r30"
   ],
   "must_exclude": [
-   "hira-booklet-20261001-combo-r25",
-   "hira-booklet-20261001-combo-r26",
-   "hira-booklet-20261001-combo-r27",
-   "hira-booklet-20261001-combo-r28"
+   "hira-booklet-20261101-combo-r26",
+   "hira-booklet-20261101-combo-r27",
+   "hira-booklet-20261101-combo-r28",
+   "hira-booklet-20261101-combo-r29"
   ],
-  "note": "must_exclude는 수술 뒤 ribociclib 보조요법 행. 전이성 검색에 섞이면 안 된다 (2026-10-22 태그 수정)"
+  "note": "must_exclude는 수술 뒤 ribociclib 보조요법 행 (2026-11-01판 병용 26~29). 전이성 검색에 섞이면 안 된다 (2026-10-22 태그 수정)"
  },
  "expected": [
   {
-   "chunk_id": "hira-booklet-20261001-bc-pal-endo-1l-r01",
+   "chunk_id": "hira-booklet-20261101-bc-pal-endo-1l-r01",
    "page": [
-    55,
-    55
+    56,
+    56
    ],
    "notice_no": "제2020-155호",
    "regimen": "palbociclib + letrozole",
@@ -83,10 +83,10 @@
    "needs": "ai_exclusion_1y_after"
   },
   {
-   "chunk_id": "hira-booklet-20261001-bc-pal-endo-1l-r02",
+   "chunk_id": "hira-booklet-20261101-bc-pal-endo-1l-r02",
    "page": [
-    55,
-    55
+    56,
+    56
    ],
    "notice_no": "제2020-155호",
    "regimen": "palbociclib + anastrozole",
@@ -95,10 +95,10 @@
    "needs": "ai_exclusion_1y_after"
   },
   {
-   "chunk_id": "hira-booklet-20261001-bc-pal-endo-1l-r03",
+   "chunk_id": "hira-booklet-20261101-bc-pal-endo-1l-r03",
    "page": [
-    55,
-    55
+    56,
+    56
    ],
    "notice_no": "제2020-155호",
    "regimen": "abemaciclib + letrozole",
@@ -107,10 +107,10 @@
    "needs": "ai_exclusion_1y_after"
   },
   {
-   "chunk_id": "hira-booklet-20261001-bc-pal-endo-1l-r04",
+   "chunk_id": "hira-booklet-20261101-bc-pal-endo-1l-r04",
    "page": [
-    55,
-    55
+    56,
+    56
    ],
    "notice_no": "제2020-155호",
    "regimen": "abemaciclib + anastrozole",
@@ -119,10 +119,10 @@
    "needs": "ai_exclusion_1y_after"
   },
   {
-   "chunk_id": "hira-booklet-20261001-bc-pal-endo-1l-r05",
+   "chunk_id": "hira-booklet-20261101-bc-pal-endo-1l-r05",
    "page": [
-    55,
-    55
+    56,
+    56
    ],
    "notice_no": "제2021-220호",
    "regimen": "ribociclib + letrozole",
@@ -131,10 +131,10 @@
    "needs": "ai_exclusion_1y_after"
   },
   {
-   "chunk_id": "hira-booklet-20261001-bc-pal-endo-1l-r06",
+   "chunk_id": "hira-booklet-20261101-bc-pal-endo-1l-r06",
    "page": [
-    55,
-    55
+    56,
+    56
    ],
    "notice_no": "제2021-220호",
    "regimen": "ribociclib + anastrozole",
@@ -143,10 +143,10 @@
    "needs": "ai_exclusion_1y_after"
   },
   {
-   "chunk_id": "hira-booklet-20261001-bc-pal-endo-1lplus-r06",
+   "chunk_id": "hira-booklet-20261101-bc-pal-endo-1lplus-r06",
    "page": [
-    56,
-    56
+    57,
+    57
    ],
    "notice_no": "제2019-129호",
    "regimen": "fulvestrant",
@@ -155,10 +155,10 @@
    "needs": "line_1_plus"
   },
   {
-   "chunk_id": "hira-booklet-20261001-bc-pal-endo-2lplus-r07",
+   "chunk_id": "hira-booklet-20261101-bc-pal-endo-2lplus-r07",
    "page": [
-    57,
-    57
+    58,
+    58
    ],
    "notice_no": "제2020-155호",
    "regimen": "palbociclib + fulvestrant",
@@ -167,10 +167,10 @@
    "needs": "endo_deem_2l"
   },
   {
-   "chunk_id": "hira-booklet-20261001-bc-pal-endo-2lplus-r08",
+   "chunk_id": "hira-booklet-20261101-bc-pal-endo-2lplus-r08",
    "page": [
-    57,
-    57
+    58,
+    58
    ],
    "notice_no": "제2020-155호",
    "regimen": "abemaciclib + fulvestrant",
@@ -179,10 +179,10 @@
    "needs": "endo_deem_2l"
   },
   {
-   "chunk_id": "hira-booklet-20261001-bc-pal-endo-2lplus-r09",
+   "chunk_id": "hira-booklet-20261101-bc-pal-endo-2lplus-r09",
    "page": [
-    57,
-    57
+    58,
+    58
    ],
    "notice_no": "제2020-282호",
    "regimen": "ribociclib + fulvestrant",
@@ -191,10 +191,10 @@
    "needs": "endo_deem_2l"
   },
   {
-   "chunk_id": "hira-booklet-20261001-combo-r21",
+   "chunk_id": "hira-booklet-20261101-combo-r22",
    "page": [
-    165,
-    166
+    167,
+    167
    ],
    "notice_no": "제2025-133호",
    "regimen": "fulvestrant + capivasertib (비급여)",
@@ -203,10 +203,10 @@
    "needs": "mutation_required"
   },
   {
-   "chunk_id": "hira-booklet-20261001-combo-r22",
+   "chunk_id": "hira-booklet-20261101-combo-r23",
    "page": [
-    166,
-    166
+    167,
+    167
    ],
    "notice_no": "제2025-133호",
    "regimen": "fulvestrant + alpelisib (비급여)",
@@ -215,10 +215,10 @@
    "needs": "mutation_required"
   },
   {
-   "chunk_id": "hira-booklet-20261001-combo-r29",
+   "chunk_id": "hira-booklet-20261101-combo-r30",
    "page": [
-    168,
-    169
+    170,
+    170
    ],
    "notice_no": "제2025-256호",
    "regimen": "inavolisib (비급여) + palbociclib + fulvestrant",
