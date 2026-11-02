@@ -6,7 +6,9 @@
 # 입력:
 #   - confirmed_state(schemas/confirmed_state.json, 화면 1에서 의사가 확정한 값): items.*.confirmed만 읽는다
 #     (from_confirmed_state). 2단계는 이 파일 하나만 받는다 (src/input/handoff_confirmed_state_to_B.md)
-#   - 옛 방식: biomarker_record(B) + patient_state(A). B가 confirmed_state로 바꿀 때까지 둔다
+#   - 옛 방식: biomarker_record(B) + patient_state(A). B가 confirmed_state로 바꿀 때까지 둔다. 부르면 경고(OldInputWarning)를 낸다:
+#     재발 시점 값(endocrine_relapse_12m)·결정 차수·장기 위기·금기 계열이 빠져 결과가 틀릴 수 있다
+#     (A 통합 점검 2026-10-29 §1.1: VC-0103 1위가 AI-CDK4/6 갈래로 바뀜)
 # 하는 일:
 #   1. 입력에서 질의에 쓸 환자 정보를 꺼낸다 (from_confirmed_state 또는 patient_from_state)
 #   2. 지침: 주 검색(search_args) + 부위별·de novo 추가 검색(extra_search_args). 부모 소단원을 붙인다 (B의 프롬프트가 쓴다).
@@ -16,6 +18,7 @@
 #      권고 하나에 대안 약이 함께 적혀 있어(예: elacestrant or imlunestrant) 묶어서 찾으면 '모두 포함' 규칙에 걸린다
 # A·B의 내부 코드는 가져오지 않고 공용 스키마 형식(patient_state, biomarker_record, chunk)만 읽는다.
 import csv
+import warnings
 
 from .chunk_common import BASE_DIR
 from .query import TAG_TO_MARKER, extra_search_args, search_args
@@ -197,6 +200,15 @@ def from_confirmed_state(confirmed_state: dict):
     return record, patient, lines
 
 
+class OldInputWarning(UserWarning):
+    """retrieve_for_recommend를 옛 방식(patient_state + biomarker_record)으로 불렀다."""
+
+
+OLD_INPUT_MESSAGE = ("retrieve_for_recommend(patient_state, biomarker_record)는 옛 방식이다. 재발 시점(endocrine_relapse_12m)·"
+                     "결정 차수·장기 위기·금기 계열을 읽지 못해 지침 순위가 틀릴 수 있다 (VC-0103: 1위가 12개월 넘어 재발 갈래). "
+                     "의사 확정값 confirmed_state 하나로 부르세요 (src/input/script/confirmed.py가 초안을 만든다)")
+
+
 def retrieve_for_recommend(state: dict, biomarker_record: dict = None, as_of=None, top_k: int = 5,
                            extra_top_k: int = 3, algorithm_top_k: int = 2, reimbursement_per_drug: int = 5,
                            rerank: bool = True, with_reimbursement_only: bool = False):
@@ -220,6 +232,7 @@ def retrieve_for_recommend(state: dict, biomarker_record: dict = None, as_of=Non
         biomarker_record, patient, lines = from_confirmed_state(state)
         as_of = as_of or (state.get("confirmed_at") or "")[:10] or None
     else:
+        warnings.warn(OLD_INPUT_MESSAGE, OldInputWarning, stacklevel=2)
         setting = biomarker_record.get("setting") or {}
         patient = patient_from_state(state, setting.get("disease"))
         lines = {"guideline": [setting.get("line")], "reimbursement": [setting.get("line")]}

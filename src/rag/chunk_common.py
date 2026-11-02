@@ -71,7 +71,59 @@ def _load_drug_names() -> list[str]:
 _DRUG_NAMES = None
 
 
+# 계열 이름 → 그 계열의 약 (2026-11-02, A 통합 점검 §1.2). ESMO는 "AI—CDK4/6 inhibitor"처럼 계열 이름으로 쓰는데
+# drugs에 약 이름이 없으면 B 후처리가 "인용한 청크에 없는 약"으로 후보를 지우고(letrozole + palbociclib), 급여 검색도
+# 행을 못 찾는다. 약이 2~5개로 정해지는 좁은 계열만 푼다. 넓은 계열(ET·endocrine therapy, ChT·chemotherapy,
+# HER2-directed therapy)은 풀면 약이 수십 개라 B와 처리 방법을 따로 정한다.
+# (찾는 표현, 대소문자 구분 여부, drug_classes.csv의 drug_subclass 또는 약 목록). AI·OFS·ICI 같은 줄임말은 대문자로만 찾는다
+CLASS_TERMS = [
+    (r"(?<![A-Za-z])AIs?(?![A-Za-z])", True, ("AI_nonsteroidal", "AI_steroidal")),
+    (r"aromatase inhibitors?", False, ("AI_nonsteroidal", "AI_steroidal")),
+    (r"cdk4/6(?:\s*inhibitors?|i\b)", False, ("CDK4/6_inhibitor",)),
+    (r"\btaxanes?\b", False, ("taxane",)),
+    (r"\banthracyclines?\b", False, ("anthracycline",)),
+    (r"\bparp\s*inhibitors?\b|\bparpis?\b", False, ["olaparib", "talazoparib"]),
+    (r"(?<![A-Za-z])(?:OFS|LHRH|GnRH)(?![A-Za-z])", True, ("LHRH_agonist",)),
+    (r"ovarian (?:function )?suppression", False, ("LHRH_agonist",)),
+    (r"(?<![A-Za-z])SERDs?(?![A-Za-z])", True, ("SERD",)),
+    (r"(?<![A-Za-z])ICIs?(?![A-Za-z])|immune checkpoint inhibitors?", False, ("immune_checkpoint_inhibitor",)),
+    (r"\bbisphosphonates?\b", False, ["zoledronic acid", "pamidronate", "ibandronate", "clodronate"]),
+    (r"bone-modifying agents?|(?<![A-Za-z])BMAs?(?![A-Za-z])", False, ("Bone-modifying Agent",)),
+]
+# 계열에 들어 있지만 ESMO 권고의 뜻으로 넣지 않는 약 (허가되지 않은 시험약)
+CLASS_EXCLUDE = {"tesetaxel"}
+_CLASS_MEMBERS = None
+
+
+def _class_members() -> dict[str, list[str]]:
+    """drug_subclass(없으면 drug_class) → 약 일반명 목록 (파일 순서)."""
+    members = {}
+    with open(DRUG_CLASSES_CSV, encoding="utf-8-sig", newline="") as f:
+        for row in csv.DictReader(f):
+            name = row["generic_name"].strip().lower()
+            if not name or "nos" in name.split() or name in CLASS_EXCLUDE:
+                continue
+            for key in {row["drug_subclass"].strip(), row["drug_class"].strip()} - {""}:
+                members.setdefault(key, []).append(name)
+    return members
+
+
+def find_class_drugs(text: str) -> list[str]:
+    """본문의 계열 이름(AI, CDK4/6 inhibitor, taxane 등)을 그 계열의 약 이름으로 푼다 (CLASS_TERMS)."""
+    global _CLASS_MEMBERS
+    if _CLASS_MEMBERS is None:
+        _CLASS_MEMBERS = _class_members()
+    found = []
+    for pattern, case_sensitive, target in CLASS_TERMS:
+        if not re.search(pattern, text if case_sensitive else text.lower()):
+            continue
+        names = target if isinstance(target, list) else [n for key in target for n in _CLASS_MEMBERS.get(key, [])]
+        found += [n for n in names if n not in found]
+    return found
+
+
 def find_drugs(text: str) -> list[str]:
+    """본문의 약 이름 (일반명). 적힌 약 이름 다음에, 계열 이름으로만 적힌 약을 풀어 덧붙인다 (find_class_drugs)."""
     global _DRUG_NAMES
     if _DRUG_NAMES is None:
         _DRUG_NAMES = _load_drug_names()
@@ -84,7 +136,7 @@ def find_drugs(text: str) -> list[str]:
             if generic not in found:
                 found.append(generic)
             remaining = re.sub(pattern, " ", remaining)
-    return found
+    return found + [d for d in find_class_drugs(text) if d not in found]
 
 
 # 표지자 뒤에 오면 "그 변이·발현이 없다"는 뜻인 표현. 예: PIK3CA-wild type, PD-L1-negative, BRCA1/2- wild type,

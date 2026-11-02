@@ -29,7 +29,15 @@
       "neoadjuvant"
     ],
     "biomarker_tags": [],
-    "drugs": [],
+    "drugs": [
+      "goserelin",
+      "leuprolide",
+      "triptorelin",
+      "zoledronic acid",
+      "pamidronate",
+      "ibandronate",
+      "clodronate"
+    ],
     "evidence": null,
     "superseded_by": null,
     "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
@@ -58,7 +66,15 @@
       "adjuvant"
     ],
     "biomarker_tags": [],
-    "drugs": [],
+    "drugs": [
+      "goserelin",
+      "leuprolide",
+      "triptorelin",
+      "zoledronic acid",
+      "pamidronate",
+      "ibandronate",
+      "clodronate"
+    ],
     "evidence": {
       "loe": "I",
       "gor": "A",
@@ -279,7 +295,13 @@
     ],
     "biomarker_tags": [],
     "drugs": [
-      "tamoxifen"
+      "tamoxifen",
+      "anastrozole",
+      "letrozole",
+      "exemestane",
+      "goserelin",
+      "leuprolide",
+      "triptorelin"
     ],
     "evidence": null,
     "superseded_by": null,
@@ -348,7 +370,13 @@
     ],
     "biomarker_tags": [],
     "drugs": [
-      "tamoxifen"
+      "tamoxifen",
+      "anastrozole",
+      "letrozole",
+      "exemestane",
+      "goserelin",
+      "leuprolide",
+      "triptorelin"
     ],
     "evidence": {
       "loe": "I",
@@ -385,7 +413,10 @@
     ],
     "biomarker_tags": [],
     "drugs": [
-      "tamoxifen"
+      "tamoxifen",
+      "anastrozole",
+      "letrozole",
+      "exemestane"
     ],
     "evidence": {
       "loe": "I",
@@ -957,7 +988,13 @@
       "pembrolizumab",
       "capecitabine",
       "carboplatin",
-      "olaparib"
+      "olaparib",
+      "docetaxel",
+      "nab-paclitaxel",
+      "paclitaxel",
+      "doxorubicin",
+      "epirubicin",
+      "liposomal doxorubicin"
     ],
     "evidence": null,
     "superseded_by": null,
@@ -992,7 +1029,10 @@
       "cyclophosphamide",
       "capecitabine",
       "doxorubicin",
-      "epirubicin"
+      "epirubicin",
+      "docetaxel",
+      "nab-paclitaxel",
+      "paclitaxel"
     ],
     "evidence": {
       "loe": "I",
@@ -1034,7 +1074,10 @@
       "cyclophosphamide",
       "doxorubicin",
       "epirubicin",
-      "olaparib"
+      "olaparib",
+      "docetaxel",
+      "nab-paclitaxel",
+      "paclitaxel"
     ],
     "evidence": {
       "loe": "I",
@@ -1074,7 +1117,10 @@
       "cyclophosphamide",
       "pembrolizumab",
       "doxorubicin",
-      "epirubicin"
+      "epirubicin",
+      "docetaxel",
+      "nab-paclitaxel",
+      "paclitaxel"
     ],
     "evidence": {
       "loe": "I",
@@ -1114,7 +1160,10 @@
       "cyclophosphamide",
       "pembrolizumab",
       "doxorubicin",
-      "epirubicin"
+      "epirubicin",
+      "docetaxel",
+      "nab-paclitaxel",
+      "paclitaxel"
     ],
     "evidence": {
       "loe": "I",
@@ -1156,7 +1205,10 @@
       "capecitabine",
       "carboplatin",
       "doxorubicin",
-      "epirubicin"
+      "epirubicin",
+      "docetaxel",
+      "nab-paclitaxel",
+      "paclitaxel"
     ],
     "evidence": {
       "loe": "I",
@@ -1200,7 +1252,10 @@
       "carboplatin",
       "doxorubicin",
       "epirubicin",
-      "olaparib"
+      "olaparib",
+      "docetaxel",
+      "nab-paclitaxel",
+      "paclitaxel"
     ],
     "evidence": {
       "loe": "I",
@@ -1241,7 +1296,10 @@
       "pembrolizumab",
       "carboplatin",
       "doxorubicin",
-      "epirubicin"
+      "epirubicin",
+      "docetaxel",
+      "nab-paclitaxel",
+      "paclitaxel"
     ],
     "evidence": {
       "loe": "I",
@@ -1282,7 +1340,10 @@
       "pembrolizumab",
       "carboplatin",
       "doxorubicin",
-      "epirubicin"
+      "epirubicin",
+      "docetaxel",
+      "nab-paclitaxel",
+      "paclitaxel"
     ],
     "evidence": {
       "loe": "I",
@@ -1429,7 +1490,13 @@
       "fulvestrant",
       "palbociclib",
       "inavolisib",
-      "ribociclib"
+      "ribociclib",
+      "anastrozole",
+      "letrozole",
+      "exemestane",
+      "goserelin",
+      "leuprolide",
+      "triptorelin"
     ],
     "evidence": null,
     "superseded_by": null,
@@ -1461,7 +1528,10 @@
     "drugs": [
       "abemaciclib",
       "palbociclib",
-      "ribociclib"
+      "ribociclib",
+      "anastrozole",
+      "letrozole",
+      "exemestane"
     ],
     "evidence": null,
     "superseded_by": null,
@@ -1577,7 +1647,15 @@
       "exemestane",
       "alpelisib",
       "tamoxifen",
-      "olaparib"
+      "olaparib",
+      "anastrozole",
+      "letrozole",
+      "abemaciclib",
+      "palbociclib",
+      "ribociclib",
+      "goserelin",
+      "leuprolide",
+      "triptorelin"
     ],
     "evidence": null,
     "superseded_by": null,
@@ -1777,7 +1855,10 @@
       "fulvestrant",
       "everolimus",
       "exemestane",
-      "tamoxifen"
+      "tamoxifen",
+      "abemaciclib",
+      "palbociclib",
+      "ribociclib"
     ],
     "evidence": null,
     "superseded_by": null,
@@ -1815,7 +1896,15 @@
       "capecitabine",
       "bevacizumab",
       "datopotamab deruxtecan",
-      "trastuzumab deruxtecan"
+      "trastuzumab deruxtecan",
+      "abemaciclib",
+      "palbociclib",
+      "ribociclib",
+      "docetaxel",
+      "paclitaxel",
+      "doxorubicin",
+      "epirubicin",
+      "liposomal doxorubicin"
     ],
     "evidence": null,
     "superseded_by": null,
@@ -1955,7 +2044,10 @@
     "drugs": [
       "capecitabine",
       "bevacizumab",
-      "trastuzumab deruxtecan"
+      "trastuzumab deruxtecan",
+      "docetaxel",
+      "nab-paclitaxel",
+      "paclitaxel"
     ],
     "evidence": {
       "loe": "I",
@@ -1993,7 +2085,10 @@
       "sacituzumab govitecan",
       "capecitabine",
       "bevacizumab",
-      "datopotamab deruxtecan"
+      "datopotamab deruxtecan",
+      "docetaxel",
+      "nab-paclitaxel",
+      "paclitaxel"
     ],
     "evidence": {
       "loe": "I",
@@ -2191,7 +2286,10 @@
       "lapatinib",
       "tucatinib",
       "trastuzumab emtansine",
-      "trastuzumab deruxtecan"
+      "trastuzumab deruxtecan",
+      "goserelin",
+      "leuprolide",
+      "triptorelin"
     ],
     "evidence": null,
     "superseded_by": null,
@@ -2804,7 +2902,11 @@
       "talazoparib",
       "paclitaxel",
       "datopotamab deruxtecan",
-      "olaparib"
+      "olaparib",
+      "docetaxel",
+      "doxorubicin",
+      "epirubicin",
+      "liposomal doxorubicin"
     ],
     "evidence": null,
     "superseded_by": null,
@@ -2872,7 +2974,13 @@
       "sacituzumab govitecan",
       "capecitabine",
       "bevacizumab",
-      "datopotamab deruxtecan"
+      "datopotamab deruxtecan",
+      "docetaxel",
+      "nab-paclitaxel",
+      "paclitaxel",
+      "doxorubicin",
+      "epirubicin",
+      "liposomal doxorubicin"
     ],
     "evidence": null,
     "superseded_by": null,
