@@ -66,3 +66,12 @@ def test_recommend_out_of_scope_when_llm_never_fits_schema():
                                  "fake-local", TODAY)
     assert errors == [] and rec["out_of_scope"] is True and rec["options"] == []
     assert any("스키마" in line for line in log)
+
+
+def test_recommend_config_is_local_qwen():
+    """llm/config.toml [recommend] (2026-11-02): 로컬 Ollama, 환자 데이터 허용, 이 PC 주소만. 모델은 README "LLM 모델"."""
+    from llm import load_config
+    cfg = load_config("recommend")
+    check_local(cfg)
+    assert (cfg.provider, cfg.model, cfg.patient_data) == ("ollama", "qwen3:14b", True)
+    assert cfg.num_ctx >= 16384
