@@ -155,6 +155,8 @@ def search_args(record: dict, query_style: str = "adaptive", **kwargs) -> dict:
     }
     if profile.get("endocrine_relapse_12m") in ("yes", "no"):  # confirmed_state일 때만 (검색 감점, searcher._relapse_adjust)
         args["endocrine_relapse_12m"] = profile["endocrine_relapse_12m"]
+    if profile.get("menopausal_status") in ("premenopausal", "perimenopausal", "postmenopausal"):
+        args["menopausal_status"] = profile["menopausal_status"]  # 반대쪽 폐경 상태 권고 감점 (searcher._menopause_adjust)
     args.update(overrides)
     return args
 
