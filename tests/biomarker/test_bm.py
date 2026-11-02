@@ -696,6 +696,15 @@ def main():
         got = assess(ps)["setting"]["line"]
         report(case_id, got == want, note, f"setting.line {got}" + ("" if got == want else f" / 정답 {want}"))
 
+    # 선행·보조 투약이 없는 조기 환자: 수술을 먼저 했으면(병리 병기 있음) 보조, 수술 전이면 의사가 정함 (2026-11-02)
+    for case_id, ptnm, want, note in (("PH01", {"status": "present", "value": {"t": "T1c", "n": "N0", "m": "M0"}}, "adjuvant",
+                                       "수술 먼저 함 -> 보조"),
+                                      ("PH02", {"status": "not_recorded"}, "unknown", "수술 전 -> 선행·수술 먼저는 의사가 정함")):
+        ps = patient(ref="VC-1", extent="early")
+        ps["fields"]["stage"]["ptnm"] = ptnm
+        got = assess(ps)["setting"]["line"]
+        report(case_id, got == want, note, f"setting.line {got}" + ("" if got == want else f" / 정답 {want}"))
+
     pending = assess(patient(mutations=genes_with({"status": "not_done", "raw": "결과 대기"})))["tests_needed"]
     pik = next(t for t in pending if t["rule_id"] == "BM4-PIK3CA-PENDING")
     report("A23", pik["test"] == "PIK3CA 결과 확인" and "결과 확인 필요" in pik["reason"], "결과 확인 문구",
