@@ -343,7 +343,7 @@ def parse_combination(b: Booklet) -> ComboTable:
     return ComboTable(intro, rows, warnings)
 
 
-_SETTING_MARK = re.compile(r"[\[(]\s*(선행화학요법|수술\s*후\s*보조요법|수술후보조요법)\s*[\])]")
+_SETTING_MARK = re.compile(r"[\[(]\s*(선행\s*화학\s*요법|수술\s*후\s*보조\s*요법)\s*[\])]")
 _PALLIATIVE_MARK = re.compile(r"\(\s*(\d\s*차[^()]*?),\s*고식적[^()]*\)")
 
 
@@ -816,6 +816,9 @@ def combo_columns(r: ComboRow, learned_added: set[str]) -> dict:
     first_base = None
     prev = ""
     for k, ln in enumerate(lines[start:], start):
+        if first_base is not None and not prev and lines[k - 1].rstrip().endswith("의"):
+            # 급여기준 칸 문장이 줄바꿈되어 약 이름만 남은 줄 ('4주 간격의 / goserelin / 혹은', 2026-11-01 책자)
+            continue
         if _is_regimen_line(ln) or ln.strip() == "agonist":
             if groups and prev and _continues(prev, ln):
                 groups[-1].append(ln)
@@ -848,7 +851,7 @@ def _combo_stage(text: str) -> tuple[str, str | None]:
     if re.search(r"전이성|재발성", flat):
         endocrine = re.search(r"fulvestrant|letrozole|anastrozole|exemestane|tamoxifen", flat)
         return ("palliative_endocrine" if endocrine else "palliative_chemo"), None
-    if re.search(r"수술\s*후\s*보조요법|수술후보조요법", flat):
+    if re.search(r"수술\s*후\s*보조\s*요법", flat):       # '수술후보조 / 요법으로' (2026-11-01 책자 줄바꿈)
         return "adjuvant", None
     return "combination", None
 
