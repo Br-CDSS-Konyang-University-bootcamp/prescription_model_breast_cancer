@@ -17,7 +17,7 @@
 - [virtual_patient_cases.md](virtual_patient_cases.md): 가상 환자 사례 목록 (개발·시험·보류·표현 변형 세트, 사례별 기대 결과)
 - [line_rules.md](line_rules.md): ESMO 처방 기준 차수와 심평원 급여 투여단계 규칙 명세 (차수 코드 재작성 기준, 열린 결정 4개)
 - [integration_status_2026-10-29.md](integration_status_2026-10-29.md): 처방 모듈 통합 점검 (구동 순서별 문제, B·C·D 업무와 빠진 부분 담당, 치료 단계별 모듈 역할)
-- B·C·D 전달: [handoff_to_B.md](handoff_to_B.md) (JSON 구조, BM-2 판정 조건, BM-3 출처, 치료 상황 규칙), [handoff_confirmed_state_to_B.md](handoff_confirmed_state_to_B.md) (confirmed_state 연결), [draft7_checklist_BCD_2026-10-28.md](draft7_checklist_BCD_2026-10-28.md) (draft7 후보 칸 확인 체크리스트)
+- B·C·D 전달: [handoff_to_B.md](handoff_to_B.md) (JSON 구조, BM-2 판정 조건, BM-3 출처, 치료 상황 규칙), [handoff_confirmed_state_to_B.md](handoff_confirmed_state_to_B.md) (confirmed_state 연결), [draft7_checklist_BCD_2026-10-28.md](draft7_checklist_BCD_2026-10-28.md) (draft7 후보 칸 확인 체크리스트), [handoff_recommend_prompt_to_B_2026-11-02.md](handoff_recommend_prompt_to_B_2026-11-02.md) (추천 질문지가 문맥을 넘어 잘림, 급여 소단원 반복)
 
 코드:
 
@@ -33,7 +33,7 @@
 | `script/tcga/` | `tcga_to_patient_state.py` | B 테스트(`tests/biomarker/test_bm.py`)가 쓰는 변환기만 남김 |
 | `script/confirmed.py` | (새 파일) | 화면 1 확정값. `build_draft(patient_state, biomarker_record)` → 초안 (시스템 값이 없거나 `unknown`인 칸은 비우고 `needs`에 표시), `set_item(draft, key, value, reason)` (status 자동, 스키마 밖 값은 거부), `finalize(draft, confirmed_by)` → `data/input/confirmed/<patient_ref>/v<n>.json` (덮어쓰지 않음). `dfi_days`·`high_risk_early`도 여기서 계산 |
 
-화면 1 확정값 규칙 (2026-10-30): gBRCA·sBRCA는 1·2를 하나로 합친다 (하나라도 positive → positive, vus → vus, 둘 다 negative → negative, 한쪽만 negative이고 나머지가 기록 없음 → 의사 확인). 재진(follow_up)은 버전 번호·`supersedes`만 채우고 `previous`·`carried`는 아직 없다.
+화면 1 확정값 규칙 (2026-10-30): gBRCA·sBRCA는 1·2를 하나로 합친다 (하나라도 positive → positive, vus → vus, 둘 다 negative → negative, 한쪽만 negative이고 나머지가 기록 없음 → 의사 확인). 재진(follow_up)은 버전 번호·`supersedes`만 채우고 `previous`·`carried`는 아직 없다. 치료 단계 `setting.phase`(조기·국소 진행성의 이번 결정, 2026-11-02): 수술을 먼저 할지는 시스템이 고를 근거가 없어 규칙으로 정한다. 원발 수술 기록(pTNM 또는 ypTNM)이 있으면 `adjuvant`, 없으면 선행요법 대상으로 보고 `neoadjuvant`. B의 `setting.line`(마지막 투약의 단계)은 쓰지 않는다.
 
 2026-10-27 TCGA 정답 세트 폐기, 평가는 가상 차트로 (B 테스트용 변환기 `script/tcga/tcga_to_patient_state.py`만 남김).
 
