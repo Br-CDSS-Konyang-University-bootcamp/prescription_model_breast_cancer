@@ -16,7 +16,7 @@
 |---|---|
 | `pipeline.py` | 진입점 `recommend(patient_state, biomarker_record, guideline_chunks, reimbursement_chunks, llm, index_status, model_name)` → (추천, 후처리 로그, 형식 오류). 검색 결과와 LLM 함수(프롬프트 글 → 답 사전 또는 답 글)는 넘겨받기만 한다. LLM 함수는 `llm_link.make_llm()`으로 만든다 |
 | `llm_link.py` | `make_llm(task="recommend")` → `recommend()`에 넣을 LLM 함수. `llm/config.toml`의 `[recommend]` 칸을 읽고, 보내기 전에 **로컬인지 확인**(`patient_data = true`, provider `ollama`, 주소 `127.0.0.1`·`localhost`·`::1`)한 뒤 `llm.complete_json`으로 이 PC의 Ollama에 묻는다. 답 양식은 `schemas/recommendation.json` 중 LLM이 채우는 칸만 뗀 것 |
-| `prompt.py` | 프롬프트: 환자 요약(구조화 값만, 차트 원문 인용은 넣지 않음), 바이오마커 상태값과 이유, 검사 공백, 지침 청크(ID·출처·쪽·근거 수준·부모 소단원), 급여 청크(공고 번호·시행일). 문장마다 `[청크ID]`를 붙이라고 지시 |
+| `prompt.py` | 프롬프트: 환자 요약(구조화 값만, 차트 원문 인용은 넣지 않음), 바이오마커 상태값과 이유, 검사 공백, 지침 청크(ID·출처·쪽·근거 수준), 지침 소단원(같은 것은 한 번만), 급여 청크(공고 번호·시행일, 소단원은 ID만). 문장마다 `[청크ID]`를 붙이고, 맞는 요법마다 후보를 하나씩(최대 5개), `drugs`·`evidence`를 채우라고 지시. `fit_prompt()`는 질문지가 `num_ctx - max_tokens`(make_llm이 `prompt_budget`으로 붙임)를 넘으면 급여 청크, 그다음 지침 청크를 뒤에서부터 빼고 로그에 적는다. 토큰 수는 한글 1글자 1토큰, 그 밖 3글자 1토큰으로 어림한다 (A 전달 `src/input/handoff_recommend_prompt_to_B_2026-11-02.md`, VC-0103 질문지 81,998자가 문맥 16,384토큰을 넘어 앞부분이 잘림) |
 | `postprocess.py` | 환각 방지 후처리 (아래 표) |
 | `validate.py` | `schemas/recommendation.json` 형식 검사 |
 | `clinical_notes.py` | 참고란 (`recommendation.json` `clinical_notes`, 2026-10-29). 동반질환·ECOG·장기 위기·의사가 확정한 금기 계열을 정해진 문장 틀로 적고, 넘어온 지침 청크 중 동반질환 관련 ESMO 청크 ID를 붙인다. 금기 계열 약이 든 후보는 빼지 않고 `applies_to`로 표시만 한다. `recommend(..., confirmed_state=...)`로 의사 확정값을 넘긴다 |
@@ -39,6 +39,7 @@
 | 5 | 급여 조건 판정 불충족 | `no_criteria` (이유에 못 맞춘 조건) |
 | 5 | 급여 조건을 모두 확인하지 못함, 또는 판정기를 넘기지 않음 | `covered_conditions_unverified` |
 | 6 | 지침 청크가 하나도 없음 | 추천을 만들지 않고 `out_of_scope` |
+| 7 | `drugs`·`evidence`가 비어 옴 (2번 뒤, 3번 전) | `drugs`는 인용한 지침 청크의 `drugs` 중 요법 이름에 적힌 약, `evidence`는 인용한 지침 청크의 LoE·GoR로 채움 (A 전달 2026-11-02 §6 4번) |
 
 청크 `drugs`는 "본문에 나온 약"이라 금기로 언급된 약도 들어 있다 (예: 동반질환으로 CDK4/6을 못 쓸 때의 권고에 CDK4/6 약 3개). 3번 규칙은 약이 인용한 청크에 나오는지만 보는 환각 검사라 권하는 약인지는 가리지 않는다. 참고란은 이런 청크를 근거 ID로만 붙인다.
 
