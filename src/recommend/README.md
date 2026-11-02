@@ -30,7 +30,7 @@
 |---|---|---|
 | 1 | 받은 청크에 없는 청크 ID 인용 | 그 인용을 지움 |
 | 2 | 근거 문장(rationale)에 `[청크ID]`가 없는 문장 | 문장을 지움. 남은 문장이나 지침 인용이 없으면 후보를 지움 |
-| 3 | 약 이름이 인용한 지침 청크(`drugs` 목록 또는 본문)에 없음 | 후보를 지움 |
+| 3 | 약 이름이 인용한 지침 청크(`drugs` 목록 또는 본문)에 없음. 다만 본문에 넓은 계열 이름이 있으면 그 계열 약은 통과: `ET`·endocrine → Hormone Therapy, `ChT`·chemotherapy → Chemotherapy, anti-HER2·HER2-directed·HER2-targeted → HER2-targeted Therapy (`drug_classes.csv`의 `drug_class`, C와 합의 2026-11-02. C는 이 세 계열을 청크 `drugs`로 풀지 않는다). `ET`·`ChT`는 대소문자까지 맞는 단어만 | 후보를 지움 |
 | 4 | 약에 필요한 바이오마커가 `not_done`·`not_recorded`·`unknown`·`retest_needed` (필요한 마커 중 양성이 하나도 없을 때) | 후보 대신 `tests_needed`에 "<마커> 검사 결과 확인" (`blocks_therapy`에 치료 이름) |
 | 4 | 필요한 바이오마커가 모두 음성·VUS 등 | 후보를 지우고 `conflicts`에 이유와 출처를 적음 |
 | 5 | 급여 분류: 시행 중인 급여 청크(`baseline`·`overlay`, 시행일이 오늘 이전) 인용이 없음. 예고(`preview`)는 근거가 아님 | `no_criteria` |
@@ -39,6 +39,8 @@
 | 5 | 급여 조건 판정 불충족 | `no_criteria` (이유에 못 맞춘 조건) |
 | 5 | 급여 조건을 모두 확인하지 못함, 또는 판정기를 넘기지 않음 | `covered_conditions_unverified` |
 | 6 | 지침 청크가 하나도 없음 | 추천을 만들지 않고 `out_of_scope` |
+
+청크 `drugs`는 "본문에 나온 약"이라 금기로 언급된 약도 들어 있다 (예: 동반질환으로 CDK4/6을 못 쓸 때의 권고에 CDK4/6 약 3개). 3번 규칙은 약이 인용한 청크에 나오는지만 보는 환각 검사라 권하는 약인지는 가리지 않는다. 참고란은 이런 청크를 근거 ID로만 붙인다.
 
 `tests_needed`는 바이오마커 모듈의 검사 공백을 먼저 두고 LLM·후처리가 낸 검사를 이어 붙인다 (같은 검사는 한 번).
 
