@@ -124,6 +124,17 @@ def test_high_risk(t, ln, grade, ki67, want):
     assert c._high_risk(t, ln, grade, ki67) == want
 
 
+@pytest.mark.parametrize("case, want", [
+    ("VC-0107", "adjuvant"),       # 투약 전, pTNM 있음 (수술 먼저)
+    ("VC-0124", "neoadjuvant"),    # 투약 전, cTNM만 (수술 기록 없음 → 선행 대상)
+    ("VC-0117", "adjuvant"),       # 선행 뒤 수술 (ypTNM) → 이번 결정은 보조. B setting.line은 neoadjuvant
+])
+def test_phase_rule(case, want):
+    it = draft_of(case)["items"]["setting.phase"]
+    assert it["system"] == want and it["confirmed"] == want
+    assert it["system_source"] == "derived"
+
+
 def test_finalize_versions(tmp_path):
     draft = draft_of("VC-0103")
     p1, doc1, err1 = c.finalize(draft, "user-test", "2026-10-30T09:00:00+09:00", save_dir=tmp_path)
