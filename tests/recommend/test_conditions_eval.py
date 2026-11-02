@@ -276,3 +276,42 @@ def test_cumulative_dose_mg_to_mg_m2():
     assert ev(c240, ps=with_doses(288, height=None)) == "unknown"                   # 키·몸무게 없음
     assert ev(c240, ps=with_doses("No value")) == "unknown"
     assert ev(c240, ps=with_doses(300, unit="mg/m2")) == "met"                       # 이미 mg/m²
+
+
+def test_d_requests_2026_11_02():
+    """D 요청 (2026-11-02): 선행 뒤 보조 행은 yptnm, human_review·unmapped가 남으면 알 수 없음, 투약 중 요법의 투여기간."""
+    neo_rows = [{"drugs": ["docetaxel"], "setting": "neoadjuvant", "start_day": 10, "end_day": 120}]
+    yp = patient(stage={"ctnm": present({"t": "T2", "n": "N1", "m": "M0"}),
+                        "yptnm": present({"t": "T1b", "n": "N1a", "m": "M0", "residual_size_mm": 8})},
+                 treatment_history=neo_rows)
+    assert ev(cond([item("pn_status", "eq", "positive")]), ps=yp) == "met"
+    assert ev(cond([item("pt_stage", "gte", "T2")]), ps=yp) == "not_met"
+    assert ev(cond([item("pathologic_size_mm", "gte", 10)]), ps=yp) == "not_met"   # 잔존 8 mm
+    # 선행요법을 받았는데 yptnm이 없으면 ptnm으로 대신하지 않는다
+    no_yp = patient(stage={"ptnm": present({"t": "T2", "n": "N1a", "m": "M0"}), "pathologic_size_mm": present(25)},
+                    treatment_history=neo_rows)
+    assert ev(cond([item("pn_status", "eq", "positive")]), ps=no_yp) == "unknown"
+    assert ev(cond([item("pathologic_size_mm", "gte", 10)]), ps=no_yp) == "unknown"
+    # 수술을 먼저 한 환자는 그대로 ptnm
+    assert ev(cond([item("pn_status", "eq", "positive")])) == "met"
+
+    left = cond([item("sex", "eq", "FEMALE")])
+    assert ev(left) == "met"
+    left["unmapped"] = ["지어낸 옮기지 못한 구절"]
+    r = evaluate_conditions(left, patient(), record())
+    assert r["status"] == "unknown" and r["unknown"] == ["판정하지 못한 조건 1개 (사람 확인 필요)"]
+    only = cond()
+    only["unmapped"] = ["지어낸 구절"]
+    assert ev(only) == "unknown"                                   # 항목 없이 unmapped만 있어도 충족이 아님
+    failing = cond([item("sex", "eq", "MALE")])
+    failing["human_review"] = ["지어낸 사람 판단 조건"]
+    assert ev(failing) == "not_met"                                # 이미 불충족이면 불충족 그대로
+
+    years = cond([item("treatment_years", "lte", 5, of={"drugs": ["anastrozole"]})])
+    ongoing = patient(treatment_history=[{"drugs": ["anastrozole"], "setting": "adjuvant", "start_day": 100,
+                                          "end_day": None, "ongoing": True, "duration_days": None}])
+    assert ev(years, ps=ongoing) == "met"                          # 1400 - 100 = 1300일 (3.6년)
+    ongoing["index_day"] = 2100                                    # 2000일 (5.5년)
+    assert ev(years, ps=ongoing) == "not_met"
+    ongoing["fields"]["treatment_history"][0]["ongoing"] = None    # 투약 중인지 모르면 알 수 없음
+    assert ev(years, ps=ongoing) == "unknown"
