@@ -17,6 +17,8 @@ import re
 from datetime import date
 from pathlib import Path
 
+from src.recommend.conditions_eval import _drug_classes
+
 DRUG_BIOMARKER_CSV = Path(__file__).resolve().parent / "drug_biomarker.csv"
 # 4번: 이 상태면 치료 대신 검사 권고 (PROJECT.md §7 "불확정·미시행이면 검사 권고")
 GATE_STATUSES = {"not_done", "not_recorded", "unknown", "retest_needed"}
@@ -53,9 +55,22 @@ def _keep_cited_sentences(text, valid_ids):
     return " ".join(kept), found, dropped
 
 
+# 넓은 계열 이름 (C가 청크 drugs로 풀지 않은 ET·ChT·항HER2, C와 합의 2026-11-02). 인용한 청크 본문에 이 말이 있으면
+# 그 계열(drug_classes.csv의 drug_class) 약은 3번 규칙을 통과한다. 짧은 약어(ET, ChT)는 대소문자까지 맞을 때만 본다
+CLASS_TERMS = {
+    "hormone therapy": re.compile(r"\bET\b|\b[Ee]ndocrine\b"),
+    "chemotherapy": re.compile(r"\bChT\b|\b[Cc]hemotherapy\b"),
+    "her2-targeted therapy": re.compile(r"\b[Aa]nti-HER2\b|\bHER2-(directed|targeted)\b"),
+}
+
+
 def _drug_in_chunks(drug, chunks):
+    """3번 규칙: 약 이름이 인용한 청크의 drugs나 본문에 있거나, 그 약의 계열을 가리키는 넓은 계열 이름이 본문에 있다."""
     d = drug.lower()
-    return any(d in [x.lower() for x in (c.get("drugs") or [])] or d in (c.get("text") or "").lower() for c in chunks)
+    if any(d in [x.lower() for x in (c.get("drugs") or [])] or d in (c.get("text") or "").lower() for c in chunks):
+        return True
+    terms = [CLASS_TERMS[k] for k in _drug_classes().get(d, set()) if k in CLASS_TERMS]
+    return any(rx.search(c.get("text") or "") for rx in terms for c in chunks)
 
 
 def _valid_reimb(chunk, today):
