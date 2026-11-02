@@ -17,7 +17,7 @@ import sys
 
 from src.input.script.virtual.virtual_chart import check, date_style, dumps, load_case, out_dir
 
-# 날짜를 kdate로 쓰는 개발 세트 사례 (VC-0103·0106b는 날짜를 글에 직접 써서 형식이 바뀌지 않아 뺐다)
+# 날짜를 kdate로 쓰는 개발 세트 사례 (VC-0103은 날짜를 글에 직접 써서 형식이 바뀌지 않아 뺐다. VC-0106b는 2026-11-02에 kdate로 바꿨지만 아직 넣지 않았다)
 BASES = ["VC-0101", "VC-0104", "VC-0105", "VC-0108", "VC-0109"]
 STYLES = ["dash", "korean", "yy"]
 VARIANTS = {f"{b}-{s}": (b, s) for b in BASES for s in STYLES}

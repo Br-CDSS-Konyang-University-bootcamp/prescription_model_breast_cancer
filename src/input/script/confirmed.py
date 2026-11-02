@@ -12,6 +12,8 @@
 
 정한 규칙 (2026-10-30, A):
 - dfi_days·high_risk_early는 여기서 계산한다 (전달 문서 §6-5 제안).
+- setting.phase (조기·국소 진행성의 이번 결정, 2026-11-02 사용자 결정): 원발 수술 기록(pTNM·ypTNM)이 있으면 adjuvant,
+  없으면 neoadjuvant. 수술 시점은 시스템이 고를 근거가 없어 규칙으로 정한다. B setting.line(마지막 투약의 단계)은 쓰지 않는다.
 - gBRCA = gBRCA1·gBRCA2 하나로: 하나라도 positive → positive, vus → vus, 둘 다 negative → negative,
   하나만 negative이고 나머지가 기록 없음 → 의사 확인. sBRCA도 같다.
 """
@@ -129,6 +131,16 @@ def _size(fields: dict, basis: str | None) -> tuple[object, str | None, dict | N
         if _present(stage.get(key)):
             return stage[key]["value"], key[0], stage[key].get("source")
     return "not_recorded", None, None
+
+
+def _phase(fields: dict) -> tuple[str, str, dict | None]:
+    """이번 결정의 치료 단계 (사용자 결정 2026-11-02). 수술을 먼저 할지는 우리 시스템이 고를 근거가 없으므로 규칙으로 정한다:
+    원발 수술 기록(pTNM 또는 선행 뒤 ypTNM)이 있으면 adjuvant, 없으면 선행요법 대상으로 넘어왔다고 보고 neoadjuvant."""
+    stage = fields.get("stage") or {}
+    for key, name in (("yptnm", "ypTNM"), ("ptnm", "pTNM")):
+        if _present(stage.get(key)):
+            return "adjuvant", f"원발 수술 기록 있음 ({name}) → 보조요법", stage[key].get("source")
+    return "neoadjuvant", "원발 수술 기록 없음 (pTNM·ypTNM 없음) → 선행요법 대상으로 봄", None
 
 
 def _high_risk(t: str | None, ln: int | None, grade, ki67: float | None) -> dict | None:
@@ -344,8 +356,14 @@ def build_draft(patient_state: dict, biomarker_record: dict, drug_table=None) ->
     # 치료 상황
     put("setting.disease", "current", setting.get("disease"), "biomarker_record")
     put("subtype", "current", biomarker_record.get("subtype"), "biomarker_record")
-    line = setting.get("line")
-    put("setting.phase", "current", line if line in ("neoadjuvant", "adjuvant", "unknown") else None, "biomarker_record")
+    if setting.get("disease") == "metastatic":
+        put("setting.phase", "current", None, "derived", note="전이성은 고식적 (선행/보조 아님)")
+    else:
+        phase, phase_note, phase_src = _phase(fields)
+        line = setting.get("line")
+        if line in ("neoadjuvant", "adjuvant") and line != phase:
+            phase_note += f" (B setting.line {line}: 마지막 투약의 단계)"
+        put("setting.phase", "current", phase, "derived", refs=_ref(phase_src), note=phase_note)
     put("setting.line_endocrine", "current", setting.get("line_endocrine"), "biomarker_record")
     put("setting.line_chemo", "current", setting.get("line_chemo"), "biomarker_record")
 

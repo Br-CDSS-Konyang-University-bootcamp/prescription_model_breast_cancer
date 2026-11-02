@@ -5,8 +5,8 @@
 from src.input.script.virtual.virtual_chart import Chart, F, allred, allred_text, kdate
 
 
-def surgery_report(c: Chart, ki67: str = "single") -> None:
-    """본원 전절제 병리 (VC-0106b가 같이 쓴다). ki67 = single (값 하나) / conflict (본문 15%, 판독 요약 25%)."""
+def surgery_report(c: Chart, ki67: bool = True) -> None:
+    """본원 전절제 병리 (VC-0106b가 같이 쓴다). ki67=False면 수술 검체에서 Ki-67을 재지 않은 보고서 (줄 없음)."""
     D = c.on
     d = c.doc("pathology", D(31))
     d.t("[병리결과보고서]\n").ident(55, F("patient.gender", "FEMALE"), F("patient.age", 55), full=False)
@@ -21,24 +21,17 @@ def surgery_report(c: Chart, ki67: str = "single") -> None:
           F("stage.group", "IIIA", within="stage IIIA"),
           F("stage.disease_extent", "locally_advanced", within="stage IIIA"),
           F("stage.metastatic_sites", "[Not Applicable]", within="pT3 N1a M0"))
-    if ki67 == "conflict":
-        d.t("\n  ")
-        d.put("Ki-67 labeling index 25%",
-              F("proliferation.ki67_percent", {"percent": 25}, role="conflict", specimen="primary", observed_date=D(25),
-                note="같은 보고서 안에서 값이 다름 (판독 요약 25%, 면역염색 표 15%)"))
     d.t("\n\n면역조직화학 (IHC)\n  ")
     pri = dict(specimen="primary", observed_date=D(25))
     d.put(f"ER : 양성, {allred_text(5, 3)}", F("receptors.er_percent", allred(5, 3, "positive"), **pri)).t("\n  ")
     d.put(f"PR : 양성, {allred_text(5, 2)}", F("receptors.pr_percent", allred(5, 2, "positive"), **pri)).t("\n  ")
-    d.put("HER2 (4B5): 0", F("receptors.her2_ihc", {"score": "0"}, **pri)).t("\n  ")
-    if ki67 == "conflict":
-        d.put("Ki-67: 15%", F("proliferation.ki67_percent", {"percent": 15}, role="conflict", **pri))
-    else:
-        d.put("Ki-67: 25%", F("proliferation.ki67_percent", {"percent": 25}, **pri))
+    d.put("HER2 (4B5): 0", F("receptors.her2_ihc", {"score": "0"}, **pri))
+    if ki67:
+        d.t("\n  ").put("Ki-67: 25%", F("proliferation.ki67_percent", {"percent": 25}, **pri))
     d.t("\n\n판독의: 박가상\n")
 
 
-def mdt_note(c: Chart) -> None:
+def mdt_note(c: Chart, discussion: str = "논의: 보조 항암 후 내분비요법에 CDK4/6 억제제를 추가할지\n") -> None:
     D = c.on
     idx = c.index_date
     d = c.doc("progress_note", idx)
@@ -50,7 +43,7 @@ def mdt_note(c: Chart) -> None:
     d.t("전절제술 후 pT3N1a(2/15)M0, IIIA. HR+/HER2-.\n      ")
     d.put("ECOG PS 0", F("patient.ecog", 0, observed_date=idx)).t(". ")
     d.put("수술 후 영상에서 원격 전이 없음", F("recurrence.status", "none")).t(".\n")
-    d.t("논의: 보조 항암 후 내분비요법에 CDK4/6 억제제를 추가할지\n결론: 보조 항암 시작, 이후 내분비 기반 요법 재논의\n")
+    d.t(discussion + "결론: 보조 항암 시작, 이후 내분비 기반 요법 재논의\n")
 
 
 def build() -> Chart:

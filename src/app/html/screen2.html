@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>처방 추천 선택</title>
+<style>
+:root {
+  --bg: #f6f7f9; --panel: #ffffff; --text: #1d2330; --muted: #667085; --line: #e3e6eb; --soft: #f1f3f6;
+  --accent: #2f5bd3; --req: #c4320a; --req-bg: #fff1ec; --warn: #a15c00; --warn-bg: #fff8e6;
+  --chg: #6941c6; --chg-bg: #f4f0ff; --ok: #067647; --ok-bg: #ecfdf3; --mono: ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12151b; --panel: #1b2029; --text: #e6e8ec; --muted: #98a2b3; --line: #2c333f; --soft: #222833;
+    --accent: #7a9bff; --req: #ff8f6b; --req-bg: #3a2018; --warn: #f5b950; --warn-bg: #33290f;
+    --chg: #b69cff; --chg-bg: #2a2340; --ok: #4fd18b; --ok-bg: #12301f;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12151b; --panel: #1b2029; --text: #e6e8ec; --muted: #98a2b3; --line: #2c333f; --soft: #222833;
+  --accent: #7a9bff; --req: #ff8f6b; --req-bg: #3a2018; --warn: #f5b950; --warn-bg: #33290f;
+  --chg: #b69cff; --chg-bg: #2a2340; --ok: #4fd18b; --ok-bg: #12301f;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 system-ui, "Malgun Gothic", sans-serif;
+  display: flex; flex-direction: column; }
+select, input, textarea, button { font: inherit; color: inherit; background: var(--panel);
+  border: 1px solid var(--line); border-radius: 6px; padding: 3px 8px; }
+button { cursor: pointer; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; padding: 5px 16px; }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button.link { border: 0; background: none; color: var(--accent); padding: 0 2px; font-size: 12px; }
+a { color: var(--accent); }
+
+header { background: var(--panel); border-bottom: 1px solid var(--line); padding: 8px 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+header h1 { font-size: 15px; margin: 0; }
+.headinfo { color: var(--muted); font-size: 13px; }
+.band { padding: 6px 16px; background: var(--warn-bg); color: var(--warn); font-size: 13px; border-bottom: 1px solid var(--line); }
+.band div::before { content: "⚠ "; }
+.band b { margin-right: 6px; }
+
+.layout { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(300px, 1fr) minmax(460px, 1.45fr); gap: 12px; padding: 12px 16px; }
+.col { min-height: 0; display: flex; flex-direction: column; gap: 12px; }
+.pane { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; display: flex; flex-direction: column; min-height: 0; }
+.pane > h2 { font-size: 13px; margin: 0; padding: 8px 12px; border-bottom: 1px solid var(--line); display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.pane > h2 small { font-weight: 400; color: var(--muted); }
+.pane > h2 .right { margin-left: auto; }
+.pane .body { overflow-y: auto; overflow-x: hidden; padding: 4px 0; }
+#left { flex: 1; }
+#recs { flex: 1.4; }
+#pick { flex: 0 0 auto; max-height: 46%; }
+
+/* 왼쪽 상태 */
+.grp h3 { margin: 0; padding: 8px 12px 2px; font-size: 12px; color: var(--muted); font-weight: 600; }
+.kv { display: grid; grid-template-columns: 120px 1fr; gap: 8px; padding: 2px 12px; }
+.kv > * { min-width: 0; }
+.kv .k { color: var(--muted); font-size: 12px; padding-top: 1px; }
+.kv .v { word-break: break-word; }
+.kv .v small { color: var(--muted); font-size: 11px; }
+.tag { font-size: 11px; font-weight: 700; margin-left: 4px; }
+.tag.chg { color: var(--chg); }
+.reg { font-size: 12.5px; padding: 1px 0; }
+
+/* 추천 카드 */
+.progress { padding: 24px 16px; text-align: center; color: var(--muted); }
+.progress b { color: var(--text); }
+.spin { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: s 1s linear infinite; vertical-align: -2px; margin-right: 6px; }
+@keyframes s { to { transform: rotate(360deg); } }
+.sortnote { font-size: 12px; color: var(--muted); padding: 4px 12px; }
+.card { margin: 8px 12px; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+.card.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.card .top { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.card .no { font-weight: 700; color: var(--accent); }
+.card .therapy { font-weight: 700; font-size: 15px; }
+.card .ev { margin-left: auto; font-size: 12px; color: var(--muted); }
+.card .why { font-size: 13px; margin: 4px 0; }
+.chip { display: inline-block; font-family: var(--mono); font-size: 11px; background: var(--soft); border: 1px solid var(--line);
+  border-radius: 4px; padding: 0 4px; margin: 0 2px; cursor: pointer; color: var(--accent); }
+.reimb { font-size: 13px; padding: 4px 8px; border-radius: 6px; margin-top: 4px; }
+.reimb.covered { background: var(--ok-bg); color: var(--ok); }
+.reimb.covered_conditions_unverified, .reimb.offlabel_approved { background: var(--warn-bg); color: var(--warn); }
+.reimb.no_criteria { background: var(--soft); color: var(--muted); }
+.reimb small { display: block; color: inherit; opacity: .9; }
+.note { font-size: 12px; color: var(--warn); margin-top: 4px; }
+.extra { margin: 8px 12px; font-size: 13px; }
+.extra h4 { margin: 6px 0 2px; font-size: 12px; color: var(--muted); }
+.chunkview { margin: 8px 12px; padding: 8px 10px; background: var(--soft); border-radius: 8px; font-size: 12.5px; }
+.chunkview pre { white-space: pre-wrap; font-family: var(--mono); font-size: 12px; margin: 6px 0 0; max-height: 220px; overflow: auto; }
+
+/* 처방 선택 */
+.opt { display: flex; gap: 8px; padding: 4px 12px; align-items: baseline; flex-wrap: wrap; }
+.opt > label { font-weight: 600; }
+.sub { padding: 2px 12px 6px 36px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; font-size: 13px; }
+.drugchip { background: var(--soft); border-radius: 4px; padding: 0 6px; font-size: 12px; }
+.memo { padding: 6px 12px; }
+.memo textarea { width: 100%; min-height: 40px; }
+.foot { border-top: 1px solid var(--line); padding: 8px 12px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.foot .right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+#msg .errors { color: var(--req); white-space: pre-wrap; font-size: 13px; margin: 4px 12px; }
+#msg .saved { color: var(--ok); font-size: 13px; margin: 4px 12px; }
+.statusline { padding: 6px 16px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); background: var(--panel); }
+
+@media (max-width: 900px) {
+  body { display: block; }
+  .layout { grid-template-columns: 1fr; }
+  #pick { max-height: none; }
+  .kv { grid-template-columns: 100px 1fr; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>화면 2 · 처방 추천 선택</h1>
+  <span id="headinfo" class="headinfo"></span>
+  <a id="back" href="/">← 화면 1</a>
+</header>
+<div id="band"></div>
+<div class="layout">
+  <div class="col">
+    <section class="pane" id="left">
+      <h2>현재 환자 상태 <small>화면 1에서 확정한 값 (confirmed_state)</small></h2>
+      <div class="body" id="state"></div>
+    </section>
+  </div>
+  <div class="col">
+    <section class="pane" id="recs">
+      <h2>처방 추천 <small id="recinfo"></small><span class="right" id="recbtn"></span></h2>
+      <div class="body" id="cards"><div class="progress">불러오는 중…</div></div>
+    </section>
+    <section class="pane" id="pick">
+      <h2>의사 처방 선택 <small>추천안 하나, 기타(직접 처방), 보류 중 하나</small></h2>
+      <div class="body">
+        <div id="choices"></div>
+        <div class="memo"><textarea id="memo" placeholder="메모 (판단 근거, 선택)"></textarea></div>
+        <div id="msg"></div>
+      </div>
+      <div class="foot">
+        <span id="pickinfo" class="headinfo"></span>
+        <div class="right">
+          <input id="by" placeholder="결정자 가명 ID" size="13">
+          <button id="save" class="primary" disabled>확인</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+<div class="statusline" id="statusline"></div>
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const Q = Object.fromEntries(new URLSearchParams(location.search));
+let META = null, D = null, REC = null, CHOICE = null, CUSTOM = [], VIEW = null, MORE = false, TIMER = null;
+const REIMB = {
+  covered: "급여 (조건 충족)", covered_conditions_unverified: "급여 (조건 확인 필요)",
+  offlabel_approved: "허가초과 인정 · 다학제적위원회 협의 필요", no_criteria: "급여 기준 없음 (비급여 가능성, 확인 필요)",
+};
+const DEFER = ["검사 후 결정", "다학제 회의", "환자 상의", "기타"];
+
+function vl(key, v) {
+  if (v === null || v === undefined) return "없음";
+  if (Array.isArray(v)) return v.map((x) => vl(key, x)).join(", ") || "없음";
+  if (typeof v === "object") return Object.entries(v).map(([k, x]) => `${k === "hira" ? "급여" : k === "esmo" ? "ESMO" : k} ${vl(key, x)}`).join(" · ");
+  return META.value_labels[`${key}:${v}`] || META.value_labels[String(v)] || String(v);
+}
+const label = (k) => META.labels[k] || k.replace("markers.", "");
+async function api(path, body) {
+  const res = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : undefined);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || res.statusText);
+  return data;
+}
+
+async function init() {
+  if (!Q.case || !Q.version) { $("#cards").innerHTML = '<div class="progress">화면 1에서 확정한 뒤 넘어오세요.</div>'; return; }
+  META = await api("/api/meta");
+  D = await api(`/api/screen2?case=${encodeURIComponent(Q.case)}&version=${Q.version}`);
+  const cs = D.confirmed;
+  $("#headinfo").textContent = `${cs.patient_ref} · 확정 v${cs.version} (${cs.confirmed_at}, ${cs.confirmed_by})`;
+  $("#back").href = `/?case=${encodeURIComponent(Q.case)}`;
+  try { $("#by").value = localStorage.getItem("screen1.by") || ""; } catch (e) {}
+  $("#save").onclick = save;
+  renderState(); renderChoices();
+  if (D.decisions.length) $("#msg").innerHTML = `<p class="saved">저장된 처방 결정: ${D.decisions.map(esc).join(", ")} (새로 저장하면 다음 버전)</p>`;
+  if (D.rec.stage === "none") start(false); else onStatus(D.rec);
+}
+
+// 왼쪽: 확정한 상태
+function renderState() {
+  const it = D.confirmed.items, mk = it.markers || {};
+  const val = (k) => {
+    const x = k.startsWith("markers.") ? mk[k.slice(8)] : it[k];
+    if (!x) return null;
+    const detail = x.detail && Object.keys(x.detail).length ? ` <small>${esc(Object.entries(x.detail).map(([a, b]) => `${a} ${typeof b === "object" ? JSON.stringify(b) : b}`).join(" · "))}</small>` : "";
+    return `${esc(vl(k, x.confirmed))}${x.status === "changed" ? '<span class="tag chg">의사 변경</span>' : ""}${detail}`;
+  };
+  const kv = (k) => { const v = val(k); return v === null ? "" : `<div class="kv"><span class="k">${esc(label(k))}</span><span class="v">${v}</span></div>`; };
+  const regs = (it.prior_regimens || {}).confirmed || [];
+  const deemed = Object.entries(((it.deemed_lines || {}).confirmed) || {}).filter(([, s]) => s === "met").map(([k]) => k);
+  const groups = [
+    ["현재 상황", ["subtype", "setting.disease", "setting.phase", "setting.line_endocrine", "setting.line_chemo", "menopausal_status", "age_at_index"]],
+    ["바이오마커", Object.keys(mk).map((m) => "markers." + m)],
+    ["진단 시", ["stage.t", "stage.n", "stage.group", "stage.positive_ln_count", "stage.size_mm", "grade", "pcr", "high_risk_early"]],
+    ["재발·전이", ["recurrence_type", "metastatic_sites", "endocrine_relapse_12m", "dfi_days", "visceral_crisis", "contraindicated_classes"]],
+  ];
+  $("#state").innerHTML = groups.map(([t, keys]) => {
+    const rows = keys.map(kv).join("");
+    return rows ? `<div class="grp"><h3>${esc(t)}</h3>${rows}</div>` : "";
+  }).join("") +
+    `<div class="grp"><h3>치료 이력</h3>${regs.length ? regs.map((r) => `<div class="kv"><span class="k">${esc(vl("", r.setting))}</span><span class="v reg">${esc(r.drugs.join(" + "))}
+      <small>day ${esc(r.start_day)}~${esc(r.end_day ?? "")}${r.line_endocrine ? ` · 내분비 ${r.line_endocrine}차` : ""}${r.line_chemo ? ` · 항암 ${r.line_chemo}차` : ""}${r.response && r.response !== "unknown" ? ` · ${r.response}` : ""}${r.stop_reason ? ` · ${r.stop_reason}` : ""}</small></span></div>`).join("")
+      : '<div class="kv"><span class="k"></span><span class="v">없음</span></div>'}
+      ${deemed.length ? `<div class="kv"><span class="k">차수 간주 충족</span><span class="v">${esc(deemed.join(", "))}</span></div>` : ""}</div>`;
+}
+
+// 오른쪽 위: 추천
+async function start(force) {
+  try { onStatus(await api("/api/rec/start", { case: Q.case, version: +Q.version, force })); }
+  catch (e) { $("#cards").innerHTML = `<div class="progress">${esc(e.message)}</div>`; }
+}
+function onStatus(st) {
+  clearTimeout(TIMER);
+  if (st.stage === "done") { REC = st; renderRecs(); renderChoices(); return; }
+  if (st.stage === "error") {
+    $("#cards").innerHTML = `<div class="progress">추천을 만들지 못했습니다.<br><b>${esc(st.error)}</b></div>`;
+    $("#recbtn").innerHTML = `<button class="link" id="retry">다시 시도</button>`;
+    $("#retry").onclick = () => start(true);
+    return;
+  }
+  $("#recinfo").textContent = "";
+  $("#recbtn").innerHTML = "";
+  $("#cards").innerHTML = `<div class="progress"><span class="spin"></span><b>${esc(st.stage)}</b> 중 · ${st.elapsed ?? 0}초 지남<br>
+    지침·급여 검색 → 로컬 LLM(${esc(st.model || "")})이 추천을 만듭니다. CPU에서는 몇 분 걸릴 수 있습니다.${st.chunks ? `<br>찾은 청크 ${st.chunks}개` : ""}</div>`;
+  TIMER = setTimeout(async () => onStatus(await api(`/api/rec/status?case=${encodeURIComponent(Q.case)}&version=${Q.version}`)), 3000);
+}
+
+function cite(id) { return `<span class="chip" data-chunk="${esc(id)}">${esc(id)}</span>`; }
+function withCites(text) {
+  return esc(text).replace(/\[([A-Za-z0-9_.:\-]+)\]/g, (m, id) => REC.chunks[id] ? cite(id) : m);
+}
+
+function renderRecs() {
+  const rec = REC.recommendation, opts = REC.ranked, shown = MORE ? opts : opts.slice(0, REC.shown);
+  $("#recinfo").textContent = `${rec.model} · ${REC.seconds}초 · 정렬: 근거 수준 → 급여`;
+  $("#recbtn").innerHTML = `<button class="link" id="regen">다시 생성</button>`;
+  $("#regen").onclick = () => { REC = null; CHOICE = null; start(true); };
+  const notes = rec.clinical_notes || [];
+  const band = [...(rec.tests_needed || []).map((t) => `<div><b>검사 권고</b>${esc(t.test)}: ${esc(t.reason)}${t.blocks_therapy ? ` (이 검사가 없어 ${esc(t.blocks_therapy)} 추천 보류)` : ""}</div>`),
+    ...(rec.conflicts || []).map((c) => `<div><b>확인</b>${esc(c)}</div>`)];
+  $("#band").innerHTML = band.length ? `<div class="band">${band.join("")}</div>` : "";
+  $("#statusline").textContent = REC.index_summary || "";
+  let html = "";
+  if (rec.out_of_scope || !opts.length) {
+    html += `<div class="progress">추천안이 없습니다${rec.out_of_scope_reason ? `: <b>${esc(rec.out_of_scope_reason)}</b>` : ""}.<br>아래에서 기타(직접 처방)나 보류를 고르세요.</div>`;
+  }
+  html += shown.map((o, n) => {
+    const applies = notes.filter((x) => (x.applies_to || []).includes(o.therapy));
+    return `<div class="card ${CHOICE && CHOICE.action === "accept_option" && CHOICE.index === o.index ? "sel" : ""}">
+      <div class="top"><span class="no">${n + 1}안</span><span class="therapy">${esc(o.therapy)}</span>
+        <span class="ev">${esc([o.guideline_source, o.evidence].filter(Boolean).join(" · "))}</span></div>
+      <div class="why">${withCites(o.rationale)} ${(o.citations || []).map(cite).join("")}</div>
+      <div class="reimb ${esc(o.reimbursement)}">${esc(REIMB[o.reimbursement] || o.reimbursement)}${o.copay ? ` · 본인부담 ${esc(o.copay)}` : ""}
+        <small>${esc(o.reimbursement_reason)} ${(o.reimbursement_citations || []).map(cite).join("")}</small></div>
+      ${applies.map((x) => `<div class="note">⚠ ${esc(x.text)}</div>`).join("")}
+    </div>`;
+  }).join("");
+  if (opts.length > REC.shown) html += `<div class="sortnote"><button class="link" id="more">${MORE ? "접기" : `추천안 ${opts.length - REC.shown}개 더 보기`}</button></div>`;
+  const general = notes.filter((x) => !(x.applies_to || []).length);
+  if (general.length) html += `<div class="extra"><h4>참고</h4>${general.map((x) => `<div>${esc(x.text)} ${(x.citations || []).map(cite).join("")}</div>`).join("")}</div>`;
+  if (VIEW && REC.chunks[VIEW]) {
+    const ch = REC.chunks[VIEW];
+    html += `<div class="chunkview"><b>${esc(ch.chunk_id)}</b> · ${esc(ch.source)} ${esc(ch.version)} · ${esc(ch.section)} · ${ch.page_start ? `${ch.page_start}${ch.page_end && ch.page_end !== ch.page_start ? "–" + ch.page_end : ""}쪽` : ""}
+      <button class="link" id="closeview">닫기</button><pre>${esc(ch.text)}</pre></div>`;
+  }
+  $("#cards").innerHTML = html;
+  document.querySelectorAll("#cards [data-chunk]").forEach((el) => el.onclick = () => { VIEW = el.dataset.chunk; renderRecs(); $(".chunkview").scrollIntoView({ block: "nearest" }); });
+  if ($("#closeview")) $("#closeview").onclick = () => { VIEW = null; renderRecs(); };
+  if ($("#more")) $("#more").onclick = () => { MORE = !MORE; renderRecs(); renderChoices(); };
+}
+
+// 오른쪽 아래: 처방 선택
+function renderChoices() {
+  const opts = REC ? (MORE ? REC.ranked : REC.ranked.slice(0, REC.shown)) : [];
+  const is = (a) => CHOICE && CHOICE.action === a;
+  const custom = is("custom") ? CHOICE : {};
+  let html = opts.map((o, n) => `<div class="opt"><label><input type="radio" name="c" data-act="accept_option" data-index="${o.index}" ${is("accept_option") && CHOICE.index === o.index ? "checked" : ""}> ${n + 1}안</label> <span>${esc(o.therapy)}</span></div>`).join("");
+  if (!REC) html += `<div class="opt"><span class="headinfo">추천이 끝나면 추천안이 여기에 나옵니다.</span></div>`;
+  html += `<div class="opt"><label><input type="radio" name="c" data-act="custom" ${is("custom") ? "checked" : ""}> 기타 (직접 처방)</label></div>`;
+  if (is("custom")) {
+    html += `<div class="sub">약 <input list="druglist" id="druginput" placeholder="약 이름 검색" size="16"><button class="link" id="adddrug">추가</button>
+      ${CUSTOM.map((d, i) => `<span class="drugchip">${esc(d.name)}${d.unlisted ? " (사전에 없음)" : ""} <button class="link" data-rm="${i}">×</button></span>`).join("")}</div>
+      <div class="sub">투여 단계 <select id="setting"><option value="">(선택)</option>${[["neoadjuvant", "선행"], ["adjuvant", "보조"], ["palliative", "고식"]].map(([v, t]) => `<option value="${v}" ${custom.setting === v ? "selected" : ""}>${t}</option>`).join("")}</select>
+      ${custom.setting === "palliative" ? `차수 <select id="line"><option value="">(선택)</option>${["1L", "2L", ">=3L"].map((v) => `<option ${custom.line === v ? "selected" : ""}>${v}</option>`).join("")}</select>` : ""}
+      <span class="headinfo">사전에 없는 약은 이름 그대로 추가되고 보고서에 "사전 미등록 약제"로 표시됩니다. 기타 처방은 급여 판정을 다시 하지 않습니다.</span></div>`;
+  }
+  html += `<div class="opt"><label><input type="radio" name="c" data-act="defer" ${is("defer") ? "checked" : ""}> 보류</label>
+    ${is("defer") ? `<select id="defer"><option value="">(이유)</option>${DEFER.map((d) => `<option ${CHOICE.reason === d ? "selected" : ""}>${d}</option>`).join("")}</select>` : ""}</div>`;
+  html += `<datalist id="druglist">${D.drugs.map((d) => `<option value="${esc(d)}">`).join("")}</datalist>`;
+  $("#choices").innerHTML = html;
+  document.querySelectorAll('#choices input[name="c"]').forEach((el) => el.onchange = () => {
+    CHOICE = el.dataset.act === "accept_option" ? { action: "accept_option", index: +el.dataset.index } : { action: el.dataset.act };
+    renderChoices(); if (REC) renderRecs();
+  });
+  if ($("#adddrug")) {
+    const add = () => { const v = $("#druginput").value.trim(); if (v && !CUSTOM.some((d) => d.name === v)) CUSTOM.push({ name: v, unlisted: !D.drugs.includes(v) }); renderChoices(); };
+    $("#adddrug").onclick = add;
+    $("#druginput").onkeydown = (e) => { if (e.key === "Enter") add(); };
+    document.querySelectorAll("#choices [data-rm]").forEach((el) => el.onclick = () => { CUSTOM.splice(+el.dataset.rm, 1); renderChoices(); });
+    $("#setting").onchange = (e) => { CHOICE.setting = e.target.value; if (CHOICE.setting !== "palliative") CHOICE.line = null; renderChoices(); };
+    if ($("#line")) $("#line").onchange = (e) => { CHOICE.line = e.target.value; renderChoices(); };
+  }
+  if ($("#defer")) $("#defer").onchange = (e) => { CHOICE.reason = e.target.value; renderChoices(); };
+  const ok = CHOICE && (CHOICE.action === "accept_option" || (CHOICE.action === "custom" && CUSTOM.length && CHOICE.setting) || (CHOICE.action === "defer" && CHOICE.reason));
+  $("#save").disabled = !ok;
+  $("#pickinfo").textContent = ok ? "" : "하나를 골라야 확인이 켜집니다";
+}
+
+async function save() {
+  const by = $("#by").value.trim();
+  try { localStorage.setItem("screen1.by", by); } catch (e) {}
+  const body = { case: Q.case, version: +Q.version, decided_by: by, action: CHOICE.action, memo: $("#memo").value };
+  if (CHOICE.action === "accept_option") body.selected_option_index = CHOICE.index;
+  if (CHOICE.action === "custom") Object.assign(body, { drugs: CUSTOM.filter((d) => !d.unlisted).map((d) => d.name),
+    custom_unlisted_drugs: CUSTOM.filter((d) => d.unlisted).map((d) => d.name), setting: CHOICE.setting, line: CHOICE.line || null });
+  if (CHOICE.action === "defer") body.defer_reason = CHOICE.reason;
+  const data = await api("/api/decision", body);
+  $("#msg").innerHTML = data.errors.length ? `<p class="errors">저장하지 못함:\n${data.errors.map(esc).join("\n")}</p>`
+    : `<p class="saved">저장함: ${esc(data.path)} · ${esc(data.doc.action === "defer" ? "보류 (" + data.doc.defer_reason + ")" : data.doc.therapy)}. 결과 보고서(설계 §6)는 아직 없습니다.</p>`;
+  $("#msg").scrollIntoView({ block: "nearest" });
+}
+
+init().catch((e) => { $("#cards").innerHTML = `<div class="progress">${esc(e.message)}</div>`; });
+</script>
+</body>
+</html>

@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>처방 조건 확인</title>
+<style>
+:root {
+  --bg: #f6f7f9; --panel: #ffffff; --text: #1d2330; --muted: #667085; --line: #e3e6eb; --soft: #f1f3f6; --na: #f6f7f9;
+  --accent: #2f5bd3; --req: #c4320a; --req-bg: #fff1ec; --warn: #a15c00; --warn-bg: #fff8e6;
+  --chg: #6941c6; --chg-bg: #f4f0ff; --ok: #067647; --ok-bg: #ecfdf3; --mark: #fff0a8; --mono: ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12151b; --panel: #1b2029; --text: #e6e8ec; --muted: #98a2b3; --line: #2c333f; --soft: #222833; --na: #171b22;
+    --accent: #7a9bff; --req: #ff8f6b; --req-bg: #3a2018; --warn: #f5b950; --warn-bg: #33290f;
+    --chg: #b69cff; --chg-bg: #2a2340; --ok: #4fd18b; --ok-bg: #12301f; --mark: #5c4d00;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12151b; --panel: #1b2029; --text: #e6e8ec; --muted: #98a2b3; --line: #2c333f; --soft: #222833; --na: #171b22;
+  --accent: #7a9bff; --req: #ff8f6b; --req-bg: #3a2018; --warn: #f5b950; --warn-bg: #33290f;
+  --chg: #b69cff; --chg-bg: #2a2340; --ok: #4fd18b; --ok-bg: #12301f; --mark: #5c4d00;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 system-ui, "Malgun Gothic", sans-serif;
+  display: flex; flex-direction: column; }
+select, input, textarea, button { font: inherit; color: inherit; background: var(--panel);
+  border: 1px solid var(--line); border-radius: 6px; padding: 3px 8px; }
+button { cursor: pointer; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; padding: 5px 16px; }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button.link { border: 0; background: none; color: var(--accent); padding: 0 4px; font-size: 12px; }
+
+header { background: var(--panel); border-bottom: 1px solid var(--line); padding: 8px 16px; display: flex;
+  gap: 10px; align-items: center; flex-wrap: wrap; }
+header h1 { font-size: 15px; margin: 0; }
+.headinfo { color: var(--muted); font-size: 13px; }
+.band { padding: 6px 16px; background: var(--warn-bg); color: var(--warn); font-size: 13px; border-bottom: 1px solid var(--line); }
+.band div::before { content: "⚠ "; }
+.band b { margin-right: 6px; }
+
+.layout { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(300px, 1fr) minmax(440px, 1.35fr); gap: 12px; padding: 12px 16px; }
+.pane { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; display: flex; flex-direction: column; min-height: 0; }
+.pane > h2 { font-size: 13px; margin: 0; padding: 8px 12px; border-bottom: 1px solid var(--line); display: flex; gap: 8px; align-items: baseline; }
+.pane > h2 small { font-weight: 400; color: var(--muted); }
+.pane .body { overflow-y: auto; overflow-x: hidden; padding: 4px 0; flex: 1; }
+
+/* 왼쪽 문서 */
+.doc { border-bottom: 1px solid var(--line); padding: 6px 12px 8px; }
+.doc:last-child { border-bottom: 0; }
+.doc h3 { font-size: 13px; margin: 2px 0 4px; display: flex; gap: 6px; align-items: baseline; }
+.doc h3 span { color: var(--muted); font-weight: 400; font-size: 12px; }
+.doc.none h3 { color: var(--muted); font-weight: 400; }
+.val { display: grid; grid-template-columns: 82px 1fr; gap: 8px; padding: 1px 4px; border-radius: 4px; cursor: pointer; }
+.val:hover { background: var(--soft); }
+.val .k { color: var(--muted); font-size: 12px; padding-top: 1px; }
+.val .raw { font-family: var(--mono); font-size: 12.5px; word-break: break-word; }
+.val .meta { color: var(--muted); font-size: 11px; margin-left: 6px; font-family: system-ui, sans-serif; }
+.src { white-space: pre-wrap; font-family: var(--mono); font-size: 12px; background: var(--soft); border-radius: 6px;
+  padding: 8px; margin-top: 6px; max-height: 320px; overflow: auto; }
+.src mark { background: var(--mark); color: inherit; border-radius: 2px; }
+.footnote { color: var(--muted); font-size: 12px; padding: 6px 12px; }
+
+/* 오른쪽 */
+.decision { padding: 8px 12px; border-bottom: 1px solid var(--line); background: var(--soft); font-size: 13px; }
+.decision b { font-size: 14px; }
+.group { border-bottom: 1px solid var(--line); }
+.group > h3 { margin: 0; padding: 8px 12px 6px; font-size: 13px; display: flex; gap: 10px; align-items: center; }
+.group > h3 small { font-weight: 400; color: var(--muted); }
+.group.a > h3 { color: var(--req); }
+.row { display: grid; grid-template-columns: 52px 150px 1fr; gap: 8px; padding: 6px 12px; border-top: 1px solid var(--line); align-items: start; }
+.row > * { min-width: 0; }
+.row.chg { background: var(--chg-bg); }
+.row.empty { background: var(--req-bg); }
+.row.na { background: var(--na); color: var(--muted); }
+.row.na .lab { font-weight: 400; }
+.lab { font-weight: 600; padding-top: 3px; }
+.lab small { display: block; font-weight: 400; color: var(--muted); font-size: 11px; }
+.tag { font-size: 11px; font-weight: 700; margin-left: 4px; }
+.tag.req { color: var(--req); } .tag.chg { color: var(--chg); } .tag.ok { color: var(--ok); }
+.why-a { display: inline-block; font-size: 11px; font-weight: 600; color: var(--req); background: var(--req-bg); border-radius: 4px; padding: 0 6px; margin-bottom: 2px; }
+.ctl { display: flex; flex-direction: column; gap: 4px; }
+.ctl select { max-width: 100%; }
+.ctl .line { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.ctl .sys { font-size: 12px; color: var(--muted); }
+.ctl .sys b { color: var(--text); font-weight: 600; }
+.ctl .hint { font-size: 12px; color: var(--warn); }
+.ctl .value { font-weight: 600; }
+.ctl .naval { font-size: 13px; }
+.reason { border-color: var(--chg); width: 100%; }
+.chk { font-size: 12px; display: flex; gap: 4px; align-items: center; padding-top: 4px; white-space: nowrap; }
+.chk.done { color: var(--ok); }
+.chk.all { padding-top: 0; color: var(--text); font-weight: 600; }
+.multi label { font-size: 13px; margin-right: 8px; white-space: nowrap; }
+.memo { padding: 8px 12px; }
+.memo textarea { width: 100%; min-height: 44px; }
+.foot { border-top: 1px solid var(--line); padding: 8px 12px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.foot .count { font-size: 13px; color: var(--muted); }
+.foot .count b { color: var(--text); }
+.foot .right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+#msg .errors { color: var(--req); white-space: pre-wrap; font-size: 13px; padding: 0 12px; margin: 6px 0; }
+#msg .saved { color: var(--ok); font-size: 13px; padding: 0 12px; margin: 6px 0; }
+.emptymsg { padding: 40px; text-align: center; color: var(--muted); }
+
+@media (max-width: 900px) {
+  body { display: block; }
+  .layout { grid-template-columns: 1fr; }
+  .row { grid-template-columns: 52px 1fr; }
+  .row .ctl { grid-column: 2; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>화면 1 · 처방 조건 확인</h1>
+  <label>사례 <select id="case"></select></label>
+  <span id="headinfo" class="headinfo"></span>
+</header>
+<div id="band"></div>
+<div class="layout">
+  <section class="pane">
+    <h2>검사 결과 <small>원문 표기 그대로 · 값을 누르면 원문 위치</small></h2>
+    <div class="body" id="docs"><div class="emptymsg">사례를 고르세요.</div></div>
+  </section>
+  <section class="pane">
+    <h2>처방 조건 <small>규칙이 만든 값을 확인하고 빈칸을 채운 뒤 처방 추천으로</small></h2>
+    <div id="decision" class="decision"></div>
+    <div class="body">
+      <div id="groups"></div>
+      <div class="memo"><textarea id="memo" placeholder="메모 (판단 근거, 선택)"></textarea></div>
+      <div id="msg"></div>
+    </div>
+    <div class="foot">
+      <span class="count" id="count"></span>
+      <div class="right">
+        <input id="by" placeholder="확정자 가명 ID" size="13">
+        <button id="save" class="primary">확정하고 처방 추천으로 →</button>
+      </div>
+    </div>
+  </section>
+</div>
+<script>
+const $ = (s) => document.querySelector(s);
+let META = null, S = null, CHECKED = new Set(), OPEN = new Set(), DOCS = [];
+const EXTRACT_REASON = "추출 오류 (원문과 다름)";
+const SPECIMEN = { metastasis: "전이 검체", primary: "원발", cfDNA: "cfDNA (혈액)", unknown: "검체 모름" };
+
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const getItem = (items, key) => key.startsWith("markers.") ? (items.markers || {})[key.slice(8)] : items[key];
+const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+const isEmpty = (v) => v === null || v === undefined;
+function vl(key, v) {
+  if (isEmpty(v)) return "없음";
+  if (S && S.summary[key] !== undefined && same(v, getItem(S.draft.items, key).confirmed)) return S.summary[key];
+  if (Array.isArray(v)) return v.map((x) => vl(key, x)).join(", ") || "없음";
+  if (typeof v === "object") return Object.entries(v).map(([k, x]) => `${k === "hira" ? "급여" : k === "esmo" ? "ESMO" : k} ${vl(key, x)}`).join(" · ");
+  return META.value_labels[`${key}:${v}`] || META.value_labels[String(v)] || String(v);
+}
+const label = (key) => META.labels[key] || key.replace("markers.", "");
+
+async function api(path, body) {
+  const res = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body) } : undefined);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || res.statusText);
+  return data;
+}
+
+async function init() {
+  META = await api("/api/meta");
+  const sel = $("#case");
+  sel.innerHTML = '<option value="">-- 사례 --</option>' + META.cases.map((c) => `<option>${esc(c)}</option>`).join("");
+  sel.onchange = () => sel.value && load(sel.value);
+  const want = new URLSearchParams(location.search).get("case");
+  if (want && META.cases.includes(want)) { sel.value = want; load(want); }
+  try { $("#by").value = localStorage.getItem("screen1.by") || ""; } catch (e) {}
+  $("#save").onclick = save;
+}
+
+async function load(caseId) {
+  const data = await api("/api/draft?case=" + encodeURIComponent(caseId));
+  S = data; DOCS = data.documents; CHECKED = new Set(); OPEN = new Set();
+  $("#memo").value = "";
+  const h = data.header;
+  $("#headinfo").textContent = [S.draft.patient_ref,
+    h.index_day !== null ? `기준일 ${h.index_date || ""} (진단 후 ${h.index_day}일)` : "기준일 없음"].join(" · ");
+  $("#band").innerHTML = data.warnings.length
+    ? `<div class="band">${data.warnings.map((w) => `<div><b>${esc(w.kind)}</b>${esc(w.text)}</div>`).join("")}</div>` : "";
+  $("#msg").innerHTML = data.saved.length ? `<p class="saved">저장된 버전: ${data.saved.map((v) =>
+    `<a href="/screen2?case=${encodeURIComponent(caseId)}&version=${v.slice(1, -5)}">${esc(v)} 처방 추천 보기</a>`).join(", ")} (새로 저장하면 다음 버전)</p>` : "";
+  renderDocs(); render();
+}
+
+// 왼쪽: 검사 결과 (원문)
+function renderDocs(focus) {
+  const types = new Set(DOCS.map((d) => d.doc_type));
+  const missing = [["pathology", "병리결과보고서"], ["molecular", "분자병리"], ["medication", "투약 기록"]]
+    .filter(([t]) => !types.has(t)).map(([, n]) => `<div class="doc none"><h3>[${esc(n)}] 기록 없음</h3></div>`);
+  $("#docs").innerHTML = DOCS.map((d, i) => {
+    const vals = d.values.length ? d.values.map((v, j) => {
+      const meta = [SPECIMEN[v.specimen] || v.specimen || "", v.note || "", v.observed_date || ""].filter(Boolean).join(" · ");
+      return `<div class="val" data-doc="${i}" data-val="${j}"><span class="k">${esc(v.label)}</span>` +
+        `<span class="raw">${esc(v.raw)}${v.status === "not_done" ? " (미시행)" : ""}${meta ? `<span class="meta">${esc(meta)}</span>` : ""}</span></div>`;
+    }).join("") : `<div class="footnote" style="padding:0 4px">이 문서에서 읽은 값 없음</div>`;
+    const open = focus && focus.doc === i;
+    return `<div class="doc"><h3>[${esc(d.type_label)}] ${esc(d.doc_date || "날짜 없음")} <span>${esc(d.doc_id)}</span>
+      <button class="link" data-toggle="${i}">${open ? "원문 닫기" : "원문 보기"}</button></h3>${vals}
+      ${open ? `<div class="src" id="src${i}">${srcHtml(d, focus.val)}</div>` : ""}</div>`;
+  }).join("") + missing.join("");
+  document.querySelectorAll("#docs .val").forEach((el) => el.onclick = () =>
+    renderDocs({ doc: +el.dataset.doc, val: DOCS[+el.dataset.doc].values[+el.dataset.val] }));
+  document.querySelectorAll("#docs [data-toggle]").forEach((el) => el.onclick = () => {
+    const i = +el.dataset.toggle;
+    renderDocs(focus && focus.doc === i ? null : { doc: i, val: null });
+  });
+  if (focus && focus.val) {
+    const m = document.querySelector(`#src${focus.doc} mark`);
+    if (m) m.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+}
+function srcHtml(d, v) {
+  if (!v) return esc(d.text);
+  const a = v.start - d.start, b = v.end - d.start;
+  return esc(d.text.slice(0, a)) + `<mark>${esc(d.text.slice(a, b))}</mark>` + esc(d.text.slice(b));
+}
+
+// 오른쪽: 이번 결정 요약
+function renderDecision() {
+  const it = S.draft.items, g = (k) => (getItem(it, k) || {}).confirmed;
+  const dis = g("setting.disease");
+  const parts = [g("subtype") || "아형 미정",
+    `${vl("setting.disease", dis)}${g("stage.group") ? " " + g("stage.group") : ""}`,
+    dis === "metastatic"
+      ? `고식적 내분비 ${vl("setting.line_endocrine", g("setting.line_endocrine"))} · 항암 ${vl("setting.line_chemo", g("setting.line_chemo"))}`
+      : vl("setting.phase", g("setting.phase"))];
+  const sub = g("subtype") || "";
+  if (sub.startsWith("HR+")) parts.push(vl("menopausal_status", g("menopausal_status")));
+  const hr = S.rows.find((r) => r.key === "high_risk_early");
+  if (hr && hr.applies && g("high_risk_early")) parts.push(`재발 고위험군 ${vl("high_risk_early", g("high_risk_early"))}`);
+  $("#decision").innerHTML = `이번 결정 · <b>${parts.map(esc).join(" · ")}</b>`;
+}
+
+function controlHtml(key, v) {
+  const c = META.controls[key] || { kind: "json" };
+  const opts = (list, cur) => ['<option value="__none">(선택)</option>'].concat(list.map((o) =>
+    `<option value="${esc(JSON.stringify(o))}" ${same(o, cur) ? "selected" : ""}>${esc(vl(key, o))}</option>`)).join("");
+  if (c.kind === "enum") return `<select data-key="${key}" data-kind="enum">${opts(c.options, v)}</select>`;
+  if (c.kind === "number") {
+    const isConst = c.consts.includes(v);
+    return `<span class="line"><input type="number" step="1" data-key="${key}" data-kind="number" value="${isConst || isEmpty(v) ? "" : esc(v)}" style="width:90px">` +
+      c.consts.map((k) => `<label><input type="checkbox" data-key="${key}" data-kind="const" data-const="${esc(k)}" ${v === k ? "checked" : ""}> ${esc(vl(key, k))}</label>`).join("") + "</span>";
+  }
+  if (c.kind === "pair") {
+    return `<span class="line">` + Object.entries(c.parts).map(([p, list]) =>
+      `<label>${p === "hira" ? "급여" : "ESMO"} <select data-key="${key}" data-kind="pair" data-part="${p}">${opts(list, v ? v[p] : null)}</select></label>`).join("") + "</span>";
+  }
+  if (c.kind === "multi" && c.options) {
+    const cur = new Set(v || []);
+    return `<span class="line multi">` + c.options.map((o) =>
+      `<label><input type="checkbox" data-key="${key}" data-kind="multi" value="${esc(o)}" ${cur.has(o) ? "checked" : ""}> ${esc(vl(key, o))}</label>`).join("") + "</span>";
+  }
+  if (c.kind === "multi") return `<input data-key="${key}" data-kind="list" value="${esc((v || []).join(", "))}" placeholder="쉼표로 구분 (없으면 빈칸)">`;
+  return `<span class="value">${esc(vl(key, v))}</span>`;   // 이전 요법 등 구조 값은 보여주기만
+}
+
+function aiLine(key, it) {
+  const why = S.reasons[key] || it.note || "";
+  return (isEmpty(it.system) || it.system === "unknown")
+    ? `AI: <b>값 없음</b>${why ? ` · ${esc(why)}` : ""}`
+    : `AI: <b>${esc(vl(key, it.system))}</b>${why ? ` · ${esc(why)}` : ""}`;
+}
+
+function rowHtml(r, mode) {
+  const it = getItem(S.draft.items, r.key), v = it.confirmed;
+  if (!r.applies) {
+    return `<div class="row na"><span></span><div class="lab">${esc(label(r.key))}</div>
+      <div class="ctl"><span class="naval">판정 해당 없음 · ${esc(r.na)}</span></div></div>`;
+  }
+  const changed = it.status === "changed", empty = isEmpty(v);
+  const tags = (r.required ? '<span class="tag req">필수</span>' : "") +
+    (changed ? `<span class="tag chg">${mode === "report" ? "고침" : "변경"}</span>` : "");
+  const hint = S.hints[r.key] ? `<div class="hint">⚠ ${esc(S.hints[r.key].text)} <button class="link" data-apply="${esc(r.key)}">적용</button></div>` : "";
+  const reason = changed ? `<input class="reason" data-key="${r.key}" data-kind="reason" placeholder="${mode === "report" ? "고친 이유" : "AI 값과 다른 이유"} (필수)" value="${esc(it.reason || "")}">` : "";
+  const aWhy = mode === "a" ? `<span class="why-a">${esc(S.attention[r.key])}</span>` : "";
+  const cls = changed ? "chg" : empty && r.required ? "empty" : "";
+  if (mode === "report") {
+    const open = OPEN.has(r.key) || changed;
+    const body = open ? `${controlHtml(r.key, v)}${reason}`
+      : `<span class="line"><span class="value">${esc(vl(r.key, v))}</span><button class="link" data-open="${esc(r.key)}">추출 오류 고치기</button></span>`;
+    return `<div class="row ${cls}"><span></span><div class="lab">${esc(label(r.key))}${tags}</div>
+      <div class="ctl">${body}<span class="sys">${esc(S.reasons[r.key] || it.note || "")}</span></div></div>`;
+  }
+  const done = CHECKED.has(r.key);
+  return `<div class="row ${cls}">
+    <label class="chk ${done ? "done" : ""}"><input type="checkbox" data-check="${esc(r.key)}" ${done ? "checked" : ""} ${empty && r.required ? "disabled" : ""}> 확인</label>
+    <div class="lab">${esc(label(r.key))}${tags}${r.group === "judge" ? "<small>의사 판단</small>" : ""}</div>
+    <div class="ctl">${aWhy}${controlHtml(r.key, v)}<span class="sys">${aiLine(r.key, it)}</span>${hint}${reason}</div></div>`;
+}
+
+function checkable() {
+  return S.rows.filter((r) => r.applies && r.group !== "report" && !(r.required && isEmpty(getItem(S.draft.items, r.key).confirmed)))
+    .map((r) => r.key);
+}
+function needCheck() {   // 확인해야 하는 칸: A 묶음 + 규칙·의사 판단 칸 (보고서 값은 고치지 않으면 확인 대상 아님)
+  return S.rows.filter((r) => r.applies && (r.group !== "report" || S.attention[r.key])).map((r) => r.key);
+}
+
+function render() {
+  CHECKED = new Set([...CHECKED].filter((k) => S.rows.some((r) => r.key === k && r.applies)));
+  const inA = (r) => r.key in S.attention;
+  const a = S.rows.filter(inA), b = S.rows.filter((r) => !inA(r) && r.group !== "report"), c = S.rows.filter((r) => !inA(r) && r.group === "report");
+  const bKeys = b.filter((r) => r.applies).map((r) => r.key).filter((k) => checkable().includes(k));
+  const allB = bKeys.length > 0 && bKeys.every((k) => CHECKED.has(k));
+  const aLeft = a.filter((r) => isEmpty(getItem(S.draft.items, r.key).confirmed) || !CHECKED.has(r.key)).length;
+  $("#groups").innerHTML =
+    (a.length ? `<div class="group a"><h3>A. 처리해야 처방 가능 <small>${aLeft ? `남은 칸 ${aLeft}개` : "모두 처리함"}</small></h3>${a.map((r) => rowHtml(r, "a")).join("")}</div>` : "") +
+    `<div class="group"><h3><label class="chk all"><input type="checkbox" id="checkall" ${allB ? "checked" : ""}> 전체 확인</label>
+      B. 규칙 판정값 <small>우리 규칙이 만든 값 · 바꾸면 사유</small></h3>${b.map((r) => rowHtml(r, "b")).join("")}</div>` +
+    `<div class="group"><h3>C. 보고서 값 <small>원문 그대로 · 고르지 않음 · 읽기 오류일 때만 고치기</small></h3>${c.map((r) => rowHtml(r, "report")).join("")}</div>`;
+
+  document.querySelectorAll("#groups [data-key]").forEach((el) => el.addEventListener("change", () => onEdit(el)));
+  document.querySelectorAll("#groups [data-check]").forEach((el) => el.onchange = () => {
+    el.checked ? CHECKED.add(el.dataset.check) : CHECKED.delete(el.dataset.check); render();
+  });
+  document.querySelectorAll("#groups [data-apply]").forEach((el) => el.onclick = () => {
+    const k = el.dataset.apply; setItem(k, S.hints[k].value, getItem(S.draft.items, k).reason || null);
+  });
+  document.querySelectorAll("#groups [data-open]").forEach((el) => el.onclick = () => { OPEN.add(el.dataset.open); render(); });
+  $("#checkall").onchange = (e) => { bKeys.forEach((k) => e.target.checked ? CHECKED.add(k) : CHECKED.delete(k)); render(); };
+  renderDecision(); renderFoot();
+}
+
+function renderFoot() {
+  const items = S.draft.items;
+  const changed = S.rows.filter((r) => r.applies && getItem(items, r.key).status === "changed");
+  const noReason = changed.filter((r) => !getItem(items, r.key).reason);
+  const unchecked = needCheck().filter((k) => !CHECKED.has(k));
+  $("#count").innerHTML = `빈 필수 칸 <b>${S.missing.length}</b> · 확인 안 한 칸 <b>${unchecked.length}</b> · 바꾼 칸 <b>${changed.length}</b>` +
+    (noReason.length ? ` (사유 없음 ${noReason.length})` : "");
+  const why = [S.missing.length ? `빈 필수 칸 ${S.missing.length}개를 채우세요` : "",
+    unchecked.length ? `확인 안 한 칸 ${unchecked.length}개를 확인하세요 (B 묶음 [전체 확인])` : "",
+    noReason.length ? `바꾼 칸 ${noReason.length}개에 사유를 쓰세요` : ""].filter(Boolean);
+  $("#save").disabled = why.length > 0;
+  $("#save").title = why.length ? why.join(" / ") : "확정 파일을 저장하고 처방 추천(화면 2)으로 넘어갑니다";
+  $("#count").innerHTML += why.length ? `<br><span style="color:var(--req)">저장하려면: ${esc(why.join(" · "))}</span>` : "";
+}
+
+async function setItem(key, value, reason) {
+  try {
+    const data = await api("/api/set", { draft: S.draft, key, value, reason });
+    Object.assign(S, data);
+    CHECKED.add(key);   // 의사가 직접 고른 칸은 확인한 것으로 본다
+    $("#msg").innerHTML = "";
+  } catch (e) {
+    $("#msg").innerHTML = `<p class="errors">${esc(e.message)}</p>`;
+  }
+  render();   // 받지 않은 값은 입력란에서도 되돌린다
+}
+
+function onEdit(el) {
+  const key = el.dataset.key, kind = el.dataset.kind, it = getItem(S.draft.items, key);
+  if (kind === "reason") return setItem(key, it.confirmed, el.value.trim() || null);
+  const row = S.rows.find((r) => r.key === key);
+  const reason = it.reason || (S.attention[key] ? `${S.attention[key]} → 의사 선택`
+    : row && row.group === "report" ? EXTRACT_REASON : null);   // 미리 채운 사유는 고쳐 쓸 수 있다
+  let v;
+  if (kind === "enum") v = el.value === "__none" ? null : JSON.parse(el.value);
+  else if (kind === "number") v = el.value === "" ? null : Number(el.value);
+  else if (kind === "const") v = el.checked ? el.dataset.const : null;
+  else if (kind === "pair") {
+    const cur = { ...(it.confirmed || {}) };
+    if (el.value === "__none") delete cur[el.dataset.part]; else cur[el.dataset.part] = JSON.parse(el.value);
+    v = cur.hira && cur.esmo ? cur : null;
+    if (!v) { it.confirmed = cur; return render(); }   // 두 칸을 다 고를 때까지 기다린다
+  } else if (kind === "multi") {
+    v = [...document.querySelectorAll(`#groups input[data-kind="multi"][data-key="${key}"]:checked`)].map((x) => x.value);
+  } else if (kind === "list") v = el.value.split(",").map((s) => s.trim()).filter(Boolean);
+  setItem(key, v, reason);
+}
+
+async function save() {
+  const by = $("#by").value.trim();
+  try { localStorage.setItem("screen1.by", by); } catch (e) {}
+  const data = await api("/api/finalize", { draft: S.draft, confirmed_by: by, memo: $("#memo").value });
+  $("#msg").innerHTML = data.errors && data.errors.length
+    ? `<p class="errors">저장하지 못함:\n${data.errors.map(esc).join("\n")}</p>`
+    : `<p class="saved">저장함: ${esc(data.path)} (version ${data.doc.version}). 처방 추천 화면으로 넘어갑니다…</p>`;
+  $("#msg").scrollIntoView({ block: "nearest" });
+  if (!(data.errors && data.errors.length)) {
+    setTimeout(() => { location.href = `/screen2?case=${encodeURIComponent($("#case").value)}&version=${data.doc.version}`; }, 800);
+  }
+}
+
+init().catch((e) => { $("#docs").innerHTML = `<p class="errors">${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>
