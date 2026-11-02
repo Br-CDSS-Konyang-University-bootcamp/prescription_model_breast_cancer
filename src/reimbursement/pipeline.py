@@ -143,7 +143,7 @@ class Inputs:
 
 def stage_collect(reg: Registry, raw: Path, offline: bool, today: date, st: Stage,
                   with_offlabel: bool = False) -> Inputs:
-    """with_offlabel이 아니면 허가초과 xlsx는 받지도 검사하지도 않는다 (설계 문서 범위 밖, 팀 결정 대기)."""
+    """with_offlabel이 아니면 허가초과 xlsx는 받지도 검사하지도 않는다 (v0.1에서 쓰지 않음, 2026-11-02 결정)."""
     inp = Inputs()
     sources = ("booklet", "offlabel") if with_offlabel else ("booklet",)
     if not offline:
@@ -270,7 +270,7 @@ def stage_extract(b: Booklet, st: Stage) -> BookletChunks:
 def stage_offlabel(inp: Inputs, st: Stage, enabled: bool = True) -> OffLabel | None:
     if not enabled:
         st.skipped = True
-        st.report.info.append("허가초과 목록: 설계 문서 범위 밖, 팀 결정 대기 (받지도 청크로 만들지도 않음. --with-offlabel로 켬)")
+        st.report.info.append("허가초과 목록: v0.1에서 쓰지 않음 (2026-11-02 결정. 받지도 청크로 만들지도 않음. --with-offlabel로 켬)")
         return None
     if inp.offlabel is None:
         st.skipped = True
@@ -358,12 +358,19 @@ def stage_chunks(b: Booklet, bc: BookletChunks, o: OffLabel | None, before: dict
 # ---------- 6. 투여 조건 ----------
 
 def stage_conditions(chunks: list[dict], bc: BookletChunks, cache_path: Path, use_api: bool,
-                     st: Stage, structurer=None, review_path: Path | None = None) -> None:
-    """contexts: 행 청크마다 근거로 함께 넘길 소단원 제목·머리 규칙·주석 (chunks.booklet_chunks가 만든다)."""
-    from .conditions import Cache, attach_conditions, export_review, is_empty
+                     st: Stage, structurer=None, review_path: Path | None = None,
+                     previous_path: Path | None = None) -> None:
+    """contexts: 행 청크마다 근거로 함께 넘길 소단원 제목·머리 규칙·주석 (chunks.booklet_chunks가 만든다).
+    previous_path: 지난번 반영한 청크 파일. 검수된 행만 골라 바뀐 행의 이전 판으로 로컬 모델에 준다."""
+    from .conditions import Cache, attach_conditions, export_review, is_empty, reviewed_rows
 
-    rep = attach_conditions(chunks, bc.contexts, structurer=structurer, cache=Cache(cache_path),
-                            use_api=use_api)
+    cache = Cache(cache_path)
+    previous = []
+    if previous_path is not None and previous_path.exists():
+        with open(previous_path, encoding="utf-8") as f:
+            previous = reviewed_rows([json.loads(line) for line in f if line.strip()], cache)
+    rep = attach_conditions(chunks, bc.contexts, structurer=structurer, cache=cache, use_api=use_api,
+                            previous=previous)
     total = sum(c["chunk_kind"] in ("reimbursement_condition", "offlabel_regimen") for c in chunks)
     done = sum(not is_empty(c["reimbursement"].get("conditions") or {}) for c in chunks)
     st.report.info.append(f"대상 {total}개 중 조건 정리 {done}개 (저장본 {rep.from_cache}, 새 요청 {rep.requested})")
@@ -381,7 +388,10 @@ def stage_conditions(chunks: list[dict], bc: BookletChunks, cache_path: Path, us
     for e in check_chunks(chunks):      # 조건을 붙인 뒤에도 공용 형식에 맞는지
         st.report.error(f"스키마: {e}")
     # 사람 전수 검수표 (설계 §3.5). 조건이 하나라도 있을 때만 만든다
-    if review_path is not None and (p := export_review(chunks, review_path)):
+    drafts = [cid for cid, s in rep.sources.items() if not s["reviewed"]]
+    if drafts:
+        st.report.warn(f"검수 전 초안 {len(drafts)}개 (검수표 앞쪽, 고쳐서 --import): {', '.join(drafts[:10])}")
+    if review_path is not None and (p := export_review(chunks, review_path, rep.sources)):
         st.report.info.append(f"검수표: {p.name} (엑셀로 열어 검수(O/X) 칸을 채운다)")
 
 
@@ -487,7 +497,8 @@ def run(*, raw: Path = DATA / "raw", db: Path = DATA / "registry.db", out_dir: P
         cur = 5
         if res.ok:
             stage_conditions(chunks, bc, out_dir.parent / "conditions_cache.jsonl", use_llm, stages[5],
-                             structurer, reports / f"conditions_review_{b.file_date:%Y%m%d}.tsv")
+                             structurer, reports / f"conditions_review_{b.file_date:%Y%m%d}.tsv",
+                             previous_path=out_dir / CURRENT)
         else:
             stages[5].skipped = True
         cur = 6
@@ -525,7 +536,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--reports", type=Path, default=DATA / "reports")
     ap.add_argument("--no-llm", action="store_true", help="Claude API를 부르지 않고 저장된 조건만 쓴다")
     ap.add_argument("--with-offlabel", action="store_true",
-                    help="허가초과 목록 청크도 만든다 (설계 문서 범위 밖, 기본 끔)")
+                    help="허가초과 목록 청크도 만든다 (v0.1에서 쓰지 않음, 기본 끔)")
     ap.add_argument("--index", action="store_true",
                     help="정상이면 이어서 색인. 마지막 색인 때와 청크가 같으면 건너뜀 (회의 5: 앱 시작 직후, 검색 전에)")
     args = ap.parse_args(argv)

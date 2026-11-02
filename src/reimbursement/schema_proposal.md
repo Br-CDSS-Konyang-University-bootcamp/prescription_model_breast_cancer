@@ -69,10 +69,12 @@ op는 설계의 8개에 `contains`(이전 치료에 있어야 함)를 더했다.
   | 행 | T | N | 크기 (mm, T 범주로 바꾸지 않음) |
   |---|---|---|---|
   | 선행요법 (`bc-neo-*`) | `ct_stage` (`stage.ctnm.t`) | `cn_status` (`stage.ctnm.n`) | `clinical_size_mm` ('직경 > 2㎝' → gt 20) |
-  | 수술후보조요법 (`bc-adj-*`, 병용 ribociclib 보조) | `pt_stage` (`stage.ptnm.t`) | `pn_status` (`stage.ptnm.n`) | `pathologic_size_mm` ('1cm 이상' → gte 10, '1cm를 초과' → gt 10, '> 2 cm' → gt 20) |
+  | 수술후보조요법 (`bc-adj-*`, 병용 ribociclib 보조) | `pt_stage` | `pn_status` | `pathologic_size_mm` ('1cm 이상' → gte 10, '1cm를 초과' → gt 10, '> 2 cm' → gt 20) |
 
-  선행요법 뒤 수술 병기는 `ptnm`이 아니라 `yptnm`에 있어, 선행요법을 받은 환자의 보조요법 행 병리 조건은 알 수 없음이 된다.
-  그런 환자에게 진단 시 cN과 ypN 중 무엇을 볼지는 공고 문구로 정하기 어려워 팀에 묻는다. `stage_group`은 임상·병리 구분이 없어 그대로 둔다 (A 과제).
+  수술후보조요법 칸은 수술 병리 병기다. 수술을 먼저 했으면 `stage.ptnm`·`pathologic_size_mm`, 선행요법 뒤 수술이면
+  `stage.yptnm`의 t·n·`residual_size_mm`를 본다 (체크리스트 §4 표 '선행요법 뒤 보조'). 선행요법 중이라 `yptnm`이 `not_done`이면 알 수 없음.
+  §4의 예외('처음 병기'를 보는 조건은 조건마다 적음)에 해당하는 원문은 지금 D 행에 없다 (2026-11-02 원문 확인). `stage_group`은
+  임상·병리 구분이 없어 그대로 둔다 (A 과제).
 
 ## 검토 의견
 
@@ -122,7 +124,7 @@ op는 설계의 8개에 `contains`(이전 치료에 있어야 함)를 더했다.
 
 | 공고 규칙 | 급여 청크 | `deemed_lines[].rule_id` |
 |---|---|---|
-| anthracycline·taxane 포함 선행·보조 → 1차로 간주 | 고식적 항암 2차 이상 연번 2~18, 병용요법 연번 25 (`counts_as_prior_line`) | `DEEM-ANTHRA-TAXANE` |
+| anthracycline·taxane 포함 선행·보조 → 1차로 간주 | 고식적 항암 2차 이상 연번 2~18, 병용요법 연번 25 (`counts_as_prior_line`). A handoff §6.3a '쓰는 요법'(2차 이상, 40장 pembrolizumab + gemcitabine + carboplatin)과 같고, 1차 행(4가)에는 쓰지 않는다 | `DEEM-ANTHRA-TAXANE` |
 | 선행·보조 종료 1년 이내 재발 → 1차로 간주 | sacituzumab govitecan (`counts_as_prior_line`, `within_days` 365) | `DEEM-SG-1Y` |
 | 보조요법 중·종료 6개월 이내 재발도 인정 | T-DM1, T-DXd (`prior_failed`의 `unless`, 183일). 투여단계(2차 이상)도 이 규칙으로 1차를 받은 것으로 보므로 `counts_as_prior_line`에 `rule_id: DEEM-HER2ADC-6M`으로도 적는다 (2026-10-22, B 요청) | `DEEM-HER2ADC-6M` |
 | 보조 내분비요법 중·종료 1년 이내 진행도 인정 | 고식적 내분비 2차 이상 연번 4~9, 병용 연번 30 (`any_of`의 `days_end_to_metastasis` lte 365: A와 같이 종료일부터 **전이 기준일**까지, B 확인 2026-10-20). 투여단계(2차 이상)도 이 규칙으로 1차를 받은 것으로 보므로 `counts_as_prior_line`에 `rule_id: DEEM-ENDO-ADJ-1Y`로도 적는다 (2026-10-22, VC-0103). 적용 행은 공고 원문에 이 문구가 있는 행뿐이고 (같은 소단원의 연번 1~3에는 없음), A handoff §6.3a 표의 '쓰는 요법'(AI·exemestane + LHRH, CDK4/6 + fulvestrant)과 같다 | `DEEM-ENDO-ADJ-1Y` |

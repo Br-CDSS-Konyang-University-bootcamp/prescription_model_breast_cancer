@@ -198,6 +198,22 @@ def test_review_sheet(tmp_path):
     assert export_review(_chunks(), tmp_path / "none.tsv").exists()   # line_rule만 있어도 검수 대상
 
 
+def test_review_sheet_puts_unlike_drafts_first():
+    ch = _chunks() + [{**copy.deepcopy(_chunks()[0]), "chunk_id": c} for c in ("new", "changed")]
+    for c in ch:
+        if c["chunk_kind"] != "section":
+            c["reimbursement"]["conditions"] = {**GOOD}
+    sources = {"row": {"model": "담당 D", "reviewed": True},
+               "changed": {"model": "ollama:x", "reviewed": False, "previous": "old-r01", "fixed": ["a: b"]},
+               "new": {"model": "ollama:x", "reviewed": False, "previous": None, "similarity": 0.31}}
+    rows = cm.review_rows(ch, sources)
+    order = list(dict.fromkeys(r[0] for r in rows))
+    assert order == ["new", "changed", "row"]
+    first = next(r for r in rows if r[0] == "new")
+    assert len(first) == len(cm.REVIEW_COLUMNS) and "비슷한 검수 행 없음" in first[12] and first[13] == "ollama:x"
+    assert next(r for r in rows if r[0] == "changed")[14] == "a: b"
+
+
 def test_unavailable_without_package_or_key(monkeypatch):
     import builtins
     real = builtins.__import__
@@ -270,11 +286,149 @@ def test_ollama_structurer(monkeypatch):
         return GOOD
     monkeypatch.setattr(llm, "complete_json", fake)
     monkeypatch.setenv("REIMB_OLLAMA_MODEL", "qwen3:32b")
-    s = cm.OllamaStructurer()
+    s = cm.OllamaStructurer(similar=0)
     assert s("본문", "안내")[0] == GOOD and s.label == "ollama:qwen3:32b"
     assert seen["messages"][0] == {"role": "system", "content": cm.SYSTEM}
     assert "[급여 기준 본문]\n본문" in seen["messages"][1]["content"] and seen["schema"] == cm.output_schema()
     assert seen["config"].host == cm.OLLAMA_HOST and not seen["config"].think
+    # 예시(검수된 행)는 앞선 문답으로, 생각 모드는 설정으로 넘긴다
+    s = cm.OllamaStructurer(think=True, examples=[("예시 본문", "예시 안내", GOOD)], similar=0)
+    msgs = s.messages("본문", "")
+    assert [m["role"] for m in msgs] == ["system", "user", "assistant", "user"]
+    assert json.loads(msgs[2]["content"]) == GOOD and s.config.think and s.label == "ollama:qwen3:32b (think, 1shot)"
+    # 기본: 행마다 비슷한 검수 행 3개, 이전 판이 있으면 마지막 질문에 이전 판 원문·조건
+    s = cm.OllamaStructurer()
+    assert s.label == "ollama:qwen3:32b (sim3)" and s.config.num_ctx == 32768
+    pool = [{"chunk_id": f"hira-booklet-20261101-bc-adj-r{i:02d}", "text": f"연번 {i}\n{t}", "context": "",
+             "drugs": [], "conditions": GOOD} for i, t in enumerate(["letrozole 폐경 후", "letrozole 폐경 전", "기타", "x"])]
+    target = {"chunk_id": "hira-booklet-20261101-bc-adj-r00", "text": "letrozole 폐경 후 5년", "drugs": ["letrozole"]}
+    prev = {"chunk_id": "hira-booklet-20261001-bc-adj-r07", "text": "letrozole 폐경 후", "drugs": ["letrozole"],
+            "conditions": GOOD}
+    s.prepare(target, pool, [prev])
+    msgs = s.messages(target["text"], "")
+    assert len(msgs) == 2 + 2 * 3 and target["chunk_id"] not in s.hint["examples"]      # 시스템 + 예시 3문답 + 질문
+    assert s.hint["previous"] == prev["chunk_id"] and "[이전 판 조건 (사람이 검수함)]" in msgs[-1]["content"]
+    assert cm.UPDATE_TASK in msgs[-1]["content"]
+    s.prepare({**target, "drugs": ["anastrozole"]}, pool, [prev])           # 약이 다르면 새 행
+    assert s.previous_row is None and "[이전 판" not in s.messages("본문", "")[-1]["content"]
+
+
+def test_fix_conditions_rules():
+    """규칙으로 정해지는 것은 코드가 고친다: 시기별 병기 칸, 비교 낱말, cm -> mm, in 목록, 약 이름, 원문 구절 따옴표."""
+    src = "투여대상: 림프절 양성 또는 종양 크기 1cm를 초과하는 경우\n‘CDK4/6 inhibitor’를 받은 적이 없는 경우"
+    cond = _empty(any_of=[{"text": "하나", "items": [
+        {"id": "a1", "field": "cn_status", "op": "eq", "value": "positive", "text": "림프절 양성"},
+        {"id": "a2", "field": "clinical_size_mm", "op": "gte", "value": 1, "text": "종양 크기 1cm를 초과"}]}],
+        all_of=[{"id": "c1", "field": "prior_drugs", "op": "not_contains", "value": ["CDK4/6 inhibitor"],
+                 "text": "‘CDK4/6 inhibitor’를 받은 적이 없는 경우."},
+                {"id": "c2", "field": "her2", "op": "in", "value": "positive", "text": "림프절 양성"}])
+    new, log = cm.fix_conditions(cond, "adjuvant", src)
+    a1, a2 = new["any_of"][0]["items"]
+    assert (a1["field"], a2["field"], a2["op"], a2["value"]) == ("pn_status", "pathologic_size_mm", "gt", 10)
+    c1, c2 = new["all_of"]
+    assert c1["value"] == ["CDK4/6_inhibitor"] and c1["text"] == "‘CDK4/6 inhibitor’를 받은 적이 없는 경우"
+    assert c2["value"] == ["positive"] and len(log) == 7 and cond["any_of"][0]["items"][0]["field"] == "cn_status"
+    assert cm.fix_conditions(new, "adjuvant", src) == (new, [])                       # 두 번 고쳐도 같다
+    assert cm.fix_conditions(cond, "neoadjuvant", src)[0]["any_of"][0]["items"][0]["field"] == "cn_status"
+    # 비교 낱말이 두 종류면 건드리지 않는다
+    two = _empty(all_of=[{"id": "c1", "field": "age", "op": "lt", "value": 19, "text": "19세 이상 70세 미만"}])
+    assert cm.fix_conditions(two, None, "19세 이상 70세 미만")[1] == []
+
+
+def test_fix_conditions_keep_reviewed_rows():
+    """사람이 쓴 저장본 조건에 쓰면 하나도 바뀌지 않는다 (규칙이 저장본 관례와 맞는지)."""
+    cur = cm.DATA / "chunks" / "reimbursement_chunks_current.jsonl"
+    if not cur.exists():
+        pytest.skip("청크 파일 없음")
+    from src.reimbursement.booklet import load_booklet
+    from src.reimbursement.chunks import booklet_chunks
+    from src.reimbursement.pipeline import _latest_local
+    booklet = _latest_local(cm.DATA / "raw", "공고책자_*.pdf")
+    if booklet is None:
+        pytest.skip("공고책자 PDF 없음")
+    bc = booklet_chunks(load_booklet(booklet, cm.DATA / "cache"))
+    stored = {c["chunk_id"]: cm._stored(c) for c in map(json.loads, open(cur, encoding="utf-8"))}
+    n = 0
+    for c in bc.chunks:
+        cond = stored.get(c["chunk_id"])
+        if cond:
+            n += 1
+            src = f"{bc.contexts.get(c['chunk_id'], '')}\n{c['text']}"
+            assert cm.fix_conditions(cond, c["reimbursement"].get("stage"), src) == (cond, []), c["chunk_id"]
+    assert n > 100
+
+
+class Assisted(Fake):
+    """로컬 모델 흉내: prepare·revise가 있고, 처음 답은 검사에 걸리고 다시 물으면 고쳐 답한다."""
+    assisted = True
+    label = "ollama:test (sim3)"
+
+    def __init__(self, first, second=GOOD):
+        super().__init__(first)
+        self.second, self.prepared, self.problems = second, [], None
+        self.hint = {}
+
+    def prepare(self, target, pool, previous=()):
+        self.prepared.append((target["chunk_id"], [p["chunk_id"] for p in pool], [p["chunk_id"] for p in previous]))
+        self.hint = {"examples": [p["chunk_id"] for p in pool], "previous": None, "similarity": 0.3}
+
+    def revise(self, text, context, cond, problems):
+        self.problems = problems
+        return copy.deepcopy(self.second)
+
+
+def test_draft_fixes_then_asks_again(tmp_path):
+    bad = copy.deepcopy(GOOD)
+    bad["all_of"][0]["text"] = "HR 양성"                                 # 원문에 없는 구절
+    bad["all_of"][2]["value"] = "5"                                       # 숫자가 아님
+    s = Assisted(bad)
+    ch = _chunks()
+    rep = attach_conditions(ch, {}, structurer=s, cache=Cache(tmp_path / "c.jsonl"))
+    assert not rep.rejected and s.problems and any("원문에 없는" in p for p in s.problems)
+    assert ch[0]["reimbursement"]["conditions"]["all_of"] == GOOD["all_of"]
+    src = rep.sources["row"]
+    assert not src["reviewed"] and src["revised"] and src["similarity"] == 0.3 and src["verify"] == []
+    # 확인에 걸리면 그 구절이 human_review로 들어간다 (판정은 알 수 없음)
+    wrong = copy.deepcopy(GOOD)
+    wrong["all_of"][1]["value"] = ["postmenopausal"]                     # '폐경 전'을 폐경 후로
+    ch = _chunks()
+    rep = attach_conditions(ch, {}, structurer=Assisted(wrong), cache=Cache(tmp_path / "v.jsonl"))
+    cond = ch[0]["reimbursement"]["conditions"]
+    assert "폐경 전" in cond["human_review"] and rep.sources["row"]["verify"]
+    assert cm.review_priority(rep.sources["row"])[0] == 0
+    # 다시 물어도 틀리면 버린다 (검사는 그대로)
+    rep = attach_conditions(_chunks(), {}, structurer=Assisted(bad, bad), cache=Cache(tmp_path / "d.jsonl"))
+    assert "row" in rep.rejected
+
+
+def test_examples_come_from_reviewed_rows_only(tmp_path):
+    """예시 후보는 저장본에서 사람이 넣은(--import) 조건을 쓰는 이번 책자 행. 모델 초안은 넣지 않는다."""
+    cache = Cache(tmp_path / "c.jsonl")
+    ch = _chunks() + [{**copy.deepcopy(_chunks()[0]), "chunk_id": "row2", "text": TEXT + "\n추가"},
+                      {**copy.deepcopy(_chunks()[0]), "chunk_id": "row3", "text": TEXT + "\n초안"}]
+    rep = cm.import_conditions({"row": GOOD}, ch, {}, cache, author="담당 D")
+    assert rep.saved == ["row"]
+    cache.put(cm.cache_key(ch[3]["text"], ""), "row3", GOOD, {}, model="ollama:qwen3:32b (sim3)")
+    s = Assisted(GOOD)
+    attach_conditions(ch, {}, structurer=s, cache=cache, previous=[{"chunk_id": "old", "text": TEXT}])
+    assert s.prepared == [("row2", ["row"], ["old"])]
+    assert cm.is_reviewed("담당 D") and not cm.is_reviewed("ollama:qwen3:32b") and not cm.is_reviewed(cm.MODEL)
+
+
+def test_reviewed_rows_and_find_previous(tmp_path):
+    cache = Cache(tmp_path / "c.jsonl")
+    old = {"chunk_id": "hira-booklet-20261001-bc-adj-r04", "chunk_kind": "reimbursement_condition", "text": TEXT,
+           "drugs": ["anastrozole"], "reimbursement": {"conditions": {**GOOD, "line_rule": {"stage": "adjuvant", "line": None}}}}
+    draft_row = {**copy.deepcopy(old), "chunk_id": "hira-booklet-20261001-bc-adj-r05"}
+    cache.put("k1", old["chunk_id"], GOOD, {}, model="담당 D")
+    cache.put("k2", draft_row["chunk_id"], GOOD, {}, model="ollama:qwen3:32b")
+    prev = cm.reviewed_rows([old, draft_row], cache)
+    assert [p["chunk_id"] for p in prev] == [old["chunk_id"]] and "line_rule" not in prev[0]["conditions"]
+    new = {"chunk_id": "hira-booklet-20261101-bc-adj-r05", "text": TEXT + "\n개정", "drugs": ["anastrozole"]}
+    assert cm.find_previous(new, prev)["chunk_id"] == old["chunk_id"]
+    assert cm.find_previous({**new, "chunk_id": "hira-booklet-20261101-bc-neo-her2pos-r01"}, prev) is None
+    assert cm.row_group("hira-booklet-20261101-supp-gcsf-b1") == "supp-gcsf"
+    assert cm.row_group("hira-booklet-20261101-bc-pal-endo-1l-r01") == "bc-pal-endo-1l"
 
 
 def test_find_claude_code_env(monkeypatch):
@@ -399,6 +553,11 @@ def test_stage_fields_by_treatment_timing():
     for f in ("cardiac_history", "mediastinal_radiation", "height_cm", "weight_kg"):
         assert f in patient, f
     assert cm.FIELDS["clinical_size_mm"][2] == cm._NUM and "gt 20" in cm.FIELDS["clinical_size_mm"][3]
+    # 보조 행은 수술 병리 병기: 선행요법 뒤 수술이면 yptnm (§4 표 '선행요법 뒤 보조')
+    yp = schema["$defs"]["yptnm_value"]["properties"]
+    assert "yptnm" in stage and {"t", "n", "residual_size_mm"} <= set(yp)
+    assert "stage.yptnm.value.t" in cm.FIELDS["pt_stage"][0] and "stage.yptnm.value.n" in cm.FIELDS["pn_status"][0]
+    assert "yptnm.value.residual_size_mm" in cm.FIELDS["pathologic_size_mm"][0]
 
 
 def test_prompt_lists_every_field():
