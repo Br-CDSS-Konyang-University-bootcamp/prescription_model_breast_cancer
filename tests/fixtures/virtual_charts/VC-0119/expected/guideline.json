@@ -1,0 +1,42 @@
+{
+  "format": "C guideline expected v0.1",
+  "patient_ref": "VC-0119",
+  "input": "expected/confirmed_state.json",
+  "decision": {
+    "setting": "locally_advanced",
+    "subtype": "HR+/HER2-",
+    "line": "adjuvant"
+  },
+  "expected_chunks": [
+    "esmo-ebc-2024-02-hrpos-7568e8",
+    "esmo-ebc-2024-02-hrpos-936c81",
+    "esmo-ebc-2024-02-hrpos-6308eb",
+    "esmo-ebc-2024-02-hrpos-cca75c"
+  ],
+  "expected_parents": [
+    "esmo-ebc-2024-02-hrpos"
+  ],
+  "expected_algorithm": [
+    "esmo-ebc-2024-02-fig5-6ffe04"
+  ],
+  "not_expected": [
+    "esmo-ebc-2024-02-hrpos-0656d9",
+    "esmo-ebc-2024-02-hrpos-941c55"
+  ],
+  "sources": [
+    {
+      "doc": "ESMO EBC 2024-02",
+      "section": "Hr-Positive, Her2-Negative Ebc",
+      "page": 172
+    },
+    {
+      "doc": "ESMO EBC 2024-02",
+      "section": "Figure 5",
+      "page": 166
+    }
+  ],
+  "status": "draft",
+  "reviewer": null,
+  "reviewed_on": null,
+  "note": "41세 폐경 전, cT3N1 등급 3, Ki-67 35%(luminal B-like), 선행 AC→paclitaxel 뒤 ypT2N1a 잔존, 생식세포 BRCA2 병원성, 조기 고위험 yes(A 17daa50 수정 뒤) → 보조 olaparib 1년(7568e8)과 함께 ET(936c81), 폐경 전 고위험 OFS-tamoxifen·OFS-AI(6308eb), 고위험 연장 ET(cca75c). 그림 5 luminal B → 항암 → stage III → gBRCA 변이 → olaparib + ET 경로(시나리오). abemaciclib(1f97a2)은 olaparib과 함께 쓰지 않고 차례로만 고려(5b21e4)라, 항암 뒤 ET(ca0c8d)는 항암을 이미 받아 넣지 않음. not_expected: 폐경 후 AI, luminal A 항암 생략"
+}
