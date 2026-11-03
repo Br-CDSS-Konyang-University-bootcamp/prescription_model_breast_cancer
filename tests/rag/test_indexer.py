@@ -405,3 +405,43 @@ def test_visceral_crisis_rule_never_penalizes_a_virtual_chart_answer():
         assert not [cid for cid in exp["expected_chunks"] + exp.get("expected_algorithm", [])
                     if _crisis_adjust(text[cid], "yes")], path
     assert checked  # VC-0126
+
+
+def test_prior_metastatic_chemo_pushes_back_opposite_branch(memory_index):
+    # 고식 항암이 없는 환자에게 "ChT 1차례 이상 뒤" T-DXd·SG 권고가 정답보다 위에 왔다 (VC-0113 check_case, 2026-11-03).
+    # 확정 고식 항암 차수로 그림 4의 'No previous ChT' / 'Previous ChT' 갈래 중 반대쪽만 가리키는 권고·경로를 뒤로 보낸다
+    rag_client, indexer = memory_index
+    from src.rag import searcher
+    from src.rag.chunk_store import load_guideline_chunks, select_index_chunks
+
+    indexer.index_chunks(select_index_chunks(load_guideline_chunks()))
+    args = dict(query_text="x", setting="metastatic", subtype="HR+/HER2-", line=">=3L", top_k=300, rerank=False,
+                chunk_kind=None)
+    p = "esmo-mbc-2026-05-"
+
+    def scores(**kw):
+        return {r["chunk_id"]: r["score"] for r in searcher.search_guidelines(**args, **kw)}
+
+    plain, naive, treated = scores(), scores(prior_metastatic_chemo="no"), scores(prior_metastatic_chemo="yes")
+    needs, none, neither = ("luminal-3l-5f9ed9", "fig4-a7b5ac"), ("luminal-3l-b023e3", "fig4-ddbc18"), "luminal-3l-044c33"
+    for cid in needs:
+        assert naive[p + cid] == pytest.approx(plain[p + cid] - 1.0) and treated[p + cid] == plain[p + cid], cid
+    for cid in none:
+        assert treated[p + cid] == pytest.approx(plain[p + cid] - 1.0) and naive[p + cid] == plain[p + cid], cid
+    assert naive[p + neither] == treated[p + neither] == plain[p + neither]
+
+
+def test_prior_chemo_rule_never_penalizes_a_virtual_chart_answer():
+    import json, sys, types
+    from pathlib import Path
+    sys.modules.setdefault("sentence_transformers", types.SimpleNamespace(SentenceTransformer=None, CrossEncoder=None))
+    from src.rag.chunk_store import load_guideline_chunks
+    from src.rag.retrieve import from_confirmed_state
+    from src.rag.searcher import _prior_chemo_adjust
+    text = {c["chunk_id"]: c["text"] for c in load_guideline_chunks()}
+    base = Path(__file__).resolve().parents[2] / "tests" / "fixtures" / "virtual_charts"
+    for path in base.glob("*/expected/guideline.json"):
+        exp = json.loads(path.read_text(encoding="utf-8"))
+        _, patient, _ = from_confirmed_state(json.loads((path.parent / "confirmed_state.json").read_text(encoding="utf-8")))
+        assert not [cid for cid in exp["expected_chunks"] + exp.get("expected_algorithm", [])
+                    if _prior_chemo_adjust(text[cid], patient.get("prior_metastatic_chemo"))], path

@@ -40,8 +40,10 @@ TAG_TO_MARKER = {
 
 def _patient_profile(metastatic_sites=None, menopausal_status=None, pcr=None, stage_at_diagnosis=None,
                      prior_subclasses=None, prior_classes=None, endocrine_relapse_12m=None,
-                     high_risk_early=None, visceral_crisis=None, contraindicated=None) -> dict:
+                     high_risk_early=None, visceral_crisis=None, contraindicated=None,
+                     prior_metastatic_chemo=None) -> dict:
     return {
+        "prior_metastatic_chemo": prior_metastatic_chemo,
         "contraindicated": contraindicated,
         "visceral_crisis": visceral_crisis,
         "endocrine_relapse_12m": endocrine_relapse_12m,
@@ -131,7 +133,7 @@ def negative_tags(record: dict) -> list[str]:
 
 
 PATIENT_KEYS = ("metastatic_sites", "menopausal_status", "pcr", "stage_at_diagnosis", "prior_subclasses", "prior_classes",
-                "endocrine_relapse_12m", "high_risk_early", "visceral_crisis", "contraindicated")
+                "endocrine_relapse_12m", "high_risk_early", "visceral_crisis", "contraindicated", "prior_metastatic_chemo")
 
 
 def search_args(record: dict, query_style: str = "adaptive", **kwargs) -> dict:
@@ -159,6 +161,8 @@ def search_args(record: dict, query_style: str = "adaptive", **kwargs) -> dict:
         args["menopausal_status"] = profile["menopausal_status"]  # 반대쪽 폐경 상태 권고 감점 (searcher._menopause_adjust)
     if profile.get("visceral_crisis") == "yes":
         args["visceral_crisis"] = "yes"  # 내분비 기반 권고 감점 (searcher._crisis_adjust)
+    if profile.get("prior_metastatic_chemo") in ("yes", "no"):
+        args["prior_metastatic_chemo"] = profile["prior_metastatic_chemo"]  # 이전 항암 조건 감점 (searcher._prior_chemo_adjust)
     args.update(overrides)
     return args
 

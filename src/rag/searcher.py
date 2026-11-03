@@ -64,6 +64,14 @@ NOT_ENDOCRINE_ONLY = re.compile(r"\bChT\b|chemotherapy|imminent organ failure|vi
                                 r"capecitabine|taxane|paclitaxel|docetaxel|eribulin|anthracycline|vinorelbine|"
                                 r"carboplatin|platinum", re.IGNORECASE)
 VISCERAL_CRISIS_PENALTY = 1.0
+# 전이 후 고식 항암 여부: ESMO MBC HR+/HER2- 3차 이후는 "이전 ChT 없음"(capecitabine·taxane, T-DXd)과 "ChT 1차례 이상 뒤"
+# (T-DXd HER2-low, sacituzumab, Dato-DXd)로 갈린다 (그림 4 'No previous ChT' / 'Previous ChT'). 고식 항암이 없는 환자에게
+# "ChT 1차례 이상 뒤" 권고가 정답보다 위에 왔다 (VC-0113 check_case, 2026-11-03). 확정 고식 항암 차수로 반대 갈래를 감점한다.
+# 보조·선행 항암은 세지 않는다 (DESTINY-Breast04처럼 보조 항암 6개월 안 재발을 1차례로 치는 예외는 차수 확정 때 의사가 정한다)
+NEEDS_PRIOR_CHEMO = re.compile(r"after at least one (prior )?line of ChT|received at least one prior line of ChT|"
+                               r"→ Previous ChT →", re.IGNORECASE)
+NO_PRIOR_CHEMO = re.compile(r"not previously received ChT|→ No previous ChT →", re.IGNORECASE)
+PRIOR_CHEMO_MISMATCH_PENALTY = 1.0
 CACHE_SIZE = 256  # 같은 조건의 검색 결과를 기억해 두는 개수. 색인이 바뀌면 indexer가 비운다
 
 _cache = {}
@@ -86,6 +94,7 @@ def search_guidelines(
         endocrine_relapse_12m: str = None,
         menopausal_status: str = None,
         visceral_crisis: str = None,
+        prior_metastatic_chemo: str = None,
 ) -> list[dict]:
     """지침 권고 청크를 찾는다. with_parent=True면 각 결과에 부모(소단원) 청크를 "parent" 키로 붙인다
     (LLM에는 소단원 전체를 함께 넘긴다, PROJECT.md §6).
@@ -104,18 +113,20 @@ def search_guidelines(
     menopausal_status("premenopausal" / "perimenopausal" / "postmenopausal")를 주면, 반대쪽 폐경 상태만을 대상으로 하는
     권고·그림 경로를 감점한다 (이행기는 폐경 전으로 본다, confirmed_state 규칙). 없거나 그 밖의 값이면 바꾸지 않는다.
     visceral_crisis("yes")를 주면 내분비 기반 치료만 권하는 권고·그림 경로를 감점한다 (장기 부전 임박이면 ChT). 그 밖의 값은 무시.
+    prior_metastatic_chemo("yes" / "no", 전이 후 고식 항암을 받았는가)를 주면 반대 갈래("ChT 1차례 이상 뒤" / "이전 ChT 없음")만
+    가리키는 권고·그림 경로를 감점한다.
     같은 조건의 검색은 기억해 둔 결과를 돌려준다 (색인을 바꾸면 비워진다)."""
     sites = _site_keys(metastatic_sites)
     negatives = frozenset(negative_tags or ())
     key = (query_text, setting, subtype, line, source, tuple(biomarker_tags or ()), top_k, with_parent, rerank,
            tuple(sorted(sites)) if sites is not None else None, negatives, chunk_kind, endocrine_relapse_12m,
-           menopausal_status, visceral_crisis)
+           menopausal_status, visceral_crisis, prior_metastatic_chemo)
     if key not in _cache:
         if len(_cache) >= CACHE_SIZE:
             _cache.clear()
         _cache[key] = _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, with_parent, rerank,
                               sites, negatives, chunk_kind, endocrine_relapse_12m, menopausal_status,
-                              visceral_crisis)
+                              visceral_crisis, prior_metastatic_chemo)
     return copy.deepcopy(_cache[key])  # 받은 쪽이 결과를 고쳐도 기억해 둔 값은 그대로
 
 
@@ -160,7 +171,7 @@ def _site_adjust(parent_id, sites) -> float:
 
 def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, with_parent, rerank,
             sites=None, negatives=frozenset(), chunk_kind="recommendation", relapse_12m=None,
-            menopause=None, crisis=None) -> list[dict]:
+            menopause=None, crisis=None, prior_chemo=None) -> list[dict]:
     client = get_qdrant_client()
     model = get_embedding_model()
 
@@ -260,6 +271,8 @@ def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, w
         score -= _menopause_adjust(payload.get("text", ""), menopause)
         # 장기 위기: 내분비 기반 치료만 권하는 권고는 감점
         score -= _crisis_adjust(payload.get("text", ""), crisis)
+        # 전이 후 고식 항암 여부: 반대 갈래만 가리키는 권고는 감점
+        score -= _prior_chemo_adjust(payload.get("text", ""), prior_chemo)
 
         scored_results.append({
             "score": score,
@@ -310,6 +323,19 @@ def _crisis_adjust(text: str, crisis) -> float:
     text = text.split(" Footnotes: ", 1)[0]
     if ENDOCRINE_BASED.search(text) and not NOT_ENDOCRINE_ONLY.search(text):
         return VISCERAL_CRISIS_PENALTY
+    return 0.0
+
+
+def _prior_chemo_adjust(text: str, prior_chemo) -> float:
+    """권고가 환자의 고식 항암 여부와 반대 갈래만 가리키면 감점할 크기. 그림 경로는 각주를 빼고 본다."""
+    if prior_chemo not in ("yes", "no"):
+        return 0.0
+    text = text.split(" Footnotes: ", 1)[0]
+    needs, none = bool(NEEDS_PRIOR_CHEMO.search(text)), bool(NO_PRIOR_CHEMO.search(text))
+    if prior_chemo == "no" and needs and not none:
+        return PRIOR_CHEMO_MISMATCH_PENALTY
+    if prior_chemo == "yes" and none and not needs:
+        return PRIOR_CHEMO_MISMATCH_PENALTY
     return 0.0
 
 
