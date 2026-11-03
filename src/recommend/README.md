@@ -20,7 +20,7 @@
 | `postprocess.py` | 환각 방지 후처리 (아래 표) |
 | `validate.py` | `schemas/recommendation.json` 형식 검사 |
 | `clinical_notes.py` | 참고란 (`recommendation.json` `clinical_notes`, 2026-10-29). 동반질환·ECOG·장기 위기·의사가 확정한 금기 계열을 정해진 문장 틀로 적고, 넘어온 지침 청크 중 동반질환 관련 ESMO 청크 ID를 붙인다. 금기 계열 약이 든 후보는 빼지 않고 `applies_to`로 표시만 한다. `recommend(..., confirmed_state=...)`로 의사 확정값을 넘긴다 |
-| `safety.py` | 안전 위반 검사 (PROJECT.md §12, 평가용, 0건이 합격). `safety_violations(recommendation, biomarker_record, patient_state)` → 위반 목록. ① HER2 표적치료를 그 약이 허용하지 않는 HER2 상태에 추천 (`drug_biomarker.csv` 기준: T-DXd만 저발현·초저발현 허용, 표에 없는 HER2 표적치료는 양성만) ② ER·PR 모두 음성인데 내분비요법만 ③ 기준일 전 진행한 약 재추천 ④ citations·rationale 없음 ⑤ 남성·상피내암(Tis)에게 추천. 추천을 바꾸지 않는다. ③은 PROJECT.md 문구대로 약 이름만 보므로, 진행 뒤에도 이어 쓰는 요법(예: HER2 양성에서 trastuzumab 유지)도 위반으로 센다 (팀 확인 필요) |
+| `safety.py` | 안전 위반 검사 (PROJECT.md §12, 평가용, 0건이 합격). `safety_violations(recommendation, biomarker_record, patient_state)` → 위반 목록. ① HER2 표적치료를 그 약이 허용하지 않는 HER2 상태에 추천 (`drug_biomarker.csv` 기준: T-DXd만 저발현·초저발현 허용, 표에 없는 HER2 표적치료는 양성만) ② ER·PR 모두 음성인데 내분비요법만 ③ 기준일 전 진행한 약 재추천 ④ citations·rationale 없음 ⑤ 남성·상피내암(Tis)에게 추천. 추천을 바꾸지 않는다. ③은 아로마타제 억제제만 같은 세부 계열(`AI_nonsteroidal`·`AI_steroidal`)의 다른 약과 요법 이름의 "AI"(비스테로이드성으로 봄)도 같은 약으로 본다 (A 전달 2026-11-03 §2 2번, B 판단, 팀 확인 필요. CDK4/6·SERD 등은 진행 뒤 같은 계열의 다른 약 권고가 있어 넓히지 않음). 그 밖에는 약 이름만 보므로, 진행 뒤에도 이어 쓰는 요법(예: HER2 양성에서 trastuzumab 유지)도 위반으로 센다 (팀 확인 필요) |
 | `conditions_eval.py` | 급여 조건 판정기 (아래 "급여 조건 판정기"). `make_conditions_checker(patient_state, biomarker_record)`를 `recommend()`의 `conditions_checker`로 넘긴다 |
 | `drug_biomarker.csv` | 약 → 필요한 바이오마커와 상태값. 출처는 D가 쓰는 심평원 공고책자 2026-11-01판(제2026-232호, 2026-10-29 D 확인)의 인쇄 쪽·chunk_id(D 확인 2026-10-21)와 ESMO 쪽. 공고 문구는 옮기지 않는다. `disease` 칸이 있으면 그 범주에서만 적용 (pembrolizumab·atezolizumab은 전이성에서만 PD-L1 필요) |
 
@@ -33,13 +33,14 @@
 | 3 | 약 이름이 인용한 지침 청크(`drugs` 목록 또는 본문)에 없음. 다만 본문에 넓은 계열 이름이 있으면 그 계열 약은 통과: `ET`·endocrine → Hormone Therapy, `ChT`·chemotherapy → Chemotherapy, anti-HER2·HER2-directed·HER2-targeted → HER2-targeted Therapy (`drug_classes.csv`의 `drug_class`, C와 합의 2026-11-02. C는 이 세 계열을 청크 `drugs`로 풀지 않는다). `ET`·`ChT`는 대소문자까지 맞는 단어만 | 후보를 지움 |
 | 4 | 약에 필요한 바이오마커가 `not_done`·`not_recorded`·`unknown`·`retest_needed` (필요한 마커 중 양성이 하나도 없을 때) | 후보 대신 `tests_needed`에 "<마커> 검사 결과 확인" (`blocks_therapy`에 치료 이름) |
 | 4 | 필요한 바이오마커가 모두 음성·VUS 등 | 후보를 지우고 `conflicts`에 이유와 출처를 적음 |
-| 5 | 급여 분류: 시행 중인 급여 청크(`baseline`·`overlay`, 시행일이 오늘 이전) 인용이 없음. 예고(`preview`)는 근거가 아님 | `no_criteria` |
+| 5 | 급여 행 고르기: 후보 `drugs`가 모두 행의 `drugs`에 든 시행 중인 급여 청크(`baseline`·`overlay`, 시행일이 오늘 이전)만 쓴다. 약이 다른 행 인용은 지우고, 넘겨받은 급여 청크 중 약이 맞는데 인용하지 않은 행은 붙인다 (A 전달 2026-11-03 §3, C `search_reimbursement`와 같은 규칙). 예고(`preview`)는 근거가 아님 | 고른 행으로 아래 판정 |
+| 5 | 후보 약과 맞는 시행 중인 급여 행이 없음 (후보 `drugs`가 비어도) | `no_criteria`, 이유 "후보 약과 맞는 시행 중인 급여 행 없음" |
 | 5 | 허가초과 인정인데 허가초과 청크(`HIRA-offlabel`) 인용이 없음 | `no_criteria`. 있으면 청크의 본인부담률을 `copay`에 |
 | 5 | 급여 조건 판정(`conditions_checker`) 충족 | `covered` |
 | 5 | 급여 조건 판정 불충족 | `no_criteria` (이유에 못 맞춘 조건) |
 | 5 | 급여 조건을 모두 확인하지 못함, 또는 판정기를 넘기지 않음 | `covered_conditions_unverified` |
 | 6 | 지침 청크가 하나도 없음 | 추천을 만들지 않고 `out_of_scope` |
-| 7 | `drugs`·`evidence`가 비어 옴 (2번 뒤, 3번 전) | `drugs`는 인용한 지침 청크의 `drugs` 중 요법 이름에 적힌 약, `evidence`는 인용한 지침 청크의 LoE·GoR로 채움 (A 전달 2026-11-02 §6 4번) |
+| 7 | `drugs`·`evidence`가 비어 옴 (2번 뒤, 3번 전) | `drugs`는 인용한 지침 청크의 `drugs` 중 요법 이름에 적힌 약, `evidence`는 인용한 지침 청크의 LoE·GoR로 채움 (A 전달 2026-11-02 §6 4번). 요법 이름에 계열 이름(AI, ET, CDK4/6, taxane 등)이 있으면 `drugs`를 비워 두고 `conflicts`에 "약을 정하지 못함, 의사 확인 필요" (A 전달 2026-11-03 §2 3번) |
 
 청크 `drugs`는 "본문에 나온 약"이라 금기로 언급된 약도 들어 있다 (예: 동반질환으로 CDK4/6을 못 쓸 때의 권고에 CDK4/6 약 3개). 3번 규칙은 약이 인용한 청크에 나오는지만 보는 환각 검사라 권하는 약인지는 가리지 않는다. 참고란은 이런 청크를 근거 ID로만 붙인다.
 
