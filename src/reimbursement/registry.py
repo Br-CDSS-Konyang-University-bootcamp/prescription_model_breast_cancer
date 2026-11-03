@@ -138,12 +138,15 @@ class Registry:
         self.conn.commit()
 
     def save_validation(self, doc_id: int, report: dict) -> None:
-        """검증 결과를 저장하고, 오류가 있으면 failed로 표시한다 (§8 처리 흐름 9)."""
-        status = "parsed" if report.get("ok") else "failed"
-        self.conn.execute(
-            "UPDATE documents SET validation_json=?, status=?, updated_at=? WHERE id=?",
-            (json.dumps(report, ensure_ascii=False), status, _now(), doc_id),
-        )
+        """검증 결과를 저장하고, 오류가 있으면 failed로 표시한다 (§8 처리 흐름 9).
+        같은 책자를 다시 검증해 통과하면 indexed·superseded는 그대로 둔다. parsed로 되돌리면 색인한 책자를 잃어
+        새 책자를 색인할 때 옛 책자가 superseded가 되지 않는다 (2026-11-01 책자 반영 때 발견)."""
+        if report.get("ok"):
+            sql = ("UPDATE documents SET validation_json=?, updated_at=?, status=CASE WHEN status IN "
+                   "('indexed','superseded') THEN status ELSE 'parsed' END WHERE id=?")
+        else:
+            sql = "UPDATE documents SET validation_json=?, updated_at=?, status='failed' WHERE id=?"
+        self.conn.execute(sql, (json.dumps(report, ensure_ascii=False), _now(), doc_id))
         self.conn.commit()
 
     def last_good_booklet(self, exclude_hash: str | None = None) -> sqlite3.Row | None:

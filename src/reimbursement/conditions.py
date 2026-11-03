@@ -105,17 +105,20 @@ FIELDS: dict[str, tuple[str, list[str], object, str]] = {
                             "(절제함). 그 밖(no, unknown, palliative)은 알 수 없음 (사유: 재발 병소 절제 가능 여부 확인 필요)",
                             ["eq"], ["yes", "no"], "'절제 불가능한 국소 재발성' -> eq no"),
     # 병기·크기는 치료 시기에 맞는 칸을 고른다 (A draft7 체크리스트 §4, 2026-10-28): 선행요법 행은 임상(c),
-    # 수술후보조요법 행은 병리(p). 그 칸이 비면 다른 병기로 대신하지 않고 알 수 없음.
-    # 선행요법 뒤 수술 병기는 ptnm이 아니라 yptnm에 있으므로, 선행요법을 받은 환자의 p 칸은 알 수 없음이 된다
+    # 수술후보조요법 행은 수술 병리 병기: 수술을 먼저 했으면 ptnm, 선행요법 뒤 수술이면 yptnm (§4 표 '선행요법 뒤 보조').
+    # 그 칸이 비면 다른 병기로 대신하지 않고 알 수 없음 (선행요법 중이라 yptnm이 not_done이면 알 수 없음).
+    # §4의 예외('처음 병기'를 보는 조건은 조건마다 적음)에 해당하는 원문은 지금 D 행에 없다 (2026-11-02 확인)
     "ct_stage": ("patient_state.fields.stage.ctnm.value.t (임상 T)", ["eq", "in", "gt", "gte"], T_STAGES,
                  "선행요법 행의 T 조건. '염증성' -> eq T4d"),
-    "pt_stage": ("patient_state.fields.stage.ptnm.value.t (수술을 먼저 한 환자의 병리 T)", ["eq", "in", "gt", "gte"], T_STAGES,
+    "pt_stage": ("patient_state.fields.stage.ptnm.value.t (수술을 먼저 한 환자) / stage.yptnm.value.t (선행요법 뒤 수술)",
+                 ["eq", "in", "gt", "gte"], T_STAGES,
                  "수술후보조요법 행의 T 조건. 크기(cm)로 적힌 조건은 T 범주로 바꾸지 않고 pathologic_size_mm를 쓴다"),
     # 크기는 cm 경계를 T 범주로 바꾸지 않는다 (정확히 5.0 cm는 T2인데 '≥ 5 cm'를 만족함). 값은 mm
     "clinical_size_mm": ("patient_state.fields.stage.clinical_size_mm.value (치료 전 임상 종양 크기, mm)",
                          ["gt", "gte", "lt", "lte"], _NUM, "선행요법 행의 크기 조건. '직경 > 2㎝' -> gt 20"),
-    "pathologic_size_mm": ("patient_state.fields.stage.pathologic_size_mm.value (수술 검체 침윤암 최대 직경, mm. "
-                           "선행요법 뒤 잔존 크기는 여기에 없음)", ["gt", "gte", "lt", "lte"], _NUM,
+    "pathologic_size_mm": ("patient_state.fields.stage.pathologic_size_mm.value (수술을 먼저 한 환자의 침윤암 최대 직경, mm) / "
+                           "stage.yptnm.value.residual_size_mm (선행요법 뒤 수술의 잔존 침윤암 최대 직경, mm)",
+                           ["gt", "gte", "lt", "lte"], _NUM,
                            "수술후보조요법 행의 크기 조건. '1cm 이상' -> gte 10, '1cm를 초과' -> gt 10, "
                            "'종양 크기 > 2 cm' -> gt 20, '≥ 5 cm' -> gte 50"),
     "stage_group": ("patient_state.fields.stage.group.value", ["eq", "in", "gte", "lte"], STAGES,
@@ -124,7 +127,8 @@ FIELDS: dict[str, tuple[str, list[str], object, str]] = {
     # 림프절 양성: N1*·N2*·N3* (N1mi 포함) / 음성: N0, N0(i-), N0(i+), N0(mol+). 앞의 c·p 글자는 떼고 본다
     "cn_status": ("patient_state.fields.stage.ctnm.value.n (임상 N)", ["eq"], _POSNEG,
                   "선행요법 행의 '림프절 양성' -> eq positive"),
-    "pn_status": ("patient_state.fields.stage.ptnm.value.n (수술을 먼저 한 환자의 병리 N)", ["eq"], _POSNEG,
+    "pn_status": ("patient_state.fields.stage.ptnm.value.n (수술을 먼저 한 환자) / stage.yptnm.value.n (선행요법 뒤 수술)",
+                  ["eq"], _POSNEG,
                   "수술후보조요법 행의 '림프절 양성' -> eq positive, '림프절 음성' -> eq negative"),
     "positive_ln_count": ("patient_state.fields.stage.positive_ln_count.value.positive", ["eq", "gt", "gte", "lt", "lte"], _NUM,
                           "전이된 림프절 갯수가 적힌 경우만. '4개 이상' -> gte 4, '1-3개' -> 항목 둘 (gte 1, lte 3)"),
@@ -407,6 +411,9 @@ class Cache:
         r = self.rows.get(key)
         return r["conditions"] if r else None
 
+    def entry(self, key: str) -> dict | None:
+        return self.rows.get(key)
+
     def put(self, key: str, chunk_id: str, cond: dict, usage: dict, model: str = MODEL) -> None:
         r = {"key": key, "chunk_id": chunk_id, "model": model, "prompt_version": PROMPT_VERSION,
              "conditions": cond, "usage": usage,
@@ -581,13 +588,31 @@ class ClaudeCodeStructurer:
 OLLAMA_HOST = "http://127.0.0.1:11500"    # GPU 서버의 Ollama를 SSH 터널로 이 포트에 연다 (README "로컬 LLM")
 
 
-class OllamaStructurer:
-    """로컬 모델(Ollama)로 조건 JSON을 받는다 (PROJECT.md §9, 2026-10-23 Claude API에서 로컬 모델로 바꿈, 모델 미정).
-    공용 llm/의 complete_json을 쓴다. 모델 선정 전이라 llm/config.toml에 칸을 두지 않고 환경 변수로 받는다:
-    REIMB_OLLAMA_MODEL (없으면 이 방식을 건너뜀), REIMB_OLLAMA_HOST (기본 OLLAMA_HOST).
-    프롬프트·출력 형식·검사는 Claude 방식과 같다."""
+UPDATE_TASK = ("[할 일] 위 이전 판(사람이 검수한 조건)에서 바뀐 부분만 조건에 반영하고, 바뀌지 않은 조건은 이전 판 그대로 둔다. "
+               "원문 구절(text)은 새 본문(또는 소단원 안내)에서 그대로 복사한다.")
+REVISE_TASK = ("코드 검사에서 아래 문제가 나왔다. 문제가 있는 칸만 고치고 나머지는 그대로 두어 JSON 전체를 다시 답하라. "
+               "원문에 없는 구절은 원문에서 한 글자도 바꾸지 않고 복사하고, 옮길 수 없는 조건은 unmapped에 원문 그대로 넣는다.\n")
 
-    def __init__(self, model: str | None = None, host: str | None = None, timeout: int = 900):
+
+def _update_message(prev: dict, text: str, context: str) -> str:
+    return (f"[이전 판 급여 기준 본문]\n{prev['text']}\n\n[이전 판 조건 (사람이 검수함)]\n"
+            f"{json.dumps(prev['conditions'], ensure_ascii=False)}\n\n{_user_message(text, context)}\n\n{UPDATE_TASK}")
+
+
+class OllamaStructurer:
+    """로컬 모델(Ollama)로 조건 JSON을 받는다 (PROJECT.md §9, 2026-10-23 Claude API에서 로컬 모델로 바꿈).
+    공용 llm/의 complete_json을 쓴다. llm/config.toml에 칸을 두지 않고 환경 변수로 받는다:
+    REIMB_OLLAMA_MODEL (없으면 이 방식을 건너뜀), REIMB_OLLAMA_HOST (기본 OLLAMA_HOST).
+    프롬프트·출력 형식·검사는 Claude 방식과 같다.
+
+    예시 없이는 우리 조건 형식의 관례(칸 고르기·단위·묶음 위치)를 몰라 쓸 수 없어서 (131행 평가: 항목 정확도 25%),
+    행마다 prepare로 원문이 가장 비슷한 검수된 행 similar개를 예시로 넣고 (80%), 이전 책자에 같은 행이 있으면
+    이전 판 원문·조건을 주고 바뀐 부분만 고치게 한다. 받은 초안은 draft()가 규칙으로 고치고, 검사에 걸리면 한 번 더 묻는다."""
+
+    assisted = True         # draft()에서 규칙 고치기·다시 묻기를 쓴다
+
+    def __init__(self, model: str | None = None, host: str | None = None, timeout: int = 900, think: bool = False,
+                 examples: list[tuple[str, str, dict]] | None = None, similar: int = 3):
         import requests
         model = model or os.environ.get("REIMB_OLLAMA_MODEL")
         if not model:
@@ -600,20 +625,67 @@ class OllamaStructurer:
         if model not in {m.get("name") for m in tags.get("models", [])}:
             raise StructurerUnavailable(f"Ollama에 모델 없음: {model} (서버에서 ollama pull)")
         from llm import LLMConfig
-        # 시스템 프롬프트(어휘 목록)가 길어 문맥을 넉넉히 둔다. 생각 모드는 끈다 (llm/ 기본값과 같음)
+        # 시스템 프롬프트(어휘 목록)가 길어 문맥을 넉넉히 둔다. 예시(검수된 행)를 넣으면 더 늘린다.
+        # 생각 모드는 기본으로 끈다 (llm/ 기본값과 같음). 켜면 생각한 글도 출력 길이에 들어가 상한을 올린다
+        self.fixed_examples = list(examples or [])     # 늘 넣는 예시 (평가용 --shots)
+        self.examples = list(self.fixed_examples)
+        self.similar = similar
+        self.previous_row: dict | None = None
+        self.hint: dict = {}
         self.config = LLMConfig(provider="ollama", model=model, patient_data=False, host=host,
-                                num_ctx=16384, max_tokens=8192, timeout=timeout, retries=1)
+                                num_ctx=32768 if self.examples or similar else 16384,
+                                max_tokens=16384 if think else 8192, timeout=timeout, retries=1, think=think)
+
+    def prepare(self, target: dict, pool: list[dict], previous: list[dict] = ()) -> None:
+        """target 행에 넣을 예시를 고른다. pool·previous는 검수된 행 {chunk_id, text, context, conditions, drugs}."""
+        ranked = similar_rows(target, pool, 2 * self.similar) if self.similar else []
+        picked = ranked[:self.similar]
+        self.examples = self.fixed_examples + [(p["text"], p.get("context", ""), p["conditions"]) for p in picked]
+        self.previous_row = find_previous(target, previous)
+        # 두 번째 답(second_opinion)용: 이전 판이 있으면 이전 판 없이 같은 예시로, 없으면 그다음으로 비슷한 예시로
+        alt = picked if self.previous_row else ranked[self.similar:] or picked
+        self._alt_examples = self.fixed_examples + [(p["text"], p.get("context", ""), p["conditions"]) for p in alt]
+        best = max((similarity(target["text"], p["text"]) for p in pool if p["chunk_id"] != target["chunk_id"]),
+                   default=None)
+        self.hint = {"examples": [p["chunk_id"] for p in picked],
+                     "previous": self.previous_row["chunk_id"] if self.previous_row else None,
+                     "similarity": round(best, 2) if best is not None else None}
+
+    def messages(self, text: str, context: str) -> list[dict]:
+        msgs = [{"role": "system", "content": SYSTEM}]
+        for t, c, cond in self.examples:       # 검수된 행을 앞선 문답으로 보여 준다 (few-shot)
+            msgs += [{"role": "user", "content": _user_message(t, c)},
+                     {"role": "assistant", "content": json.dumps(cond, ensure_ascii=False)}]
+        last = _update_message(self.previous_row, text, context) if self.previous_row else _user_message(text, context)
+        return msgs + [{"role": "user", "content": last}]
 
     def __call__(self, text: str, context: str) -> tuple[dict, dict]:
         from llm import complete_json
-        cond = complete_json([{"role": "system", "content": SYSTEM},
-                              {"role": "user", "content": _user_message(text, context)}],
-                             output_schema(), self.config)
+        cond = complete_json(self.messages(text, context), output_schema(), self.config)
         return cond, {"via": "ollama", "model": self.config.model}
+
+    def second_opinion(self, text: str, context: str) -> dict:
+        """다른 질문으로 한 번 더 만든 답 (prepare에서 고른 다른 예시, 이전 판 없이). 첫 답과 다르면 불확실로 본다."""
+        saved = self.examples, self.previous_row
+        self.examples, self.previous_row = getattr(self, "_alt_examples", self.examples), None
+        try:
+            return self(text, context)[0]
+        finally:
+            self.examples, self.previous_row = saved
+
+    def revise(self, text: str, context: str, cond: dict, problems: list[str]) -> dict:
+        """검사에 걸린 초안을 문제 목록과 함께 돌려주고 고친 것을 받는다."""
+        from llm import complete_json
+        msgs = self.messages(text, context) + [
+            {"role": "assistant", "content": json.dumps(cond, ensure_ascii=False)},
+            {"role": "user", "content": REVISE_TASK + "\n".join(problems[:20])}]
+        return complete_json(msgs, output_schema(), self.config)
 
     @property
     def label(self) -> str:
-        return f"ollama:{self.config.model}"
+        extra = ((["think"] if self.config.think else []) + ([f"{len(self.fixed_examples)}shot"] if self.fixed_examples else [])
+                 + ([f"sim{self.similar}"] if self.similar else []))
+        return f"ollama:{self.config.model}" + (f" ({', '.join(extra)})" if extra else "")
 
 
 # 기본 구조화 순서: 로컬 모델(REIMB_OLLAMA_MODEL이 있을 때) -> Claude API(.env 키, 크레딧) -> Claude Code(구독)
@@ -627,6 +699,205 @@ def _next_structurer(factories: list, reasons: list[str]):
         except StructurerUnavailable as e:
             reasons.append(str(e))
     return None
+
+
+# ---------- 로컬 모델 돕기: 예시 고르기, 규칙으로 고치기, 다시 묻기 ----------
+
+_DRAFT_LABELS = ("ollama:", "claude-code:")
+
+
+def is_reviewed(model: str | None) -> bool:
+    """저장본 한 줄이 사람이 넣은(--import) 조건인지. 구조화 방식(로컬 모델·Claude)이 만든 초안이면 False."""
+    return bool(model) and not model.startswith(_DRAFT_LABELS) and model != MODEL
+
+
+def _words(text: str) -> set[str]:
+    """비슷한 행 찾기용 낱말 (첫 줄 머리 제목과 공고 번호·날짜는 뺌)."""
+    body = re.sub(r"^\[[^\]]*\]\n", "", text)
+    body = re.sub(r"\(제\s*\d{4}-\d+호[^)]*\)|\d{4}\.\d{1,2}\.\d{1,2}\.?", " ", body)
+    return set(re.findall(r"[0-9A-Za-z가-힣/+.]+", body.lower()))
+
+
+def similarity(a: str, b: str) -> float:
+    """두 원문의 낱말 겹침 (Jaccard)."""
+    wa, wb = _words(a), _words(b)
+    return len(wa & wb) / (len(wa | wb) or 1)
+
+
+def similar_rows(target: dict, pool: list[dict], k: int, skip_self: bool = True) -> list[dict]:
+    """pool 중 원문 낱말이 가장 많이 겹치는 k개. skip_self면 같은 chunk_id는 뺀다."""
+    scored = [(similarity(target["text"], c["text"]), c["chunk_id"], c)
+              for c in pool if not (skip_self and c["chunk_id"] == target["chunk_id"])]
+    return [c for _, _, c in sorted(scored, key=lambda x: (-x[0], x[1]))[:k]]
+
+
+def row_group(chunk_id: str) -> str:
+    """책자 날짜와 연번을 뺀 소단원 이름 (hira-booklet-20261101-bc-adj-r19 -> bc-adj, ...-supp-gcsf-b1 -> supp-gcsf)."""
+    return re.sub(r"-(?:r\d+|[a-z]\d*|\d+)$", "", re.sub(r"^hira-booklet-\d{8}-", "", chunk_id))
+
+
+def find_previous(target: dict, previous: list[dict]) -> dict | None:
+    """새 책자 행의 이전 판: 이전 책자 행 중 같은 소단원·같은 약 목록이고 원문이 가장 비슷한 것. 없으면 새 행."""
+    g, drugs = row_group(target["chunk_id"]), sorted(target.get("drugs") or [])
+    cands = [p for p in previous if row_group(p["chunk_id"]) == g and sorted(p.get("drugs") or []) == drugs]
+    return (similar_rows(target, cands, 1, skip_self=False) or [None])[0]
+
+
+def _stored(c: dict) -> dict:
+    return {k: v for k, v in (c["reimbursement"].get("conditions") or {}).items() if k != "line_rule"}
+
+
+def reviewed_rows(chunks: list[dict], cache: Cache) -> list[dict]:
+    """이전 책자 청크(reimbursement_chunks_current.jsonl) 중 조건이 사람이 넣은 저장본과 같은 행.
+    바뀐 행의 이전 판으로 쓴다. 검수 전 초안이 붙은 행은 넣지 않는다."""
+    by_id: dict[str, list[dict]] = {}
+    for r in cache.rows.values():
+        if is_reviewed(r.get("model")):
+            by_id.setdefault(r["chunk_id"], []).append(r["conditions"])
+    return [{"chunk_id": c["chunk_id"], "text": c["text"], "context": "", "drugs": c.get("drugs") or [],
+             "conditions": _stored(c)}
+            for c in chunks if c.get("chunk_kind") in TARGET_KINDS and _stored(c)
+            and _stored(c) in by_id.get(c["chunk_id"], [])]
+
+
+# 비교 낱말 -> op. 한 구절에 한 종류만 있을 때만 쓴다 ('1cm 이상' -> gte, '직경 > 2cm' -> gt)
+_CMP_WORDS = [("초과", "gt"), ("이상", "gte"), ("미만", "lt"), ("이하", "lte"),
+              ("≥", "gte"), ("≤", "lte"), (">", "gt"), ("<", "lt")]
+# 병기·크기 칸은 치료 시기로 정해진다 (FIELDS의 ct_stage 위 주석, A draft7 체크리스트 §4)
+_TIMING_FIELDS = {"neoadjuvant": {"pt_stage": "ct_stage", "pn_status": "cn_status",
+                                  "pathologic_size_mm": "clinical_size_mm"},
+                  "adjuvant": {"ct_stage": "pt_stage", "cn_status": "pn_status",
+                               "clinical_size_mm": "pathologic_size_mm"}}
+_QUOTE_MARKS = "\"'“”‘’「」『』 "
+
+
+def _fix_drug(name, vocab: frozenset[str]):
+    if not isinstance(name, str) or name in vocab:
+        return name
+    for cand in (name.lower(), name.replace(" ", "_"), name.lower().replace(" ", "_")):
+        if cand in vocab:
+            return cand
+    return name
+
+
+def _fix_quote(t: str, src: str) -> str:
+    """원문에 없는 구절이 앞뒤 따옴표·마침표만 다르면 떼어 낸다."""
+    if not isinstance(t, str) or _norm(t) in src:
+        return t
+    for s in (t.rstrip(" .。"), t.strip(_QUOTE_MARKS), t.strip(_QUOTE_MARKS).rstrip(".。")):     # 덜 바꾼 것부터
+        if s and _norm(s) in src:
+            return s
+    return t
+
+
+def _fix_item(it: dict, stage: str | None, src: str, vocab: frozenset[str], where: str, log: list[str]) -> None:
+    f = it.get("field")
+    if f in _TIMING_FIELDS.get(stage, {}):
+        it["field"] = _TIMING_FIELDS[stage][f]
+        log.append(f"{where}: {f} -> {it['field']} ({stage} 행)")
+        f = it["field"]
+    if f not in FIELDS:
+        return
+    _, ops, allowed, _ = FIELDS[f]
+    text, op, val = it.get("text") or "", it.get("op"), it.get("value")
+    if op == "in" and not isinstance(val, list):
+        it["value"] = val = [val]
+        log.append(f"{where}: in 값을 목록으로")
+    if op == "eq" and isinstance(val, list) and "in" in ops:
+        it["op"], op = ("in", "in") if len(val) > 1 else ("eq", "eq")
+        if len(val) == 1:
+            it["value"] = val = val[0]
+        log.append(f"{where}: eq 목록 -> {op}")
+    if allowed == _NUM and op in ("gt", "gte", "lt", "lte"):
+        kinds = {o for w, o in _CMP_WORDS if w in text}
+        if len(kinds) == 1 and (new := kinds.pop()) != op and new in ops:
+            it["op"] = new
+            log.append(f"{where}: op {op} -> {new} (원문 비교 낱말)")
+    if f.endswith("_size_mm") and isinstance(val, (int, float)) and not isinstance(val, bool) \
+            and not re.search(r"mm|㎜", text, re.I) \
+            and val in [float(x) for x in re.findall(r"(\d+(?:\.\d+)?)\s*(?:cm|㎝)", text, re.I)]:
+        it["value"] = int(val * 10) if float(val * 10).is_integer() else val * 10
+        log.append(f"{where}: {val}cm -> {it['value']}mm")
+    if allowed == _DRUGS:
+        new = [_fix_drug(v, vocab) for v in val] if isinstance(val, list) else _fix_drug(val, vocab)
+        if new != val:
+            it["value"] = new
+            log.append(f"{where}: 약 이름 사전 표기로")
+    if (it.get("of") or {}).get("drugs"):
+        it["of"]["drugs"] = [_fix_drug(d, vocab) for d in it["of"]["drugs"]]
+    q = _fix_quote(text, src)
+    if q != text:
+        it["text"] = q
+        log.append(f"{where}.text: 앞뒤 따옴표·마침표 뗌")
+    if it.get("unless"):
+        _fix_item(it["unless"], stage, src, vocab, f"{where}.unless", log)
+
+
+def fix_conditions(cond: dict, stage: str | None, source: str) -> tuple[dict, list[str]]:
+    """규칙으로 정해지는 것은 모델에 맡기지 않고 코드가 고친다 (로컬 모델 초안에만 쓴다). 고친 내용 목록도 돌려준다.
+      - 병기·크기 칸: 선행요법 행은 임상(c), 수술후보조요법 행은 병리(p) 칸 (치료 시기로 정해짐)
+      - 구절에 비교 낱말이 한 종류만 있으면 op를 그것으로 (초과 gt, 이상 gte, 미만 lt, 이하 lte)
+      - 크기 칸 값이 구절의 cm 숫자 그대로면 mm로 (×10)
+      - in인데 값이 하나면 목록으로, eq인데 목록이면 in으로
+      - 약 이름의 대소문자·띄어쓰기를 사전 표기로
+      - 원문 구절이 앞뒤 따옴표·마침표만 다르면 떼어 냄
+    사람이 쓴 저장본 131행에 쓰면 하나도 바뀌지 않는다 (tests/reimbursement/test_conditions.py)."""
+    cond = json.loads(json.dumps(cond))
+    src, vocab, log = _norm(source), prior_vocab(), []
+    for where, it in iter_items(cond):
+        _fix_item(it, stage, src, vocab, where, log)
+    for g in cond.get("counts_as_prior_line", []):
+        g["drugs"] = [_fix_drug(d, vocab) for d in g.get("drugs", [])]
+    for key in ("any_of", "any_of_exceptions", "counts_as_prior_line"):
+        for i, g in enumerate(cond.get(key, [])):
+            if (q := _fix_quote(g.get("text", ""), src)) != g.get("text", ""):
+                g["text"] = q
+                log.append(f"{key}[{i}].text: 앞뒤 따옴표·마침표 뗌")
+    for key in ("notes", "human_review", "unmapped"):
+        cond[key] = [_fix_quote(t, src) for t in cond.get(key, [])]
+    return cond, log
+
+
+def problems_of(cond: dict, source: str) -> list[str]:
+    return check_schema(cond) + check_values(cond) + check_grounding(cond, source)
+
+
+def draft(structurer, chunk: dict, context: str, verify: bool = True) -> tuple[dict, dict]:
+    """구조화 방식 하나로 초안을 받는다. 로컬 모델(assisted)이면 규칙으로 고치고, 검사에 걸리면 문제를 알려 한 번 더 묻고,
+    마지막으로 확인한다(verify.py): 칸·값·숫자·빠진 조건을 보고, 다른 질문으로 한 번 더 만든 답과 비교한다.
+    걸린 구절은 human_review에 넣는다 (그 행은 판정에서 '알 수 없음').
+    사용량 칸에 예시·이전 판·겹침·고친 내용·확인 결과를 남긴다 (검수표의 검수 우선순위에 쓴다).
+    verify=False는 평가용 (확인 전 답을 채점하고 확인은 따로 본다)."""
+    text = chunk["text"]
+    cond, usage = structurer(text, context)
+    if not getattr(structurer, "assisted", False):
+        return cond, usage
+    source, stage = f"{context}\n{text}", chunk["reimbursement"].get("stage")
+    cond, fixed = fix_conditions(cond, stage, source)
+    usage = {**usage, **getattr(structurer, "hint", {}), "fixed": fixed, "revised": False}
+    problems = problems_of(cond, source)
+    if problems:
+        try:
+            again = structurer.revise(text, context, cond, problems)
+        except Exception as e:          # 다시 묻기가 실패하면 첫 초안을 그대로 둔다 (검사에서 버려진다)
+            usage["revise_error"] = f"{type(e).__name__}: {str(e)[:200]}"
+        else:
+            cond, fixed2 = fix_conditions(again, stage, source)
+            usage.update(fixed=fixed + fixed2, revised=True, first_problems=[p.split(":")[0] for p in problems])
+    if verify:
+        from .verify import disagreements, flag_for_review
+        extra = []
+        if hasattr(structurer, "second_opinion"):
+            try:
+                second, _ = fix_conditions(structurer.second_opinion(text, context), stage, source)
+            except Exception as e:      # 두 번째 답을 못 받으면 비교할 수 없으니 불확실로 둔다
+                extra = [(f"두 번째 답을 받지 못함 ({type(e).__name__})", None)]
+            else:
+                extra = disagreements(cond, second, source)
+                usage["second_same"] = not extra
+        usage["draft"] = cond                   # 확인 전 초안 (평가에서 채점)
+        cond, usage["verify"] = flag_for_review(cond, text, extra)
+    return cond, usage
 
 
 # ---------- 청크에 붙이기 ----------
@@ -645,6 +916,7 @@ class ConditionReport:
     input_tokens: int = 0
     output_tokens: int = 0
     unavailable_reason: str | None = None
+    sources: dict[str, dict] = field(default_factory=dict)          # chunk_id -> 만든 이·검수 여부·초안 정보 (검수표)
 
 
 def merge_conditions(base: dict, extra: dict) -> dict:
@@ -659,12 +931,15 @@ def merge_conditions(base: dict, extra: dict) -> dict:
 
 
 def attach_conditions(chunks: list[dict], contexts: dict[str, str], *, structurer=None,
-                      cache: Cache | None = None, use_api: bool = True) -> ConditionReport:
+                      cache: Cache | None = None, use_api: bool = True,
+                      previous: list[dict] | None = None) -> ConditionReport:
     """대상 청크마다 저장된 결과를 쓰거나 API로 받아, 검사를 통과한 조건만 reimbursement.conditions에 넣는다.
 
     contexts: chunk_id -> 소단원 제목·머리 규칙·주석 (근거 구절로 쓸 수 있는 글)
     structurer: (본문, 안내) -> (조건, 사용량). None이고 use_api면 STRUCTURERS 순서대로 쓸 수 있는 것을 쓴다
     (Claude API가 키·크레딧 문제로 안 되면 Claude Code로 넘어간다).
+    previous: 이전 책자의 검수된 행 (reviewed_rows). 로컬 모델이 바뀐 행을 이전 판 기준으로 고치게 한다.
+    로컬 모델의 예시는 이번 책자에서 저장본의 검수된 조건을 그대로 쓰는 행 중에서 고른다.
     """
     rep = ConditionReport()
     cache = cache or Cache()
@@ -672,6 +947,14 @@ def attach_conditions(chunks: list[dict], contexts: dict[str, str], *, structure
     reasons: list[str] = []
     if structurer is None:
         structurer = _next_structurer(factories, reasons)
+    pool = []
+    for c in chunks:
+        if c["chunk_kind"] in TARGET_KINDS:
+            ctx = contexts.get(c["chunk_id"], "")
+            e = cache.entry(cache_key(c["text"], ctx))
+            if e and is_reviewed(e.get("model")) and not is_empty(e["conditions"]):
+                pool.append({"chunk_id": c["chunk_id"], "text": c["text"], "context": ctx,
+                             "drugs": c.get("drugs") or [], "conditions": e["conditions"]})
     for c in chunks:
         if c["chunk_kind"] not in TARGET_KINDS:
             continue
@@ -683,7 +966,9 @@ def attach_conditions(chunks: list[dict], contexts: dict[str, str], *, structure
         else:
             while structurer is not None:
                 try:
-                    cond, usage = structurer(text, ctx)
+                    if hasattr(structurer, "prepare"):
+                        structurer.prepare(c, pool, previous or [])
+                    cond, usage = draft(structurer, c, ctx)
                     break
                 except StructurerUnavailable as e:     # 다음 방법으로 같은 청크를 다시 시도
                     reasons.append(str(e))
@@ -700,7 +985,11 @@ def attach_conditions(chunks: list[dict], contexts: dict[str, str], *, structure
             rep.input_tokens += usage.get("input_tokens", 0)
             rep.output_tokens += usage.get("output_tokens", 0)
             cache.put(key, cid, cond, usage, model=getattr(structurer, "label", MODEL))
-        problems = check_schema(cond) + check_values(cond) + check_grounding(cond, f"{ctx}\n{text}")
+        e = cache.entry(key) or {}
+        rep.sources[cid] = {"model": e.get("model"), "reviewed": is_reviewed(e.get("model")),
+                            **{k: v for k, v in (e.get("usage") or {}).items()
+                               if k in ("examples", "previous", "similarity", "fixed", "revised", "verify")}}
+        problems = problems_of(cond, f"{ctx}\n{text}")
         if problems:
             rep.rejected[cid] = problems
             continue
@@ -745,15 +1034,39 @@ def import_conditions(items: dict[str, dict], chunks: list[dict], contexts: dict
 # ---------- 사람 검수표 (§3.5: 사람이 전수 검수) ----------
 
 REVIEW_COLUMNS = ["chunk_id", "section", "regimen", "묶음", "id", "field", "op", "value", "of", "원문 구절",
-                  "검수(O/X)", "고칠 내용"]
+                  "검수(O/X)", "고칠 내용", "검수 우선", "만든 이", "코드가 고친 것"]
 
 
-def review_rows(chunks: list[dict]) -> list[list[str]]:
+def review_priority(src: dict | None) -> tuple[int, str]:
+    """검수 순서 (작을수록 먼저, 꼼꼼히). 확인(verify.py)에 걸린 초안이 맨 앞.
+    겹침 기준은 2026-11-02 131행 평가 (겹침 0.7 이상 정확도 95%, 0.5 미만 47%)."""
+    if not src:
+        return 5, ""
+    if src.get("reviewed"):
+        return 4, "검수됨"
+    if src.get("verify"):
+        return 0, f"확인에 걸림 (사람 검토로 돌림, 판정은 알 수 없음): {'; '.join(src['verify'][:3])}"
+    if src.get("previous"):
+        return 3, f"바뀐 행: 이전 판 {src['previous']}에서 바뀐 부분 위주로"
+    s = src.get("similarity")
+    if s is None or s < 0.5:
+        return 1, f"새 행, 비슷한 검수 행 없음 (겹침 {s}): 꼼꼼히"
+    if s < 0.7:
+        return 2, f"새 행, 조금 비슷한 검수 행 (겹침 {s}): 꼼꼼히"
+    return 3, f"새 행, 비슷한 검수 행 있음 (겹침 {s})"
+
+
+def review_rows(chunks: list[dict], sources: dict[str, dict] | None = None) -> list[list[str]]:
+    """검수표 줄. sources(ConditionReport.sources)가 있으면 검수 우선 순서로 행을 늘어놓는다."""
+    sources = sources or {}
+    order = sorted((c for c in chunks if c["chunk_kind"] in TARGET_KINDS and c["reimbursement"].get("conditions")),
+                   key=lambda c: review_priority(sources.get(c["chunk_id"]))[0])
     rows = []
-    for c in chunks:
+    for c in order:
         cond = c["reimbursement"].get("conditions") or {}
-        if c["chunk_kind"] not in TARGET_KINDS or not cond:
-            continue
+        src = sources.get(c["chunk_id"]) or {}
+        tail = [review_priority(src)[1], src.get("model") or "", "; ".join(src.get("fixed") or [])]
+        n0 = len(rows)
         head = [c["chunk_id"], c["section"], " / ".join(c["reimbursement"].get("regimen", []))]
         lr = cond.get("line_rule")
         if lr:
@@ -776,13 +1089,15 @@ def review_rows(chunks: list[dict]) -> list[list[str]]:
         for key in ("notes", "human_review", "unmapped"):
             for t in cond.get(key, []):
                 rows.append(head + [key, "", "", "", "", "", t, "", ""])
+        for r in rows[n0:]:
+            r += tail
     return rows
 
 
-def export_review(chunks: list[dict], path: Path) -> Path | None:
+def export_review(chunks: list[dict], path: Path, sources: dict[str, dict] | None = None) -> Path | None:
     """검수표를 탭 구분 파일로 쓴다. 엑셀에서 열 수 있게 UTF-8 BOM을 붙인다.
     공고 원문이 들어 있어 .csv가 아닌 .tsv로 둔다 (data/ 안의 csv는 git에 올라가므로)."""
-    rows = review_rows(chunks)
+    rows = review_rows(chunks, sources)
     if not rows:
         return None
     path.parent.mkdir(parents=True, exist_ok=True)

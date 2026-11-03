@@ -1,5 +1,5 @@
 """로컬 모델 비교(eval_llm)의 항목 비교 규칙. 모델 서버 없이 돈다."""
-from src.reimbursement.eval_llm import compare, item_keys
+from src.reimbursement.eval_llm import compare, item_keys, similar_rows
 
 REF = {
     "all_of": [{"id": "c1", "field": "her2", "op": "eq", "value": "positive", "text": "HER2 양성인"}],
@@ -17,6 +17,15 @@ def test_same_conditions_with_other_text_and_ids_match():
            "counts_as_prior_line": [{**REF["counts_as_prior_line"][0], "drugs": ["taxane", "trastuzumab"]}]}
     r = compare(REF, got)
     assert r == {"ref_items": 4, "got_items": 4, "common": 4, "exact": True}
+
+
+def test_similar_rows_skip_self_and_rank_by_words():
+    rows = [{"chunk_id": cid, "text": f"[머리]\n{t}"} for cid, t in [
+        ("r01", "palbociclib + letrozole 호르몬 수용체 양성 HER2 음성 폐경 후 (제2020-155호: 2020.6.1.)"),
+        ("r03", "abemaciclib + letrozole 호르몬 수용체 양성 HER2 음성 폐경 후 (제2021-1호: 2021.1.1.)"),
+        ("r09", "trastuzumab deruxtecan HER2 양성 2차 이상")]]
+    got = similar_rows(rows[0], rows, 2)
+    assert [c["chunk_id"] for c in got] == ["r03", "r09"]          # 자기 자신은 빼고, 공고 번호·날짜는 비교하지 않음
 
 
 def test_place_and_value_matter():

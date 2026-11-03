@@ -70,3 +70,18 @@ def test_validation_sets_status_and_last_good(reg):
     # 실패한 새 책자 대신 마지막 정상 책자를 쓴다
     assert reg.last_good_booklet()["file_hash"] == "h1"
     assert reg.last_good_booklet(exclude_hash="h1") is None
+
+
+def test_revalidation_keeps_indexed_then_supersedes(reg):
+    """색인한 책자를 다시 검증해도 indexed가 남아, 새 책자를 색인하면 옛 책자가 superseded가 된다."""
+    d1, d2 = date(2026, 10, 1), date(2026, 11, 1)
+    a = _booklet(reg, d1, "h1")
+    reg.save_validation(a, {"ok": True, "errors": []})
+    reg.mark_indexed("booklet", d1.isoformat())
+    reg.save_validation(a, {"ok": True, "errors": []})              # 같은 책자로 파이프라인을 다시 돌림
+    assert reg.current_booklet()["file_hash"] == "h1"
+    b = _booklet(reg, d2, "h2")
+    reg.save_validation(b, {"ok": True, "errors": []})
+    reg.mark_indexed("booklet", d2.isoformat())
+    status = {r["file_hash"]: r["status"] for r in reg.conn.execute("SELECT file_hash, status FROM documents")}
+    assert status == {"h1": "superseded", "h2": "indexed"}

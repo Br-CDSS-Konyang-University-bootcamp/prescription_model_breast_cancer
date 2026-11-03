@@ -7,7 +7,7 @@
                                                                     chunk_kind = reimbursement_condition
   L4 조건 항목   L3의 reimbursement.conditions (conditions.py, §3.5)
   행에는 그 행에 표시된 주N 각주와 연번 범위 규칙을 붙이고(§2.3), 공고 이력 전체(§2.4)와 요법 구조화(§8.4)를 넣는다.
-  허가초과 목록 (설계 범위 밖, 파이프라인 --with-offlabel일 때만)
+  허가초과 목록 (v0.1에서 쓰지 않음, 파이프라인 --with-offlabel일 때만)
     - 인정 요법 한 줄                             chunk_kind = offlabel_regimen, source_type = baseline
     - 검토중 요법 한 줄                           chunk_kind = offlabel_regimen, source_type = preview
 
