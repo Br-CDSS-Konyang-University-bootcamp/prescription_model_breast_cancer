@@ -168,6 +168,14 @@ def from_confirmed_state(confirmed_state: dict):
     if disease == "metastatic":  # 이전 치료는 전이성 차수 권고를 가르는 데만 쓴다 (patient_from_state와 같은 규칙)
         known = {s for _, s in _drug_classes().values() if s}
         for regimen in _confirmed(items, "prior_regimens") or []:
+            # HR+/HER2-는 보조·선행 항암을 넣지 않는다. ESMO 호르몬 양성 장의 '이전 ChT'는 전이 후 항암이라, 넣으면 질의에
+            # "after … chemotherapy"가 붙어 고식 항암이 없는 환자에게 "ChT 1차례 이상 뒤" 권고가 끌려오고 "이전 ChT 없음" 권고
+            # (luminal-3l-b023e3)가 후보에서 밀렸다 (VC-0113, 2026-11-03). 보조 내분비요법(재발 시점 갈림길), HER2 양성·TNBC의
+            # 보조 항암·항HER2·면역항암(재발 시점과 이전 노출로 권고가 갈림)은 그대로 둔다
+            if (subtype in HR_POSITIVE and regimen.get("setting") in ("adjuvant", "neoadjuvant")
+                    and regimen.get("drugs")
+                    and all(_drug_classes().get(d, ("", ""))[0] == "Chemotherapy" for d in regimen["drugs"])):
+                continue
             for value in regimen.get("subclasses") or []:
                 if value in SKIP_CLASSES:
                     continue
