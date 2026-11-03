@@ -29,7 +29,16 @@ def test_fixture_matches_generator(case):
         assert json.load(f) == doc, f"{case}: 다시 만들 것 (python -m src.app.script.confirmed_fixtures)"
 
 
-def test_only_male_case_is_skipped():
-    """남성(VC-0129)은 폐경 칸이 해당 없음인데 스키마가 HR+에 폐경(pre/post)을 필수로 둬 만들 수 없다."""
+def test_skipped_cases():
+    """정답을 정할 수 없는 사례: VC-0106b는 Ki-67 값 충돌(의사가 고를 값), VC-0129는 남성이라 폐경이 해당 없음인데
+    스키마가 HR+에 폐경(pre/post)을 필수로 둔다."""
     skipped = [case for case in CASES if cf.build(APP, case)[0] is None]
-    assert skipped == ["VC-0129"]
+    assert skipped == ["VC-0106b", "VC-0129"]
+
+
+def test_fixtures_match_scenario_expectations():
+    """confirmed_expectations.csv (시나리오 B 줄·결정 시점)와 다른 칸은 accepted에 이유가 있어야 한다."""
+    from src.app.script import confirmed_review as cr
+    unexplained = [f"{case} {x['item']}: 기대 {x['expected']} / 확정 {x['actual']}"
+                   for case, checks in cr.compare().items() for x in checks if not x["ok"] and not x["accepted"]]
+    assert unexplained == []
