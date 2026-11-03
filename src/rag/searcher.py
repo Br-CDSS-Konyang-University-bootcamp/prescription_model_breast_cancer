@@ -72,6 +72,21 @@ NEEDS_PRIOR_CHEMO = re.compile(r"after at least one (prior )?line of ChT|receive
                                r"→ Previous ChT →", re.IGNORECASE)
 NO_PRIOR_CHEMO = re.compile(r"not previously received ChT|→ No previous ChT →", re.IGNORECASE)
 PRIOR_CHEMO_MISMATCH_PENALTY = 1.0
+# 조기 보조 결정의 갈래: ESMO EBC 권고·그림 경로는 '수술 먼저 한 환자'(stage I 수술 뒤 paclitaxel-trastuzumab, 병기 II-III
+# 수술 뒤 보조 항암, 그림 6·7의 cT1 N0 → 수술 경로)와 '선행 뒤'(잔존 → T-DM1·capecitabine, pCR 갈래)로 갈리고, TNBC 잔존
+# capecitabine은 '면역항암을 받지 않은' 환자만이다. 선행 뒤 환자에게 수술 먼저 stage I 권고가, 선행 pembrolizumab 환자에게
+# 'ICI를 받지 않은 잔존 capecitabine'이 1위로 왔다 (VC-0105·0117·0118·0120 check_case, 2026-11-03). 확정 이력으로 반대 갈래를 감점한다.
+# 두 갈래를 다 말하는 권고(예: 'multiple positive LNs after primary surgery or residual high-risk after neoadjuvant')는 그대로
+SURGERY_FIRST = re.compile(r"initial surgery|primary surgery may be carried out|after primary surgery|"
+                           r"pathological stage II|stage III or high-risk non-pCR|"
+                           r"N0 → (Surgery|Primary surgery)", re.IGNORECASE)
+AFTER_NEOADJUVANT = re.compile(r"residual (invasive )?disease|non-?pCR|→ pCR →|after neoadjuvant|→ Neoadjuvant therapy|"
+                               r"throughout the neoadjuvant phase", re.IGNORECASE)
+RESIDUAL = re.compile(r"residual (invasive )?disease|non-?pCR", re.IGNORECASE)
+PCR_BRANCH = re.compile(r"→ pCR →")
+NO_ICI_RECEIVED = re.compile(r"did not receive ICIs", re.IGNORECASE)
+ADJUVANT_ICI = re.compile(r"9 cycles pembrolizumab|nine 3-week cycles during the adjuvant phase", re.IGNORECASE)
+EARLY_BRANCH_PENALTY = 1.0
 CACHE_SIZE = 256  # 같은 조건의 검색 결과를 기억해 두는 개수. 색인이 바뀌면 indexer가 비운다
 
 _cache = {}
@@ -95,6 +110,9 @@ def search_guidelines(
         menopausal_status: str = None,
         visceral_crisis: str = None,
         prior_metastatic_chemo: str = None,
+        neoadjuvant_received: str = None,
+        ici_received: str = None,
+        pcr: str = None,
 ) -> list[dict]:
     """지침 권고 청크를 찾는다. with_parent=True면 각 결과에 부모(소단원) 청크를 "parent" 키로 붙인다
     (LLM에는 소단원 전체를 함께 넘긴다, PROJECT.md §6).
@@ -115,18 +133,20 @@ def search_guidelines(
     visceral_crisis("yes")를 주면 내분비 기반 치료만 권하는 권고·그림 경로를 감점한다 (장기 부전 임박이면 ChT). 그 밖의 값은 무시.
     prior_metastatic_chemo("yes" / "no", 전이 후 고식 항암을 받았는가)를 주면 반대 갈래("ChT 1차례 이상 뒤" / "이전 ChT 없음")만
     가리키는 권고·그림 경로를 감점한다.
+    neoadjuvant_received·ici_received·pcr("yes" / "no", 조기 보조 결정의 확정 이력)를 주면 '수술 먼저' / '선행 뒤', 잔존 / pCR,
+    '면역항암을 받지 않은 잔존' / 보조 pembrolizumab 갈래 중 반대쪽만 가리키는 권고·그림 경로를 감점한다 (_early_adjust).
     같은 조건의 검색은 기억해 둔 결과를 돌려준다 (색인을 바꾸면 비워진다)."""
     sites = _site_keys(metastatic_sites)
     negatives = frozenset(negative_tags or ())
     key = (query_text, setting, subtype, line, source, tuple(biomarker_tags or ()), top_k, with_parent, rerank,
            tuple(sorted(sites)) if sites is not None else None, negatives, chunk_kind, endocrine_relapse_12m,
-           menopausal_status, visceral_crisis, prior_metastatic_chemo)
+           menopausal_status, visceral_crisis, prior_metastatic_chemo, neoadjuvant_received, ici_received, pcr)
     if key not in _cache:
         if len(_cache) >= CACHE_SIZE:
             _cache.clear()
         _cache[key] = _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, with_parent, rerank,
                               sites, negatives, chunk_kind, endocrine_relapse_12m, menopausal_status,
-                              visceral_crisis, prior_metastatic_chemo)
+                              visceral_crisis, prior_metastatic_chemo, (neoadjuvant_received, ici_received, pcr))
     return copy.deepcopy(_cache[key])  # 받은 쪽이 결과를 고쳐도 기억해 둔 값은 그대로
 
 
@@ -171,7 +191,7 @@ def _site_adjust(parent_id, sites) -> float:
 
 def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, with_parent, rerank,
             sites=None, negatives=frozenset(), chunk_kind="recommendation", relapse_12m=None,
-            menopause=None, crisis=None, prior_chemo=None) -> list[dict]:
+            menopause=None, crisis=None, prior_chemo=None, early=(None, None, None)) -> list[dict]:
     client = get_qdrant_client()
     model = get_embedding_model()
 
@@ -273,6 +293,8 @@ def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, w
         score -= _crisis_adjust(payload.get("text", ""), crisis)
         # 전이 후 고식 항암 여부: 반대 갈래만 가리키는 권고는 감점
         score -= _prior_chemo_adjust(payload.get("text", ""), prior_chemo)
+        # 조기 보조 결정: 수술 먼저 / 선행 뒤, 잔존 / pCR, 면역항암 여부의 반대 갈래만 가리키는 권고는 감점
+        score -= _early_adjust(payload.get("text", ""), *early)
 
         scored_results.append({
             "score": score,
@@ -337,6 +359,22 @@ def _prior_chemo_adjust(text: str, prior_chemo) -> float:
     if prior_chemo == "yes" and none and not needs:
         return PRIOR_CHEMO_MISMATCH_PENALTY
     return 0.0
+
+
+def _early_adjust(text: str, neoadjuvant=None, ici=None, pcr=None) -> float:
+    """조기 보조 결정에서 권고가 환자 이력과 반대 갈래만 가리키면 감점할 크기 (여러 갈래가 어긋나도 한 번만). 그림 각주는 보지 않는다."""
+    text = text.split(" Footnotes: ", 1)[0]
+    first, after = bool(SURGERY_FIRST.search(text)), bool(AFTER_NEOADJUVANT.search(text))
+    wrong = (neoadjuvant == "yes" and first and not after) or (neoadjuvant == "no" and after and not first)
+    if neoadjuvant == "yes" and pcr == "yes" and RESIDUAL.search(text) and not first:
+        wrong = True
+    if neoadjuvant == "yes" and pcr == "no" and PCR_BRANCH.search(text):
+        wrong = True
+    if ici == "yes" and NO_ICI_RECEIVED.search(text):
+        wrong = True
+    if ici == "no" and ADJUVANT_ICI.search(text):
+        wrong = True
+    return EARLY_BRANCH_PENALTY if wrong else 0.0
 
 
 def _rerank_scores(query_text: str, texts: list[str]):

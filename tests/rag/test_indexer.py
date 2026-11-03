@@ -445,3 +445,65 @@ def test_prior_chemo_rule_never_penalizes_a_virtual_chart_answer():
         _, patient, _ = from_confirmed_state(json.loads((path.parent / "confirmed_state.json").read_text(encoding="utf-8")))
         assert not [cid for cid in exp["expected_chunks"] + exp.get("expected_algorithm", [])
                     if _prior_chemo_adjust(text[cid], patient.get("prior_metastatic_chemo"))], path
+
+
+def test_early_history_pushes_back_opposite_branch(memory_index):
+    # 선행 뒤 환자에게 '수술 먼저 stage I' 권고가, 선행 pembrolizumab 환자에게 'ICI를 받지 않은 잔존 capecitabine'이 1위로 왔다
+    # (VC-0105·0117·0118·0120 check_case, 2026-11-03). 확정 이력으로 반대 갈래만 가리키는 권고·그림 경로를 뒤로 보낸다
+    rag_client, indexer = memory_index
+    from src.rag import searcher
+    from src.rag.chunk_store import load_guideline_chunks, select_index_chunks
+
+    indexer.index_chunks(select_index_chunks(load_guideline_chunks()))
+    p = "esmo-ebc-2024-02-"
+
+    def scores(subtype, **kw):
+        args = dict(query_text="x", setting="early", subtype=subtype, line="adjuvant", top_k=300, rerank=False,
+                    chunk_kind=None)
+        return {r["chunk_id"]: r["score"] for r in searcher.search_guidelines(**args, **kw)}
+
+    her2, tnbc = "HR-/HER2+", "TNBC"
+    plain_h, plain_t = scores(her2), scores(tnbc)
+    after = scores(her2, neoadjuvant_received="yes", ici_received="no", pcr="no")  # VC-0105: 선행 뒤 잔존
+    assert after[p + "her2pos-d04f07"] == pytest.approx(plain_h[p + "her2pos-d04f07"] - 1.0)
+    assert after[p + "fig6-163f7d"] == pytest.approx(plain_h[p + "fig6-163f7d"] - 1.0)  # pCR 갈래
+    assert after[p + "her2pos-ae367a"] == plain_h[p + "her2pos-ae367a"]
+    pcr = scores(her2, neoadjuvant_received="yes", ici_received="no", pcr="yes")  # VC-0120: 선행 뒤 pCR
+    assert pcr[p + "her2pos-ae367a"] == pytest.approx(plain_h[p + "her2pos-ae367a"] - 1.0)
+    assert pcr[p + "fig6-163f7d"] == plain_h[p + "fig6-163f7d"]
+    ici = scores(tnbc, neoadjuvant_received="yes", ici_received="yes", pcr="no")  # VC-0117: 선행 pembrolizumab 뒤 잔존
+    assert ici[p + "tnbc-cd090b"] == pytest.approx(plain_t[p + "tnbc-cd090b"] - 1.0)
+    assert ici[p + "tnbc-d13ffd"] == plain_t[p + "tnbc-d13ffd"]
+    first = scores(tnbc, neoadjuvant_received="no")  # VC-0118: 수술 먼저
+    assert first[p + "tnbc-cd090b"] == pytest.approx(plain_t[p + "tnbc-cd090b"] - 1.0)
+    assert first[p + "fig7-8ccb0b"] == plain_t[p + "fig7-8ccb0b"] and first[p + "tnbc-725b0b"] == plain_t[p + "tnbc-725b0b"]
+    both = "hrpos-7568e8"  # '수술 뒤 림프절 다수 또는 선행 뒤 잔존' 두 갈래를 다 말함
+    plain_hr = scores("HR+/HER2-")
+    for kw in ({"neoadjuvant_received": "yes"}, {"neoadjuvant_received": "no"}):
+        assert scores("HR+/HER2-", **kw)[p + both] == plain_hr[p + both]
+
+
+def test_rules_never_penalize_a_virtual_chart_answer():
+    # 확정값에서 나온 감점 규칙(폐경·재발 시점·장기 위기·이전 항암·조기 이력)이 가상 차트 C 정답을 감점하면 안 된다
+    import json, sys, types
+    from pathlib import Path
+    sys.modules.setdefault("sentence_transformers", types.SimpleNamespace(SentenceTransformer=None, CrossEncoder=None))
+    from src.rag.chunk_store import load_guideline_chunks
+    from src.rag.query import search_args
+    from src.rag.retrieve import from_confirmed_state
+    from src.rag import searcher as s
+    text = {c["chunk_id"]: c["text"] for c in load_guideline_chunks()}
+    base = Path(__file__).resolve().parents[2] / "tests" / "fixtures" / "virtual_charts"
+    bad = []
+    for path in base.glob("*/expected/guideline.json"):
+        exp = json.loads(path.read_text(encoding="utf-8"))
+        record, patient, _ = from_confirmed_state(json.loads((path.parent / "confirmed_state.json").read_text(encoding="utf-8")))
+        a = search_args(record, **patient)
+        for cid in exp["expected_chunks"] + exp.get("expected_algorithm", []):
+            t = text[cid]
+            penalty = (s._relapse_adjust(t, a.get("endocrine_relapse_12m")) + s._menopause_adjust(t, a.get("menopausal_status"))
+                       + s._crisis_adjust(t, a.get("visceral_crisis")) + s._prior_chemo_adjust(t, a.get("prior_metastatic_chemo"))
+                       + s._early_adjust(t, a.get("neoadjuvant_received"), a.get("ici_received"), a.get("pcr")))
+            if penalty:
+                bad.append((path.parts[-3], cid))
+    assert bad == []

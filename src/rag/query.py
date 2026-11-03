@@ -41,8 +41,10 @@ TAG_TO_MARKER = {
 def _patient_profile(metastatic_sites=None, menopausal_status=None, pcr=None, stage_at_diagnosis=None,
                      prior_subclasses=None, prior_classes=None, endocrine_relapse_12m=None,
                      high_risk_early=None, visceral_crisis=None, contraindicated=None,
-                     prior_metastatic_chemo=None) -> dict:
+                     prior_metastatic_chemo=None, neoadjuvant_received=None, ici_received=None) -> dict:
     return {
+        "neoadjuvant_received": neoadjuvant_received,
+        "ici_received": ici_received,
         "prior_metastatic_chemo": prior_metastatic_chemo,
         "contraindicated": contraindicated,
         "visceral_crisis": visceral_crisis,
@@ -133,7 +135,8 @@ def negative_tags(record: dict) -> list[str]:
 
 
 PATIENT_KEYS = ("metastatic_sites", "menopausal_status", "pcr", "stage_at_diagnosis", "prior_subclasses", "prior_classes",
-                "endocrine_relapse_12m", "high_risk_early", "visceral_crisis", "contraindicated", "prior_metastatic_chemo")
+                "endocrine_relapse_12m", "high_risk_early", "visceral_crisis", "contraindicated", "prior_metastatic_chemo",
+                "neoadjuvant_received", "ici_received")
 
 
 def search_args(record: dict, query_style: str = "adaptive", **kwargs) -> dict:
@@ -163,6 +166,11 @@ def search_args(record: dict, query_style: str = "adaptive", **kwargs) -> dict:
         args["visceral_crisis"] = "yes"  # 내분비 기반 권고 감점 (searcher._crisis_adjust)
     if profile.get("prior_metastatic_chemo") in ("yes", "no"):
         args["prior_metastatic_chemo"] = profile["prior_metastatic_chemo"]  # 이전 항암 조건 감점 (searcher._prior_chemo_adjust)
+    for key in ("neoadjuvant_received", "ici_received"):  # 조기 보조 결정의 갈래 감점 (searcher._early_adjust)
+        if profile.get(key) in ("yes", "no"):
+            args[key] = profile[key]
+    if profile.get("neoadjuvant_received") == "yes" and profile.get("pcr") in ("yes", "no"):
+        args["pcr"] = profile["pcr"]  # 선행 뒤 잔존 / pCR 갈래 감점
     args.update(overrides)
     return args
 
