@@ -1,0 +1,41 @@
+{
+  "format": "C guideline expected v0.1",
+  "patient_ref": "VC-0107",
+  "input": "expected/confirmed_state.json",
+  "decision": {
+    "setting": "early",
+    "subtype": "HR+/HER2-",
+    "line": "adjuvant"
+  },
+  "expected_chunks": [
+    "esmo-ebc-2024-02-hrpos-ca0c8d",
+    "esmo-ebc-2024-02-hrpos-6308eb"
+  ],
+  "expected_parents": [
+    "esmo-ebc-2024-02-hrpos"
+  ],
+  "expected_algorithm": [
+    "esmo-ebc-2024-02-fig4-a14908"
+  ],
+  "not_expected": [
+    "esmo-ebc-2024-02-hrpos-0656d9",
+    "esmo-ebc-2024-02-hrpos-1f97a2",
+    "esmo-ebc-2024-02-hrpos-cca75c"
+  ],
+  "sources": [
+    {
+      "doc": "ESMO EBC 2024-02",
+      "section": "Hr-Positive, Her2-Negative Ebc",
+      "page": 172
+    },
+    {
+      "doc": "ESMO EBC 2024-02",
+      "section": "Figure 4",
+      "page": 165
+    }
+  ],
+  "status": "draft",
+  "reviewer": null,
+  "reviewed_on": null,
+  "note": "38세 폐경 전, pT1cN0 IA, 등급 3, Ki-67 40%(luminal B-like) → 항암 후 ET(ca0c8d), 폐경 전 재발 위험 높음 → OFS-tamoxifen·OFS-AI(6308eb, 그림 4 폐경 전 luminal B stage I-III 경로). 항암 여부는 ca0c8d를 따름(C 판단, 검수 때 확인). not_expected: 폐경 후 AI, 병기 III·고위험 II abemaciclib, 고위험 연장 ET(고위험 no). 비스포스포네이트(OFS를 하면 해당)·olaparib(gBRCA 기록 없음)은 넣지 않음"
+}

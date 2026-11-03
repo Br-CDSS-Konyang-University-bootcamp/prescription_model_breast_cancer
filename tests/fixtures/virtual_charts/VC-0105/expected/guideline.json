@@ -1,0 +1,40 @@
+{
+  "format": "C guideline expected v0.1",
+  "patient_ref": "VC-0105",
+  "input": "expected/confirmed_state.json",
+  "decision": {
+    "setting": "early",
+    "subtype": "HR-/HER2+",
+    "line": "adjuvant"
+  },
+  "expected_chunks": [
+    "esmo-ebc-2024-02-her2pos-ae367a"
+  ],
+  "expected_parents": [
+    "esmo-ebc-2024-02-her2pos"
+  ],
+  "expected_algorithm": [
+    "esmo-ebc-2024-02-fig6-83c27d"
+  ],
+  "not_expected": [
+    "esmo-ebc-2024-02-her2pos-d04f07",
+    "esmo-ebc-2024-02-her2pos-3be6fb",
+    "esmo-ebc-2024-02-her2pos-c58918"
+  ],
+  "sources": [
+    {
+      "doc": "ESMO EBC 2024-02",
+      "section": "Her2-Positive Ebc",
+      "page": 172
+    },
+    {
+      "doc": "ESMO EBC 2024-02",
+      "section": "Figure 6",
+      "page": 168
+    }
+  ],
+  "status": "draft",
+  "reviewer": null,
+  "reviewed_on": null,
+  "note": "cT2N1 HR-/HER2+, 선행 TCHP 뒤 ypT1c ypN1a 잔존(RCB-II) → T-DM1 14주기(ae367a), 그림 6 잔존 경로. 16dd9e(항HER2 12개월)는 일반 원칙이라 넣지 않음. not_expected: 수술 먼저 한 환자의 권고(stage I d04f07, 병기 II-III 3be6fb), 림프절 양성 pertuzumab 추가(c58918, 잔존이면 T-DM1)"
+}

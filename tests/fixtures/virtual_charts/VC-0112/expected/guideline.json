@@ -1,0 +1,42 @@
+{
+  "format": "C guideline expected v0.1",
+  "patient_ref": "VC-0112",
+  "input": "expected/confirmed_state.json",
+  "decision": {
+    "setting": "metastatic",
+    "subtype": "HR-/HER2+",
+    "line": "1L"
+  },
+  "expected_chunks": [
+    "esmo-mbc-2026-05-her2-1l-b8e579"
+  ],
+  "expected_parents": [
+    "esmo-mbc-2026-05-her2-1l"
+  ],
+  "expected_algorithm": [
+    "esmo-mbc-2026-05-fig6-158c93"
+  ],
+  "not_expected": [
+    "esmo-mbc-2026-05-her2-1l-eab0c1",
+    "esmo-mbc-2026-05-her2-1l-4be7b0",
+    "esmo-mbc-2026-05-her2-1l-2cded5",
+    "esmo-mbc-2026-05-her2-1l-406dd2",
+    "esmo-mbc-2026-05-her2-1l-fc59a0"
+  ],
+  "sources": [
+    {
+      "doc": "ESMO MBC 2026-05",
+      "section": "Management Of Her2-Positive Mbc > First-Line Treatment",
+      "page": 1210
+    },
+    {
+      "doc": "ESMO MBC 2026-05",
+      "section": "Figure 6",
+      "page": 1210
+    }
+  ],
+  "status": "draft",
+  "reviewer": null,
+  "reviewed_on": null,
+  "note": "HR-/HER2+, 보조 trastuzumab 종료 약 4개월 뒤 폐·간 전이(심평원 HER2ADC-6M 간주 met) → 2차 선택지 권고(b8e579, 원문은 'P-T 또는 T-DM1 보조 종료 6-12개월 안'인데 trastuzumab 단독 보조도 같게 봄, 시나리오 M37), 그림 6 BM 없음 경로(158c93). 1차 THP·T-DXd-P(8cddda·6a166b)는 넣지 않음. not_expected: ER 양성 환자용 권고 4개, 폐경 전 ER+ OFS"
+}

@@ -1,0 +1,41 @@
+{
+  "format": "C guideline expected v0.1",
+  "patient_ref": "VC-0115",
+  "input": "expected/confirmed_state.json",
+  "decision": {
+    "setting": "metastatic",
+    "subtype": "TNBC",
+    "line": "2L"
+  },
+  "expected_chunks": [
+    "esmo-mbc-2026-05-tnbc-2l-835b42",
+    "esmo-mbc-2026-05-tnbc-2l-e9b4f6"
+  ],
+  "expected_parents": [
+    "esmo-mbc-2026-05-tnbc-2l"
+  ],
+  "expected_algorithm": [
+    "esmo-mbc-2026-05-fig9-dde930"
+  ],
+  "not_expected": [
+    "esmo-mbc-2026-05-tnbc-2l-0a2190",
+    "esmo-mbc-2026-05-tnbc-2l-aa0873",
+    "esmo-mbc-2026-05-tnbc-2l-ec3102"
+  ],
+  "sources": [
+    {
+      "doc": "ESMO MBC 2026-05",
+      "section": "Management Of Metastatic Tnbc > Second-Line Treatment And Beyond",
+      "page": 1212
+    },
+    {
+      "doc": "ESMO MBC 2026-05",
+      "section": "Figure 9",
+      "page": 1214
+    }
+  ],
+  "status": "draft",
+  "reviewer": null,
+  "reviewed_on": null,
+  "note": "TNBC, 생식세포 BRCA 음성, PD-L1 CPS 2, HER2 0, 1차 gemcitabine-carboplatin 뒤 진행 → sacituzumab(835b42), ChT(e9b4f6), 그림 9 gBRCA wt 경로. not_expected: gBRCA·gPALB2 변이 권고 2개, HER2-low T-DXd"
+}

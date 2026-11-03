@@ -1,0 +1,44 @@
+{
+  "format": "C guideline expected v0.1",
+  "patient_ref": "VC-0114",
+  "input": "expected/confirmed_state.json",
+  "decision": {
+    "setting": "metastatic",
+    "subtype": "HR+/HER2-",
+    "line": ">=3L"
+  },
+  "expected_chunks": [
+    "esmo-mbc-2026-05-luminal-3l-990d33",
+    "esmo-mbc-2026-05-luminal-3l-b7dc93"
+  ],
+  "expected_parents": [
+    "esmo-mbc-2026-05-luminal-3l"
+  ],
+  "expected_algorithm": [
+    "esmo-mbc-2026-05-fig4-88ce0e"
+  ],
+  "not_expected": [
+    "esmo-mbc-2026-05-luminal-3l-044c33",
+    "esmo-mbc-2026-05-luminal-3l-5f9ed9",
+    "esmo-mbc-2026-05-luminal-3l-b023e3",
+    "esmo-mbc-2026-05-luminal-3l-ae383b",
+    "esmo-mbc-2026-05-luminal-3l-53ed83",
+    "esmo-mbc-2026-05-luminal-3l-46be52"
+  ],
+  "sources": [
+    {
+      "doc": "ESMO MBC 2026-05",
+      "section": "Management Of Luminal Mbc > Third-Line Treatment And Beyond",
+      "page": 1207
+    },
+    {
+      "doc": "ESMO MBC 2026-05",
+      "section": "Figure 4",
+      "page": 1208
+    }
+  ],
+  "status": "draft",
+  "reviewer": null,
+  "reviewed_on": null,
+  "note": "de novo, 고식 ET 2차례·고식 항암 2차례(capecitabine, paclitaxel) 뒤, HER2 0 → sacituzumab(990d33)·Dato-DXd(b7dc93), 그림 4 'Previous ChT → SG·Dato-DXd → PD → SG·Dato·ChT' 경로(시나리오: HER2 0이라 T-DXd·HER2 low 갈래 아님). not_expected: T-DXd 2개(HER2-low·ultralow), 이전 ChT 없음 권고, 재투여(de novo라 DFI 없음, anthracycline 노출 없음), 내분비 감수성 권고 2개"
+}

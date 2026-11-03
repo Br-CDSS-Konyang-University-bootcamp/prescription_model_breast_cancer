@@ -1,0 +1,42 @@
+{
+  "format": "C guideline expected v0.1",
+  "patient_ref": "VC-0104",
+  "input": "expected/confirmed_state.json",
+  "decision": {
+    "setting": "metastatic",
+    "subtype": "TNBC",
+    "line": "1L"
+  },
+  "expected_chunks": [
+    "esmo-mbc-2026-05-tnbc-1l-05095b",
+    "esmo-mbc-2026-05-tnbc-1l-3d718a"
+  ],
+  "expected_parents": [
+    "esmo-mbc-2026-05-tnbc-1l"
+  ],
+  "expected_algorithm": [
+    "esmo-mbc-2026-05-fig8-e2f44c"
+  ],
+  "not_expected": [
+    "esmo-mbc-2026-05-tnbc-1l-6280b3",
+    "esmo-mbc-2026-05-tnbc-1l-a2bd8f",
+    "esmo-mbc-2026-05-tnbc-1l-2d012a",
+    "esmo-mbc-2026-05-tnbc-1l-c75522"
+  ],
+  "sources": [
+    {
+      "doc": "ESMO MBC 2026-05",
+      "section": "Management Of Metastatic Tnbc > First-Line Treatment",
+      "page": 1212
+    },
+    {
+      "doc": "ESMO MBC 2026-05",
+      "section": "Figure 8",
+      "page": 1213
+    }
+  ],
+  "status": "draft",
+  "reviewer": null,
+  "reviewed_on": null,
+  "note": "TNBC 간 전이, PD-L1 22C3 CPS 12, 보조 종료 약 8개월 뒤 재발(DFI ≥6개월) → pembrolizumab-ChT(05095b)·pembrolizumab-sacituzumab(3d718a), 그림 8 PD-L1+ 경로. not_expected: atezolizumab(DFI ≥12개월 조건, SP142 기준), PD-L1 음성·gBRCA wt 권고 2개, 장기 부전 임박 권고. gBRCA 미시행이라 olaparib 권고(015580)는 어느 쪽에도 넣지 않음"
+}

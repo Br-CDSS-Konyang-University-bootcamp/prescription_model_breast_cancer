@@ -1,0 +1,39 @@
+{
+  "format": "C guideline expected v0.1",
+  "patient_ref": "VC-0121",
+  "input": "expected/confirmed_state.json",
+  "decision": {
+    "setting": "locally_advanced",
+    "subtype": "HR+/HER2-",
+    "line": "neoadjuvant"
+  },
+  "expected_chunks": [
+    "esmo-ebc-2024-02-hrpos-ca0c8d"
+  ],
+  "expected_parents": [
+    "esmo-ebc-2024-02-hrpos"
+  ],
+  "expected_algorithm": [
+    "esmo-ebc-2024-02-fig2-5abbd1"
+  ],
+  "not_expected": [
+    "esmo-ebc-2024-02-hrpos-0656d9",
+    "esmo-ebc-2024-02-hrpos-941c55"
+  ],
+  "sources": [
+    {
+      "doc": "ESMO EBC 2024-02",
+      "section": "Hr-Positive, Her2-Negative Ebc",
+      "page": 172
+    },
+    {
+      "doc": "ESMO EBC 2024-02",
+      "section": "Figure 2",
+      "page": 162
+    }
+  ],
+  "status": "draft",
+  "reviewer": null,
+  "reviewed_on": null,
+  "note": "47세 폐경 전, cT3N1 IIIA, 등급 3, Ki-67 45%(luminal B-like), 치료 전 선행 결정 → 항암 후 ET(ca0c8d, 국소 진행 고위험), 그림 2 HR+/HER2- 선행 경로(시나리오). 그림 5 luminal B 경로(d83cba)도 맞지만 끝이 수술 뒤 abemaciclib라 넣지 않음. not_expected: 폐경 후 AI, luminal A 항암 생략"
+}

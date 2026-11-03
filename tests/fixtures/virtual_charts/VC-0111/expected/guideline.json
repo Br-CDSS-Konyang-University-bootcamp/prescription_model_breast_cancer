@@ -1,0 +1,47 @@
+{
+  "format": "C guideline expected v0.1",
+  "patient_ref": "VC-0111",
+  "input": "expected/confirmed_state.json",
+  "decision": {
+    "setting": "metastatic",
+    "subtype": "HR-/HER2+",
+    "line": "2L"
+  },
+  "expected_chunks": [
+    "esmo-mbc-2026-05-her2-2l-585977",
+    "esmo-mbc-2026-05-site-bm-her2-25de20",
+    "esmo-mbc-2026-05-her2-2l-081a81"
+  ],
+  "expected_parents": [
+    "esmo-mbc-2026-05-her2-2l",
+    "esmo-mbc-2026-05-site-bm-her2"
+  ],
+  "expected_algorithm": [
+    "esmo-mbc-2026-05-fig6-ff7b69"
+  ],
+  "not_expected": [
+    "esmo-mbc-2026-05-her2-2l-d1dc37",
+    "esmo-mbc-2026-05-site-bm-her2-d0166f"
+  ],
+  "sources": [
+    {
+      "doc": "ESMO MBC 2026-05",
+      "section": "Management Of Her2-Positive Mbc > Second-Line Treatment",
+      "page": 1210
+    },
+    {
+      "doc": "ESMO MBC 2026-05",
+      "section": "Site-Specific Management > Her2-Positive Bc With Bms",
+      "page": 1215
+    },
+    {
+      "doc": "ESMO MBC 2026-05",
+      "section": "Figure 6",
+      "page": 1210
+    }
+  ],
+  "status": "draft",
+  "reviewer": null,
+  "reviewed_on": null,
+  "note": "de novo HR-/HER2+, 1차 docetaxel-HP 뒤 활동성 뇌 전이(국소 치료 적응 없음) + 간 진행 → T-DXd(585977, 뇌 전이 25de20), tucatinib-trastuzumab-capecitabine(081a81), 그림 6 활동성 BM·국소 치료 적응 없음 경로. T-DM1(95a804)·tucatinib(666948)은 'T-DXd를 쓸 수 없을 때'라 넣지 않음. not_expected: 뇌 밖 진행 없을 때 국소 치료(d1dc37, 간 진행 있음), HER2 변이 권고"
+}

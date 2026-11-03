@@ -1,0 +1,41 @@
+{
+  "format": "C guideline expected v0.1",
+  "patient_ref": "VC-0118",
+  "input": "expected/confirmed_state.json",
+  "decision": {
+    "setting": "early",
+    "subtype": "TNBC",
+    "line": "adjuvant"
+  },
+  "expected_chunks": [
+    "esmo-ebc-2024-02-tnbc-725b0b"
+  ],
+  "expected_parents": [
+    "esmo-ebc-2024-02-tnbc"
+  ],
+  "expected_algorithm": [
+    "esmo-ebc-2024-02-fig7-8ccb0b"
+  ],
+  "not_expected": [
+    "esmo-ebc-2024-02-tnbc-83cc1d",
+    "esmo-ebc-2024-02-tnbc-cd090b",
+    "esmo-ebc-2024-02-tnbc-777c34",
+    "esmo-ebc-2024-02-tnbc-a8984f"
+  ],
+  "sources": [
+    {
+      "doc": "ESMO EBC 2024-02",
+      "section": "Tnbc",
+      "page": 173
+    },
+    {
+      "doc": "ESMO EBC 2024-02",
+      "section": "Figure 7",
+      "page": 170
+    }
+  ],
+  "status": "draft",
+  "reviewer": null,
+  "reviewed_on": null,
+  "note": "폐경 후 TNBC pT1b(8mm) N0, 수술 먼저 → 항암(725b0b, pT1a만 예외), 그림 7 pT1b pN0 → 6-8주기 항암 경로. not_expected: gBRCA 변이 olaparib(기록 없음·pT1bN0라 고위험 아님), 선행 뒤 잔존 capecitabine, 선행 권고 2개(cT2 이상·cT1c 이상)"
+}

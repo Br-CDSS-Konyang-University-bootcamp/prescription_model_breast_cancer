@@ -1,0 +1,41 @@
+{
+  "format": "C guideline expected v0.1",
+  "patient_ref": "VC-0117",
+  "input": "expected/confirmed_state.json",
+  "decision": {
+    "setting": "early",
+    "subtype": "TNBC",
+    "line": "adjuvant"
+  },
+  "expected_chunks": [
+    "esmo-ebc-2024-02-tnbc-d13ffd"
+  ],
+  "expected_parents": [
+    "esmo-ebc-2024-02-tnbc"
+  ],
+  "expected_algorithm": [
+    "esmo-ebc-2024-02-fig7-9ac5a5",
+    "esmo-ebc-2024-02-fig7-796507"
+  ],
+  "not_expected": [
+    "esmo-ebc-2024-02-tnbc-cd090b",
+    "esmo-ebc-2024-02-tnbc-83cc1d",
+    "esmo-ebc-2024-02-tnbc-777c34"
+  ],
+  "sources": [
+    {
+      "doc": "ESMO EBC 2024-02",
+      "section": "Tnbc",
+      "page": 173
+    },
+    {
+      "doc": "ESMO EBC 2024-02",
+      "section": "Figure 7",
+      "page": 170
+    }
+  ],
+  "status": "draft",
+  "reviewer": null,
+  "reviewed_on": null,
+  "note": "cT2N1 TNBC, 선행 KEYNOTE-522 요법(pembrolizumab 포함) 뒤 ypT1bN1a 잔존(RCB-II), gBRCA 음성 → 보조 pembrolizumab 9주기(d13ffd), 그림 7 ≥cT2·N+ 잔존 경로 2개(pembrolizumab, gBRCA wt capecitabine). 원문 cd090b는 'ICI를 받지 않은 잔존 환자 capecitabine'이라 not_expected, ICI+capecitabine(2f0fc4 '개별 고려')은 넣지 않음(검수 때 확인). not_expected: gBRCA 변이 olaparib, 선행 단계 권고(777c34)"
+}
