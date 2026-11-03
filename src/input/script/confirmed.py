@@ -443,9 +443,18 @@ def build_draft(patient_state: dict, biomarker_record: dict, drug_table=None) ->
     sites = _value(recurrence.get("metastatic_sites"))
     if not isinstance(sites, list):
         sites = _value(stage.get("metastatic_sites"))
-    put("metastatic_sites", "current", sites if isinstance(sites, list) else
-        ([] if setting.get("disease") != "metastatic" else None), "patient_state")
     imaging = fields.get("imaging_findings") or []
+    added = []
+    if setting.get("disease") == "metastatic":
+        # 진행하며 새로 생긴 전이(예: VC-0111 뇌)는 재발·병기 칸에 없고 영상 소견에만 있다. 판독이 확정한 부위를 더한다
+        known = sites if isinstance(sites, list) else []
+        added = list(dict.fromkeys(s for f in imaging if f.get("certainty") == "confirmed"
+                                   for s in f.get("sites") or [] if s not in known))
+        if added:
+            sites = known + added
+    put("metastatic_sites", "current", sites if isinstance(sites, list) else
+        ([] if setting.get("disease") != "metastatic" else None), "patient_state",
+        note=f"영상 판독에서 더함: {', '.join(added)}" if added else None)
     bone = [f for f in imaging if "bone" in (f.get("sites") or []) and f.get("certainty") == "confirmed"]
     bone_site = isinstance(sites, list) and "bone" in sites
     put("bone_metastasis_imaging", "current", "yes" if bone else (None if bone_site else "no"), "derived",

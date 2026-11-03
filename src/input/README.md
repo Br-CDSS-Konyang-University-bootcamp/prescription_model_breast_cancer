@@ -33,7 +33,7 @@
 | `script/tcga/` | `tcga_to_patient_state.py` | B 테스트(`tests/biomarker/test_bm.py`)가 쓰는 변환기만 남김 |
 | `script/confirmed.py` | (새 파일) | 화면 1 확정값. `build_draft(patient_state, biomarker_record)` → 초안 (시스템 값이 없거나 `unknown`인 칸은 비우고 `needs`에 표시), `set_item(draft, key, value, reason)` (status 자동, 스키마 밖 값은 거부), `finalize(draft, confirmed_by)` → `data/input/confirmed/<patient_ref>/v<n>.json` (덮어쓰지 않음). `dfi_days`·`high_risk_early`도 여기서 계산 |
 
-화면 1 확정값 규칙 (2026-10-30): gBRCA·sBRCA는 1·2를 하나로 합친다 (하나라도 positive → positive, vus → vus, 둘 다 negative → negative, 한쪽만 negative이고 나머지가 기록 없음 → 의사 확인). 재진(follow_up)은 버전 번호·`supersedes`만 채우고 `previous`·`carried`는 아직 없다. 치료 단계 `setting.phase`(조기·국소 진행성의 이번 결정, 2026-11-02): 수술을 먼저 할지는 시스템이 고를 근거가 없어 규칙으로 정한다. 원발 수술 기록(pTNM 또는 ypTNM)이 있으면 `adjuvant`, 없으면 선행요법 대상으로 보고 `neoadjuvant`. B의 `setting.line`(마지막 투약의 단계)은 쓰지 않는다.
+화면 1 확정값 규칙 (2026-10-30): gBRCA·sBRCA는 1·2를 하나로 합친다 (하나라도 positive → positive, vus → vus, 둘 다 negative → negative, 한쪽만 negative이고 나머지가 기록 없음 → 의사 확인). 재진(follow_up)은 버전 번호·`supersedes`만 채우고 `previous`·`carried`는 아직 없다. 전이 부위(2026-11-03): 재발·병기 칸의 부위에 영상 판독이 확정한 부위를 더한다 (진행 뒤 새 뇌 전이처럼 영상 소견에만 있는 부위, VC-0111). 치료 단계 `setting.phase`(조기·국소 진행성의 이번 결정, 2026-11-02): 수술을 먼저 할지는 시스템이 고를 근거가 없어 규칙으로 정한다. 원발 수술 기록(pTNM 또는 ypTNM)이 있으면 `adjuvant`, 없으면 선행요법 대상으로 보고 `neoadjuvant`. B의 `setting.line`(마지막 투약의 단계)은 쓰지 않는다.
 
 2026-10-27 TCGA 정답 세트 폐기, 평가는 가상 차트로 (B 테스트용 변환기 `script/tcga/tcga_to_patient_state.py`만 남김).
 
