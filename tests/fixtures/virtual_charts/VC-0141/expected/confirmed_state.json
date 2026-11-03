@@ -1,0 +1,530 @@
+{
+  "schema_version": "0.1-draft",
+  "patient_ref": "VC-0141",
+  "version": 1,
+  "visit_type": "initial",
+  "decision_context": "metastatic",
+  "index_day": 1265,
+  "confirmed_at": "2026-11-03T00:00:00+09:00",
+  "confirmed_by": "virtual-gold",
+  "based_on": {
+    "patient_state_created_at": "2026-10-23T00:00:00+09:00",
+    "biomarker_record_version": "0.1-draft"
+  },
+  "supersedes": null,
+  "items": {
+    "setting.disease": {
+      "scope": "current",
+      "system": "metastatic",
+      "system_source": "biomarker_record",
+      "confirmed": "metastatic",
+      "status": "confirmed"
+    },
+    "subtype": {
+      "scope": "current",
+      "system": "HR+/HER2-",
+      "system_source": "biomarker_record",
+      "confirmed": "HR+/HER2-",
+      "status": "confirmed"
+    },
+    "setting.line_endocrine": {
+      "scope": "current",
+      "system": ">=3L",
+      "system_source": "biomarker_record",
+      "confirmed": ">=3L",
+      "status": "confirmed"
+    },
+    "setting.line_chemo": {
+      "scope": "current",
+      "system": "1L",
+      "system_source": "biomarker_record",
+      "confirmed": "1L",
+      "status": "confirmed"
+    },
+    "menopausal_status": {
+      "scope": "current",
+      "system": "postmenopausal",
+      "system_source": "patient_state",
+      "confirmed": "postmenopausal",
+      "status": "confirmed",
+      "detail": {
+        "basis": "age_amenorrhea"
+      },
+      "evidence_refs": [
+        {
+          "doc_id": "D1",
+          "quote": "폐경 후",
+          "char_start": 168,
+          "char_end": 172
+        }
+      ]
+    },
+    "age_at_index": {
+      "scope": "current",
+      "system": 70,
+      "system_source": "patient_state",
+      "confirmed": 70,
+      "status": "confirmed"
+    },
+    "stage.t": {
+      "scope": "diagnosis",
+      "system": "T2",
+      "system_source": "patient_state",
+      "confirmed": "T2",
+      "status": "confirmed",
+      "detail": {
+        "basis": "c"
+      },
+      "evidence_refs": [
+        {
+          "doc_id": "D1",
+          "quote": "cT2N0M1",
+          "char_start": 288,
+          "char_end": 295
+        }
+      ]
+    },
+    "stage.size_mm": {
+      "scope": "diagnosis",
+      "system": "not_recorded",
+      "system_source": "patient_state",
+      "confirmed": "not_recorded",
+      "status": "confirmed"
+    },
+    "stage.n": {
+      "scope": "diagnosis",
+      "system": "negative",
+      "system_source": "patient_state",
+      "confirmed": "negative",
+      "status": "confirmed",
+      "detail": {
+        "basis": "c"
+      },
+      "evidence_refs": [
+        {
+          "doc_id": "D1",
+          "quote": "cT2N0M1",
+          "char_start": 288,
+          "char_end": 295
+        }
+      ]
+    },
+    "stage.positive_ln_count": {
+      "scope": "diagnosis",
+      "system": "not_recorded",
+      "system_source": "patient_state",
+      "confirmed": "not_recorded",
+      "status": "confirmed"
+    },
+    "stage.group": {
+      "scope": "diagnosis",
+      "system": "IV",
+      "system_source": "patient_state",
+      "confirmed": "IV",
+      "status": "confirmed",
+      "evidence_refs": [
+        {
+          "doc_id": "D1",
+          "quote": "stage IV",
+          "char_start": 297,
+          "char_end": 305
+        }
+      ]
+    },
+    "grade": {
+      "scope": "diagnosis",
+      "system": 2,
+      "system_source": "patient_state",
+      "confirmed": 2,
+      "status": "confirmed"
+    },
+    "deemed_lines": {
+      "scope": "current",
+      "system": {
+        "DEEM-ANTHRA-TAXANE": "not_met",
+        "DEEM-SG-1Y": "not_met",
+        "DEEM-HER2ADC-6M": "not_met",
+        "DEEM-ENDO-ADJ-1Y": "not_met"
+      },
+      "system_source": "patient_state",
+      "confirmed": {
+        "DEEM-ANTHRA-TAXANE": "not_met",
+        "DEEM-SG-1Y": "not_met",
+        "DEEM-HER2ADC-6M": "not_met",
+        "DEEM-ENDO-ADJ-1Y": "not_met"
+      },
+      "status": "confirmed"
+    },
+    "endocrine_relapse_12m": {
+      "scope": "current",
+      "system": "not_applicable",
+      "system_source": "patient_state",
+      "confirmed": "not_applicable",
+      "status": "confirmed",
+      "note": "보조 내분비요법 없음"
+    },
+    "recurrence_day": {
+      "scope": "current",
+      "system": "not_applicable",
+      "system_source": "patient_state",
+      "confirmed": "not_applicable",
+      "status": "confirmed"
+    },
+    "metastasis_day": {
+      "scope": "current",
+      "system": 0,
+      "system_source": "patient_state",
+      "confirmed": 0,
+      "status": "confirmed"
+    },
+    "recurrence_type": {
+      "scope": "current",
+      "system": "none",
+      "system_source": "patient_state",
+      "confirmed": "none",
+      "status": "confirmed"
+    },
+    "metastatic_sites": {
+      "scope": "current",
+      "system": [
+        "bone"
+      ],
+      "system_source": "patient_state",
+      "confirmed": [
+        "bone"
+      ],
+      "status": "confirmed"
+    },
+    "bone_metastasis_imaging": {
+      "scope": "current",
+      "system": "yes",
+      "system_source": "derived",
+      "confirmed": "yes",
+      "status": "confirmed",
+      "evidence_refs": [
+        {
+          "doc_id": "D3",
+          "quote": "다발성 골전이",
+          "char_start": 986,
+          "char_end": 993
+        },
+        {
+          "doc_id": "D4",
+          "quote": "골전이 진행 (PD)",
+          "char_start": 1129,
+          "char_end": 1140
+        },
+        {
+          "doc_id": "D5",
+          "quote": "골전이 진행 (PD)",
+          "char_start": 1273,
+          "char_end": 1284
+        }
+      ]
+    },
+    "prior_regimens": {
+      "scope": "current",
+      "system": [
+        {
+          "drugs": [
+            "anastrozole",
+            "palbociclib"
+          ],
+          "subclasses": [
+            "AI_nonsteroidal",
+            "CDK4/6_inhibitor"
+          ],
+          "setting": "metastatic",
+          "start_day": 15,
+          "end_day": 925,
+          "line_endocrine": 1,
+          "line_chemo": null,
+          "response": "PD",
+          "stop_reason": "progression",
+          "progression_day": 915,
+          "cycles": {
+            "value": 32,
+            "interval_days": 28
+          },
+          "ongoing": null
+        },
+        {
+          "drugs": [
+            "exemestane",
+            "everolimus"
+          ],
+          "subclasses": [
+            "AI_steroidal",
+            "Other Targeted Therapy"
+          ],
+          "setting": "metastatic",
+          "start_day": 940,
+          "end_day": 1245,
+          "line_endocrine": 2,
+          "line_chemo": null,
+          "response": "PD",
+          "stop_reason": "progression",
+          "progression_day": 1240,
+          "cycles": null,
+          "ongoing": null
+        }
+      ],
+      "system_source": "patient_state",
+      "confirmed": [
+        {
+          "drugs": [
+            "anastrozole",
+            "palbociclib"
+          ],
+          "subclasses": [
+            "AI_nonsteroidal",
+            "CDK4/6_inhibitor"
+          ],
+          "setting": "metastatic",
+          "start_day": 15,
+          "end_day": 925,
+          "line_endocrine": 1,
+          "line_chemo": null,
+          "response": "PD",
+          "stop_reason": "progression",
+          "progression_day": 915,
+          "cycles": {
+            "value": 32,
+            "interval_days": 28
+          },
+          "ongoing": null
+        },
+        {
+          "drugs": [
+            "exemestane",
+            "everolimus"
+          ],
+          "subclasses": [
+            "AI_steroidal",
+            "Other Targeted Therapy"
+          ],
+          "setting": "metastatic",
+          "start_day": 940,
+          "end_day": 1245,
+          "line_endocrine": 2,
+          "line_chemo": null,
+          "response": "PD",
+          "stop_reason": "progression",
+          "progression_day": 1240,
+          "cycles": null,
+          "ongoing": null
+        }
+      ],
+      "status": "confirmed"
+    },
+    "anthracycline_cumulative": {
+      "scope": "current",
+      "system": {},
+      "system_source": "patient_state",
+      "confirmed": {},
+      "status": "confirmed"
+    },
+    "recent_therapy_28d": {
+      "scope": "current",
+      "system": "yes",
+      "system_source": "patient_state",
+      "confirmed": "yes",
+      "status": "confirmed",
+      "note": "exemestane+everolimus 기준일 20일 전 종료"
+    },
+    "cardiac_risk": {
+      "scope": "current",
+      "system": "no",
+      "system_source": "patient_state",
+      "confirmed": "no",
+      "status": "confirmed",
+      "detail": {
+        "lvef_percent": 60
+      }
+    },
+    "contraindicated_classes": {
+      "scope": "current",
+      "system": [],
+      "system_source": "derived",
+      "confirmed": [],
+      "status": "confirmed"
+    },
+    "markers": {
+      "ER": {
+        "scope": "current",
+        "system": "positive",
+        "system_source": "biomarker_record",
+        "confirmed": "positive",
+        "status": "confirmed",
+        "detail": {
+          "specimen": "primary",
+          "test_date": "2020-02-03",
+          "allred": {
+            "total": 8,
+            "ps": 5,
+            "is": 3
+          }
+        },
+        "evidence_refs": [
+          {
+            "doc_id": "D2",
+            "quote": "ER : 양성, Allred score 8 (PS 5 + IS 3)",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      },
+      "PR": {
+        "scope": "current",
+        "system": "positive",
+        "system_source": "biomarker_record",
+        "confirmed": "positive",
+        "status": "confirmed",
+        "detail": {
+          "specimen": "primary",
+          "test_date": "2020-02-03",
+          "allred": {
+            "total": 7,
+            "ps": 4,
+            "is": 3
+          }
+        },
+        "evidence_refs": [
+          {
+            "doc_id": "D2",
+            "quote": "PR : 양성, Allred score 7 (PS 4 + IS 3)",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      },
+      "HER2": {
+        "scope": "current",
+        "system": "low",
+        "system_source": "biomarker_record",
+        "confirmed": "low",
+        "status": "confirmed",
+        "detail": {
+          "specimen": "primary",
+          "test_date": "2020-02-03",
+          "ihc_score": "1+"
+        },
+        "evidence_refs": [
+          {
+            "doc_id": "D2",
+            "quote": "HER2 (4B5): 1+",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      },
+      "Ki-67": {
+        "scope": "diagnosis",
+        "system": "negative",
+        "system_source": "biomarker_record",
+        "confirmed": "negative",
+        "status": "confirmed",
+        "detail": {
+          "specimen": "primary",
+          "test_date": "2020-02-03",
+          "percent": 12.0
+        },
+        "evidence_refs": [
+          {
+            "doc_id": "D2",
+            "quote": "Ki-67: 12%",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      },
+      "ESR1": {
+        "scope": "current",
+        "system": "negative",
+        "system_source": "biomarker_record",
+        "confirmed": "negative",
+        "status": "confirmed",
+        "detail": {
+          "specimen": "cfDNA"
+        },
+        "evidence_refs": [
+          {
+            "doc_id": "D7",
+            "quote": "PIK3CA, ESR1, AKT1, PTEN",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      },
+      "PIK3CA": {
+        "scope": "current",
+        "system": "negative",
+        "system_source": "biomarker_record",
+        "confirmed": "negative",
+        "status": "confirmed",
+        "detail": {
+          "specimen": "cfDNA"
+        },
+        "evidence_refs": [
+          {
+            "doc_id": "D7",
+            "quote": "PIK3CA, ESR1, AKT1, PTEN",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      },
+      "AKT1": {
+        "scope": "current",
+        "system": "negative",
+        "system_source": "biomarker_record",
+        "confirmed": "negative",
+        "status": "confirmed",
+        "detail": {
+          "specimen": "cfDNA"
+        },
+        "evidence_refs": [
+          {
+            "doc_id": "D7",
+            "quote": "PIK3CA, ESR1, AKT1, PTEN",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      },
+      "PTEN": {
+        "scope": "current",
+        "system": "negative",
+        "system_source": "biomarker_record",
+        "confirmed": "negative",
+        "status": "confirmed",
+        "detail": {
+          "specimen": "cfDNA"
+        },
+        "evidence_refs": [
+          {
+            "doc_id": "D7",
+            "quote": "PIK3CA, ESR1, AKT1, PTEN",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      },
+      "PALB2": {
+        "scope": "current",
+        "system": "not_recorded",
+        "system_source": "biomarker_record",
+        "confirmed": "not_recorded",
+        "status": "confirmed"
+      },
+      "gBRCA": {
+        "scope": "current",
+        "system": "not_recorded",
+        "system_source": "derived",
+        "confirmed": "not_recorded",
+        "status": "confirmed",
+        "note": "gBRCA1 not_recorded, gBRCA2 not_recorded"
+      }
+    }
+  }
+}
