@@ -337,3 +337,20 @@ def test_prior_chemo_branch_gets_its_own_search():
         got[case] = any(a["query_text"] == PRIOR_CHEMO_QUERY and a["line"] == ">=3L"
                         for a in extra_search_args(record, top_k=3, **patient))
     assert got == {"VC-0114": True, "VC-0113": False}
+
+
+def test_prior_chemo_branch_search_comes_first(index, monkeypatch):
+    # 고식 항암 뒤 HR+/HER2- 3차 이후(VC-0114)는 'ChT 1차례 이상 뒤' 검색을 주 검색보다 먼저 한다 (결과 목록 맨 앞).
+    # 그 검색이 없는 환자(VC-0103)는 주 검색이 처음이다
+    from src.rag import searcher
+    from src.rag.query import PRIOR_CHEMO_QUERY
+    from src.rag.retrieve import retrieve_for_recommend
+    base = BASE_DIR / "tests" / "fixtures" / "virtual_charts"
+    real, calls = searcher.search_guidelines, []
+    monkeypatch.setattr(searcher, "search_guidelines", lambda **kw: calls.append(kw) or real(**kw))
+    for case, first_is_branch in (("VC-0114", True), ("VC-0103", False)):
+        calls.clear()
+        state = json.loads((base / case / "expected" / "confirmed_state.json").read_text(encoding="utf-8"))
+        retrieve_for_recommend(state, rerank=False)
+        assert (calls[0]["query_text"] == PRIOR_CHEMO_QUERY) is first_is_branch, case
+        assert sum(kw["query_text"] == PRIOR_CHEMO_QUERY for kw in calls) == (1 if first_is_branch else 0)
