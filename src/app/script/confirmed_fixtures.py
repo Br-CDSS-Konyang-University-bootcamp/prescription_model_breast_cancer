@@ -6,6 +6,7 @@
 
 만드는 법: 정답 patient_state.json → B assess() → A build_draft() 기본값을 그대로 확정 (화면 1에서 아무것도 바꾸지 않고
 [확정]한 것과 같다. 해당 없는 칸은 화면처럼 넣지 않는다, screen1.drop_not_applicable).
+- 값 충돌 칸(patient_state conflicts[])은 의사가 고를 값이라 비운다.
 - 필수 칸이 비거나 스키마를 통과하지 못하면 파일을 쓰지 않고 이유를 적는다 (의사·팀이 정할 칸).
 - 손으로 쓴 파일(HAND_MADE)은 덮어쓰지 않고, 기본값과 다른 칸만 보여 준다.
 - 시각·확정자는 고정값이라 다시 만들어도 같은 파일이 나온다.
@@ -30,7 +31,12 @@ def build(app: s.App, case: str) -> tuple[dict | None, list[str]]:
     """사례 하나 → (confirmed_state 또는 None, 쓰지 못한 이유)."""
     ps = app.patient_state(case)
     draft = s.drop_not_applicable(c.build_draft(ps, app.bm.assess(ps)))
-    reasons = [f"{k}: 필수인데 기본값이 비어 있음 (의사 입력 필요)" for k in s.screen_missing(draft["items"])]
+    # 값 충돌 칸은 의사가 고를 값이라 정답을 정할 수 없다 (VC-0106b Ki-67: B는 conflicts[]를 보지 않아 '기록 없음'을 낸다).
+    # 비워 두고, 필수 칸이면 아래에서 파일을 만들지 않는다
+    for key, why in s.attention(draft["items"], ps).items():
+        if why.startswith("값 충돌"):
+            c.items_get(draft["items"], key)["confirmed"] = None
+    reasons = [f"{k}: 필수인데 값이 없음 (의사 입력 필요)" for k in s.screen_missing(draft["items"])]
     doc, errors = c.to_confirmed_state(draft, CONFIRMED_BY, CONFIRMED_AT)
     reasons += [e for e in errors if e.split(":")[0] not in {r.split(":")[0] for r in reasons}]
     return (None, reasons) if reasons else (doc, [])
@@ -59,7 +65,11 @@ def main(argv=None) -> int:
         path = s.DEFAULT_CASES / case / "expected" / "confirmed_state.json"
         doc, reasons = build(app, case)
         if doc is None:
-            print(f"{case}: 만들지 않음 - {'; '.join(reasons)}")
+            stale = path.exists() and case not in HAND_MADE
+            if stale and not args.check:
+                path.unlink()   # 예전에 만든 파일이 남아 있으면 지운다 (정답을 정할 수 없게 된 사례)
+            bad += stale and args.check
+            print(f"{case}: 만들지 않음 - {'; '.join(reasons)}" + (" (예전 파일 있음)" if stale and args.check else ""))
             continue
         if case in HAND_MADE:
             with open(path, encoding="utf-8") as f:
