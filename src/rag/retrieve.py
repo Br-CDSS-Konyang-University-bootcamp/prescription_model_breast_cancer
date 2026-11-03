@@ -22,7 +22,7 @@ import re
 import warnings
 
 from .chunk_common import BASE_DIR
-from .query import TAG_TO_MARKER, extra_search_args, search_args
+from .query import PRIOR_CHEMO_QUERY, TAG_TO_MARKER, extra_search_args, search_args
 
 DRUG_CLASSES_CSV = BASE_DIR / "data" / "dictionaries" / "drug_classes.csv"
 # 이전 치료로 질의에 넣지 않는 계열 (보조약·골 보호제 등은 차수 권고와 관계없다)
@@ -296,7 +296,11 @@ def retrieve_for_recommend(state: dict, biomarker_record: dict = None, as_of=Non
 
     guideline, seen = [], set()
     main = search_args(biomarker_record, top_k=top_k, **patient)
-    searches = [main] + extra_search_args(biomarker_record, top_k=extra_top_k, **patient)
+    extras = extra_search_args(biomarker_record, top_k=extra_top_k, **patient)
+    # 결정 갈래 검색(고식 항암 뒤 HR+/HER2- 3차 이후의 'ChT 1차례 이상 뒤')은 이번 결정에 가장 맞는 권고라 주 검색보다 앞에 둔다
+    # (VC-0114: 주 질의가 부위·이전 치료 표현에 밀려 sacituzumab·Dato-DXd가 10·11위). 다른 환자에게는 이 검색이 없다
+    branch = [a for a in extras if a.get("query_text") == PRIOR_CHEMO_QUERY]
+    searches = branch + [main] + [a for a in extras if a not in branch]
     for line in lines["guideline"][1:]:  # 전이성 HR+/HER2-에서 내분비·항암 차수가 다르면 항암 차수 권고도 찾는다
         searches.append({**main, "line": line, "top_k": extra_top_k})
     if algorithm_top_k:
