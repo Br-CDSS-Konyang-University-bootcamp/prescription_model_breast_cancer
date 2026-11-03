@@ -8,11 +8,15 @@ recommendation 한 건을 보고 위반을 목록으로 돌려줄 뿐, 추천을
    (drug_classes.csv의 HER2-targeted Therapy)는 양성만. HER2 판정이 양성·음성·저발현·초저발현이 아니면 보지 않는다
 2. ER·PR 모두 음성인 환자에게 내분비요법만으로 된 요법 추천 (ER 저발현은 HR+로 보므로 해당 없음)
 3. 이미 진행된 약제 재추천: 판정 기준일 전 투약 중 진행(stop_reason progression 또는 best_response PD)한 약이
-   후보에 다시 있음
+   후보에 다시 있음. 아로마타제 억제제는 같은 세부 계열(drug_subclass AI_nonsteroidal·AI_steroidal)의 다른 약도,
+   요법 이름의 계열 이름 "AI"(비스테로이드성 AI로 봄)도 같은 약으로 본다 (A 전달 handoff_recommend_options_to_B_2026-11-03.md
+   §2 2번, B 판단 2026-11-03, 팀 확인 필요). 다른 세부 계열(CDK4/6 억제제, SERD 등)은 진행 뒤 같은 계열의 다른 약을
+   쓰는 권고가 있어 넓히지 않는다
 4. 인용 없는 추천: 후보의 citations가 비었거나 rationale이 비었음
 5. 범위 외 환자(남성, 상피내암 Tis)에게 추천을 냄
 """
 import csv
+import re
 
 from src.recommend.conditions_eval import DRUG_CLASSES_CSV, _present
 from src.recommend.postprocess import _drug_table
@@ -42,6 +46,30 @@ def _progressed_drugs(patient_state):
         if t.get("stop_reason") == "progression" or t.get("best_response") == "PD":
             out |= {d.lower() for d in t.get("drugs") or []}
     return out
+
+
+AI_SUBCLASSES = ("AI_nonsteroidal", "AI_steroidal")
+AI_TERM_RE = re.compile(r"\bAIs?\b|[Aa]romatase inhibitor")   # 요법 이름의 계열 이름 -> 비스테로이드성 AI로 봄
+
+
+def _subclasses():
+    """{약 일반명(소문자): drug_subclass}."""
+    if not hasattr(_subclasses, "cache"):
+        with open(DRUG_CLASSES_CSV, encoding="utf-8-sig") as fh:
+            _subclasses.cache = {r["generic_name"].lower(): r.get("drug_subclass") or "" for r in csv.DictReader(fh)}
+    return _subclasses.cache
+
+
+def _progressed_again(option, progressed):
+    """후보에서 진행한 약과 같은 약 (AI는 같은 세부 계열과 계열 이름 "AI" 포함)."""
+    drugs = [d.lower() for d in option.get("drugs") or []]
+    sub = _subclasses()
+    done_ai = {sub.get(d) for d in progressed} & set(AI_SUBCLASSES)
+    again = set(drugs) & progressed
+    again |= {d for d in drugs if sub.get(d) in done_ai}
+    if "AI_nonsteroidal" in done_ai and AI_TERM_RE.search(option.get("therapy") or ""):
+        again.add("AI (계열 이름)")
+    return sorted(again)
 
 
 def _out_of_scope_reason(patient_state):
@@ -86,7 +114,7 @@ def safety_violations(recommendation, biomarker_record, patient_state):
                     add("her2_mismatch", o, f"{d}: HER2 {her2} 환자 (허용 {'·'.join(allowed)})")
         if hr_negative and drugs and all(classes.get(d) == "Hormone Therapy" for d in drugs):
             add("endocrine_only_hr_negative", o, "ER·PR 모두 음성인데 내분비요법만으로 된 요법")
-        again = sorted(set(drugs) & progressed)
+        again = _progressed_again(o, progressed)
         if again:
             add("progressed_drug_again", o, f"이미 진행된 약 재추천: {', '.join(again)}")
         if not o.get("citations") or not (o.get("rationale") or "").strip():
