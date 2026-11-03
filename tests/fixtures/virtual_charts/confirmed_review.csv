@@ -1,49 +1,49 @@
 ﻿case,set,subtype,disease,decision,menopausal,ER,PR,HER2,Ki-67,PD-L1,gBRCA,endocrine_relapse_12m,high_risk_early,dfi_days,deemed_met,metastatic_sites,checks,mismatches,accepted,status,reviewer,note
-VC-0101,dev,HR+/HER2-,metastatic,내분비 2L / 항암 1L,postmenopausal,positive,positive,low,positive,,not_recorded,no,,,ANTHRA-TAXANE,"bone, liver",5/5,,,draft,,
-VC-0102,dev,HR+/HER2-,metastatic,내분비 2L / 항암 1L,postmenopausal,positive,positive,low,positive,,negative,no,,,ANTHRA-TAXANE,"bone, liver",3/3,,,draft,,
-VC-0103,dev,HR+/HER2-,metastatic,내분비 1L / 항암 1L,postmenopausal,positive,positive,negative,negative,not_recorded,not_recorded,yes,,,"SG-1Y, ENDO-ADJ-1Y",lung,5/5,,,draft,,
-VC-0104,dev,TNBC,metastatic,내분비 not_applicable / 항암 1L,,negative,negative,low,,positive,not_done,,,240,"ANTHRA-TAXANE, SG-1Y",liver,4/4,,,draft,,
-VC-0105,dev,HR-/HER2+,early,adjuvant,,negative,negative,positive,,,,,,,,,3/3,,,draft,,
-VC-0106,dev,HR+/HER2-,locally_advanced,adjuvant,postmenopausal,positive,positive,negative,positive,,not_recorded,,급여 yes / ESMO yes,,,,3/3,,,draft,,
-VC-0106b,dev,,,,,,,,,,,,,,,,,"파일 없음: Ki-67 값 충돌 (외부 25% / 본원 재판독 15%), 의사가 고를 값",,draft,,
-VC-0107,dev,HR+/HER2-,early,adjuvant,premenopausal,positive,positive,low,positive,,not_recorded,,급여 no / ESMO no,,,,4/4,,,draft,,
-VC-0108,dev,HR+/HER2-,metastatic,내분비 1L / 항암 1L,postmenopausal,positive,positive,negative,not_recorded,,not_recorded,not_applicable,,,,bone,2/2,,,draft,,
-VC-0109,dev,HR+/HER2-,early,adjuvant,postmenopausal,positive,positive,negative,not_recorded,,not_recorded,,급여 no / ESMO no,,,,2/2,,,draft,,
-VC-0110,test,HR+/HER2+,metastatic,내분비 1L / 항암 1L,postmenopausal,positive,positive,positive,,,,no,,,ANTHRA-TAXANE,"liver, bone",9/9,,,draft,,
-VC-0111,test,HR-/HER2+,metastatic,내분비 not_applicable / 항암 2L,,negative,negative,positive,,,,,,,,"liver, brain",3/3,,,draft,,
-VC-0111-g20a,holdout,HR-/HER2+,metastatic,내분비 not_applicable / 항암 2L,,negative,negative,positive,,,,,,,,"liver, brain",3/3,,,draft,,
-VC-0111-g20b,holdout,HR-/HER2+,metastatic,내분비 not_applicable / 항암 2L,,negative,negative,positive,,,,,,,,"liver, brain",3/3,,,draft,,
-VC-0112,test,HR-/HER2+,metastatic,내분비 not_applicable / 항암 1L,,negative,negative,positive,,,,,,,"ANTHRA-TAXANE, SG-1Y, HER2ADC-6M","lung, liver",4/4,,,draft,,
-VC-0113,test,HR+/HER2-,metastatic,내분비 >=3L / 항암 1L,postmenopausal,positive,positive,low,positive,,not_recorded,no,,,ANTHRA-TAXANE,"liver, bone",4/4,,,draft,,
-VC-0114,test,HR+/HER2-,metastatic,내분비 >=3L / 항암 >=3L,postmenopausal,positive,positive,negative,positive,,not_recorded,not_applicable,,,,"bone, lung",6/6,,,draft,,
-VC-0115,test,TNBC,metastatic,내분비 not_applicable / 항암 2L,,negative,negative,negative,,negative,negative,,,300,"ANTHRA-TAXANE, SG-1Y",lung,4/4,,,draft,,
-VC-0115-g21,holdout,TNBC,metastatic,내분비 not_applicable / 항암 2L,,negative,negative,negative,,negative,positive,,,300,"ANTHRA-TAXANE, SG-1Y",lung,4/4,,,draft,,
-VC-0116,test,TNBC,metastatic,내분비 not_applicable / 항암 1L,,negative,negative,negative,,negative,positive,,,548,,"liver, distant_ln",5/5,,,draft,,
-VC-0117,test,TNBC,early,adjuvant,,negative,negative,low,,not_recorded,negative,,,,,,3/3,,,draft,,
-VC-0118,test,TNBC,early,adjuvant,,negative,negative,negative,,not_recorded,not_recorded,,,,,,4/4,,,draft,,
-VC-0119,test,HR+/HER2-,locally_advanced,adjuvant,premenopausal,positive,positive,negative,positive,,positive,,급여 unknown / ESMO unknown,,,,4/4,,,draft,,
-VC-0120,test,HR+/HER2+,early,adjuvant,postmenopausal,positive,positive,positive,,,,,,,,,3/3,,,draft,,
-VC-0121,test,HR+/HER2-,locally_advanced,neoadjuvant,premenopausal,positive,negative,low,positive,,not_recorded,,,,,,3/3,,,draft,,
-VC-0122,test,HR+/HER2-,metastatic,내분비 1L / 항암 1L,postmenopausal,positive,positive,low,positive,,not_recorded,yes,,,"SG-1Y, ENDO-ADJ-1Y",lung,4/4,,,draft,,
-VC-0123,test,HR+/HER2-,metastatic,내분비 2L / 항암 1L,postmenopausal,positive,positive,negative,negative,,not_recorded,not_applicable,,,,bone,3/4,markers.ESR1 기대 negative / 확정 retest_needed,B 규칙 BM2-ESR1-RETEST: 원발 조직 음성인데 그 뒤 내분비요법에서 진행해 retest_needed. 시나리오 문구를 B 규칙에 맞출지 B 확인,draft,,
-VC-0124,test,HR+/HER2-,early,neoadjuvant,premenopausal,low,negative,low,positive,not_recorded,not_recorded,,,,,,4/4,,,draft,,
-VC-0125,test,HR+/HER2-,metastatic,내분비 >=3L / 항암 1L,postmenopausal,positive,positive,ultralow,positive,,not_recorded,yes,,,"ANTHRA-TAXANE, SG-1Y, ENDO-ADJ-1Y",liver,4/4,,,draft,,
-VC-0126,test,HR+/HER2-,metastatic,내분비 1L / 항암 1L,postmenopausal,positive,positive,negative,positive,,not_recorded,not_applicable,,,,liver,2/2,,,draft,,
-VC-0127,test,TNBC,metastatic,내분비 not_applicable / 항암 2L,,negative,negative,low,,not_recorded,not_recorded,,,1135,ANTHRA-TAXANE,lung,4/4,,,draft,,
-VC-0128,test,HR+/HER2-,metastatic,내분비 1L / 항암 1L,premenopausal,positive,positive,low,negative,,not_recorded,yes,,,"SG-1Y, ENDO-ADJ-1Y","bone, distant_ln",3/3,,,draft,,
-VC-0129,test,,,,,,,,,,,,,,,,,파일 없음: 남성: 폐경 칸이 해당 없음인데 스키마가 HR+에 폐경(pre/post)을 필수로 둠 (팀 결정),,draft,,범위 외 (남성)
-VC-0130,holdout,HR-/HER2+,early,adjuvant,,negative,negative,positive,,,,,,,,,3/3,,,draft,,
-VC-0131,holdout,HR+/HER2-,early,adjuvant,premenopausal,positive,positive,low,negative,,not_recorded,,급여 no / ESMO no,,,,4/4,,,draft,,
-VC-0132,holdout,HR+/HER2-,locally_advanced,adjuvant,postmenopausal,positive,positive,negative,negative,,not_recorded,,급여 yes / ESMO yes,,,,3/3,,,draft,,
-VC-0133,holdout,HR+/HER2-,early,adjuvant,postmenopausal,positive,positive,low,negative,,not_recorded,,급여 no / ESMO no,,,,4/4,,,draft,,
-VC-0134,holdout,HR+/HER2-,locally_advanced,adjuvant,postmenopausal,positive,positive,low,negative,,not_recorded,,급여 yes / ESMO yes,,,,2/3,setting.disease 기대 early / 확정 locally_advanced,pT2 pN2a IIIA라 심평원 정의로 locally_advanced (병기 III). 시나리오의 early는 '재발·전이 없음' 뜻. decision_context는 둘 다 early,draft,,
-VC-0135,holdout,TNBC,early,adjuvant,,negative,negative,low,,not_recorded,positive,,,,,,6/6,,,draft,,
-VC-0136,holdout,TNBC,metastatic,내분비 not_applicable / 항암 1L,,negative,negative,negative,,positive,negative,,,548,ANTHRA-TAXANE,liver,5/5,,,draft,,
-VC-0137,holdout,HR+/HER2+,metastatic,내분비 1L / 항암 1L,postmenopausal,positive,positive,positive,,,,not_applicable,,,,"bone, lung",4/4,,,draft,,
-VC-0138,holdout,HR-/HER2+,metastatic,내분비 not_applicable / 항암 >=3L,,negative,negative,positive,,,,,,,ANTHRA-TAXANE,"liver, lung",5/5,,,draft,,
-VC-0139,holdout,HR+/HER2-,metastatic,내분비 2L / 항암 1L,postmenopausal,positive,positive,low,negative,,not_recorded,no,,,,"bone, liver",6/6,,,draft,,
-VC-0140,holdout,HR+/HER2-,metastatic,내분비 2L / 항암 1L,postmenopausal,positive,positive,negative,positive,,positive,not_applicable,,,,bone,3/3,,,draft,,
-VC-0141,holdout,HR+/HER2-,metastatic,내분비 >=3L / 항암 1L,postmenopausal,positive,positive,low,negative,,not_recorded,not_applicable,,,,bone,4/4,,,draft,,
-VC-0142,holdout,HR+/HER2-,metastatic,내분비 1L / 항암 1L,postmenopausal,low,negative,negative,positive,positive,negative,not_applicable,,,,liver,4/4,,,draft,,
-VC-0143,holdout,HR+/HER2-,metastatic,내분비 1L / 항암 1L,postmenopausal,positive,positive,low,negative,,not_recorded,no,,,,bone,6/6,,,draft,,
-VC-0144,holdout,HR-/HER2+,early,neoadjuvant,,negative,negative,positive,,,,,,,,,,,,draft,,범위 외 (임신). 확정 파일에는 범위 외 칸이 없음 (B 추천 단계에서 처리)
+VC-0101,dev,HR+/HER2-,metastatic,내분비 2L / 항암 1L,postmenopausal,positive,positive,low,positive,,not_recorded,no,,,ANTHRA-TAXANE,"bone, liver",5/5,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0102,dev,HR+/HER2-,metastatic,내분비 2L / 항암 1L,postmenopausal,positive,positive,low,positive,,negative,no,,,ANTHRA-TAXANE,"bone, liver",3/3,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0103,dev,HR+/HER2-,metastatic,내분비 1L / 항암 1L,postmenopausal,positive,positive,negative,negative,not_recorded,not_recorded,yes,,,"SG-1Y, ENDO-ADJ-1Y",lung,5/5,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0104,dev,TNBC,metastatic,내분비 not_applicable / 항암 1L,,negative,negative,low,,positive,not_done,,,240,"ANTHRA-TAXANE, SG-1Y",liver,4/4,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0105,dev,HR-/HER2+,early,adjuvant,,negative,negative,positive,,,,,,,,,3/3,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0106,dev,HR+/HER2-,locally_advanced,adjuvant,postmenopausal,positive,positive,negative,positive,,not_recorded,,급여 yes / ESMO yes,,,,3/3,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0106b,dev,,,,,,,,,,,,,,,,,"파일 없음: Ki-67 값 충돌 (외부 25% / 본원 재판독 15%), 의사가 고를 값",,draft,,파일 없음
+VC-0107,dev,HR+/HER2-,early,adjuvant,premenopausal,positive,positive,low,positive,,not_recorded,,급여 no / ESMO no,,,,4/4,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0108,dev,HR+/HER2-,metastatic,내분비 1L / 항암 1L,postmenopausal,positive,positive,negative,not_recorded,,not_recorded,not_applicable,,,,bone,2/2,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0109,dev,HR+/HER2-,early,adjuvant,postmenopausal,positive,positive,negative,not_recorded,,not_recorded,,급여 no / ESMO no,,,,2/2,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0110,test,HR+/HER2+,metastatic,내분비 1L / 항암 1L,postmenopausal,positive,positive,positive,,,,no,,,ANTHRA-TAXANE,"liver, bone",9/9,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0111,test,HR-/HER2+,metastatic,내분비 not_applicable / 항암 2L,,negative,negative,positive,,,,,,,,"liver, brain",3/3,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0111-g20a,holdout,HR-/HER2+,metastatic,내분비 not_applicable / 항암 2L,,negative,negative,positive,,,,,,,,"liver, brain",3/3,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0111-g20b,holdout,HR-/HER2+,metastatic,내분비 not_applicable / 항암 2L,,negative,negative,positive,,,,,,,,"liver, brain",3/3,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0112,test,HR-/HER2+,metastatic,내분비 not_applicable / 항암 1L,,negative,negative,positive,,,,,,,"ANTHRA-TAXANE, SG-1Y, HER2ADC-6M","lung, liver",4/4,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0113,test,HR+/HER2-,metastatic,내분비 >=3L / 항암 1L,postmenopausal,positive,positive,low,positive,,not_recorded,no,,,ANTHRA-TAXANE,"liver, bone",4/4,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0114,test,HR+/HER2-,metastatic,내분비 >=3L / 항암 >=3L,postmenopausal,positive,positive,negative,positive,,not_recorded,not_applicable,,,,"bone, lung",6/6,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0115,test,TNBC,metastatic,내분비 not_applicable / 항암 2L,,negative,negative,negative,,negative,negative,,,300,"ANTHRA-TAXANE, SG-1Y",lung,4/4,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0115-g21,holdout,TNBC,metastatic,내분비 not_applicable / 항암 2L,,negative,negative,negative,,negative,positive,,,300,"ANTHRA-TAXANE, SG-1Y",lung,4/4,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0116,test,TNBC,metastatic,내분비 not_applicable / 항암 1L,,negative,negative,negative,,negative,positive,,,548,,"liver, distant_ln",5/5,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0117,test,TNBC,early,adjuvant,,negative,negative,low,,not_recorded,negative,,,,,,3/3,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0118,test,TNBC,early,adjuvant,,negative,negative,negative,,not_recorded,not_recorded,,,,,,4/4,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0119,test,HR+/HER2-,locally_advanced,adjuvant,premenopausal,positive,positive,negative,positive,,positive,,급여 unknown / ESMO unknown,,,,4/4,,,draft,C 염승민 2026-11-03,"C 보류: high_risk_early가 unknown인데 ypN1a(2개)+T3+등급 3이라 yes여야 함 (림프절 수를 못 읽음, A 확인)"
+VC-0120,test,HR+/HER2+,early,adjuvant,postmenopausal,positive,positive,positive,,,,,,,,,3/3,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0121,test,HR+/HER2-,locally_advanced,neoadjuvant,premenopausal,positive,negative,low,positive,,not_recorded,,,,,,3/3,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0122,test,HR+/HER2-,metastatic,내분비 1L / 항암 1L,postmenopausal,positive,positive,low,positive,,not_recorded,yes,,,"SG-1Y, ENDO-ADJ-1Y",lung,4/4,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0123,test,HR+/HER2-,metastatic,내분비 2L / 항암 1L,postmenopausal,positive,positive,negative,negative,,not_recorded,not_applicable,,,,bone,3/4,markers.ESR1 기대 negative / 확정 retest_needed,B 규칙 BM2-ESR1-RETEST: 원발 조직 음성인데 그 뒤 내분비요법에서 진행해 retest_needed. 시나리오 문구를 B 규칙에 맞출지 B 확인,draft,C 염승민 2026-11-03,"C 확인 (검색 칸). ESR1 retest_needed는 B 규칙, 검색 영향 없음"
+VC-0124,test,HR+/HER2-,early,neoadjuvant,premenopausal,low,negative,low,positive,not_recorded,not_recorded,,,,,,4/4,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0125,test,HR+/HER2-,metastatic,내분비 >=3L / 항암 1L,postmenopausal,positive,positive,ultralow,positive,,not_recorded,yes,,,"ANTHRA-TAXANE, SG-1Y, ENDO-ADJ-1Y",liver,4/4,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0126,test,HR+/HER2-,metastatic,내분비 1L / 항암 1L,postmenopausal,positive,positive,negative,positive,,not_recorded,not_applicable,,,,liver,2/2,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0127,test,TNBC,metastatic,내분비 not_applicable / 항암 2L,,negative,negative,low,,not_recorded,not_recorded,,,1135,ANTHRA-TAXANE,lung,4/4,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0128,test,HR+/HER2-,metastatic,내분비 1L / 항암 1L,premenopausal,positive,positive,low,negative,,not_recorded,yes,,,"SG-1Y, ENDO-ADJ-1Y","bone, distant_ln",3/3,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0129,test,,,,,,,,,,,,,,,,,파일 없음: 남성: 폐경 칸이 해당 없음인데 스키마가 HR+에 폐경(pre/post)을 필수로 둠 (팀 결정),,draft,,파일 없음
+VC-0130,holdout,HR-/HER2+,early,adjuvant,,negative,negative,positive,,,,,,,,,3/3,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0131,holdout,HR+/HER2-,early,adjuvant,premenopausal,positive,positive,low,negative,,not_recorded,,급여 no / ESMO no,,,,4/4,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0132,holdout,HR+/HER2-,locally_advanced,adjuvant,postmenopausal,positive,positive,negative,negative,,not_recorded,,급여 yes / ESMO yes,,,,3/3,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0133,holdout,HR+/HER2-,early,adjuvant,postmenopausal,positive,positive,low,negative,,not_recorded,,급여 no / ESMO no,,,,4/4,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0134,holdout,HR+/HER2-,locally_advanced,adjuvant,postmenopausal,positive,positive,low,negative,,not_recorded,,급여 yes / ESMO yes,,,,2/3,setting.disease 기대 early / 확정 locally_advanced,pT2 pN2a IIIA라 심평원 정의로 locally_advanced (병기 III). 시나리오의 early는 '재발·전이 없음' 뜻. decision_context는 둘 다 early,draft,C 염승민 2026-11-03,C 확인 (검색 칸). IIIA라 locally_advanced가 맞음
+VC-0135,holdout,TNBC,early,adjuvant,,negative,negative,low,,not_recorded,positive,,,,,,6/6,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0136,holdout,TNBC,metastatic,내분비 not_applicable / 항암 1L,,negative,negative,negative,,positive,negative,,,548,ANTHRA-TAXANE,liver,5/5,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0137,holdout,HR+/HER2+,metastatic,내분비 1L / 항암 1L,postmenopausal,positive,positive,positive,,,,not_applicable,,,,"bone, lung",4/4,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0138,holdout,HR-/HER2+,metastatic,내분비 not_applicable / 항암 >=3L,,negative,negative,positive,,,,,,,ANTHRA-TAXANE,"liver, lung",5/5,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0139,holdout,HR+/HER2-,metastatic,내분비 2L / 항암 1L,postmenopausal,positive,positive,low,negative,,not_recorded,no,,,,"bone, liver",6/6,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0140,holdout,HR+/HER2-,metastatic,내분비 2L / 항암 1L,postmenopausal,positive,positive,negative,positive,,positive,not_applicable,,,,bone,3/3,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0141,holdout,HR+/HER2-,metastatic,내분비 >=3L / 항암 1L,postmenopausal,positive,positive,low,negative,,not_recorded,not_applicable,,,,bone,4/4,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0142,holdout,HR+/HER2-,metastatic,내분비 1L / 항암 1L,postmenopausal,low,negative,negative,positive,positive,negative,not_applicable,,,,liver,4/4,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0143,holdout,HR+/HER2-,metastatic,내분비 1L / 항암 1L,postmenopausal,positive,positive,low,negative,,not_recorded,no,,,,bone,6/6,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
+VC-0144,holdout,HR-/HER2+,early,neoadjuvant,,negative,negative,positive,,,,,,,,,,,,draft,C 염승민 2026-11-03,C 확인 (검색 칸: 아형·병기·결정 차수·폐경·마커·전이 부위·12개월 내 재발·고위험). B 확인 대기
