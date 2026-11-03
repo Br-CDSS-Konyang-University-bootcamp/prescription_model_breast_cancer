@@ -18,6 +18,7 @@
 #      권고 하나에 대안 약이 함께 적혀 있어(예: elacestrant or imlunestrant) 묶어서 찾으면 '모두 포함' 규칙에 걸린다
 # A·B의 내부 코드는 가져오지 않고 공용 스키마 형식(patient_state, biomarker_record, chunk)만 읽는다.
 import csv
+import re
 import warnings
 
 from .chunk_common import BASE_DIR
@@ -234,6 +235,27 @@ def _early_history(items: dict, disease) -> dict:
     return {"neoadjuvant_received": neo, "ici_received": "yes" if ici else ("no" if neo == "yes" else None)}
 
 
+# 급여 검색용 내분비요법 풀기 (D 요청 2026-11-03, VC-0119): ESMO 권고는 내분비요법을 "ET"·"endocrine therapy"로만 적는 일이
+# 많아(연장 ET cca75c, 항암 후 ET ca0c8d) 청크 drugs가 비고, 그 약(AI·tamoxifen·LHRH)의 급여 행을 찾지 못했다.
+# 청크 drugs에는 넣지 않는다 (넓은 계열은 B가 후처리에서 다룬다, 2026-11-02 결정). 급여 행을 찾을 때만 HR 양성 환자에게
+# AI·tamoxifen·toremifene, 전이성이면 fulvestrant, 폐경 전·이행기면 LHRH 작용제를 더한다
+ENDOCRINE_TERM = re.compile(r"(?<![A-Za-z])ET(?![A-Za-z])|endocrine therapy|endocrine-based therap", re.IGNORECASE)
+ENDOCRINE_SUBCLASSES = ("AI_nonsteroidal", "AI_steroidal", "SERM")
+
+
+def endocrine_drugs(text: str, subtype, disease, menopausal_status) -> list[str]:
+    """권고 본문이 내분비요법을 계열 이름으로만 말하면 급여 검색에 쓸 내분비 약 목록. HR 양성이 아니면 빈 목록."""
+    if subtype not in ("HR+/HER2-", "HR+/HER2+") or not ENDOCRINE_TERM.search(text.split(" Footnotes: ", 1)[0]):
+        return []
+    subclasses = list(ENDOCRINE_SUBCLASSES)
+    if menopausal_status in ("premenopausal", "perimenopausal"):
+        subclasses.append("LHRH_agonist")
+    names = [name for name, (_, sub) in _drug_classes().items() if sub in subclasses and "nos" not in name.split()]
+    if disease == "metastatic":  # SERD 중 fulvestrant만 (elacestrant·imlunestrant는 ESR1 변이 권고가 이름으로 적는다)
+        names.append("fulvestrant")
+    return names
+
+
 class OldInputWarning(UserWarning):
     """retrieve_for_recommend를 옛 방식(patient_state + biomarker_record)으로 불렀다."""
 
@@ -290,11 +312,13 @@ def retrieve_for_recommend(state: dict, biomarker_record: dict = None, as_of=Non
         if chunk.get("chunk_kind") == "algorithm":
             continue
         drugs += [d for d in chunk.get("drugs") or [] if d not in drugs]
+        drugs += [d for d in endocrine_drugs(chunk.get("text", ""), biomarker_record.get("subtype"), disease,
+                                             patient.get("menopausal_status")) if d not in drugs]
     reimbursement, seen = [], set()
     for drug in drugs:
         for line in lines["reimbursement"]:
             for row in search_reimbursement([drug], setting=disease, line=line, as_of=as_of,
-                                            top_k=reimbursement_per_drug):
+                                            top_k=reimbursement_per_drug, known_drugs=drugs):
                 if row["chunk_id"] not in seen:
                     reimbursement.append(row)
                     seen.add(row["chunk_id"])

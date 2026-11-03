@@ -308,3 +308,16 @@ def test_her2_adjuvant_relapse_adds_second_line_search():
             (base / case / "expected/confirmed_state.json").read_text(encoding="utf-8")))
         got[case] = (lines["guideline"], search_args(record, **patient).get("her2_adjuvant_relapse"))
     assert got == {"VC-0112": (["1L", "2L"], "yes"), "VC-0110": (["1L"], "no")}
+
+
+def test_endocrine_class_terms_become_drugs_for_reimbursement_search():
+    # 'ET'로만 적힌 내분비 권고(연장 ET cca75c 등)의 급여 행을 찾도록 내분비 약으로 푼다 (D 2026-11-03, VC-0119).
+    # HR 양성만, LHRH는 폐경 전·이행기만, fulvestrant는 전이성만, ESR1 변이용 SERD는 넣지 않는다
+    from src.rag.retrieve import endocrine_drugs
+    pre = endocrine_drugs("Extended ET beyond 5 years should be considered", "HR+/HER2-", "locally_advanced", "premenopausal")
+    post = endocrine_drugs("ET alone can be recommended", "HR+/HER2-", "metastatic", "postmenopausal")
+    assert {"anastrozole", "letrozole", "exemestane", "tamoxifen", "goserelin", "leuprolide"} <= set(pre)
+    assert "fulvestrant" not in pre and "goserelin" not in post and "fulvestrant" in post
+    assert "elacestrant" not in post
+    assert endocrine_drugs("ET alone", "TNBC", "metastatic", None) == []
+    assert endocrine_drugs("T-DXd is recommended", "HR+/HER2-", "metastatic", "postmenopausal") == []
