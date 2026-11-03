@@ -292,3 +292,32 @@ def test_early_history_from_confirmed_state():
         got[case] = (a.get("neoadjuvant_received"), a.get("ici_received"), a.get("pcr"))
     assert got == {"VC-0117": ("yes", "yes", "no"), "VC-0118": ("no", None, None), "VC-0120": ("yes", "no", "yes"),
                    "VC-0121": (None, None, None), "VC-0103": (None, None, None)}
+
+
+def test_her2_adjuvant_relapse_adds_second_line_search():
+    # 보조 항HER2 종료 6개월 안 재발(DEEM-HER2ADC-6M met, VC-0112)이면 지침도 2차로 한 번 더 찾고 감점 인자는 yes,
+    # not_met(VC-0110)이면 1차만 찾고 no
+    import json
+    from pathlib import Path
+    from src.rag.query import search_args
+    from src.rag.retrieve import from_confirmed_state
+    base = Path(__file__).resolve().parents[2] / "tests/fixtures/virtual_charts"
+    got = {}
+    for case in ("VC-0112", "VC-0110"):
+        record, patient, lines = from_confirmed_state(json.loads(
+            (base / case / "expected/confirmed_state.json").read_text(encoding="utf-8")))
+        got[case] = (lines["guideline"], search_args(record, **patient).get("her2_adjuvant_relapse"))
+    assert got == {"VC-0112": (["1L", "2L"], "yes"), "VC-0110": (["1L"], "no")}
+
+
+def test_endocrine_class_terms_become_drugs_for_reimbursement_search():
+    # 'ET'로만 적힌 내분비 권고(연장 ET cca75c 등)의 급여 행을 찾도록 내분비 약으로 푼다 (D 2026-11-03, VC-0119).
+    # HR 양성만, LHRH는 폐경 전·이행기만, fulvestrant는 전이성만, ESR1 변이용 SERD는 넣지 않는다
+    from src.rag.retrieve import endocrine_drugs
+    pre = endocrine_drugs("Extended ET beyond 5 years should be considered", "HR+/HER2-", "locally_advanced", "premenopausal")
+    post = endocrine_drugs("ET alone can be recommended", "HR+/HER2-", "metastatic", "postmenopausal")
+    assert {"anastrozole", "letrozole", "exemestane", "tamoxifen", "goserelin", "leuprolide"} <= set(pre)
+    assert "fulvestrant" not in pre and "goserelin" not in post and "fulvestrant" in post
+    assert "elacestrant" not in post
+    assert endocrine_drugs("ET alone", "TNBC", "metastatic", None) == []
+    assert endocrine_drugs("T-DXd is recommended", "HR+/HER2-", "metastatic", "postmenopausal") == []

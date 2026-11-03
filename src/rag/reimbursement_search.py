@@ -57,6 +57,7 @@ def search_reimbursement(
         as_of=None,
         with_parent: bool = True,
         top_k: int = None,
+        known_drugs=(),
 ) -> list[dict]:
     """추천 후보 요법(약 목록)에 맞는 급여 행. as_of는 판정 기준일(date 또는 'YYYY-MM-DD', 기본 오늘).
     setting(병기 범주)·line(차수)은 주면 거른다: 청크의 값에 들어 있거나 청크가 any면 통과. unknown이나 None이면 거르지 않는다.
@@ -64,6 +65,8 @@ def search_reimbursement(
       matched_drugs (후보 약 일반명), extra_drugs (청크에만 있는 약: 병용·순차·계열 펼침),
       score (차수가 정확히 맞으면 1.0, any면 0.9, 덜어 낼 약이 하나 늘 때마다 -0.01. 순서를 위한 값),
       parent / parents (with_parent=True일 때. 가까운 부모와 부모 전체 [L2, L1])
+    known_drugs: 이번 결정에서 함께 찾은 다른 약 (retrieve_for_recommend의 지침 권고 약). 행에 더 든 약이 여기 있으면 덜어 낼
+    약으로 세지 않는다. 예: 폐경 전 보조 abemaciclib 행 중 LHRH·AI가 함께 든 행(r04~r06)이 top_k에서 잘리지 않게 (D 2026-11-03)
     맞는 청크가 없으면 빈 목록 (급여 기준 없음 판정은 B가 한다)."""
     wanted = normalize_drugs(drugs)
     if not wanted:
@@ -92,7 +95,8 @@ def search_reimbursement(
             continue
         extra = [d for d in chunk.get("drugs", []) if d not in wanted]
         exact_line = bool(line) and line != "unknown" and line in (chunk.get("line") or [])
-        score = (1.0 if exact_line else 0.9) - 0.01 * len(extra)
+        known = set(normalize_drugs(list(known_drugs))) if known_drugs else set()
+        score = (1.0 if exact_line else 0.9) - 0.01 * len([d for d in extra if d not in known])
         results.append({**chunk, "matched_drugs": wanted, "extra_drugs": extra, "score": round(score, 4)})
     # 점수가 같으면 최근 시행 행 먼저 (안정 정렬을 두 번: 시행일 내림차순 → 점수 내림차순)
     results.sort(key=lambda r: (r["reimbursement"].get("effective_from") or "", r["chunk_id"]), reverse=True)

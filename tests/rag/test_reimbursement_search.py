@@ -212,3 +212,20 @@ def test_rows_of_the_decision_class_come_first(reimb):
     assert endo_first.index("endo-2l") < endo_first.index("chemo-2l")
     assert ids(prefer_classes=["Chemotherapy"]).index("chemo-2l") < ids(prefer_classes=["Chemotherapy"]).index("endo-2l")
     assert set(plain) == set(endo_first)
+
+
+def test_known_drugs_keep_rows_whose_extra_drugs_were_also_found(reimb, monkeypatch):
+    # 폐경 전 보조 abemaciclib 행 중 LHRH·AI가 함께 든 행이 '더 든 약이 적은 순'에 밀려 top_k에서 잘렸다 (D 2026-11-03, VC-0119).
+    # 이번 결정에서 함께 찾은 약(known_drugs)은 덜어 낼 약으로 세지 않는다
+    from src.rag import client as rag_client, indexer
+    rows = [_chunk("abema-ai", ["abemaciclib", "anastrozole"], EARLY, ["adjuvant"]),
+            _chunk("abema-tam", ["abemaciclib", "tamoxifen"], EARLY, ["adjuvant"]),
+            _chunk("abema-ai-lhrh", ["abemaciclib", "goserelin", "leuprolide", "anastrozole"], EARLY, ["adjuvant"])]
+    indexer.index_chunks(rows)
+    plain = _ids(reimb.search_reimbursement(["abemaciclib"], setting="early", line="adjuvant", as_of="2026-10-20",
+                                            top_k=2, with_parent=False))
+    assert "abema-ai-lhrh" not in plain
+    known = _ids(reimb.search_reimbursement(["abemaciclib"], setting="early", line="adjuvant", as_of="2026-10-20",
+                                            top_k=2, with_parent=False,
+                                            known_drugs=["goserelin", "leuprolide", "anastrozole"]))
+    assert known[0] in ("abema-ai", "abema-ai-lhrh") and "abema-ai-lhrh" in known

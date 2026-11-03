@@ -71,6 +71,10 @@ def test_canonical_values_match_schemas_and_drug_dictionary():
     # contraindicated_classes는 약 계열 목록이라 값마다 표현을 두지 않고 "목록이 비어 있지 않음"(present) 하나만 둔다
     assert "contraindicated_classes" in confirmed["$defs"]["items"]["properties"]
     allowed["confirmed_state.contraindicated_classes"] = {"present"}
+    # her2_adjuvant_relapse는 confirmed_state의 deemed_lines["DEEM-HER2ADC-6M"](met/not_met)에서 C가 만든 yes/no다
+    deemed = json.dumps(confirmed["$defs"]["items"]["properties"]["deemed_lines"])
+    assert "DEEM-HER2ADC-6M" in deemed or "deemed" in deemed
+    allowed["confirmed_state.her2_adjuvant_relapse"] = {"yes"}
     with open(BASE_DIR / "data" / "dictionaries" / "field_vocab.csv", encoding="utf-8-sig", newline="") as f:
         allowed["metastatic_sites"] = {r["canonical"] for r in csv.DictReader(f) if r["field"] == "metastatic_sites"}
     for t in TERMS:

@@ -87,6 +87,15 @@ PCR_BRANCH = re.compile(r"→ pCR →")
 NO_ICI_RECEIVED = re.compile(r"did not receive ICIs", re.IGNORECASE)
 ADJUVANT_ICI = re.compile(r"9 cycles pembrolizumab|nine 3-week cycles during the adjuvant phase", re.IGNORECASE)
 EARLY_BRANCH_PENALTY = 1.0
+# ER 상태: ESMO HER2 양성 장은 같은 아형 필터(HR+/HER2+·HR-/HER2+를 함께 태그)에 ER 양성 전용(유지 ET·ET 병용·OFS)과
+# ER 음성 전용 권고가 섞여 있다. ER 음성 환자에게 ER 양성 유지요법 권고가 1~4위를 차지했다 (VC-0112 check_case).
+# 아형의 HR 상태와 반대쪽만 대상으로 하는 권고를 감점한다 (괄호 안 선택지 하나만 ER 양성인 권고는 그대로)
+ER_POSITIVE_ONLY = re.compile(r"HER2-positive, ER-positive (tumours|MBC)|women with ER-positive disease", re.IGNORECASE)
+ER_NEGATIVE_ONLY = re.compile(r"HER2-positive, ER-negative (tumours|MBC)", re.IGNORECASE)
+ER_MISMATCH_PENALTY = 1.0
+# HER2 양성 보조 항HER2 종료 6-12개월 안 재발: ESMO는 2차 선택지를 권한다. 확정 간주 규칙(DEEM-HER2ADC-6M)이 not_met이면 감점
+HER2_EARLY_RELAPSE = re.compile(r"within 6-12 months of completing adjuvant", re.IGNORECASE)
+HER2_RELAPSE_PENALTY = 1.0
 CACHE_SIZE = 256  # 같은 조건의 검색 결과를 기억해 두는 개수. 색인이 바뀌면 indexer가 비운다
 
 _cache = {}
@@ -113,6 +122,7 @@ def search_guidelines(
         neoadjuvant_received: str = None,
         ici_received: str = None,
         pcr: str = None,
+        her2_adjuvant_relapse: str = None,
 ) -> list[dict]:
     """지침 권고 청크를 찾는다. with_parent=True면 각 결과에 부모(소단원) 청크를 "parent" 키로 붙인다
     (LLM에는 소단원 전체를 함께 넘긴다, PROJECT.md §6).
@@ -135,18 +145,22 @@ def search_guidelines(
     가리키는 권고·그림 경로를 감점한다.
     neoadjuvant_received·ici_received·pcr("yes" / "no", 조기 보조 결정의 확정 이력)를 주면 '수술 먼저' / '선행 뒤', 잔존 / pCR,
     '면역항암을 받지 않은 잔존' / 보조 pembrolizumab 갈래 중 반대쪽만 가리키는 권고·그림 경로를 감점한다 (_early_adjust).
+    HER2 양성 아형이면 HR 상태와 반대쪽 ER 상태만 대상으로 하는 권고를 감점한다 (_er_adjust, 인자 없이 subtype으로).
+    her2_adjuvant_relapse("no")면 '보조 항HER2 종료 6-12개월 안 재발' 권고를 감점한다.
     같은 조건의 검색은 기억해 둔 결과를 돌려준다 (색인을 바꾸면 비워진다)."""
     sites = _site_keys(metastatic_sites)
     negatives = frozenset(negative_tags or ())
     key = (query_text, setting, subtype, line, source, tuple(biomarker_tags or ()), top_k, with_parent, rerank,
            tuple(sorted(sites)) if sites is not None else None, negatives, chunk_kind, endocrine_relapse_12m,
-           menopausal_status, visceral_crisis, prior_metastatic_chemo, neoadjuvant_received, ici_received, pcr)
+           menopausal_status, visceral_crisis, prior_metastatic_chemo, neoadjuvant_received, ici_received, pcr,
+           her2_adjuvant_relapse)
     if key not in _cache:
         if len(_cache) >= CACHE_SIZE:
             _cache.clear()
         _cache[key] = _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, with_parent, rerank,
                               sites, negatives, chunk_kind, endocrine_relapse_12m, menopausal_status,
-                              visceral_crisis, prior_metastatic_chemo, (neoadjuvant_received, ici_received, pcr))
+                              visceral_crisis, prior_metastatic_chemo, (neoadjuvant_received, ici_received, pcr),
+                              her2_adjuvant_relapse)
     return copy.deepcopy(_cache[key])  # 받은 쪽이 결과를 고쳐도 기억해 둔 값은 그대로
 
 
@@ -191,7 +205,7 @@ def _site_adjust(parent_id, sites) -> float:
 
 def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, with_parent, rerank,
             sites=None, negatives=frozenset(), chunk_kind="recommendation", relapse_12m=None,
-            menopause=None, crisis=None, prior_chemo=None, early=(None, None, None)) -> list[dict]:
+            menopause=None, crisis=None, prior_chemo=None, early=(None, None, None), her2_relapse=None) -> list[dict]:
     client = get_qdrant_client()
     model = get_embedding_model()
 
@@ -295,6 +309,10 @@ def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, w
         score -= _prior_chemo_adjust(payload.get("text", ""), prior_chemo)
         # 조기 보조 결정: 수술 먼저 / 선행 뒤, 잔존 / pCR, 면역항암 여부의 반대 갈래만 가리키는 권고는 감점
         score -= _early_adjust(payload.get("text", ""), *early)
+        # HER2 양성: 아형의 HR 상태와 반대쪽 ER 상태 전용 권고, 해당 없는 '보조 종료 6-12개월 안 재발' 권고는 감점
+        score -= _er_adjust(payload.get("text", ""), subtype)
+        if her2_relapse == "no" and HER2_EARLY_RELAPSE.search(payload.get("text", "").split(" Footnotes: ", 1)[0]):
+            score -= HER2_RELAPSE_PENALTY
 
         scored_results.append({
             "score": score,
@@ -375,6 +393,17 @@ def _early_adjust(text: str, neoadjuvant=None, ici=None, pcr=None) -> float:
     if ici == "no" and ADJUVANT_ICI.search(text):
         wrong = True
     return EARLY_BRANCH_PENALTY if wrong else 0.0
+
+
+def _er_adjust(text: str, subtype) -> float:
+    """HER2 양성 아형에서 권고가 반대쪽 ER 상태만 대상으로 하면 감점할 크기."""
+    if subtype not in ("HR+/HER2+", "HR-/HER2+"):
+        return 0.0
+    text = text.split(" Footnotes: ", 1)[0]
+    pos, neg = bool(ER_POSITIVE_ONLY.search(text)), bool(ER_NEGATIVE_ONLY.search(text))
+    if (subtype == "HR-/HER2+" and pos and not neg) or (subtype == "HR+/HER2+" and neg and not pos):
+        return ER_MISMATCH_PENALTY
+    return 0.0
 
 
 def _rerank_scores(query_text: str, texts: list[str]):

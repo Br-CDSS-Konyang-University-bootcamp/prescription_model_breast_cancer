@@ -18,6 +18,7 @@
 #      권고 하나에 대안 약이 함께 적혀 있어(예: elacestrant or imlunestrant) 묶어서 찾으면 '모두 포함' 규칙에 걸린다
 # A·B의 내부 코드는 가져오지 않고 공용 스키마 형식(patient_state, biomarker_record, chunk)만 읽는다.
 import csv
+import re
 import warnings
 
 from .chunk_common import BASE_DIR
@@ -92,6 +93,7 @@ LINE_ORDER = ["1L", "2L", ">=3L"]
 # 어느 약에 적용되는지(약제별 +1)는 D·B가 판정한다. C는 해당할 수 있는 행을 빠뜨리지 않게 넓게 찾기만 한다
 DEEMED_ENDOCRINE = ("DEEM-ENDO-ADJ-1Y",)
 DEEMED_CHEMO = ("DEEM-ANTHRA-TAXANE", "DEEM-SG-1Y", "DEEM-HER2ADC-6M")
+HER2_POSITIVE = ("HR+/HER2+", "HR-/HER2+")
 # confirmed_state의 마커 이름 → biomarker_record 레코드 이름. gBRCA·sBRCA는 하나로 확정되므로 1·2 두 레코드로 펴서
 # 기존 태그 규칙(TAG_NEGATIVE_WHEN: gBRCA1·gBRCA2 모두 음성이어야 gBRCA 음성)을 그대로 쓴다
 MARKER_RECORDS = {"gBRCA": ("gBRCA1", "gBRCA2"), "sBRCA": ("sBRCA1", "sBRCA2")}
@@ -134,6 +136,11 @@ def decision_lines(items: dict) -> dict:
     else:
         guideline = [chemo or endo or "unknown"]
     deemed = _confirmed(items, "deemed_lines") or {}
+    # HER2 양성에서 보조 항HER2 종료 6개월 안 재발(심평원 DEEM-HER2ADC-6M met)은 ESMO도 2차 선택지를 권한다
+    # (her2-1l-b8e579 "within 6-12 months of completing adjuvant", VC-0112). 지침도 한 차수 위로 한 번 더 찾는다
+    if (subtype in HER2_POSITIVE and chemo and deemed.get("DEEM-HER2ADC-6M") == "met"
+            and _next_line(chemo) not in guideline):
+        guideline.append(_next_line(chemo))
     reimbursement = []
     for line, rules in ((endo, DEEMED_ENDOCRINE), (chemo, DEEMED_CHEMO)):
         if not line:
@@ -208,6 +215,11 @@ def from_confirmed_state(confirmed_state: dict):
         "prior_metastatic_chemo": ({"1L": "no", "2L": "yes", ">=3L": "yes"}.get(_confirmed(items, "setting.line_chemo"))
                                    if disease == "metastatic" else None),
         **_early_history(items, disease),
+        # HER2 양성 전이성: 보조 항HER2 종료 6개월 안 재발인가 (심평원 DEEM-HER2ADC-6M). no면 ESMO의 '보조 종료 6-12개월 안 재발'
+        # 권고를 감점한다 (VC-0110: 5년 전 보조 trastuzumab인데 그 권고가 1위)
+        "her2_adjuvant_relapse": ({"met": "yes", "not_met": "no"}.get((_confirmed(items, "deemed_lines") or {})
+                                                                      .get("DEEM-HER2ADC-6M"))
+                                  if disease == "metastatic" and subtype in HER2_POSITIVE else None),
     }
     return record, patient, lines
 
@@ -221,6 +233,27 @@ def _early_history(items: dict, disease) -> dict:
     neo = "yes" if any(r.get("setting") == "neoadjuvant" for r in regimens) else "no"
     ici = any("immune_checkpoint_inhibitor" in (r.get("subclasses") or []) for r in regimens)
     return {"neoadjuvant_received": neo, "ici_received": "yes" if ici else ("no" if neo == "yes" else None)}
+
+
+# 급여 검색용 내분비요법 풀기 (D 요청 2026-11-03, VC-0119): ESMO 권고는 내분비요법을 "ET"·"endocrine therapy"로만 적는 일이
+# 많아(연장 ET cca75c, 항암 후 ET ca0c8d) 청크 drugs가 비고, 그 약(AI·tamoxifen·LHRH)의 급여 행을 찾지 못했다.
+# 청크 drugs에는 넣지 않는다 (넓은 계열은 B가 후처리에서 다룬다, 2026-11-02 결정). 급여 행을 찾을 때만 HR 양성 환자에게
+# AI·tamoxifen·toremifene, 전이성이면 fulvestrant, 폐경 전·이행기면 LHRH 작용제를 더한다
+ENDOCRINE_TERM = re.compile(r"(?<![A-Za-z])ET(?![A-Za-z])|endocrine therapy|endocrine-based therap", re.IGNORECASE)
+ENDOCRINE_SUBCLASSES = ("AI_nonsteroidal", "AI_steroidal", "SERM")
+
+
+def endocrine_drugs(text: str, subtype, disease, menopausal_status) -> list[str]:
+    """권고 본문이 내분비요법을 계열 이름으로만 말하면 급여 검색에 쓸 내분비 약 목록. HR 양성이 아니면 빈 목록."""
+    if subtype not in ("HR+/HER2-", "HR+/HER2+") or not ENDOCRINE_TERM.search(text.split(" Footnotes: ", 1)[0]):
+        return []
+    subclasses = list(ENDOCRINE_SUBCLASSES)
+    if menopausal_status in ("premenopausal", "perimenopausal"):
+        subclasses.append("LHRH_agonist")
+    names = [name for name, (_, sub) in _drug_classes().items() if sub in subclasses and "nos" not in name.split()]
+    if disease == "metastatic":  # SERD 중 fulvestrant만 (elacestrant·imlunestrant는 ESR1 변이 권고가 이름으로 적는다)
+        names.append("fulvestrant")
+    return names
 
 
 class OldInputWarning(UserWarning):
@@ -279,11 +312,13 @@ def retrieve_for_recommend(state: dict, biomarker_record: dict = None, as_of=Non
         if chunk.get("chunk_kind") == "algorithm":
             continue
         drugs += [d for d in chunk.get("drugs") or [] if d not in drugs]
+        drugs += [d for d in endocrine_drugs(chunk.get("text", ""), biomarker_record.get("subtype"), disease,
+                                             patient.get("menopausal_status")) if d not in drugs]
     reimbursement, seen = [], set()
     for drug in drugs:
         for line in lines["reimbursement"]:
             for row in search_reimbursement([drug], setting=disease, line=line, as_of=as_of,
-                                            top_k=reimbursement_per_drug):
+                                            top_k=reimbursement_per_drug, known_drugs=drugs):
                 if row["chunk_id"] not in seen:
                     reimbursement.append(row)
                     seen.add(row["chunk_id"])
