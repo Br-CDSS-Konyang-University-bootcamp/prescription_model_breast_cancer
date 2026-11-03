@@ -362,3 +362,46 @@ def test_superseded_guideline_chunks_are_not_searched(memory_index):
     indexer.index_chunks([{**base, "chunk_id": "new", "superseded_by": None},
                           {**base, "chunk_id": "old", "superseded_by": "new"}])
     assert [r["chunk_id"] for r in searcher.search_guidelines("x", setting="metastatic", top_k=5, rerank=False)] == ["new"]
+
+
+def test_visceral_crisis_pushes_back_endocrine_only_recommendations(memory_index):
+    # 장기 위기 환자에게 AI-CDK4/6이 1위, 장기 부전 임박 ChT 권고가 2위였다 (VC-0126 check_case, 2026-11-03).
+    # 장기 위기가 yes면 내분비 기반 치료만 권하는 권고·그림 경로를 뒤로 보낸다. ChT 권고, 그림 각주, 내분비 부적합 경로는 그대로
+    rag_client, indexer = memory_index
+    from src.rag import searcher
+    from src.rag.chunk_store import load_guideline_chunks, select_index_chunks
+
+    indexer.index_chunks(select_index_chunks(load_guideline_chunks()))
+    args = dict(query_text="x", setting="metastatic", subtype="HR+/HER2-", line="1L", top_k=300, rerank=False,
+                chunk_kind=None)
+    p = "esmo-mbc-2026-05-"
+    plain = {r["chunk_id"]: r["score"] for r in searcher.search_guidelines(**args)}
+    crisis = {r["chunk_id"]: r["score"] for r in searcher.search_guidelines(**args, visceral_crisis="yes")}
+    for cid in ("luminal-1l-02649c", "luminal-1l-0fd38a", "luminal-1l-e03e88", "fig2-1ae139"):
+        assert crisis[p + cid] == pytest.approx(plain[p + cid] - 1.0), cid
+    for cid in ("luminal-1l-5c55b4", "luminal-3l-044c33", "luminal-2l-160064", "fig4-ddbc18"):
+        assert crisis[p + cid] == plain[p + cid], cid
+    no = {r["chunk_id"]: r["score"] for r in searcher.search_guidelines(**args, visceral_crisis="no")}
+    assert no == plain  # yes일 때만 바꾼다
+
+
+def test_visceral_crisis_rule_never_penalizes_a_virtual_chart_answer():
+    # 가상 차트 C 정답 중 장기 위기 환자의 정답 권고·그림 경로는 감점되면 안 된다
+    import json, sys, types
+    from pathlib import Path
+    sys.modules.setdefault("sentence_transformers", types.SimpleNamespace(SentenceTransformer=None, CrossEncoder=None))
+    from src.rag.chunk_store import load_guideline_chunks
+    from src.rag.retrieve import from_confirmed_state
+    from src.rag.searcher import _crisis_adjust
+    text = {c["chunk_id"]: c["text"] for c in load_guideline_chunks()}
+    base = Path(__file__).resolve().parents[2] / "tests" / "fixtures" / "virtual_charts"
+    checked = 0
+    for path in base.glob("*/expected/guideline.json"):
+        exp = json.loads(path.read_text(encoding="utf-8"))
+        _, patient, _ = from_confirmed_state(json.loads((path.parent / "confirmed_state.json").read_text(encoding="utf-8")))
+        if patient.get("visceral_crisis") != "yes":
+            continue
+        checked += 1
+        assert not [cid for cid in exp["expected_chunks"] + exp.get("expected_algorithm", [])
+                    if _crisis_adjust(text[cid], "yes")], path
+    assert checked  # VC-0126
