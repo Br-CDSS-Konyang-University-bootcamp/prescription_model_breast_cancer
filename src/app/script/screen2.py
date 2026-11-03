@@ -67,10 +67,8 @@ def chunk_card(ch: dict) -> dict:
 class Recommender:
     """추천 작업 (환자·확정 버전마다 하나). 서버 요청 스레드와 따로 돈다."""
 
-    def __init__(self, bm, model: str = DEFAULT_MODEL, rec_dir: Path = REC_DIR, host: str | None = None,
-                 strip_reimb_parent: bool = True):
+    def __init__(self, bm, model: str = DEFAULT_MODEL, rec_dir: Path = REC_DIR, host: str | None = None):
         self.bm, self.model, self.rec_dir, self.host = bm, model, rec_dir, host
-        self.strip_reimb_parent = strip_reimb_parent
         self.jobs: dict[str, dict] = {}
         self.lock = threading.Lock()
 
@@ -111,10 +109,6 @@ class Recommender:
             from src.recommend.pipeline import recommend
 
             guideline, reimb = retrieve_for_recommend(confirmed_state)
-            if self.strip_reimb_parent:
-                # 시험 (2026-11-02): 급여 청크의 소단원(parent) 본문은 장 전체라 길다 (VC-0103에서 약 55,000자).
-                # B prompt.py가 이를 모두 붙이면 질문지가 문맥(16,384토큰)을 넘어 앞부분(지시문·환자)이 잘린다. B에 전달할 것
-                reimb = [{k: v for k, v in ch.items() if k != "parent"} for ch in reimb]
             job.update(stage="추천 생성", chunks=len(guideline) + len(reimb))
             try:
                 config = load_config("recommend")
@@ -130,7 +124,6 @@ class Recommender:
                                          config.model, conditions_checker=make_conditions_checker(patient_state, br),
                                          confirmed_state=confirmed_state)
             out = {"recommendation": rec, "ranked": ranked(rec["options"]), "shown": SHOWN, "log": log,
-                   "reimb_parent_stripped": self.strip_reimb_parent,
                    "schema_errors": errors, "index_summary": index.get("summary"),
                    "chunks": {ch["chunk_id"]: chunk_card(ch) for ch in [*guideline, *reimb]},
                    "seconds": round(time.time() - job["started"])}

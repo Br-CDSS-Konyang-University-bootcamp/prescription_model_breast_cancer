@@ -1,0 +1,318 @@
+{
+  "schema_version": "0.1-draft",
+  "patient_ref": "VC-0118",
+  "version": 1,
+  "visit_type": "initial",
+  "decision_context": "early",
+  "index_day": 35,
+  "confirmed_at": "2026-11-03T00:00:00+09:00",
+  "confirmed_by": "virtual-gold",
+  "based_on": {
+    "patient_state_created_at": "2026-10-23T00:00:00+09:00",
+    "biomarker_record_version": "0.1-draft"
+  },
+  "supersedes": null,
+  "items": {
+    "setting.disease": {
+      "scope": "current",
+      "system": "early",
+      "system_source": "biomarker_record",
+      "confirmed": "early",
+      "status": "confirmed"
+    },
+    "subtype": {
+      "scope": "current",
+      "system": "TNBC",
+      "system_source": "biomarker_record",
+      "confirmed": "TNBC",
+      "status": "confirmed"
+    },
+    "setting.phase": {
+      "scope": "current",
+      "system": "adjuvant",
+      "system_source": "derived",
+      "confirmed": "adjuvant",
+      "status": "confirmed",
+      "note": "원발 수술 기록 있음 (pTNM) → 보조요법",
+      "evidence_refs": [
+        {
+          "doc_id": "D2",
+          "quote": "pT1b N0 M0, stage IA (AJCC 8th)",
+          "char_start": 595,
+          "char_end": 626
+        }
+      ]
+    },
+    "age_at_index": {
+      "scope": "current",
+      "system": 63,
+      "system_source": "patient_state",
+      "confirmed": 63,
+      "status": "confirmed"
+    },
+    "stage.t": {
+      "scope": "diagnosis",
+      "system": "T1b",
+      "system_source": "patient_state",
+      "confirmed": "T1b",
+      "status": "confirmed",
+      "detail": {
+        "basis": "p"
+      },
+      "evidence_refs": [
+        {
+          "doc_id": "D2",
+          "quote": "pT1b N0 M0, stage IA (AJCC 8th)",
+          "char_start": 595,
+          "char_end": 626
+        }
+      ]
+    },
+    "stage.size_mm": {
+      "scope": "diagnosis",
+      "system": 8,
+      "system_source": "patient_state",
+      "confirmed": 8,
+      "status": "confirmed",
+      "detail": {
+        "basis": "p"
+      },
+      "evidence_refs": [
+        {
+          "doc_id": "D2",
+          "quote": "8 mm",
+          "char_start": 551,
+          "char_end": 555
+        }
+      ]
+    },
+    "stage.n": {
+      "scope": "diagnosis",
+      "system": "negative",
+      "system_source": "patient_state",
+      "confirmed": "negative",
+      "status": "confirmed",
+      "detail": {
+        "basis": "p"
+      },
+      "evidence_refs": [
+        {
+          "doc_id": "D2",
+          "quote": "pT1b N0 M0, stage IA (AJCC 8th)",
+          "char_start": 595,
+          "char_end": 626
+        }
+      ]
+    },
+    "stage.positive_ln_count": {
+      "scope": "diagnosis",
+      "system": 0,
+      "system_source": "patient_state",
+      "confirmed": 0,
+      "status": "confirmed",
+      "evidence_refs": [
+        {
+          "doc_id": "D2",
+          "quote": "전이 0개 / 검사 2개",
+          "char_start": 563,
+          "char_end": 576
+        }
+      ]
+    },
+    "stage.group": {
+      "scope": "diagnosis",
+      "system": "IA",
+      "system_source": "patient_state",
+      "confirmed": "IA",
+      "status": "confirmed",
+      "evidence_refs": [
+        {
+          "doc_id": "D2",
+          "quote": "stage IA",
+          "char_start": 607,
+          "char_end": 615
+        }
+      ]
+    },
+    "operable": {
+      "scope": "diagnosis",
+      "system": "yes",
+      "system_source": "patient_state",
+      "confirmed": "yes",
+      "status": "confirmed"
+    },
+    "grade": {
+      "scope": "diagnosis",
+      "system": 2,
+      "system_source": "patient_state",
+      "confirmed": 2,
+      "status": "confirmed"
+    },
+    "recurrence_day": {
+      "scope": "current",
+      "system": "not_applicable",
+      "system_source": "patient_state",
+      "confirmed": "not_applicable",
+      "status": "confirmed"
+    },
+    "metastasis_day": {
+      "scope": "current",
+      "system": "not_applicable",
+      "system_source": "patient_state",
+      "confirmed": "not_applicable",
+      "status": "confirmed"
+    },
+    "bone_metastasis_imaging": {
+      "scope": "current",
+      "system": "no",
+      "system_source": "derived",
+      "confirmed": "no",
+      "status": "confirmed"
+    },
+    "recent_therapy_28d": {
+      "scope": "current",
+      "system": "no",
+      "system_source": "patient_state",
+      "confirmed": "no",
+      "status": "confirmed",
+      "note": "기준일 이전 항암제·호르몬제 투약 없음"
+    },
+    "cardiac_risk": {
+      "scope": "current",
+      "system": "no",
+      "system_source": "patient_state",
+      "confirmed": "no",
+      "status": "confirmed",
+      "detail": {
+        "lvef_percent": 64
+      }
+    },
+    "contraindicated_classes": {
+      "scope": "current",
+      "system": [],
+      "system_source": "derived",
+      "confirmed": [],
+      "status": "confirmed"
+    },
+    "markers": {
+      "ER": {
+        "scope": "current",
+        "system": "negative",
+        "system_source": "biomarker_record",
+        "confirmed": "negative",
+        "status": "confirmed",
+        "detail": {
+          "specimen": "primary",
+          "test_date": "2024-06-17",
+          "allred": {
+            "total": 0,
+            "ps": 0,
+            "is": 0
+          }
+        },
+        "evidence_refs": [
+          {
+            "doc_id": "D2",
+            "quote": "ER : 음성, Allred score 0 (PS 0 + IS 0)",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      },
+      "PR": {
+        "scope": "current",
+        "system": "negative",
+        "system_source": "biomarker_record",
+        "confirmed": "negative",
+        "status": "confirmed",
+        "detail": {
+          "specimen": "primary",
+          "test_date": "2024-06-17",
+          "allred": {
+            "total": 0,
+            "ps": 0,
+            "is": 0
+          }
+        },
+        "evidence_refs": [
+          {
+            "doc_id": "D2",
+            "quote": "PR : 음성, Allred score 0 (PS 0 + IS 0)",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      },
+      "HER2": {
+        "scope": "current",
+        "system": "negative",
+        "system_source": "biomarker_record",
+        "confirmed": "negative",
+        "status": "confirmed",
+        "detail": {
+          "specimen": "primary",
+          "test_date": "2024-06-17",
+          "ihc_score": "0"
+        },
+        "evidence_refs": [
+          {
+            "doc_id": "D2",
+            "quote": "HER2 (4B5): 0 (no staining)",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      },
+      "PD-L1": {
+        "scope": "current",
+        "system": "not_recorded",
+        "system_source": "biomarker_record",
+        "confirmed": "not_recorded",
+        "status": "confirmed"
+      },
+      "ESR1": {
+        "scope": "current",
+        "system": "not_recorded",
+        "system_source": "biomarker_record",
+        "confirmed": "not_recorded",
+        "status": "confirmed"
+      },
+      "PIK3CA": {
+        "scope": "current",
+        "system": "not_recorded",
+        "system_source": "biomarker_record",
+        "confirmed": "not_recorded",
+        "status": "confirmed"
+      },
+      "AKT1": {
+        "scope": "current",
+        "system": "not_recorded",
+        "system_source": "biomarker_record",
+        "confirmed": "not_recorded",
+        "status": "confirmed"
+      },
+      "PTEN": {
+        "scope": "current",
+        "system": "not_recorded",
+        "system_source": "biomarker_record",
+        "confirmed": "not_recorded",
+        "status": "confirmed"
+      },
+      "PALB2": {
+        "scope": "current",
+        "system": "not_recorded",
+        "system_source": "biomarker_record",
+        "confirmed": "not_recorded",
+        "status": "confirmed"
+      },
+      "gBRCA": {
+        "scope": "current",
+        "system": "not_recorded",
+        "system_source": "derived",
+        "confirmed": "not_recorded",
+        "status": "confirmed",
+        "note": "gBRCA1 not_recorded, gBRCA2 not_recorded"
+      }
+    }
+  }
+}

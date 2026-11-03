@@ -1,0 +1,788 @@
+{
+  "schema_version": "0.1-draft",
+  "patient_ref": "VC-0138",
+  "version": 1,
+  "visit_type": "initial",
+  "decision_context": "metastatic",
+  "index_day": 2420,
+  "confirmed_at": "2026-11-03T00:00:00+09:00",
+  "confirmed_by": "virtual-gold",
+  "based_on": {
+    "patient_state_created_at": "2026-10-23T00:00:00+09:00",
+    "biomarker_record_version": "0.1-draft"
+  },
+  "supersedes": null,
+  "items": {
+    "setting.disease": {
+      "scope": "current",
+      "system": "metastatic",
+      "system_source": "biomarker_record",
+      "confirmed": "metastatic",
+      "status": "confirmed"
+    },
+    "subtype": {
+      "scope": "current",
+      "system": "HR-/HER2+",
+      "system_source": "biomarker_record",
+      "confirmed": "HR-/HER2+",
+      "status": "confirmed"
+    },
+    "setting.line_endocrine": {
+      "scope": "current",
+      "system": "not_applicable",
+      "system_source": "biomarker_record",
+      "confirmed": "not_applicable",
+      "status": "confirmed"
+    },
+    "setting.line_chemo": {
+      "scope": "current",
+      "system": ">=3L",
+      "system_source": "biomarker_record",
+      "confirmed": ">=3L",
+      "status": "confirmed"
+    },
+    "age_at_index": {
+      "scope": "current",
+      "system": 55,
+      "system_source": "patient_state",
+      "confirmed": 55,
+      "status": "confirmed"
+    },
+    "stage.t": {
+      "scope": "diagnosis",
+      "system": "T2",
+      "system_source": "patient_state",
+      "confirmed": "T2",
+      "status": "confirmed",
+      "detail": {
+        "basis": "p"
+      },
+      "evidence_refs": [
+        {
+          "doc_id": "D2",
+          "quote": "pT2 N1a M0, stage IIB (AJCC 8th)",
+          "char_start": 765,
+          "char_end": 797
+        }
+      ]
+    },
+    "stage.size_mm": {
+      "scope": "diagnosis",
+      "system": 28,
+      "system_source": "patient_state",
+      "confirmed": 28,
+      "status": "confirmed",
+      "detail": {
+        "basis": "p"
+      },
+      "evidence_refs": [
+        {
+          "doc_id": "D2",
+          "quote": "2.8 cm",
+          "char_start": 718,
+          "char_end": 724
+        }
+      ]
+    },
+    "stage.n": {
+      "scope": "diagnosis",
+      "system": "positive",
+      "system_source": "patient_state",
+      "confirmed": "positive",
+      "status": "confirmed",
+      "detail": {
+        "basis": "p"
+      },
+      "evidence_refs": [
+        {
+          "doc_id": "D2",
+          "quote": "pT2 N1a M0, stage IIB (AJCC 8th)",
+          "char_start": 765,
+          "char_end": 797
+        }
+      ]
+    },
+    "stage.positive_ln_count": {
+      "scope": "diagnosis",
+      "system": 1,
+      "system_source": "patient_state",
+      "confirmed": 1,
+      "status": "confirmed",
+      "evidence_refs": [
+        {
+          "doc_id": "D2",
+          "quote": "전이 1개 / 검사 12개",
+          "char_start": 732,
+          "char_end": 746
+        }
+      ]
+    },
+    "stage.group": {
+      "scope": "diagnosis",
+      "system": "IIB",
+      "system_source": "patient_state",
+      "confirmed": "IIB",
+      "status": "confirmed",
+      "evidence_refs": [
+        {
+          "doc_id": "D2",
+          "quote": "stage IIB",
+          "char_start": 777,
+          "char_end": 786
+        }
+      ]
+    },
+    "operable": {
+      "scope": "diagnosis",
+      "system": "yes",
+      "system_source": "patient_state",
+      "confirmed": "yes",
+      "status": "confirmed"
+    },
+    "grade": {
+      "scope": "diagnosis",
+      "system": 3,
+      "system_source": "patient_state",
+      "confirmed": 3,
+      "status": "confirmed"
+    },
+    "deemed_lines": {
+      "scope": "current",
+      "system": {
+        "DEEM-ANTHRA-TAXANE": "met",
+        "DEEM-SG-1Y": "not_met",
+        "DEEM-HER2ADC-6M": "not_met",
+        "DEEM-ENDO-ADJ-1Y": "not_met"
+      },
+      "system_source": "patient_state",
+      "confirmed": {
+        "DEEM-ANTHRA-TAXANE": "met",
+        "DEEM-SG-1Y": "not_met",
+        "DEEM-HER2ADC-6M": "not_met",
+        "DEEM-ENDO-ADJ-1Y": "not_met"
+      },
+      "status": "confirmed"
+    },
+    "recurrence_day": {
+      "scope": "current",
+      "system": 1400,
+      "system_source": "patient_state",
+      "confirmed": 1400,
+      "status": "confirmed",
+      "evidence_refs": [
+        {
+          "doc_id": "D1",
+          "quote": "2023.1.2 간·폐 전이",
+          "char_start": 380,
+          "char_end": 395
+        }
+      ]
+    },
+    "metastasis_day": {
+      "scope": "current",
+      "system": 1400,
+      "system_source": "patient_state",
+      "confirmed": 1400,
+      "status": "confirmed"
+    },
+    "recurrence_type": {
+      "scope": "current",
+      "system": "distant",
+      "system_source": "patient_state",
+      "confirmed": "distant",
+      "status": "confirmed",
+      "evidence_refs": [
+        {
+          "doc_id": "D1",
+          "quote": "간·폐 전이",
+          "char_start": 389,
+          "char_end": 395
+        }
+      ]
+    },
+    "metastatic_sites": {
+      "scope": "current",
+      "system": [
+        "liver",
+        "lung"
+      ],
+      "system_source": "patient_state",
+      "confirmed": [
+        "liver",
+        "lung"
+      ],
+      "status": "confirmed"
+    },
+    "bone_metastasis_imaging": {
+      "scope": "current",
+      "system": "no",
+      "system_source": "derived",
+      "confirmed": "no",
+      "status": "confirmed"
+    },
+    "prior_regimens": {
+      "scope": "current",
+      "system": [
+        {
+          "drugs": [
+            "doxorubicin",
+            "cyclophosphamide"
+          ],
+          "subclasses": [
+            "anthracycline",
+            "Chemotherapy"
+          ],
+          "setting": "adjuvant",
+          "start_day": 30,
+          "end_day": 93,
+          "line_endocrine": null,
+          "line_chemo": null,
+          "response": "unknown",
+          "stop_reason": "planned_switch",
+          "progression_day": null,
+          "cycles": {
+            "value": 4,
+            "interval_days": 21
+          },
+          "ongoing": null,
+          "doses": [
+            {
+              "drug": "doxorubicin",
+              "per_admin": {
+                "value": 60,
+                "unit": "mg/m2"
+              },
+              "total": {
+                "value": 240,
+                "unit": "mg/m2"
+              },
+              "basis": "estimated"
+            },
+            {
+              "drug": "cyclophosphamide",
+              "per_admin": {
+                "value": 600,
+                "unit": "mg/m2"
+              },
+              "total": {
+                "value": 2400,
+                "unit": "mg/m2"
+              },
+              "basis": "estimated"
+            }
+          ]
+        },
+        {
+          "drugs": [
+            "paclitaxel",
+            "trastuzumab"
+          ],
+          "subclasses": [
+            "taxane",
+            "HER2-targeted Therapy"
+          ],
+          "setting": "adjuvant",
+          "start_day": 114,
+          "end_day": 191,
+          "line_endocrine": null,
+          "line_chemo": null,
+          "response": "unknown",
+          "stop_reason": "planned_switch",
+          "progression_day": null,
+          "cycles": {
+            "value": 12,
+            "interval_days": 7
+          },
+          "ongoing": null,
+          "doses": [
+            {
+              "drug": "paclitaxel",
+              "per_admin": {
+                "value": 80,
+                "unit": "mg/m2"
+              },
+              "total": {
+                "value": 960,
+                "unit": "mg/m2"
+              },
+              "basis": "estimated"
+            }
+          ]
+        },
+        {
+          "drugs": [
+            "trastuzumab"
+          ],
+          "subclasses": [
+            "HER2-targeted Therapy"
+          ],
+          "setting": "adjuvant",
+          "start_day": 212,
+          "end_day": 485,
+          "line_endocrine": null,
+          "line_chemo": null,
+          "response": "unknown",
+          "stop_reason": "completed",
+          "progression_day": null,
+          "cycles": {
+            "value": 14,
+            "interval_days": 21
+          },
+          "ongoing": null,
+          "doses": [
+            {
+              "drug": "trastuzumab",
+              "per_admin": "not_recorded",
+              "total": "not_recorded",
+              "basis": "estimated"
+            }
+          ]
+        },
+        {
+          "drugs": [
+            "docetaxel",
+            "pertuzumab",
+            "trastuzumab"
+          ],
+          "subclasses": [
+            "taxane",
+            "HER2-targeted Therapy"
+          ],
+          "setting": "metastatic",
+          "start_day": 1420,
+          "end_day": 1525,
+          "line_endocrine": null,
+          "line_chemo": 1,
+          "response": "PR",
+          "stop_reason": "maintenance",
+          "progression_day": null,
+          "cycles": {
+            "value": 6,
+            "interval_days": 21
+          },
+          "ongoing": null,
+          "doses": [
+            {
+              "drug": "docetaxel",
+              "per_admin": {
+                "value": 75,
+                "unit": "mg/m2"
+              },
+              "total": {
+                "value": 450,
+                "unit": "mg/m2"
+              },
+              "basis": "estimated"
+            }
+          ]
+        },
+        {
+          "drugs": [
+            "pertuzumab",
+            "trastuzumab"
+          ],
+          "subclasses": [
+            "HER2-targeted Therapy"
+          ],
+          "setting": "metastatic",
+          "start_day": 1546,
+          "end_day": 1882,
+          "line_endocrine": null,
+          "line_chemo": 1,
+          "response": "PD",
+          "stop_reason": "progression",
+          "progression_day": 1895,
+          "cycles": {
+            "value": 17,
+            "interval_days": 21
+          },
+          "ongoing": null
+        },
+        {
+          "drugs": [
+            "trastuzumab deruxtecan"
+          ],
+          "subclasses": [
+            "HER2-targeted Therapy"
+          ],
+          "setting": "metastatic",
+          "start_day": 1910,
+          "end_day": 2385,
+          "line_endocrine": null,
+          "line_chemo": 2,
+          "response": "PD",
+          "stop_reason": "progression",
+          "progression_day": 2398,
+          "cycles": {
+            "value": 23,
+            "interval_days": 21
+          },
+          "ongoing": null,
+          "doses": [
+            {
+              "drug": "trastuzumab deruxtecan",
+              "per_admin": "not_recorded",
+              "total": "not_recorded",
+              "basis": "estimated"
+            }
+          ]
+        }
+      ],
+      "system_source": "patient_state",
+      "confirmed": [
+        {
+          "drugs": [
+            "doxorubicin",
+            "cyclophosphamide"
+          ],
+          "subclasses": [
+            "anthracycline",
+            "Chemotherapy"
+          ],
+          "setting": "adjuvant",
+          "start_day": 30,
+          "end_day": 93,
+          "line_endocrine": null,
+          "line_chemo": null,
+          "response": "unknown",
+          "stop_reason": "planned_switch",
+          "progression_day": null,
+          "cycles": {
+            "value": 4,
+            "interval_days": 21
+          },
+          "ongoing": null,
+          "doses": [
+            {
+              "drug": "doxorubicin",
+              "per_admin": {
+                "value": 60,
+                "unit": "mg/m2"
+              },
+              "total": {
+                "value": 240,
+                "unit": "mg/m2"
+              },
+              "basis": "estimated"
+            },
+            {
+              "drug": "cyclophosphamide",
+              "per_admin": {
+                "value": 600,
+                "unit": "mg/m2"
+              },
+              "total": {
+                "value": 2400,
+                "unit": "mg/m2"
+              },
+              "basis": "estimated"
+            }
+          ]
+        },
+        {
+          "drugs": [
+            "paclitaxel",
+            "trastuzumab"
+          ],
+          "subclasses": [
+            "taxane",
+            "HER2-targeted Therapy"
+          ],
+          "setting": "adjuvant",
+          "start_day": 114,
+          "end_day": 191,
+          "line_endocrine": null,
+          "line_chemo": null,
+          "response": "unknown",
+          "stop_reason": "planned_switch",
+          "progression_day": null,
+          "cycles": {
+            "value": 12,
+            "interval_days": 7
+          },
+          "ongoing": null,
+          "doses": [
+            {
+              "drug": "paclitaxel",
+              "per_admin": {
+                "value": 80,
+                "unit": "mg/m2"
+              },
+              "total": {
+                "value": 960,
+                "unit": "mg/m2"
+              },
+              "basis": "estimated"
+            }
+          ]
+        },
+        {
+          "drugs": [
+            "trastuzumab"
+          ],
+          "subclasses": [
+            "HER2-targeted Therapy"
+          ],
+          "setting": "adjuvant",
+          "start_day": 212,
+          "end_day": 485,
+          "line_endocrine": null,
+          "line_chemo": null,
+          "response": "unknown",
+          "stop_reason": "completed",
+          "progression_day": null,
+          "cycles": {
+            "value": 14,
+            "interval_days": 21
+          },
+          "ongoing": null,
+          "doses": [
+            {
+              "drug": "trastuzumab",
+              "per_admin": "not_recorded",
+              "total": "not_recorded",
+              "basis": "estimated"
+            }
+          ]
+        },
+        {
+          "drugs": [
+            "docetaxel",
+            "pertuzumab",
+            "trastuzumab"
+          ],
+          "subclasses": [
+            "taxane",
+            "HER2-targeted Therapy"
+          ],
+          "setting": "metastatic",
+          "start_day": 1420,
+          "end_day": 1525,
+          "line_endocrine": null,
+          "line_chemo": 1,
+          "response": "PR",
+          "stop_reason": "maintenance",
+          "progression_day": null,
+          "cycles": {
+            "value": 6,
+            "interval_days": 21
+          },
+          "ongoing": null,
+          "doses": [
+            {
+              "drug": "docetaxel",
+              "per_admin": {
+                "value": 75,
+                "unit": "mg/m2"
+              },
+              "total": {
+                "value": 450,
+                "unit": "mg/m2"
+              },
+              "basis": "estimated"
+            }
+          ]
+        },
+        {
+          "drugs": [
+            "pertuzumab",
+            "trastuzumab"
+          ],
+          "subclasses": [
+            "HER2-targeted Therapy"
+          ],
+          "setting": "metastatic",
+          "start_day": 1546,
+          "end_day": 1882,
+          "line_endocrine": null,
+          "line_chemo": 1,
+          "response": "PD",
+          "stop_reason": "progression",
+          "progression_day": 1895,
+          "cycles": {
+            "value": 17,
+            "interval_days": 21
+          },
+          "ongoing": null
+        },
+        {
+          "drugs": [
+            "trastuzumab deruxtecan"
+          ],
+          "subclasses": [
+            "HER2-targeted Therapy"
+          ],
+          "setting": "metastatic",
+          "start_day": 1910,
+          "end_day": 2385,
+          "line_endocrine": null,
+          "line_chemo": 2,
+          "response": "PD",
+          "stop_reason": "progression",
+          "progression_day": 2398,
+          "cycles": {
+            "value": 23,
+            "interval_days": 21
+          },
+          "ongoing": null,
+          "doses": [
+            {
+              "drug": "trastuzumab deruxtecan",
+              "per_admin": "not_recorded",
+              "total": "not_recorded",
+              "basis": "estimated"
+            }
+          ]
+        }
+      ],
+      "status": "confirmed"
+    },
+    "anthracycline_cumulative": {
+      "scope": "current",
+      "system": {
+        "doxorubicin": {
+          "value": 240,
+          "unit": "mg/m2"
+        }
+      },
+      "system_source": "patient_state",
+      "confirmed": {
+        "doxorubicin": {
+          "value": 240,
+          "unit": "mg/m2"
+        }
+      },
+      "status": "confirmed"
+    },
+    "recent_therapy_28d": {
+      "scope": "current",
+      "system": "no",
+      "system_source": "patient_state",
+      "confirmed": "no",
+      "status": "confirmed",
+      "note": "trastuzumab deruxtecan 기준일 35일 전 종료 (28일 초과)"
+    },
+    "cardiac_risk": {
+      "scope": "current",
+      "system": "no",
+      "system_source": "patient_state",
+      "confirmed": "no",
+      "status": "confirmed",
+      "detail": {
+        "lvef_percent": 59
+      }
+    },
+    "contraindicated_classes": {
+      "scope": "current",
+      "system": [],
+      "system_source": "derived",
+      "confirmed": [],
+      "status": "confirmed"
+    },
+    "markers": {
+      "ER": {
+        "scope": "current",
+        "system": "negative",
+        "system_source": "biomarker_record",
+        "confirmed": "negative",
+        "status": "confirmed",
+        "detail": {
+          "specimen": "metastasis",
+          "test_date": "2023-01-10",
+          "allred": {
+            "total": 0,
+            "ps": 0,
+            "is": 0
+          }
+        },
+        "evidence_refs": [
+          {
+            "doc_id": "D4",
+            "quote": "ER : 음성, Allred score 0 (PS 0 + IS 0)",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      },
+      "PR": {
+        "scope": "current",
+        "system": "negative",
+        "system_source": "biomarker_record",
+        "confirmed": "negative",
+        "status": "confirmed",
+        "detail": {
+          "specimen": "metastasis",
+          "test_date": "2023-01-10",
+          "allred": {
+            "total": 0,
+            "ps": 0,
+            "is": 0
+          }
+        },
+        "evidence_refs": [
+          {
+            "doc_id": "D4",
+            "quote": "PR : 음성, Allred score 0 (PS 0 + IS 0)",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      },
+      "HER2": {
+        "scope": "current",
+        "system": "positive",
+        "system_source": "biomarker_record",
+        "confirmed": "positive",
+        "status": "confirmed",
+        "detail": {
+          "specimen": "metastasis",
+          "test_date": "2023-01-10",
+          "ihc_score": "3+"
+        },
+        "evidence_refs": [
+          {
+            "doc_id": "D4",
+            "quote": "HER2 (4B5): 3+",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      },
+      "ESR1": {
+        "scope": "current",
+        "system": "not_recorded",
+        "system_source": "biomarker_record",
+        "confirmed": "not_recorded",
+        "status": "confirmed"
+      },
+      "PIK3CA": {
+        "scope": "current",
+        "system": "not_recorded",
+        "system_source": "biomarker_record",
+        "confirmed": "not_recorded",
+        "status": "confirmed"
+      },
+      "AKT1": {
+        "scope": "current",
+        "system": "not_recorded",
+        "system_source": "biomarker_record",
+        "confirmed": "not_recorded",
+        "status": "confirmed"
+      },
+      "PTEN": {
+        "scope": "current",
+        "system": "not_recorded",
+        "system_source": "biomarker_record",
+        "confirmed": "not_recorded",
+        "status": "confirmed"
+      },
+      "PALB2": {
+        "scope": "current",
+        "system": "not_recorded",
+        "system_source": "biomarker_record",
+        "confirmed": "not_recorded",
+        "status": "confirmed"
+      }
+    }
+  }
+}

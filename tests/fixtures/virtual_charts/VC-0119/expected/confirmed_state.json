@@ -1,0 +1,562 @@
+{
+  "schema_version": "0.1-draft",
+  "patient_ref": "VC-0119",
+  "version": 1,
+  "visit_type": "initial",
+  "decision_context": "early",
+  "index_day": 215,
+  "confirmed_at": "2026-11-03T00:00:00+09:00",
+  "confirmed_by": "virtual-gold",
+  "based_on": {
+    "patient_state_created_at": "2026-10-23T00:00:00+09:00",
+    "biomarker_record_version": "0.1-draft"
+  },
+  "supersedes": null,
+  "items": {
+    "setting.disease": {
+      "scope": "current",
+      "system": "locally_advanced",
+      "system_source": "biomarker_record",
+      "confirmed": "locally_advanced",
+      "status": "confirmed"
+    },
+    "subtype": {
+      "scope": "current",
+      "system": "HR+/HER2-",
+      "system_source": "biomarker_record",
+      "confirmed": "HR+/HER2-",
+      "status": "confirmed"
+    },
+    "setting.phase": {
+      "scope": "current",
+      "system": "adjuvant",
+      "system_source": "derived",
+      "confirmed": "adjuvant",
+      "status": "confirmed",
+      "note": "원발 수술 기록 있음 (ypTNM) → 보조요법 (B setting.line neoadjuvant: 마지막 투약의 단계)",
+      "evidence_refs": [
+        {
+          "doc_id": "D5",
+          "quote": "ypT2 ypN1a (AJCC 8th)",
+          "char_start": 1372,
+          "char_end": 1393
+        }
+      ]
+    },
+    "menopausal_status": {
+      "scope": "current",
+      "system": "premenopausal",
+      "system_source": "patient_state",
+      "confirmed": "premenopausal",
+      "status": "confirmed",
+      "detail": {
+        "basis": "age_amenorrhea"
+      },
+      "evidence_refs": [
+        {
+          "doc_id": "D1",
+          "quote": "폐경 전",
+          "char_start": 158,
+          "char_end": 162
+        }
+      ]
+    },
+    "age_at_index": {
+      "scope": "current",
+      "system": 41,
+      "system_source": "patient_state",
+      "confirmed": 41,
+      "status": "confirmed"
+    },
+    "stage.t": {
+      "scope": "diagnosis",
+      "system": "T3",
+      "system_source": "patient_state",
+      "confirmed": "T3",
+      "status": "confirmed",
+      "detail": {
+        "basis": "c"
+      },
+      "evidence_refs": [
+        {
+          "doc_id": "D1",
+          "quote": "cT3N1M0",
+          "char_start": 278,
+          "char_end": 285
+        }
+      ]
+    },
+    "stage.size_mm": {
+      "scope": "diagnosis",
+      "system": 55,
+      "system_source": "patient_state",
+      "confirmed": 55,
+      "status": "confirmed",
+      "detail": {
+        "basis": "c"
+      },
+      "evidence_refs": [
+        {
+          "doc_id": "D3",
+          "quote": "좌측 유방 5.5 cm 종괴",
+          "char_start": 893,
+          "char_end": 908
+        }
+      ]
+    },
+    "stage.n": {
+      "scope": "diagnosis",
+      "system": "positive",
+      "system_source": "patient_state",
+      "confirmed": "positive",
+      "status": "confirmed",
+      "detail": {
+        "basis": "c"
+      },
+      "evidence_refs": [
+        {
+          "doc_id": "D1",
+          "quote": "cT3N1M0",
+          "char_start": 278,
+          "char_end": 285
+        }
+      ]
+    },
+    "stage.positive_ln_count": {
+      "scope": "diagnosis",
+      "system": "not_recorded",
+      "system_source": "patient_state",
+      "confirmed": "not_recorded",
+      "status": "confirmed"
+    },
+    "stage.group": {
+      "scope": "diagnosis",
+      "system": "IIIA",
+      "system_source": "patient_state",
+      "confirmed": "IIIA",
+      "status": "confirmed",
+      "evidence_refs": [
+        {
+          "doc_id": "D1",
+          "quote": "stage IIIA",
+          "char_start": 287,
+          "char_end": 297
+        }
+      ]
+    },
+    "operable": {
+      "scope": "diagnosis",
+      "system": "yes",
+      "system_source": "patient_state",
+      "confirmed": "yes",
+      "status": "confirmed"
+    },
+    "grade": {
+      "scope": "diagnosis",
+      "system": 3,
+      "system_source": "patient_state",
+      "confirmed": 3,
+      "status": "confirmed"
+    },
+    "pcr": {
+      "scope": "diagnosis",
+      "system": "no",
+      "system_source": "patient_state",
+      "confirmed": "no",
+      "status": "confirmed"
+    },
+    "high_risk_early": {
+      "scope": "diagnosis",
+      "system": {
+        "hira": "unknown",
+        "esmo": "unknown"
+      },
+      "system_source": "derived",
+      "confirmed": {
+        "hira": "unknown",
+        "esmo": "unknown"
+      },
+      "status": "confirmed",
+      "note": "림프절 ?개, T3, 3등급, Ki-67 35%"
+    },
+    "recurrence_day": {
+      "scope": "current",
+      "system": "not_applicable",
+      "system_source": "patient_state",
+      "confirmed": "not_applicable",
+      "status": "confirmed"
+    },
+    "metastasis_day": {
+      "scope": "current",
+      "system": "not_applicable",
+      "system_source": "patient_state",
+      "confirmed": "not_applicable",
+      "status": "confirmed"
+    },
+    "bone_metastasis_imaging": {
+      "scope": "current",
+      "system": "no",
+      "system_source": "derived",
+      "confirmed": "no",
+      "status": "confirmed"
+    },
+    "prior_regimens": {
+      "scope": "current",
+      "system": [
+        {
+          "drugs": [
+            "doxorubicin",
+            "cyclophosphamide"
+          ],
+          "subclasses": [
+            "anthracycline",
+            "Chemotherapy"
+          ],
+          "setting": "neoadjuvant",
+          "start_day": 14,
+          "end_day": 77,
+          "line_endocrine": null,
+          "line_chemo": null,
+          "response": "unknown",
+          "stop_reason": "planned_switch",
+          "progression_day": null,
+          "cycles": {
+            "value": 4,
+            "interval_days": 21
+          },
+          "ongoing": null,
+          "doses": [
+            {
+              "drug": "doxorubicin",
+              "per_admin": {
+                "value": 60,
+                "unit": "mg/m2"
+              },
+              "total": {
+                "value": 240,
+                "unit": "mg/m2"
+              },
+              "basis": "estimated"
+            },
+            {
+              "drug": "cyclophosphamide",
+              "per_admin": {
+                "value": 600,
+                "unit": "mg/m2"
+              },
+              "total": {
+                "value": 2400,
+                "unit": "mg/m2"
+              },
+              "basis": "estimated"
+            }
+          ]
+        },
+        {
+          "drugs": [
+            "paclitaxel"
+          ],
+          "subclasses": [
+            "taxane"
+          ],
+          "setting": "neoadjuvant",
+          "start_day": 84,
+          "end_day": 161,
+          "line_endocrine": null,
+          "line_chemo": null,
+          "response": "PR",
+          "stop_reason": "completed",
+          "progression_day": null,
+          "cycles": {
+            "value": 12,
+            "interval_days": 7
+          },
+          "ongoing": null,
+          "doses": [
+            {
+              "drug": "paclitaxel",
+              "per_admin": {
+                "value": 80,
+                "unit": "mg/m2"
+              },
+              "total": {
+                "value": 960,
+                "unit": "mg/m2"
+              },
+              "basis": "estimated"
+            }
+          ]
+        }
+      ],
+      "system_source": "patient_state",
+      "confirmed": [
+        {
+          "drugs": [
+            "doxorubicin",
+            "cyclophosphamide"
+          ],
+          "subclasses": [
+            "anthracycline",
+            "Chemotherapy"
+          ],
+          "setting": "neoadjuvant",
+          "start_day": 14,
+          "end_day": 77,
+          "line_endocrine": null,
+          "line_chemo": null,
+          "response": "unknown",
+          "stop_reason": "planned_switch",
+          "progression_day": null,
+          "cycles": {
+            "value": 4,
+            "interval_days": 21
+          },
+          "ongoing": null,
+          "doses": [
+            {
+              "drug": "doxorubicin",
+              "per_admin": {
+                "value": 60,
+                "unit": "mg/m2"
+              },
+              "total": {
+                "value": 240,
+                "unit": "mg/m2"
+              },
+              "basis": "estimated"
+            },
+            {
+              "drug": "cyclophosphamide",
+              "per_admin": {
+                "value": 600,
+                "unit": "mg/m2"
+              },
+              "total": {
+                "value": 2400,
+                "unit": "mg/m2"
+              },
+              "basis": "estimated"
+            }
+          ]
+        },
+        {
+          "drugs": [
+            "paclitaxel"
+          ],
+          "subclasses": [
+            "taxane"
+          ],
+          "setting": "neoadjuvant",
+          "start_day": 84,
+          "end_day": 161,
+          "line_endocrine": null,
+          "line_chemo": null,
+          "response": "PR",
+          "stop_reason": "completed",
+          "progression_day": null,
+          "cycles": {
+            "value": 12,
+            "interval_days": 7
+          },
+          "ongoing": null,
+          "doses": [
+            {
+              "drug": "paclitaxel",
+              "per_admin": {
+                "value": 80,
+                "unit": "mg/m2"
+              },
+              "total": {
+                "value": 960,
+                "unit": "mg/m2"
+              },
+              "basis": "estimated"
+            }
+          ]
+        }
+      ],
+      "status": "confirmed"
+    },
+    "anthracycline_cumulative": {
+      "scope": "current",
+      "system": {
+        "doxorubicin": {
+          "value": 240,
+          "unit": "mg/m2"
+        }
+      },
+      "system_source": "patient_state",
+      "confirmed": {
+        "doxorubicin": {
+          "value": 240,
+          "unit": "mg/m2"
+        }
+      },
+      "status": "confirmed"
+    },
+    "recent_therapy_28d": {
+      "scope": "current",
+      "system": "no",
+      "system_source": "patient_state",
+      "confirmed": "no",
+      "status": "confirmed",
+      "note": "paclitaxel 기준일 54일 전 종료 (28일 초과)"
+    },
+    "cardiac_risk": {
+      "scope": "current",
+      "system": "no",
+      "system_source": "patient_state",
+      "confirmed": "no",
+      "status": "confirmed",
+      "detail": {
+        "lvef_percent": 63
+      }
+    },
+    "contraindicated_classes": {
+      "scope": "current",
+      "system": [],
+      "system_source": "derived",
+      "confirmed": [],
+      "status": "confirmed"
+    },
+    "markers": {
+      "ER": {
+        "scope": "current",
+        "system": "positive",
+        "system_source": "biomarker_record",
+        "confirmed": "positive",
+        "status": "confirmed",
+        "detail": {
+          "specimen": "primary",
+          "test_date": "2023-04-10",
+          "percent": 80
+        },
+        "evidence_refs": [
+          {
+            "doc_id": "D2",
+            "quote": "ER : 양성 80%",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      },
+      "PR": {
+        "scope": "current",
+        "system": "positive",
+        "system_source": "biomarker_record",
+        "confirmed": "positive",
+        "status": "confirmed",
+        "detail": {
+          "specimen": "primary",
+          "test_date": "2023-04-10",
+          "percent": 30
+        },
+        "evidence_refs": [
+          {
+            "doc_id": "D2",
+            "quote": "PR : 양성 30%",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      },
+      "HER2": {
+        "scope": "current",
+        "system": "negative",
+        "system_source": "biomarker_record",
+        "confirmed": "negative",
+        "status": "confirmed",
+        "detail": {
+          "specimen": "primary",
+          "test_date": "2023-04-10",
+          "ihc_score": "0"
+        },
+        "evidence_refs": [
+          {
+            "doc_id": "D2",
+            "quote": "HER2 (4B5): 0 (no staining)",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      },
+      "Ki-67": {
+        "scope": "diagnosis",
+        "system": "positive",
+        "system_source": "biomarker_record",
+        "confirmed": "positive",
+        "status": "confirmed",
+        "detail": {
+          "specimen": "primary",
+          "test_date": "2023-04-10",
+          "percent": 35.0
+        },
+        "evidence_refs": [
+          {
+            "doc_id": "D2",
+            "quote": "Ki-67: 35%",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      },
+      "ESR1": {
+        "scope": "current",
+        "system": "not_recorded",
+        "system_source": "biomarker_record",
+        "confirmed": "not_recorded",
+        "status": "confirmed"
+      },
+      "PIK3CA": {
+        "scope": "current",
+        "system": "not_recorded",
+        "system_source": "biomarker_record",
+        "confirmed": "not_recorded",
+        "status": "confirmed"
+      },
+      "AKT1": {
+        "scope": "current",
+        "system": "not_recorded",
+        "system_source": "biomarker_record",
+        "confirmed": "not_recorded",
+        "status": "confirmed"
+      },
+      "PTEN": {
+        "scope": "current",
+        "system": "not_recorded",
+        "system_source": "biomarker_record",
+        "confirmed": "not_recorded",
+        "status": "confirmed"
+      },
+      "PALB2": {
+        "scope": "current",
+        "system": "not_recorded",
+        "system_source": "biomarker_record",
+        "confirmed": "not_recorded",
+        "status": "confirmed"
+      },
+      "gBRCA": {
+        "scope": "current",
+        "system": "positive",
+        "system_source": "derived",
+        "confirmed": "positive",
+        "status": "confirmed",
+        "note": "gBRCA1 negative, gBRCA2 positive",
+        "evidence_refs": [
+          {
+            "doc_id": "D4",
+            "quote": "BRCA1: 병원성 변이 검출되지 않음",
+            "char_start": null,
+            "char_end": null
+          },
+          {
+            "doc_id": "D4",
+            "quote": "BRCA2   c.5946delT (p.S1982Rfs*22)   Pathogenic (병원성)",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      }
+    }
+  }
+}
