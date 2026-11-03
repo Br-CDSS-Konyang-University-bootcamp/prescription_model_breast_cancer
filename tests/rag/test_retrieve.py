@@ -292,3 +292,19 @@ def test_early_history_from_confirmed_state():
         got[case] = (a.get("neoadjuvant_received"), a.get("ici_received"), a.get("pcr"))
     assert got == {"VC-0117": ("yes", "yes", "no"), "VC-0118": ("no", None, None), "VC-0120": ("yes", "no", "yes"),
                    "VC-0121": (None, None, None), "VC-0103": (None, None, None)}
+
+
+def test_her2_adjuvant_relapse_adds_second_line_search():
+    # 보조 항HER2 종료 6개월 안 재발(DEEM-HER2ADC-6M met, VC-0112)이면 지침도 2차로 한 번 더 찾고 감점 인자는 yes,
+    # not_met(VC-0110)이면 1차만 찾고 no
+    import json
+    from pathlib import Path
+    from src.rag.query import search_args
+    from src.rag.retrieve import from_confirmed_state
+    base = Path(__file__).resolve().parents[2] / "tests/fixtures/virtual_charts"
+    got = {}
+    for case in ("VC-0112", "VC-0110"):
+        record, patient, lines = from_confirmed_state(json.loads(
+            (base / case / "expected/confirmed_state.json").read_text(encoding="utf-8")))
+        got[case] = (lines["guideline"], search_args(record, **patient).get("her2_adjuvant_relapse"))
+    assert got == {"VC-0112": (["1L", "2L"], "yes"), "VC-0110": (["1L"], "no")}

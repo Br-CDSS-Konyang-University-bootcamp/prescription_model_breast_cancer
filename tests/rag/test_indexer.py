@@ -503,7 +503,36 @@ def test_rules_never_penalize_a_virtual_chart_answer():
             t = text[cid]
             penalty = (s._relapse_adjust(t, a.get("endocrine_relapse_12m")) + s._menopause_adjust(t, a.get("menopausal_status"))
                        + s._crisis_adjust(t, a.get("visceral_crisis")) + s._prior_chemo_adjust(t, a.get("prior_metastatic_chemo"))
-                       + s._early_adjust(t, a.get("neoadjuvant_received"), a.get("ici_received"), a.get("pcr")))
+                       + s._early_adjust(t, a.get("neoadjuvant_received"), a.get("ici_received"), a.get("pcr"))
+                       + s._er_adjust(t, a.get("subtype"))
+                       + (1.0 if a.get("her2_adjuvant_relapse") == "no" and s.HER2_EARLY_RELAPSE.search(t.split(" Footnotes: ")[0]) else 0.0))
             if penalty:
                 bad.append((path.parts[-3], cid))
     assert bad == []
+
+
+def test_her2_er_scope_and_adjuvant_relapse(memory_index):
+    # ER 음성 HER2 양성 환자에게 ER 양성 유지요법 권고가 1~4위를 차지했고(VC-0112), 보조 trastuzumab을 5년 전에 끝낸 환자에게
+    # '보조 종료 6-12개월 안 재발' 권고가 1위였다(VC-0110). 아형의 HR 상태와 확정 간주 규칙으로 뒤로 보낸다
+    rag_client, indexer = memory_index
+    from src.rag import searcher
+    from src.rag.chunk_store import load_guideline_chunks, select_index_chunks
+
+    indexer.index_chunks(select_index_chunks(load_guideline_chunks()))
+    p = "esmo-mbc-2026-05-her2-1l-"
+
+    def scores(subtype, **kw):
+        args = dict(query_text="x", setting="metastatic", subtype=subtype, line="1L", top_k=300, rerank=False)
+        return {r["chunk_id"][len("esmo-mbc-2026-05-her2-1l-"):]: r["score"]
+                for r in searcher.search_guidelines(**args, **kw) if r["chunk_id"].startswith(p)}
+
+    neg, pos = scores("HR-/HER2+"), scores("HR+/HER2+")
+    for cid in ("eab0c1", "4be7b0", "406dd2", "2cded5", "fc59a0"):  # ER 양성 전용
+        assert neg[cid] == pytest.approx(pos[cid] - 1.0), cid
+    for cid in ("5a1ce0", "f39214"):  # ER 음성 전용
+        assert pos[cid] == pytest.approx(neg[cid] - 1.0), cid
+    for cid in ("8cddda", "6a166b", "9ebcd3"):  # ER 상태와 무관
+        assert pos[cid] == neg[cid], cid
+    late = scores("HR+/HER2+", her2_adjuvant_relapse="no")
+    assert late["b8e579"] == pytest.approx(pos["b8e579"] - 1.0) and late["8cddda"] == pos["8cddda"]
+    assert scores("HR+/HER2+", her2_adjuvant_relapse="yes")["b8e579"] == pos["b8e579"]

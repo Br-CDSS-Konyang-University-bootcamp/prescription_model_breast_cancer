@@ -41,8 +41,10 @@ TAG_TO_MARKER = {
 def _patient_profile(metastatic_sites=None, menopausal_status=None, pcr=None, stage_at_diagnosis=None,
                      prior_subclasses=None, prior_classes=None, endocrine_relapse_12m=None,
                      high_risk_early=None, visceral_crisis=None, contraindicated=None,
-                     prior_metastatic_chemo=None, neoadjuvant_received=None, ici_received=None) -> dict:
+                     prior_metastatic_chemo=None, neoadjuvant_received=None, ici_received=None,
+                     her2_adjuvant_relapse=None) -> dict:
     return {
+        "her2_adjuvant_relapse": her2_adjuvant_relapse,
         "neoadjuvant_received": neoadjuvant_received,
         "ici_received": ici_received,
         "prior_metastatic_chemo": prior_metastatic_chemo,
@@ -136,7 +138,7 @@ def negative_tags(record: dict) -> list[str]:
 
 PATIENT_KEYS = ("metastatic_sites", "menopausal_status", "pcr", "stage_at_diagnosis", "prior_subclasses", "prior_classes",
                 "endocrine_relapse_12m", "high_risk_early", "visceral_crisis", "contraindicated", "prior_metastatic_chemo",
-                "neoadjuvant_received", "ici_received")
+                "neoadjuvant_received", "ici_received", "her2_adjuvant_relapse")
 
 
 def search_args(record: dict, query_style: str = "adaptive", **kwargs) -> dict:
@@ -169,6 +171,8 @@ def search_args(record: dict, query_style: str = "adaptive", **kwargs) -> dict:
     for key in ("neoadjuvant_received", "ici_received"):  # 조기 보조 결정의 갈래 감점 (searcher._early_adjust)
         if profile.get(key) in ("yes", "no"):
             args[key] = profile[key]
+    if profile.get("her2_adjuvant_relapse") in ("yes", "no"):
+        args["her2_adjuvant_relapse"] = profile["her2_adjuvant_relapse"]  # 보조 항HER2 뒤 조기 재발 권고 감점
     if profile.get("neoadjuvant_received") == "yes" and profile.get("pcr") in ("yes", "no"):
         args["pcr"] = profile["pcr"]  # 선행 뒤 잔존 / pCR 갈래 감점
     args.update(overrides)
