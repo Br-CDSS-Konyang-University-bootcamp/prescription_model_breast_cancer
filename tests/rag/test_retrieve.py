@@ -275,3 +275,20 @@ def test_adjuvant_chemo_is_not_prior_therapy_for_hr_positive_her2_negative():
     p13 = prior("VC-0113")
     assert "AI_nonsteroidal" in p13 and not {"anthracycline", "taxane", "Chemotherapy"} & set(p13)
     assert {"anthracycline", "taxane"} <= set(prior("VC-0110"))
+
+
+def test_early_history_from_confirmed_state():
+    # 조기 보조 결정: 선행요법·면역항암 이력과 pCR을 검색 인자로 넘긴다. 선행 결정(VC-0121)과 전이성은 넘기지 않는다
+    import json
+    from pathlib import Path
+    from src.rag.query import search_args
+    from src.rag.retrieve import from_confirmed_state
+    base = Path(__file__).resolve().parents[2] / "tests/fixtures/virtual_charts"
+    got = {}
+    for case in ("VC-0117", "VC-0118", "VC-0120", "VC-0121", "VC-0103"):
+        record, patient, _ = from_confirmed_state(json.loads(
+            (base / case / "expected/confirmed_state.json").read_text(encoding="utf-8")))
+        a = search_args(record, **patient)
+        got[case] = (a.get("neoadjuvant_received"), a.get("ici_received"), a.get("pcr"))
+    assert got == {"VC-0117": ("yes", "yes", "no"), "VC-0118": ("no", None, None), "VC-0120": ("yes", "no", "yes"),
+                   "VC-0121": (None, None, None), "VC-0103": (None, None, None)}

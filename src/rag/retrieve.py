@@ -207,8 +207,20 @@ def from_confirmed_state(confirmed_state: dict):
         # 전이 후 고식 항암을 받았는가: 고식 항암 차수가 1L이면 아직 없음, 2L 이상이면 있음 (보조·선행 항암은 세지 않는다)
         "prior_metastatic_chemo": ({"1L": "no", "2L": "yes", ">=3L": "yes"}.get(_confirmed(items, "setting.line_chemo"))
                                    if disease == "metastatic" else None),
+        **_early_history(items, disease),
     }
     return record, patient, lines
+
+
+def _early_history(items: dict, disease) -> dict:
+    """조기 보조 결정에서 선행요법을 받았는가(neoadjuvant_received)와 (선행·보조) 면역항암을 받았는가(ici_received).
+    ESMO EBC 권고는 '수술 먼저'와 '선행 뒤 잔존·pCR', '면역항암을 받지 않은 잔존'으로 갈린다. 보조 결정이 아니면 둘 다 None."""
+    if disease == "metastatic" or _confirmed(items, "setting.phase") != "adjuvant":
+        return {"neoadjuvant_received": None, "ici_received": None}
+    regimens = [r for r in _confirmed(items, "prior_regimens") or [] if r.get("setting") in ("neoadjuvant", "adjuvant")]
+    neo = "yes" if any(r.get("setting") == "neoadjuvant" for r in regimens) else "no"
+    ici = any("immune_checkpoint_inhibitor" in (r.get("subclasses") or []) for r in regimens)
+    return {"neoadjuvant_received": neo, "ici_received": "yes" if ici else ("no" if neo == "yes" else None)}
 
 
 class OldInputWarning(UserWarning):
