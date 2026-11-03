@@ -388,8 +388,16 @@ def build_draft(patient_state: dict, biomarker_record: dict, drug_table=None) ->
         detail={"basis": basis} if basis else None)
     ln_cell = stage.get("positive_ln_count")
     ln = (_value(ln_cell) or {}).get("positive") if _present(ln_cell) else None
+    ln_src = (ln_cell or {}).get("source")
+    if ln is None:
+        # 선행 항암 뒤 수술은 림프절 수가 ypTNM 값 안에만 있다 (VC-0119 ypN1a 2개)
+        for key in ("yptnm", "ptnm"):
+            v = _value(stage.get(key)) or {}
+            if v.get("positive_ln") is not None:
+                ln, ln_src = v["positive_ln"], stage[key].get("source")
+                break
     put("stage.positive_ln_count", "diagnosis", ln if ln is not None else "not_recorded", "patient_state",
-        refs=_ref((ln_cell or {}).get("source")))
+        refs=_ref(ln_src))
     put("stage.group", "diagnosis", _value(stage.get("group")), "patient_state",
         refs=_ref((stage.get("group") or {}).get("source")))
     put("operable", "diagnosis", _value(stage.get("operable")), "patient_state")

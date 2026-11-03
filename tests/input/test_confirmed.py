@@ -124,6 +124,14 @@ def test_high_risk(t, ln, grade, ki67, want):
     assert c._high_risk(t, ln, grade, ki67) == want
 
 
+def test_ln_count_from_yptnm():
+    """선행 항암 뒤 수술(VC-0119)은 림프절 수가 ypTNM 값 안에만 있다. 그 수로 재발 고위험군을 판정한다."""
+    items = draft_of("VC-0119")["items"]
+    assert items["stage.positive_ln_count"]["confirmed"] == 2
+    assert items["stage.positive_ln_count"]["evidence_refs"]
+    assert items["high_risk_early"]["confirmed"] == {"hira": "yes", "esmo": "yes"}
+
+
 
 def test_metastatic_sites_include_new_imaging_sites():
     """진행 뒤 새로 생긴 전이(VC-0111 뇌, MRI)는 재발·병기 칸에 없고 영상 소견에만 있다. 확정 전이 부위에 더한다."""

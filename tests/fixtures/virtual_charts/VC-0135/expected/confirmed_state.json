@@ -106,10 +106,18 @@
     },
     "stage.positive_ln_count": {
       "scope": "diagnosis",
-      "system": "not_recorded",
+      "system": 0,
       "system_source": "patient_state",
-      "confirmed": "not_recorded",
-      "status": "confirmed"
+      "confirmed": 0,
+      "status": "confirmed",
+      "evidence_refs": [
+        {
+          "doc_id": "D5",
+          "quote": "ypT1b ypN0 (AJCC 8th)",
+          "char_start": 1446,
+          "char_end": 1467
+        }
+      ]
     },
     "stage.group": {
       "scope": "diagnosis",
