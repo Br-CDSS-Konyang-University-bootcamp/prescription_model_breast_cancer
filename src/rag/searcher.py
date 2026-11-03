@@ -52,6 +52,18 @@ PREMENOPAUSAL_SCOPE = re.compile(r"\bpremenopausal patients\b|\bpre- and perimen
                                  re.IGNORECASE)
 POSTMENOPAUSAL_SCOPE = re.compile(r"\bpostmenopausal patients\b|→ postmenopausal(?= →)", re.IGNORECASE)
 MENOPAUSE_MISMATCH_PENALTY = 1.0
+# 장기 위기(visceral crisis): ESMO MBC는 장기 부전 임박이면 ChT를 권고한다 (luminal-1l-5c55b4, 그림 2 각주 a). 의사가 장기 위기를
+# 확정했는데 내분비 기반 권고(AI-CDK4/6, fulvestrant-CDK4/6, ET 단독 …)가 질의와 겹쳐 1위에 왔다 (VC-0126 check_case, 2026-11-03).
+# 장기 위기가 yes면 내분비 기반 치료만 권하는 권고·그림 경로를 감점한다. ChT·ADC·장기 부전을 함께 말하거나 "내분비 부적합"
+# 경로(그림 4)는 그대로 두고, 그림 경로는 각주를 빼고 본다 (각주 a의 ChT 문장은 모든 1차 경로에 붙는다)
+ENDOCRINE_BASED = re.compile(r"\bAI\b|\bET\b|endocrine|fulvestrant|tamoxifen|letrozole|anastrozole|exemestane|"
+                             r"CDK4/6|elacestrant|imlunestrant|camizestrant|everolimus|capivasertib|alpelisib|inavolisib|"
+                             r"\bOFS\b|ovarian (function )?suppression", re.IGNORECASE)
+NOT_ENDOCRINE_ONLY = re.compile(r"\bChT\b|chemotherapy|imminent organ failure|visceral crisis|deruxtecan|T-DXd|"
+                                r"sacituzumab|Dato-DXd|not suitable for ET|endocrine-resistant|endocrine or non-?endocrine|"
+                                r"capecitabine|taxane|paclitaxel|docetaxel|eribulin|anthracycline|vinorelbine|"
+                                r"carboplatin|platinum", re.IGNORECASE)
+VISCERAL_CRISIS_PENALTY = 1.0
 CACHE_SIZE = 256  # 같은 조건의 검색 결과를 기억해 두는 개수. 색인이 바뀌면 indexer가 비운다
 
 _cache = {}
@@ -73,6 +85,7 @@ def search_guidelines(
         chunk_kind: str = "recommendation",
         endocrine_relapse_12m: str = None,
         menopausal_status: str = None,
+        visceral_crisis: str = None,
 ) -> list[dict]:
     """지침 권고 청크를 찾는다. with_parent=True면 각 결과에 부모(소단원) 청크를 "parent" 키로 붙인다
     (LLM에는 소단원 전체를 함께 넘긴다, PROJECT.md §6).
@@ -90,17 +103,19 @@ def search_guidelines(
     반대인 갈래만 가리키는 권고를 감점한다 (ESMO MBC 1차의 fulvestrant-CDK4/6 / AI-CDK4/6 갈림길). 없으면 바꾸지 않는다.
     menopausal_status("premenopausal" / "perimenopausal" / "postmenopausal")를 주면, 반대쪽 폐경 상태만을 대상으로 하는
     권고·그림 경로를 감점한다 (이행기는 폐경 전으로 본다, confirmed_state 규칙). 없거나 그 밖의 값이면 바꾸지 않는다.
+    visceral_crisis("yes")를 주면 내분비 기반 치료만 권하는 권고·그림 경로를 감점한다 (장기 부전 임박이면 ChT). 그 밖의 값은 무시.
     같은 조건의 검색은 기억해 둔 결과를 돌려준다 (색인을 바꾸면 비워진다)."""
     sites = _site_keys(metastatic_sites)
     negatives = frozenset(negative_tags or ())
     key = (query_text, setting, subtype, line, source, tuple(biomarker_tags or ()), top_k, with_parent, rerank,
            tuple(sorted(sites)) if sites is not None else None, negatives, chunk_kind, endocrine_relapse_12m,
-           menopausal_status)
+           menopausal_status, visceral_crisis)
     if key not in _cache:
         if len(_cache) >= CACHE_SIZE:
             _cache.clear()
         _cache[key] = _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, with_parent, rerank,
-                              sites, negatives, chunk_kind, endocrine_relapse_12m, menopausal_status)
+                              sites, negatives, chunk_kind, endocrine_relapse_12m, menopausal_status,
+                              visceral_crisis)
     return copy.deepcopy(_cache[key])  # 받은 쪽이 결과를 고쳐도 기억해 둔 값은 그대로
 
 
@@ -145,7 +160,7 @@ def _site_adjust(parent_id, sites) -> float:
 
 def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, with_parent, rerank,
             sites=None, negatives=frozenset(), chunk_kind="recommendation", relapse_12m=None,
-            menopause=None) -> list[dict]:
+            menopause=None, crisis=None) -> list[dict]:
     client = get_qdrant_client()
     model = get_embedding_model()
 
@@ -243,6 +258,8 @@ def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, w
         score -= _relapse_adjust(payload.get("text", ""), relapse_12m)
         # 폐경 상태: 반대쪽 폐경 상태만을 대상으로 하는 권고는 감점
         score -= _menopause_adjust(payload.get("text", ""), menopause)
+        # 장기 위기: 내분비 기반 치료만 권하는 권고는 감점
+        score -= _crisis_adjust(payload.get("text", ""), crisis)
 
         scored_results.append({
             "score": score,
@@ -283,6 +300,16 @@ def _menopause_adjust(text: str, menopause) -> float:
         return MENOPAUSE_MISMATCH_PENALTY
     if side == "pre" and post and not pre:
         return MENOPAUSE_MISMATCH_PENALTY
+    return 0.0
+
+
+def _crisis_adjust(text: str, crisis) -> float:
+    """장기 위기가 확정됐는데 권고가 내분비 기반 치료만 말하면 감점할 크기. 그림 경로는 각주를 빼고 본다."""
+    if crisis != "yes":
+        return 0.0
+    text = text.split(" Footnotes: ", 1)[0]
+    if ENDOCRINE_BASED.search(text) and not NOT_ENDOCRINE_ONLY.search(text):
+        return VISCERAL_CRISIS_PENALTY
     return 0.0
 
 

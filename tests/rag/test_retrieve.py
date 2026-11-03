@@ -230,3 +230,15 @@ def test_check_case_validates_and_summarizes_without_text():
     out = summarize([], [row], [row])
     assert out["reimbursement"][0]["parents"] == ["r-l2"] and "text" not in out["reimbursement"][0]
     assert out["reimbursement_only"][0]["chunk_id"] == "r-1"
+
+
+def test_visceral_crisis_goes_to_search_args():
+    # 의사가 확정한 장기 위기(yes)는 검색 감점 인자로 넘어간다 (searcher._crisis_adjust). VC-0126
+    import json
+    from pathlib import Path
+    from src.rag.query import search_args
+    from src.rag.retrieve import from_confirmed_state
+    path = Path(__file__).resolve().parents[2] / "tests/fixtures/virtual_charts/VC-0126/expected/confirmed_state.json"
+    record, patient, _ = from_confirmed_state(json.loads(path.read_text(encoding="utf-8")))
+    assert search_args(record, **patient)["visceral_crisis"] == "yes"
+    assert "visceral_crisis" not in search_args(record, **{**patient, "visceral_crisis": "no"})
