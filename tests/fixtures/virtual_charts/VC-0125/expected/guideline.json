@@ -1,0 +1,43 @@
+{
+  "format": "C guideline expected v0.1",
+  "patient_ref": "VC-0125",
+  "input": "expected/confirmed_state.json",
+  "decision": {
+    "setting": "metastatic",
+    "subtype": "HR+/HER2-",
+    "line": ">=3L"
+  },
+  "expected_chunks": [
+    "esmo-mbc-2026-05-luminal-3l-044c33",
+    "esmo-mbc-2026-05-luminal-3l-b023e3"
+  ],
+  "expected_parents": [
+    "esmo-mbc-2026-05-luminal-3l"
+  ],
+  "expected_algorithm": [
+    "esmo-mbc-2026-05-fig4-ddbc18"
+  ],
+  "not_expected": [
+    "esmo-mbc-2026-05-luminal-3l-ae383b",
+    "esmo-mbc-2026-05-luminal-3l-5f9ed9",
+    "esmo-mbc-2026-05-luminal-3l-990d33",
+    "esmo-mbc-2026-05-luminal-3l-46be52",
+    "esmo-mbc-2026-05-luminal-3l-53ed83"
+  ],
+  "sources": [
+    {
+      "doc": "ESMO MBC 2026-05",
+      "section": "Management of luminal MBC > Third and later lines",
+      "page": 1207
+    },
+    {
+      "doc": "ESMO MBC 2026-05",
+      "section": "Figure 4",
+      "page": 1208
+    }
+  ],
+  "status": "draft",
+  "reviewer": null,
+  "reviewed_on": null,
+  "note": "VC-0113과 같은 경과, HER2-ultralow(재생검) → T-DXd(044c33은 ultralow 포함)와 이전 ChT 없을 때 ChT(b023e3), 그림 4 ddbc18(PD 뒤 SG 등). 76de27은 PD 뒤 'HER2 low → T-DXd'라 ultralow에는 둘째 단계가 맞지 않아 넣지 않음. not_expected: VC-0113과 같고 5f9ed9는 HER2-low 전용"
+}

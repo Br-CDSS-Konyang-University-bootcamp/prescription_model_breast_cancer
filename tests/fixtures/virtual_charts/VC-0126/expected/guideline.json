@@ -1,0 +1,34 @@
+{
+  "format": "C guideline expected v0.1",
+  "patient_ref": "VC-0126",
+  "input": "expected/confirmed_state.json",
+  "decision": {
+    "setting": "metastatic",
+    "subtype": "HR+/HER2-",
+    "line": "1L"
+  },
+  "expected_chunks": [
+    "esmo-mbc-2026-05-luminal-1l-5c55b4"
+  ],
+  "expected_parents": [
+    "esmo-mbc-2026-05-luminal-1l"
+  ],
+  "expected_algorithm": [],
+  "not_expected": [
+    "esmo-mbc-2026-05-luminal-1l-02649c",
+    "esmo-mbc-2026-05-luminal-1l-05a4c0",
+    "esmo-mbc-2026-05-luminal-1l-1b9047",
+    "esmo-mbc-2026-05-luminal-1l-0fd38a"
+  ],
+  "sources": [
+    {
+      "doc": "ESMO MBC 2026-05",
+      "section": "Management of luminal MBC > First-line treatment",
+      "page": 1205
+    }
+  ],
+  "status": "draft",
+  "reviewer": null,
+  "reviewed_on": null,
+  "note": "de novo, 다발성 간 전이 + 간 기능 이상 + ECOG 2, 의사가 visceral crisis로 판단 → 장기 부전 임박이면 ChT 권고(5c55b4). not_expected: AI-CDK4/6(02649c, 시나리오 '내분비+CDK4/6 1순위 금지')와 보조 ET 중 재발 갈래 3개. 그림 2는 이 경우를 각주(a)로만 다뤄 맞는 경로가 없어 expected_algorithm은 비움"
+}
