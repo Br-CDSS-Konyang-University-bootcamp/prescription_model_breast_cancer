@@ -315,6 +315,28 @@
           }
         ]
       },
+      "PD-L1": {
+        "scope": "current",
+        "system": "positive",
+        "system_source": "biomarker_record",
+        "confirmed": "positive",
+        "status": "confirmed",
+        "detail": {
+          "specimen": "metastasis",
+          "test_date": "2025-05-28",
+          "assay": "22C3",
+          "score": 20,
+          "score_type": "CPS"
+        },
+        "evidence_refs": [
+          {
+            "doc_id": "D4",
+            "quote": "22C3 pharmDx, CPS 20",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      },
       "ESR1": {
         "scope": "current",
         "system": "not_recorded",

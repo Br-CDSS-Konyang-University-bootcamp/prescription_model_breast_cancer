@@ -49,7 +49,7 @@ HR_POS = ("HR+/HER2-", "HR+/HER2+")
 HER2_NEG = ("HR+/HER2-", "TNBC")
 MET = "metastatic"
 # 오른쪽 칸 목록 (순서대로 보인다). (칸, 묶음 rule/judge/report, 적용 조건, 해당 없음 이유, 필수 여부)
-# 적용 조건은 x = {"sub": 아형, "dis": 병기 범주, "phase": 치료 단계, "prior": 이전 요법 있음}을 받는다. None = 항상
+# 적용 조건은 x = {"sub": 아형, "dis": 병기 범주, "phase": 치료 단계, "prior": 이전 요법 있음, "er": ER 판정}을 받는다. None = 항상
 ROWS = [
     ("subtype", "rule", None, "", True),
     ("markers.ER", "rule", None, "", True),
@@ -57,7 +57,8 @@ ROWS = [
     ("markers.HER2", "rule", None, "", True),
     ("markers.Ki-67", "rule", lambda x: x["sub"] == "HR+/HER2-", "HR+/HER2-에서만 판정에 씀", True),
     ("markers.gBRCA", "rule", lambda x: x["sub"] in HER2_NEG, "HER2 음성에서만 판정에 씀", True),
-    ("markers.PD-L1", "rule", lambda x: x["sub"] == "TNBC", "TNBC에서만 판정에 씀", True),
+    # ER 저발현은 HR+로 보지만 TNBC에 준할지 논의되고, D가 PD-L1 행(4가-6)을 판정한다 (VC-0142)
+    ("markers.PD-L1", "rule", lambda x: x["sub"] == "TNBC" or x["er"] == "low", "TNBC·ER 저발현에서만 판정에 씀", True),
     ("setting.disease", "rule", None, "", True),
     ("setting.phase", "rule", lambda x: x["dis"] != MET, "전이성은 고식적 치료", True),
     ("high_risk_early", "rule", lambda x: x["sub"] == "HR+/HER2-" and x["dis"] != MET and x["phase"] == "adjuvant",
@@ -195,7 +196,8 @@ def _confirmed(items: dict, key: str):
 def rows(items: dict) -> list[dict]:
     """지금 확정값으로 본 칸 목록. 맞지 않는 칸도 빼지 않고 applies=False와 이유를 단다."""
     x = {"sub": _confirmed(items, "subtype"), "dis": _confirmed(items, "setting.disease"),
-         "phase": _confirmed(items, "setting.phase"), "prior": bool(_confirmed(items, "prior_regimens"))}
+         "phase": _confirmed(items, "setting.phase"), "prior": bool(_confirmed(items, "prior_regimens")),
+         "er": _confirmed(items, "markers.ER")}
     schema_req = set(c.required_items(items))
     out = []
     for key, group, when, why, req in ROWS:

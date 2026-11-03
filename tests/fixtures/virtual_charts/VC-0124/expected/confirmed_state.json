@@ -270,6 +270,13 @@
           }
         ]
       },
+      "PD-L1": {
+        "scope": "current",
+        "system": "not_recorded",
+        "system_source": "biomarker_record",
+        "confirmed": "not_recorded",
+        "status": "confirmed"
+      },
       "ESR1": {
         "scope": "current",
         "system": "not_recorded",

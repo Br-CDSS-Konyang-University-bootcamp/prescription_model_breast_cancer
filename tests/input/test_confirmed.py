@@ -124,6 +124,13 @@ def test_high_risk(t, ln, grade, ki67, want):
     assert c._high_risk(t, ln, grade, ki67) == want
 
 
+
+def test_metastatic_sites_include_new_imaging_sites():
+    """진행 뒤 새로 생긴 전이(VC-0111 뇌, MRI)는 재발·병기 칸에 없고 영상 소견에만 있다. 확정 전이 부위에 더한다."""
+    it = draft_of("VC-0111")["items"]["metastatic_sites"]
+    assert it["system"] == ["liver", "brain"]
+    assert "brain" in it["note"]
+
 @pytest.mark.parametrize("case, want", [
     ("VC-0107", "adjuvant"),       # 투약 전, pTNM 있음 (수술 먼저)
     ("VC-0124", "neoadjuvant"),    # 투약 전, cTNM만 (수술 기록 없음 → 선행 대상)

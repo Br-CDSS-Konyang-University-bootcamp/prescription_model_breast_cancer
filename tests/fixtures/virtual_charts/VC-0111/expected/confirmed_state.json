@@ -161,13 +161,16 @@
     "metastatic_sites": {
       "scope": "current",
       "system": [
-        "liver"
+        "liver",
+        "brain"
       ],
       "system_source": "patient_state",
       "confirmed": [
-        "liver"
+        "liver",
+        "brain"
       ],
-      "status": "confirmed"
+      "status": "confirmed",
+      "note": "영상 판독에서 더함: brain"
     },
     "bone_metastasis_imaging": {
       "scope": "current",
