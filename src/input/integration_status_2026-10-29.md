@@ -5,13 +5,47 @@
 VC-0103 한 건을 A → B → C·D 검색 → B `recommend()`까지 이 PC에서 돌려 보고 정리했다 (커밋 `014e34b` 기준, 이후 main의 PR #78~#80 반영 내용은 표에 적음, 급여 청크는 공고책자 2026-11-01 제2026-232호를 `--offline --no-llm`으로 만듦).
 마지막 절에는 이 프로젝트(mini)와 다음 프로젝트(`team_project_final`의 `docs/research_datasets_models.md` v6.1) 모듈이 유방암 치료 과정의 어느 단계를 돕는지 적었다.
 
-## 1. 구동 순서별 점검 결과
+> **2026-11-03 갱신 (A).** 바로 아래 §0이 지금 상태다. §1~§3은 10-29 점검 기록으로 남겨 두었고, 그때 "없음"이던 것 중 상당수가 해결됐다.
+
+## 0. 지금 상태 (2026-11-03, main `317ca2b`)
+
+§3의 "먼저 할 순서" 기준이다.
+
+| 순서 | 일 | 담당 | 상태 | 근거 |
+|---|---|---|---|---|
+| ① | `confirmed_state` 기본값 만들기 | A | **완료** | `src/input/script/confirmed.py` (`build_draft`·`set_item`·`finalize`, 10-30 `dd53a81`). `dfi_days`·`high_risk_early`·치료 단계(`setting.phase`, 수술 기록 규칙 11-02)·전이 부위(영상 판독 더함 11-03)를 A가 계산 |
+| ② | 계열 이름 약 풀기 (§1.2) | C | **완료** | 청크 `drugs`에 계열 이름(AI, CDK4/6 등)을 약으로 풀기 (`27a61ad`, `refresh_drugs`) |
+| ③ | `recommend()` LLM 연결 | B | **대부분 완료** | `[recommend]` qwen3:14b (`b2357e4`). 질문지 문맥 넘침 수정 (`f846af9`, A 전달 메모 1). 입력은 아직 `patient_state` + `biomarker_record`가 기본이고 `confirmed_state`는 참고란에만 쓴다. 후보 품질 문제는 A 전달 메모 2 (아래) |
+| ④ | 급여 조건 (§1.3) | D | **구조화 완료, 검수 전** | 조건 행 131개 모두 구조화 (`258ed36`·`8f937dc`). B 판정기는 `conditions_reviewed=False`라 아직 모두 "급여(조건 확인 필요)" |
+| ⑤ | 전체 실행 (차트 → 추천) | A | **진행 중** | 화면 1·2로 한 사례씩 끝까지 돈다 (`src/app/`, PR #99). 화면 없이 여러 사례를 한 번에 돌리는 실행 파일은 아직 없음 |
+
+10-29 이후 새로 생긴 것:
+
+| 무엇 | 위치 | 상태 |
+|---|---|---|
+| 화면 1 처방 조건 확인 (A·B·C 묶음, 판정 해당 없음 칸 잠금) → 화면 2 처방 추천 5안·의사 선택 | `src/app/script/screen1.py`·`screen2.py`, `src/app/html/` | 동작. `src/app/` 폴더 위치·담당은 팀 확인 필요. 화면 2는 GPU 서버(SSH 터널)로 VC-0103 추천 5개 (57초) |
+| 가상 차트 정답 `confirmed_state` 46건 | `tests/fixtures/virtual_charts/<사례>/expected/confirmed_state.json`, 생성기 `src/app/script/confirmed_fixtures.py` | C 요청으로 만듦. VC-0103은 손 파일 유지, VC-0106b(Ki-67 충돌)·VC-0129(남성) 제외 |
+| 정답 검증 (시나리오 기대값 178칸 대조) + B·C 검토표 | `src/app/script/confirmed_review.py`, `confirmed_expectations.csv`, `confirmed_review.csv` | 176칸 같음, 2칸 이유 확인. 모든 사례 `status = draft`, **B·C 검토 대기** |
+| B 전달 메모 1: 추천 질문지가 문맥을 넘어 잘림 | `handoff_recommend_prompt_to_B_2026-11-02.md` | B 반영 완료 (`f846af9`) |
+| B 전달 메모 2: 환자와 맞지 않는 후보(AI + palbociclib), 약이 다른 급여 행 인용 | `handoff_recommend_options_to_B_2026-11-03.md` | B 확인 대기 |
+
+남은 일과 담당:
+
+| 일 | 담당 |
+|---|---|
+| 검토표 `confirmed_review.csv` 확인, 맞는 사례를 `reviewed`로 | B, C |
+| 전달 메모 2의 두 문제, `assess()`가 `conflicts[]`를 보지 않는 문제 (VC-0106b Ki-67), VC-0123 ESR1 시나리오 문구 | B |
+| 급여 조건 사람 검수 → `conditions_reviewed=True` | D → B |
+| 전체 실행 파일 (⑤), 결과 보고서 (ui_design §6), `prescription_decision` 형식 제안 | A |
+| `src/app/` 폴더 위치·담당, 남성 환자 폐경 칸(스키마), `prescription_decision` 스키마 | 팀 (4명) |
+
+## 1. 구동 순서별 점검 결과 (2026-10-29 기록)
 
 | 순서 | 모듈 | 결과 | 문제 |
 |---|---|---|---|
 | 1 | A 입력 `run()` → `patient_state` | 동작. 규칙만 쓰면 다섯 세트 모두 100%, qwen3:14b로 처음 보는 사례에서 틀린 칸 5개 (`llm_performance.md`) | 임상 종양 크기·초음파 소견 인용을 자주 놓침 |
 | 2 | B 바이오마커 `assess()` → `biomarker_record` | 동작. VC-0103 HR+/HER2-, metastatic 1L, 스키마 오류 0 | 없음 (gBRCA 생식세포 칸 우선은 2026-10-29 B 반영, PR #78) |
-| 3 | 화면 1 → `confirmed_state` | **만드는 코드가 없음.** VC-0103만 손으로 만든 파일이 있음 | 아래 1.1 |
+| 3 | 화면 1 → `confirmed_state` | **만드는 코드가 없음.** VC-0103만 손으로 만든 파일이 있음 (→ 10-30 `confirmed.py`로 해결, §0) | 아래 1.1 |
 | 4 | C 지침 검색 `retrieve_for_recommend()` | 동작. 질문 세트 29문항 문서 100%, 소단원 100%, recall@5 0.91, MRR 0.97. VC-0103 정답 청크 1위 | 청크 `drugs` 목록에 계열 이름(AI)으로 쓴 약이 없음 (아래 1.2) |
 | 5 | D 급여 청크 → C 급여 검색 | 청크 156개 (검사 모두 통과), 색인 131개, VC-0103 급여 행 17개 (간주 차수 2L 포함) | 투여 조건 구조화가 비어 있음 (아래 1.3) |
 | 6 | B 추천 `recommend()` | 가짜 LLM 답으로 후처리·형식 검사 동작. `fulvestrant + palbociclib` → 급여(조건 확인 필요), 형식 오류 0 | `llm/config.toml`에 `[recommend]` 칸이 없어 실제 LLM을 붙이면 멈춤. 입력이 아직 `patient_state` + `biomarker_record` |
@@ -62,7 +96,7 @@ VC-0103에는 맞지 않는 처방이라 결과는 같지만, 보조 ET 종료 1
 | 급여 조건 판정 확정 | D 조건 구조화, B 판정기 | 판정기는 있음. 조건 데이터가 비어 있음 |
 | `dfi_days`·`high_risk_early` 계산 위치 | A 또는 B (10-21 전달 문서 §6-5, 미정) | 차수·간주 규칙을 A가 계산하므로 A가 자연스러움 |
 
-먼저 할 순서: ① `confirmed_state` 기본값 (A) → ② 계열 이름 약 (C) → ③ `recommend()` 입력·LLM 연결 (B) → ④ 급여 조건 (D) → ⑤ 전체 실행 파일 (A, 위치는 팀).
+먼저 할 순서: ① `confirmed_state` 기본값 (A) → ② 계열 이름 약 (C) → ③ `recommend()` 입력·LLM 연결 (B) → ④ 급여 조건 (D) → ⑤ 전체 실행 파일 (A, 위치는 팀). (진행 상태는 §0, 2026-11-03)
 
 ## 4. 유방암 치료 과정에서 각 모듈이 돕는 일
 
