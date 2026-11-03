@@ -56,6 +56,8 @@ def query_terms(profile: dict, terms: list[dict] = None) -> list[str]:
         # 동반질환으로 쓰지 못하는 약 계열이 있음 (contraindicated_classes). ESMO M05·M35: CDK4/6이나 항HER2를 못 쓰면 내분비 단독.
         # 금기 약이 든 권고를 빼거나 경고하는 일은 B(추천)가 한다. C는 그런 환자에게 맞는 권고를 찾아 주기만 한다
         keys.append(("confirmed_state.contraindicated_classes", profile.get("contraindicated")))
+        # HER2 양성 보조 항HER2 종료 6개월 안 재발 (심평원 DEEM-HER2ADC-6M met). ESMO는 2차 선택지를 권한다 (her2-1l-b8e579, VC-0112)
+        keys.append(("confirmed_state.her2_adjuvant_relapse", profile.get("her2_adjuvant_relapse")))
     if profile.get("disease") == "metastatic" and profile.get("stage_at_diagnosis") == "metastatic":
         keys.append(("stage.disease_extent", "metastatic"))  # 진단 시 IV기 = de novo (재발 전이와 권고가 갈린다)
     out = []
