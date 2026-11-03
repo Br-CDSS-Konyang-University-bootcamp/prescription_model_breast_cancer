@@ -58,6 +58,11 @@ def query_terms(profile: dict, terms: list[dict] = None) -> list[str]:
         keys.append(("confirmed_state.contraindicated_classes", profile.get("contraindicated")))
         # HER2 양성 보조 항HER2 종료 6개월 안 재발 (심평원 DEEM-HER2ADC-6M met). ESMO는 2차 선택지를 권한다 (her2-1l-b8e579, VC-0112)
         keys.append(("confirmed_state.her2_adjuvant_relapse", profile.get("her2_adjuvant_relapse")))
+        # 전이 후 고식 항암을 이미 받은 HR+/HER2- 3차 이후: ESMO는 'ChT 1차례 이상 뒤' 권고(sacituzumab, Dato-DXd)로 갈린다.
+        # 질의에 이 표현이 없으면 부위·이전 치료 표현에 밀려 후보에 들지 못했다 (VC-0114). 아직 항암 전(no)은 내분비 지속 환자와
+        # 구별되지 않아 넣지 않는다
+        if profile.get("subtype") == "HR+/HER2-" and profile.get("line") == ">=3L":
+            keys.append(("confirmed_state.prior_metastatic_chemo", profile.get("prior_metastatic_chemo")))
     if profile.get("disease") == "metastatic" and profile.get("stage_at_diagnosis") == "metastatic":
         keys.append(("stage.disease_extent", "metastatic"))  # 진단 시 IV기 = de novo (재발 전이와 권고가 갈린다)
     out = []

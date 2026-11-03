@@ -201,6 +201,7 @@ def site_search_args(record: dict, top_k: int = 3, **kwargs) -> list[dict]:
 
 # 상황별 추가 검색: de novo IV기(진단 시 전이성)의 원발 종양 수술·국소 치료 권고는 환자 정보가 아니라 별도 질문이라
 # 주 치료 질의로는 찾지 못했다 (--auto-query M17). 진단 시·현재 모두 전이성이면 한 번 더 찾는다
+PRIOR_CHEMO_QUERY = "ER-positive, HER2-negative MBC after at least one line of ChT"
 DE_NOVO_QUERY = "newly diagnosed stage IV breast cancer intact primary tumour locoregional therapy surgery"
 
 
@@ -212,6 +213,13 @@ def extra_search_args(record: dict, top_k: int = 3, **kwargs) -> list[dict]:
     if disease == "metastatic" and patient.get("stage_at_diagnosis") == "metastatic":
         base = search_args(record, top_k=top_k, **kwargs)
         out.append({**base, "query_text": DE_NOVO_QUERY, "line": None})
+    # 고식 항암을 이미 받은 HR+/HER2- 3차 이후: 'ChT 1차례 이상 뒤' 권고(sacituzumab, Dato-DXd)가 부위·이전 치료 표현이 많은
+    # 주 질의에 밀려 후보에 들지 못했다 (VC-0114). 그 갈래만 한 번 더 찾는다
+    line = (record.get("setting") or {}).get("line")
+    if (disease == "metastatic" and record.get("subtype") == "HR+/HER2-" and line == ">=3L"
+            and patient.get("prior_metastatic_chemo") == "yes"):
+        base = search_args(record, top_k=top_k, **kwargs)
+        out.append({**base, "query_text": PRIOR_CHEMO_QUERY})
     return out
 
 

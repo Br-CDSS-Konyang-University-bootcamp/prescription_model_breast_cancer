@@ -321,3 +321,19 @@ def test_endocrine_class_terms_become_drugs_for_reimbursement_search():
     assert "elacestrant" not in post
     assert endocrine_drugs("ET alone", "TNBC", "metastatic", None) == []
     assert endocrine_drugs("T-DXd is recommended", "HR+/HER2-", "metastatic", "postmenopausal") == []
+
+
+def test_prior_chemo_branch_gets_its_own_search():
+    # 고식 항암 뒤 HR+/HER2- 3차 이후(VC-0114)만 'ChT 1차례 이상 뒤' 갈래를 따로 찾는다. 항암 전(VC-0113)은 아님
+    import json
+    from pathlib import Path
+    from src.rag.query import PRIOR_CHEMO_QUERY, extra_search_args
+    from src.rag.retrieve import from_confirmed_state
+    base = Path(__file__).resolve().parents[2] / "tests/fixtures/virtual_charts"
+    got = {}
+    for case in ("VC-0114", "VC-0113"):
+        record, patient, _ = from_confirmed_state(json.loads(
+            (base / case / "expected/confirmed_state.json").read_text(encoding="utf-8")))
+        got[case] = any(a["query_text"] == PRIOR_CHEMO_QUERY and a["line"] == ">=3L"
+                        for a in extra_search_args(record, top_k=3, **patient))
+    assert got == {"VC-0114": True, "VC-0113": False}

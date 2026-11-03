@@ -106,3 +106,4 @@ confirmed_state.high_risk_early,yes,high-risk,en,esmo,1,조기 고위험 (ESMO E
 confirmed_state.visceral_crisis,yes,imminent organ failure,en,esmo,1,장기 위기 (ESMO는 visceral crisis 대신 이 표현. M06·M50: 항암 우선)
 confirmed_state.contraindicated_classes,present,comorbidities,en,esmo,1,쓰지 못하는 약 계열이 하나 이상 (ESMO M05·M35: CDK4/6·항HER2를 못 쓰면 내분비 단독). canonical present = 목록이 비어 있지 않음
 confirmed_state.her2_adjuvant_relapse,yes,metastatic recurrence within 6-12 months of completing adjuvant,en,esmo,1,HER2 양성 보조 항HER2 종료 6개월 안 재발 (심평원 DEEM-HER2ADC-6M met. ESMO her2-1l-b8e579: 2차 선택지)
+confirmed_state.prior_metastatic_chemo,yes,after at least one line of ChT,en,esmo,1,전이 후 고식 항암을 받음 (setting.line_chemo 2L 이상에서 C가 만든 값. ESMO HR+/HER2- 3차 이후 sacituzumab·Dato-DXd 갈래)

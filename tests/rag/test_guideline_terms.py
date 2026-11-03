@@ -75,6 +75,8 @@ def test_canonical_values_match_schemas_and_drug_dictionary():
     deemed = json.dumps(confirmed["$defs"]["items"]["properties"]["deemed_lines"])
     assert "DEEM-HER2ADC-6M" in deemed or "deemed" in deemed
     allowed["confirmed_state.her2_adjuvant_relapse"] = {"yes"}
+    # prior_metastatic_chemo는 setting.line_chemo(1L → no, 2L 이상 → yes)에서 C가 만든 값이다
+    allowed["confirmed_state.prior_metastatic_chemo"] = {"yes"}
     with open(BASE_DIR / "data" / "dictionaries" / "field_vocab.csv", encoding="utf-8-sig", newline="") as f:
         allowed["metastatic_sites"] = {r["canonical"] for r in csv.DictReader(f) if r["field"] == "metastatic_sites"}
     for t in TERMS:
