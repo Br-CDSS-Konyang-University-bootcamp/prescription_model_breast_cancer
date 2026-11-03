@@ -257,3 +257,21 @@ def test_prior_metastatic_chemo_from_chemo_line():
             (base / case / "expected/confirmed_state.json").read_text(encoding="utf-8")))
         got[case] = search_args(record, **patient).get("prior_metastatic_chemo")
     assert got == {"VC-0113": "no", "VC-0114": "yes", "VC-0105": None}  # VC-0105는 조기
+
+
+def test_adjuvant_chemo_is_not_prior_therapy_for_hr_positive_her2_negative():
+    # HR+/HER2- 전이성의 '이전 ChT'는 전이 후 항암이다. 보조 AC·paclitaxel을 이전 치료로 넣으면 "ChT 1차례 이상 뒤" 권고가
+    # 끌려왔다 (VC-0113). 보조 내분비(AI)는 남기고, HER2 양성(VC-0110)의 보조 항암·항HER2는 그대로 둔다
+    import json
+    from pathlib import Path
+    from src.rag.retrieve import from_confirmed_state
+    base = Path(__file__).resolve().parents[2] / "tests/fixtures/virtual_charts"
+
+    def prior(case):
+        _, patient, _ = from_confirmed_state(json.loads(
+            (base / case / "expected/confirmed_state.json").read_text(encoding="utf-8")))
+        return patient["prior_subclasses"] + patient["prior_classes"]
+
+    p13 = prior("VC-0113")
+    assert "AI_nonsteroidal" in p13 and not {"anthracycline", "taxane", "Chemotherapy"} & set(p13)
+    assert {"anthracycline", "taxane"} <= set(prior("VC-0110"))
