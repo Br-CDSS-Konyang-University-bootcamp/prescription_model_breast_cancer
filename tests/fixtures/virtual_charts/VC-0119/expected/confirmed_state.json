@@ -124,10 +124,18 @@
     },
     "stage.positive_ln_count": {
       "scope": "diagnosis",
-      "system": "not_recorded",
+      "system": 2,
       "system_source": "patient_state",
-      "confirmed": "not_recorded",
-      "status": "confirmed"
+      "confirmed": 2,
+      "status": "confirmed",
+      "evidence_refs": [
+        {
+          "doc_id": "D5",
+          "quote": "ypT2 ypN1a (AJCC 8th)",
+          "char_start": 1372,
+          "char_end": 1393
+        }
+      ]
     },
     "stage.group": {
       "scope": "diagnosis",
@@ -168,16 +176,16 @@
     "high_risk_early": {
       "scope": "diagnosis",
       "system": {
-        "hira": "unknown",
-        "esmo": "unknown"
+        "hira": "yes",
+        "esmo": "yes"
       },
       "system_source": "derived",
       "confirmed": {
-        "hira": "unknown",
-        "esmo": "unknown"
+        "hira": "yes",
+        "esmo": "yes"
       },
       "status": "confirmed",
-      "note": "림프절 ?개, T3, 3등급, Ki-67 35%"
+      "note": "림프절 2개, T3, 3등급, Ki-67 35%"
     },
     "recurrence_day": {
       "scope": "current",
