@@ -27,7 +27,8 @@ from pathlib import Path
 
 from .booklet import load_booklet
 from .chunks import booklet_chunks
-from .conditions import DATA, TARGET_KINDS, OllamaStructurer, _norm, _words, draft, problems_of, similar_rows
+from .conditions import (DATA, TARGET_KINDS, OllamaStructurer, _norm, _words, carry_over, draft, problems_of,
+                         similar_rows)
 from .pipeline import _latest_local
 from .verify import keyed_items
 
@@ -57,10 +58,12 @@ def compare(ref: dict, got: dict) -> dict:
 
 
 def run(model: str, limit: int | None = None, ids: list[str] | None = None, think: bool = False,
-        shots: int = 0, similar: int = 0, fix: bool = False, previous: Path | None = None) -> dict:
+        shots: int = 0, similar: int = 0, fix: bool = False, previous: Path | None = None,
+        previous_contexts: Path | None = None) -> dict:
     """similar: 행마다 원문이 가장 비슷한 검수 행 N개를 예시로 (자기 자신은 뺌. 새로 생긴 행을 만들 때와 같은 조건)
     fix: 파이프라인과 같이 규칙으로 고치고 검사에 걸리면 한 번 더 묻는다 (conditions.draft)
-    previous: 이전 책자 청크 파일. 같은 행이 있으면 이전 판 원문·조건을 주고 바뀐 부분만 고치게 한다"""
+    previous: 이전 책자 청크 파일. 같은 행이 있으면 이전 판 원문·조건을 주고 바뀐 부분만 고치게 한다
+    previous_contexts: 그 책자의 소단원 안내 (reimbursement_contexts_*.json). 주면 원문 내용이 같은 행은 모델 없이 옮긴다"""
     booklet = _latest_local(DATA / "raw", "공고책자_*.pdf")
     bc = booklet_chunks(load_booklet(booklet, DATA / "cache"))
     current = {c["chunk_id"]: c for c in map(json.loads, open(DATA / "chunks" / "reimbursement_chunks_current.jsonl",
@@ -79,8 +82,11 @@ def run(model: str, limit: int | None = None, ids: list[str] | None = None, thin
     pool = [reviewed(c) for c in rows]       # 비슷한 행 예시를 찾는 곳 (prepare가 채점 행 자신은 뺌)
     old = []
     if previous:
-        # 이전 책자 청크의 조건은 그때 저장본(사람이 넣은 조건)이라 그대로 이전 판으로 쓴다
-        old = [{"chunk_id": c["chunk_id"], "text": c["text"], "context": "", "drugs": c.get("drugs") or [],
+        # 이전 책자 청크의 조건은 그때 저장본(사람이 넣은 조건)이라 그대로 이전 판으로 쓴다.
+        # 그때 소단원 안내가 있으면(previous_contexts) 파이프라인처럼 원문 내용이 같은 행은 모델 없이 옮긴다
+        old_ctx = json.loads(previous_contexts.read_text(encoding="utf-8")) if previous_contexts else {}
+        old = [{"chunk_id": c["chunk_id"], "text": c["text"], "context": old_ctx.get(c["chunk_id"]),
+                "drugs": c.get("drugs") or [], "author": "eval",
                 "conditions": {k: v for k, v in c["reimbursement"]["conditions"].items() if k != "line_rule"}}
                for c in map(json.loads, open(previous, encoding="utf-8"))
                if c["chunk_kind"] in TARGET_KINDS and c["reimbursement"].get("conditions")]
@@ -98,15 +104,19 @@ def run(model: str, limit: int | None = None, ids: list[str] | None = None, thin
         s.prepare(c, pool, old)
         ref = reviewed(c)["conditions"]
         t0 = time.time()
+        moved = carry_over(c, ctx, old) if old else None
         try:
-            # --fix면 파이프라인과 같이 확인(두 번째 답 비교 포함)까지 하고, 채점은 확인 전 초안으로 한다
-            flagged, usage = draft(s, c, ctx, verify=fix)
-            got = usage.get("draft", flagged)
-            err = None
+            if moved:
+                got, usage, err = moved[0], {}, None
+            else:
+                # --fix면 파이프라인과 같이 확인(두 번째 답 비교 포함)까지 하고, 채점은 확인 전 초안으로 한다
+                flagged, usage = draft(s, c, ctx, verify=fix)
+                got = usage.get("draft", flagged)
+                err = None
         except Exception as e:          # 한 행 실패로 멈추지 않는다 (스키마 재시도 실패, 시간 초과 등)
             got, usage, err = None, {}, f"{type(e).__name__}: {str(e)[:200]}"
         sec = round(time.time() - t0, 1)
-        r = {"chunk_id": cid, "seconds": sec, "error": err, "previous": s.hint.get("previous"),
+        r = {"chunk_id": cid, "seconds": sec, "error": err, "carried": bool(moved), "previous": s.hint.get("previous"),
              "similarity": s.hint.get("similarity"),
              "same_text": bool(s.previous_row) and _norm(s.previous_row["text"]) == _norm(c["text"]),
              "fixed": usage.get("fixed", []), "revised": usage.get("revised", False)}
@@ -127,6 +137,8 @@ def run(model: str, limit: int | None = None, ids: list[str] | None = None, thin
         "fix": fix, "previous": previous.name if previous else None,
         "booklet": booklet.name, "rows": len(results),
         "with_previous": sum(bool(r["previous"]) for r in results),
+        "carried": sum(r["carried"] for r in results),
+        "carried_exact": sum(1 for r in results if r["carried"] and r.get("exact")),
         "revised": sum(r["revised"] for r in results),
         "fixed_rows": sum(bool(r["fixed"]) for r in results),
         # 확인(--fix): 검사를 통과한 초안 중 틀린 것을 사람 검토로 돌렸는지
@@ -142,7 +154,7 @@ def run(model: str, limit: int | None = None, ids: list[str] | None = None, thin
     }
     REPORTS.mkdir(parents=True, exist_ok=True)
     tag = (re.sub(r"[^0-9A-Za-z._-]+", "_", model) + ("_think" if think else "") + (f"_{len(ex_ids)}shot" if ex_ids else "")
-           + (f"_sim{similar}" if similar else "") + ("_fix" if fix else "") + ("_update" if previous else ""))
+           + (f"_sim{similar}" if similar else "") + ("_fix" if fix else "") + ("_update" if previous else "") + ("_carry" if previous and previous_contexts else ""))
     out = REPORTS / f"llm_eval_{tag}.json"
     out.write_text(json.dumps({"summary": summary, "rows": results}, ensure_ascii=False, indent=1), encoding="utf-8")
     summary["report"] = str(out)
@@ -164,8 +176,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--fix", action="store_true", help="파이프라인처럼 규칙으로 고치고, 검사에 걸리면 한 번 더 묻기")
     ap.add_argument("--previous", type=Path,
                     help="이전 책자 청크 파일 (.jsonl). 같은 행이 있으면 이전 판 원문·조건을 주고 바뀐 부분만 고치게 함")
+    ap.add_argument("--previous-contexts", type=Path,
+                    help="이전 책자의 소단원 안내 (.json). 주면 원문 내용이 같은 행은 파이프라인처럼 모델 없이 옮김")
     args = ap.parse_args(argv)
-    s = run(args.model, args.limit, args.ids, args.think, args.shots, args.similar, args.fix, args.previous)
+    s = run(args.model, args.limit, args.ids, args.think, args.shots, args.similar, args.fix, args.previous,
+            args.previous_contexts)
     print(json.dumps(s, ensure_ascii=False, indent=1))
     return 0
 
