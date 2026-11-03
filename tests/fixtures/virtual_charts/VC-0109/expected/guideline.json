@@ -1,0 +1,39 @@
+{
+  "format": "C guideline expected v0.1",
+  "patient_ref": "VC-0109",
+  "input": "expected/confirmed_state.json",
+  "decision": {
+    "setting": "early",
+    "subtype": "HR+/HER2-",
+    "line": "adjuvant"
+  },
+  "expected_chunks": [
+    "esmo-ebc-2024-02-hrpos-0656d9"
+  ],
+  "expected_parents": [
+    "esmo-ebc-2024-02-hrpos"
+  ],
+  "expected_algorithm": [
+    "esmo-ebc-2024-02-fig4-0196bf"
+  ],
+  "not_expected": [
+    "esmo-ebc-2024-02-hrpos-6308eb",
+    "esmo-ebc-2024-02-hrpos-1f97a2"
+  ],
+  "sources": [
+    {
+      "doc": "ESMO EBC 2024-02",
+      "section": "Hr-Positive, Her2-Negative Ebc",
+      "page": 172
+    },
+    {
+      "doc": "ESMO EBC 2024-02",
+      "section": "Figure 4",
+      "page": 165
+    }
+  ],
+  "status": "draft",
+  "reviewer": null,
+  "reviewed_on": null,
+  "note": "폐경 후, pT2N0, 보조 tamoxifen 중 흉벽 국소 재발 → 완치 목적 절제 뒤 보조요법(조기로 봄) → AI 또는 tamoxifen 뒤 AI(0656d9), 그림 4 폐경 후 경로. ESMO에 국소 재발 뒤 보조요법만 다룬 권고가 없어 조기 HR+ 권고로 정답을 정함(검수 때 확인). not_expected: 폐경 전 OFS, 병기 III·고위험 II abemaciclib"
+}

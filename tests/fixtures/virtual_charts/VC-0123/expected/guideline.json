@@ -1,0 +1,42 @@
+{
+  "format": "C guideline expected v0.1",
+  "patient_ref": "VC-0123",
+  "input": "expected/confirmed_state.json",
+  "decision": {
+    "setting": "metastatic",
+    "subtype": "HR+/HER2-",
+    "line": "2L"
+  },
+  "expected_chunks": [
+    "esmo-mbc-2026-05-luminal-2l-49918b"
+  ],
+  "expected_parents": [
+    "esmo-mbc-2026-05-luminal-2l"
+  ],
+  "expected_algorithm": [
+    "esmo-mbc-2026-05-fig3-416e66"
+  ],
+  "not_expected": [
+    "esmo-mbc-2026-05-luminal-2l-6dc03f",
+    "esmo-mbc-2026-05-luminal-2l-8d7349",
+    "esmo-mbc-2026-05-luminal-2l-455f68",
+    "esmo-mbc-2026-05-luminal-2l-4bcee1",
+    "esmo-mbc-2026-05-luminal-2l-7d39d5"
+  ],
+  "sources": [
+    {
+      "doc": "ESMO MBC 2026-05",
+      "section": "Management Of Luminal Mbc > Second-Line Treatment",
+      "page": 1205
+    },
+    {
+      "doc": "ESMO MBC 2026-05",
+      "section": "Figure 3",
+      "page": 1207
+    }
+  ],
+  "status": "draft",
+  "reviewer": null,
+  "reviewed_on": null,
+  "note": "폐경 후 de novo 뼈 전이, 1차 letrozole-abemaciclib 22개월 뒤 진행, 원발 NGS AKT1 E17K, PIK3CA·ESR1 미검출 → fulvestrant-capivasertib(49918b), 그림 3 AKT1·PTEN 경로. not_expected: ESR1 권고, PIK3CA 전용 alpelisib, '표적 변이 없을 때' 권고 2개, 폐경 전 OFS"
+}

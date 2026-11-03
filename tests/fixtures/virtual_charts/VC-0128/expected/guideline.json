@@ -1,0 +1,41 @@
+{
+  "format": "C guideline expected v0.1",
+  "patient_ref": "VC-0128",
+  "input": "expected/confirmed_state.json",
+  "decision": {
+    "setting": "metastatic",
+    "subtype": "HR+/HER2-",
+    "line": "1L"
+  },
+  "expected_chunks": [
+    "esmo-mbc-2026-05-luminal-1l-0fd38a",
+    "esmo-mbc-2026-05-luminal-1l-c0c05b"
+  ],
+  "expected_parents": [
+    "esmo-mbc-2026-05-luminal-1l"
+  ],
+  "expected_algorithm": [
+    "esmo-mbc-2026-05-fig2-a9baa4"
+  ],
+  "not_expected": [
+    "esmo-mbc-2026-05-luminal-1l-02649c",
+    "esmo-mbc-2026-05-luminal-1l-05a4c0",
+    "esmo-mbc-2026-05-luminal-1l-1b9047"
+  ],
+  "sources": [
+    {
+      "doc": "ESMO MBC 2026-05",
+      "section": "Management Of Luminal Mbc > First-Line Treatment",
+      "page": 1205
+    },
+    {
+      "doc": "ESMO MBC 2026-05",
+      "section": "Figure 2",
+      "page": 1206
+    }
+  ],
+  "status": "draft",
+  "reviewer": null,
+  "reviewed_on": null,
+  "note": "43세 폐경 전(FSH), 보조 tamoxifen 2년째 뼈·림프절 전이, PIK3CA 미검출 → fulvestrant-CDK4/6(0fd38a) + OFS(c0c05b, 폐경 전 내분비 기반 치료에 추가, 시나리오 M01), 그림 2 보조 ET 중 재발 PIK3CA wt 경로. not_expected: 12개월 넘어·de novo 갈래, PIK3CA 변이 권고 2개"
+}

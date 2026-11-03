@@ -1,0 +1,48 @@
+{
+  "format": "C guideline expected v0.1",
+  "patient_ref": "VC-0120",
+  "input": "expected/confirmed_state.json",
+  "decision": {
+    "setting": "early",
+    "subtype": "HR+/HER2+",
+    "line": "adjuvant"
+  },
+  "expected_chunks": [
+    "esmo-ebc-2024-02-her2pos-16dd9e",
+    "esmo-ebc-2024-02-her2pos-c58918",
+    "esmo-ebc-2024-02-her2pos-0055ec"
+  ],
+  "expected_parents": [
+    "esmo-ebc-2024-02-her2pos"
+  ],
+  "expected_algorithm": [
+    "esmo-ebc-2024-02-fig6-163f7d",
+    "esmo-ebc-2024-02-fig4-0196bf"
+  ],
+  "not_expected": [
+    "esmo-ebc-2024-02-her2pos-ae367a",
+    "esmo-ebc-2024-02-her2pos-d04f07",
+    "esmo-ebc-2024-02-her2pos-3be6fb"
+  ],
+  "sources": [
+    {
+      "doc": "ESMO EBC 2024-02",
+      "section": "Her2-Positive Ebc",
+      "page": 172
+    },
+    {
+      "doc": "ESMO EBC 2024-02",
+      "section": "Figure 6",
+      "page": 168
+    },
+    {
+      "doc": "ESMO EBC 2024-02",
+      "section": "Figure 4",
+      "page": 165
+    }
+  ],
+  "status": "draft",
+  "reviewer": null,
+  "reviewed_on": null,
+  "note": "폐경 후 cT2N1 HR+/HER2+, 선행 TCHP 뒤 pCR → 항HER2 1년 채우기(16dd9e, 림프절 양성이라 HP c58918), ET 병행(0055ec). 폐경 후 AI 권고(hrpos-0656d9)는 청크 아형이 HR+/HER2-뿐이라 이 환자 검색 범위 밖이어서 그림 4 폐경 후 경로로 대신함. 그림 6 pCR·cN+ → HP 1년 + HR+ ET 경로, 그림 4 폐경 후 경로. not_expected: 잔존 T-DM1(pCR), 수술 먼저 한 환자 권고 2개"
+}

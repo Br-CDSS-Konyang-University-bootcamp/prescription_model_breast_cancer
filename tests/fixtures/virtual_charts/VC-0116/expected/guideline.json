@@ -1,0 +1,42 @@
+{
+  "format": "C guideline expected v0.1",
+  "patient_ref": "VC-0116",
+  "input": "expected/confirmed_state.json",
+  "decision": {
+    "setting": "metastatic",
+    "subtype": "TNBC",
+    "line": "1L"
+  },
+  "expected_chunks": [
+    "esmo-mbc-2026-05-tnbc-1l-015580"
+  ],
+  "expected_parents": [
+    "esmo-mbc-2026-05-tnbc-1l"
+  ],
+  "expected_algorithm": [
+    "esmo-mbc-2026-05-fig8-6df378"
+  ],
+  "not_expected": [
+    "esmo-mbc-2026-05-tnbc-1l-a2bd8f",
+    "esmo-mbc-2026-05-tnbc-1l-2d012a",
+    "esmo-mbc-2026-05-tnbc-1l-05095b",
+    "esmo-mbc-2026-05-tnbc-1l-3d718a",
+    "esmo-mbc-2026-05-tnbc-1l-c75522"
+  ],
+  "sources": [
+    {
+      "doc": "ESMO MBC 2026-05",
+      "section": "Management Of Metastatic Tnbc > First-Line Treatment",
+      "page": 1212
+    },
+    {
+      "doc": "ESMO MBC 2026-05",
+      "section": "Figure 8",
+      "page": 1213
+    }
+  ],
+  "status": "draft",
+  "reviewer": null,
+  "reviewed_on": null,
+  "note": "TNBC 1차, 생식세포 BRCA1 병원성, PD-L1 CPS 1 → olaparib·talazoparib·carboplatin(015580), 그림 8 PD-L1- gBRCA 변이 경로. not_expected: gBRCA wt 권고 2개, PD-L1 CPS ≥10 권고 2개, 장기 부전 임박. anthracycline 단독(961901)·atezolizumab(SP142 기준)은 넣지 않음"
+}
