@@ -1,0 +1,40 @@
+{
+  "format": "C guideline expected v0.1",
+  "patient_ref": "VC-0122",
+  "input": "expected/confirmed_state.json",
+  "decision": {
+    "setting": "metastatic",
+    "subtype": "HR+/HER2-",
+    "line": "1L"
+  },
+  "expected_chunks": [
+    "esmo-mbc-2026-05-luminal-1l-05a4c0",
+    "esmo-mbc-2026-05-luminal-1l-1b9047"
+  ],
+  "expected_parents": [
+    "esmo-mbc-2026-05-luminal-1l"
+  ],
+  "expected_algorithm": [
+    "esmo-mbc-2026-05-fig2-0a0c7b"
+  ],
+  "not_expected": [
+    "esmo-mbc-2026-05-luminal-1l-0fd38a",
+    "esmo-mbc-2026-05-luminal-1l-02649c"
+  ],
+  "sources": [
+    {
+      "doc": "ESMO MBC 2026-05",
+      "section": "Management of luminal MBC > First-line treatment",
+      "page": 1205
+    },
+    {
+      "doc": "ESMO MBC 2026-05",
+      "section": "Figure 2",
+      "page": 1206
+    }
+  ],
+  "status": "draft",
+  "reviewer": null,
+  "reviewed_on": null,
+  "note": "보조 letrozole 3년째 재발(12개월 이내), PIK3CA E545K → fulvestrant-palbociclib-inavolisib(05a4c0)과 fulvestrant-CDK4/6(1b9047), 그림 2 PIK3CA 변이 경로(0a0c7b). not_expected: PIK3CA 야생형 권고(0fd38a)와 12개월 넘어 재발·de novo 갈래(02649c)"
+}

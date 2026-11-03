@@ -1,0 +1,44 @@
+{
+  "format": "C guideline expected v0.1",
+  "patient_ref": "VC-0113",
+  "input": "expected/confirmed_state.json",
+  "decision": {
+    "setting": "metastatic",
+    "subtype": "HR+/HER2-",
+    "line": ">=3L"
+  },
+  "expected_chunks": [
+    "esmo-mbc-2026-05-luminal-3l-044c33",
+    "esmo-mbc-2026-05-luminal-3l-b023e3"
+  ],
+  "expected_parents": [
+    "esmo-mbc-2026-05-luminal-3l"
+  ],
+  "expected_algorithm": [
+    "esmo-mbc-2026-05-fig4-ddbc18",
+    "esmo-mbc-2026-05-fig4-76de27"
+  ],
+  "not_expected": [
+    "esmo-mbc-2026-05-luminal-3l-ae383b",
+    "esmo-mbc-2026-05-luminal-3l-5f9ed9",
+    "esmo-mbc-2026-05-luminal-3l-990d33",
+    "esmo-mbc-2026-05-luminal-3l-46be52",
+    "esmo-mbc-2026-05-luminal-3l-53ed83"
+  ],
+  "sources": [
+    {
+      "doc": "ESMO MBC 2026-05",
+      "section": "Management of luminal MBC > Third and later lines",
+      "page": 1207
+    },
+    {
+      "doc": "ESMO MBC 2026-05",
+      "section": "Figure 4",
+      "page": 1208
+    }
+  ],
+  "status": "draft",
+  "reviewer": null,
+  "reviewed_on": null,
+  "note": "고식 ET 2차례(AI-palbociclib, exemestane-everolimus) 뒤 내분비 부적합, 고식 ChT 없음, HER2-low → T-DXd(044c33, ET 2차례 뒤 HER2-low·ultralow)와 이전 ChT 없을 때 capecitabine·taxane(b023e3), 그림 4 '이전 ChT 없음 → HER2 low' 경로. 보조 AC·paclitaxel은 5년 넘게 전이라 '이전 ChT'로 보지 않음(C 판단, 검수 때 확인). not_expected: ae383b(3차 '넘어서' 재투여), 5f9ed9·990d33(ChT 1차례 이상 뒤), 46be52·53ed83(내분비 감수성 환자용, 이 환자는 내분비 부적합)"
+}
