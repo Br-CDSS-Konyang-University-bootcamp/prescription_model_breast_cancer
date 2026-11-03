@@ -427,8 +427,69 @@ def test_reviewed_rows_and_find_previous(tmp_path):
     new = {"chunk_id": "hira-booklet-20261101-bc-adj-r05", "text": TEXT + "\n개정", "drugs": ["anastrozole"]}
     assert cm.find_previous(new, prev)["chunk_id"] == old["chunk_id"]
     assert cm.find_previous({**new, "chunk_id": "hira-booklet-20261101-bc-neo-her2pos-r01"}, prev) is None
+    # 원문이 그대로라 저장본에 옛 책자 행 이름으로 남은 조건도 안내를 알면 해시로 찾는다
+    cache.put(cm.cache_key(TEXT, "[안내]"), "hira-booklet-20260901-bc-adj-r04", GOOD, {}, model="담당 C")
+    assert cm.reviewed_rows([{**old, "chunk_id": "hira-booklet-20261001-bc-adj-r09"}], cache,
+                            {"hira-booklet-20261001-bc-adj-r09": "[안내]"})[0]["author"] == "담당 C"
+    assert cm.reviewed_rows([{**old, "chunk_id": "hira-booklet-20261001-bc-adj-r09"}], cache) == []
     assert cm.row_group("hira-booklet-20261101-supp-gcsf-b1") == "supp-gcsf"
     assert cm.row_group("hira-booklet-20261101-bc-pal-endo-1l-r01") == "bc-pal-endo-1l"
+
+
+def _carry_case(tmp_path, new_text, old_ctx="[안내]", new_ctx="[안내]"):
+    """이전 책자 행(검수됨)과 새 책자 행 하나로 attach_conditions를 돌린다."""
+    cache = Cache(tmp_path / "c.jsonl")
+    old = {"chunk_id": "hira-booklet-20261001-bc-adj-r04", "chunk_kind": "reimbursement_condition", "text": TEXT,
+           "drugs": ["anastrozole"], "reimbursement": {"conditions": copy.deepcopy(GOOD)}}
+    cache.put("k1", old["chunk_id"], GOOD, {}, model="담당 D")
+    prev = cm.reviewed_rows([old], cache, None if old_ctx is None else {old["chunk_id"]: old_ctx})
+    ch = _chunks()
+    ch[0].update(chunk_id="hira-booklet-20261101-bc-adj-r04", text=new_text, drugs=["anastrozole"])
+    fake = Fake()
+    rep = attach_conditions(ch, {ch[0]["chunk_id"]: new_ctx}, structurer=fake, cache=cache, previous=prev)
+    return rep, fake, ch[0], cache
+
+
+def test_same_content_row_is_carried_without_model(tmp_path):
+    """원문이 문장부호만 다르면 모델에 묻지 않고 검수된 조건을 옮긴다. 구절은 새 원문 표기로 맞춘다."""
+    new_text = TEXT.replace("‘LHRH agonist‘", "'LHRH agonist'").replace("① 40세 미만", "1. 40세 미만.")
+    rep, fake, c, cache = _carry_case(tmp_path, new_text)
+    assert fake.calls == 0 and rep.carried == [c["chunk_id"]] and not rep.rejected
+    cond = c["reimbursement"]["conditions"]
+    assert cond["notes"] == ["'LHRH agonist'는 4주 간격의 goserelin과 leuprolide만 인정함"]
+    assert cond["all_of"] == GOOD["all_of"] and cond["line_rule"] == {"stage": "adjuvant", "line": None}
+    assert check_grounding(cond, new_text) == []
+    src = rep.sources[c["chunk_id"]]
+    assert src["reviewed"] and src["carried_from"] == "hira-booklet-20261001-bc-adj-r04"
+    assert src["model"] == "담당 D (이전 판에서 옮김)" and cm.review_priority(src)[0] == 4
+    # 다음 책자에서 또 옮겨도 표시는 하나
+    nxt = {**c, "chunk_kind": "reimbursement_condition"}
+    assert cm.reviewed_rows([nxt], cache, {c["chunk_id"]: "[안내]"})[0]["author"] == "담당 D (이전 판에서 옮김)"
+
+
+def test_renumbered_row_is_carried(tmp_path):
+    """앞에 행이 생겨 자기 연번만 밀린 행 (11-01 책자 병용요법 21~31)."""
+    rep, fake, c, _ = _carry_case(tmp_path, TEXT.replace("연번 4", "연번 5"))
+    assert fake.calls == 0 and rep.carried == [c["chunk_id"]]
+    assert cm._without_own_no("[40. 병용요법 > 유방암 > 연번 21]\n연번 21\n연번 20∼24 관련") == \
+        "[40. 병용요법 > 유방암 > ]\n\n연번 20∼24 관련"
+
+
+@pytest.mark.parametrize("new_text, old_ctx, new_ctx", [
+    (TEXT.replace("40세 미만", "35세 미만"), "[안내]", "[안내]"),       # 본문 내용이 바뀜
+    (TEXT.replace("2∼3", "3"), "[안내]", "[안내]"),
+    (TEXT, "[안내]", "[안내] 새 머리 규칙"),                             # 소단원 안내가 바뀜
+    (TEXT, None, "[안내]"),                                              # 이전 판 안내를 모름
+])
+def test_changed_row_goes_to_model(tmp_path, new_text, old_ctx, new_ctx):
+    rep, fake, c, _ = _carry_case(tmp_path, new_text, old_ctx, new_ctx)
+    assert fake.calls == 1 and rep.carried == []
+
+
+def test_same_content_ignores_only_spacing_and_punctuation():
+    assert cm.same_content("① 40세 미만 (5년).", "1 40세미만 5년")
+    assert not cm.same_content("직경 > 2㎝", "직경 2cm")
+    assert not cm.same_content("2∼3년", "23년")
 
 
 def test_find_claude_code_env(monkeypatch):

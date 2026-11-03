@@ -55,6 +55,8 @@ from .validate import Report, validate_booklet
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "data" / "reimbursement"
 CURRENT = "reimbursement_chunks_current.jsonl"
+# 행 청크마다 근거로 넘긴 소단원 안내. 다음 책자에서 원문 내용이 같은 행을 가려 조건을 옮길 때 쓴다 (git 제외)
+CONTEXTS = "reimbursement_contexts_current.json"
 
 # 청크에 붙이는 머리표 낱말 (원문에 없어도 된다)
 LABEL_WORDS = {"연번", "항암요법", "투여대상", "위", "연번과", "같음", "열", "항암제", "병용요법",
@@ -361,19 +363,23 @@ def stage_conditions(chunks: list[dict], bc: BookletChunks, cache_path: Path, us
                      st: Stage, structurer=None, review_path: Path | None = None,
                      previous_path: Path | None = None) -> None:
     """contexts: 행 청크마다 근거로 함께 넘길 소단원 제목·머리 규칙·주석 (chunks.booklet_chunks가 만든다).
-    previous_path: 지난번 반영한 청크 파일. 검수된 행만 골라 바뀐 행의 이전 판으로 로컬 모델에 준다."""
+    previous_path: 지난번 반영한 청크 파일. 검수된 행만 골라, 원문 내용이 같으면 그 조건을 옮기고
+    바뀐 행이면 이전 판으로 로컬 모델에 준다. 같은 폴더의 CONTEXTS(그때 소단원 안내)가 없으면 옮기지 않는다."""
     from .conditions import Cache, attach_conditions, export_review, is_empty, reviewed_rows
 
     cache = Cache(cache_path)
     previous = []
     if previous_path is not None and previous_path.exists():
+        ctx_path = previous_path.with_name(CONTEXTS)
+        contexts = json.loads(ctx_path.read_text(encoding="utf-8")) if ctx_path.exists() else None
         with open(previous_path, encoding="utf-8") as f:
-            previous = reviewed_rows([json.loads(line) for line in f if line.strip()], cache)
+            previous = reviewed_rows([json.loads(line) for line in f if line.strip()], cache, contexts)
     rep = attach_conditions(chunks, bc.contexts, structurer=structurer, cache=cache, use_api=use_api,
                             previous=previous)
     total = sum(c["chunk_kind"] in ("reimbursement_condition", "offlabel_regimen") for c in chunks)
     done = sum(not is_empty(c["reimbursement"].get("conditions") or {}) for c in chunks)
-    st.report.info.append(f"대상 {total}개 중 조건 정리 {done}개 (저장본 {rep.from_cache}, 새 요청 {rep.requested})")
+    st.report.info.append(f"대상 {total}개 중 조건 정리 {done}개 (저장본 {rep.from_cache}, "
+                          f"이전 판에서 옮김 {len(rep.carried)}, 새 요청 {rep.requested})")
     if rep.requested:
         st.report.info.append(f"사용량: 입력 {rep.input_tokens:,} 토큰, 출력 {rep.output_tokens:,} 토큰")
     if rep.skipped_no_api:
@@ -439,7 +445,8 @@ def stage_apply(reg: Registry, b: Booklet, booklet_doc: int, bc: BookletChunks, 
     tmp = res.current_path.with_suffix(".part")
     shutil.copyfile(res.chunks_path, tmp)
     tmp.replace(res.current_path)
-    st.report.info.append(f"저장: {res.chunks_path.name} -> {CURRENT}")
+    (out_dir / CONTEXTS).write_text(json.dumps(bc.contexts, ensure_ascii=False, indent=0), encoding="utf-8")
+    st.report.info.append(f"저장: {res.chunks_path.name} -> {CURRENT} (+ {CONTEXTS})")
     status_path = out_dir.parent / "index_status.json"
     status_path.write_text(json.dumps({"index_status": res.index_status, "summary": res.summary_line,
                                        "pending_notices": res.pending_notices},

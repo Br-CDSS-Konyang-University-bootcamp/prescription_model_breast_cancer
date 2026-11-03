@@ -29,6 +29,7 @@ import hashlib
 import json
 import os
 import re
+import unicodedata
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -747,17 +748,125 @@ def _stored(c: dict) -> dict:
     return {k: v for k, v in (c["reimbursement"].get("conditions") or {}).items() if k != "line_rule"}
 
 
-def reviewed_rows(chunks: list[dict], cache: Cache) -> list[dict]:
+def reviewed_rows(chunks: list[dict], cache: Cache, contexts: dict[str, str] | None = None) -> list[dict]:
     """이전 책자 청크(reimbursement_chunks_current.jsonl) 중 조건이 사람이 넣은 저장본과 같은 행.
-    바뀐 행의 이전 판으로 쓴다. 검수 전 초안이 붙은 행은 넣지 않는다."""
-    by_id: dict[str, list[dict]] = {}
+    바뀐 행의 이전 판으로 쓴다. 검수 전 초안이 붙은 행은 넣지 않는다.
+    contexts: 그 책자의 소단원 안내 (reimbursement_contexts_current.json). 없으면 context는 None이고
+    내용이 같아도 옮기지 않는다 (carry_over)."""
+    by_id: dict[str, list[tuple[dict, str]]] = {}
     for r in cache.rows.values():
         if is_reviewed(r.get("model")):
-            by_id.setdefault(r["chunk_id"], []).append(r["conditions"])
-    return [{"chunk_id": c["chunk_id"], "text": c["text"], "context": "", "drugs": c.get("drugs") or [],
-             "conditions": _stored(c)}
-            for c in chunks if c.get("chunk_kind") in TARGET_KINDS and _stored(c)
-            and _stored(c) in by_id.get(c["chunk_id"], [])]
+            by_id.setdefault(r["chunk_id"], []).append((r["conditions"], r["model"]))
+    out = []
+    for c in chunks:
+        if c.get("chunk_kind") not in TARGET_KINDS or not _stored(c):
+            continue
+        # 저장본은 원문 해시가 열쇠라, 원문이 그대로인 행은 처음 넣을 때의 (옛 책자) 행 이름으로 남아 있다.
+        # 안내를 알면 해시로 찾고, 모르면 행 이름으로 찾는다
+        e = cache.entry(cache_key(c["text"], contexts.get(c["chunk_id"], ""))) if contexts is not None else None
+        found = [(e["conditions"], e["model"])] if e and is_reviewed(e.get("model")) else []
+        author = next((m for cond, m in found + by_id.get(c["chunk_id"], []) if cond == _stored(c)), None)
+        if author is not None:
+            out.append({"chunk_id": c["chunk_id"], "text": c["text"], "drugs": c.get("drugs") or [],
+                        "context": contexts.get(c["chunk_id"]) if contexts is not None else None,
+                        "conditions": _stored(c), "author": author})
+    return out
+
+
+# ---------- 원문 내용이 같은 행: 모델 없이 이전 판 조건을 옮긴다 (2026-11-03) ----------
+# 원문이 같은데 모델에 다시 물으면 맞는 조건을 고쳐 쓴다 (131행 평가: 이전 판이 맞는데 17행을 바꿈).
+# 그래서 공백·문장부호만 다른 행은 검수된 조건을 그대로 옮기고, 원문 구절만 새 책자 표기로 맞춘다.
+
+CARRIED_MARK = " (이전 판에서 옮김)"       # 저장본 model 칸: 검수한 사람 뒤에 붙인다 (is_reviewed는 True)
+_PUNCT = re.compile(r"[\s.,·:;'\"“”‘’`()\[\]{}「」『』]|※|▪|•")
+
+
+def _content(s: str) -> str:
+    """내용 비교용: NFKC(①→1, ㎝→cm) 뒤 공백·문장부호를 뺀다. 숫자·글자·비교 기호(> < ≥ ≤)·∼는 남는다."""
+    return _PUNCT.sub("", unicodedata.normalize("NFKC", s or ""))
+
+
+def same_content(a: str, b: str) -> bool:
+    return _content(a) == _content(b)
+
+
+# 행 자신의 연번 (머리 제목 '> 연번 21]'과 '연번 21' 한 줄). 앞에 행이 생기면 숫자만 밀린다 (11-01 책자 병용요법)
+_OWN_NO = re.compile(r"(?m)(?<=> )연번 \d+(?=\])|^연번\s*\d+\s*$")
+
+
+def _without_own_no(text: str) -> str:
+    return _OWN_NO.sub("", text)
+
+
+def _align_quote(t: str, source: str) -> str | None:
+    """이전 판 구절을 새 원문에서 같은 내용의 구절로 바꾼다. 원문에 그대로 있으면 그대로, 못 찾으면 None."""
+    if not isinstance(t, str) or not _content(t):
+        return None
+    if _norm(t) in _norm(source):
+        return t
+    chars, idx = [], []
+    for i, ch in enumerate(source):
+        for o in unicodedata.normalize("NFKC", ch):
+            if not _PUNCT.fullmatch(o):
+                chars.append(o)
+                idx.append(i)
+    want = _content(t)
+    pos = "".join(chars).find(want)
+    if pos < 0:
+        return None
+    start, end = idx[pos], idx[pos + len(want) - 1] + 1
+    # 이전 구절 앞뒤의 문장부호('(투여기간: 5년)'의 괄호 등)는 새 원문에도 있으면 같이 붙인다
+    lead = len(t) - len(t.lstrip("([「『“‘'\""))
+    trail = len(t) - len(t.rstrip(").]」』”’'\"。"))
+    for _ in range(lead):
+        if start > 0 and source[start - 1] in "([「『“‘'\"":
+            start -= 1
+    for _ in range(trail):
+        if end < len(source) and source[end] in ").]」』”’'\"。":
+            end += 1
+    return re.sub(r"\s+", " ", source[start:end]).strip()
+
+
+def _realign(cond: dict, source: str) -> dict | None:
+    """조건의 원문 구절을 모두 새 원문에 맞춘다. 하나라도 못 찾으면 None."""
+    cond = json.loads(json.dumps(cond))
+    holders = []
+    for _, it in iter_items(cond):
+        holders.append(it)
+        if it.get("unless"):
+            holders.append(it["unless"])
+    for key in ("any_of", "any_of_exceptions", "counts_as_prior_line"):
+        holders += cond.get(key, [])
+    for h in holders:
+        if "text" in h:
+            if (q := _align_quote(h["text"], source)) is None:
+                return None
+            h["text"] = q
+    for key in ("notes", "human_review", "unmapped"):
+        new = [_align_quote(t, source) for t in cond.get(key, [])]
+        if None in new:
+            return None
+        if key in cond:
+            cond[key] = new
+    return cond
+
+
+def carry_over(target: dict, context: str, previous: list[dict]) -> tuple[dict, dict] | None:
+    """이전 판(find_previous)과 본문·소단원 안내의 내용이 같으면 (검수된 조건, 이전 판 행). 아니면 None.
+    본문의 자기 연번 숫자는 비교에서 뺀다 (안내에 '연번 N' 한 줄로 든 위 행 번호도). 문장 순서만 바뀐 행은
+    같다고 보지 않는다 (모델로 넘김). 이전 판 안내를 모르면(context None) 옮기지 않는다.
+    구절을 맞춘 뒤 검사에 걸려도 옮기지 않는다 (모델로 넘김)."""
+    p = find_previous(target, previous)
+    if p is None or p.get("context") is None:
+        return None
+    if not (same_content(_without_own_no(p["text"]), _without_own_no(target["text"]))
+            and same_content(_without_own_no(p["context"]), _without_own_no(context))):    # 병합 행 안내의 '위 행: 연번 N'
+        return None
+    source = f"{context}\n{target['text']}"
+    cond = _realign(p["conditions"], source)
+    if cond is None or problems_of(cond, source):
+        return None
+    return cond, p
 
 
 # 비교 낱말 -> op. 한 구절에 한 종류만 있을 때만 쓴다 ('1cm 이상' -> gte, '직경 > 2cm' -> gt)
@@ -917,6 +1026,7 @@ class ConditionReport:
     output_tokens: int = 0
     unavailable_reason: str | None = None
     sources: dict[str, dict] = field(default_factory=dict)          # chunk_id -> 만든 이·검수 여부·초안 정보 (검수표)
+    carried: list[str] = field(default_factory=list)                # 원문 내용이 같아 이전 판 조건을 옮긴 행
 
 
 def merge_conditions(base: dict, extra: dict) -> dict:
@@ -938,7 +1048,8 @@ def attach_conditions(chunks: list[dict], contexts: dict[str, str], *, structure
     contexts: chunk_id -> 소단원 제목·머리 규칙·주석 (근거 구절로 쓸 수 있는 글)
     structurer: (본문, 안내) -> (조건, 사용량). None이고 use_api면 STRUCTURERS 순서대로 쓸 수 있는 것을 쓴다
     (Claude API가 키·크레딧 문제로 안 되면 Claude Code로 넘어간다).
-    previous: 이전 책자의 검수된 행 (reviewed_rows). 로컬 모델이 바뀐 행을 이전 판 기준으로 고치게 한다.
+    previous: 이전 책자의 검수된 행 (reviewed_rows). 본문·안내가 공백·문장부호만 다르면 모델 없이 그 조건을 옮기고
+    (carry_over), 실제로 바뀐 행은 로컬 모델이 이전 판 기준으로 고치게 한다.
     로컬 모델의 예시는 이번 책자에서 저장본의 검수된 조건을 그대로 쓰는 행 중에서 고른다.
     """
     rep = ConditionReport()
@@ -963,6 +1074,11 @@ def attach_conditions(chunks: list[dict], contexts: dict[str, str], *, structure
         cond = cache.get(key)
         if cond is not None:
             rep.from_cache += 1
+        elif previous and (moved := carry_over(c, ctx, previous)):
+            cond, p = moved
+            author = p["author"].removesuffix(CARRIED_MARK)       # 여러 번 옮겨도 표시는 하나
+            cache.put(key, cid, cond, {"carried_from": p["chunk_id"]}, model=author + CARRIED_MARK)
+            rep.carried.append(cid)
         else:
             while structurer is not None:
                 try:
@@ -988,7 +1104,8 @@ def attach_conditions(chunks: list[dict], contexts: dict[str, str], *, structure
         e = cache.entry(key) or {}
         rep.sources[cid] = {"model": e.get("model"), "reviewed": is_reviewed(e.get("model")),
                             **{k: v for k, v in (e.get("usage") or {}).items()
-                               if k in ("examples", "previous", "similarity", "fixed", "revised", "verify")}}
+                               if k in ("examples", "previous", "similarity", "fixed", "revised", "verify",
+                                        "carried_from")}}
         problems = problems_of(cond, f"{ctx}\n{text}")
         if problems:
             rep.rejected[cid] = problems
@@ -1043,7 +1160,7 @@ def review_priority(src: dict | None) -> tuple[int, str]:
     if not src:
         return 5, ""
     if src.get("reviewed"):
-        return 4, "검수됨"
+        return 4, f"검수됨 (원문 내용이 같아 이전 판 {src['carried_from']}에서 옮김)" if src.get("carried_from") else "검수됨"
     if src.get("verify"):
         return 0, f"확인에 걸림 (사람 검토로 돌림, 판정은 알 수 없음): {'; '.join(src['verify'][:3])}"
     if src.get("previous"):
