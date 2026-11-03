@@ -113,7 +113,7 @@ def test_line_rule():
 
 
 def test_checker_in_postprocess():
-    rchunk = {"chunk_id": "r1", "doc_type": "reimbursement", "source": "HIRA-booklet",
+    rchunk = {"chunk_id": "r1", "doc_type": "reimbursement", "source": "HIRA-booklet", "drugs": ["capivasertib"],
               "reimbursement": {"source_type": "baseline", "notice_no": "x", "effective_from": "2026-10-01",
                                 "conditions": cond([item("pik3ca", "eq", "positive")])}}
     g = {"chunk_id": "g1", "source": "ESMO-MBC", "drugs": ["capivasertib"], "text": "capivasertib"}

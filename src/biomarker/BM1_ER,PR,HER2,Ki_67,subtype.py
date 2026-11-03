@@ -21,6 +21,7 @@ PD-L1은 약제별 기준(22C3 CPS ≥ 10, SP142 IC ≥ 1%)으로 판정한다 (
 """
 
 import csv
+import json
 import re
 from pathlib import Path
 
@@ -1026,6 +1027,45 @@ def _before_index(patient_state):
     return {**patient_state, "fields": {**fields, "treatment_history": kept}}
 
 
+# 값 충돌 (patient_state.conflicts[], A IN-5): 같은 검체·같은 날짜의 값이 둘 이상이라 A가 칸을 비워 둔 경우.
+# 후보마다 판정해 모두 같으면 그 판정, 갈리면 unknown으로 두고 이유에 후보별 판정을 적는다 (의사가 화면 1에서 고름).
+# A 전달 integration_status §0 "assess()가 conflicts[]를 보지 않는 문제" (VC-0106b Ki-67 25% / 15%, B 반영 2026-11-03).
+# HER2는 IHC·ISH 두 칸을 함께 봐야 해서 여기서 다루지 않는다
+CONFLICT_FIELDS = {"Ki-67": ("proliferation.ki67_percent", "BM2-KI67"), "ER": ("receptors.er_percent", "BM2-ER"),
+                   "PR": ("receptors.pr_percent", "BM2-PR"), "PD-L1": ("receptors.pdl1", "BM2-PDL1")}
+
+
+def _candidate_text(c):
+    v = c.get("value") or {}
+    if isinstance(v, dict) and v.get("percent") is not None:
+        text = f"{v['percent']:g}%"
+    else:
+        text = c.get("raw") or json.dumps(v, ensure_ascii=False)
+    doc = (c.get("source") or {}).get("doc_id")
+    return f"{text} ({doc})" if doc else text
+
+
+def _from_conflict(record, marker, judge, patient_state):
+    """칸이 비어 기록 없음으로 나온 마커에 값 충돌이 있으면 후보로 다시 판정한다. 충돌이 없으면 record 그대로."""
+    path, prefix = CONFLICT_FIELDS[marker]
+    if record["status"] != "not_recorded":
+        return record
+    conflict = next((c for c in (patient_state or {}).get("conflicts") or [] if c.get("field") == path), None)
+    cands = [c for c in (conflict or {}).get("candidates") or [] if c.get("status") == "present"]
+    if len(cands) < 2:
+        return record
+    judged = [(c, judge(c)) for c in cands]
+    statuses = {r["status"] for _, r in judged}
+    detail = " / ".join(f"{_candidate_text(c)} -> {r['status']}" for c, r in judged)
+    if len(statuses) == 1:
+        first = judged[0][1]
+        return {**first, "reason": f"값 충돌이지만 판정 같음: {detail}", "rule_id": f"{prefix}-CONFLICT-SAME"}
+    out = _record(marker, "unknown", f"값 충돌로 판정이 갈림: {detail}. 의사가 값을 골라야 함",
+                  f"{prefix}-CONFLICT", cands[0])
+    out["source_span"] = {"doc_id": "", "quote": ""}
+    return out
+
+
 def assess(patient_state):
     """patient_state 한 명 -> biomarker_record 전체.
     patient_state 의 필드 이름이 바뀌면 이 함수만 고친다. 판정 기준일 뒤에 시작한 투약은 보지 않는다."""
@@ -1036,6 +1076,9 @@ def assess(patient_state):
     records = assess_receptors(patient_state)
     records.append(judge_ki67((fields.get("proliferation") or {}).get("ki67_percent")))
     records.append(judge_pdl1((fields.get("receptors") or {}).get("pdl1")))
+    judges = {"Ki-67": judge_ki67, "ER": judge_er, "PR": judge_pr, "PD-L1": judge_pdl1}
+    records = [_from_conflict(r, r["marker"], judges[r["marker"]], patient_state) if r["marker"] in judges else r
+               for r in records]
     records.extend(assess_genes(patient_state))
     by = {r["marker"]: r for r in records}
 

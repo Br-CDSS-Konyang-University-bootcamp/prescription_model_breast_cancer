@@ -6,12 +6,16 @@ LLM이 낸 추천을 받은 청크와 B의 판정에 비추어 고친다. 규칙
 3. 약 이름이 인용한 지침 청크에 실제로 있는지 확인한다 (청크의 drugs 목록 또는 본문 글자). 없으면 후보를 지운다.
 4. 약에 필요한 바이오마커(drug_biomarker.csv)가 미시행·기록 없음·불확정·재검 필요면 후보 대신 검사 권고로 바꾼다.
    양성이 아니면(음성·VUS 등) 후보를 지우고 conflicts에 적는다.
-5. 급여 분류는 시행 중인 급여 청크(baseline·overlay, 시행일이 오늘 이전)를 인용할 때만 인정한다.
+5. 급여 분류는 시행 중인 급여 청크(baseline·overlay, 시행일이 오늘 이전) 중 후보 약이 모두 행의 drugs에 든 행으로만 한다
+   (C search_reimbursement의 "후보 약이 모두 행에 있어야"와 같음, A 전달 handoff_recommend_options_to_B_2026-11-03.md §3).
+   약이 다른 행 인용은 지우고, 넘겨받은 급여 청크 중 약이 맞는데 인용하지 않은 행은 붙인다. 맞는 행이 없으면 급여 기준 없음.
    허가초과 인정은 허가초과 청크(HIRA-offlabel)를 인용할 때만. 급여 조건은 conditions_checker(conditions_eval.py)로 판정한다:
    충족이면 "급여", 불충족이면 "급여 기준 없음", 알 수 없으면(판정기 없음 포함) "급여(조건 확인 필요)".
 6. 지침 청크가 하나도 없으면 추천을 만들지 않고 범위 외로 알린다.
 7. drugs가 비면 인용한 지침 청크의 drugs 중 요법 이름(therapy)에 적힌 약으로, evidence가 비면 인용한 지침 청크의
    LoE·GoR로 채운다 (A 전달 handoff_recommend_prompt_to_B_2026-11-02.md §6 4번, LLM이 두 칸을 비워 냄).
+   요법 이름에 계열 이름(AI, ET, CDK4/6 등)이 있으면 어느 약인지 정할 수 없어 drugs를 비워 두고 conflicts에 적는다
+   (A 전달 2026-11-03 §2 3번. 예: "AI—palbociclib"을 palbociclib 하나로 채우지 않는다).
 지운 것과 바꾼 것은 모두 로그로 돌려준다.
 """
 import csv
@@ -75,25 +79,35 @@ def _drug_in_chunks(drug, chunks):
     return any(rx.search(c.get("text") or "") for rx in terms for c in chunks)
 
 
+# 7번: 요법 이름에 있으면 약을 하나로 정할 수 없는 계열 이름
+CLASS_NAME_RE = re.compile(r"\bAIs?\b|[Aa]romatase inhibitor|\bET\b|[Ee]ndocrine|CDK4/6|\b[Tt]axanes?\b|"
+                           r"\b[Aa]nthracyclines?\b|\bChT\b|[Cc]hemotherapy|[Aa]nti-HER2|\bSERDs?\b|\bLHRH\b|\bOFS\b")
+
+
 def _fill_drugs_evidence(option, chunks):
-    """7번. 빈 drugs·evidence를 인용한 지침 청크에서 채운다. 채운 칸 이름 목록."""
-    filled = []
+    """7번. 빈 drugs·evidence를 인용한 지침 청크에서 채운다. (채운 칸 이름 목록, 약을 정하지 못한 이유 또는 None)."""
+    filled, unresolved = [], None
     if not option.get("drugs"):
-        therapy = (option.get("therapy") or "").lower()
-        drugs = []
-        for c in chunks:
-            for d in c.get("drugs") or []:
-                if d.lower() not in [x.lower() for x in drugs] and re.search(rf"\b{re.escape(d.lower())}\b", therapy):
-                    drugs.append(d)
-        if drugs:
-            option["drugs"] = drugs
-            filled.append("drugs")
+        therapy = option.get("therapy") or ""
+        classes = sorted(set(CLASS_NAME_RE.findall(therapy)))
+        if classes:
+            unresolved = f"요법 이름에 계열 이름({', '.join(classes)})이 있어 약을 정하지 못함, 의사 확인 필요"
+        else:
+            drugs = []
+            for c in chunks:
+                for d in c.get("drugs") or []:
+                    if d.lower() not in [x.lower() for x in drugs] and \
+                            re.search(rf"\b{re.escape(d.lower())}\b", therapy.lower()):
+                        drugs.append(d)
+            if drugs:
+                option["drugs"] = drugs
+                filled.append("drugs")
     if not (option.get("evidence") or "").strip():
         ev = next((c.get("evidence") for c in chunks if (c.get("evidence") or {}).get("loe")), None)
         if ev:
             option["evidence"] = f"LoE {ev['loe']}" + (f", GoR {ev['gor']}" if ev.get("gor") else "")
             filled.append("evidence")
-    return filled
+    return filled, unresolved
 
 
 def _valid_reimb(chunk, today):
@@ -123,24 +137,43 @@ def _gate(option, records, disease):
     return tests, conflicts
 
 
+def _drugs_match(option, chunk):
+    """후보 약이 모두 급여 행의 drugs에 있는지 (소문자로 비교). 후보 약이 없으면 맞출 수 없어 False."""
+    want = {d.lower() for d in option.get("drugs") or []}
+    return bool(want) and want <= {d.lower() for d in chunk.get("drugs") or []}
+
+
 def _classify(option, reimb_by_id, today, conditions_checker):
-    """5번. 급여 분류와 이유를 고친다. 바꾼 내용을 문장으로 돌려준다 (없으면 None)."""
+    """5번. 급여 분류와 이유를 고친다. 바꾼 내용을 문장 목록으로 돌려준다 (없으면 빈 목록)."""
     cls = option.get("reimbursement")
+    changes = []
     cited = [reimb_by_id[i] for i in option.get("reimbursement_citations") or [] if i in reimb_by_id]
     valid = [c for c in cited if _valid_reimb(c, today)]
+    matched = [c for c in valid if _drugs_match(option, c)]
+    if len(matched) < len(valid):
+        changes.append(f"약이 다른 급여 행 인용 삭제 {[c['chunk_id'] for c in valid if c not in matched]}")
+    added = [c for c in reimb_by_id.values() if c not in matched and _valid_reimb(c, today) and _drugs_match(option, c)]
+    if added:
+        changes.append(f"약이 맞는 급여 행 붙임 {[c['chunk_id'] for c in added]}")
+    valid = matched + added
     option["reimbursement_citations"] = [c["chunk_id"] for c in valid]
-    if cls not in COVERED_CLASSES:
-        return None
     if cls == "offlabel_approved":
         off = [c for c in valid if c.get("source") == "HIRA-offlabel"]
         if not off:
             option.update(reimbursement="no_criteria", reimbursement_citations=[], copay=None)
-            return "허가초과 인정 → 급여 기준 없음 (시행 중인 허가초과 청크 인용 없음)"
+            return changes + ["허가초과 인정 → 급여 기준 없음 (후보 약과 맞는 시행 중인 허가초과 청크 없음)"]
         option["copay"] = (off[0].get("reimbursement") or {}).get("copay")
-        return None
+        return changes
+    valid = [c for c in valid if c.get("source") != "HIRA-offlabel"]
+    option["reimbursement_citations"] = [c["chunk_id"] for c in valid]
     if not valid:
-        option.update(reimbursement="no_criteria", reimbursement_citations=[])
-        return f"{cls} → 급여 기준 없음 (시행 중인 급여 청크 인용 없음)"
+        if cls in COVERED_CLASSES:
+            option.update(reimbursement="no_criteria", reimbursement_citations=[],
+                          reimbursement_reason="후보 약과 맞는 시행 중인 급여 행 없음")
+            changes.append(f"{cls} → 급여 기준 없음 (후보 약과 맞는 시행 중인 급여 행 없음)")
+        return changes
+    if cls not in COVERED_CLASSES:
+        changes.append(f"{cls} → 급여 행 판정 (후보 약과 맞는 급여 행 있음)")
     # 급여 조건 판정 (conditions_eval.make_conditions_checker). 옛 형식(True/False)도 받는다
     res = conditions_checker(option, valid) if conditions_checker else None
     if isinstance(res, bool):
@@ -149,13 +182,13 @@ def _classify(option, reimb_by_id, today, conditions_checker):
     reason = option.get("reimbursement_reason") or ""
     if status == "met":
         option.update(reimbursement="covered", reimbursement_reason=f"{reason} ({why})".strip())
-        return None if cls == "covered" else f"{cls} → 급여 ({why})"
+        return changes + ([] if cls == "covered" else [f"{cls} → 급여 ({why})"])
     if status == "not_met":
         option.update(reimbursement="no_criteria", reimbursement_reason=f"{reason} (급여 조건 불충족: {why})".strip())
-        return f"{cls} → 급여 기준 없음 (급여 조건 불충족)"
+        return changes + ([] if cls == "no_criteria" else [f"{cls} → 급여 기준 없음 (급여 조건 불충족)"])
     option["reimbursement"] = "covered_conditions_unverified"
     option["reimbursement_reason"] = f"{reason} ({why or '급여 조건을 자동으로 모두 확인하지 못함'})".strip()
-    return "급여 → 급여(조건 확인 필요) (조건 확인 안 됨)" if cls == "covered" else None
+    return changes + (["급여 → 급여(조건 확인 필요) (조건 확인 안 됨)"] if cls == "covered" else [])
 
 
 def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursement_chunks, today=None,
@@ -192,9 +225,12 @@ def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursemen
             log.append(f"후보 삭제: {name} (지침 인용이 있는 근거 문장 없음)")
             continue
         o["citations"] = cites
-        filled = _fill_drugs_evidence(o, [guide_by_id[i] for i in cites])
+        filled, unresolved = _fill_drugs_evidence(o, [guide_by_id[i] for i in cites])
         if filled:
             log.append(f"{name}: 빈 칸을 인용한 지침 청크에서 채움 ({', '.join(filled)})")
+        if unresolved:
+            rec["conflicts"].append(f"{name}: {unresolved}")
+            log.append(f"{name}: {unresolved}")
         missing = [d for d in o.get("drugs") or [] if not _drug_in_chunks(d, [guide_by_id[i] for i in cites])]
         if missing:
             log.append(f"후보 삭제: {name} (인용한 지침 청크에 약 이름 없음: {missing})")
@@ -207,9 +243,7 @@ def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursemen
             continue
         if any(guide_by_id[i].get("source", "").startswith("ESMO") for i in cites):
             o["guideline_source"] = "ESMO"
-        change = _classify(o, reimb_by_id, today, conditions_checker)
-        if change:
-            log.append(f"{name}: {change}")
+        log += [f"{name}: {c}" for c in _classify(o, reimb_by_id, today, conditions_checker)]
         kept.append(o)
     rec["options"] = kept
     return rec, log

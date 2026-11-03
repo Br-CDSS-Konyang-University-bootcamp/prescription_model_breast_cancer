@@ -25,6 +25,8 @@
 | ER, PR, HER2 | `receptors.er_percent`, `pr_percent`, `her2_ihc`, `her2_ish` | PROJECT.md §5 세부 규칙 |
 | Ki-67 | `proliferation.ki67_percent` | percent → range → result. 20% 이상 positive, 미만 negative, 구간이 20%에 걸치거나 판정이 intermediate면 intermediate, 쓸 값 없으면 unknown (20% 기준은 2026-10-15 확정) |
 
+값 충돌 (`patient_state.conflicts[]`, A IN-5): Ki-67·ER·PR·PD-L1 칸이 비어 있고 같은 칸 경로의 충돌 후보가 둘 이상이면 후보마다 판정한다. 모두 같으면 그 판정(`*-CONFLICT-SAME`), 갈리면 `unknown`(`*-CONFLICT`)으로 두고 이유에 후보별 값·문서·판정을 적는다. 의사가 화면 1에서 값을 고른다 (VC-0106b Ki-67 25% / 15%, 2026-11-03). HER2는 IHC·ISH를 함께 봐야 해 다루지 않는다.
+
 PD-L1 판정 (2026-10-16, 전달 문서 6.5절). 입력 `receptors.pdl1` (`assay`, `score_type`, `score`). 검사법·점수 종류에 맞는 약제 기준으로만 판정한다:
 
 | 검사법 + 점수 종류 | 양성 기준 | 약제 | 근거 | 태그 | 규칙 ID |

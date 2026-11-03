@@ -21,11 +21,14 @@ G1 = {"chunk_id": "g-capi", "doc_type": "guideline", "source": "ESMO-MBC", "vers
 G2 = {"chunk_id": "g-ola", "doc_type": "guideline", "source": "ESMO-MBC", "version": "2026-05",
       "section": "Second-line", "page_start": 1206, "evidence": {"loe": "I", "gor": "A"}, "drugs": ["olaparib"],
       "text": "TEST CHUNK (made up): olaparib for germline BRCA1/2 positive disease."}
-R_OK = {"chunk_id": "r-fulv", "doc_type": "reimbursement", "source": "HIRA-booklet", "text": "fulvestrant 단독",
+R_OK = {"chunk_id": "r-fulv", "doc_type": "reimbursement", "source": "HIRA-booklet", "text": "지어낸 급여 행",
+        "drugs": ["fulvestrant", "capivasertib"],
         "reimbursement": {"source_type": "baseline", "notice_no": "제2026-210호", "effective_from": "2026-10-01"}}
 R_PREVIEW = {"chunk_id": "r-pre", "doc_type": "reimbursement", "source": "HIRA-preview", "text": "예고",
+             "drugs": ["fulvestrant", "capivasertib"],
              "reimbursement": {"source_type": "preview", "notice_no": "제2026-300호", "effective_from": "2026-12-01"}}
 R_OFF = {"chunk_id": "r-off", "doc_type": "reimbursement", "source": "HIRA-offlabel", "text": "olaparib 허가초과",
+         "drugs": ["olaparib"],
          "reimbursement": {"source_type": "baseline", "notice_no": "제2026-1호", "effective_from": "2026-01-01",
                            "copay": "100/100"}}
 GUIDE, REIMB = [G1, G2], [R_OK, R_PREVIEW, R_OFF]
@@ -135,15 +138,16 @@ def test_covered_downgraded_without_checker():
 def test_preview_notice_is_not_reimbursement_basis():
     rec, log = run([opt(reimbursement_citations=["r-pre"])], bm(PIK3CA="positive"))
     o = rec["options"][0]
-    assert o["reimbursement"] == "no_criteria" and o["reimbursement_citations"] == []
+    assert o["reimbursement_citations"] == ["r-fulv"]           # 예고 행은 빼고, 약이 맞는 시행 중인 행을 붙임
 
 
 def test_offlabel_needs_offlabel_chunk():
     o = opt(reimbursement="offlabel_approved", reimbursement_citations=["r-fulv"])
     rec, _ = run([o], bm(PIK3CA="positive"))
     assert rec["options"][0]["reimbursement"] == "no_criteria"
-    o = opt(reimbursement="offlabel_approved", reimbursement_citations=["r-off"])
-    rec, _ = run([o], bm(PIK3CA="positive"))
+    o = opt(therapy="olaparib", drugs=["olaparib"], rationale="gBRCA 환자에게 권고된다 [g-ola].", citations=["g-ola"],
+            reimbursement="offlabel_approved", reimbursement_citations=["r-off"])
+    rec, _ = run([o], bm(gBRCA1="positive"))
     assert rec["options"][0]["reimbursement"] == "offlabel_approved" and rec["options"][0]["copay"] == "100/100"
 
 
