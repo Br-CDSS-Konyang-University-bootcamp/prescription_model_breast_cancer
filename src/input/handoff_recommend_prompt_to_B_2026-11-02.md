@@ -89,3 +89,7 @@ B의 `recommend()`·`prompt.py`는 고치지 않았다. 고칠 방법과 정도�
 시험하려고 화면 2 서버(`src/app/script/screen2.py`, `Recommender.strip_reimb_parent`, 기본 켬)가
 `recommend()`에 넘기기 전에 급여 청크의 `parent`를 뺀다. B 모듈은 바꾸지 않았다.
 B가 질문지를 고치면 이 처리를 지운다 (A).
+
+**처리 (2026-11-03):** B가 `f846af9`(PR #100)로 반영했다. 급여 소단원 본문은 ID만 넣고, 지침 소단원은 한 번만,
+`fit_prompt()`가 문맥 안에 들도록 뒤쪽 청크를 빼고, 요법마다 후보를 쓰게 지시하고, 후처리 규칙 7이 빈 `drugs`·`evidence`를
+채운다. 화면 2의 임시 처리는 지웠다.
