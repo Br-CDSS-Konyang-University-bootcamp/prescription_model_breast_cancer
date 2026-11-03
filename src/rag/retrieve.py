@@ -196,6 +196,9 @@ def from_confirmed_state(confirmed_state: dict):
         "high_risk_early": high_risk if disease != "metastatic" else None,
         "visceral_crisis": crisis if disease == "metastatic" and crisis in ("yes", "no") else None,
         "contraindicated": "present" if disease == "metastatic" and contraindicated else None,
+        # 전이 후 고식 항암을 받았는가: 고식 항암 차수가 1L이면 아직 없음, 2L 이상이면 있음 (보조·선행 항암은 세지 않는다)
+        "prior_metastatic_chemo": ({"1L": "no", "2L": "yes", ">=3L": "yes"}.get(_confirmed(items, "setting.line_chemo"))
+                                   if disease == "metastatic" else None),
     }
     return record, patient, lines
 

@@ -242,3 +242,18 @@ def test_visceral_crisis_goes_to_search_args():
     record, patient, _ = from_confirmed_state(json.loads(path.read_text(encoding="utf-8")))
     assert search_args(record, **patient)["visceral_crisis"] == "yes"
     assert "visceral_crisis" not in search_args(record, **{**patient, "visceral_crisis": "no"})
+
+
+def test_prior_metastatic_chemo_from_chemo_line():
+    # 고식 항암 차수 1L → 전이 후 항암 없음, 2L 이상 → 있음. 보조 항암(VC-0113의 AC·paclitaxel)은 세지 않는다
+    import json
+    from pathlib import Path
+    from src.rag.query import search_args
+    from src.rag.retrieve import from_confirmed_state
+    base = Path(__file__).resolve().parents[2] / "tests/fixtures/virtual_charts"
+    got = {}
+    for case in ("VC-0113", "VC-0114", "VC-0105"):
+        record, patient, _ = from_confirmed_state(json.loads(
+            (base / case / "expected/confirmed_state.json").read_text(encoding="utf-8")))
+        got[case] = search_args(record, **patient).get("prior_metastatic_chemo")
+    assert got == {"VC-0113": "no", "VC-0114": "yes", "VC-0105": None}  # VC-0105는 조기
