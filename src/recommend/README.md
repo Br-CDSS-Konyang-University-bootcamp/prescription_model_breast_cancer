@@ -33,14 +33,15 @@
 | 3 | 약 이름이 인용한 지침 청크(`drugs` 목록 또는 본문)에 없음. 다만 본문에 넓은 계열 이름이 있으면 그 계열 약은 통과: `ET`·endocrine → Hormone Therapy, `ChT`·chemotherapy → Chemotherapy, anti-HER2·HER2-directed·HER2-targeted → HER2-targeted Therapy (`drug_classes.csv`의 `drug_class`, C와 합의 2026-11-02. C는 이 세 계열을 청크 `drugs`로 풀지 않는다). `ET`·`ChT`는 대소문자까지 맞는 단어만 | 후보를 지움 |
 | 4 | 약에 필요한 바이오마커가 `not_done`·`not_recorded`·`unknown`·`retest_needed` (필요한 마커 중 양성이 하나도 없을 때) | 후보 대신 `tests_needed`에 "<마커> 검사 결과 확인" (`blocks_therapy`에 치료 이름) |
 | 4 | 필요한 바이오마커가 모두 음성·VUS 등 | 후보를 지우고 `conflicts`에 이유와 출처를 적음 |
-| 5 | 급여 행 고르기: 후보 `drugs`가 모두 행의 `drugs`에 든 시행 중인 급여 청크(`baseline`·`overlay`, 시행일이 오늘 이전)만 쓴다. 약이 다른 행 인용은 지우고, 넘겨받은 급여 청크 중 약이 맞는데 인용하지 않은 행은 붙인다 (A 전달 2026-11-03 §3, C `search_reimbursement`와 같은 규칙). 예고(`preview`)는 근거가 아님 | 고른 행으로 아래 판정 |
-| 5 | 후보 약과 맞는 시행 중인 급여 행이 없음 (후보 `drugs`가 비어도) | `no_criteria`, 이유 "후보 약과 맞는 시행 중인 급여 행 없음" |
+| 5 | 급여 행 고르기: 후보 `drugs`가 모두 행의 `drugs`에 든 시행 중인 급여 청크(`baseline`·`overlay`, 시행일이 오늘 이전)만 쓴다. 약이 다른 행 인용은 지우고, 넘겨받은 급여 청크 중 약이 맞는데 인용하지 않은 행은 붙인다 (A 전달 2026-11-03 §3, C `search_reimbursement`와 같은 규칙). 예고(`preview`)는 근거가 아님. 행의 약이 후보 약과 똑같은 행이 있으면 그 행만 쓰고, 없을 때만 약이 더 든 행을 쓴다 (D 요청 2026-11-04) | 고른 행으로 아래 판정 |
+| 5 | 후보 `drugs`가 빔 (7번, 계열 이름) | 인용 행을 지우거나 붙이지 않고 `covered_conditions_unverified` (인용한 시행 중인 행이 없으면 `no_criteria`), 조건 판정 안 함 (D 요청 2026-11-04) |
+| 5 | 후보 약과 맞는 시행 중인 급여 행이 없음 | `no_criteria`, 이유 "후보 약과 맞는 시행 중인 급여 행 없음" |
 | 5 | 허가초과 인정인데 허가초과 청크(`HIRA-offlabel`) 인용이 없음 | `no_criteria`. 있으면 청크의 본인부담률을 `copay`에 |
-| 5 | 급여 조건 판정(`conditions_checker`) 충족 | `covered` |
+| 5 | 급여 조건 판정(`conditions_checker`) 충족 | `covered`. 급여 이유는 판정기 문장만 둔다 (LLM의 `reimbursement_reason`은 버림, D 확인 2026-11-04) |
 | 5 | 급여 조건 판정 불충족 | `no_criteria` (이유에 못 맞춘 조건) |
 | 5 | 급여 조건을 모두 확인하지 못함, 또는 판정기를 넘기지 않음 | `covered_conditions_unverified` |
 | 6 | 지침 청크가 하나도 없음 | 추천을 만들지 않고 `out_of_scope` |
-| 7 | `drugs`·`evidence`가 비어 옴 (2번 뒤, 3번 전) | `drugs`는 인용한 지침 청크의 `drugs` 중 요법 이름에 적힌 약, `evidence`는 인용한 지침 청크의 LoE·GoR로 채움 (A 전달 2026-11-02 §6 4번). 요법 이름에 계열 이름(AI, ET, CDK4/6, taxane 등)이 있으면 `drugs`를 비워 두고 `conflicts`에 "약을 정하지 못함, 의사 확인 필요" (A 전달 2026-11-03 §2 3번) |
+| 7 | `drugs`·`evidence`가 비어 옴 (2번 뒤, 3번 전) | `drugs`는 요법 이름에 적힌 약 (공용 약 사전의 일반명·별칭으로 찾음, 청크에 없는 약은 3번이 거름, D 확인 2026-11-04), `evidence`는 인용한 지침 청크의 LoE·GoR로 채움 (A 전달 2026-11-02 §6 4번). 요법 이름에 계열 이름(AI, ET, CDK4/6, taxane 등)이 있으면 `drugs`를 비워 두고 `conflicts`에 "약을 정하지 못함, 의사 확인 필요" (A 전달 2026-11-03 §2 3번). 다만 LHRH 작용제(LHRH·GnRH agonist, OFS, ovarian suppression)는 급여 행에 맞춰 goserelin·leuprolide로 펼친다 (둘 중 하나라는 뜻, D 요청 2026-11-04) |
 
 청크 `drugs`는 "본문에 나온 약"이라 금기로 언급된 약도 들어 있다 (예: 동반질환으로 CDK4/6을 못 쓸 때의 권고에 CDK4/6 약 3개). 3번 규칙은 약이 인용한 청크에 나오는지만 보는 환각 검사라 권하는 약인지는 가리지 않는다. 참고란은 이런 청크를 근거 ID로만 붙인다.
 
@@ -63,7 +64,8 @@ D 문서·B2 합의대로 (팀 기준):
 
 B 임시안 (팀 문서에 없음, 팀 확인 필요. 차수 세기는 A, `prior_failed` 읽는 법은 D 확인 전):
 
-- D의 조건은 아직 사람 검수 전이라(D README), `conditions_reviewed=False`(기본값)면 충족·불충족 모두 확정하지 않고 "급여(조건 확인 필요)"로 둔다. 검수가 끝나면 `True`로 바꾼다
+- D가 급여 조건 131행 검수를 마쳐(2026-11-04) `make_conditions_checker`의 기본값은 확정 판정(`conditions_reviewed=True`)이다. 충족이면 "급여", 불충족이면 "급여 기준 없음"이고, 이유 끝에 "D 검수 조건, 의료진 검토 전"을 붙인다. `conditions_reviewed=False`면 충족·불충족 모두 "급여(조건 확인 필요)"로 둔다
+- **한계:** 급여 조건과 추천 결과는 의료진 검토를 받지 못했다 (팀에 의료진이 없음, 2026-11-04). 결과는 참고용이고 최종 처방은 의사가 화면 2에서 고른다
 - 시행 중인 급여 청크 여러 개를 인용하면 하나라도 충족이면 충족, 충족이 없고 알 수 없음이 있으면 알 수 없음, 모두 불충족이면 불충족
 - 투여단계(`line_rule`): 이번 치료 차수 = 이미 받은 고식적 치료 차수 + 1. 내분비 조건(`palliative_endocrine`)은 `endocrine_line`만, 항암 조건(`palliative_chemo`)은 `chemo_line`만 따로 센다. 공고가 선행·보조요법을 1회로 간주하면(`counts_as_prior_line`) **그 행에 맞는 간주 규칙만** 본다 (handoff_to_B.md §6.3a, D `schema_proposal.md` 대응표): anthracycline·taxane → `DEEM-ANTHRA-TAXANE`, 종료 1년(365일) 이내 → `DEEM-SG-1Y`. A의 `deemed_lines`에서 그 규칙이 `met`이면 1차를 더해 보고, `unknown`이거나 규칙을 못 맞추거나 `deemed_lines`가 없으면 알 수 없음. `DEEM-ENDO-ADJ-1Y`(보조 내분비 1년 이내 진행)는 공고 원문에 그 문구가 있는 행(3다 연번 4~9, 병용 29)에만 D가 `rule_id`로 넣고, 문구 없는 내분비 "2차 이상" 행에는 적용하지 않는다 (D 확인 2026-10-22. VC-0103 13/13)
 - 일수 조건: `days_end_to_recurrence`(종료일 → 첫 재발일), `days_end_to_metastasis`(종료일 → 전이 기준일), `days_end_to_progression`. 재발일·전이 기준일은 patient_state의 `{status, value}` 칸에서 값만 읽는다

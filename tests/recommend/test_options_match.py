@@ -49,7 +49,8 @@ def test_no_matching_row_is_no_criteria():
 def test_class_name_therapy_not_filled_with_one_drug():
     rec, log = run(option("AI—palbociclib", [], ["r-pal-let"]))
     o = rec["options"][0]
-    assert o["drugs"] == [] and o["reimbursement"] == "no_criteria"     # 약을 정하지 못해 급여 행도 맞출 수 없음
+    assert o["drugs"] == [] and o["reimbursement"] == "covered_conditions_unverified"   # 인용 행은 그대로, 판정 안 함
+    assert o["reimbursement_citations"] == ["r-pal-let"] and "후보 약을 정하지 못해" in o["reimbursement_reason"]
     assert any("계열 이름(AI)" in c for c in rec["conflicts"])
     rec, _ = run(option("fulvestrant + palbociclib", [], []))
     assert rec["options"][0]["drugs"] == ["fulvestrant", "palbociclib"]  # 약 이름만 있으면 그대로 채움
@@ -65,3 +66,45 @@ def test_safety_flags_same_ai_subclass_after_progression():
     assert violations("AI—palbociclib", []) == ["progressed_drug_again"]       # 계열 이름만 있어도
     assert violations("exemestane + everolimus", ["exemestane", "everolimus"]) == []   # 스테로이드성 AI는 다른 세부 계열
     assert violations("fulvestrant + palbociclib", ["fulvestrant", "palbociclib"]) == []
+
+
+def test_exact_drug_rows_first():
+    """D 요청 (2026-11-04): 약이 똑같은 행이 있으면 약이 더 든 행은 쓰지 않는다. 없을 때만 약이 더 든 행."""
+    rows = [row("r-pac", ["paclitaxel"]), row("r-pac-pem", ["paclitaxel", "pembrolizumab"]),
+            row("r-pac-tras", ["paclitaxel", "trastuzumab"])]
+    g = {**G, "drugs": G["drugs"] + ["paclitaxel"]}
+    o = option("paclitaxel", ["paclitaxel"], ["r-pac-pem"])
+    rec, log = postprocess({"options": [o]}, RECORD, [g], rows, TODAY)
+    assert rec["options"][0]["reimbursement_citations"] == ["r-pac"]
+    rec, _ = postprocess({"options": [option("paclitaxel", ["paclitaxel"], [])]}, RECORD, [g], rows[1:], TODAY)
+    assert rec["options"][0]["reimbursement_citations"] == ["r-pac-pem", "r-pac-tras"]   # 똑같은 행이 없을 때
+
+
+def test_empty_drugs_without_cited_row_is_no_criteria():
+    rec, _ = run(option("ET alone", [], []))
+    assert rec["options"][0]["reimbursement"] == "no_criteria"
+
+
+def test_lhrh_agonist_expanded_to_goserelin_leuprolide():
+    """D 요청 (2026-11-04): "LHRH agonist"를 goserelin·leuprolide로 펼쳐 급여 행과 맞춘다."""
+    g = {**G, "drugs": G["drugs"] + ["goserelin", "leuprolide"]}
+    rows = [row("r-ana-lhrh", ["anastrozole", "goserelin", "leuprolide"])]
+    for therapy in ("anastrozole + LHRH agonist", "Anastrozole + OFS", "anastrozole with ovarian function suppression"):
+        rec, log = postprocess({"options": [option(therapy, [], [])]}, RECORD, [g], rows, TODAY)
+        o = rec["options"][0]
+        assert o["drugs"] == ["anastrozole", "goserelin", "leuprolide"], therapy
+        assert o["reimbursement_citations"] == ["r-ana-lhrh"] and not rec["conflicts"]
+    rec, _ = postprocess({"options": [option("AI + LHRH agonist", [], [])]}, RECORD, [g], rows, TODAY)
+    assert rec["options"][0]["drugs"] == []                     # AI가 남아 있으면 그대로 약 미정
+
+
+def test_named_drug_kept_even_if_not_in_chunk_drugs_and_reason_is_rule_only():
+    """D 확인 (2026-11-04): 청크 drugs에 없더라도 요법 이름의 약은 남기고, 급여 이유는 판정기 문장만."""
+    g = {**G, "drugs": ["goserelin", "leuprolide"], "text": "TEST CHUNK (made up): anastrozole plus OFS."}
+    rows = [row("r-ana", ["anastrozole", "goserelin", "leuprolide"]), row("r-let", ["letrozole", "goserelin", "leuprolide"])]
+    o = {**option("anastrozole + LHRH agonist", [], []), "reimbursement_reason": "조건 확인 불가"}
+    rec, _ = postprocess({"options": [o]}, RECORD, [g], rows, TODAY,
+                         lambda opt, chunks: {"status": "met", "reason": "조건 충족 (r-ana)"})
+    out = rec["options"][0]
+    assert out["drugs"] == ["anastrozole", "goserelin", "leuprolide"] and out["reimbursement_citations"] == ["r-ana"]
+    assert out["reimbursement"] == "covered" and out["reimbursement_reason"] == "조건 충족 (r-ana)"

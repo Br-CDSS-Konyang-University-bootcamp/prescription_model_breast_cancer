@@ -315,3 +315,15 @@ def test_d_requests_2026_11_02():
     assert ev(years, ps=ongoing) == "not_met"
     ongoing["fields"]["treatment_history"][0]["ongoing"] = None    # 투약 중인지 모르면 알 수 없음
     assert ev(years, ps=ongoing) == "unknown"
+
+
+def test_default_is_final_with_review_note():
+    """기본값은 확정 판정 (D 검수 완료 2026-11-04), 이유에 의료진 검토 전 표시."""
+    rchunk = {"chunk_id": "r1", "doc_type": "reimbursement", "source": "HIRA-booklet", "drugs": ["capivasertib"],
+              "reimbursement": {"source_type": "baseline", "notice_no": "x", "effective_from": "2026-10-01",
+                                "conditions": cond([item("pik3ca", "eq", "positive")])}}
+    chk = make_conditions_checker(patient(), record(PIK3CA="positive"))
+    res = chk({"drugs": ["capivasertib"]}, [rchunk])
+    assert res["status"] == "met" and res["reason"].endswith("의료진 검토 전")
+    res = make_conditions_checker(patient(), record(PIK3CA="negative"))({"drugs": ["capivasertib"]}, [rchunk])
+    assert res["status"] == "not_met" and "의료진 검토 전" in res["reason"]
