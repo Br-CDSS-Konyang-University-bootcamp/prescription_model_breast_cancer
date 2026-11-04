@@ -64,7 +64,8 @@ D 문서·B2 합의대로 (팀 기준):
 
 B 임시안 (팀 문서에 없음, 팀 확인 필요. 차수 세기는 A, `prior_failed` 읽는 법은 D 확인 전):
 
-- D의 조건은 아직 사람 검수 전이라(D README), `conditions_reviewed=False`(기본값)면 충족·불충족 모두 확정하지 않고 "급여(조건 확인 필요)"로 둔다. 검수가 끝나면 `True`로 바꾼다
+- D가 급여 조건 131행 검수를 마쳐(2026-11-04) `make_conditions_checker`의 기본값은 확정 판정(`conditions_reviewed=True`)이다. 충족이면 "급여", 불충족이면 "급여 기준 없음"이고, 이유 끝에 "D 검수 조건, 의료진 검토 전"을 붙인다. `conditions_reviewed=False`면 충족·불충족 모두 "급여(조건 확인 필요)"로 둔다
+- **한계:** 급여 조건과 추천 결과는 의료진 검토를 받지 못했다 (팀에 의료진이 없음, 2026-11-04). 결과는 참고용이고 최종 처방은 의사가 화면 2에서 고른다
 - 시행 중인 급여 청크 여러 개를 인용하면 하나라도 충족이면 충족, 충족이 없고 알 수 없음이 있으면 알 수 없음, 모두 불충족이면 불충족
 - 투여단계(`line_rule`): 이번 치료 차수 = 이미 받은 고식적 치료 차수 + 1. 내분비 조건(`palliative_endocrine`)은 `endocrine_line`만, 항암 조건(`palliative_chemo`)은 `chemo_line`만 따로 센다. 공고가 선행·보조요법을 1회로 간주하면(`counts_as_prior_line`) **그 행에 맞는 간주 규칙만** 본다 (handoff_to_B.md §6.3a, D `schema_proposal.md` 대응표): anthracycline·taxane → `DEEM-ANTHRA-TAXANE`, 종료 1년(365일) 이내 → `DEEM-SG-1Y`. A의 `deemed_lines`에서 그 규칙이 `met`이면 1차를 더해 보고, `unknown`이거나 규칙을 못 맞추거나 `deemed_lines`가 없으면 알 수 없음. `DEEM-ENDO-ADJ-1Y`(보조 내분비 1년 이내 진행)는 공고 원문에 그 문구가 있는 행(3다 연번 4~9, 병용 29)에만 D가 `rule_id`로 넣고, 문구 없는 내분비 "2차 이상" 행에는 적용하지 않는다 (D 확인 2026-10-22. VC-0103 13/13)
 - 일수 조건: `days_end_to_recurrence`(종료일 → 첫 재발일), `days_end_to_metastasis`(종료일 → 전이 기준일), `days_end_to_progression`. 재발일·전이 기준일은 patient_state의 `{status, value}` 칸에서 값만 읽는다
