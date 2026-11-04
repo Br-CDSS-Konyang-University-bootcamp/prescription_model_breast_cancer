@@ -51,7 +51,8 @@ def summarize(guideline: list[dict], reimbursement: list[dict], reimbursement_on
 
 def compare_expected(expected: dict, guideline: list[dict]) -> dict:
     """가상 차트 정답(expected/guideline.json)과 검색 결과 비교. 순위는 지침 목록(권고·그림 경로 따로) 안의 1부터.
-    not_expected가 첫 정답보다 위에 오면 wrong_above에 적는다."""
+    not_expected가 첫 정답보다 위에 오면 wrong_above에 적는다. expected_supportive(골 보호제처럼 주 처방에 더하는 보조 약물
+    권고, 2026-11-04 팀 결정 A 안)는 주 처방 정답(first_rank·mrr)에 넣지 않고 supportive에 순위만 따로 적는다."""
     recs = [c["chunk_id"] for c in guideline if c.get("chunk_kind") != "algorithm"]
     algos = [c["chunk_id"] for c in guideline if c.get("chunk_kind") == "algorithm"]
     rank = {cid: i for i, cid in enumerate(recs, 1)}
@@ -60,7 +61,8 @@ def compare_expected(expected: dict, guideline: list[dict]) -> dict:
     wrong = [cid for cid in expected.get("not_expected", []) if cid in rank and (first is None or rank[cid] < first)]
     return {"expected": found, "first_rank": first, "mrr": round(1 / first, 3) if first else 0.0,
             "algorithm": {cid: (algos.index(cid) + 1 if cid in algos else None) for cid in expected.get("expected_algorithm", [])},
-            "wrong_above": wrong}
+            "wrong_above": wrong,
+            "supportive": {cid: rank.get(cid) for cid in expected.get("expected_supportive", [])}}
 
 
 def main(argv=None):
@@ -114,7 +116,8 @@ def main(argv=None):
     if expected_path.exists():
         result = compare_expected(json.loads(expected_path.read_text(encoding="utf-8")), guideline)
         print(f"\n[정답 비교 {expected_path.name}] 정답 순위 {result['expected']} · MRR {result['mrr']} · "
-              f"그림 경로 {result['algorithm']} · 정답보다 위의 오답 {result['wrong_above'] or '없음'}")
+              f"그림 경로 {result['algorithm']} · 정답보다 위의 오답 {result['wrong_above'] or '없음'}"
+              + (f" · 보조 약물 {result['supportive']}" if result["supportive"] else ""))
 
     if args.out:
         out = args.out.resolve()
