@@ -206,7 +206,14 @@ FIELDS: dict[str, tuple[str, list[str], object, str]] = {
                         "Ⅳ dexrazoxane의 '울혈 심부전증 병력 등 병발 심장질환' -> eq true"),
     "mediastinal_radiation": ("patient_state.fields.patient.mediastinal_radiation.value (yes -> true, no -> false)",
                               ["eq"], [True, False], "'종격동 방사선 치료' 경험 -> eq true"),
+    # 의사 판단으로 대상이 넓어지는 예외 (2026-11-04 D 결정). 환자 JSON에 칸이 없어 판정은 늘 알 수 없음이다.
+    # 본 조건 항목의 unless에만 둔다: 본 조건을 만족하면 그대로 충족, 만족하지 못하면 거짓 대신 알 수 없음 (의사 확인)
+    "physician_opinion": ("환자 JSON에 칸 없음 (의사 판단, 늘 알 수 없음)", ["eq"], [True],
+                          "'이러한 치료가 부적절한 환자는 예외로 함', '사용할 수 없는 타당한 의사 소견이 있는 경우'처럼 "
+                          "의사 판단으로 대상이 넓어지는 예외 -> 그 예외가 덮는 본 조건 항목의 unless에 eq true. "
+                          "unless 밖에는 쓰지 않는다"),
 }
+UNLESS_ONLY_FIELDS = frozenset({"physician_opinion"})
 
 _VALUE = {"anyOf": [{"type": "string"}, {"type": "number"}, {"type": "boolean"},
                     {"type": "array", "items": {"anyOf": [{"type": "string"}, {"type": "number"}]}}]}
@@ -381,6 +388,8 @@ def check_values(cond: dict) -> list[str]:
     vocab = prior_vocab()
     errs = []
     for where, it in iter_items(cond):
+        if it.get("field") in UNLESS_ONLY_FIELDS:
+            errs.append(f"{where}: {it['field']}은 본 조건 항목의 unless에만 쓸 수 있음")
         errs += _check_item(it, where, vocab)
     for i, g in enumerate(cond.get("counts_as_prior_line", [])):
         errs += [f"counts_as_prior_line[{i}]: 사전에 없는 이름 {d!r}" for d in g.get("drugs", []) if d not in vocab]

@@ -105,6 +105,18 @@ def test_prior_drugs_and_unless():
     assert any("unless.of" in e for e in cm.check_values(cond))
 
 
+def test_physician_opinion_only_in_unless():
+    """의사 판단 예외(2026-11-04 D 결정)는 본 조건의 unless에만 둔다. 본 조건 자리에 오면 버린다."""
+    exc = {"field": "physician_opinion", "op": "eq", "value": True, "text": "이러한 치료가 부적절한 환자는 예외로 함"}
+    cond = _empty(all_of=[{"id": "c2", "field": "prior_drugs", "op": "contains", "value": ["anthracycline", "taxane"],
+                           "text": "anthracycline계와 taxane계 항암제 모두 사용 경험이 있어야 하며", "unless": exc}])
+    assert check_schema(cond) == [] and cm.check_values(cond) == []
+    alone = _empty(all_of=[{"id": "c3", **exc}])
+    assert any("unless에만" in e for e in cm.check_values(alone))
+    assert any("unless" in e for e in cm.check_values(
+        _empty(all_of=[{**cond["all_of"][0], "unless": {**exc, "value": False}}])))
+
+
 class Fake:
     def __init__(self, result=GOOD, fail=False):
         self.result, self.fail, self.calls = result, fail, 0
