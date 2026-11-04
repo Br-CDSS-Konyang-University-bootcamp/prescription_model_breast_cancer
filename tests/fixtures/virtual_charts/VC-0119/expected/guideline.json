@@ -39,5 +39,8 @@
   "status": "reviewed",
   "reviewer": "Claude 2차 점검 (염승민 위임)",
   "reviewed_on": "2026-11-04",
-  "note": "41세 폐경 전, cT3N1 등급 3, Ki-67 35%(luminal B-like), 선행 AC→paclitaxel 뒤 ypT2N1a 잔존, 생식세포 BRCA2 병원성, 조기 고위험 yes(A 17daa50 수정 뒤) → 보조 olaparib 1년(7568e8)과 함께 ET(936c81), 폐경 전 고위험 OFS-tamoxifen·OFS-AI(6308eb), 고위험 연장 ET(cca75c). 그림 5 luminal B → 항암 → stage III → gBRCA 변이 → olaparib + ET 경로(시나리오). abemaciclib(1f97a2)은 olaparib과 함께 쓰지 않고 차례로만 고려(5b21e4)라, 항암 뒤 ET(ca0c8d)는 항암을 이미 받아 넣지 않음. not_expected: 폐경 후 AI, luminal A 항암 생략. [판단 근거 · Claude 2차 점검 2026-11-04, 염승민 위임] 'olaparib과 abemaciclib은 함께 쓰지 말고 olaparib 먼저 차례로'(5b21e4)를 정답에 더함: 이 환자(gBRCA2·고위험)는 두 약 모두 후보라 이 순서 권고가 바로 해당됨. abemaciclib(1f97a2)은 지금 olaparib과 함께 쓰는 선택지가 아니라 넣지 않고, 항암 후 ET(ca0c8d)는 선행 항암을 이미 받아 넣지 않음"
+  "note": "41세 폐경 전, cT3N1 등급 3, Ki-67 35%(luminal B-like), 선행 AC→paclitaxel 뒤 ypT2N1a 잔존, 생식세포 BRCA2 병원성, 조기 고위험 yes(A 17daa50 수정 뒤) → 보조 olaparib 1년(7568e8)과 함께 ET(936c81), 폐경 전 고위험 OFS-tamoxifen·OFS-AI(6308eb), 고위험 연장 ET(cca75c). 그림 5 luminal B → 항암 → stage III → gBRCA 변이 → olaparib + ET 경로(시나리오). abemaciclib(1f97a2)은 olaparib과 함께 쓰지 않고 차례로만 고려(5b21e4)라, 항암 뒤 ET(ca0c8d)는 항암을 이미 받아 넣지 않음. not_expected: 폐경 후 AI, luminal A 항암 생략. [판단 근거 · Claude 2차 점검 2026-11-04, 염승민 위임] 'olaparib과 abemaciclib은 함께 쓰지 말고 olaparib 먼저 차례로'(5b21e4)를 정답에 더함: 이 환자(gBRCA2·고위험)는 두 약 모두 후보라 이 순서 권고가 바로 해당됨. abemaciclib(1f97a2)은 지금 olaparib과 함께 쓰는 선택지가 아니라 넣지 않고, 항암 후 ET(ca0c8d)는 선행 항암을 이미 받아 넣지 않음. [보조 약물 정답 · 2026-11-04, A 안 반영] 폐경 전이지만 고위험이라 OFS(6308eb)가 정답이고, fca2a7은 'OFS를 받는 여성, 특히 재발 고위험'을 대상으로 해 보조 약물 정답으로 둠",
+  "expected_supportive": [
+    "esmo-ebc-2024-02-hrpos-fca2a7"
+  ]
 }

@@ -18,7 +18,8 @@
   ],
   "not_expected": [
     "esmo-ebc-2024-02-hrpos-0656d9",
-    "esmo-ebc-2024-02-hrpos-941c55"
+    "esmo-ebc-2024-02-hrpos-941c55",
+    "esmo-ebc-2024-02-hrpos-fca2a7"
   ],
   "sources": [
     {
@@ -35,5 +36,5 @@
   "status": "reviewed",
   "reviewer": "Claude 2차 점검 (염승민 위임)",
   "reviewed_on": "2026-11-04",
-  "note": "47세 폐경 전, cT3N1 IIIA, 등급 3, Ki-67 45%(luminal B-like), 치료 전 선행 결정 → 항암 후 ET(ca0c8d, 국소 진행 고위험), 그림 2 HR+/HER2- 선행 경로(시나리오). 그림 5 luminal B 경로(d83cba)도 맞지만 끝이 수술 뒤 abemaciclib라 넣지 않음. not_expected: 폐경 후 AI, luminal A 항암 생략"
+  "note": "47세 폐경 전, cT3N1 IIIA, 등급 3, Ki-67 45%(luminal B-like), 치료 전 선행 결정 → 항암 후 ET(ca0c8d, 국소 진행 고위험), 그림 2 HR+/HER2- 선행 경로(시나리오). 그림 5 luminal B 경로(d83cba)도 맞지만 끝이 수술 뒤 abemaciclib라 넣지 않음. not_expected: 폐경 후 AI, luminal A 항암 생략. [보조 약물 정답 · 2026-11-04, A 안 반영] 수술 전(선행) 결정이라 수술 뒤 보조 비스포스포네이트 fca2a7은 지금 결정에 맞지 않아 오답(not_expected)으로 둠 (A가 run_flow에서 VC-0124 추천 1위로 나온 문제를 지적)"
 }
