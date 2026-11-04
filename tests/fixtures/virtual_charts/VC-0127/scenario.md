@@ -9,6 +9,6 @@
 | 결정 시점 | 고식 항암 2차 |
 | 짝 사례 | 심장 위험 있음 / 없음 (→ 누적 미달이라 불충족) / 기록 없음 (→ `covered_conditions_unverified`) |
 | B | 누적 용량 계산 값 180, 심장 병력 yes, 종격동 방사선 yes, LVEF 48 |
-| C | 본문 M26 (liposomal anthracycline 재투여, DFI 12개월 이상) |
+| C | ESMO MBC TNBC 2차. gBRCA 기록 없음이라 두 갈래를 모두 넘긴다: gBRCA 정상 sacituzumab (`tnbc-2l-835b42`)·HER2 음성의 모든 항암 (`tnbc-2l-e9b4f6`), gBRCA 변이 PARP 억제제 (`tnbc-2l-0a2190`)·carboplatin (`tnbc-2l-aa0873`), 그림 9 gBRCA wt 경로. 본문 M26(liposomal anthracycline 재투여)은 HR+/HER2- 장 권고라 TNBC 검색 대상이 아니다 (C 팀 안건 6-3, 2026-11-04) |
 | D ⚑D | liposomal doxorubicin 4나-19 → `covered` (심장 위험요소), 50/100. 짝: 위 셋. 심장 위험요소의 공고 정의 D 확인 |
 | 추천 | 금지: doxorubicin(일반) 재투여 |
