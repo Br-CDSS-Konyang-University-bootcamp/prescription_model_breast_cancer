@@ -47,16 +47,15 @@ def test_no_matching_row_is_no_criteria():
 
 
 def test_class_name_therapy():
-    """넓은 계열(ET)은 약 미정, 좁은 계열(AI)은 약 묶음으로 펼쳐 급여 행을 맞춘다 (D 요청 2026-11-04)."""
+    """계열 이름(ET, AI)이 있으면 약을 비워 두고 표시한다 (A 전달 2026-11-03 규칙 7)."""
     rec, log = run(option("ET alone", [], ["r-pal-let"]))
     o = rec["options"][0]
     assert o["drugs"] == [] and o["reimbursement"] == "covered_conditions_unverified"   # 인용 행은 그대로, 판정 안 함
     assert o["reimbursement_citations"] == ["r-pal-let"] and "후보 약을 정하지 못해" in o["reimbursement_reason"]
     assert any("계열 이름(ET)" in c for c in rec["conflicts"])
-    rec, _ = run(option("AI—palbociclib", [], []))
+    rec, _ = run(option("AI—palbociclib", [], ["r-pal-let"]))
     o = rec["options"][0]
-    assert o["drugs"] == ["letrozole", "anastrozole", "palbociclib"] and "_groups" not in o
-    assert o["reimbursement_citations"] == ["r-pal-let"]          # letrozole + palbociclib 행 (AI 묶음 중 하나)
+    assert o["drugs"] == [] and any("계열 이름(AI)" in c for c in rec["conflicts"])   # AI는 펼치지 않음 (D 취소 11-04)
     rec, _ = run(option("fulvestrant + palbociclib", [], []))
     assert rec["options"][0]["drugs"] == ["fulvestrant", "palbociclib"]  # 약 이름만 있으면 그대로 채움
 

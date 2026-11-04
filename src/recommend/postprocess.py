@@ -18,8 +18,7 @@ LLM이 낸 추천을 받은 청크와 B의 판정에 비추어 고친다. 규칙
    LoE·GoR로 채운다 (A 전달 handoff_recommend_prompt_to_B_2026-11-02.md §6 4번, LLM이 두 칸을 비워 냄).
    요법 이름에 계열 이름(AI, ET, CDK4/6 등)이 있으면 어느 약인지 정할 수 없어 drugs를 비워 두고 conflicts에 적는다
    (A 전달 2026-11-03 §2 3번. 예: "AI—palbociclib"을 palbociclib 하나로 채우지 않는다).
-   다만 좁은 계열 이름은 "그중 하나"인 약 묶음으로 펼친다: LHRH 작용제 → goserelin·leuprolide, AI → letrozole·anastrozole,
-   CDK4/6 억제제·taxane·anthracycline → 사전의 그 세부 계열 약 (D 요청 2026-11-04). ET·ChT·항HER2는 펼치지 않는다.
+   다만 LHRH 작용제(LHRH·GnRH agonist, OFS, ovarian suppression)는 goserelin·leuprolide 중 하나로 펼친다 (D 요청 2026-11-04).
 8. 골 보호제(drug_classes.csv의 Bone-modifying Agent)는 주 후보가 아니라 supportive_options(함께 처방할 보조 약물)에 둔다
    (팀 안건 A, 2026-11-04). 1~5·7번 검사는 보조 칸에도 똑같이 한다. 선행요법 결정이면 골 보호제를 내지 않고,
    뼈 전이 환자에게 뼈 전이 청크(site-bone)가 왔는데 LLM이 빠뜨리면 그 청크의 골 보호제를 약마다 규칙으로 채운다.
@@ -91,21 +90,12 @@ CLASS_NAME_RE = re.compile(r"\bAIs?\b|[Aa]romatase inhibitor|\bET\b|[Ee]ndocrine
                            r"\b[Aa]nthracyclines?\b|\bChT\b|[Cc]hemotherapy|[Aa]nti-HER2|\bSERDs?\b|\bLHRH\b|\bOFS\b")
 
 
-# 7번: 약으로 펼치는 계열 이름. 펼친 약은 "그중 하나"라는 묶음(_groups)으로 두고, 급여 행은 묶음마다 하나 이상 맞으면
-# 맞는 행으로 본다. LHRH 작용제는 급여 행에 적힌 goserelin·leuprolide (D 요청 2026-11-04), AI는 비스테로이드성
-# (letrozole·anastrozole, 안전 검사 ③과 같은 기준), 나머지는 drug_classes.csv의 drug_subclass (D 요청 2026-11-04).
-# ET·ChT·항HER2처럼 넓은 계열은 펼치지 않는다
-def _subclass_members(sub):
-    return [g for g, names in _drug_classes().items() if sub in names and " nos" not in g]
-
-
+# 7번: 약으로 펼치는 계열 이름. LHRH 작용제는 급여 행이 goserelin·leuprolide로 적혀 있어 두 약의 "그중 하나" 묶음(_groups)으로
+# 펼친다 (D 요청 2026-11-04, 급여 행 r04~r06). 급여 행은 묶음마다 하나 이상 맞으면 맞는 행으로 본다.
+# AI·CDK4/6 등 다른 계열은 펼치지 않고 약을 비워 둔다 (A 전달 2026-11-03 규칙 7, D가 펼치기 요청을 취소 2026-11-04)
 EXPAND_CLASS = [
     (re.compile(r"\b(?:LHRH|GnRH)(?:[- ]?(?:agonist|analog(?:ue)?)s?)?\b|\bOFS\b|[Oo]varian (?:function )?suppression"),
      lambda: ["goserelin", "leuprolide"]),
-    (re.compile(r"\bAIs?\b|[Aa]romatase inhibitors?"), lambda: ["letrozole", "anastrozole"]),
-    (re.compile(r"CDK4/6(?:[- ]inhibitors?)?"), lambda: _subclass_members("cdk4/6_inhibitor")),
-    (re.compile(r"\b[Tt]axanes?\b"), lambda: _subclass_members("taxane")),
-    (re.compile(r"\b[Aa]nthracyclines?\b"), lambda: _subclass_members("anthracycline")),
 ]
 
 
@@ -256,11 +246,14 @@ def _classify(option, reimb_by_id, today, conditions_checker):
     option["reimbursement_citations"] = [c["chunk_id"] for c in valid]
     if cls == "offlabel_approved":
         off = [c for c in valid if c.get("source") == "HIRA-offlabel"]
-        if not off:
-            option.update(reimbursement="no_criteria", reimbursement_citations=[], copay=None)
-            return changes + ["허가초과 인정 → 급여 기준 없음 (후보 약과 맞는 시행 중인 허가초과 청크 없음)"]
-        option["copay"] = (off[0].get("reimbursement") or {}).get("copay")
-        return changes
+        if off:
+            option["copay"] = (off[0].get("reimbursement") or {}).get("copay")
+            return changes
+        # 허가초과 청크가 없으면 바로 급여 기준 없음으로 두지 않고, 약이 맞는 일반 급여 행으로 판정한다
+        # (허가초과 목록은 v0.1에서 쓰지 않음. LLM이 허가초과로 분류해 맞는 급여 행이 붙지 않을 수 있었다, D 확인 VC-0101)
+        option["copay"] = None
+        changes.append("허가초과 인정 → 일반 급여 행으로 판정 (허가초과 청크 없음)")
+        cls = "covered_conditions_unverified"
     valid = [c for c in valid if c.get("source") != "HIRA-offlabel"]
     option["reimbursement_citations"] = [c["chunk_id"] for c in valid]
     if not valid:

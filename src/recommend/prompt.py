@@ -23,8 +23,6 @@ INSTRUCTIONS = """너는 유방암 처방 후보를 정리하는 도우미다. �
 6. [지침 청크]에 이 환자에게 맞는 요법이 여러 개 있으면 요법마다 후보를 하나씩 쓴다 (최대 5개).
    drugs에는 그 요법의 약 일반명을 모두 쓰고, evidence에는 인용한 지침 청크의 LoE·GoR를 그대로 쓴다.
 7. [환자]의 disease·line에 맞는 치료만 쓴다. 예: metastatic 환자에게 수술전·수술후보조요법을 쓰지 않는다.
-   다만 [환자]의 deemed_lines_met에 규칙이 있으면 선행·보조요법을 고식적 요법 1회로 보므로, 한 차수 위(예: 1차면 2차)의
-   지침 권고도 후보로 쓸 수 있다. 이때도 [지침 청크]에 있는 권고만 쓴다.
 8. 골 보호제(denosumab, zoledronic acid, pamidronate, ibandronate, clodronate, bisphosphonate)는 options에 넣지 않고
    supportive_options(함께 처방할 보조 약물)에만 쓴다. 뼈 전이 환자의 골 보호제 권고나 수술 후 보조요법 단계의 bisphosphonate 권고가
    [지침 청크]에 있으면 주 처방과 상관없이 supportive_options에 쓴다. 수술 전(선행요법) 결정에는 쓰지 않는다.
@@ -59,8 +57,6 @@ def patient_summary(patient_state, biomarker_record):
         "menopausal_status": _value((f.get("patient") or {}).get("menopausal_status")),
         "histology": _value((f.get("diagnosis") or {}).get("histology")),
         "metastatic_sites": _value((f.get("recurrence") or {}).get("metastatic_sites")),
-        # 심평원 차수 간주 규칙 중 충족한 것 (선행·보조요법을 고식적 요법 1회로 봄). 지시문 7번 (D 요청 2026-11-04, VC-0112)
-        "deemed_lines_met": [d.get("rule_id") for d in f.get("deemed_lines") or [] if d.get("status") == "met"],
         "treatment_history": [{"drugs": t.get("drugs"), "setting": t.get("setting"), "line": t.get("line"),
                                "best_response": t.get("best_response"), "stop_reason": t.get("stop_reason")}
                               for t in f.get("treatment_history") or []],
