@@ -26,7 +26,7 @@ import re
 from datetime import date
 from pathlib import Path
 
-from src.recommend.conditions_eval import _drug_classes
+from src.recommend.conditions_eval import DRUG_CLASSES_CSV, _drug_classes
 
 DRUG_BIOMARKER_CSV = Path(__file__).resolve().parent / "drug_biomarker.csv"
 # 4번: 이 상태면 치료 대신 검사 권고 (PROJECT.md §7 "불확정·미시행이면 검사 권고")
@@ -93,6 +93,23 @@ EXPAND_CLASS = [(re.compile(r"\b(?:LHRH|GnRH)(?:[- ]?(?:agonist|analog(?:ue)?)s?
                             r"[Oo]varian (?:function )?suppression"), ["goserelin", "leuprolide"])]
 
 
+DRUG_NAMES_CSV = DRUG_CLASSES_CSV.parent / "drug_names.csv"
+
+
+def _name_patterns():
+    """[(정규식, 일반명)]. 공용 약 사전의 일반명과 별칭(약 하나로 바뀌는 것만). 긴 이름부터 찾는다."""
+    if not hasattr(_name_patterns, "cache"):
+        names = {g: g for g in _drug_classes()}
+        with open(DRUG_NAMES_CSV, encoding="utf-8-sig") as fh:
+            for r in csv.DictReader(fh):
+                g = (r.get("generic_names") or "").strip().lower()
+                if g and "+" not in g and g in names:
+                    names.setdefault(r["raw_name"].strip().lower(), g)
+        _name_patterns.cache = [(re.compile(rf"(?<![a-z]){re.escape(n)}(?![a-z])"), g)
+                                for n, g in sorted(names.items(), key=lambda x: -len(x[0])) if len(n) > 3]
+    return _name_patterns.cache
+
+
 def _fill_drugs_evidence(option, chunks):
     """7번. 빈 drugs·evidence를 인용한 지침 청크에서 채운다. (채운 칸 이름 목록, 약을 정하지 못한 이유 또는 None)."""
     filled, unresolved = [], None
@@ -107,12 +124,19 @@ def _fill_drugs_evidence(option, chunks):
         if classes:
             unresolved = f"요법 이름에 계열 이름({', '.join(classes)})이 있어 약을 정하지 못함, 의사 확인 필요"
         else:
+            # 요법 이름에 적힌 약: 공용 약 사전(일반명·별칭)으로 찾는다. 인용 청크의 drugs에만 기대면 청크에 없는 약이
+            # 빠진다 (D 확인 2026-11-04: "anastrozole + LHRH agonist"가 goserelin·leuprolide만 남음).
+            # 청크에 없는 약은 다음 3번 규칙이 거른다
+            found, text = [], therapy.lower()
+            for rx, g in _name_patterns():
+                m = rx.search(text)
+                if m:
+                    text = rx.sub(lambda x: " " * len(x.group()), text)   # 자리를 지켜 순서를 남긴다
+                    found.append((m.start(), g))
             drugs = []
-            for c in chunks:
-                for d in c.get("drugs") or []:
-                    if d.lower() not in [x.lower() for x in drugs] and \
-                            re.search(rf"\b{re.escape(d.lower())}\b", therapy.lower()):
-                        drugs.append(d)
+            for _, g in sorted(found):
+                if g not in drugs:
+                    drugs.append(g)
             drugs += [d for d in expanded if d.lower() not in [x.lower() for x in drugs]]
             if drugs:
                 option["drugs"] = drugs
@@ -175,8 +199,7 @@ def _classify(option, reimb_by_id, today, conditions_checker):
             return changes
         if cls in COVERED_CLASSES and valid:
             option.update(reimbursement="covered_conditions_unverified",
-                          reimbursement_reason=f"{option.get('reimbursement_reason') or ''} "
-                                               "(후보 약을 정하지 못해 급여 조건을 판정하지 않음, 의사 확인)".strip())
+                          reimbursement_reason="후보 약을 정하지 못해 급여 조건을 판정하지 않음, 의사 확인")
             return changes + ([] if cls == "covered_conditions_unverified" else [f"{cls} → 급여(조건 확인 필요) (후보 약 미정)"])
         if cls in COVERED_CLASSES:
             option.update(reimbursement="no_criteria", reimbursement_citations=[], copay=None)
@@ -217,15 +240,16 @@ def _classify(option, reimb_by_id, today, conditions_checker):
     if isinstance(res, bool):
         res = {"status": "met" if res else "unknown", "reason": ""}
     status, why = (res or {}).get("status", "unknown"), (res or {}).get("reason", "")
-    reason = option.get("reimbursement_reason") or ""
+    # 이유 문장은 판정기가 쓴 것만 둔다. LLM의 reimbursement_reason을 앞에 붙이면 "조건 확인 불가 (조건 충족 …)"처럼
+    # 앞뒤가 어긋난다 (D 확인 2026-11-04)
     if status == "met":
-        option.update(reimbursement="covered", reimbursement_reason=f"{reason} ({why})".strip())
+        option.update(reimbursement="covered", reimbursement_reason=why or "급여 조건 충족")
         return changes + ([] if cls == "covered" else [f"{cls} → 급여 ({why})"])
     if status == "not_met":
-        option.update(reimbursement="no_criteria", reimbursement_reason=f"{reason} (급여 조건 불충족: {why})".strip())
+        option.update(reimbursement="no_criteria", reimbursement_reason=f"급여 조건 불충족: {why}" if why else "급여 조건 불충족")
         return changes + ([] if cls == "no_criteria" else [f"{cls} → 급여 기준 없음 (급여 조건 불충족)"])
     option["reimbursement"] = "covered_conditions_unverified"
-    option["reimbursement_reason"] = f"{reason} ({why or '급여 조건을 자동으로 모두 확인하지 못함'})".strip()
+    option["reimbursement_reason"] = why or "급여 조건을 자동으로 모두 확인하지 못함"
     return changes + (["급여 → 급여(조건 확인 필요) (조건 확인 안 됨)"] if cls == "covered" else [])
 
 
