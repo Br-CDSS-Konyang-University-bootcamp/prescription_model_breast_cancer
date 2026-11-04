@@ -161,8 +161,8 @@ def save_decision(body: dict, confirmed_state: dict, rec_status: dict, decision_
            "recommendation_ref": {"generated_at": rec.get("generated_at"), "model": rec.get("model")} if rec else None,
            "decided_at": datetime.now().astimezone().isoformat(timespec="seconds"), "decided_by": by, "action": action,
            "selected_option_index": None, "selected_rank": None, "shown_option_count": min(SHOWN, len(options)),
-           "therapy": None, "drugs": [], "setting": None, "line": None, "reimbursement": None, "custom_unlisted_drugs": [],
-           "defer_reason": None, "memo": (body.get("memo") or "").strip() or None}
+           "therapy": None, "drugs": [], "setting": None, "line": None, "reimbursement": None, "reimbursement_reason": None,
+           "citations": [], "reimbursement_citations": [], "custom_unlisted_drugs": [], "defer_reason": None, "memo": (body.get("memo") or "").strip() or None}
     if action == "accept_option":
         i = body.get("selected_option_index")
         if not isinstance(i, int) or not 0 <= i < len(options):
@@ -171,7 +171,9 @@ def save_decision(body: dict, confirmed_state: dict, rec_status: dict, decision_
             o = options[i]
             shown = [r["index"] for r in rec_status.get("ranked") or ranked(options)]
             doc.update(selected_option_index=i, selected_rank=shown.index(i) + 1, therapy=o["therapy"],
-                       drugs=o.get("drugs") or [], reimbursement=o.get("reimbursement"))
+                       drugs=o.get("drugs") or [], reimbursement=o.get("reimbursement"),
+                       reimbursement_reason=o.get("reimbursement_reason"), citations=o.get("citations") or [],
+                       reimbursement_citations=o.get("reimbursement_citations") or [])
     elif action == "custom":
         drugs = [d for d in body.get("drugs") or [] if d]
         unlisted = [d for d in body.get("custom_unlisted_drugs") or [] if d]
