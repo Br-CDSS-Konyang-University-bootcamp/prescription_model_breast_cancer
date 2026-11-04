@@ -16,7 +16,7 @@ LUM = {"chunk_id": "esmo-mbc-luminal-1l-x", "doc_type": "guideline", "source": "
 BONE = {"chunk_id": "esmo-mbc-2026-05-site-bone-087674", "doc_type": "guideline", "source": "ESMO-MBC",
         "evidence": {"loe": "I", "gor": "A"},
         "drugs": ["denosumab", "zoledronic acid", "pamidronate", "ibandronate", "clodronate"],
-        "text": "TEST CHUNK (made up): bone-modifying agents for bone metastases."}
+        "text": "TEST CHUNK (made up): bisphosphonates such as zoledronic acid, or denosumab, for bone metastases."}
 EARLY = {"chunk_id": "esmo-ebc-hrpos-fca2a7", "doc_type": "guideline", "source": "ESMO-EBC",
          "evidence": {"loe": "I", "gor": "A"}, "drugs": ["zoledronic acid"],
          "text": "TEST CHUNK (made up): adjuvant bisphosphonates."}
@@ -41,7 +41,8 @@ def test_bma_in_main_moves_to_supportive():
                                         opt("letrozole + palbociclib", ["letrozole", "palbociclib"], LUM["chunk_id"])]},
                            RECORD, [LUM, BONE], ROWS, TODAY, bone_metastasis=True)
     assert [o["therapy"] for o in rec["options"]] == ["letrozole + palbociclib"]
-    assert [o["drugs"] for o in rec["supportive_options"]] == [["denosumab"], ["zoledronic acid"]]
+    assert [o["drugs"] for o in rec["supportive_options"]] == [["denosumab"], ["zoledronic acid"],
+                                                               ["pamidronate", "ibandronate", "clodronate"]]
     assert rec["supportive_options"][0]["reimbursement_citations"] == ["supp-denosumab-1"]
     assert any("보조 약물 칸으로 옮김" in m for m in log)
 
@@ -52,7 +53,8 @@ def test_bone_chunk_fills_supportive_when_llm_skips_it():
                            RECORD, [LUM, BONE], ROWS, TODAY, bone_metastasis=True)
     assert len(rec["options"]) == 1
     sup = rec["supportive_options"]
-    assert [o["therapy"] for o in sup] == ["denosumab", "zoledronic acid"]
+    assert [o["therapy"] for o in sup] == ["denosumab", "zoledronic acid",
+                                           "bisphosphonates 계열 (pamidronate, ibandronate, clodronate 중 하나)"]
     assert sup[0]["citations"] == [BONE["chunk_id"]] and sup[0]["rationale"].endswith(f"[{BONE['chunk_id']}].")
     # 뼈 전이가 아니면 규칙으로 채우지 않는다
     rec, _ = postprocess({"options": []}, RECORD, [LUM, BONE], ROWS, TODAY, bone_metastasis=False)
@@ -83,12 +85,14 @@ def test_pipeline_passes_schema_and_bone_from_confirmed_state():
                                  {"booklet_date": "2026-11-01", "overlay_notices": [], "scheduled_count": 0,
                                   "in_progress_count": 0}, "fake-local", TODAY, confirmed_state=confirmed)
     assert errors == [], errors
-    assert [o["therapy"] for o in rec["supportive_options"]] == ["denosumab", "zoledronic acid"]
+    assert [o["therapy"] for o in rec["supportive_options"]][:2] == ["denosumab", "zoledronic acid"]
+    assert len(rec["supportive_options"]) == 3
     assert safety_violations(rec, RECORD, {}) == []
 
 
-def test_bone_fill_only_drugs_with_reimbursement_rows_and_schema():
-    """C 의견 (2026-11-04): 급여 행이 있는 약만 채우고, 채운 후보도 급여 인용 규칙을 통과해야 한다."""
+def test_bone_fill_by_guideline_names_and_schema():
+    """A 의견·C 확인 (2026-11-04): 급여 여부가 아니라 지침 근거로. 본문에 이름이 나오는 약은 따로,
+    계열 사전으로 푼 약은 "bisphosphonates 계열" 한 줄. 급여는 5번 규칙이 판정하고 결과는 스키마를 통과한다."""
     from src.recommend.validate import validate
     base = {"schema_version": "0.1-draft", "patient_ref": "T", "generated_at": "2026-11-04T00:00:00+09:00",
             "model": "fake", "index_status": {"booklet_date": "2026-11-01", "overlay_notices": [], "scheduled_count": 0,
@@ -96,10 +100,7 @@ def test_bone_fill_only_drugs_with_reimbursement_rows_and_schema():
             "out_of_scope_reason": None, "conflicts": []}
     rec, _ = postprocess({"options": []}, RECORD, [LUM, BONE], ROWS, TODAY, bone_metastasis=True)
     sup = rec["supportive_options"]
-    assert [o["therapy"] for o in sup] == ["denosumab", "zoledronic acid"]       # pamidronate 등은 급여 행이 없어 뺌
-    assert all(o["reimbursement_citations"] for o in sup)
-    assert validate({**base, **rec}) == []
-    rec, _ = postprocess({"options": []}, RECORD, [LUM, BONE], [], TODAY, bone_metastasis=True)   # 급여 행이 하나도 없으면
-    sup = rec["supportive_options"]
-    assert len(sup) == 1 and sup[0]["drugs"] == [] and sup[0]["reimbursement"] == "no_criteria"
+    assert [o["drugs"] for o in sup] == [["denosumab"], ["zoledronic acid"], ["pamidronate", "ibandronate", "clodronate"]]
+    assert [o["reimbursement_citations"] for o in sup] == [["supp-denosumab-1"], ["supp-zoledronic-a"], []]
+    assert sup[2]["reimbursement"] == "no_criteria" and all("_groups" not in o for o in sup)
     assert validate({**base, **rec}) == []
