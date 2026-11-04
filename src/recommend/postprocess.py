@@ -279,23 +279,29 @@ def _is_supportive(option):
     return bool(BMA_TERM_RE.search(option.get("therapy") or ""))
 
 
-def _bone_supportive(guide_by_id, done):
-    """8번: 뼈 전이 청크(chunk_id에 site-bone)의 골 보호제를 약마다 보조 후보로 만든다 (LLM이 빠뜨렸을 때, VC-0108).
+def _bone_supportive(guide_by_id, done, reimb_by_id, today):
+    """8번: 뼈 전이 청크(chunk_id에 site-bone)의 골 보호제를 보조 후보로 만든다 (LLM이 빠뜨렸을 때, VC-0108).
+    청크 drugs에는 계열 이름이 풀린 5개가 다 들어 있어(C 확인 2026-11-04), 넘겨받은 시행 중인 급여 행이 있는 약만
+    약마다 하나씩 만든다. 그런 약이 없으면 약을 정하지 않은 한 줄("골 보호제")만 만든다.
     근거 문장은 정해진 틀이고 지침 원문을 옮기지 않는다. done은 이미 보조 칸에 있는 약."""
     out = []
     for cid, c in guide_by_id.items():
         if "site-bone" not in cid:
             continue
-        for d in [x.lower() for x in c.get("drugs") or []]:
-            if d in _bma_drugs() and d not in done:
+        ev = c.get("evidence") or {}
+        base = {"rationale": f"뼈 전이 환자에게 골 보호제가 권고된다 [{cid}].", "citations": [cid],
+                "evidence": (f"LoE {ev['loe']}" + (f", GoR {ev['gor']}" if ev.get("gor") else "")) if ev.get("loe") else None,
+                "reimbursement": "covered_conditions_unverified", "reimbursement_reason": "", "reimbursement_citations": []}
+        bma = [d for d in (x.lower() for x in c.get("drugs") or []) if d in _bma_drugs()]
+        covered = [d for d in bma if any(_valid_reimb(r, today) and _drugs_match({"drugs": [d]}, r, exact=True)
+                                         for r in reimb_by_id.values())]
+        for d in covered:
+            if d not in done:
                 done.add(d)
-                ev = c.get("evidence") or {}
-                out.append({"therapy": d, "drugs": [d],
-                            "rationale": f"뼈 전이 환자에게 골 보호제가 권고된다 [{cid}].", "citations": [cid],
-                            "evidence": (f"LoE {ev['loe']}" + (f", GoR {ev['gor']}" if ev.get("gor") else ""))
-                            if ev.get("loe") else None,
-                            "reimbursement": "covered_conditions_unverified", "reimbursement_reason": "",
-                            "reimbursement_citations": []})
+                out.append({**base, "therapy": d, "drugs": [d]})
+        if bma and not covered and not done:
+            done.add("(골 보호제)")
+            out.append({**base, "therapy": "골 보호제 (bisphosphonate 또는 denosumab)", "drugs": []})
     return out
 
 
@@ -413,7 +419,7 @@ def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursemen
     # 8번: 뼈 전이 환자에게 뼈 전이 청크가 왔는데 LLM이 골 보호제를 빠뜨리면 규칙으로 채운다 (VC-0108)
     if bone_metastasis:
         done = {d.lower() for o in support for d in o.get("drugs") or []}
-        for o in _bone_supportive(guide_by_id, done):
+        for o in _bone_supportive(guide_by_id, done, reimb_by_id, today):
             log.append(f"{o['therapy']}: 뼈 전이 청크가 있어 보조 약물 칸에 채움 ({o['citations'][0]})")
             log.extend(f"{o['therapy']}: {c}" for c in _classify(o, reimb_by_id, today, conditions_checker))
             support.append(o)

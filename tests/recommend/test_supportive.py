@@ -14,7 +14,8 @@ LUM = {"chunk_id": "esmo-mbc-luminal-1l-x", "doc_type": "guideline", "source": "
        "evidence": {"loe": "I", "gor": "A"}, "drugs": ["letrozole", "palbociclib", "trastuzumab deruxtecan"],
        "text": "TEST CHUNK (made up): letrozole plus palbociclib."}
 BONE = {"chunk_id": "esmo-mbc-2026-05-site-bone-087674", "doc_type": "guideline", "source": "ESMO-MBC",
-        "evidence": {"loe": "I", "gor": "A"}, "drugs": ["denosumab", "zoledronic acid"],
+        "evidence": {"loe": "I", "gor": "A"},
+        "drugs": ["denosumab", "zoledronic acid", "pamidronate", "ibandronate", "clodronate"],
         "text": "TEST CHUNK (made up): bone-modifying agents for bone metastases."}
 EARLY = {"chunk_id": "esmo-ebc-hrpos-fca2a7", "doc_type": "guideline", "source": "ESMO-EBC",
          "evidence": {"loe": "I", "gor": "A"}, "drugs": ["zoledronic acid"],
@@ -84,3 +85,21 @@ def test_pipeline_passes_schema_and_bone_from_confirmed_state():
     assert errors == [], errors
     assert [o["therapy"] for o in rec["supportive_options"]] == ["denosumab", "zoledronic acid"]
     assert safety_violations(rec, RECORD, {}) == []
+
+
+def test_bone_fill_only_drugs_with_reimbursement_rows_and_schema():
+    """C 의견 (2026-11-04): 급여 행이 있는 약만 채우고, 채운 후보도 급여 인용 규칙을 통과해야 한다."""
+    from src.recommend.validate import validate
+    base = {"schema_version": "0.1-draft", "patient_ref": "T", "generated_at": "2026-11-04T00:00:00+09:00",
+            "model": "fake", "index_status": {"booklet_date": "2026-11-01", "overlay_notices": [], "scheduled_count": 0,
+                                              "in_progress_count": 0}, "tests_needed": [], "out_of_scope": False,
+            "out_of_scope_reason": None, "conflicts": []}
+    rec, _ = postprocess({"options": []}, RECORD, [LUM, BONE], ROWS, TODAY, bone_metastasis=True)
+    sup = rec["supportive_options"]
+    assert [o["therapy"] for o in sup] == ["denosumab", "zoledronic acid"]       # pamidronate 등은 급여 행이 없어 뺌
+    assert all(o["reimbursement_citations"] for o in sup)
+    assert validate({**base, **rec}) == []
+    rec, _ = postprocess({"options": []}, RECORD, [LUM, BONE], [], TODAY, bone_metastasis=True)   # 급여 행이 하나도 없으면
+    sup = rec["supportive_options"]
+    assert len(sup) == 1 and sup[0]["drugs"] == [] and sup[0]["reimbursement"] == "no_criteria"
+    assert validate({**base, **rec}) == []
