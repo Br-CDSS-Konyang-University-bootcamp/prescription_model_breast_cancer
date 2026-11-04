@@ -144,7 +144,8 @@ def test_preview_notice_is_not_reimbursement_basis():
 def test_offlabel_needs_offlabel_chunk():
     o = opt(reimbursement="offlabel_approved", reimbursement_citations=["r-fulv"])
     rec, _ = run([o], bm(PIK3CA="positive"))
-    assert rec["options"][0]["reimbursement"] == "no_criteria"
+    o = rec["options"][0]   # 허가초과 청크가 없으면 일반 급여 행으로 판정 (D 확인 VC-0101)
+    assert o["reimbursement"] == "covered_conditions_unverified" and o["reimbursement_citations"] == ["r-fulv"]
     o = opt(therapy="olaparib", drugs=["olaparib"], rationale="gBRCA 환자에게 권고된다 [g-ola].", citations=["g-ola"],
             reimbursement="offlabel_approved", reimbursement_citations=["r-off"])
     rec, _ = run([o], bm(gBRCA1="positive"))

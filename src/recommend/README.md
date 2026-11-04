@@ -15,8 +15,8 @@
 | 파일 | 하는 일 |
 |---|---|
 | `pipeline.py` | 진입점 `recommend(patient_state, biomarker_record, guideline_chunks, reimbursement_chunks, llm, index_status, model_name)` → (추천, 후처리 로그, 형식 오류). 검색 결과와 LLM 함수(프롬프트 글 → 답 사전 또는 답 글)는 넘겨받기만 한다. LLM 함수는 `llm_link.make_llm()`으로 만든다 |
-| `llm_link.py` | `make_llm(task="recommend")` → `recommend()`에 넣을 LLM 함수. `llm/config.toml`의 `[recommend]` 칸을 읽고, 보내기 전에 **로컬인지 확인**(`patient_data = true`, provider `ollama`, 주소 `127.0.0.1`·`localhost`·`::1`)한 뒤 `llm.complete_json`으로 이 PC의 Ollama에 묻는다. 답 양식은 `schemas/recommendation.json` 중 LLM이 채우는 칸만 뗀 것 |
-| `prompt.py` | 프롬프트: 환자 요약(구조화 값만, 차트 원문 인용은 넣지 않음), 바이오마커 상태값과 이유, 검사 공백, 지침 청크(ID·출처·쪽·근거 수준), 지침 소단원(같은 것은 한 번만), 급여 청크(공고 번호·시행일, 소단원은 ID만). 문장마다 `[청크ID]`를 붙이고, 맞는 요법마다 후보를 하나씩(최대 5개), `drugs`·`evidence`를 채우라고 지시. `fit_prompt()`는 질문지가 `num_ctx - max_tokens`(make_llm이 `prompt_budget`으로 붙임)를 넘으면 급여 청크, 그다음 지침 청크를 뒤에서부터 빼고 로그에 적는다. 토큰 수는 한글 1글자 1토큰, 그 밖 3글자 1토큰으로 어림한다 (A 전달 `src/input/handoff_recommend_prompt_to_B_2026-11-02.md`, VC-0103 질문지 81,998자가 문맥 16,384토큰을 넘어 앞부분이 잘림) |
+| `llm_link.py` | `make_llm(task="recommend")` → `recommend()`에 넣을 LLM 함수. `llm/config.toml`의 `[recommend]` 칸을 읽고, 보내기 전에 **로컬인지 확인**(`patient_data = true`, provider `ollama`, 주소 `127.0.0.1`·`localhost`·`::1`)한 뒤 `llm.complete_json`으로 이 PC의 Ollama에 묻는다. 답 양식은 `schemas/recommendation.json` 중 LLM이 채우는 칸만 뗀 것 LLM 답 양식은 후보 하나의 규칙(인용 1개 이상, 급여 분류가 있으면 급여 인용 1개 이상)을 빼서 느슨하게 둔다. 후보 하나의 빈칸 때문에 답 전체가 버려지지 않게 하고(A 전달 §5.3, VC-0110·0114·0116), 그 규칙은 후처리와 최종 형식 검사가 맡는다. |
+| `prompt.py` | 프롬프트: 환자 요약(구조화 값만, 차트 원문 인용은 넣지 않음), 바이오마커 상태값과 이유, 검사 공백, 지침 청크(ID·출처·쪽·근거 수준), 지침 소단원(같은 것은 한 번만), 급여 청크(공고 번호·시행일, 소단원은 ID만). 문장마다 `[청크ID]`를 붙이고, 맞는 요법마다 후보를 하나씩(최대 5개), `drugs`·`evidence`를 채우라고 지시. `fit_prompt()`는 질문지가 `num_ctx - max_tokens`(make_llm이 `prompt_budget`으로 붙임)를 넘으면 급여 청크, 그다음 지침 청크를 뒤에서부터 빼고 로그에 적는다. 뺀 급여 청크도 후처리에는 모두 넘겨, 5번 규칙이 약이 맞는 급여 행을 붙일 수 있게 한다 (D 확인 2026-11-04, VC-0101). 토큰 수는 한글 1글자 1토큰, 그 밖 3글자 1토큰으로 어림한다 (A 전달 `src/input/handoff_recommend_prompt_to_B_2026-11-02.md`, VC-0103 질문지 81,998자가 문맥 16,384토큰을 넘어 앞부분이 잘림) |
 | `postprocess.py` | 환각 방지 후처리 (아래 표) |
 | `validate.py` | `schemas/recommendation.json` 형식 검사 |
 | `clinical_notes.py` | 참고란 (`recommendation.json` `clinical_notes`, 2026-10-29). 동반질환·ECOG·장기 위기·의사가 확정한 금기 계열을 정해진 문장 틀로 적고, 넘어온 지침 청크 중 동반질환 관련 ESMO 청크 ID를 붙인다. 금기 계열 약이 든 후보는 빼지 않고 `applies_to`로 표시만 한다. `recommend(..., confirmed_state=...)`로 의사 확정값을 넘긴다 |
@@ -28,12 +28,13 @@
 
 | 순서 | 규칙 | 결과 |
 |---|---|---|
+| 1 | 소단원(부모) ID 인용 | 넘겨받은 그 자식 청크 ID로 바꿈 (후보 약이 든 자식, 없으면 첫 자식. A 전달 2026-11-03 §5.3, VC-0134) |
 | 1 | 받은 청크에 없는 청크 ID 인용 | 그 인용을 지움 |
 | 2 | 근거 문장(rationale)에 `[청크ID]`가 없는 문장 | 문장을 지움. 남은 문장이나 지침 인용이 없으면 후보를 지움 |
 | 3 | 약 이름이 인용한 지침 청크(`drugs` 목록 또는 본문)에 없음. 다만 본문에 넓은 계열 이름이 있으면 그 계열 약은 통과: `ET`·endocrine → Hormone Therapy, `ChT`·chemotherapy → Chemotherapy, anti-HER2·HER2-directed·HER2-targeted → HER2-targeted Therapy (`drug_classes.csv`의 `drug_class`, C와 합의 2026-11-02. C는 이 세 계열을 청크 `drugs`로 풀지 않는다). `ET`·`ChT`는 대소문자까지 맞는 단어만 | 후보를 지움 |
 | 4 | 약에 필요한 바이오마커가 `not_done`·`not_recorded`·`unknown`·`retest_needed` (필요한 마커 중 양성이 하나도 없을 때) | 후보 대신 `tests_needed`에 "<마커> 검사 결과 확인" (`blocks_therapy`에 치료 이름) |
 | 4 | 필요한 바이오마커가 모두 음성·VUS 등 | 후보를 지우고 `conflicts`에 이유와 출처를 적음 |
-| 5 | 급여 행 고르기: 후보 `drugs`가 모두 행의 `drugs`에 든 시행 중인 급여 청크(`baseline`·`overlay`, 시행일이 오늘 이전)만 쓴다. 약이 다른 행 인용은 지우고, 넘겨받은 급여 청크 중 약이 맞는데 인용하지 않은 행은 붙인다 (A 전달 2026-11-03 §3, C `search_reimbursement`와 같은 규칙). 예고(`preview`)는 근거가 아님. 행의 약이 후보 약과 똑같은 행이 있으면 그 행만 쓰고, 없을 때만 약이 더 든 행을 쓴다 (D 요청 2026-11-04) | 고른 행으로 아래 판정 |
+| 5 | 급여 행 고르기: 후보 `drugs`가 모두 행의 `drugs`에 든 시행 중인 급여 청크(`baseline`·`overlay`, 시행일이 오늘 이전)만 쓴다. 약이 다른 행 인용은 지우고, 넘겨받은 급여 청크 중 약이 맞는데 인용하지 않은 행은 붙인다 (A 전달 2026-11-03 §3, C `search_reimbursement`와 같은 규칙). 예고(`preview`)는 근거가 아님. 병용 행(40장)의 추가 약제가 후보에 없으면 그 행은 맞지 않고(추가 약제의 허가 조건이라서), 추가 약제가 비급여면 이유 앞에 "<약> 비급여 + <나머지> 급여"를 적는다 (D 요청 2026-11-04). 행의 약이 후보 약과 똑같은 행이 있으면 그 행만 쓰고, 없을 때만 약이 더 든 행을 쓴다 (D 요청 2026-11-04) | 고른 행으로 아래 판정 |
 | 5 | 후보 `drugs`가 빔 (7번, 계열 이름) | 인용 행을 지우거나 붙이지 않고 `covered_conditions_unverified` (인용한 시행 중인 행이 없으면 `no_criteria`), 조건 판정 안 함 (D 요청 2026-11-04) |
 | 5 | 후보 약과 맞는 시행 중인 급여 행이 없음 | `no_criteria`, 이유 "후보 약과 맞는 시행 중인 급여 행 없음" |
 | 5 | 허가초과 인정인데 허가초과 청크(`HIRA-offlabel`) 인용이 없음 | `no_criteria`. 있으면 청크의 본인부담률을 `copay`에 |
@@ -41,7 +42,8 @@
 | 5 | 급여 조건 판정 불충족 | `no_criteria` (이유에 못 맞춘 조건) |
 | 5 | 급여 조건을 모두 확인하지 못함, 또는 판정기를 넘기지 않음 | `covered_conditions_unverified` |
 | 6 | 지침 청크가 하나도 없음 | 추천을 만들지 않고 `out_of_scope` |
-| 7 | `drugs`·`evidence`가 비어 옴 (2번 뒤, 3번 전) | `drugs`는 요법 이름에 적힌 약 (공용 약 사전의 일반명·별칭으로 찾음, 청크에 없는 약은 3번이 거름, D 확인 2026-11-04), `evidence`는 인용한 지침 청크의 LoE·GoR로 채움 (A 전달 2026-11-02 §6 4번). 요법 이름에 계열 이름(AI, ET, CDK4/6, taxane 등)이 있으면 `drugs`를 비워 두고 `conflicts`에 "약을 정하지 못함, 의사 확인 필요" (A 전달 2026-11-03 §2 3번). 다만 LHRH 작용제(LHRH·GnRH agonist, OFS, ovarian suppression)는 급여 행에 맞춰 goserelin·leuprolide로 펼친다 (둘 중 하나라는 뜻, D 요청 2026-11-04) |
+| 7 | `drugs`·`evidence`가 비어 옴 (2번 뒤, 3번 전) | `drugs`는 요법 이름에 적힌 약 (공용 약 사전의 일반명·별칭으로 찾음, 청크에 없는 약은 3번이 거름, D 확인 2026-11-04), `evidence`는 인용한 지침 청크의 LoE·GoR로 채움 (A 전달 2026-11-02 §6 4번). 요법 이름에 계열 이름(AI, ET, CDK4/6, taxane 등)이 있으면 `drugs`를 비워 두고 `conflicts`에 "약을 정하지 못함, 의사 확인 필요" (A 전달 2026-11-03 §2 3번). 다만 LHRH 작용제(LHRH·GnRH agonist, OFS, ovarian suppression)는 급여 행에 맞춰 goserelin·leuprolide로 펼친다 (둘 중 하나라는 뜻, D 요청 2026-11-04). LHRH 묶음은 급여 행과 맞출 때 둘 중 하나만 있어도 맞는 행으로 본다. AI·CDK4/6 등 다른 계열은 펼치지 않는다 (D 취소 2026-11-04) |
+| 8 | 골 보호제(`drug_classes.csv`의 Bone-modifying Agent: denosumab, zoledronic acid, pamidronate, ibandronate, clodronate, 약이 없으면 요법 이름의 bisphosphonate·BMA 등) | 주 후보 `options`에서 `supportive_options`(함께 처방할 보조 약물)로 옮김. 1~5·7번 검사를 보조 칸에도 똑같이 하고, 보조 칸의 골 보호제가 아닌 후보는 지움. 선행요법 결정(조기)이면 골 보호제를 내지 않음. 뼈 전이 환자에게 뼈 전이 청크(`site-bone`)가 왔는데 LLM이 빠뜨리면 급여 여부가 아니라 지침 근거로 채움: 청크 본문에 이름이 나오는 약(ESMO MBC는 zoledronic acid, denosumab)은 약마다 한 줄, C가 "bisphosphonates"를 계열 사전으로 풀어 넣은 나머지 약은 "bisphosphonates 계열" 한 줄(그중 하나). 정해진 문장에 청크 ID만, 급여는 5번 규칙이 판정 (A 의견, C 확인 2026-11-04) (팀 안건 A `src/input/team_agenda_A_2026-11-04.md`, 2026-11-04) |
 
 청크 `drugs`는 "본문에 나온 약"이라 금기로 언급된 약도 들어 있다 (예: 동반질환으로 CDK4/6을 못 쓸 때의 권고에 CDK4/6 약 3개). 3번 규칙은 약이 인용한 청크에 나오는지만 보는 환각 검사라 권하는 약인지는 가리지 않는다. 참고란은 이런 청크를 근거 ID로만 붙인다.
 
