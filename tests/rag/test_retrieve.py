@@ -370,3 +370,18 @@ def test_er_low_also_searches_tnbc_recommendations():
             (base / case / "expected/confirmed_state.json").read_text(encoding="utf-8")))
         got[case] = [a["subtype"] for a in extra_search_args(record, top_k=3, **patient)].count("TNBC")
     assert got == {"VC-0124": 1, "VC-0142": 1, "VC-0103": 0}
+
+
+def test_er_low_tnbc_query_drops_er_low_phrase_and_adds_clinical_stage():
+    # ER 저발현의 TNBC 추가 검색 질의는 'ER-/PgR-low'를 빼고 'TNBC'와 임상 병기를 붙인다 (VC-0124에서 tnbc-777c34를 못 찾음).
+    # 주 질의는 그대로다
+    import json
+    from pathlib import Path
+    from src.rag.query import extra_search_args, search_args
+    from src.rag.retrieve import from_confirmed_state
+    path = Path(__file__).resolve().parents[2] / "tests/fixtures/virtual_charts/VC-0124/expected/confirmed_state.json"
+    record, patient, _ = from_confirmed_state(json.loads(path.read_text(encoding="utf-8")))
+    assert patient["clinical_stage"] == "cT2 node-positive stage II"
+    assert "ER-/PgR-low" in search_args(record, **patient)["query_text"]
+    tnbc = [a for a in extra_search_args(record, top_k=3, **patient) if a["subtype"] == "TNBC"][0]
+    assert "ER-/PgR-low" not in tnbc["query_text"] and tnbc["query_text"].endswith("TNBC cT2 node-positive stage II")
