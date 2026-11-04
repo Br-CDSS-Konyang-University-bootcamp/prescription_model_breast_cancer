@@ -83,10 +83,11 @@
 - [ ] 골 보호제 급여 청크(`supp-denosumab-1`, `supp-zoledronic-a`, `supp-zoledronic-b`)의 조건이 검수 완료인지, 차수 구분 없이 검색되는지 확인.
 
 **A (`src/app/`, 화면 2)**
-- [ ] 화면 2에 "함께 처방할 보조 약물" 체크 칸 추가(여러 개 선택 가능, 근거와 급여 분류 표시).
-- [ ] 주 처방 선택지에 **"현재 치료 유지"** 추가(지금은 추천안 선택·직접 입력·보류뿐).
-- [ ] `src/app/prescription_decision.json` 초안에 `supportive` 목록과 유지 선택지 추가, `save_decision` 검사와 `tests/app/test_decision.py` 고침.
-- [ ] `run_flow`의 `summary.csv`에 보조 약물 열과 C 보조 정답 대조 추가. B·C 작업이 끝나면 위 7건을 다시 돌려 결과 공유.
+- [x] 화면 2에 "함께 처방할 보조 약물" 체크 칸 추가(여러 개 선택 가능, 근거와 급여 분류 표시).
+- [x] 주 처방 선택지에 **"현재 치료 유지"** 추가(확정값 prior_regimens 중 투약 중인 요법, `continue_current`).
+- [x] `src/app/prescription_decision.json` 초안에 `supportive` 목록과 유지 선택지 추가, `save_decision` 검사와 `tests/app/test_decision.py` 고침.
+- [x] `run_flow`의 `summary.csv`에 보조 약물 열(`supportive`)과 C 보조 정답 대조(`supp_cited`) 추가.
+- [ ] B·C 작업이 끝나면 골 보호제 사례를 다시 돌려 결과 공유.
 
 ### 팀이 정할 것
 

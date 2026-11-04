@@ -147,6 +147,12 @@ def load_confirmed(save_dir: Path, ref: str, version: int) -> dict:
         return json.load(f)
 
 
+def current_regimens(confirmed_state: dict) -> list[dict]:
+    """기준일에 투약 중인 요법 (확정값 prior_regimens 중 ongoing). '현재 치료 유지'에 쓴다 (팀 안건 A, VC-0108)."""
+    regs = ((confirmed_state.get("items") or {}).get("prior_regimens") or {}).get("confirmed") or []
+    return [r for r in regs if r.get("ongoing")]
+
+
 def save_decision(body: dict, confirmed_state: dict, rec_status: dict, decision_dir: Path = DECISION_DIR) -> tuple[Path | None, dict, list[str]]:
     """초안 스키마 src/app/prescription_decision.json으로 검사해 저장 (새 버전, 덮어쓰지 않음)."""
     errors = []
@@ -162,7 +168,7 @@ def save_decision(body: dict, confirmed_state: dict, rec_status: dict, decision_
            "decided_at": datetime.now().astimezone().isoformat(timespec="seconds"), "decided_by": by, "action": action,
            "selected_option_index": None, "selected_rank": None, "shown_option_count": min(SHOWN, len(options)),
            "therapy": None, "drugs": [], "setting": None, "line": None, "reimbursement": None, "reimbursement_reason": None,
-           "citations": [], "reimbursement_citations": [], "custom_unlisted_drugs": [], "defer_reason": None, "memo": (body.get("memo") or "").strip() or None}
+           "citations": [], "reimbursement_citations": [], "supportive": [], "custom_unlisted_drugs": [], "defer_reason": None, "memo": (body.get("memo") or "").strip() or None}
     if action == "accept_option":
         i = body.get("selected_option_index")
         if not isinstance(i, int) or not 0 <= i < len(options):
@@ -174,6 +180,11 @@ def save_decision(body: dict, confirmed_state: dict, rec_status: dict, decision_
                        drugs=o.get("drugs") or [], reimbursement=o.get("reimbursement"),
                        reimbursement_reason=o.get("reimbursement_reason"), citations=o.get("citations") or [],
                        reimbursement_citations=o.get("reimbursement_citations") or [])
+    elif action == "continue_current":
+        drugs = list(dict.fromkeys(d for r in current_regimens(confirmed_state) for d in r.get("drugs") or []))
+        if not drugs:
+            errors.append("투약 중인 치료가 없어 '현재 치료 유지'를 고를 수 없습니다")
+        doc.update(therapy=" + ".join(drugs) or None, drugs=drugs)
     elif action == "custom":
         drugs = [d for d in body.get("drugs") or [] if d]
         unlisted = [d for d in body.get("custom_unlisted_drugs") or [] if d]
@@ -188,8 +199,18 @@ def save_decision(body: dict, confirmed_state: dict, rec_status: dict, decision_
             errors.append("보류 이유를 고르세요")
         doc["defer_reason"] = body.get("defer_reason")
     else:
-        errors.append("추천안, 기타, 보류 중 하나를 고르세요")
-    if action in ("accept_option", "custom") and not doc["setting"]:
+        errors.append("추천안, 현재 치료 유지, 기타, 보류 중 하나를 고르세요")
+    # 함께 처방할 보조 약물 (recommendation.supportive_options 중 체크한 것). 어느 action과도 고를 수 있다
+    supp = rec.get("supportive_options") or []
+    for i in dict.fromkeys(body.get("supportive_option_indexes") or []):
+        if not isinstance(i, int) or not 0 <= i < len(supp):
+            errors.append("보조 약물을 다시 고르세요")
+            break
+        o = supp[i]
+        doc["supportive"].append({"option_index": i, "therapy": o.get("therapy"), "drugs": o.get("drugs") or [],
+                                  "reimbursement": o.get("reimbursement"), "reimbursement_reason": o.get("reimbursement_reason"),
+                                  "citations": o.get("citations") or [], "reimbursement_citations": o.get("reimbursement_citations") or []})
+    if action in ("accept_option", "continue_current", "custom") and not doc["setting"]:
         items = confirmed_state.get("items") or {}
         dis = (items.get("setting.disease") or {}).get("confirmed")
         doc["setting"] = "palliative" if dis == "metastatic" else (items.get("setting.phase") or {}).get("confirmed")

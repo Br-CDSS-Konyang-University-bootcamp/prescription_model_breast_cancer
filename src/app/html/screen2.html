@@ -130,7 +130,7 @@ header h1 { font-size: 15px; margin: 0; }
       <div class="body" id="cards"><div class="progress">불러오는 중…</div></div>
     </section>
     <section class="pane" id="pick">
-      <h2>의사 처방 선택 <small>추천안 하나, 기타(직접 처방), 보류 중 하나</small></h2>
+      <h2>의사 처방 선택 <small>추천안, 현재 치료 유지, 기타(직접 처방), 보류 중 하나 + 보조 약물</small></h2>
       <div class="body">
         <div id="choices"></div>
         <div class="memo"><textarea id="memo" placeholder="메모 (판단 근거, 선택)"></textarea></div>
@@ -151,7 +151,7 @@ header h1 { font-size: 15px; margin: 0; }
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const Q = Object.fromEntries(new URLSearchParams(location.search));
-let META = null, D = null, REC = null, CHOICE = null, CUSTOM = [], VIEW = null, MORE = false, TIMER = null;
+let META = null, D = null, REC = null, CHOICE = null, CUSTOM = [], SUPP = new Set(), VIEW = null, MORE = false, TIMER = null;
 const REIMB = {
   covered: "급여 (조건 충족)", covered_conditions_unverified: "급여 (조건 확인 필요)",
   offlabel_approved: "허가초과 인정 · 다학제적위원회 협의 필요", no_criteria: "급여 기준 없음 (비급여 가능성, 확인 필요)",
@@ -165,6 +165,8 @@ function vl(key, v) {
   return META.value_labels[`${key}:${v}`] || META.value_labels[String(v)] || String(v);
 }
 const label = (k) => META.labels[k] || k.replace("markers.", "");
+// 기준일에 투약 중인 약 (확정값 prior_regimens 중 ongoing). 서버 save_decision의 current_regimens와 같다
+const currentDrugs = () => [...new Set((((D.confirmed.items.prior_regimens || {}).confirmed) || []).filter((r) => r.ongoing).flatMap((r) => r.drugs || []))];
 async function api(path, body) {
   const res = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : undefined);
   const data = await res.json();
@@ -244,7 +246,7 @@ function renderRecs() {
   const rec = REC.recommendation, opts = REC.ranked, shown = MORE ? opts : opts.slice(0, REC.shown);
   $("#recinfo").textContent = `${rec.model} · ${REC.seconds}초 · 정렬: 근거 수준 → 급여`;
   $("#recbtn").innerHTML = `<button class="link" id="regen">다시 생성</button>`;
-  $("#regen").onclick = () => { REC = null; CHOICE = null; start(true); };
+  $("#regen").onclick = () => { REC = null; CHOICE = null; SUPP = new Set(); start(true); };
   const notes = rec.clinical_notes || [];
   const band = [...(rec.tests_needed || []).map((t) => `<div><b>검사 권고</b>${esc(t.test)}: ${esc(t.reason)}${t.blocks_therapy ? ` (이 검사가 없어 ${esc(t.blocks_therapy)} 추천 보류)` : ""}</div>`),
     ...(rec.conflicts || []).map((c) => `<div><b>확인</b>${esc(c)}</div>`)];
@@ -265,6 +267,13 @@ function renderRecs() {
       ${applies.map((x) => `<div class="note">⚠ ${esc(x.text)}</div>`).join("")}
     </div>`;
   }).join("");
+  const supp = rec.supportive_options || [];
+  if (supp.length) html += `<div class="extra"><h4>함께 처방할 보조 약물 <small>주 처방과 따로, 해당되면 아래에서 체크</small></h4>${supp.map((o, i) => `<div class="card ${SUPP.has(i) ? "sel" : ""}">
+      <div class="top"><span class="no">보조</span><span class="therapy">${esc(o.therapy)}</span>
+        <span class="ev">${esc([o.guideline_source, o.evidence].filter(Boolean).join(" · "))}</span></div>
+      <div class="why">${withCites(o.rationale)} ${(o.citations || []).map(cite).join("")}</div>
+      <div class="reimb ${esc(o.reimbursement)}">${esc(REIMB[o.reimbursement] || o.reimbursement)}${o.copay ? ` · 본인부담 ${esc(o.copay)}` : ""}
+        <small>${esc(o.reimbursement_reason)} ${(o.reimbursement_citations || []).map(cite).join("")}</small></div></div>`).join("")}</div>`;
   if (opts.length > REC.shown) html += `<div class="sortnote"><button class="link" id="more">${MORE ? "접기" : `추천안 ${opts.length - REC.shown}개 더 보기`}</button></div>`;
   const general = notes.filter((x) => !(x.applies_to || []).length);
   if (general.length) html += `<div class="extra"><h4>참고</h4>${general.map((x) => `<div>${esc(x.text)} ${(x.citations || []).map(cite).join("")}</div>`).join("")}</div>`;
@@ -286,6 +295,8 @@ function renderChoices() {
   const custom = is("custom") ? CHOICE : {};
   let html = opts.map((o, n) => `<div class="opt"><label><input type="radio" name="c" data-act="accept_option" data-index="${o.index}" ${is("accept_option") && CHOICE.index === o.index ? "checked" : ""}> ${n + 1}안</label> <span>${esc(o.therapy)}</span></div>`).join("");
   if (!REC) html += `<div class="opt"><span class="headinfo">추천이 끝나면 추천안이 여기에 나옵니다.</span></div>`;
+  const cur = currentDrugs();
+  if (cur.length) html += `<div class="opt"><label><input type="radio" name="c" data-act="continue_current" ${is("continue_current") ? "checked" : ""}> 현재 치료 유지</label> <span>${esc(cur.join(" + "))}</span></div>`;
   html += `<div class="opt"><label><input type="radio" name="c" data-act="custom" ${is("custom") ? "checked" : ""}> 기타 (직접 처방)</label></div>`;
   if (is("custom")) {
     html += `<div class="sub">약 <input list="druglist" id="druginput" placeholder="약 이름 검색" size="16"><button class="link" id="adddrug">추가</button>
@@ -296,11 +307,17 @@ function renderChoices() {
   }
   html += `<div class="opt"><label><input type="radio" name="c" data-act="defer" ${is("defer") ? "checked" : ""}> 보류</label>
     ${is("defer") ? `<select id="defer"><option value="">(이유)</option>${DEFER.map(([v, t]) => `<option value="${v}" ${CHOICE.reason === v ? "selected" : ""}>${t}</option>`).join("")}</select>` : ""}</div>`;
+  const supp = REC ? (REC.recommendation.supportive_options || []) : [];
+  if (supp.length) html += `<div class="opt"><b>함께 처방할 보조 약물</b> <span class="headinfo">해당되면 체크 (여러 개 가능)</span></div>` +
+    supp.map((o, i) => `<div class="sub"><label><input type="checkbox" data-supp="${i}" ${SUPP.has(i) ? "checked" : ""}> ${esc(o.therapy)}</label> <span class="headinfo">${esc(REIMB[o.reimbursement] || o.reimbursement)}</span></div>`).join("");
   html += `<datalist id="druglist">${D.drugs.map((d) => `<option value="${esc(d)}">`).join("")}</datalist>`;
   $("#choices").innerHTML = html;
   document.querySelectorAll('#choices input[name="c"]').forEach((el) => el.onchange = () => {
     CHOICE = el.dataset.act === "accept_option" ? { action: "accept_option", index: +el.dataset.index } : { action: el.dataset.act };
     renderChoices(); if (REC) renderRecs();
+  });
+  document.querySelectorAll("#choices [data-supp]").forEach((el) => el.onchange = () => {
+    const i = +el.dataset.supp; if (el.checked) SUPP.add(i); else SUPP.delete(i); renderChoices(); renderRecs();
   });
   if ($("#adddrug")) {
     const add = () => { const v = $("#druginput").value.trim(); if (v && !CUSTOM.some((d) => d.name === v)) CUSTOM.push({ name: v, unlisted: !D.drugs.includes(v) }); renderChoices(); };
@@ -311,7 +328,7 @@ function renderChoices() {
     if ($("#line")) $("#line").onchange = (e) => { CHOICE.line = e.target.value; renderChoices(); };
   }
   if ($("#defer")) $("#defer").onchange = (e) => { CHOICE.reason = e.target.value; renderChoices(); };
-  const ok = CHOICE && (CHOICE.action === "accept_option" || (CHOICE.action === "custom" && CUSTOM.length && CHOICE.setting) || (CHOICE.action === "defer" && CHOICE.reason));
+  const ok = CHOICE && (CHOICE.action === "accept_option" || CHOICE.action === "continue_current" || (CHOICE.action === "custom" && CUSTOM.length && CHOICE.setting) || (CHOICE.action === "defer" && CHOICE.reason));
   $("#save").disabled = !ok;
   $("#pickinfo").textContent = ok ? "" : "하나를 골라야 확인이 켜집니다";
 }
@@ -319,14 +336,15 @@ function renderChoices() {
 async function save() {
   const by = $("#by").value.trim();
   try { localStorage.setItem("screen1.by", by); } catch (e) {}
-  const body = { case: Q.case, version: +Q.version, decided_by: by, action: CHOICE.action, memo: $("#memo").value };
+  const body = { case: Q.case, version: +Q.version, decided_by: by, action: CHOICE.action, memo: $("#memo").value,
+    supportive_option_indexes: [...SUPP].sort((a, b) => a - b) };
   if (CHOICE.action === "accept_option") body.selected_option_index = CHOICE.index;
   if (CHOICE.action === "custom") Object.assign(body, { drugs: CUSTOM.filter((d) => !d.unlisted).map((d) => d.name),
     custom_unlisted_drugs: CUSTOM.filter((d) => d.unlisted).map((d) => d.name), setting: CHOICE.setting, line: CHOICE.line || null });
   if (CHOICE.action === "defer") body.defer_reason = CHOICE.reason;
   const data = await api("/api/decision", body);
   $("#msg").innerHTML = data.errors.length ? `<p class="errors">저장하지 못함:\n${data.errors.map(esc).join("\n")}</p>`
-    : `<p class="saved">저장함: ${esc(data.path)} · ${esc(data.doc.action === "defer" ? "보류 (" + Object.fromEntries(DEFER)[data.doc.defer_reason] + ")" : data.doc.therapy)}. 결과 보고서(설계 §6)는 아직 없습니다.</p>`;
+    : `<p class="saved">저장함: ${esc(data.path)} · ${esc(data.doc.action === "defer" ? "보류 (" + Object.fromEntries(DEFER)[data.doc.defer_reason] + ")" : (data.doc.action === "continue_current" ? "현재 치료 유지: " : "") + data.doc.therapy)}${data.doc.supportive.length ? ` · 보조 약물: ${esc(data.doc.supportive.map((s) => s.therapy).join(", "))}` : ""}. 결과 보고서(설계 §6)는 아직 없습니다.</p>`;
   $("#msg").scrollIntoView({ block: "nearest" });
 }
 
