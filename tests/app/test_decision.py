@@ -63,3 +63,57 @@ def test_schema_action_rules(tmp_path):
     v = Draft202012Validator(schema)
     assert list(v.iter_errors(doc)) == []
     assert list(v.iter_errors({**doc, "therapy": "capecitabine"}))
+
+
+# 현재 치료 유지와 보조 약물 (팀 안건 A src/input/team_agenda_A_2026-11-04.md, VC-0108)
+VC0108 = json.loads((s2.ROOT / "tests" / "fixtures" / "virtual_charts" / "VC-0108" / "expected" / "confirmed_state.json")
+                    .read_text(encoding="utf-8"))
+SUPPORTIVE = [{"therapy": "denosumab", "drugs": ["denosumab"], "reimbursement": "covered",
+               "reimbursement_reason": "조건 충족 (supp-denosumab-1)", "citations": ["esmo-mbc-2026-05-site-bone-087674"],
+               "reimbursement_citations": ["hira-booklet-20261101-supp-denosumab-1"]},
+              {"therapy": "zoledronic acid", "drugs": ["zoledronic acid"], "reimbursement": "covered_conditions_unverified",
+               "reimbursement_reason": "확인 필요", "citations": ["esmo-mbc-2026-05-site-bone-087674"],
+               "reimbursement_citations": ["hira-booklet-20261101-supp-zoledronic-b"]}]
+REC_SUPP = {"recommendation": {**REC["recommendation"], "supportive_options": SUPPORTIVE}, "ranked": REC["ranked"]}
+
+
+def test_continue_current_with_supportive(tmp_path):
+    """VC-0108: 투약 중인 ribociclib + letrozole 유지 + denosumab 시작을 한 번에 저장한다."""
+    path, doc, errors = s2.save_decision({"decided_by": "user-test", "action": "continue_current",
+                                          "supportive_option_indexes": [0, 0]}, VC0108, REC_SUPP, tmp_path)
+    assert errors == [] and path.name == "v1.json"
+    assert (doc["therapy"], doc["drugs"]) == ("ribociclib + letrozole", ["ribociclib", "letrozole"])
+    assert (doc["setting"], doc["line"], doc["reimbursement"], doc["citations"]) == ("palliative", None, None, [])
+    assert doc["selected_option_index"] is None and doc["selected_rank"] is None
+    assert [s["therapy"] for s in doc["supportive"]] == ["denosumab"]   # 같은 번호를 두 번 보내도 한 번
+    assert doc["supportive"][0]["reimbursement_citations"] == ["hira-booklet-20261101-supp-denosumab-1"]
+
+
+def test_supportive_with_accept_and_defer(tmp_path):
+    """보조 약물은 추천안 채택·보류와도 함께 고를 수 있다."""
+    _, doc, errors = s2.save_decision({"decided_by": "user-test", "action": "accept_option", "selected_option_index": 1,
+                                       "supportive_option_indexes": [1]}, CONFIRMED, REC_SUPP, tmp_path)
+    assert errors == [] and doc["therapy"] == "Fulvestrant—ribociclib"
+    assert doc["supportive"][0]["option_index"] == 1 and doc["supportive"][0]["reimbursement"] == "covered_conditions_unverified"
+    _, doc, errors = s2.save_decision({"decided_by": "user-test", "action": "defer", "defer_reason": "pending_test",
+                                       "supportive_option_indexes": [0]}, CONFIRMED, REC_SUPP, tmp_path)
+    assert errors == [] and doc["therapy"] is None and len(doc["supportive"]) == 1
+
+
+@pytest.mark.parametrize("confirmed, body, msg", [
+    (CONFIRMED, {"action": "continue_current"}, "투약 중인 치료가 없어"),   # VC-0103: anastrozole 진행 뒤 투약 중인 약 없음
+    (VC0108, {"action": "continue_current", "supportive_option_indexes": [2]}, "보조 약물"),
+    (VC0108, {"action": "continue_current", "supportive_option_indexes": ["0"]}, "보조 약물"),
+])
+def test_refuses_continue_and_supportive(tmp_path, confirmed, body, msg):
+    path, _, errors = s2.save_decision({"decided_by": "user-test", **body}, confirmed, REC_SUPP, tmp_path)
+    assert path is None and any(msg in e for e in errors)
+
+
+def test_schema_continue_current_rules(tmp_path):
+    """현재 치료 유지는 급여·근거 인용을 옮기지 않는다 (다시 판정하지 않음)."""
+    v = Draft202012Validator(json.loads(s2.DECISION_SCHEMA.read_text(encoding="utf-8")))
+    _, doc, _ = s2.save_decision({"decided_by": "user-test", "action": "continue_current"}, VC0108, REC_SUPP, tmp_path)
+    assert list(v.iter_errors(doc)) == []
+    assert list(v.iter_errors({**doc, "reimbursement": "covered"}))
+    assert list(v.iter_errors({**doc, "drugs": []}))

@@ -10,6 +10,8 @@
   결과는 <out>/<case>/c1.json (화면 2 캐시와 같은 형식). 이미 있으면 건너뛴다 (--force로 다시). 실패는 <out>/<case>/error.json.
 - 표: <out>/summary.csv (사례마다 한 줄). C 정답 expected/guideline.json이 있으면 대조한다:
   정답 지침 청크가 검색되었는지(retrieved), 후보가 인용했는지(cited), 1순위 후보가 인용했는지(top), 오답 청크를 인용했는지(wrong).
+  보조 약물(supportive_options, 골 보호제 등)은 따로 적고(supportive), C 보조 정답(expected_supportive)이 있으면 보조 후보가
+  인용했는지 센다(supp_cited). 주 후보 칸의 골 보호제는 세지 않는다 (팀 안건 A).
   급여 분류는 시나리오 표가 글이라 자동 대조하지 않고 후보마다 적어 둔다 (사람이 scenario.md D 표와 본다).
   급여 사유 글(reimbursement_reason)은 공고 문구가 들어 있을 수 있어 표에 넣지 않는다 (csv는 git에 올라갈 수 있음).
 - Qdrant 로컬 모드는 한 프로세스만 연다. 화면 서버를 끄고 돌린다. GPU 서버는 SSH 터널로 (src/input/py_files.md).
@@ -30,7 +32,7 @@ from src.app.script import screen2 as s2
 CHARTS = cr.CHARTS
 VERSION = 1   # 정답 확정 파일은 v1로 본다 (결과 파일 이름 c1.json)
 COLUMNS = ["case", "set", "subtype", "disease", "decision", "guideline_answer", "retrieved", "cited", "top", "wrong",
-           "options", "conflicts", "schema_errors", "seconds", "error"]
+           "supp_cited", "options", "supportive", "conflicts", "schema_errors", "seconds", "error"]
 
 
 def cases() -> list[str]:
@@ -62,11 +64,16 @@ def guideline_check(result: dict, answer: dict) -> dict:
     cited = {cid for o in options for cid in o.get("citations") or []}
     top = set((result["ranked"][0].get("citations") or []) if result.get("ranked") else [])
     wrong = sorted(cited & set(answer.get("not_expected") or []))
-    return {"guideline_answer": answer.get("status"),
-            "retrieved": f"{sum(cid in result['chunks'] for cid in want)}/{len(want)}",
-            "cited": f"{sum(cid in cited for cid in want)}/{len(want)}",
-            "top": "yes" if top & set(want) else "no",
-            "wrong": "; ".join(wrong)}
+    got = {"guideline_answer": answer.get("status"),
+           "retrieved": f"{sum(cid in result['chunks'] for cid in want)}/{len(want)}",
+           "cited": f"{sum(cid in cited for cid in want)}/{len(want)}",
+           "top": "yes" if top & set(want) else "no",
+           "wrong": "; ".join(wrong)}
+    supp_want = answer.get("expected_supportive") or []
+    if supp_want:   # 보조 약물 정답은 보조 칸(supportive_options)의 인용으로만 센다
+        supp_cited = {cid for o in result["recommendation"].get("supportive_options") or [] for cid in o.get("citations") or []}
+        got["supp_cited"] = f"{sum(cid in supp_cited for cid in supp_want)}/{len(supp_want)}"
+    return got
 
 
 def summary_row(case: str, out: Path, sets: dict) -> dict:
@@ -85,6 +92,7 @@ def summary_row(case: str, out: Path, sets: dict) -> dict:
     result = json.loads(path.read_text(encoding="utf-8"))
     rec = result["recommendation"]
     row["options"] = "; ".join(f"{o.get('therapy')} [{o.get('reimbursement')}]" for o in result["ranked"])
+    row["supportive"] = "; ".join(f"{o.get('therapy')} [{o.get('reimbursement')}]" for o in rec.get("supportive_options") or [])
     row["conflicts"] = len(rec.get("conflicts") or [])
     row["schema_errors"] = len(result.get("schema_errors") or [])
     row["seconds"] = result.get("seconds")

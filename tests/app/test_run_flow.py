@@ -45,3 +45,21 @@ def test_cases_have_gold_confirmed_state():
     ids = rf.cases()
     assert "VC-0103" in ids and "VC-0129" not in ids and "VC-0106b" not in ids
     assert rf.main(["--out", "unused", "--ids", "VC-0129", "--summary"]) == 2
+
+
+def test_supportive_column_and_answer(tmp_path):
+    """보조 약물은 표의 supportive 열에 따로 적고, C 보조 정답은 보조 칸 인용으로만 센다 (팀 안건 A)."""
+    options = [{"therapy": "AI—ribociclib", "reimbursement": "covered", "citations": ["g1"]},
+               {"therapy": "BMA (주 후보 칸)", "reimbursement": "no_criteria", "citations": ["bone"]}]
+    result = fake_result(options, ["g1", "bone"])
+    answer = {"expected_chunks": ["g1"], "expected_supportive": ["bone"], "status": "reviewed"}
+    assert rf.guideline_check(result, answer)["supp_cited"] == "0/1"   # 주 후보 칸의 골 보호제는 세지 않는다
+    result["recommendation"]["supportive_options"] = [{"therapy": "denosumab", "reimbursement": "covered", "citations": ["bone"]}]
+    assert rf.guideline_check(result, answer)["supp_cited"] == "1/1"
+    assert "supp_cited" not in rf.guideline_check(result, {"expected_chunks": ["g1"]})
+    (tmp_path / "VC-0108").mkdir()
+    (tmp_path / "VC-0108" / "c1.json").write_text(json.dumps(result), encoding="utf-8")
+    path = rf.write_summary(tmp_path, ["VC-0108"])
+    with open(path, encoding="utf-8-sig", newline="") as f:
+        row = next(csv.DictReader(f))
+    assert row["supportive"] == "denosumab [covered]"
