@@ -490,10 +490,15 @@ def evaluate_conditions(cond, patient_state, record):
     return {"status": {True: "met", False: "not_met", None: "unknown"}[total], "failed": failed, "unknown": unknown}
 
 
-def make_conditions_checker(patient_state, record, conditions_reviewed=False):
+# 확정 판정(충족·불충족)에 붙이는 표시. D가 131행을 검수했지만 의료진 검토는 이 프로젝트에서 할 수 없다 (한계, 2026-11-04)
+REVIEW_NOTE = "D 검수 조건, 의료진 검토 전"
+
+
+def make_conditions_checker(patient_state, record, conditions_reviewed=True):
     """recommend()·postprocess()의 conditions_checker. (option, 시행 중인 급여 청크 목록) -> {status, reason}.
-    D의 조건은 사람 검수 전이라(D README), conditions_reviewed가 False면 충족이든 불충족이든 확정하지 않고
-    unknown(급여(조건 확인 필요))으로 돌려준다. 검수 전 조건이 틀렸을 때 약을 잘못 올리거나 내리지 않게 하려는 것."""
+    D가 급여 조건 131행 검수를 마쳐(2026-11-04) 기본값은 확정 판정(conditions_reviewed=True)이다. 의료진 검토는 할 수 없어
+    확정 판정의 이유 끝에 REVIEW_NOTE를 붙인다 (B 결정, 사용자 확인 2026-11-04). conditions_reviewed=False면 충족이든
+    불충족이든 확정하지 않고 unknown(급여(조건 확인 필요))으로 돌려준다."""
     def check(option, chunks):
         results = []
         for c in chunks:
@@ -507,12 +512,12 @@ def make_conditions_checker(patient_state, record, conditions_reviewed=False):
             reason = f"조건 충족 ({', '.join(met)})"
             if not conditions_reviewed:
                 return {"status": "unknown", "reason": reason + ", 조건 사람 검수 전"}
-            return {"status": "met", "reason": reason}
+            return {"status": "met", "reason": f"{reason}, {REVIEW_NOTE}"}
         unk = [(cid, r) for cid, r in results if r["status"] == "unknown"]
         if unk:
             return {"status": "unknown", "reason": "; ".join(f"{cid} 확인 필요: {', '.join(r['unknown'])}" for cid, r in unk)}
         reason = "; ".join(f"{cid} 불충족: {', '.join(r['failed'])}" for cid, r in results)
         if not conditions_reviewed:
             return {"status": "unknown", "reason": reason + ", 조건 사람 검수 전"}
-        return {"status": "not_met", "reason": reason}
+        return {"status": "not_met", "reason": f"{reason} ({REVIEW_NOTE})"}
     return check
