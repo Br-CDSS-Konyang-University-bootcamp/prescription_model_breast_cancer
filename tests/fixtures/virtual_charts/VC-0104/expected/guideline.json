@@ -35,8 +35,8 @@
       "page": 1213
     }
   ],
-  "status": "draft",
-  "reviewer": null,
-  "reviewed_on": null,
+  "status": "reviewed",
+  "reviewer": "Claude 2차 점검 (염승민 위임)",
+  "reviewed_on": "2026-11-04",
   "note": "TNBC 간 전이, PD-L1 22C3 CPS 12, 보조 종료 약 8개월 뒤 재발(DFI ≥6개월) → pembrolizumab-ChT(05095b)·pembrolizumab-sacituzumab(3d718a), 그림 8 PD-L1+ 경로. not_expected: atezolizumab(DFI ≥12개월 조건, SP142 기준), PD-L1 음성·gBRCA wt 권고 2개, 장기 부전 임박 권고. gBRCA 미시행이라 olaparib 권고(015580)는 어느 쪽에도 넣지 않음"
 }

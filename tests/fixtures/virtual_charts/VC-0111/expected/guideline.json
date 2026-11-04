@@ -40,8 +40,8 @@
       "page": 1210
     }
   ],
-  "status": "draft",
-  "reviewer": null,
-  "reviewed_on": null,
+  "status": "reviewed",
+  "reviewer": "Claude 2차 점검 (염승민 위임)",
+  "reviewed_on": "2026-11-04",
   "note": "de novo HR-/HER2+, 1차 docetaxel-HP 뒤 활동성 뇌 전이(국소 치료 적응 없음) + 간 진행 → T-DXd(585977, 뇌 전이 25de20), tucatinib-trastuzumab-capecitabine(081a81), 그림 6 활동성 BM·국소 치료 적응 없음 경로. T-DM1(95a804)·tucatinib(666948)은 'T-DXd를 쓸 수 없을 때'라 넣지 않음. not_expected: 뇌 밖 진행 없을 때 국소 치료(d1dc37, 간 진행 있음), HER2 변이 권고"
 }

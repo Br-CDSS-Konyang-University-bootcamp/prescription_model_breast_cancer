@@ -34,8 +34,8 @@
       "page": 1206
     }
   ],
-  "status": "draft",
-  "reviewer": null,
-  "reviewed_on": null,
+  "status": "reviewed",
+  "reviewer": "Claude 2차 점검 (염승민 위임)",
+  "reviewed_on": "2026-11-04",
   "note": "43세 폐경 전(FSH), 보조 tamoxifen 2년째 뼈·림프절 전이, PIK3CA 미검출 → fulvestrant-CDK4/6(0fd38a) + OFS(c0c05b, 폐경 전 내분비 기반 치료에 추가, 시나리오 M01), 그림 2 보조 ET 중 재발 PIK3CA wt 경로. not_expected: 12개월 넘어·de novo 갈래, PIK3CA 변이 권고 2개"
 }

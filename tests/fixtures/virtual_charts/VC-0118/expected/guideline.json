@@ -34,8 +34,8 @@
       "page": 170
     }
   ],
-  "status": "draft",
-  "reviewer": null,
-  "reviewed_on": null,
+  "status": "reviewed",
+  "reviewer": "Claude 2차 점검 (염승민 위임)",
+  "reviewed_on": "2026-11-04",
   "note": "폐경 후 TNBC pT1b(8mm) N0, 수술 먼저 → 항암(725b0b, pT1a만 예외), 그림 7 pT1b pN0 → 6-8주기 항암 경로. not_expected: gBRCA 변이 olaparib(기록 없음·pT1bN0라 고위험 아님), 선행 뒤 잔존 capecitabine, 선행 권고 2개(cT2 이상·cT1c 이상)"
 }

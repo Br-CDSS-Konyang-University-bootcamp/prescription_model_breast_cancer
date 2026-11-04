@@ -8,7 +8,8 @@
     "line": "adjuvant"
   },
   "expected_chunks": [
-    "esmo-ebc-2024-02-tnbc-d13ffd"
+    "esmo-ebc-2024-02-tnbc-d13ffd",
+    "esmo-ebc-2024-02-tnbc-2f0fc4"
   ],
   "expected_parents": [
     "esmo-ebc-2024-02-tnbc"
@@ -34,8 +35,8 @@
       "page": 170
     }
   ],
-  "status": "draft",
-  "reviewer": null,
-  "reviewed_on": null,
-  "note": "cT2N1 TNBC, 선행 KEYNOTE-522 요법(pembrolizumab 포함) 뒤 ypT1bN1a 잔존(RCB-II), gBRCA 음성 → 보조 pembrolizumab 9주기(d13ffd), 그림 7 ≥cT2·N+ 잔존 경로 2개(pembrolizumab, gBRCA wt capecitabine). 원문 cd090b는 'ICI를 받지 않은 잔존 환자 capecitabine'이라 not_expected, ICI+capecitabine(2f0fc4 '개별 고려')은 넣지 않음(검수 때 확인). not_expected: gBRCA 변이 olaparib, 선행 단계 권고(777c34)"
+  "status": "reviewed",
+  "reviewer": "Claude 2차 점검 (염승민 위임)",
+  "reviewed_on": "2026-11-04",
+  "note": "cT2N1 TNBC, 선행 KEYNOTE-522 요법(pembrolizumab 포함) 뒤 ypT1bN1a 잔존(RCB-II), gBRCA 음성 → 보조 pembrolizumab 9주기(d13ffd), 그림 7 ≥cT2·N+ 잔존 경로 2개(pembrolizumab, gBRCA wt capecitabine). 원문 cd090b는 'ICI를 받지 않은 잔존 환자 capecitabine'이라 not_expected, ICI+capecitabine(2f0fc4 '개별 고려')은 넣지 않음(검수 때 확인). not_expected: gBRCA 변이 olaparib, 선행 단계 권고(777c34). [판단 근거 · Claude 2차 점검 2026-11-04, 염승민 위임] 'ICI를 받지 않은 잔존 환자 capecitabine'(cd090b)은 조건이 명시적으로 맞지 않아 오답 유지. 다만 ESMO 그림 7의 pembrolizumab 요법 뒤 잔존·gBRCA wt 경로(796507)가 capecitabine을 두고, 본문도 'ICI와 capecitabine 병용은 개별 고려'(2f0fc4)라 해서 2f0fc4를 정답에 더함. 보조 pembrolizumab 9주기(d13ffd)가 첫째 정답"
 }

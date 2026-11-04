@@ -32,8 +32,8 @@
       "page": 162
     }
   ],
-  "status": "draft",
-  "reviewer": null,
-  "reviewed_on": null,
+  "status": "reviewed",
+  "reviewer": "Claude 2차 점검 (염승민 위임)",
+  "reviewed_on": "2026-11-04",
   "note": "47세 폐경 전, cT3N1 IIIA, 등급 3, Ki-67 45%(luminal B-like), 치료 전 선행 결정 → 항암 후 ET(ca0c8d, 국소 진행 고위험), 그림 2 HR+/HER2- 선행 경로(시나리오). 그림 5 luminal B 경로(d83cba)도 맞지만 끝이 수술 뒤 abemaciclib라 넣지 않음. not_expected: 폐경 후 AI, luminal A 항암 생략"
 }

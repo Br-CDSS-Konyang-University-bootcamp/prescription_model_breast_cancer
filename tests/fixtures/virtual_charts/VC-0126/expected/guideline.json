@@ -27,8 +27,8 @@
       "page": 1205
     }
   ],
-  "status": "draft",
-  "reviewer": null,
-  "reviewed_on": null,
+  "status": "reviewed",
+  "reviewer": "Claude 2차 점검 (염승민 위임)",
+  "reviewed_on": "2026-11-04",
   "note": "de novo, 다발성 간 전이 + 간 기능 이상 + ECOG 2, 의사가 visceral crisis로 판단 → 장기 부전 임박이면 ChT 권고(5c55b4). not_expected: AI-CDK4/6(02649c, 시나리오 '내분비+CDK4/6 1순위 금지')와 보조 ET 중 재발 갈래 3개. 그림 2는 이 경우를 각주(a)로만 다뤄 맞는 경로가 없어 expected_algorithm은 비움"
 }

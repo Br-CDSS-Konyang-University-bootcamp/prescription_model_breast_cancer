@@ -36,8 +36,8 @@
       "page": 1207
     }
   ],
-  "status": "draft",
-  "reviewer": null,
-  "reviewed_on": null,
-  "note": "VC-0101과 같은 경과(1차 letrozole-palbociclib 뒤 진행), 원발 조직 PIK3CA H1047R, cfDNA ESR1 미검출, 생식세포 BRCA 음성 → fulvestrant-capivasertib(49918b)·fulvestrant-alpelisib(8d7349)과 그림 3 PIK3CA 경로(1c118e). alpelisib의 '적절한 당화혈색소' 조건은 차트에 기록이 없다: 투여 전 확인하는 검사라 정답에 넣음 (정답 기준 '조건 충족을 모르면 뺀다'와 맞는지 검수 때 확인). not_expected: ESR1 권고(미검출), gBRCA PARPi(음성), '표적 변이가 없을 때' 권고 2개, 폐경 전 OFS"
+  "status": "reviewed",
+  "reviewer": "Claude 2차 점검 (염승민 위임)",
+  "reviewed_on": "2026-11-04",
+  "note": "VC-0101과 같은 경과(1차 letrozole-palbociclib 뒤 진행), 원발 조직 PIK3CA H1047R, cfDNA ESR1 미검출, 생식세포 BRCA 음성 → fulvestrant-capivasertib(49918b)·fulvestrant-alpelisib(8d7349)과 그림 3 PIK3CA 경로(1c118e). alpelisib의 '적절한 당화혈색소' 조건은 차트에 기록이 없다: 투여 전 확인하는 검사라 정답에 넣음 (정답 기준 '조건 충족을 모르면 뺀다'와 맞는지 검수 때 확인). not_expected: ESR1 권고(미검출), gBRCA PARPi(음성), '표적 변이가 없을 때' 권고 2개, 폐경 전 OFS. [판단 근거 · Claude 2차 점검 2026-11-04, 염승민 위임] alpelisib(8d7349)을 정답으로 둠. 원문의 '적절한 당화혈색소'는 병의 상태가 아니라 처방 직전에 재는 안전 검사라, 차트에 기록이 없다는 이유로 권고 자체를 빼지 않음. 그림 3 PIK3CA 경로도 capivasertib과 alpelisib을 나란히 둠. 당화혈색소 확인은 처방 단계(B·의사) 몫"
 }

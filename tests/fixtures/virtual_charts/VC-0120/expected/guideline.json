@@ -41,8 +41,8 @@
       "page": 165
     }
   ],
-  "status": "draft",
-  "reviewer": null,
-  "reviewed_on": null,
+  "status": "reviewed",
+  "reviewer": "Claude 2차 점검 (염승민 위임)",
+  "reviewed_on": "2026-11-04",
   "note": "폐경 후 cT2N1 HR+/HER2+, 선행 TCHP 뒤 pCR → 항HER2 1년 채우기(16dd9e, 림프절 양성이라 HP c58918), ET 병행(0055ec). 폐경 후 AI 권고(hrpos-0656d9)는 청크 아형이 HR+/HER2-뿐이라 이 환자 검색 범위 밖이어서 그림 4 폐경 후 경로로 대신함. 그림 6 pCR·cN+ → HP 1년 + HR+ ET 경로, 그림 4 폐경 후 경로. not_expected: 잔존 T-DM1(pCR), 수술 먼저 한 환자 권고 2개"
 }
