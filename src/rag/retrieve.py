@@ -262,6 +262,17 @@ ENDOCRINE_TERM = re.compile(r"(?<![A-Za-z])ET(?![A-Za-z])|endocrine therapy|endo
 ENDOCRINE_SUBCLASSES = ("AI_nonsteroidal", "AI_steroidal", "SERM")
 
 
+CHEMO_TERM = re.compile(r"(?<![A-Za-z])ChT(?![A-Za-z])|chemotherapy", re.IGNORECASE)
+
+
+def chemo_class_only(chunk: dict) -> bool:
+    """권고 본문이 항암을 'ChT'·'chemotherapy'로만 말하고 drugs에 세포독성 항암제가 하나도 없는가 (급여 항암 행을 행 단위로 찾을 때)."""
+    text = (chunk.get("text") or "").split(" Footnotes: ", 1)[0]
+    if not CHEMO_TERM.search(text):
+        return False
+    return not any(_drug_classes().get(d, ("", ""))[0] == "Chemotherapy" for d in chunk.get("drugs") or [])
+
+
 def endocrine_drugs(text: str, subtype, disease, menopausal_status) -> list[str]:
     """권고 본문이 내분비요법을 계열 이름으로만 말하면 급여 검색에 쓸 내분비 약 목록. HR 양성이 아니면 빈 목록."""
     if subtype not in ("HR+/HER2-", "HR+/HER2+") or not ENDOCRINE_TERM.search(text.split(" Footnotes: ", 1)[0]):
@@ -345,6 +356,17 @@ def retrieve_for_recommend(state: dict, biomarker_record: dict = None, as_of=Non
                 if row["chunk_id"] not in seen:
                     reimbursement.append(row)
                     seen.add(row["chunk_id"])
+    # 'ChT'·'chemotherapy'로만 적힌 권고(장기 부전 임박 ChT 5c55b4, 항암 후 ET ca0c8d, TNBC 항암 725b0b 등)는 drugs에 항암제가
+    # 없어 급여 항암 행을 찾지 못했다 (D 요청 2026-11-04: VC-0126 급여 0행, VC-0121 선행 항암 행 없음, VC-0118 보조 항암 행 없음).
+    # 그런 권고가 있으면 같은 병기·차수·아형의 급여 행 중 약이 모두 항암제인 행(세포독성 항암 요법)을 더한다. 약 하나씩 풀면
+    # 항암제 20여 개 × 차수만큼 검색해야 하고 표적·면역 병용 행까지 딸려 와서, 행 단위로 고른다. 청크 drugs는 그대로
+    if any(c.get("chunk_kind") != "algorithm" and chemo_class_only(c) for c in guideline):
+        for row in search_reimbursement_rows(setting=disease, lines=lines["reimbursement"],
+                                             subtype=biomarker_record.get("subtype"), as_of=as_of, exclude_ids=seen,
+                                             prefer_classes=("Chemotherapy",), with_parent=True):
+            if row.get("drug_classes") and set(row["drug_classes"]) == {"Chemotherapy"}:
+                reimbursement.append({**row, "matched_by": "ChT"})
+                seen.add(row["chunk_id"])
     if not with_reimbursement_only:
         return guideline, reimbursement
     only = search_reimbursement_rows(setting=disease, lines=lines["reimbursement"],
