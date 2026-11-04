@@ -527,7 +527,7 @@ evaluation_plan §2.1에는 "6묶음 20건"으로 적혀 있음. `pairs.py` 목�
 | 결정 시점 | 고식 항암 2차 |
 | 짝 사례 | 심장 위험 있음 / 없음 (→ 누적 미달이라 불충족) / 기록 없음 (→ `covered_conditions_unverified`) |
 | B | 누적 용량 계산 값 180, 심장 병력 yes, 종격동 방사선 yes, LVEF 48 |
-| C | 본문 M26 (liposomal anthracycline 재투여, DFI 12개월 이상) |
+| C | ESMO MBC TNBC 2차. gBRCA 기록 없음이라 두 갈래를 모두 넘긴다: gBRCA 정상 sacituzumab (`tnbc-2l-835b42`)·HER2 음성의 모든 항암 (`tnbc-2l-e9b4f6`), gBRCA 변이 PARP 억제제 (`tnbc-2l-0a2190`)·carboplatin (`tnbc-2l-aa0873`), 그림 9 gBRCA wt 경로. 본문 M26(liposomal anthracycline 재투여)은 HR+/HER2- 장 권고라 TNBC 검색 대상이 아니다 (C 팀 안건 6-3, 2026-11-04) |
 | D ⚑D | liposomal doxorubicin 4나-19 → `covered` (심장 위험요소), 50/100. 짝: 위 셋. 심장 위험요소의 공고 정의 D 확인 |
 | 추천 | 금지: doxorubicin(일반) 재투여 |
 
@@ -895,7 +895,7 @@ G9는 비워 둠 (크기·림프절·등급을 G8 하나로 합침).
 | D | 40장-20 대상에 ER-low가 드는지 | N15 |
 | D | 4나-19 "심장 위험요소" 정의 | N18, G13 |
 | D | "6개월 이후"·"1년 이후"의 경계일 계산 (달력 vs 일수) | N03, N06, G1, G2 |
-| C | 그림 밖 권고(M06, M37, M26, E10, E11, E20)의 본문 쪽 | N03, N10, N15, N17, N18 |
+| C | 그림 밖 권고(M06, M37, E10, E11, E20)의 본문 쪽 | N03, N10, N15, N17 |
 | C | MBC 그림 4 "이전 ChT"에 보조 ChT가 드는지 | N04, N16 |
 | C | ESMO 원문 기호(≥·≤) 9곳 (esmo_hira_crosswalk §1.4) | G7, N13, G1 |
 | C | 그림 7 `f52123`·`e281ed` (`<cT2 N0` 갈래 뒤 pembrolizumab 상자)가 그림과 맞는지 | N26 |

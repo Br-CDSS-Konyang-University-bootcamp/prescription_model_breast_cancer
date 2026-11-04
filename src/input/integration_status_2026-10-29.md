@@ -36,7 +36,7 @@ VC-0103 한 건을 A → B → C·D 검색 → B `recommend()`까지 이 PC에�
 | 검토표 `confirmed_review.csv` 확인, 맞는 사례를 `reviewed`로 | B, C |
 | 전달 메모 2의 두 문제, `assess()`가 `conflicts[]`를 보지 않는 문제 (VC-0106b Ki-67), VC-0123 ESR1 시나리오 문구 | B |
 | 급여 조건 사람 검수 → `conditions_reviewed=True` | D → B |
-| 전체 실행 파일 (⑤), 결과 보고서 (ui_design §6), `prescription_decision` 형식 제안 | A |
+| ~~전체 실행 파일 (⑤)~~ (`run_flow.py`, 46건 실행은 D 청크 뒤), 결과 보고서 (ui_design §6), ~~`prescription_decision` 형식 제안~~ (`src/app/prescription_decision_proposal.md`, 11-03) | A |
 | `src/app/` 폴더 위치·담당, 남성 환자 폐경 칸(스키마), `prescription_decision` 스키마 | 팀 (4명) |
 
 ## 1. 구동 순서별 점검 결과 (2026-10-29 기록)

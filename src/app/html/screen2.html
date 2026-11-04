@@ -156,7 +156,7 @@ const REIMB = {
   covered: "급여 (조건 충족)", covered_conditions_unverified: "급여 (조건 확인 필요)",
   offlabel_approved: "허가초과 인정 · 다학제적위원회 협의 필요", no_criteria: "급여 기준 없음 (비급여 가능성, 확인 필요)",
 };
-const DEFER = ["검사 후 결정", "다학제 회의", "환자 상의", "기타"];
+const DEFER = [["pending_test", "검사 후 결정"], ["mdt", "다학제 회의"], ["patient_discussion", "환자 상의"], ["other", "기타"]];
 
 function vl(key, v) {
   if (v === null || v === undefined) return "없음";
@@ -295,7 +295,7 @@ function renderChoices() {
       <span class="headinfo">사전에 없는 약은 이름 그대로 추가되고 보고서에 "사전 미등록 약제"로 표시됩니다. 기타 처방은 급여 판정을 다시 하지 않습니다.</span></div>`;
   }
   html += `<div class="opt"><label><input type="radio" name="c" data-act="defer" ${is("defer") ? "checked" : ""}> 보류</label>
-    ${is("defer") ? `<select id="defer"><option value="">(이유)</option>${DEFER.map((d) => `<option ${CHOICE.reason === d ? "selected" : ""}>${d}</option>`).join("")}</select>` : ""}</div>`;
+    ${is("defer") ? `<select id="defer"><option value="">(이유)</option>${DEFER.map(([v, t]) => `<option value="${v}" ${CHOICE.reason === v ? "selected" : ""}>${t}</option>`).join("")}</select>` : ""}</div>`;
   html += `<datalist id="druglist">${D.drugs.map((d) => `<option value="${esc(d)}">`).join("")}</datalist>`;
   $("#choices").innerHTML = html;
   document.querySelectorAll('#choices input[name="c"]').forEach((el) => el.onchange = () => {
@@ -326,7 +326,7 @@ async function save() {
   if (CHOICE.action === "defer") body.defer_reason = CHOICE.reason;
   const data = await api("/api/decision", body);
   $("#msg").innerHTML = data.errors.length ? `<p class="errors">저장하지 못함:\n${data.errors.map(esc).join("\n")}</p>`
-    : `<p class="saved">저장함: ${esc(data.path)} · ${esc(data.doc.action === "defer" ? "보류 (" + data.doc.defer_reason + ")" : data.doc.therapy)}. 결과 보고서(설계 §6)는 아직 없습니다.</p>`;
+    : `<p class="saved">저장함: ${esc(data.path)} · ${esc(data.doc.action === "defer" ? "보류 (" + Object.fromEntries(DEFER)[data.doc.defer_reason] + ")" : data.doc.therapy)}. 결과 보고서(설계 §6)는 아직 없습니다.</p>`;
   $("#msg").scrollIntoView({ block: "nearest" });
 }
 
