@@ -33,8 +33,9 @@
 | 3 | 약 이름이 인용한 지침 청크(`drugs` 목록 또는 본문)에 없음. 다만 본문에 넓은 계열 이름이 있으면 그 계열 약은 통과: `ET`·endocrine → Hormone Therapy, `ChT`·chemotherapy → Chemotherapy, anti-HER2·HER2-directed·HER2-targeted → HER2-targeted Therapy (`drug_classes.csv`의 `drug_class`, C와 합의 2026-11-02. C는 이 세 계열을 청크 `drugs`로 풀지 않는다). `ET`·`ChT`는 대소문자까지 맞는 단어만 | 후보를 지움 |
 | 4 | 약에 필요한 바이오마커가 `not_done`·`not_recorded`·`unknown`·`retest_needed` (필요한 마커 중 양성이 하나도 없을 때) | 후보 대신 `tests_needed`에 "<마커> 검사 결과 확인" (`blocks_therapy`에 치료 이름) |
 | 4 | 필요한 바이오마커가 모두 음성·VUS 등 | 후보를 지우고 `conflicts`에 이유와 출처를 적음 |
-| 5 | 급여 행 고르기: 후보 `drugs`가 모두 행의 `drugs`에 든 시행 중인 급여 청크(`baseline`·`overlay`, 시행일이 오늘 이전)만 쓴다. 약이 다른 행 인용은 지우고, 넘겨받은 급여 청크 중 약이 맞는데 인용하지 않은 행은 붙인다 (A 전달 2026-11-03 §3, C `search_reimbursement`와 같은 규칙). 예고(`preview`)는 근거가 아님 | 고른 행으로 아래 판정 |
-| 5 | 후보 약과 맞는 시행 중인 급여 행이 없음 (후보 `drugs`가 비어도) | `no_criteria`, 이유 "후보 약과 맞는 시행 중인 급여 행 없음" |
+| 5 | 급여 행 고르기: 후보 `drugs`가 모두 행의 `drugs`에 든 시행 중인 급여 청크(`baseline`·`overlay`, 시행일이 오늘 이전)만 쓴다. 약이 다른 행 인용은 지우고, 넘겨받은 급여 청크 중 약이 맞는데 인용하지 않은 행은 붙인다 (A 전달 2026-11-03 §3, C `search_reimbursement`와 같은 규칙). 예고(`preview`)는 근거가 아님. 행의 약이 후보 약과 똑같은 행이 있으면 그 행만 쓰고, 없을 때만 약이 더 든 행을 쓴다 (D 요청 2026-11-04) | 고른 행으로 아래 판정 |
+| 5 | 후보 `drugs`가 빔 (7번, 계열 이름) | 인용 행을 지우거나 붙이지 않고 `covered_conditions_unverified` (인용한 시행 중인 행이 없으면 `no_criteria`), 조건 판정 안 함 (D 요청 2026-11-04) |
+| 5 | 후보 약과 맞는 시행 중인 급여 행이 없음 | `no_criteria`, 이유 "후보 약과 맞는 시행 중인 급여 행 없음" |
 | 5 | 허가초과 인정인데 허가초과 청크(`HIRA-offlabel`) 인용이 없음 | `no_criteria`. 있으면 청크의 본인부담률을 `copay`에 |
 | 5 | 급여 조건 판정(`conditions_checker`) 충족 | `covered` |
 | 5 | 급여 조건 판정 불충족 | `no_criteria` (이유에 못 맞춘 조건) |

@@ -49,7 +49,8 @@ def test_no_matching_row_is_no_criteria():
 def test_class_name_therapy_not_filled_with_one_drug():
     rec, log = run(option("AI—palbociclib", [], ["r-pal-let"]))
     o = rec["options"][0]
-    assert o["drugs"] == [] and o["reimbursement"] == "no_criteria"     # 약을 정하지 못해 급여 행도 맞출 수 없음
+    assert o["drugs"] == [] and o["reimbursement"] == "covered_conditions_unverified"   # 인용 행은 그대로, 판정 안 함
+    assert o["reimbursement_citations"] == ["r-pal-let"] and "후보 약을 정하지 못해" in o["reimbursement_reason"]
     assert any("계열 이름(AI)" in c for c in rec["conflicts"])
     rec, _ = run(option("fulvestrant + palbociclib", [], []))
     assert rec["options"][0]["drugs"] == ["fulvestrant", "palbociclib"]  # 약 이름만 있으면 그대로 채움
@@ -65,3 +66,20 @@ def test_safety_flags_same_ai_subclass_after_progression():
     assert violations("AI—palbociclib", []) == ["progressed_drug_again"]       # 계열 이름만 있어도
     assert violations("exemestane + everolimus", ["exemestane", "everolimus"]) == []   # 스테로이드성 AI는 다른 세부 계열
     assert violations("fulvestrant + palbociclib", ["fulvestrant", "palbociclib"]) == []
+
+
+def test_exact_drug_rows_first():
+    """D 요청 (2026-11-04): 약이 똑같은 행이 있으면 약이 더 든 행은 쓰지 않는다. 없을 때만 약이 더 든 행."""
+    rows = [row("r-pac", ["paclitaxel"]), row("r-pac-pem", ["paclitaxel", "pembrolizumab"]),
+            row("r-pac-tras", ["paclitaxel", "trastuzumab"])]
+    g = {**G, "drugs": G["drugs"] + ["paclitaxel"]}
+    o = option("paclitaxel", ["paclitaxel"], ["r-pac-pem"])
+    rec, log = postprocess({"options": [o]}, RECORD, [g], rows, TODAY)
+    assert rec["options"][0]["reimbursement_citations"] == ["r-pac"]
+    rec, _ = postprocess({"options": [option("paclitaxel", ["paclitaxel"], [])]}, RECORD, [g], rows[1:], TODAY)
+    assert rec["options"][0]["reimbursement_citations"] == ["r-pac-pem", "r-pac-tras"]   # 똑같은 행이 없을 때
+
+
+def test_empty_drugs_without_cited_row_is_no_criteria():
+    rec, _ = run(option("ET alone", [], []))
+    assert rec["options"][0]["reimbursement"] == "no_criteria"

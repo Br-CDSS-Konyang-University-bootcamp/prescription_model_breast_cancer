@@ -9,6 +9,8 @@ LLM이 낸 추천을 받은 청크와 B의 판정에 비추어 고친다. 규칙
 5. 급여 분류는 시행 중인 급여 청크(baseline·overlay, 시행일이 오늘 이전) 중 후보 약이 모두 행의 drugs에 든 행으로만 한다
    (C search_reimbursement의 "후보 약이 모두 행에 있어야"와 같음, A 전달 handoff_recommend_options_to_B_2026-11-03.md §3).
    약이 다른 행 인용은 지우고, 넘겨받은 급여 청크 중 약이 맞는데 인용하지 않은 행은 붙인다. 맞는 행이 없으면 급여 기준 없음.
+   행의 약이 후보 약과 똑같은 행이 있으면 그 행만 쓰고, 없을 때만 약이 더 든 행을 쓴다. 후보 drugs가 비면(7번)
+   인용 행을 그대로 두고 급여(조건 확인 필요)로 둔다 (D 요청 2026-11-04).
    허가초과 인정은 허가초과 청크(HIRA-offlabel)를 인용할 때만. 급여 조건은 conditions_checker(conditions_eval.py)로 판정한다:
    충족이면 "급여", 불충족이면 "급여 기준 없음", 알 수 없으면(판정기 없음 포함) "급여(조건 확인 필요)".
 6. 지침 청크가 하나도 없으면 추천을 만들지 않고 범위 외로 알린다.
@@ -137,10 +139,12 @@ def _gate(option, records, disease):
     return tests, conflicts
 
 
-def _drugs_match(option, chunk):
-    """후보 약이 모두 급여 행의 drugs에 있는지 (소문자로 비교). 후보 약이 없으면 맞출 수 없어 False."""
+def _drugs_match(option, chunk, exact=False):
+    """후보 약이 모두 급여 행의 drugs에 있는지 (소문자로 비교). exact면 행의 약이 후보 약과 똑같아야 한다
+    (C 검색 결과의 extra_drugs가 빈 행). 후보 약이 없으면 맞출 수 없어 False."""
     want = {d.lower() for d in option.get("drugs") or []}
-    return bool(want) and want <= {d.lower() for d in chunk.get("drugs") or []}
+    have = {d.lower() for d in chunk.get("drugs") or []}
+    return bool(want) and (want == have if exact else want <= have)
 
 
 def _classify(option, reimb_by_id, today, conditions_checker):
@@ -149,10 +153,31 @@ def _classify(option, reimb_by_id, today, conditions_checker):
     changes = []
     cited = [reimb_by_id[i] for i in option.get("reimbursement_citations") or [] if i in reimb_by_id]
     valid = [c for c in cited if _valid_reimb(c, today)]
-    matched = [c for c in valid if _drugs_match(option, c)]
+    if not option.get("drugs"):
+        # 약을 정하지 못한 후보 (7번, 계열 이름). 행의 약과 맞춰 볼 수 없으니 인용 행을 지우거나 붙이지 않고,
+        # 급여 조건도 판정하지 않는다 (D 요청 2026-11-04, VC-0119)
+        option["reimbursement_citations"] = [c["chunk_id"] for c in valid]
+        if cls == "offlabel_approved" and any(c.get("source") == "HIRA-offlabel" for c in valid):
+            option["copay"] = next(c for c in valid if c.get("source") == "HIRA-offlabel")["reimbursement"].get("copay")
+            return changes
+        if cls in COVERED_CLASSES and valid:
+            option.update(reimbursement="covered_conditions_unverified",
+                          reimbursement_reason=f"{option.get('reimbursement_reason') or ''} "
+                                               "(후보 약을 정하지 못해 급여 조건을 판정하지 않음, 의사 확인)".strip())
+            return changes + ([] if cls == "covered_conditions_unverified" else [f"{cls} → 급여(조건 확인 필요) (후보 약 미정)"])
+        if cls in COVERED_CLASSES:
+            option.update(reimbursement="no_criteria", reimbursement_citations=[], copay=None)
+            return changes + [f"{cls} → 급여 기준 없음 (시행 중인 급여 청크 인용 없음)"]
+        return changes
+    # 후보 약과 행 약이 똑같은 행을 먼저 쓰고, 그런 행이 없을 때만 약이 더 든 행을 쓴다 (D 요청 2026-11-04.
+    # 예: paclitaxel 후보가 paclitaxel + pembrolizumab 행의 조건으로 급여가 되지 않게)
+    current = [c for c in reimb_by_id.values() if _valid_reimb(c, today)]
+    exact = [c for c in current if _drugs_match(option, c, exact=True)]
+    pool = exact or [c for c in current if _drugs_match(option, c)]
+    matched = [c for c in valid if c in pool]
     if len(matched) < len(valid):
         changes.append(f"약이 다른 급여 행 인용 삭제 {[c['chunk_id'] for c in valid if c not in matched]}")
-    added = [c for c in reimb_by_id.values() if c not in matched and _valid_reimb(c, today) and _drugs_match(option, c)]
+    added = [c for c in pool if c not in matched]
     if added:
         changes.append(f"약이 맞는 급여 행 붙임 {[c['chunk_id'] for c in added]}")
     valid = matched + added
