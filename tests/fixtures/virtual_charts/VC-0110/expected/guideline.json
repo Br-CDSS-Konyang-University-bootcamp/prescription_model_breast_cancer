@@ -45,5 +45,8 @@
   "status": "reviewed",
   "reviewer": "Claude 2차 점검 (염승민 위임)",
   "reviewed_on": "2026-11-04",
-  "note": "폐경 후 HR+/HER2+, 보조 trastuzumab(약 5년 전 종료)·letrozole 완료 14개월 뒤 간·뼈 전이, ECOG 0(항암 가능) → docetaxel-pertuzumab-trastuzumab(8cddda), T-DXd-pertuzumab(6a166b), 그림 5 ER+ 항암 가능 경로 2개. 유지요법 권고(eab0c1 등)는 유도 항암 뒤 결정이라 넣지 않음, ET+항HER2(406dd2 '선택된 환자')도 넣지 않음. not_expected: 보조 P-T·T-DM1 종료 6-12개월 안 재발(b8e579), 동반 질환 ET 단독, ER 음성 권고 2개, 폐경 전 OFS"
+  "note": "폐경 후 HR+/HER2+, 보조 trastuzumab(약 5년 전 종료)·letrozole 완료 14개월 뒤 간·뼈 전이, ECOG 0(항암 가능) → docetaxel-pertuzumab-trastuzumab(8cddda), T-DXd-pertuzumab(6a166b), 그림 5 ER+ 항암 가능 경로 2개. 유지요법 권고(eab0c1 등)는 유도 항암 뒤 결정이라 넣지 않음, ET+항HER2(406dd2 '선택된 환자')도 넣지 않음. not_expected: 보조 P-T·T-DM1 종료 6-12개월 안 재발(b8e579), 동반 질환 ET 단독, ER 음성 권고 2개, 폐경 전 OFS. [보조 약물 정답 · 2026-11-04, A 안 반영] 뼈 전이가 있어 골 보호제(BMA) 권고 087674('뼈 전이 환자에게 증상과 관계없이 BMA', ESMO MBC 뼈 전이)를 보조 약물 정답으로 둠. 주 처방 결정과 상관없이 뼈 전이면 보조 칸에 나와야 한다는 팀 결정(A 안)",
+  "expected_supportive": [
+    "esmo-mbc-2026-05-site-bone-087674"
+  ]
 }

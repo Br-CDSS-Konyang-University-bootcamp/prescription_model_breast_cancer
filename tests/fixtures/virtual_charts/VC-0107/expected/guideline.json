@@ -38,5 +38,8 @@
   "status": "reviewed",
   "reviewer": "Claude 2차 점검 (염승민 위임)",
   "reviewed_on": "2026-11-04",
-  "note": "38세 폐경 전, pT1cN0 IA, 등급 3, Ki-67 40%(luminal B-like) → 항암 후 ET(ca0c8d), 폐경 전 재발 위험 높음 → OFS-tamoxifen·OFS-AI(6308eb, 그림 4 폐경 전 luminal B stage I-III 경로). 항암 여부는 ca0c8d를 따름(C 판단, 검수 때 확인). not_expected: 폐경 후 AI, 병기 III·고위험 II abemaciclib, 고위험 연장 ET(고위험 no). 비스포스포네이트(OFS를 하면 해당)·olaparib(gBRCA 기록 없음)은 넣지 않음. [판단 근거 · Claude 2차 점검 2026-11-04, 염승민 위임] 항암 후 ET(ca0c8d)에 더해 '항암 여부가 애매하면 유전자 검사로 정한다'(6d44cc)도 정답에 넣음. 1.8cm·림프절 음성·stage I이라 ca0c8d 둘째 문장의 '림프절 0-3개 + 고위험 특징(유전자 검사 등)'에 해당해 항암 여부를 유전자 검사로 가르는 것이 ESMO 흐름과 맞음. OFS(6308eb)는 그림 4가 '폐경 전 luminal B-like stage I-III → OFS'로 명시해 유지"
+  "note": "38세 폐경 전, pT1cN0 IA, 등급 3, Ki-67 40%(luminal B-like) → 항암 후 ET(ca0c8d), 폐경 전 재발 위험 높음 → OFS-tamoxifen·OFS-AI(6308eb, 그림 4 폐경 전 luminal B stage I-III 경로). 항암 여부는 ca0c8d를 따름(C 판단, 검수 때 확인). not_expected: 폐경 후 AI, 병기 III·고위험 II abemaciclib, 고위험 연장 ET(고위험 no). 비스포스포네이트(OFS를 하면 해당)·olaparib(gBRCA 기록 없음)은 넣지 않음. [판단 근거 · Claude 2차 점검 2026-11-04, 염승민 위임] 항암 후 ET(ca0c8d)에 더해 '항암 여부가 애매하면 유전자 검사로 정한다'(6d44cc)도 정답에 넣음. 1.8cm·림프절 음성·stage I이라 ca0c8d 둘째 문장의 '림프절 0-3개 + 고위험 특징(유전자 검사 등)'에 해당해 항암 여부를 유전자 검사로 가르는 것이 ESMO 흐름과 맞음. OFS(6308eb)는 그림 4가 '폐경 전 luminal B-like stage I-III → OFS'로 명시해 유지. [보조 약물 정답 · 2026-11-04, A 안 반영] 폐경 전 luminal B-like stage I로 OFS(6308eb, 그림 4)가 정답이라, fca2a7의 'OFS를 받는 여성'에 해당해 보조 약물 정답으로 둠 (고위험은 아니어서 '특히'에는 해당하지 않음)",
+  "expected_supportive": [
+    "esmo-ebc-2024-02-hrpos-fca2a7"
+  ]
 }
