@@ -52,6 +52,48 @@
         ]
       }
     },
+    "supportive_options": {
+      "description": "함께 처방할 보조 약물 (선택, 2026-11-04 추가). 골 보호제(denosumab, zoledronic acid 등 drug_classes.csv의 Bone-modifying Agent)처럼 주 처방에 더하는 약. 의사는 options에서 주 처방 하나를 고르고 여기서 필요한 약을 따로 체크한다. 여기 든 약은 options에 넣지 않는다. 항목 형식과 규칙은 options와 같다. 없으면 빈 목록이거나 칸을 생략. 근거: src/input/team_agenda_A_2026-11-04.md",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["therapy", "rationale", "citations", "reimbursement", "reimbursement_reason", "reimbursement_citations"],
+        "additionalProperties": false,
+        "properties": {
+          "therapy": {"type": "string"},
+          "drugs": {"type": "array", "items": {"type": "string"}},
+          "rationale": {"type": "string"},
+          "evidence": {"type": ["string", "null"], "description": "예: LoE I, GoR A"},
+          "guideline_source": {"enum": ["ESMO", null], "description": "권고의 지침 출처. ASCO 치료 지침은 재사용 불가로 쓰지 않는다 (2026-10-20)."},
+          "citations": {"type": "array", "minItems": 1, "items": {"type": "string"}, "description": "지침 청크 ID"},
+          "reimbursement": {"enum": ["covered", "covered_conditions_unverified", "offlabel_approved", "no_criteria"]},
+          "reimbursement_reason": {"type": "string", "description": "충족한 조건 또는 빠진 조건"},
+          "reimbursement_citations": {"type": "array", "items": {"type": "string"}, "description": "급여 청크 ID. no_criteria면 빈 배열 가능"},
+          "copay": {"type": ["string", "null"], "description": "본인부담률. 허가초과 인정이면 그 본인부담률. 급여 요법은 급여 청크의 reimbursement.copay(요법 전체에 하나일 때)를 쓰고, 약제마다 다르면 regimen_parsed.copay_by_drug를 약제별로 이어 쓴다 (예: pertuzumab 30/100). 해당 없으면 null (2026-10-20)."},
+          "pending_notices": {
+            "type": "array",
+            "description": "회색 태그로 표시하는 예정·진행중 공고",
+            "items": {
+              "type": "object",
+              "required": ["status", "title", "date", "url"],
+              "additionalProperties": false,
+              "properties": {
+                "status": {"enum": ["scheduled", "in_progress"]},
+                "title": {"type": "string"},
+                "date": {"type": "string", "format": "date"},
+                "url": {"type": "string"}
+              }
+            }
+          }
+        },
+        "allOf": [
+          {
+            "if": {"properties": {"reimbursement": {"enum": ["covered", "covered_conditions_unverified", "offlabel_approved"]}}},
+            "then": {"properties": {"reimbursement_citations": {"minItems": 1}}}
+          }
+        ]
+      }
+    },
     "tests_needed": {
       "type": "array",
       "items": {

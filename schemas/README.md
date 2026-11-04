@@ -269,6 +269,7 @@ TCGA 정답은 실제 날짜가 없으므로, 날짜 칸은 추출값이면 `sta
 | 필드 | 설명 |
 |---|---|
 | `options[]` | `therapy`, `drugs`, `rationale`, `evidence`, `guideline_source`(지침 출처, 지금은 ESMO만. ASCO 치료 지침은 재사용 불가로 2026-10-20 제외), `citations`(지침 청크 ID, 1개 이상), `reimbursement`, `reimbursement_reason`, `reimbursement_citations`, `copay`, `pending_notices` |
+| `supportive_options[]` | 함께 처방할 보조 약물 (선택, 2026-11-04 추가). 골 보호제(`drug_classes.csv`의 Bone-modifying Agent)처럼 주 처방에 더하는 약. 항목 형식과 규칙은 `options[]`와 같고, 여기 든 약은 `options[]`에 넣지 않는다. 의사는 주 처방 하나와 보조 약물을 화면 2에서 한 번에 고른다. 근거: `src/input/team_agenda_A_2026-11-04.md` |
 | `tests_needed[]` | 검사 권고. `blocks_therapy`에 이 검사가 없어 추천 대신 권고로 바꾼 치료를 적는다 |
 | `out_of_scope`, `out_of_scope_reason` | 범위 외이거나 검색 결과가 없으면 추천을 만들지 않는다 |
 | `conflicts[]` | 예: 지침 권고 차수와 급여 기준 차수가 다름 |
