@@ -77,7 +77,7 @@ def render_case(path: Path, chunks: dict, results: dict = None) -> str:
     rank = {}
     if results and case in results:
         r = compare_expected(exp, results[case])
-        rank = {**r["expected"], **r["algorithm"]}
+        rank = {**r["expected"], **r["algorithm"], **r["supportive"]}
         rank["_first"], rank["_wrong"] = r["first_rank"], r["wrong_above"]
     status = exp.get("status") or "draft"
     who = f", {exp.get('reviewer')} {exp.get('reviewed_on')}" if exp.get("reviewer") else ""
@@ -103,6 +103,10 @@ def render_case(path: Path, chunks: dict, results: dict = None) -> str:
     out += ["", f"[정답 권고 {len(exp['expected_chunks'])}개: 이 환자에게 맞는가]"]
     for cid in exp["expected_chunks"]:
         out += chunk_line(cid, "*")
+    if exp.get("expected_supportive"):
+        out += ["", f"[보조 약물 정답 {len(exp['expected_supportive'])}개: 주 처방에 더하는 약 (골 보호제 등)]"]
+        for cid in exp["expected_supportive"]:
+            out += chunk_line(cid, "*")
     out += ["", f"[그림 경로 {len(exp.get('expected_algorithm', []))}개]"]
     for cid in exp.get("expected_algorithm", []):
         out += chunk_line(cid, "*")

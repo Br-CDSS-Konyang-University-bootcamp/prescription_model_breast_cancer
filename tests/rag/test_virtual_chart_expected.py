@@ -13,6 +13,7 @@ from src.rag.retrieve import from_confirmed_state
 BASE_DIR = Path(__file__).resolve().parents[2]
 FILES = sorted((BASE_DIR / "tests" / "fixtures" / "virtual_charts").glob("*/expected/guideline.json"))
 CHUNKS = {c["chunk_id"]: c for c in load_guideline_chunks()}
+BONE_AGENTS = ("denosumab", "zoledronic acid", "pamidronate", "ibandronate", "clodronate")
 
 
 @pytest.mark.parametrize("path", FILES, ids=[p.parts[-3] for p in FILES])
@@ -37,6 +38,12 @@ def test_expected_guideline_matches_chunks(path):
     for cid in exp.get("expected_algorithm", []):
         assert CHUNKS[cid]["chunk_kind"] == "algorithm"
     assert not set(exp["expected_chunks"]) & set(exp.get("not_expected", []))
+    # 보조 약물 정답(2026-11-04 팀 결정): 골 보호제 권고만, 주 처방 정답·오답과 겹치지 않음
+    bone = set(BONE_AGENTS)
+    for cid in exp.get("expected_supportive", []):
+        c = CHUNKS[cid]
+        assert c["chunk_kind"] == "recommendation" and (set(c.get("drugs") or []) & bone), cid
+        assert cid not in exp["expected_chunks"] and cid not in exp.get("not_expected", []), cid
 
 
 def test_compare_expected_ranks_and_wrong_above():
@@ -44,4 +51,6 @@ def test_compare_expected_ranks_and_wrong_above():
     guideline = [{"chunk_id": "w"}, {"chunk_id": "a"}, {"chunk_id": "x"}, {"chunk_id": "f", "chunk_kind": "algorithm"}]
     r = compare_expected(exp, guideline)
     assert r["first_rank"] == 2 and r["mrr"] == 0.5 and r["algorithm"] == {"f": 1} and r["wrong_above"] == ["w"]
+    s = compare_expected({"expected_chunks": ["a"], "expected_supportive": ["x"]}, guideline)
+    assert s["first_rank"] == 2 and s["supportive"] == {"x": 3}  # 보조 약물은 주 처방 순위에 넣지 않는다
     assert compare_expected({"expected_chunks": ["z"]}, guideline)["mrr"] == 0.0
