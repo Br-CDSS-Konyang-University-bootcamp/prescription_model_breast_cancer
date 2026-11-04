@@ -385,3 +385,29 @@ def test_er_low_tnbc_query_drops_er_low_phrase_and_adds_clinical_stage():
     assert "ER-/PgR-low" in search_args(record, **patient)["query_text"]
     tnbc = [a for a in extra_search_args(record, top_k=3, **patient) if a["subtype"] == "TNBC"][0]
     assert "ER-/PgR-low" not in tnbc["query_text"] and tnbc["query_text"].endswith("TNBC cT2 node-positive stage II")
+
+
+def test_chemo_class_recommendation_brings_chemo_only_rows(index, monkeypatch):
+    # 'ChT'로만 적힌 권고(VC-0126 장기 부전 임박 5c55b4)가 나오면, 같은 병기·차수의 약이 모두 항암제인 급여 행을 더한다
+    # (D 요청 2026-11-04). 표적·내분비가 섞인 행과 보조약 행은 더하지 않는다
+    from src.rag import indexer, reimbursement_search, searcher
+    from src.rag.retrieve import retrieve_for_recommend
+    indexer.index_chunks([_reimb("r-pac", ["paclitaxel"], ["1L", "2L", ">=3L"]),
+                          _reimb("r-bev-pac", ["bevacizumab", "paclitaxel"], ["1L"]),
+                          _reimb("r-cape-2l", ["capecitabine"], ["2L"])])
+    monkeypatch.setattr(reimbursement_search, "get_reimbursement_parents", lambda c: [])
+    searcher.clear_search_cache()
+    state = json.loads((BASE_DIR / "tests/fixtures/virtual_charts/VC-0126/expected/confirmed_state.json")
+                       .read_text(encoding="utf-8"))
+    real = searcher.search_guidelines
+    crisis = {"chunk_id": "esmo-mbc-2026-05-luminal-1l-5c55b4", "chunk_kind": "recommendation", "drugs": [],
+              "text": "Chemotherapy (ChT) can be recommended for patients with imminent organ failure at MBC diagnosis [V, B].",
+              "doc_type": "guideline", "parent": None}
+    monkeypatch.setattr(searcher, "search_guidelines",
+                        lambda **kw: ([crisis] if kw.get("chunk_kind", "recommendation") == "recommendation" else [])
+                        + real(**kw))
+    guideline, reimbursement, only = retrieve_for_recommend(state, rerank=False, with_reimbursement_only=True)
+    ids = {r["chunk_id"] for r in reimbursement}
+    assert "r-pac" in ids and "r-bev-pac" not in ids and "r-cape-2l" not in ids  # 1차 세포독성 항암 행만
+    assert next(r for r in reimbursement if r["chunk_id"] == "r-pac")["matched_by"] == "ChT"
+    assert "r-pac" not in {r["chunk_id"] for r in only}
