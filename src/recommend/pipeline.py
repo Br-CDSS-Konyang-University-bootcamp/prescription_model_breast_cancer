@@ -54,14 +54,19 @@ def _phase_and_bone(patient_state, biomarker_record, confirmed_state):
 def recommend(patient_state, biomarker_record, guideline_chunks, reimbursement_chunks, llm, index_status,
               model_name, today=None, conditions_checker=None, confirmed_state=None):
     """환자 한 명 -> (recommendation, 후처리 로그, 형식 오류 목록). 형식 오류가 비어 있어야 쓸 수 있다.
-    질문지 길이 때문에 뺀 청크는 후처리에서도 받지 않은 청크로 본다 (모델이 보지 못한 청크를 인용할 수 없으므로).
+    질문지 길이 때문에 뺀 지침 청크는 후처리에서도 받지 않은 청크로 본다. 급여 청크는 후처리에 모두 넘긴다.
     confirmed_state(화면 1 의사 확정값)를 주면 참고란에 장기 위기·금기 계열을 의사 확정값으로 넣는다."""
     today = today or date.today()
     base = {"schema_version": SCHEMA_VERSION, "patient_ref": biomarker_record.get("patient_ref"),
             "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"), "model": model_name,
             "index_status": index_status}
-    prompt, guideline_chunks, reimbursement_chunks, log = fit_prompt(
+    # 질문지 길이 때문에 뺀 지침 청크는 후처리에서도 받지 않은 청크로 본다 (모델이 보지 못한 근거는 인용할 수 없음).
+    # 급여 청크는 빼더라도 후처리에는 모두 넘긴다. 5번 규칙이 약이 맞는 급여 행을 규칙으로 붙이는데, 질문지에서 빠진
+    # 행까지 버리면 맞는 행이 있어도 '급여 기준 없음'이 된다 (D 확인 2026-11-04, VC-0101 fulvestrant 단독의 r06)
+    all_reimbursement = list(reimbursement_chunks or [])
+    prompt, guideline_chunks, _, log = fit_prompt(
         patient_state, biomarker_record, guideline_chunks, reimbursement_chunks, getattr(llm, "prompt_budget", None))
+    reimbursement_chunks = all_reimbursement
     try:
         answer = llm(prompt)
         raw = answer if isinstance(answer, dict) else _parse(answer)   # llm_link는 사전, 글로 답하는 함수는 글
