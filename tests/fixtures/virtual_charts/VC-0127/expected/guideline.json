@@ -1,0 +1,42 @@
+{
+  "format": "C guideline expected v0.1",
+  "patient_ref": "VC-0127",
+  "input": "expected/confirmed_state.json",
+  "decision": {
+    "setting": "metastatic",
+    "subtype": "TNBC",
+    "line": "2L"
+  },
+  "expected_chunks": [
+    "esmo-mbc-2026-05-tnbc-2l-835b42",
+    "esmo-mbc-2026-05-tnbc-2l-e9b4f6",
+    "esmo-mbc-2026-05-tnbc-2l-0a2190",
+    "esmo-mbc-2026-05-tnbc-2l-aa0873"
+  ],
+  "expected_parents": [
+    "esmo-mbc-2026-05-tnbc-2l"
+  ],
+  "expected_algorithm": [
+    "esmo-mbc-2026-05-fig9-dde930",
+    "esmo-mbc-2026-05-fig9-c541f9"
+  ],
+  "not_expected": [
+    "esmo-mbc-2026-05-tnbc-2l-a5e9d7"
+  ],
+  "sources": [
+    {
+      "doc": "ESMO MBC 2026-05",
+      "section": "Management Of Metastatic Tnbc > Second-Line Treatment And Beyond",
+      "page": 1212
+    },
+    {
+      "doc": "ESMO MBC 2026-05",
+      "section": "Figure 9",
+      "page": 1214
+    }
+  ],
+  "status": "draft",
+  "reviewer": null,
+  "reviewed_on": null,
+  "note": "61세 폐경 후 TNBC, 보조 AC 3주기(심부전 의심 중단, doxorubicin 누적 180), 무병 3년 뒤 폐 전이, 1차 paclitaxel 뒤 진행, HER2-low, gBRCA 기록 없음 → 고식 항암 2차. ESMO TNBC 2차 권고는 gBRCA 정상(sacituzumab 835b42, 항암 e9b4f6)과 변이(PARPi 0a2190, carboplatin aa0873)로 갈리는데 검사 기록이 없어 두 갈래를 모두 정답으로 둠 (팀 안건 6-3, C 제안: 두 갈래를 넘기고 B가 gBRCA 검사 권고). 시나리오 정답(본문 M26, liposomal anthracycline 재투여 luminal-3l-ae383b)은 HR+/HER2- 장 권고라 TNBC 검색 대상이 아니며, TNBC에서는 e9b4f6('HER2 음성의 모든 항암 권고')가 그 자리를 대신함 → 시나리오 수정은 A에게 요청. 그림 9 gBRCA wt 경로 2개(c541f9는 진행 뒤 HER2-low T-DXd). not_expected: 3차 sacituzumab(a5e9d7, 지금은 2차)"
+}

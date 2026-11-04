@@ -220,6 +220,12 @@ def extra_search_args(record: dict, top_k: int = 3, **kwargs) -> list[dict]:
             and patient.get("prior_metastatic_chemo") == "yes"):
         base = search_args(record, top_k=top_k, **kwargs)
         out.append({**base, "query_text": PRIOR_CHEMO_QUERY})
+    # ER 저발현(1~9%): B 규칙상 아형은 HR+/HER2-지만 ESMO는 TNBC처럼 행동할 수 있다고 한다 (tnbc-253553, E20).
+    # 아형 필터 때문에 TNBC 권고(선행 항암 + pembrolizumab 등)를 찾지 못했다 (VC-0124). 같은 질의로 TNBC 권고도 찾는다.
+    # 어느 쪽을 고를지는 B·의사가 정한다 (팀 안건 6-2, C 제안 2026-11-04)
+    base = search_args(record, top_k=top_k, **kwargs)
+    if record.get("subtype") == "HR+/HER2-" and "ER-low" in base.get("biomarker_tags", []):
+        out.append({**base, "subtype": "TNBC"})
     return out
 
 

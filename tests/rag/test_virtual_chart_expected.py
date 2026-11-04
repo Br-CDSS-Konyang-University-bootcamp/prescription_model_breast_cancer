@@ -24,11 +24,15 @@ def test_expected_guideline_matches_chunks(path):
     record, _, lines = from_confirmed_state(state)
     assert (record["setting"]["disease"], record["subtype"], lines["guideline"][0]) == (
         exp["decision"]["setting"], exp["decision"]["subtype"], exp["decision"]["line"])
+    # ER 저발현(HR+/HER2- + ER-low 태그)은 TNBC 권고도 찾는다 (query.extra_search_args, 팀 안건 6-2)
+    subtypes = {record["subtype"], "any"}
+    if record["subtype"] == "HR+/HER2-" and any("ER-low" in r.get("rag_tags", []) for r in record["records"]):
+        subtypes.add("TNBC")
     for cid in exp["expected_chunks"] + exp.get("not_expected", []):
         c = CHUNKS[cid]
         assert c["chunk_kind"] == "recommendation" and not c.get("superseded_by")
         assert record["setting"]["disease"] in c["setting"]
-        assert record["subtype"] in c["subtype"] or "any" in c["subtype"], cid
+        assert subtypes & set(c["subtype"]), cid
     assert {CHUNKS[cid]["parent_id"] for cid in exp["expected_chunks"]} <= set(exp["expected_parents"])
     for cid in exp.get("expected_algorithm", []):
         assert CHUNKS[cid]["chunk_kind"] == "algorithm"

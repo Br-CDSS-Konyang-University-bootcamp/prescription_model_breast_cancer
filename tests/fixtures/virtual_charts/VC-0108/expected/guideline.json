@@ -29,5 +29,5 @@
   "status": "draft",
   "reviewer": null,
   "reviewed_on": null,
-  "note": "de novo 뼈 전이, 1차 ribociclib+letrozole 복용 중(SD), 이번 결정은 골 보호제(denosumab) 시작 → BMA 권고(087674). f5c25c(zoledronic 12주 간격)는 BMA를 9개월 이상 쓴 뒤라 해당 없음. not_expected: 보조 ET 중 재발 갈래(de novo라 아님). confirmed_state의 결정 칸은 내분비 1L이라 주 검색은 1차 내분비 권고를 찾고, 정답은 부위별 추가 검색에서 나옴"
+  "note": "de novo 뼈 전이, 1차 ribociclib+letrozole 복용 중(SD), 이번 결정은 골 보호제(denosumab) 시작 → BMA 권고(087674). f5c25c(zoledronic 12주 간격)는 BMA를 9개월 이상 쓴 뒤라 해당 없음. not_expected: 보조 ET 중 재발 갈래(de novo라 아님). confirmed_state의 결정 칸은 내분비 1L이라 주 검색은 1차 내분비 권고를 찾고, 정답은 부위별 추가 검색에서 나옴. 팀 안건 6-1 (C 제안 2026-11-04): '이번 결정이 골 보호제'를 담는 칸이 확정값에 없어 주 검색은 1차 내분비 권고를 찾는다. v0.1에서는 골 보호제 결정을 범위 밖으로 두고(정답은 뼈 전이 추가 검색 결과로 목록 안에 있음), v0.2에서 확정값에 '결정 종류' 칸을 더한다"
 }

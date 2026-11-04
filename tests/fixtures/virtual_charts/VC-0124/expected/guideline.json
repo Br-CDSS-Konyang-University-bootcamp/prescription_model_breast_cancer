@@ -1,0 +1,48 @@
+{
+  "format": "C guideline expected v0.1",
+  "patient_ref": "VC-0124",
+  "input": "expected/confirmed_state.json",
+  "decision": {
+    "setting": "early",
+    "subtype": "HR+/HER2-",
+    "line": "neoadjuvant"
+  },
+  "expected_chunks": [
+    "esmo-ebc-2024-02-tnbc-777c34",
+    "esmo-ebc-2024-02-tnbc-a8984f",
+    "esmo-ebc-2024-02-tnbc-253553",
+    "esmo-ebc-2024-02-hrpos-ca0c8d"
+  ],
+  "expected_parents": [
+    "esmo-ebc-2024-02-tnbc",
+    "esmo-ebc-2024-02-hrpos"
+  ],
+  "expected_algorithm": [
+    "esmo-ebc-2024-02-fig2-5abbd1"
+  ],
+  "not_expected": [
+    "esmo-ebc-2024-02-hrpos-0656d9",
+    "esmo-ebc-2024-02-hrpos-941c55"
+  ],
+  "sources": [
+    {
+      "doc": "ESMO EBC 2024-02",
+      "section": "Tnbc",
+      "page": 173
+    },
+    {
+      "doc": "ESMO EBC 2024-02",
+      "section": "Hr-Positive, Her2-Negative Ebc",
+      "page": 172
+    },
+    {
+      "doc": "ESMO EBC 2024-02",
+      "section": "Figure 2",
+      "page": 162
+    }
+  ],
+  "status": "draft",
+  "reviewer": null,
+  "reviewed_on": null,
+  "note": "39세 폐경 전, cT2N1M0, ER 5%(저발현)·PR 0%·HER2 2+/ISH 음성(HER2-low), 등급 3, Ki-67 60%, 치료 전 선행 결정. ESMO는 ER 저발현이 TNBC처럼 행동할 수 있다고 하므로(253553, 평가 E20) TNBC 선행 권고도 정답에 넣음: cT2-4 또는 N+ → 선행 항암 + pembrolizumab(777c34), 선행 우선(a8984f). HR+ 쪽 luminal B 항암 후 ET(ca0c8d)도 정답. 어느 쪽을 고를지는 B·의사 (팀 안건 6-2, C 제안 2026-11-04: ER-low면 TNBC 권고도 찾음). 그림은 HR+/HER2- 선행 경로(5abbd1). not_expected: 폐경 후 AI, luminal A 항암 생략"
+}
