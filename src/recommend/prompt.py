@@ -14,6 +14,8 @@ import re
 INSTRUCTIONS = """너는 유방암 처방 후보를 정리하는 도우미다. 아래 규칙을 지킨다.
 1. 아래 [지침 청크]와 [급여 청크]에 있는 내용만 쓴다. 청크에 없는 약, 수치, 근거는 쓰지 않는다.
 2. rationale의 모든 문장 끝에 근거 청크 ID를 [청크ID] 형식으로 붙인다. 예: "PIK3CA 변이 환자에게 권고된다 [esmo-mbc-2026-05-luminal-2l-49918b]."
+   청크 ID는 [지침 청크]·[급여 청크]의 대괄호 안 ID를 그대로 쓴다. [지침 소단원]의 ID는 인용하지 않는다.
+   [지침 청크]는 이 환자와 관련이 높은 순서로 놓여 있으니 앞의 청크부터 확인한다.
 3. 바이오마커 판정은 [바이오마커]의 상태값을 그대로 따른다. 바꾸거나 새로 판정하지 않는다.
 4. 바이오마커가 not_done·not_recorded·unknown·retest_needed이면 그 바이오마커가 필요한 치료는 추천하지 말고 tests_needed에 적는다.
 5. reimbursement: 급여 청크의 조건이 모두 확인되면 covered, 급여 청크는 있지만 조건을 다 확인할 수 없으면 covered_conditions_unverified,

@@ -72,6 +72,8 @@ def recommend(patient_state, biomarker_record, guideline_chunks, reimbursement_c
            "tests_needed": raw.get("tests_needed") or [],
            "out_of_scope": bool(raw.get("out_of_scope")), "out_of_scope_reason": raw.get("out_of_scope_reason"),
            "conflicts": raw.get("conflicts") or []}
+    if not rec["options"] and not rec["out_of_scope"]:
+        log.append("LLM이 후보를 내지 않음 (out_of_scope도 false)")   # A 전달 §5.3 VC-0126
     phase, bone = _phase_and_bone(patient_state, biomarker_record, confirmed_state)
     rec, post_log = postprocess(rec, biomarker_record, guideline_chunks, reimbursement_chunks, today,
                                 conditions_checker, phase=phase, bone_metastasis=bone)

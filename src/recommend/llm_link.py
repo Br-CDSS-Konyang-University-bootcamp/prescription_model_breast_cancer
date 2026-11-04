@@ -4,6 +4,7 @@ make_llm()이 돌려주는 함수를 recommend(..., llm=...)에 넣는다. 함�
 환자 정보가 든 질문지는 이 PC의 로컬 모델에만 보낸다 (CLAUDE.md, PROJECT.md §2).
 llm/의 patient_data 확인은 provider 이름만 본다. 여기서는 주소(host)가 이 PC인지도 확인한다 (B 판단 2026-10-21).
 """
+import copy
 import json
 from pathlib import Path
 from urllib.parse import urlparse
@@ -22,12 +23,27 @@ class NonLocalLLMError(RuntimeError):
     """환자 정보가 든 질문지를 이 PC 밖의 모델로 보내려 할 때."""
 
 
+def _lenient(prop):
+    """후보 목록 칸에서 후보 하나의 규칙(인용 1개 이상, 급여 분류가 있으면 급여 인용 1개 이상)을 뺀다.
+    LLM 답은 이 양식으로 검사해 맞지 않으면 답 전체를 버리는데, 후보 하나의 빈칸 때문에 후보가 모두 사라졌다
+    (A 전달 handoff_recommend_options_to_B_2026-11-03.md §5.3, VC-0110·0114·0116). 그 규칙은 후처리가 고치고
+    (인용 없는 후보는 지우고, 급여 인용이 비면 약이 맞는 행을 붙이거나 급여 기준 없음), 최종 결과는 validate.py가
+    전체 스키마로 다시 검사한다."""
+    prop = copy.deepcopy(prop)
+    items = prop.get("items") or {}
+    items.pop("allOf", None)
+    for v in (items.get("properties") or {}).values():
+        v.pop("minItems", None)
+    return prop
+
+
 def answer_schema():
-    """LLM 답 양식: schemas/recommendation.json에서 LLM이 채우는 칸만 뗀다."""
+    """LLM 답 양식: schemas/recommendation.json에서 LLM이 채우는 칸만 뗀다. 후보 목록은 _lenient로 느슨하게."""
     with open(RECOMMENDATION_SCHEMA, encoding="utf-8") as fh:
         props = json.load(fh)["properties"]
     return {"type": "object", "required": LLM_REQUIRED, "additionalProperties": False,
-            "properties": {k: props[k] for k in LLM_FIELDS}}
+            "properties": {k: _lenient(props[k]) if k in ("options", "supportive_options") else props[k]
+                           for k in LLM_FIELDS}}
 
 
 def check_local(config):

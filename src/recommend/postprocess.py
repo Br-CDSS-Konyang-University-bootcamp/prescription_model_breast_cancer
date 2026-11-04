@@ -320,8 +320,35 @@ def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursemen
     records = {r["marker"]: r["status"] for r in biomarker_record.get("records") or []}
     disease = (biomarker_record.get("setting") or {}).get("disease")
 
+    # 1번 앞: 소단원(부모) ID를 인용하면 넘겨받은 그 자식 청크 ID로 바꾼다 (A 전달 §5.3, VC-0134가 부모 ID를 인용해 지워짐).
+    # 자식이 여럿이면 후보 약이 든 자식, 없으면 첫 자식
+    children = {}
+    for c in guideline_chunks:
+        for p in (c.get("parents") or []) + [c.get("parent")]:
+            pid = (p or {}).get("chunk_id") if isinstance(p, dict) else p
+            if pid and pid not in guide_by_id:
+                children.setdefault(pid, [])
+                if c["chunk_id"] not in children[pid]:
+                    children[pid].append(c["chunk_id"])
+
+    def resolve_parents(o):
+        drugs = {d.lower() for d in o.get("drugs") or []}
+
+        def child(pid):
+            kids = children[pid]
+            return next((k for k in kids if drugs & {d.lower() for d in guide_by_id[k].get("drugs") or []}), kids[0])
+        hit = [i for i in o.get("citations") or [] if i in children]
+        hit += [i for i in _CITE_RE.findall(o.get("rationale") or "") if i in children and i not in hit]
+        if not hit:
+            return
+        o["citations"] = list(dict.fromkeys(child(i) if i in children else i for i in o.get("citations") or []))
+        o["rationale"] = _CITE_RE.sub(lambda m: f"[{child(m.group(1))}]" if m.group(1) in children else m.group(0),
+                                      o.get("rationale") or "")
+        log.append(f"{o.get('therapy')}: 소단원 ID 인용을 자식 청크로 바꿈 {hit}")
+
     def check(o):
         """1~5·7번을 후보 하나에 적용한다. 남기면 True."""
+        resolve_parents(o)
         name = o.get("therapy")
         bad = [i for i in o.get("citations") or [] if i not in guide_by_id]
         bad += [i for i in o.get("reimbursement_citations") or [] if i not in reimb_by_id]
