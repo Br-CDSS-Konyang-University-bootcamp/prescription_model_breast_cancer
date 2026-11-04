@@ -83,3 +83,16 @@ def test_exact_drug_rows_first():
 def test_empty_drugs_without_cited_row_is_no_criteria():
     rec, _ = run(option("ET alone", [], []))
     assert rec["options"][0]["reimbursement"] == "no_criteria"
+
+
+def test_lhrh_agonist_expanded_to_goserelin_leuprolide():
+    """D 요청 (2026-11-04): "LHRH agonist"를 goserelin·leuprolide로 펼쳐 급여 행과 맞춘다."""
+    g = {**G, "drugs": G["drugs"] + ["goserelin", "leuprolide"]}
+    rows = [row("r-ana-lhrh", ["anastrozole", "goserelin", "leuprolide"])]
+    for therapy in ("anastrozole + LHRH agonist", "Anastrozole + OFS", "anastrozole with ovarian function suppression"):
+        rec, log = postprocess({"options": [option(therapy, [], [])]}, RECORD, [g], rows, TODAY)
+        o = rec["options"][0]
+        assert o["drugs"] == ["anastrozole", "goserelin", "leuprolide"], therapy
+        assert o["reimbursement_citations"] == ["r-ana-lhrh"] and not rec["conflicts"]
+    rec, _ = postprocess({"options": [option("AI + LHRH agonist", [], [])]}, RECORD, [g], rows, TODAY)
+    assert rec["options"][0]["drugs"] == []                     # AI가 남아 있으면 그대로 약 미정

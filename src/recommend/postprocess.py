@@ -18,6 +18,7 @@ LLM이 낸 추천을 받은 청크와 B의 판정에 비추어 고친다. 규칙
    LoE·GoR로 채운다 (A 전달 handoff_recommend_prompt_to_B_2026-11-02.md §6 4번, LLM이 두 칸을 비워 냄).
    요법 이름에 계열 이름(AI, ET, CDK4/6 등)이 있으면 어느 약인지 정할 수 없어 drugs를 비워 두고 conflicts에 적는다
    (A 전달 2026-11-03 §2 3번. 예: "AI—palbociclib"을 palbociclib 하나로 채우지 않는다).
+   다만 LHRH 작용제(LHRH·GnRH agonist, OFS, ovarian suppression)는 goserelin·leuprolide로 펼친다 (D 요청 2026-11-04).
 지운 것과 바꾼 것은 모두 로그로 돌려준다.
 """
 import csv
@@ -86,11 +87,22 @@ CLASS_NAME_RE = re.compile(r"\bAIs?\b|[Aa]romatase inhibitor|\bET\b|[Ee]ndocrine
                            r"\b[Aa]nthracyclines?\b|\bChT\b|[Cc]hemotherapy|[Aa]nti-HER2|\bSERDs?\b|\bLHRH\b|\bOFS\b")
 
 
+# 7번: 약으로 펼치는 계열 이름. LHRH 작용제는 급여 행이 goserelin·leuprolide로 적혀 있어 두 약으로 펼친다
+# (D 요청 2026-11-04, 급여 행 r04~r06). 후보 drugs에는 "둘 중 하나"라는 뜻으로 두 약이 함께 들어간다
+EXPAND_CLASS = [(re.compile(r"\b(?:LHRH|GnRH)(?:[- ]?(?:agonist|analog(?:ue)?)s?)?\b|\bOFS\b|"
+                            r"[Oo]varian (?:function )?suppression"), ["goserelin", "leuprolide"])]
+
+
 def _fill_drugs_evidence(option, chunks):
     """7번. 빈 drugs·evidence를 인용한 지침 청크에서 채운다. (채운 칸 이름 목록, 약을 정하지 못한 이유 또는 None)."""
     filled, unresolved = [], None
     if not option.get("drugs"):
         therapy = option.get("therapy") or ""
+        expanded = []
+        for rx, names in EXPAND_CLASS:
+            if rx.search(therapy):
+                expanded += [n for n in names if n not in expanded]
+                therapy = rx.sub(" ", therapy)
         classes = sorted(set(CLASS_NAME_RE.findall(therapy)))
         if classes:
             unresolved = f"요법 이름에 계열 이름({', '.join(classes)})이 있어 약을 정하지 못함, 의사 확인 필요"
@@ -101,6 +113,7 @@ def _fill_drugs_evidence(option, chunks):
                     if d.lower() not in [x.lower() for x in drugs] and \
                             re.search(rf"\b{re.escape(d.lower())}\b", therapy.lower()):
                         drugs.append(d)
+            drugs += [d for d in expanded if d.lower() not in [x.lower() for x in drugs]]
             if drugs:
                 option["drugs"] = drugs
                 filled.append("drugs")
