@@ -66,3 +66,58 @@ python -m src.app.script.screen1 --llm-host http://127.0.0.1:11435
 
 화면 1에서 VC-0103 확정 → 화면 2. 추천 결과는 `data/app/recommendations/VC-0103/c1.json` (git에 올라가지 않음).
 공고 원문은 옮기지 않고 청크 ID와 약 이름만 적었다.
+## 5. B 반영 확인 (2026-11-04)
+
+B의 `264a449`·`a8f312f`·`22c3e32`·`a95a4eb`·`7076d71`(PR #121·#123·#124) 뒤, D가 검수한 급여 청크(공고책자 2026-11-01, 급여 131개)를 색인하고 다시 돌렸다.
+조건: main `ba33610`, `[recommend]` qwen3:14b (GPU 서버, SSH 터널), 각 사례의 gold `expected/confirmed_state.json`, `python -m src.app.script.run_flow --out data/app/runs/20261104`.
+
+### 5.1 VC-0103: 문제 1·2 모두 풀림 (139초)
+
+| 순서 | therapy | drugs | 급여 | 급여 인용 | 지침 인용 |
+|---|---|---|---|---|---|
+| 1 | Fulvestrant—palbociclib | fulvestrant, palbociclib | 급여 | `…-2lplus-r07` | `luminal-1l-0fd38a` |
+| 2 | Fulvestrant—ribociclib | fulvestrant, ribociclib | 급여 | `…-2lplus-r09` | 같음 |
+| 3 | Fulvestrant—abemaciclib | fulvestrant, abemaciclib | 급여 | `…-2lplus-r08` | 같음 |
+
+- 문제 1: AI—palbociclib 후보가 없어졌다. 시나리오대로 fulvestrant + CDK4/6 셋만 나온다.
+- 문제 2: 후보마다 약이 같은 급여 행 하나만 인용한다. 앞에서 빠졌던 ribociclib 행 `r09`도 붙었다. 셋 다 D 검수 조건으로 "급여"이고, 이유에 "의료진 검토 전"이 붙는다.
+
+### 5.2 46건 전체
+
+`run_flow` 46건(VC-0106b, VC-0129는 gold 확정값이 없어 뺌). 실행 오류 0건, 사례당 80~424초(평균 약 164초).
+C 정답(28건, 모두 `reviewed`, PR #130)과 대조한 결과다. VC-0124는 C의 검색 수정(`dbf9b7c`, ER 저발현이면 TNBC 권고도 찾음) 전에 돌려 다시 돌려야 한다.
+
+| 항목 | 결과 |
+|---|---|
+| 정답 청크를 검색 | 28/28 |
+| 후보가 정답 청크를 인용 | 18/28 |
+| 1순위 후보가 정답 청크를 인용 | 16/28 |
+| C가 `not_expected`로 둔 청크를 인용 | 9건 (VC-0101·0102·0123은 모두 `luminal-2l-4bcee1`, 세 건 모두 1순위는 맞음) |
+
+급여 분류(후보 130개): 급여 30, 조건 확인 필요 53, 해당 기준 없음 47.
+
+### 5.3 B가 볼 것 (A 제안, B가 정함)
+
+**1) 후보가 0개인 6건.** 화면 2에 빈 목록이 나온다.
+
+| 사례 | 원인 (`c1.json`의 `log`) |
+|---|---|
+| VC-0110, VC-0114, VC-0116 | LLM 답이 두 번 모두 스키마 불통과: 급여 분류가 `no_criteria`가 아닌데 `reimbursement_citations`가 빈 목록. VC-0110은 질문지 길이 제한으로 급여 청크 19개를 빼고 보냈다(424초) |
+| VC-0134, VC-0142 | 후보마다 근거 문장에 지침 인용이 없어 후처리가 모든 후보를 지움. VC-0134는 부모 ID(`esmo-ebc-2024-02-hrpos`)를 인용해 "받지 않은 청크 ID"로 지워진 문장도 있음 |
+| VC-0126 | LLM이 처음부터 빈 `options`를 냄 (`out_of_scope` false, log 없음) |
+
+제안: 첫 3건은 스키마에서 떨어뜨리는 대신, 급여 인용이 비면 후처리가 `no_criteria`로 바꾸고 이유를 적거나, 넘겨받은 급여 청크 중 약이 맞는 행을 붙인다(§3 제안 3과 같음).
+VC-0134는 부모 ID를 인용하면 그 부모의 자식 청크 중 넘겨받은 것으로 바꾸는 방법도 있다.
+
+**2) 정답 청크를 받고도 인용하지 않은 사례.** 후보는 나왔다: VC-0104(TNBC 1차), VC-0107, VC-0112(HER2+ 1차), VC-0117, VC-0121.
+
+**3) 골 보호제.** 주 후보 5칸을 차지하거나(VC-0113·VC-0124 1위) 빠지는(VC-0108) 문제는 팀 안건 A(`team_agenda_A_2026-11-04.md`, PR #129)와 스키마 초안 PR #131(`supportive_options`)에서 따로 다룬다. 같은 파일(`llm_link.py`, 프롬프트, 후처리)을 고치게 되니 1)과 함께 보면 재실행을 한 번에 할 수 있다.
+
+### 5.4 재현
+
+```bash
+python -m src.app.script.run_flow --out data/app/runs/<이름> --llm-host http://127.0.0.1:11435
+python -m src.app.script.run_flow --out data/app/runs/<이름> --summary
+```
+
+결과 `data/app/runs/20261104/<사례>/c1.json`, 표 `summary.csv`(git에 올라가지 않음). 공고 원문은 옮기지 않고 청크 ID와 약 이름만 적었다.
