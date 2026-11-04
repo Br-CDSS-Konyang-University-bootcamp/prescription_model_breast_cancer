@@ -96,3 +96,15 @@ def test_lhrh_agonist_expanded_to_goserelin_leuprolide():
         assert o["reimbursement_citations"] == ["r-ana-lhrh"] and not rec["conflicts"]
     rec, _ = postprocess({"options": [option("AI + LHRH agonist", [], [])]}, RECORD, [g], rows, TODAY)
     assert rec["options"][0]["drugs"] == []                     # AI가 남아 있으면 그대로 약 미정
+
+
+def test_named_drug_kept_even_if_not_in_chunk_drugs_and_reason_is_rule_only():
+    """D 확인 (2026-11-04): 청크 drugs에 없더라도 요법 이름의 약은 남기고, 급여 이유는 판정기 문장만."""
+    g = {**G, "drugs": ["goserelin", "leuprolide"], "text": "TEST CHUNK (made up): anastrozole plus OFS."}
+    rows = [row("r-ana", ["anastrozole", "goserelin", "leuprolide"]), row("r-let", ["letrozole", "goserelin", "leuprolide"])]
+    o = {**option("anastrozole + LHRH agonist", [], []), "reimbursement_reason": "조건 확인 불가"}
+    rec, _ = postprocess({"options": [o]}, RECORD, [g], rows, TODAY,
+                         lambda opt, chunks: {"status": "met", "reason": "조건 충족 (r-ana)"})
+    out = rec["options"][0]
+    assert out["drugs"] == ["anastrozole", "goserelin", "leuprolide"] and out["reimbursement_citations"] == ["r-ana"]
+    assert out["reimbursement"] == "covered" and out["reimbursement_reason"] == "조건 충족 (r-ana)"

@@ -37,11 +37,11 @@
 | 5 | 후보 `drugs`가 빔 (7번, 계열 이름) | 인용 행을 지우거나 붙이지 않고 `covered_conditions_unverified` (인용한 시행 중인 행이 없으면 `no_criteria`), 조건 판정 안 함 (D 요청 2026-11-04) |
 | 5 | 후보 약과 맞는 시행 중인 급여 행이 없음 | `no_criteria`, 이유 "후보 약과 맞는 시행 중인 급여 행 없음" |
 | 5 | 허가초과 인정인데 허가초과 청크(`HIRA-offlabel`) 인용이 없음 | `no_criteria`. 있으면 청크의 본인부담률을 `copay`에 |
-| 5 | 급여 조건 판정(`conditions_checker`) 충족 | `covered` |
+| 5 | 급여 조건 판정(`conditions_checker`) 충족 | `covered`. 급여 이유는 판정기 문장만 둔다 (LLM의 `reimbursement_reason`은 버림, D 확인 2026-11-04) |
 | 5 | 급여 조건 판정 불충족 | `no_criteria` (이유에 못 맞춘 조건) |
 | 5 | 급여 조건을 모두 확인하지 못함, 또는 판정기를 넘기지 않음 | `covered_conditions_unverified` |
 | 6 | 지침 청크가 하나도 없음 | 추천을 만들지 않고 `out_of_scope` |
-| 7 | `drugs`·`evidence`가 비어 옴 (2번 뒤, 3번 전) | `drugs`는 인용한 지침 청크의 `drugs` 중 요법 이름에 적힌 약, `evidence`는 인용한 지침 청크의 LoE·GoR로 채움 (A 전달 2026-11-02 §6 4번). 요법 이름에 계열 이름(AI, ET, CDK4/6, taxane 등)이 있으면 `drugs`를 비워 두고 `conflicts`에 "약을 정하지 못함, 의사 확인 필요" (A 전달 2026-11-03 §2 3번). 다만 LHRH 작용제(LHRH·GnRH agonist, OFS, ovarian suppression)는 급여 행에 맞춰 goserelin·leuprolide로 펼친다 (둘 중 하나라는 뜻, D 요청 2026-11-04) |
+| 7 | `drugs`·`evidence`가 비어 옴 (2번 뒤, 3번 전) | `drugs`는 요법 이름에 적힌 약 (공용 약 사전의 일반명·별칭으로 찾음, 청크에 없는 약은 3번이 거름, D 확인 2026-11-04), `evidence`는 인용한 지침 청크의 LoE·GoR로 채움 (A 전달 2026-11-02 §6 4번). 요법 이름에 계열 이름(AI, ET, CDK4/6, taxane 등)이 있으면 `drugs`를 비워 두고 `conflicts`에 "약을 정하지 못함, 의사 확인 필요" (A 전달 2026-11-03 §2 3번). 다만 LHRH 작용제(LHRH·GnRH agonist, OFS, ovarian suppression)는 급여 행에 맞춰 goserelin·leuprolide로 펼친다 (둘 중 하나라는 뜻, D 요청 2026-11-04) |
 
 청크 `drugs`는 "본문에 나온 약"이라 금기로 언급된 약도 들어 있다 (예: 동반질환으로 CDK4/6을 못 쓸 때의 권고에 CDK4/6 약 3개). 3번 규칙은 약이 인용한 청크에 나오는지만 보는 환각 검사라 권하는 약인지는 가리지 않는다. 참고란은 이런 청크를 근거 ID로만 붙인다.
 
