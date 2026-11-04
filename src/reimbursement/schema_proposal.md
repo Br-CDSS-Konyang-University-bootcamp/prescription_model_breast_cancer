@@ -51,6 +51,12 @@ op는 설계의 8개에 `contains`(이전 치료에 있어야 함)를 더했다.
 - `prior_drugs contains [A, B]`는 A와 B를 모두 받은 것이다. `not_contains [A, B]`는 둘 다 받은 적이 없는 것이다.
   'A 또는 B를 받은'은 `any_of` 묶음에 항목을 나눠 넣는다. `prior_failed`도 같다.
 - `unless`는 그 항목이 실패해도 unless 조건을 만족하면 통과로 본다 (예: 보조요법 종료 1년 이후 재발).
+- 의사 판단으로 대상이 넓어지는 예외('이러한 치료가 부적절한 환자는 예외로 함', '사용할 수 없는 타당한 의사 소견이 있는 경우')는
+  `human_review`가 아니라 그 예외가 덮는 본 조건 항목의 `unless`에 `{field: physician_opinion, op: eq, value: true}`로 둔다
+  (2026-11-04 D 결정). 환자 JSON에 칸이 없어 unless는 늘 알 수 없음이므로, 본 조건을 만족하면 충족, 만족하지 못하면 불충족 대신
+  알 수 없음(의사 확인)이 된다 (B `evaluate_item`: 항목 거짓 + unless 알 수 없음 -> 알 수 없음). `human_review`에 두면 본 조건을
+  만족한 환자까지 늘 알 수 없음이 되었다 (VC-0115·0127 eribulin). `physician_opinion`은 unless 밖에 쓰면 버린다 (`check_values`).
+  해당 행: 고식적 항암 4다-1·4마-1 eribulin, 4라-19 trastuzumab, 4라-20 lapatinib + capecitabine (anthracycline 항목만 따로 떼어 unless를 붙임).
 - `cycles_total`의 `of.drugs [A, B]`는 A나 B가 하나라도 들어간 `treatment_history[]` 항목(요법 하나)의 `cycles.value`를
   항목마다 한 번씩 더한 값이다. 예: 'trastuzumab ± pertuzumab 투여 주기 18주기 이하' -> `of.drugs [trastuzumab, pertuzumab]`,
   'trastuzumab + pertuzumab 6주기' 항목은 6으로 센다 (12가 아님).
@@ -189,6 +195,9 @@ A가 전이 기준일로 세라고 한 것은 3가뿐이라, 그 밖에 '재발'
   허가 여부를 D가 따로 판단하는 것이 아니라 공고 표에 적힌 내용을 공고 조건대로 적용하므로 PROJECT.md §2와 부딪히지 않는다.
   공고는 "허가사항은 공고 시점의 허가이므로 투여 전 변경 여부를 확인"하라고 적고 있어, 이 문구는 상위 청크(`…-combo`)에 있다.
   (A 답변 2026-10-21은 연번 21(10-01판, 11-01판 22)의 허가사항 조건을 빼자고 했으나 위 원칙에 따라 남긴다.)
+  허가사항 열의 구절도 칸으로 옮길 수 있으면 `human_review`에 두지 않고 항목으로 만든다. 예: 연번 30 inavolisib의
+  '수술 후 보조내분비요법 중 또는 완료 후 12개월 이내 재발' -> `days_end_to_recurrence lte 365`, of Hormone Therapy·adjuvant
+  (2026-11-04. `human_review`로 두었을 때는 대상 환자도 늘 알 수 없음이었다, VC-0122).
 - 최근 4주 투약: A가 계산한 `at_index.recent_therapy_28d`를 그대로 쓴다 (zoledronic acid 골전이, `recent_therapy_28d eq yes`, A §6-1).
 - 나이: `age`는 진단 시 나이(`patient.age`)로 선행·수술후보조 대상 조건에, `age_at_index`는 판정 기준일 나이(`at_index.age`)로
   투여 시점 조건(G-CSF·denosumab '만 19세 이상', dexrazoxane '70세 이상')에 쓴다 (A §6-2).
