@@ -35,8 +35,8 @@
       "page": 1207
     }
   ],
-  "status": "draft",
-  "reviewer": null,
-  "reviewed_on": null,
+  "status": "reviewed",
+  "reviewer": "Claude 2차 점검 (염승민 위임)",
+  "reviewed_on": "2026-11-04",
   "note": "1차 letrozole-palbociclib 18개월 뒤 진행, cfDNA ESR1 Y537S, PIK3CA 미검출, 폐경 후 → elacestrant·imlunestrant(6dc03f, ET 1차례 이상 뒤 + CDK4/6에 오래 반응)과 그림 3 ESR1 경로(14326f). 시나리오는 everolimus 병용·fulvestrant 기반도 후보로 적었지만 ESMO 원문(455f68·4bcee1, 그림 3 0f09b4)은 '표적 변이가 없을 때'라 ESR1 변이 환자에게는 조건이 맞지 않아 not_expected (4bcee1의 CDK4/6 바꾸기는 시나리오의 palbociclib 재추천 금지와도 겹침, 검수 때 확인). 그 밖의 not_expected: PIK3CA·AKT1·PTEN 권고(PIK3CA 미검출), 폐경 전 OFS"
 }

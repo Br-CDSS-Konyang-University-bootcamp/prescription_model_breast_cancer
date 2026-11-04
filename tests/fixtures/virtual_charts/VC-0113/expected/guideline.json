@@ -37,8 +37,8 @@
       "page": 1208
     }
   ],
-  "status": "draft",
-  "reviewer": null,
-  "reviewed_on": null,
-  "note": "고식 ET 2차례(AI-palbociclib, exemestane-everolimus) 뒤 내분비 부적합, 고식 ChT 없음, HER2-low → T-DXd(044c33, ET 2차례 뒤 HER2-low·ultralow)와 이전 ChT 없을 때 capecitabine·taxane(b023e3), 그림 4 '이전 ChT 없음 → HER2 low' 경로. 보조 AC·paclitaxel은 5년 넘게 전이라 '이전 ChT'로 보지 않음(C 판단, 검수 때 확인). not_expected: ae383b(3차 '넘어서' 재투여), 5f9ed9·990d33(ChT 1차례 이상 뒤), 46be52·53ed83(내분비 감수성 환자용, 이 환자는 내분비 부적합)"
+  "status": "reviewed",
+  "reviewer": "Claude 2차 점검 (염승민 위임)",
+  "reviewed_on": "2026-11-04",
+  "note": "고식 ET 2차례(AI-palbociclib, exemestane-everolimus) 뒤 내분비 부적합, 고식 ChT 없음, HER2-low → T-DXd(044c33, ET 2차례 뒤 HER2-low·ultralow)와 이전 ChT 없을 때 capecitabine·taxane(b023e3), 그림 4 '이전 ChT 없음 → HER2 low' 경로. 보조 AC·paclitaxel은 5년 넘게 전이라 '이전 ChT'로 보지 않음(C 판단, 검수 때 확인). not_expected: ae383b(3차 '넘어서' 재투여), 5f9ed9·990d33(ChT 1차례 이상 뒤), 46be52·53ed83(내분비 감수성 환자용, 이 환자는 내분비 부적합). [판단 근거 · Claude 2차 점검 2026-11-04, 염승민 위임] 5년 넘게 전의 보조 AC·paclitaxel은 그림 4의 '이전 ChT'로 보지 않음: 그림 4는 전이 후 3차 이후 흐름이고, T-DXd의 'ChT 1차례 이상 뒤'(5f9ed9) 근거 시험도 보조 항암은 끝난 뒤 6개월 안 재발일 때만 1차례로 셌음. 재투여(ae383b)는 '3차를 넘어서'라 지금 3차 결정에는 맞지 않아 오답 유지"
 }

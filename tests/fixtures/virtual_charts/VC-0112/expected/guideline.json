@@ -47,8 +47,8 @@
       "page": 1210
     }
   ],
-  "status": "draft",
-  "reviewer": null,
-  "reviewed_on": null,
-  "note": "HR-/HER2+, 보조 AC→TH(trastuzumab) 종료 약 4개월 뒤 폐·간 전이(심평원 HER2ADC-6M 간주 met) → 2차 선택지 권고(b8e579, 원문은 'P-T 또는 T-DM1 보조 종료 6-12개월 안'인데 trastuzumab 단독 보조도 같게 봄, 시나리오 M37)와 그 2차 선택지: taxane-trastuzumab 뒤 T-DXd(585977), tucatinib-trastuzumab-capecitabine(081a81). 그림 6 BM 없음 경로(158c93). T-DM1(95a804)은 'T-DXd를 쓸 수 없을 때'라 넣지 않음. not_expected: 처음 치료하는 환자의 1차 권고(THP 8cddda, T-DXd-P 6a166b)와 유지·항암 없는 항HER2(5a1ce0·f39214), ER 양성 환자용 권고 4개, 폐경 전 ER+ OFS"
+  "status": "reviewed",
+  "reviewer": "Claude 2차 점검 (염승민 위임)",
+  "reviewed_on": "2026-11-04",
+  "note": "HR-/HER2+, 보조 AC→TH(trastuzumab) 종료 약 4개월 뒤 폐·간 전이(심평원 HER2ADC-6M 간주 met) → 2차 선택지 권고(b8e579, 원문은 'P-T 또는 T-DM1 보조 종료 6-12개월 안'인데 trastuzumab 단독 보조도 같게 봄, 시나리오 M37)와 그 2차 선택지: taxane-trastuzumab 뒤 T-DXd(585977), tucatinib-trastuzumab-capecitabine(081a81). 그림 6 BM 없음 경로(158c93). T-DM1(95a804)은 'T-DXd를 쓸 수 없을 때'라 넣지 않음. not_expected: 처음 치료하는 환자의 1차 권고(THP 8cddda, T-DXd-P 6a166b)와 유지·항암 없는 항HER2(5a1ce0·f39214), ER 양성 환자용 권고 4개, 폐경 전 ER+ OFS. [판단 근거 · Claude 2차 점검 2026-11-04, 염승민 위임] '보조 종료 6-12개월 안 재발 → 2차 선택지'(b8e579) 원문은 'P-T 또는 T-DM1 보조 뒤'지만, 같은 장 그림 6의 각주 b가 '보조 치료 중 또는 끝난 뒤 6-12개월 안 재발'을 1차 치료 1회로 친다고 일반적으로 적어 trastuzumab 단독 보조도 같게 봄. 보조 trastuzumab 4개월 만의 재발은 항HER2 내성으로 보는 것이 같은 이유"
 }

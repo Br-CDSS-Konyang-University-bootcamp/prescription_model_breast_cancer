@@ -35,10 +35,10 @@
       "page": 166
     }
   ],
-  "status": "draft",
-  "reviewer": null,
-  "reviewed_on": null,
-  "note": "폐경 후, pT3N1a(2개) IIIA, 등급 2, Ki-67 25%(luminal B-like), 고위험(급여·ESMO yes), gBRCA 기록 없음 → 보조 abemaciclib(1f97a2, 시나리오), 항암 후 ET(ca0c8d), AI(0656d9), 고위험 연장 ET(cca75c), 폐경 후 고위험 비스포스포네이트(fca2a7). 그림 5 luminal B → 항암 → stage III → gBRCA wt·미검사 → abemaciclib 경로. olaparib(7568e8)은 gBRCA를 몰라 어느 쪽에도 넣지 않음. not_expected: 폐경 전 OFS, luminal A 항암 생략. 2026-11-04 팀 결정(A 안): 폐경 후 고위험 비스포스포네이트(fca2a7)는 보조 내분비에 더하는 보조 약물이라 expected_supportive로 옮김",
+  "status": "reviewed",
+  "reviewer": "Claude 2차 점검 (염승민 위임)",
+  "reviewed_on": "2026-11-04",
+  "note": "폐경 후, pT3N1a(2개) IIIA, 등급 2, Ki-67 25%(luminal B-like), 고위험(급여·ESMO yes), gBRCA 기록 없음 → 보조 abemaciclib(1f97a2, 시나리오), 항암 후 ET(ca0c8d), AI(0656d9), 고위험 연장 ET(cca75c), 폐경 후 고위험 비스포스포네이트(fca2a7). 그림 5 luminal B → 항암 → stage III → gBRCA wt·미검사 → abemaciclib 경로. olaparib(7568e8)은 gBRCA를 몰라 어느 쪽에도 넣지 않음. not_expected: 폐경 전 OFS, luminal A 항암 생략. 2026-11-04 팀 결정(A 안): 폐경 후 고위험 비스포스포네이트(fca2a7)는 보조 내분비에 더하는 보조 약물이라 expected_supportive로 옮김. [판단 근거 · Claude 2차 점검 2026-11-04, 염승민 위임] 주 처방 정답 4개(항암 후 ET, AI, abemaciclib, 연장 ET)를 모두 둠. 폐경 후·pT3N1a(IIIA)·Ki-67 25%(luminal B-like)·고위험 확정이라 네 권고의 조건을 모두 만족하고, 팀 정답 기준이 '환자에게 똑같이 맞는 권고는 모두 정답'이라 좁히지 않음. 비스포스포네이트는 보조 약물 정답으로 따로 둠",
   "expected_supportive": [
     "esmo-ebc-2024-02-hrpos-fca2a7"
   ]

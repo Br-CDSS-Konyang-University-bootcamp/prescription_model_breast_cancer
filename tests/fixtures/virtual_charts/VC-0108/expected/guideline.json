@@ -38,9 +38,9 @@
       "page": 1214
     }
   ],
-  "status": "draft",
-  "reviewer": null,
-  "reviewed_on": null,
+  "status": "reviewed",
+  "reviewer": "Claude 2차 점검 (염승민 위임)",
+  "reviewed_on": "2026-11-04",
   "note": "de novo 뼈 전이, 1차 ribociclib+letrozole 복용 중(SD), 오늘 결정은 골 보호제(denosumab) 시작. 2026-11-04 팀 결정(A 안): 골 보호제는 주 처방 후보가 아니라 '함께 처방할 보조 약물' 칸으로 따로 보인다. 그래서 주 처방 정답은 지금 치료(AI-CDK4/6) 유지의 근거인 de novo 1차 권고(02649c)와 그림 2 de novo 경로(1ae139), 보조 약물 정답은 뼈 전이 BMA 권고(087674). f5c25c(zoledronic 12주 간격)는 BMA를 9개월 이상 쓴 뒤라 해당 없음. not_expected: 보조 ET 중 재발 갈래(de novo라 아님). 안건 6-1의 'v0.2 결정 종류 칸'은 A 안으로 대체됨",
   "expected_supportive": [
     "esmo-mbc-2026-05-site-bone-087674"

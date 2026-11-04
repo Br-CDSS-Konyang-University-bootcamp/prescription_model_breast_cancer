@@ -36,8 +36,8 @@
       "page": 1208
     }
   ],
-  "status": "draft",
-  "reviewer": null,
-  "reviewed_on": null,
-  "note": "VC-0113과 같은 경과, HER2-ultralow(재생검) → T-DXd(044c33은 ultralow 포함)와 이전 ChT 없을 때 ChT(b023e3), 그림 4 ddbc18(PD 뒤 SG 등). 76de27은 PD 뒤 'HER2 low → T-DXd'라 ultralow에는 둘째 단계가 맞지 않아 넣지 않음. not_expected: VC-0113과 같고 5f9ed9는 HER2-low 전용"
+  "status": "reviewed",
+  "reviewer": "Claude 2차 점검 (염승민 위임)",
+  "reviewed_on": "2026-11-04",
+  "note": "VC-0113과 같은 경과, HER2-ultralow(재생검) → T-DXd(044c33은 ultralow 포함)와 이전 ChT 없을 때 ChT(b023e3), 그림 4 ddbc18(PD 뒤 SG 등). 76de27은 PD 뒤 'HER2 low → T-DXd'라 ultralow에는 둘째 단계가 맞지 않아 넣지 않음. not_expected: VC-0113과 같고 5f9ed9는 HER2-low 전용. [판단 근거 · Claude 2차 점검 2026-11-04, 염승민 위임] VC-0113과 같은 판단: 보조 항암은 이전 ChT가 아님(재발이 끝난 뒤 6개월보다 훨씬 뒤), 재투여(ae383b)는 '3차를 넘어서'라 오답. HER2-ultralow라 T-DXd 권고 중 044c33(low·ultralow)만 정답, 5f9ed9(HER2-low 전용)는 오답"
 }

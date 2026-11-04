@@ -32,8 +32,8 @@
       "page": 165
     }
   ],
-  "status": "draft",
-  "reviewer": null,
-  "reviewed_on": null,
-  "note": "폐경 후, pT2N0, 보조 tamoxifen 중 흉벽 국소 재발 → 완치 목적 절제 뒤 보조요법(조기로 봄) → AI 또는 tamoxifen 뒤 AI(0656d9), 그림 4 폐경 후 경로. ESMO에 국소 재발 뒤 보조요법만 다룬 권고가 없어 조기 HR+ 권고로 정답을 정함(검수 때 확인). not_expected: 폐경 전 OFS, 병기 III·고위험 II abemaciclib"
+  "status": "reviewed",
+  "reviewer": "Claude 2차 점검 (염승민 위임)",
+  "reviewed_on": "2026-11-04",
+  "note": "폐경 후, pT2N0, 보조 tamoxifen 중 흉벽 국소 재발 → 완치 목적 절제 뒤 보조요법(조기로 봄) → AI 또는 tamoxifen 뒤 AI(0656d9), 그림 4 폐경 후 경로. ESMO에 국소 재발 뒤 보조요법만 다룬 권고가 없어 조기 HR+ 권고로 정답을 정함(검수 때 확인). not_expected: 폐경 전 OFS, 병기 III·고위험 II abemaciclib. [판단 근거 · Claude 2차 점검 2026-11-04, 염승민 위임] ESMO EBC·MBC 청크에 '국소 재발 절제 뒤 보조요법'만 다룬 권고가 없음을 확인함 (locoregional recurrence 문구 검색 0건). 심평원도 완치 목적 절제 뒤 요법을 수술후보조요법으로 보므로(시나리오 D 줄), 조기 HR+ 폐경 후 보조 내분비 권고(0656d9: tamoxifen 뒤 AI 전환)를 정답으로 둠"
 }
