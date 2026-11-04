@@ -42,8 +42,9 @@ def _patient_profile(metastatic_sites=None, menopausal_status=None, pcr=None, st
                      prior_subclasses=None, prior_classes=None, endocrine_relapse_12m=None,
                      high_risk_early=None, visceral_crisis=None, contraindicated=None,
                      prior_metastatic_chemo=None, neoadjuvant_received=None, ici_received=None,
-                     her2_adjuvant_relapse=None) -> dict:
+                     her2_adjuvant_relapse=None, clinical_stage=None) -> dict:
     return {
+        "clinical_stage": clinical_stage,
         "her2_adjuvant_relapse": her2_adjuvant_relapse,
         "neoadjuvant_received": neoadjuvant_received,
         "ici_received": ici_received,
@@ -138,7 +139,8 @@ def negative_tags(record: dict) -> list[str]:
 
 PATIENT_KEYS = ("metastatic_sites", "menopausal_status", "pcr", "stage_at_diagnosis", "prior_subclasses", "prior_classes",
                 "endocrine_relapse_12m", "high_risk_early", "visceral_crisis", "contraindicated", "prior_metastatic_chemo",
-                "neoadjuvant_received", "ici_received", "her2_adjuvant_relapse")
+                "neoadjuvant_received", "ici_received", "her2_adjuvant_relapse",
+                "clinical_stage")
 
 
 def search_args(record: dict, query_style: str = "adaptive", **kwargs) -> dict:
@@ -220,7 +222,25 @@ def extra_search_args(record: dict, top_k: int = 3, **kwargs) -> list[dict]:
             and patient.get("prior_metastatic_chemo") == "yes"):
         base = search_args(record, top_k=top_k, **kwargs)
         out.append({**base, "query_text": PRIOR_CHEMO_QUERY})
+    # ER 저발현(1~9%): B 규칙상 아형은 HR+/HER2-지만 ESMO는 TNBC처럼 행동할 수 있다고 한다 (tnbc-253553, E20).
+    # 아형 필터 때문에 TNBC 권고(선행 항암 + pembrolizumab 등)를 찾지 못했다 (VC-0124). 같은 질의로 TNBC 권고도 찾는다.
+    # 어느 쪽을 고를지는 B·의사가 정한다 (팀 안건 6-2, C 제안 2026-11-04)
+    base = search_args(record, top_k=top_k, **kwargs)
+    if record.get("subtype") == "HR+/HER2-" and "ER-low" in base.get("biomarker_tags", []):
+        out.append({**base, "subtype": "TNBC", "query_text": er_low_tnbc_query(base["query_text"], patient)})
     return out
+
+
+ER_LOW_PHRASE = "ER-/PgR-low"
+
+
+def er_low_tnbc_query(query_text: str, patient: dict) -> str:
+    """ER 저발현 환자의 TNBC 추가 검색 질의: 주 질의에서 'ER-/PgR-low'를 빼고 'TNBC'와 임상 병기를 붙인다.
+    'ER-/PgR-low'가 있으면 그 표현이 든 권고(tnbc-253553) 하나로 쏠리고, 병기가 없으면 'cT2-4 N0 or any N-positive (stage II-III)
+    → 선행 항암 + pembrolizumab'(tnbc-777c34)이 3개 안에 들지 못했다 (VC-0124 check_case 2026-11-04). 253553은 ER-low 태그 가점으로 남는다"""
+    words = query_text.replace(ER_LOW_PHRASE, " ").split()
+    stage = patient.get("clinical_stage")
+    return " ".join(words + ["TNBC"] + ([stage] if stage else []))
 
 
 def _sites(metastatic_sites) -> list:

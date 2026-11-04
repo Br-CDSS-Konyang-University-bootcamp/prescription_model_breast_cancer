@@ -215,6 +215,7 @@ def from_confirmed_state(confirmed_state: dict):
         "prior_metastatic_chemo": ({"1L": "no", "2L": "yes", ">=3L": "yes"}.get(_confirmed(items, "setting.line_chemo"))
                                    if disease == "metastatic" else None),
         **_early_history(items, disease),
+        "clinical_stage": _clinical_stage(items, disease),
         # HER2 양성 전이성: 보조 항HER2 종료 6개월 안 재발인가 (심평원 DEEM-HER2ADC-6M). no면 ESMO의 '보조 종료 6-12개월 안 재발'
         # 권고를 감점한다 (VC-0110: 5년 전 보조 trastuzumab인데 그 권고가 1위)
         "her2_adjuvant_relapse": ({"met": "yes", "not_met": "no"}.get((_confirmed(items, "deemed_lines") or {})
@@ -222,6 +223,24 @@ def from_confirmed_state(confirmed_state: dict):
                                   if disease == "metastatic" and subtype in HER2_POSITIVE else None),
     }
     return record, patient, lines
+
+
+def _clinical_stage(items: dict, disease):
+    """조기·국소 진행성의 임상 병기 표현 (예: 'cT2 node-positive stage II'). ESMO EBC 권고는 'cT2-4 N0 or any N-positive
+    (stage II-III)'처럼 병기로 갈린다. 지금은 ER 저발현 환자의 TNBC 추가 검색 질의에만 쓴다 (VC-0124). 전이성이면 None."""
+    if disease == "metastatic":
+        return None
+    t, n, group = (_confirmed(items, k) for k in ("stage.t", "stage.n", "stage.group"))
+    parts = []
+    if isinstance(t, str) and t[:2] in ("T1", "T2", "T3", "T4"):
+        parts.append("c" + t)
+    if n in ("positive", "negative"):
+        parts.append("node-" + n)
+    if isinstance(group, str) and group[:1] == "I":
+        roman = group.rstrip("ABC")
+        if roman in ("I", "II", "III"):
+            parts.append("stage " + roman)
+    return " ".join(parts) or None
 
 
 def _early_history(items: dict, disease) -> dict:
