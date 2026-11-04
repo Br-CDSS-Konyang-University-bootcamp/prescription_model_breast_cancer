@@ -13,7 +13,8 @@ from llm import LOCAL_PROVIDERS, complete_json, load_config
 RECOMMENDATION_SCHEMA = Path(__file__).resolve().parents[2] / "schemas" / "recommendation.json"
 LOCAL_HOSTS = {"127.0.0.1", "localhost", "::1"}
 # recommendation.json 중 LLM이 채우는 칸. 나머지(schema_version, patient_ref, 만든 시각, 모델, index_status)는 recommend()가 붙인다
-LLM_FIELDS = ("options", "tests_needed", "out_of_scope", "out_of_scope_reason", "conflicts")
+# supportive_options(골 보호제 보조 약물, 2026-11-04 팀 안건 A)는 선택 칸이라 LLM_REQUIRED에 넣지 않는다
+LLM_FIELDS = ("options", "supportive_options", "tests_needed", "out_of_scope", "out_of_scope_reason", "conflicts")
 LLM_REQUIRED = ["options", "tests_needed", "out_of_scope", "conflicts"]
 
 

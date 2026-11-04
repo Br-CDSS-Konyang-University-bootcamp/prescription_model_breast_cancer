@@ -32,7 +32,7 @@ def test_non_local_config_stops_before_sending(cfg):
 
 def test_answer_schema_is_llm_part_of_recommendation():
     schema = answer_schema()
-    assert set(schema["properties"]) == {"options", "tests_needed", "out_of_scope", "out_of_scope_reason", "conflicts"}
+    assert set(schema["properties"]) == {"options", "supportive_options", "tests_needed", "out_of_scope", "out_of_scope_reason", "conflicts"}
     Draft202012Validator.check_schema(schema)
     good = {"options": [opt()], "tests_needed": [], "out_of_scope": False, "conflicts": []}
     assert not list(Draft202012Validator(schema).iter_errors(good))

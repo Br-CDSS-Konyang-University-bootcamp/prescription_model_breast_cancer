@@ -19,6 +19,9 @@ LLM이 낸 추천을 받은 청크와 B의 판정에 비추어 고친다. 규칙
    요법 이름에 계열 이름(AI, ET, CDK4/6 등)이 있으면 어느 약인지 정할 수 없어 drugs를 비워 두고 conflicts에 적는다
    (A 전달 2026-11-03 §2 3번. 예: "AI—palbociclib"을 palbociclib 하나로 채우지 않는다).
    다만 LHRH 작용제(LHRH·GnRH agonist, OFS, ovarian suppression)는 goserelin·leuprolide로 펼친다 (D 요청 2026-11-04).
+8. 골 보호제(drug_classes.csv의 Bone-modifying Agent)는 주 후보가 아니라 supportive_options(함께 처방할 보조 약물)에 둔다
+   (팀 안건 A, 2026-11-04). 1~5·7번 검사는 보조 칸에도 똑같이 한다. 선행요법 결정이면 골 보호제를 내지 않고,
+   뼈 전이 환자에게 뼈 전이 청크(site-bone)가 왔는데 LLM이 빠뜨리면 그 청크의 골 보호제를 약마다 규칙으로 채운다.
 지운 것과 바꾼 것은 모두 로그로 돌려준다.
 """
 import csv
@@ -253,26 +256,72 @@ def _classify(option, reimb_by_id, today, conditions_checker):
     return changes + (["급여 → 급여(조건 확인 필요) (조건 확인 안 됨)"] if cls == "covered" else [])
 
 
+# 8번: 골 보호제 (drug_classes.csv의 Bone-modifying Agent). 주 후보 options가 아니라 보조 약물 supportive_options에 둔다
+# (팀 안건 A src/input/team_agenda_A_2026-11-04.md, schemas/recommendation.json supportive_options)
+BMA_CLASS = "Bone-modifying Agent"
+BMA_TERM_RE = re.compile(r"[Bb]isphosphonates?|\bBMAs?\b|[Bb]one[- ]modifying|[Dd]enosumab|[Zz]oledron|"
+                         r"[Pp]amidronate|[Ii]bandronate|[Cc]lodronate")
+
+
+def _bma_drugs():
+    """골 보호제 일반명 목록 (소문자, 사전 순서)."""
+    if not hasattr(_bma_drugs, "cache"):
+        with open(DRUG_CLASSES_CSV, encoding="utf-8-sig") as fh:
+            _bma_drugs.cache = [r["generic_name"].lower() for r in csv.DictReader(fh) if r["drug_class"] == BMA_CLASS]
+    return _bma_drugs.cache
+
+
+def _is_supportive(option):
+    """골 보호제만으로 된 후보인지. 약이 있으면 모두 골 보호제, 약이 없으면 요법 이름에 골 보호제 말이 있을 때."""
+    drugs = [d.lower() for d in option.get("drugs") or []]
+    if drugs:
+        return all(d in _bma_drugs() for d in drugs)
+    return bool(BMA_TERM_RE.search(option.get("therapy") or ""))
+
+
+def _bone_supportive(guide_by_id, done):
+    """8번: 뼈 전이 청크(chunk_id에 site-bone)의 골 보호제를 약마다 보조 후보로 만든다 (LLM이 빠뜨렸을 때, VC-0108).
+    근거 문장은 정해진 틀이고 지침 원문을 옮기지 않는다. done은 이미 보조 칸에 있는 약."""
+    out = []
+    for cid, c in guide_by_id.items():
+        if "site-bone" not in cid:
+            continue
+        for d in [x.lower() for x in c.get("drugs") or []]:
+            if d in _bma_drugs() and d not in done:
+                done.add(d)
+                ev = c.get("evidence") or {}
+                out.append({"therapy": d, "drugs": [d],
+                            "rationale": f"뼈 전이 환자에게 골 보호제가 권고된다 [{cid}].", "citations": [cid],
+                            "evidence": (f"LoE {ev['loe']}" + (f", GoR {ev['gor']}" if ev.get("gor") else ""))
+                            if ev.get("loe") else None,
+                            "reimbursement": "covered_conditions_unverified", "reimbursement_reason": "",
+                            "reimbursement_citations": []})
+    return out
+
+
 def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursement_chunks, today=None,
-                conditions_checker=None):
+                conditions_checker=None, phase=None, bone_metastasis=False):
     """추천 결과를 고쳐서 돌려준다. (고친 결과, 로그 목록). 받은 값은 바꾸지 않는다.
-    conditions_checker(option, 급여 청크 목록) -> bool: 급여 조건을 모두 확인했으면 True (D 판정 연결용, 없으면 확인 안 됨)."""
+    conditions_checker(option, 급여 청크 목록) -> {status, reason}: 급여 조건 판정 (conditions_eval.make_conditions_checker).
+    phase(neoadjuvant / adjuvant / None)·bone_metastasis(bool)는 8번 보조 약물 규칙에 쓴다."""
     today = today or date.today()
     rec = {**recommendation, "options": [dict(o) for o in recommendation.get("options") or []],
+           "supportive_options": [dict(o) for o in recommendation.get("supportive_options") or []],
            "tests_needed": list(recommendation.get("tests_needed") or []),
            "conflicts": list(recommendation.get("conflicts") or [])}
     log = []
     if not guideline_chunks:
-        log += [f"후보 삭제: {o.get('therapy')} (지침 검색 결과 없음)" for o in rec["options"]]
-        rec.update(options=[], out_of_scope=True, out_of_scope_reason="지침 검색 결과 없음")
+        log += [f"후보 삭제: {o.get('therapy')} (지침 검색 결과 없음)" for o in rec["options"] + rec["supportive_options"]]
+        rec.update(options=[], supportive_options=[], out_of_scope=True, out_of_scope_reason="지침 검색 결과 없음")
         return rec, log
 
     guide_by_id = {c["chunk_id"]: c for c in guideline_chunks}
     reimb_by_id = {c["chunk_id"]: c for c in reimbursement_chunks or []}
     records = {r["marker"]: r["status"] for r in biomarker_record.get("records") or []}
     disease = (biomarker_record.get("setting") or {}).get("disease")
-    kept = []
-    for o in rec["options"]:
+
+    def check(o):
+        """1~5·7번을 후보 하나에 적용한다. 남기면 True."""
         name = o.get("therapy")
         bad = [i for i in o.get("citations") or [] if i not in guide_by_id]
         bad += [i for i in o.get("reimbursement_citations") or [] if i not in reimb_by_id]
@@ -285,7 +334,7 @@ def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursemen
         cites += [i for i in in_text if i in guide_by_id and i not in cites]
         if not cites or not o["rationale"]:
             log.append(f"후보 삭제: {name} (지침 인용이 있는 근거 문장 없음)")
-            continue
+            return False
         o["citations"] = cites
         filled, unresolved = _fill_drugs_evidence(o, [guide_by_id[i] for i in cites])
         if filled:
@@ -296,16 +345,50 @@ def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursemen
         missing = [d for d in o.get("drugs") or [] if not _drug_in_chunks(d, [guide_by_id[i] for i in cites])]
         if missing:
             log.append(f"후보 삭제: {name} (인용한 지침 청크에 약 이름 없음: {missing})")
-            continue
+            return False
         tests, conflicts = _gate(o, records, disease)
         if tests or conflicts:
             rec["tests_needed"] += [t for t in tests if t not in rec["tests_needed"]]
             rec["conflicts"] += conflicts
             log.append(f"후보 삭제: {name} ({'검사 권고로 바꿈' if tests else '바이오마커 조건 불일치'})")
-            continue
+            return False
         if any(guide_by_id[i].get("source", "").startswith("ESMO") for i in cites):
             o["guideline_source"] = "ESMO"
-        log += [f"{name}: {c}" for c in _classify(o, reimb_by_id, today, conditions_checker)]
-        kept.append(o)
-    rec["options"] = kept
+        log.extend(f"{name}: {c}" for c in _classify(o, reimb_by_id, today, conditions_checker))
+        return True
+
+    main, support = [], []
+    for o in rec["options"]:
+        if check(o):
+            if _is_supportive(o):
+                log.append(f"{o.get('therapy')}: 골 보호제라 보조 약물 칸으로 옮김")
+                support.append(o)
+            else:
+                main.append(o)
+    for o in rec["supportive_options"]:
+        if check(o):
+            if _is_supportive(o):
+                support.append(o)
+            else:
+                log.append(f"후보 삭제: {o.get('therapy')} (보조 약물 칸에는 골 보호제만)")
+    # 8번: 수술 전(선행요법) 결정에서는 수술 뒤 비스포스포네이트 같은 골 보호제가 지금 맞지 않는다 (C 정답 VC-0121·0124)
+    if phase == "neoadjuvant" and disease != "metastatic" and support:
+        log += [f"후보 삭제: {o.get('therapy')} (선행요법 결정이라 골 보호제는 지금 해당 없음)" for o in support]
+        support = []
+    # 같은 약 조합은 한 번만
+    seen, unique = set(), []
+    for o in support:
+        key = frozenset(d.lower() for d in o.get("drugs") or []) or o.get("therapy")
+        if key not in seen:
+            seen.add(key)
+            unique.append(o)
+    support = unique
+    # 8번: 뼈 전이 환자에게 뼈 전이 청크가 왔는데 LLM이 골 보호제를 빠뜨리면 규칙으로 채운다 (VC-0108)
+    if bone_metastasis:
+        done = {d.lower() for o in support for d in o.get("drugs") or []}
+        for o in _bone_supportive(guide_by_id, done):
+            log.append(f"{o['therapy']}: 뼈 전이 청크가 있어 보조 약물 칸에 채움 ({o['citations'][0]})")
+            log.extend(f"{o['therapy']}: {c}" for c in _classify(o, reimb_by_id, today, conditions_checker))
+            support.append(o)
+    rec["options"], rec["supportive_options"] = main, support
     return rec, log

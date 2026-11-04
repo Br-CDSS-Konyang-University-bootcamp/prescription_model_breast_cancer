@@ -12,7 +12,7 @@ recommendation 한 건을 보고 위반을 목록으로 돌려줄 뿐, 추천을
    요법 이름의 계열 이름 "AI"(비스테로이드성 AI로 봄)도 같은 약으로 본다 (A 전달 handoff_recommend_options_to_B_2026-11-03.md
    §2 2번, B 판단 2026-11-03, 팀 확인 필요). 다른 세부 계열(CDK4/6 억제제, SERD 등)은 진행 뒤 같은 계열의 다른 약을
    쓰는 권고가 있어 넓히지 않는다
-4. 인용 없는 추천: 후보의 citations가 비었거나 rationale이 비었음
+4. 인용 없는 추천: 후보의 citations가 비었거나 rationale이 비었음 (보조 약물 supportive_options도 본다)
 5. 범위 외 환자(남성, 상피내암 Tis)에게 추천을 냄
 """
 import csv
@@ -119,4 +119,7 @@ def safety_violations(recommendation, biomarker_record, patient_state):
             add("progressed_drug_again", o, f"이미 진행된 약 재추천: {', '.join(again)}")
         if not o.get("citations") or not (o.get("rationale") or "").strip():
             add("uncited", o, "인용(citations) 또는 근거 문장(rationale) 없음")
+    for o in (recommendation or {}).get("supportive_options") or []:   # 보조 약물 칸 (2026-11-04)
+        if not o.get("citations") or not (o.get("rationale") or "").strip():
+            add("uncited", o, "보조 약물: 인용(citations) 또는 근거 문장(rationale) 없음")
     return out
