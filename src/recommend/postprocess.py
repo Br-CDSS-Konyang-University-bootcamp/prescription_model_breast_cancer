@@ -18,7 +18,8 @@ LLM이 낸 추천을 받은 청크와 B의 판정에 비추어 고친다. 규칙
    LoE·GoR로 채운다 (A 전달 handoff_recommend_prompt_to_B_2026-11-02.md §6 4번, LLM이 두 칸을 비워 냄).
    요법 이름에 계열 이름(AI, ET, CDK4/6 등)이 있으면 어느 약인지 정할 수 없어 drugs를 비워 두고 conflicts에 적는다
    (A 전달 2026-11-03 §2 3번. 예: "AI—palbociclib"을 palbociclib 하나로 채우지 않는다).
-   다만 LHRH 작용제(LHRH·GnRH agonist, OFS, ovarian suppression)는 goserelin·leuprolide로 펼친다 (D 요청 2026-11-04).
+   다만 좁은 계열 이름은 "그중 하나"인 약 묶음으로 펼친다: LHRH 작용제 → goserelin·leuprolide, AI → letrozole·anastrozole,
+   CDK4/6 억제제·taxane·anthracycline → 사전의 그 세부 계열 약 (D 요청 2026-11-04). ET·ChT·항HER2는 펼치지 않는다.
 8. 골 보호제(drug_classes.csv의 Bone-modifying Agent)는 주 후보가 아니라 supportive_options(함께 처방할 보조 약물)에 둔다
    (팀 안건 A, 2026-11-04). 1~5·7번 검사는 보조 칸에도 똑같이 한다. 선행요법 결정이면 골 보호제를 내지 않고,
    뼈 전이 환자에게 뼈 전이 청크(site-bone)가 왔는데 LLM이 빠뜨리면 그 청크의 골 보호제를 약마다 규칙으로 채운다.
@@ -90,10 +91,22 @@ CLASS_NAME_RE = re.compile(r"\bAIs?\b|[Aa]romatase inhibitor|\bET\b|[Ee]ndocrine
                            r"\b[Aa]nthracyclines?\b|\bChT\b|[Cc]hemotherapy|[Aa]nti-HER2|\bSERDs?\b|\bLHRH\b|\bOFS\b")
 
 
-# 7번: 약으로 펼치는 계열 이름. LHRH 작용제는 급여 행이 goserelin·leuprolide로 적혀 있어 두 약으로 펼친다
-# (D 요청 2026-11-04, 급여 행 r04~r06). 후보 drugs에는 "둘 중 하나"라는 뜻으로 두 약이 함께 들어간다
-EXPAND_CLASS = [(re.compile(r"\b(?:LHRH|GnRH)(?:[- ]?(?:agonist|analog(?:ue)?)s?)?\b|\bOFS\b|"
-                            r"[Oo]varian (?:function )?suppression"), ["goserelin", "leuprolide"])]
+# 7번: 약으로 펼치는 계열 이름. 펼친 약은 "그중 하나"라는 묶음(_groups)으로 두고, 급여 행은 묶음마다 하나 이상 맞으면
+# 맞는 행으로 본다. LHRH 작용제는 급여 행에 적힌 goserelin·leuprolide (D 요청 2026-11-04), AI는 비스테로이드성
+# (letrozole·anastrozole, 안전 검사 ③과 같은 기준), 나머지는 drug_classes.csv의 drug_subclass (D 요청 2026-11-04).
+# ET·ChT·항HER2처럼 넓은 계열은 펼치지 않는다
+def _subclass_members(sub):
+    return [g for g, names in _drug_classes().items() if sub in names and " nos" not in g]
+
+
+EXPAND_CLASS = [
+    (re.compile(r"\b(?:LHRH|GnRH)(?:[- ]?(?:agonist|analog(?:ue)?)s?)?\b|\bOFS\b|[Oo]varian (?:function )?suppression"),
+     lambda: ["goserelin", "leuprolide"]),
+    (re.compile(r"\bAIs?\b|[Aa]romatase inhibitors?"), lambda: ["letrozole", "anastrozole"]),
+    (re.compile(r"CDK4/6(?:[- ]inhibitors?)?"), lambda: _subclass_members("cdk4/6_inhibitor")),
+    (re.compile(r"\b[Tt]axanes?\b"), lambda: _subclass_members("taxane")),
+    (re.compile(r"\b[Aa]nthracyclines?\b"), lambda: _subclass_members("anthracycline")),
+]
 
 
 DRUG_NAMES_CSV = DRUG_CLASSES_CSV.parent / "drug_names.csv"
@@ -113,16 +126,22 @@ def _name_patterns():
     return _name_patterns.cache
 
 
+def _groups(option):
+    """후보 약 묶음 목록. 계열 이름을 펼친 후보는 _groups, 아니면 약마다 하나씩."""
+    return option.get("_groups") or [[d.lower()] for d in option.get("drugs") or []]
+
+
 def _fill_drugs_evidence(option, chunks):
     """7번. 빈 drugs·evidence를 인용한 지침 청크에서 채운다. (채운 칸 이름 목록, 약을 정하지 못한 이유 또는 None)."""
     filled, unresolved = [], None
     if not option.get("drugs"):
         therapy = option.get("therapy") or ""
-        expanded = []
+        expanded = []   # [(자리, [약 묶음])]
         for rx, names in EXPAND_CLASS:
-            if rx.search(therapy):
-                expanded += [n for n in names if n not in expanded]
-                therapy = rx.sub(" ", therapy)
+            m = rx.search(therapy)
+            if m:
+                expanded.append((m.start(), names()))
+                therapy = rx.sub(lambda x: " " * len(x.group()), therapy)
         classes = sorted(set(CLASS_NAME_RE.findall(therapy)))
         if classes:
             unresolved = f"요법 이름에 계열 이름({', '.join(classes)})이 있어 약을 정하지 못함, 의사 확인 필요"
@@ -136,13 +155,15 @@ def _fill_drugs_evidence(option, chunks):
                 if m:
                     text = rx.sub(lambda x: " " * len(x.group()), text)   # 자리를 지켜 순서를 남긴다
                     found.append((m.start(), g))
-            drugs = []
-            for _, g in sorted(found):
-                if g not in drugs:
-                    drugs.append(g)
-            drugs += [d for d in expanded if d.lower() not in [x.lower() for x in drugs]]
-            if drugs:
-                option["drugs"] = drugs
+            groups = []
+            for _, g in sorted(found + expanded, key=lambda x: x[0]):
+                g = [g] if isinstance(g, str) else g
+                if g and g not in groups:
+                    groups.append(g)
+            if groups:
+                option["drugs"] = list(dict.fromkeys(d for g in groups for d in g))
+                if any(len(g) > 1 for g in groups):
+                    option["_groups"] = groups
                 filled.append("drugs")
     if not (option.get("evidence") or "").strip():
         ev = next((c.get("evidence") for c in chunks if (c.get("evidence") or {}).get("loe")), None)
@@ -179,12 +200,24 @@ def _gate(option, records, disease):
     return tests, conflicts
 
 
+def _added_drugs(chunk):
+    """병용 행(40장)의 추가 약제와 그 급여 (D chunk.json reimbursement.combination)."""
+    combo = (chunk.get("reimbursement") or {}).get("combination") or {}
+    return [d.lower() for d in combo.get("added_drug") or []], combo.get("added_drug_coverage")
+
+
 def _drugs_match(option, chunk, exact=False):
-    """후보 약이 모두 급여 행의 drugs에 있는지 (소문자로 비교). exact면 행의 약이 후보 약과 똑같아야 한다
-    (C 검색 결과의 extra_drugs가 빈 행). 후보 약이 없으면 맞출 수 없어 False."""
-    want = {d.lower() for d in option.get("drugs") or []}
+    """후보 약 묶음마다 급여 행의 drugs에 하나 이상 있는지 (소문자로 비교). exact면 행의 약이 후보 약 밖에 없어야 한다
+    (C 검색 결과의 extra_drugs가 빈 행). 병용 행의 추가 약제가 후보에 없으면 맞지 않는다 (그 행 조건은 추가 약제의
+    허가 조건이다, D 요청 2026-11-04 VC-0108). 후보 약이 없으면 맞출 수 없어 False."""
+    groups = _groups(option)
     have = {d.lower() for d in chunk.get("drugs") or []}
-    return bool(want) and (want == have if exact else want <= have)
+    union = {d for g in groups for d in g}
+    if not groups or not all(have & set(g) for g in groups):
+        return False
+    if not set(_added_drugs(chunk)[0]) <= union:
+        return False
+    return have <= union if exact else True
 
 
 def _classify(option, reimb_by_id, today, conditions_checker):
@@ -243,6 +276,11 @@ def _classify(option, reimb_by_id, today, conditions_checker):
     if isinstance(res, bool):
         res = {"status": "met" if res else "unknown", "reason": ""}
     status, why = (res or {}).get("status", "unknown"), (res or {}).get("reason", "")
+    # 병용 행의 추가 약제가 비급여면 이유 앞에 적는다 (D 요청 2026-11-04, VC-0122 inavolisib·VC-0123 capivasertib)
+    nonpaid = sorted({d for c in valid for d in _added_drugs(c)[0] if _added_drugs(c)[1] == "비급여"})
+    if nonpaid:
+        rest = [d for d in option.get("drugs") or [] if d.lower() not in nonpaid]
+        why = f"{'·'.join(nonpaid)} 비급여 + {'·'.join(rest)} 급여" + (f"; {why}" if why else "")
     # 이유 문장은 판정기가 쓴 것만 둔다. LLM의 reimbursement_reason을 앞에 붙이면 "조건 확인 불가 (조건 충족 …)"처럼
     # 앞뒤가 어긋난다 (D 확인 2026-11-04)
     if status == "met":
@@ -375,7 +413,13 @@ def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursemen
         if unresolved:
             rec["conflicts"].append(f"{name}: {unresolved}")
             log.append(f"{name}: {unresolved}")
-        missing = [d for d in o.get("drugs") or [] if not _drug_in_chunks(d, [guide_by_id[i] for i in cites])]
+        cited = [guide_by_id[i] for i in cites]
+        if o.get("_groups"):   # 펼친 묶음은 인용 청크에 있는 약만 남기고, 묶음마다 하나 이상 있어야 한다
+            o["_groups"] = [[d for d in g if _drug_in_chunks(d, cited)] for g in o["_groups"]]
+            missing = [] if all(o["_groups"]) else [d for g in o["_groups"] if not g for d in ["(계열 묶음)"]]
+            o["drugs"] = list(dict.fromkeys(d for g in o["_groups"] for d in g))
+        else:
+            missing = [d for d in o.get("drugs") or [] if not _drug_in_chunks(d, cited)]
         if missing:
             log.append(f"후보 삭제: {name} (인용한 지침 청크에 약 이름 없음: {missing})")
             return False
@@ -423,5 +467,7 @@ def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursemen
             log.append(f"{o['therapy']}: 뼈 전이 청크가 있어 보조 약물 칸에 채움 ({o['citations'][0]})")
             log.extend(f"{o['therapy']}: {c}" for c in _classify(o, reimb_by_id, today, conditions_checker))
             support.append(o)
+    for o in main + support:
+        o.pop("_groups", None)   # 내부용 (스키마에 없는 칸)
     rec["options"], rec["supportive_options"] = main, support
     return rec, log

@@ -46,12 +46,17 @@ def test_no_matching_row_is_no_criteria():
     assert "맞는 시행 중인 급여 행 없음" in o["reimbursement_reason"]
 
 
-def test_class_name_therapy_not_filled_with_one_drug():
-    rec, log = run(option("AI—palbociclib", [], ["r-pal-let"]))
+def test_class_name_therapy():
+    """넓은 계열(ET)은 약 미정, 좁은 계열(AI)은 약 묶음으로 펼쳐 급여 행을 맞춘다 (D 요청 2026-11-04)."""
+    rec, log = run(option("ET alone", [], ["r-pal-let"]))
     o = rec["options"][0]
     assert o["drugs"] == [] and o["reimbursement"] == "covered_conditions_unverified"   # 인용 행은 그대로, 판정 안 함
     assert o["reimbursement_citations"] == ["r-pal-let"] and "후보 약을 정하지 못해" in o["reimbursement_reason"]
-    assert any("계열 이름(AI)" in c for c in rec["conflicts"])
+    assert any("계열 이름(ET)" in c for c in rec["conflicts"])
+    rec, _ = run(option("AI—palbociclib", [], []))
+    o = rec["options"][0]
+    assert o["drugs"] == ["letrozole", "anastrozole", "palbociclib"] and "_groups" not in o
+    assert o["reimbursement_citations"] == ["r-pal-let"]          # letrozole + palbociclib 행 (AI 묶음 중 하나)
     rec, _ = run(option("fulvestrant + palbociclib", [], []))
     assert rec["options"][0]["drugs"] == ["fulvestrant", "palbociclib"]  # 약 이름만 있으면 그대로 채움
 
@@ -94,8 +99,8 @@ def test_lhrh_agonist_expanded_to_goserelin_leuprolide():
         o = rec["options"][0]
         assert o["drugs"] == ["anastrozole", "goserelin", "leuprolide"], therapy
         assert o["reimbursement_citations"] == ["r-ana-lhrh"] and not rec["conflicts"]
-    rec, _ = postprocess({"options": [option("AI + LHRH agonist", [], [])]}, RECORD, [g], rows, TODAY)
-    assert rec["options"][0]["drugs"] == []                     # AI가 남아 있으면 그대로 약 미정
+    rec, _ = postprocess({"options": [option("ET + LHRH agonist", [], [])]}, RECORD, [g], rows, TODAY)
+    assert rec["options"][0]["drugs"] == []                     # 넓은 계열(ET)이 남아 있으면 그대로 약 미정
 
 
 def test_named_drug_kept_even_if_not_in_chunk_drugs_and_reason_is_rule_only():
@@ -108,3 +113,26 @@ def test_named_drug_kept_even_if_not_in_chunk_drugs_and_reason_is_rule_only():
     out = rec["options"][0]
     assert out["drugs"] == ["anastrozole", "goserelin", "leuprolide"] and out["reimbursement_citations"] == ["r-ana"]
     assert out["reimbursement"] == "covered" and out["reimbursement_reason"] == "조건 충족 (r-ana)"
+
+
+def combo_row(cid, drugs, added, coverage):
+    r = row(cid, drugs)
+    r["reimbursement"] = {**r["reimbursement"],
+                          "combination": {"added_drug": added, "added_drug_coverage": coverage, "base_regimen": []}}
+    return r
+
+
+def test_combination_row_needs_added_drug_and_shows_nonpaid():
+    """D 요청 (2026-11-04): 추가 약제가 없는 후보에 병용 행을 쓰지 않고(VC-0108), 비급여 추가 약제는 이유에 적는다(VC-0122)."""
+    g = {**G, "drugs": G["drugs"] + ["inavolisib"]}
+    rows = [combo_row("r-ina", ["inavolisib", "palbociclib", "fulvestrant"], ["inavolisib"], "비급여")]
+    rec, _ = postprocess({"options": [option("fulvestrant + palbociclib", ["fulvestrant", "palbociclib"], ["r-ina"])]},
+                         RECORD, [g], rows, TODAY, lambda o, c: {"status": "met", "reason": "조건 충족"})
+    assert rec["options"][0]["reimbursement"] == "no_criteria"   # inavolisib 행은 맞지 않음
+    rec, _ = postprocess({"options": [option("inavolisib + palbociclib + fulvestrant",
+                                             ["inavolisib", "palbociclib", "fulvestrant"], [])]},
+                         {**RECORD, "records": [{"marker": "PIK3CA", "status": "positive"}]}, [g], rows, TODAY,
+                         lambda o, c: {"status": "met", "reason": "조건 충족 (r-ina)"})
+    o = rec["options"][0]
+    assert o["reimbursement"] == "covered" and o["reimbursement_citations"] == ["r-ina"]
+    assert o["reimbursement_reason"].startswith("inavolisib 비급여 + palbociclib·fulvestrant 급여")

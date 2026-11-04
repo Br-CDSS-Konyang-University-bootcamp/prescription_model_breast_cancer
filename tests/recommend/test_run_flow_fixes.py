@@ -47,3 +47,12 @@ def test_empty_llm_options_logged():
     answer = {"options": [], "tests_needed": [], "out_of_scope": False, "conflicts": []}
     _, log, errors = recommend({}, RECORD, [KID1], [], lambda p: answer, INDEX_STATUS, "fake", TODAY)
     assert errors == [] and "LLM이 후보를 내지 않음 (out_of_scope도 false)" in log
+
+
+def test_prompt_lists_met_deemed_rules():
+    """D 요청 (2026-11-04, VC-0112): 간주 규칙을 충족하면 한 차수 위 권고도 후보로 쓸 수 있다고 알린다."""
+    from src.recommend.prompt import build_prompt
+    ps = {"fields": {"deemed_lines": [{"rule_id": "DEEM-HER2ADC-6M", "status": "met"},
+                                      {"rule_id": "DEEM-SG-1Y", "status": "not_met"}]}}
+    text = build_prompt(ps, RECORD, [KID1], [])
+    assert '"deemed_lines_met": ["DEEM-HER2ADC-6M"]' in text and "한 차수 위" in text

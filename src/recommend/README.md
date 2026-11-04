@@ -34,7 +34,7 @@
 | 3 | 약 이름이 인용한 지침 청크(`drugs` 목록 또는 본문)에 없음. 다만 본문에 넓은 계열 이름이 있으면 그 계열 약은 통과: `ET`·endocrine → Hormone Therapy, `ChT`·chemotherapy → Chemotherapy, anti-HER2·HER2-directed·HER2-targeted → HER2-targeted Therapy (`drug_classes.csv`의 `drug_class`, C와 합의 2026-11-02. C는 이 세 계열을 청크 `drugs`로 풀지 않는다). `ET`·`ChT`는 대소문자까지 맞는 단어만 | 후보를 지움 |
 | 4 | 약에 필요한 바이오마커가 `not_done`·`not_recorded`·`unknown`·`retest_needed` (필요한 마커 중 양성이 하나도 없을 때) | 후보 대신 `tests_needed`에 "<마커> 검사 결과 확인" (`blocks_therapy`에 치료 이름) |
 | 4 | 필요한 바이오마커가 모두 음성·VUS 등 | 후보를 지우고 `conflicts`에 이유와 출처를 적음 |
-| 5 | 급여 행 고르기: 후보 `drugs`가 모두 행의 `drugs`에 든 시행 중인 급여 청크(`baseline`·`overlay`, 시행일이 오늘 이전)만 쓴다. 약이 다른 행 인용은 지우고, 넘겨받은 급여 청크 중 약이 맞는데 인용하지 않은 행은 붙인다 (A 전달 2026-11-03 §3, C `search_reimbursement`와 같은 규칙). 예고(`preview`)는 근거가 아님. 행의 약이 후보 약과 똑같은 행이 있으면 그 행만 쓰고, 없을 때만 약이 더 든 행을 쓴다 (D 요청 2026-11-04) | 고른 행으로 아래 판정 |
+| 5 | 급여 행 고르기: 후보 `drugs`가 모두 행의 `drugs`에 든 시행 중인 급여 청크(`baseline`·`overlay`, 시행일이 오늘 이전)만 쓴다. 약이 다른 행 인용은 지우고, 넘겨받은 급여 청크 중 약이 맞는데 인용하지 않은 행은 붙인다 (A 전달 2026-11-03 §3, C `search_reimbursement`와 같은 규칙). 예고(`preview`)는 근거가 아님. 병용 행(40장)의 추가 약제가 후보에 없으면 그 행은 맞지 않고(추가 약제의 허가 조건이라서), 추가 약제가 비급여면 이유 앞에 "<약> 비급여 + <나머지> 급여"를 적는다 (D 요청 2026-11-04). 행의 약이 후보 약과 똑같은 행이 있으면 그 행만 쓰고, 없을 때만 약이 더 든 행을 쓴다 (D 요청 2026-11-04) | 고른 행으로 아래 판정 |
 | 5 | 후보 `drugs`가 빔 (7번, 계열 이름) | 인용 행을 지우거나 붙이지 않고 `covered_conditions_unverified` (인용한 시행 중인 행이 없으면 `no_criteria`), 조건 판정 안 함 (D 요청 2026-11-04) |
 | 5 | 후보 약과 맞는 시행 중인 급여 행이 없음 | `no_criteria`, 이유 "후보 약과 맞는 시행 중인 급여 행 없음" |
 | 5 | 허가초과 인정인데 허가초과 청크(`HIRA-offlabel`) 인용이 없음 | `no_criteria`. 있으면 청크의 본인부담률을 `copay`에 |
@@ -42,7 +42,7 @@
 | 5 | 급여 조건 판정 불충족 | `no_criteria` (이유에 못 맞춘 조건) |
 | 5 | 급여 조건을 모두 확인하지 못함, 또는 판정기를 넘기지 않음 | `covered_conditions_unverified` |
 | 6 | 지침 청크가 하나도 없음 | 추천을 만들지 않고 `out_of_scope` |
-| 7 | `drugs`·`evidence`가 비어 옴 (2번 뒤, 3번 전) | `drugs`는 요법 이름에 적힌 약 (공용 약 사전의 일반명·별칭으로 찾음, 청크에 없는 약은 3번이 거름, D 확인 2026-11-04), `evidence`는 인용한 지침 청크의 LoE·GoR로 채움 (A 전달 2026-11-02 §6 4번). 요법 이름에 계열 이름(AI, ET, CDK4/6, taxane 등)이 있으면 `drugs`를 비워 두고 `conflicts`에 "약을 정하지 못함, 의사 확인 필요" (A 전달 2026-11-03 §2 3번). 다만 LHRH 작용제(LHRH·GnRH agonist, OFS, ovarian suppression)는 급여 행에 맞춰 goserelin·leuprolide로 펼친다 (둘 중 하나라는 뜻, D 요청 2026-11-04) |
+| 7 | `drugs`·`evidence`가 비어 옴 (2번 뒤, 3번 전) | `drugs`는 요법 이름에 적힌 약 (공용 약 사전의 일반명·별칭으로 찾음, 청크에 없는 약은 3번이 거름, D 확인 2026-11-04), `evidence`는 인용한 지침 청크의 LoE·GoR로 채움 (A 전달 2026-11-02 §6 4번). 요법 이름에 계열 이름(AI, ET, CDK4/6, taxane 등)이 있으면 `drugs`를 비워 두고 `conflicts`에 "약을 정하지 못함, 의사 확인 필요" (A 전달 2026-11-03 §2 3번). 다만 LHRH 작용제(LHRH·GnRH agonist, OFS, ovarian suppression)는 급여 행에 맞춰 goserelin·leuprolide로 펼친다 (둘 중 하나라는 뜻, D 요청 2026-11-04). AI는 letrozole·anastrozole, CDK4/6 억제제·taxane·anthracycline은 사전의 그 세부 계열 약으로 펼쳐 "그중 하나" 묶음으로 두고, 급여 행은 묶음마다 하나 이상 맞으면 맞는 행으로 본다. ET·ChT·항HER2는 펼치지 않는다 (D 요청 2026-11-04) |
 | 8 | 골 보호제(`drug_classes.csv`의 Bone-modifying Agent: denosumab, zoledronic acid, pamidronate, ibandronate, clodronate, 약이 없으면 요법 이름의 bisphosphonate·BMA 등) | 주 후보 `options`에서 `supportive_options`(함께 처방할 보조 약물)로 옮김. 1~5·7번 검사를 보조 칸에도 똑같이 하고, 보조 칸의 골 보호제가 아닌 후보는 지움. 선행요법 결정(조기)이면 골 보호제를 내지 않음. 뼈 전이 환자에게 뼈 전이 청크(`site-bone`)가 왔는데 LLM이 빠뜨리면 그 청크의 골 보호제 중 넘겨받은 시행 중인 급여 행이 있는 약(예: denosumab, zoledronic acid)만 약마다 정해진 문장으로 채움. 그런 약이 없으면 약을 정하지 않은 한 줄만 (C 의견 2026-11-04) (팀 안건 A `src/input/team_agenda_A_2026-11-04.md`, 2026-11-04) |
 
 청크 `drugs`는 "본문에 나온 약"이라 금기로 언급된 약도 들어 있다 (예: 동반질환으로 CDK4/6을 못 쓸 때의 권고에 CDK4/6 약 3개). 3번 규칙은 약이 인용한 청크에 나오는지만 보는 환각 검사라 권하는 약인지는 가리지 않는다. 참고란은 이런 청크를 근거 ID로만 붙인다.
