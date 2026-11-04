@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "prescription_decision.json",
+  "title": "prescription_decision",
+  "description": "화면 2에서 의사가 고른 처방 (추천안 채택 / 기타 처방 / 보류). 결과 보고서와 '1안 채택률' 평가가 읽는다. 설계: notes/ui_design_2026-10-21.md §7.2. 초안 v0.1-draft (A 제안, 4명 검토 전). 검토가 끝나면 schemas/로 옮긴다 (src/app/prescription_decision_proposal.md).",
+  "type": "object",
+  "required": ["schema_version", "patient_ref", "confirmed_state_ref", "recommendation_ref", "decided_at", "decided_by", "action",
+               "selected_option_index", "selected_rank", "shown_option_count", "therapy", "drugs", "setting", "line",
+               "reimbursement", "custom_unlisted_drugs", "defer_reason", "memo"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": "0.1-draft"},
+    "patient_ref": {"type": "string", "description": "가명 ID. confirmed_state.patient_ref와 같다"},
+    "confirmed_state_ref": {
+      "type": "object",
+      "required": ["version", "confirmed_at"],
+      "additionalProperties": false,
+      "description": "이 처방의 근거가 된 확정 파일 (data/input/confirmed/<patient_ref>/v<version>.json)",
+      "properties": {
+        "version": {"type": "integer", "minimum": 1},
+        "confirmed_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "recommendation_ref": {
+      "description": "화면에 보인 추천 결과 (recommendation.generated_at·model). 추천이 실패해 없으면 null (기타·보류만 가능)",
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "required": ["generated_at", "model"],
+          "additionalProperties": false,
+          "properties": {
+            "generated_at": {"type": ["string", "null"], "format": "date-time"},
+            "model": {"type": ["string", "null"]}
+          }
+        }
+      ]
+    },
+    "decided_at": {"type": "string", "format": "date-time"},
+    "decided_by": {"type": "string", "minLength": 1, "description": "가명 사용자 ID. 실명·면허번호는 넣지 않는다"},
+    "action": {"enum": ["accept_option", "custom", "defer"], "description": "추천안 채택 / 기타 처방 / 보류"},
+    "selected_option_index": {"type": ["integer", "null"], "minimum": 0, "description": "recommendation.options[]의 순서 (0부터). custom·defer면 null"},
+    "selected_rank": {"type": ["integer", "null"], "minimum": 1, "description": "화면에 보인 순서 (1부터, 근거 수준 → 급여 정렬 뒤). '1안 채택률'은 이 값으로 센다. custom·defer면 null"},
+    "shown_option_count": {"type": "integer", "minimum": 0, "maximum": 5, "description": "화면에 처음 보인 안 개수 (5 이하)"},
+    "therapy": {"type": ["string", "null"], "description": "최종 처방 이름. accept_option은 options[].therapy, custom은 약 이름을 ' + '로 이음. defer면 null"},
+    "drugs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true, "description": "일반명 소문자 (drug_names.csv). 계열 이름이라 약을 정하지 못한 추천안이면 빈 목록. defer면 빈 목록"},
+    "setting": {"enum": ["neoadjuvant", "adjuvant", "palliative", null], "description": "투여 단계. accept_option은 확정값에서 (전이성 → palliative, 아니면 setting.phase). defer면 null"},
+    "line": {"enum": ["1L", "2L", ">=3L", null], "description": "custom + palliative일 때만 의사가 고른다. accept_option은 null이고 confirmed_state_ref의 setting.line_endocrine·line_chemo를 따른다"},
+    "reimbursement": {"enum": ["covered", "covered_conditions_unverified", "offlabel_approved", "no_criteria", null], "description": "accept_option이면 고른 안의 급여 분류 (recommendation.options[].reimbursement를 옮김). custom·defer면 null (v0.1은 기타 처방의 급여를 판정하지 않음, ui_design §8.2-3)"},
+    "custom_unlisted_drugs": {"type": "array", "items": {"type": "string", "minLength": 1}, "description": "custom에서 약 사전에 없어 글로 쓴 약"},
+    "defer_reason": {"enum": ["pending_test", "mdt", "patient_discussion", "other", null], "description": "defer일 때만: 검사 후 결정 / 다학제 회의 / 환자 상의 / 기타"},
+    "memo": {"type": ["string", "null"], "description": "의사 메모. 환자 실명·등록번호를 쓰지 않는다"}
+  },
+  "allOf": [
+    {"if": {"properties": {"action": {"const": "accept_option"}}},
+     "then": {"properties": {"selected_option_index": {"type": "integer"}, "selected_rank": {"type": "integer"},
+                             "therapy": {"type": "string"}, "setting": {"type": "string"}, "line": {"const": null},
+                             "recommendation_ref": {"type": "object"}, "custom_unlisted_drugs": {"maxItems": 0},
+                             "defer_reason": {"const": null}}}},
+    {"if": {"properties": {"action": {"const": "custom"}}},
+     "then": {"properties": {"selected_option_index": {"const": null}, "selected_rank": {"const": null},
+                             "therapy": {"type": "string"}, "setting": {"type": "string"}, "reimbursement": {"const": null},
+                             "defer_reason": {"const": null}},
+              "anyOf": [{"properties": {"drugs": {"minItems": 1}}}, {"properties": {"custom_unlisted_drugs": {"minItems": 1}}}]}},
+    {"if": {"properties": {"action": {"const": "defer"}}},
+     "then": {"properties": {"selected_option_index": {"const": null}, "selected_rank": {"const": null}, "therapy": {"const": null},
+                             "drugs": {"maxItems": 0}, "setting": {"const": null}, "line": {"const": null},
+                             "reimbursement": {"const": null}, "custom_unlisted_drugs": {"maxItems": 0},
+                             "defer_reason": {"type": "string"}}}}
+  ]
+}

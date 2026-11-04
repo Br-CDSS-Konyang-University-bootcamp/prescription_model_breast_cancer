@@ -25,9 +25,13 @@ import traceback
 from datetime import datetime
 from pathlib import Path
 
+from jsonschema import Draft202012Validator
+
 from src.input.script import confirmed as c
 
 ROOT = c.ROOT
+DECISION_SCHEMA = ROOT / "src" / "app" / "prescription_decision.json"   # 초안, 4명 검토 뒤 schemas/로 (prescription_decision_proposal.md)
+DEFER_REASONS = ("pending_test", "mdt", "patient_discussion", "other")
 REC_DIR = ROOT / "data" / "app" / "recommendations"
 DECISION_DIR = ROOT / "data" / "app" / "decisions"
 INDEX_STATUS = ROOT / "data" / "reimbursement" / "index_status.json"
@@ -144,7 +148,7 @@ def load_confirmed(save_dir: Path, ref: str, version: int) -> dict:
 
 
 def save_decision(body: dict, confirmed_state: dict, rec_status: dict, decision_dir: Path = DECISION_DIR) -> tuple[Path | None, dict, list[str]]:
-    """ui_design §7.2 형식으로 저장 (새 버전, 덮어쓰지 않음)."""
+    """초안 스키마 src/app/prescription_decision.json으로 검사해 저장 (새 버전, 덮어쓰지 않음)."""
     errors = []
     by = (body.get("decided_by") or "").strip()
     if not by:
@@ -156,16 +160,18 @@ def save_decision(body: dict, confirmed_state: dict, rec_status: dict, decision_
            "confirmed_state_ref": {"version": confirmed_state["version"], "confirmed_at": confirmed_state["confirmed_at"]},
            "recommendation_ref": {"generated_at": rec.get("generated_at"), "model": rec.get("model")} if rec else None,
            "decided_at": datetime.now().astimezone().isoformat(timespec="seconds"), "decided_by": by, "action": action,
-           "selected_option_index": None, "shown_option_count": min(SHOWN, len(options)), "therapy": None, "drugs": [],
-           "setting": None, "line": None, "custom_unlisted_drugs": [], "defer_reason": None,
-           "memo": (body.get("memo") or "").strip() or None}
+           "selected_option_index": None, "selected_rank": None, "shown_option_count": min(SHOWN, len(options)),
+           "therapy": None, "drugs": [], "setting": None, "line": None, "reimbursement": None, "custom_unlisted_drugs": [],
+           "defer_reason": None, "memo": (body.get("memo") or "").strip() or None}
     if action == "accept_option":
         i = body.get("selected_option_index")
         if not isinstance(i, int) or not 0 <= i < len(options):
             errors.append("추천안을 고르세요")
         else:
             o = options[i]
-            doc.update(selected_option_index=i, therapy=o["therapy"], drugs=o.get("drugs") or [])
+            shown = [r["index"] for r in rec_status.get("ranked") or ranked(options)]
+            doc.update(selected_option_index=i, selected_rank=shown.index(i) + 1, therapy=o["therapy"],
+                       drugs=o.get("drugs") or [], reimbursement=o.get("reimbursement"))
     elif action == "custom":
         drugs = [d for d in body.get("drugs") or [] if d]
         unlisted = [d for d in body.get("custom_unlisted_drugs") or [] if d]
@@ -176,7 +182,7 @@ def save_decision(body: dict, confirmed_state: dict, rec_status: dict, decision_
         doc.update(therapy=" + ".join(drugs + unlisted), drugs=drugs, custom_unlisted_drugs=unlisted,
                    setting=body.get("setting"), line=body.get("line"))
     elif action == "defer":
-        if not body.get("defer_reason"):
+        if body.get("defer_reason") not in DEFER_REASONS:
             errors.append("보류 이유를 고르세요")
         doc["defer_reason"] = body.get("defer_reason")
     else:
@@ -186,6 +192,10 @@ def save_decision(body: dict, confirmed_state: dict, rec_status: dict, decision_
         dis = (items.get("setting.disease") or {}).get("confirmed")
         doc["setting"] = "palliative" if dis == "metastatic" else (items.get("setting.phase") or {}).get("confirmed")
         # 추천안을 고르면 차수는 확정 파일(confirmed_state_ref)의 내분비·항암 차수를 따른다. 기타 처방만 line을 직접 고른다
+    if not errors:
+        schema = json.loads(DECISION_SCHEMA.read_text(encoding="utf-8"))
+        errors = [f"{'/'.join(map(str, e.absolute_path)) or '(문서)'}: {e.message}"
+                  for e in Draft202012Validator(schema).iter_errors(doc)]
     if errors:
         return None, doc, errors
     folder = decision_dir / doc["patient_ref"]
