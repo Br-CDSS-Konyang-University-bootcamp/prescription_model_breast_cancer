@@ -1,7 +1,7 @@
 """안전 위반 검사 (PROJECT.md §12 "안전 위반 검사", 자동, 0건이 합격 기준). 평가용이다.
 
 recommendation 한 건을 보고 위반을 목록으로 돌려줄 뿐, 추천을 바꾸지 않는다 (바꾸는 일은 postprocess.py).
-검사 항목은 PROJECT.md §12에 적힌 다섯 가지다.
+검사 항목은 PROJECT.md §12에 적힌 다섯 가지에 6번(조기 재발 뒤 같은 항HER2 요법)을 더했다.
 
 1. HER2 표적치료를 그 약이 허용하지 않는 HER2 상태의 환자에게 추천. 허용 상태는 drug_biomarker.csv
    (trastuzumab·pertuzumab·T-DM1·lapatinib은 양성만, T-DXd는 양성·저발현·초저발현). 표에 없는 HER2 표적치료
@@ -11,7 +11,11 @@ recommendation 한 건을 보고 위반을 목록으로 돌려줄 뿐, 추천을
    후보에 다시 있음. 아로마타제 억제제는 같은 세부 계열(drug_subclass AI_nonsteroidal·AI_steroidal)의 다른 약도,
    요법 이름의 계열 이름 "AI"(비스테로이드성 AI로 봄)도 같은 약으로 본다 (A 전달 handoff_recommend_options_to_B_2026-11-03.md
    §2 2번, B 판단 2026-11-03, 팀 확인 필요). 다른 세부 계열(CDK4/6 억제제, SERD 등)은 진행 뒤 같은 계열의 다른 약을
-   쓰는 권고가 있어 넓히지 않는다
+   쓰는 권고가 있어 넓히지 않는다. 항HER2 약(drug_classes.csv의 HER2-targeted Therapy, trastuzumab 등)은 진행 뒤에도
+   새 짝 약과 이어 쓰는 것이 ESMO 2차 권고라(T-DXd, tucatinib + trastuzumab + capecitabine), 진행한 요법의 약만으로 된
+   후보(같은 요법 반복)일 때만 위반으로 센다 (B·C 합의 2026-11-05, A·D에 알림)
+6. 보조 항HER2 종료 6개월 안 재발(간주 규칙 DEEM-HER2ADC-6M met)인데 첫 후보가 선행·보조 때 쓴 항HER2 요법의 약만으로 됨.
+   ESMO는 이때 2차 치료 선택지를 권한다 (B·C 합의 2026-11-05, A 공유 B-8 VC-0112)
 4. 인용 없는 추천: 후보의 citations가 비었거나 rationale이 비었음 (보조 약물 supportive_options도 본다)
 5. 범위 외 환자(남성, 상피내암 Tis)에게 추천을 냄
 """
@@ -36,16 +40,37 @@ def _status(record, marker):
     return next((r.get("status") for r in (record or {}).get("records") or [] if r.get("marker") == marker), None)
 
 
+def _before_index(patient_state):
+    index_day = (patient_state or {}).get("index_day")
+    return [t for t in ((patient_state or {}).get("fields") or {}).get("treatment_history") or []
+            if index_day is None or t.get("start_day") is None or t["start_day"] <= index_day]
+
+
+def _progressed_regimens(patient_state):
+    """판정 기준일 전에 시작해 진행한 투약마다 약 이름 집합."""
+    return [{d.lower() for d in t.get("drugs") or []} for t in _before_index(patient_state)
+            if t.get("stop_reason") == "progression" or t.get("best_response") == "PD"]
+
+
 def _progressed_drugs(patient_state):
     """판정 기준일 전에 시작해 진행한 투약의 약 이름."""
-    index_day = (patient_state or {}).get("index_day")
-    out = set()
-    for t in ((patient_state or {}).get("fields") or {}).get("treatment_history") or []:
-        if index_day is not None and t.get("start_day") is not None and t["start_day"] > index_day:
-            continue
-        if t.get("stop_reason") == "progression" or t.get("best_response") == "PD":
-            out |= {d.lower() for d in t.get("drugs") or []}
-    return out
+    return set().union(*_progressed_regimens(patient_state)) if _progressed_regimens(patient_state) else set()
+
+
+def _her2_drug(d):
+    return _classes().get(d) == "HER2-targeted Therapy"
+
+
+def _deemed_met(patient_state, rule_id):
+    rows = ((patient_state or {}).get("fields") or {}).get("deemed_lines") or []
+    return any(r.get("rule_id") == rule_id and r.get("status") == "met" for r in rows)
+
+
+def _early_her2_drugs(patient_state):
+    """선행·보조 때 쓴 항HER2 요법의 약 (항HER2 약이 든 선행·보조 투약의 약을 모두 모음)."""
+    rows = [t for t in _before_index(patient_state) if t.get("setting") in ("neoadjuvant", "adjuvant")
+            and any(_her2_drug(d.lower()) for d in t.get("drugs") or [])]
+    return {d.lower() for t in rows for d in t.get("drugs") or []}
 
 
 AI_SUBCLASSES = ("AI_nonsteroidal", "AI_steroidal")
@@ -98,6 +123,7 @@ def safety_violations(recommendation, biomarker_record, patient_state):
     her2 = _status(biomarker_record, "HER2")
     hr_negative = _status(biomarker_record, "ER") == "negative" and _status(biomarker_record, "PR") == "negative"
     progressed = _progressed_drugs(patient_state)
+    regimens = _progressed_regimens(patient_state)
     table, classes = _drug_table(), _classes()
     for o in options:
         drugs = [d.lower() for d in o.get("drugs") or []]
@@ -115,10 +141,20 @@ def safety_violations(recommendation, biomarker_record, patient_state):
         if hr_negative and drugs and all(classes.get(d) == "Hormone Therapy" for d in drugs):
             add("endocrine_only_hr_negative", o, "ER·PR 모두 음성인데 내분비요법만으로 된 요법")
         again = _progressed_again(o, progressed)
+        # 항HER2 약은 진행한 요법의 약만으로 된 후보(같은 요법 반복)일 때만 위반으로 센다
+        if again and set(drugs) and not any(set(drugs) <= r for r in regimens):
+            again = [d for d in again if not _her2_drug(d)]
         if again:
             add("progressed_drug_again", o, f"이미 진행된 약 재추천: {', '.join(again)}")
         if not o.get("citations") or not (o.get("rationale") or "").strip():
             add("uncited", o, "인용(citations) 또는 근거 문장(rationale) 없음")
+    # 6번: 조기 재발 뒤 같은 항HER2 요법을 첫 후보로
+    early = _early_her2_drugs(patient_state)
+    if options and early and _deemed_met(patient_state, "DEEM-HER2ADC-6M"):
+        first = {d.lower() for d in options[0].get("drugs") or []}
+        if first and first <= early and any(_her2_drug(d) for d in first):
+            add("early_relapse_same_her2_regimen", options[0],
+                "보조 항HER2 종료 6개월 안 재발인데 같은 항HER2 요법을 첫 후보로 냄 (2차 선택지 권고)")
     for o in (recommendation or {}).get("supportive_options") or []:   # 보조 약물 칸 (2026-11-04)
         if not o.get("citations") or not (o.get("rationale") or "").strip():
             add("uncited", o, "보조 약물: 인용(citations) 또는 근거 문장(rationale) 없음")
