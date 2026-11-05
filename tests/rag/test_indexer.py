@@ -505,6 +505,7 @@ def test_rules_never_penalize_a_virtual_chart_answer():
                        + s._crisis_adjust(t, a.get("visceral_crisis")) + s._prior_chemo_adjust(t, a.get("prior_metastatic_chemo"))
                        + s._early_adjust(t, a.get("neoadjuvant_received"), a.get("ici_received"), a.get("pcr"))
                        + s._er_adjust(t, a.get("subtype"))
+                       + s._targetable_adjust(t, a.get("biomarker_tags")) + s._third_line_adjust(t, a.get("line"))
                        + (1.0 if a.get("her2_adjuvant_relapse") == "no" and s.HER2_EARLY_RELAPSE.search(t.split(" Footnotes: ")[0]) else 0.0))
             if penalty:
                 bad.append((path.parts[-3], cid))
@@ -536,3 +537,21 @@ def test_her2_er_scope_and_adjuvant_relapse(memory_index):
     late = scores("HR+/HER2+", her2_adjuvant_relapse="no")
     assert late["b8e579"] == pytest.approx(pos["b8e579"] - 1.0) and late["8cddda"] == pos["8cddda"]
     assert scores("HR+/HER2+", her2_adjuvant_relapse="yes")["b8e579"] == pos["b8e579"]
+
+
+def test_targetable_and_third_line_rules():
+    # '표적 변이가 없을 때' 권고는 표적 변이가 있는 환자에게(VC-0101 ESR1, VC-0123 AKT1), 'third-line' 권고는 1·2차 환자에게(VC-0127) 감점
+    import sys, types
+    sys.modules.setdefault("sentence_transformers", types.SimpleNamespace(SentenceTransformer=None, CrossEncoder=None))
+    from src.rag import searcher as s
+    no_target = "Fulvestrant-CDK4/6 inhibitor switch may be considered in the absence of targetable alterations."
+    assert s._targetable_adjust(no_target, ["ESR1-mut"]) == 1.0
+    assert s._targetable_adjust(no_target, ["HER2-low"]) == 0.0
+    assert s._targetable_adjust(no_target, []) == 0.0
+    path = "Figure 3. (algorithm path): ER+ → ESR1m → elacestrant Footnotes: no targetable alterations: everolimus"
+    assert s._targetable_adjust(path, ["ESR1-mut"]) == 0.0  # 각주는 보지 않는다
+    third = "All ChT recommendations can also be recommended for third-line treatment of mTNBC"
+    assert s._third_line_adjust(third, "2L") == 1.0
+    assert s._third_line_adjust(third, ">=3L") == 0.0
+    assert s._third_line_adjust("For gBRCA wild type mTNBC: all ChT recommendations", "2L") == 0.0
+    assert s._third_line_adjust("Figure 3. (algorithm path): PIK3CA → capivasertib → [PD] → Third-line treatment", "2L") == 0.0

@@ -205,6 +205,11 @@ def site_search_args(record: dict, top_k: int = 3, **kwargs) -> list[dict]:
 # 주 치료 질의로는 찾지 못했다 (--auto-query M17). 진단 시·현재 모두 전이성이면 한 번 더 찾는다
 PRIOR_CHEMO_QUERY = "ER-positive, HER2-negative MBC after at least one line of ChT"
 DE_NOVO_QUERY = "newly diagnosed stage IV breast cancer intact primary tumour locoregional therapy surgery"
+# 조기 HR+/HER2- 보조요법: 비스포스포네이트 권고(hrpos-fca2a7)는 보조 약물 정답인데(팀 안건 A, 2026-11-04), 정답 권고가 많은
+# 폐경 전 사례(VC-0107, VC-0119)에서 주 검색 상위에 들지 못했다 (A run_flow 2026-11-05 C-1). 수술 뒤 보조 결정이면 한 번 더 찾는다.
+# 선행요법 결정(VC-0121, VC-0124)은 수술 전이라 찾지 않는다. fca2a7의 차수는 any라, 차수를 주면 adjuvant 권고가 가점으로 앞선다
+ADJUVANT_BONE_QUERY = ("Bisphosphonates up to 5 years in women without ovarian function postmenopausal or undergoing OFS "
+                       "high risk of relapse treatment-related bone loss")
 
 
 def extra_search_args(record: dict, top_k: int = 3, **kwargs) -> list[dict]:
@@ -222,6 +227,9 @@ def extra_search_args(record: dict, top_k: int = 3, **kwargs) -> list[dict]:
             and patient.get("prior_metastatic_chemo") == "yes"):
         base = search_args(record, top_k=top_k, **kwargs)
         out.append({**base, "query_text": PRIOR_CHEMO_QUERY})
+    if (record.get("subtype") == "HR+/HER2-" and disease in ("early", "locally_advanced") and line == "adjuvant"):
+        base = search_args(record, top_k=1, **kwargs)
+        out.append({**base, "query_text": ADJUVANT_BONE_QUERY, "line": None})  # 원문과 거의 같은 질의라 차수 가점 없이 1개
     # ER 저발현(1~9%): B 규칙상 아형은 HR+/HER2-지만 ESMO는 TNBC처럼 행동할 수 있다고 한다 (tnbc-253553, E20).
     # 아형 필터 때문에 TNBC 권고(선행 항암 + pembrolizumab 등)를 찾지 못했다 (VC-0124). 같은 질의로 TNBC 권고도 찾는다.
     # 어느 쪽을 고를지는 B·의사가 정한다 (팀 안건 6-2, C 제안 2026-11-04)

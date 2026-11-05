@@ -114,5 +114,17 @@ def test_extra_search_args_add_de_novo_only_when_metastatic_at_diagnosis_and_now
     assert [a["query_text"].split()[0] for a in de_novo] == ["bone", "newly"]
     assert all(a["line"] is None and a["top_k"] == 3 for a in de_novo)
     assert extra_search_args(mbc, stage_at_diagnosis="early") == []  # 재발 전이는 de novo가 아니다
-    early = {"subtype": "HR+/HER2-", "setting": {"disease": "early", "line": "adjuvant"}, "records": []}
+    early = {"subtype": "HR+/HER2-", "setting": {"disease": "early", "line": "neoadjuvant"}, "records": []}
     assert extra_search_args(early, stage_at_diagnosis="metastatic") == []
+
+
+def test_extra_search_args_add_bisphosphonate_search_for_hr_positive_adjuvant_only():
+    # 조기 HR+/HER2- 수술 뒤 보조 결정이면 비스포스포네이트 권고(hrpos-fca2a7)를 한 번 더 찾는다 (VC-0107, VC-0119)
+    from src.rag.query import ADJUVANT_BONE_QUERY
+    adj = {"subtype": "HR+/HER2-", "setting": {"disease": "locally_advanced", "line": "adjuvant"}, "records": []}
+    got = [a for a in extra_search_args(adj, menopausal_status="premenopausal") if a["query_text"] == ADJUVANT_BONE_QUERY]
+    assert len(got) == 1 and got[0]["top_k"] == 1 and got[0]["line"] is None and got[0]["setting"] == "locally_advanced"
+    neo = {"subtype": "HR+/HER2-", "setting": {"disease": "early", "line": "neoadjuvant"}, "records": []}
+    tnbc = {"subtype": "TNBC", "setting": {"disease": "early", "line": "adjuvant"}, "records": []}
+    for record in (neo, tnbc):
+        assert all(a["query_text"] != ADJUVANT_BONE_QUERY for a in extra_search_args(record))
