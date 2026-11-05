@@ -38,7 +38,7 @@
   "status": "reviewed",
   "reviewer": "Claude 2차 점검 (염승민 위임)",
   "reviewed_on": "2026-11-04",
-  "note": "폐경 후 de novo 뼈 전이, 1차 letrozole-abemaciclib 22개월 뒤 진행, 원발 NGS AKT1 E17K, PIK3CA·ESR1 미검출 → fulvestrant-capivasertib(49918b), 그림 3 AKT1·PTEN 경로. not_expected: ESR1 권고, PIK3CA 전용 alpelisib, '표적 변이 없을 때' 권고 2개, 폐경 전 OFS. [보조 약물 정답 · 2026-11-04, A 안 반영] 뼈 전이가 있어 골 보호제(BMA) 권고 087674('뼈 전이 환자에게 증상과 관계없이 BMA', ESMO MBC 뼈 전이)를 보조 약물 정답으로 둠. 주 처방 결정과 상관없이 뼈 전이면 보조 칸에 나와야 한다는 팀 결정(A 안)",
+  "note": "폐경 후 de novo 뼈 전이, 1차 letrozole-abemaciclib 22개월 뒤 진행, 원발 NGS AKT1 E17K, PIK3CA·ESR1 미검출 → fulvestrant-capivasertib(49918b), 그림 3 AKT1·PTEN 경로. not_expected: ESR1 권고, PIK3CA 전용 alpelisib, '표적 변이 없을 때' 권고 2개, 폐경 전 OFS. [보조 약물 정답 · 2026-11-04, A 안 반영] 뼈 전이가 있어 골 보호제(BMA) 권고 087674('뼈 전이 환자에게 증상과 관계없이 BMA', ESMO MBC 뼈 전이)를 보조 약물 정답으로 둠. 주 처방 결정과 상관없이 뼈 전이면 보조 칸에 나와야 한다는 팀 결정(A 안) [A run_flow C-3 · 2026-11-05, 염승민 위임] 4bcee1(fulvestrant-CDK4/6 바꾸기·fulvestrant 단독)은 원문이 'in the absence of targetable alterations'라 AKT1 변이 환자에게 맞지 않아 not_expected 유지. C 검색은 표적 변이 태그가 있으면 이 표현의 권고를 감점함(searcher NO_TARGETABLE)",
   "expected_supportive": [
     "esmo-mbc-2026-05-site-bone-087674"
   ]

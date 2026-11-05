@@ -96,6 +96,17 @@ ER_MISMATCH_PENALTY = 1.0
 # HER2 양성 보조 항HER2 종료 6-12개월 안 재발: ESMO는 2차 선택지를 권한다. 확정 간주 규칙(DEEM-HER2ADC-6M)이 not_met이면 감점
 HER2_EARLY_RELAPSE = re.compile(r"within 6-12 months of completing adjuvant", re.IGNORECASE)
 HER2_RELAPSE_PENALTY = 1.0
+# 표적 변이: ESMO HR+/HER2- 2차의 fulvestrant 기반·everolimus 권고(455f68, 4bcee1, 그림 3 0f09b4)는 '표적 변이가 없을 때'다.
+# ESR1·AKT1 변이 환자(VC-0101, VC-0123)에게 이 권고가 검색돼 LLM이 인용했다 (A run_flow 2026-11-05 C-3).
+# 환자에게 표적 변이 태그가 하나라도 있으면 감점한다 (그림 각주는 보지 않는다)
+NO_TARGETABLE = re.compile(r"absence of targetable alterations|no targetable alterations", re.IGNORECASE)
+TARGETABLE_TAGS = {"gBRCA", "sBRCA", "gPALB2", "PIK3CA-mut", "AKT1-mut", "PTEN-alt", "ESR1-mut"}
+TARGETABLE_PENALTY = 1.0
+# 3차: ESMO TNBC '2차 이후' 소단원은 청크 차수가 [2L, >=3L]이라, 본문이 'third-line'인 권고(ea837e, a5e9d7, ec3102)가
+# 2차 환자에게 2차 권고(e9b4f6)와 같은 점수를 받았다 (VC-0127, A run_flow 2026-11-05 C-2). 1·2차 환자에게는 감점한다.
+# 그림 경로는 보지 않는다 (2차 경로 끝의 '→ [PD] → Third-line treatment'는 다음 차수 안내다)
+THIRD_LINE = re.compile(r"\bthird-line\b", re.IGNORECASE)
+THIRD_LINE_PENALTY = 1.0
 CACHE_SIZE = 256  # 같은 조건의 검색 결과를 기억해 두는 개수. 색인이 바뀌면 indexer가 비운다
 
 _cache = {}
@@ -313,6 +324,9 @@ def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, w
         score -= _er_adjust(payload.get("text", ""), subtype)
         if her2_relapse == "no" and HER2_EARLY_RELAPSE.search(payload.get("text", "").split(" Footnotes: ", 1)[0]):
             score -= HER2_RELAPSE_PENALTY
+        # 표적 변이가 있는 환자에게 '표적 변이가 없을 때' 권고, 1·2차 환자에게 '3차' 권고는 감점
+        score -= _targetable_adjust(payload.get("text", ""), target_tags)
+        score -= _third_line_adjust(payload.get("text", ""), line)
 
         scored_results.append({
             "score": score,
@@ -393,6 +407,21 @@ def _early_adjust(text: str, neoadjuvant=None, ici=None, pcr=None) -> float:
     if ici == "no" and ADJUVANT_ICI.search(text):
         wrong = True
     return EARLY_BRANCH_PENALTY if wrong else 0.0
+
+
+def _targetable_adjust(text: str, tags) -> float:
+    """환자에게 표적 변이 태그가 있는데 권고가 '표적 변이가 없을 때'만 가리키면 감점할 크기. 그림 각주는 보지 않는다."""
+    if not TARGETABLE_TAGS.intersection(tags or ()):
+        return 0.0
+    return TARGETABLE_PENALTY if NO_TARGETABLE.search(text.split(" Footnotes: ", 1)[0]) else 0.0
+
+
+def _third_line_adjust(text: str, line) -> float:
+    """1·2차 결정인데 권고 본문이 '3차(third-line)'를 가리키면 감점할 크기. 그림 경로는 보지 않는다
+    (2차 그림 경로는 끝이 '→ [PD] → Third-line treatment (see Figure 4)'로 다음 차수를 가리킬 뿐이다)."""
+    if line not in ("1L", "2L") or "(algorithm path)" in text:
+        return 0.0
+    return THIRD_LINE_PENALTY if THIRD_LINE.search(text.split(" Footnotes: ", 1)[0]) else 0.0
 
 
 def _er_adjust(text: str, subtype) -> float:
