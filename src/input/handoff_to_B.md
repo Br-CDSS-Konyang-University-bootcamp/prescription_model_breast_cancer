@@ -1,6 +1,7 @@
 # A → B 전달 문서: patient_state 사용 안내, BM-2 판정 조건, BM-3 출처, 치료 상황 규칙
 
-> 작성: 담당 A · 기준 스키마: `schemas/patient_state.json` **0.1-draft6**
+> 작성: 담당 A · 기준 스키마: `schemas/patient_state.json` **0.1-draft6** + draft7 후보 칸 (§3.8, `schema_version`은 4명 검토 뒤 `0.1-draft7`)
+> 마지막 갱신: 2026-11-05 (§0·§3.6·§3.8·§4.7·§6.7·§9·§10을 지금 코드와 결정에 맞춤)
 > 받는 사람: 담당 B ([2] 바이오마커 모듈, [4] LLM 추천 모듈)
 > 관련 문서: [schema_fields.md](schema_fields.md) (필드별 상세), [schemas/README.md](../../schemas/README.md), PROJECT.md §5·§10
 > 이 문서는 아래 세 문서를 합친 것이다 (2026-10-15). 이전 문서는 git 이력에 있다.
@@ -13,14 +14,15 @@
 | 2026-10-16 | B 진행 현황과 남은 작업 순서 정리 (§10). 차수·투여단계·누적 용량 계산은 A로, 국소 재발 후 보조요법은 B로 담당 변경 (§6) | **정리** |
 | 2026-10-16 | §10 갱신: 유전자 7개 BM-2·BM-4 완료(PR #2) 반영, A의 차수 계산 함수(`src/input/script/rules.py`)와 약제 사전 추가 | **정리** |
 | 2026-10-16 | draft6: 판정 기준일 `index_day`, 첫 재발일 `recurrence.recurrence_day`, 투약별 차수 `line`·`endocrine_line`·`chemo_line`, 차수 간주 규칙 `deemed_lines` (§6.2·§6.3a). 차수 칸 위치 결정 (§10.4). 2026-10-19: 미시행의 `raw` 고정 표기 "결과 대기"·"예정", 유전자 칸에 `raw` 추가 (§0 5번) | **제안** (4명 검토) |
-| 2026-10-21 | BRCA1/2는 가상·실제 차트 모두 gBRCA로 본다. sBRCA 레코드는 만들지 않는다 (§4.7). `_gene_marker` 변경 요청, BRCA 마커를 하나로 합치는 제안 | **A 결정, B 반영 요청** |
+| 2026-10-21 | BRCA1/2는 가상·실제 차트 모두 gBRCA로 본다. sBRCA 레코드는 만들지 않는다 (§4.7). `_gene_marker` 변경 요청, BRCA 마커를 하나로 합치는 제안 | **A 결정, B 반영 (2026-10-21 `cb610a5`)** |
+| 2026-11-05 | 생식세포 칸 `molecular.germline`을 먼저 읽는 gBRCA 규칙 (§4.7, 2026-10-28 A 결정, B 2026-10-29 반영). draft7 후보 칸과 값 충돌 `conflicts[]` (§3.8). §9 한계 중 draft7 칸으로 풀린 것 표시. §10 진행 현황 갱신 | **정리** |
 
 ## 목차
 
 0. 요약
 1. 전달 방식
 2. A와 B의 경계
-3. B가 받는 값 (JSON 구조, 공통 틀, 수용체, 재발, 유전자, 전체 필드표)
+3. B가 받는 값 (JSON 구조, 공통 틀, 수용체, 재발, 유전자, draft7 후보 칸과 값 충돌)
 4. BM-2 판정 조건
 5. BM-3 근거 주석 출처 (결정)
 6. 치료 상황 규칙 (현재 범주, 차수, 급여 투여단계, 국소 재발, PD-L1, 주기, anthracycline)
@@ -38,7 +40,7 @@
 5. `not_done`(미시행)과 `not_recorded`(기록 없음)는 다르다. 미시행만 검사 권고 대상이다. 미시행 중 검사를 의뢰·예약한 경우는 `raw`에 고정 표기 `"결과 대기"`(결과를 기다림) 또는 `"예정"`(아직 시행 전)이 들어간다 (draft6, schema_fields.md §2). 이때는 검사 권고 대신 "결과 확인 필요"로 내는 것을 제안한다 (B 결정).
 6. **차수(line)와 심평원 투여단계는 A가 `patient_state`로 옮길 때 계산한다** (2026-10-16 담당 변경. 2026-10-15에는 B가 판단하기로 했었다). 결과는 `treatment_history[]`의 `line`·`endocrine_line`·`chemo_line`과 `fields.deemed_lines`에 넣는다 (draft6, §6.2·§6.3a). 재료는 투약 시작·종료일(`treatment_history[].start_day`, `end_day`)과 전이 기준일(`recurrence.metastasis_day`)이다. 모두 진단일 = 0인 정수다 (§6.2).
 7. **현재 범주**: 진단 시 IV기이거나 원격 전이 재발이면 전이성. 국소 재발은 전이가 아니다 (§6.1). **국소 재발 후 수술**(이후 원격 전이 없음)이면 이후 요법은 수술후보조요법이다 (§6.4, 차트를 보고 판단해야 해서 B 담당).
-8. **gBRCA**: BRCA1·BRCA2 결과는 가상·실제 차트 모두 gBRCA로 본다 (2026-10-21). sBRCA 레코드는 만들지 않는다. B가 positive / negative / vus를 판정한다 (§4.7).
+8. **gBRCA**: BRCA1·BRCA2·PALB2는 생식세포 칸(`molecular.germline`)에 결과가 있으면 그것을, 없으면 `molecular.mutations`의 결과를 gBRCA로 본다 (2026-10-28). sBRCA 레코드는 만들지 않는다. B가 positive / negative / vus를 판정한다 (§4.7).
 9. **PD-L1은 발현 점수**다 (변이 아님). 검사법·점수만 넘기고 약제별 판정은 B가 한다 (§6.5).
 10. **유전자 변이**는 `molecular.mutations`에 유전자별로 넘긴다: 변이 있음 / 변이 없음 / 미시행 (§3.6).
 11. **anthracycline 투약 용량**과 **주기 길이가 붙은 투여 주기**를 넘긴다 (§6.6·§6.7). 누적 용량은 A가 변환할 때 `anthracycline_drug_dose`에 계산해 넣는다 (2026-10-16 담당 변경).
@@ -229,11 +231,31 @@ patient_state.json
 
 - 대상: ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2. **ERBB2 변이는 넣지 않는다** (협의).
 - `genomic_reports[]`는 `{doc_id, report_date, specimen, raw_text}`이고 A는 `raw_text`를 해석하지 않는다. 가상·실제 차트에서 변이 파싱은 B의 BM-1이다. 같은 정보가 두 곳에 있으면 `molecular`를 우선한다.
+- 생식세포 검사(혈액·타액) 결과는 `molecular.germline.{BRCA1, BRCA2, PALB2}`에 같은 모양으로 따로 들어간다 [draft7 후보]. `mutations`는 종양 조직·cfDNA 결과다.
 - BRCA1/2의 gBRCA 처리는 §4.7.
 
 ### 3.7 (삭제)
 
 2026-10-27 TCGA 정답 세트 폐기, 평가는 가상 차트로.
+
+### 3.8 draft7 후보 칸과 값 충돌 (2026-10-20~23 추가, 4명 검토 전)
+
+가상 차트 평가용으로 스키마에 이미 들어 있는 선택 칸이다. 칸별 설명은 `schema_fields.md`의 "draft6 → draft7 후보 변경 요약", B·C·D 반영 현황은 `draft7_checklist_BCD_2026-10-28.md`에 있다.
+
+| 칸 | 내용 | B가 쓰는 곳 |
+|---|---|---|
+| `molecular.germline.{BRCA1, BRCA2, PALB2}` | 생식세포 검사 결과 | gBRCA·PALB2 판정 (§4.7, `gene_field_of`) |
+| `patient.cardiac_history`, `lvef_percent`, `mediastinal_radiation` | 심장 병력, 좌심실 박출률, 종격동 방사선 | 급여 판정기 (`conditions_eval.py`, 2026-10-29) |
+| `patient.visceral_crisis` | 장기 위기 (의사가 적은 판단만) | 추천 참고란 (`clinical_notes.py`) |
+| `patient.comorbidities` | 동반질환 (원문 목록) | 추천 참고란 (2026-10-29 팀 확정) |
+| `patient.height_cm`, `weight_kg` | 키, 몸무게 | 누적 용량 mg → mg/m² (§6.7) |
+| `fields.imaging_findings[]` | 영상 소견 `{modality, day, sites[], certainty}` | 골전이 급여 조건 (확정 소견만) |
+| `stage.clinical_size_mm`, `pathologic_size_mm`, `stage.yptnm` | 종양 크기, 선행요법 뒤 병리 병기 | 급여 판정기 (치료 시기별 병기·크기) |
+| `treatment_history[].ongoing` | 판정 기준일에 투약 중인지 | 급여 판정기 투여 기간 |
+| `treatment_history[].doses[]` | 약별 1회·총 용량 | 누적 용량 (`anthracycline_drug_dose`보다 먼저) |
+| `at_index.age`, `at_index.recent_therapy_28d` | 기준일 나이, 최근 4주 투약 | 급여 판정기 |
+
+**값 충돌 `conflicts[]` (IN-5):** 같은 검체·같은 날짜에 값이 둘 이상이면 A는 칸을 비우고(`not_recorded`) 후보를 `conflicts[]`에 `{field, candidates[], note}`로 넘긴다. B는 ER·PR·Ki-67·PD-L1에서 후보마다 판정해 모두 같으면 그 판정, 갈리면 `unknown`과 후보별 판정을 이유에 적는다 (B 2026-11-03 `8ddb6ad`, VC-0106b Ki-67 25% / 15%). 화면 1에서 의사가 값을 고른다. HER2는 IHC·ISH를 함께 봐야 해서 아직 다루지 않는다.
 
 ## 4. BM-2 판정 조건
 
@@ -335,9 +357,11 @@ B의 규칙은 "ESR1 결과가 마지막 내분비요법 진행 **이전**이면
 
 - 제안: ESR1 결과의 `specimen`이 `primary`(진단 시 조직)이고, `treatment_history`에 그 이후 내분비요법 진행(`best_response: PD` 또는 `stop_reason: progression`)이 있으면 `retest_needed`.
 
-### 4.7 BRCA [협의 완료 2026-10-15, 2026-10-21 A 결정으로 변경]
+### 4.7 BRCA [협의 완료 2026-10-15, 2026-10-21·2026-10-28 A 결정으로 변경]
 
-BRCA 검사는 보통 생식세포 검사이므로 BRCA1/2 결과는 가상·실제 차트 모두 **gBRCA로 본다** (2026-10-21). `patient_state`에는 생식세포/체세포 구분 칸이 없고 만들지 않는다. sBRCA1/2 레코드는 만들지 않는다.
+BRCA 검사는 보통 생식세포 검사이므로 BRCA1/2 결과는 가상·실제 차트 모두 **gBRCA로 본다** (2026-10-21). sBRCA1/2 레코드는 만들지 않는다.
+
+생식세포/체세포 구분 (2026-10-28 A 결정, B 반영 2026-10-29 `gene_field_of`): `patient_state`는 생식세포 검사(혈액·타액)를 `molecular.germline.{BRCA1, BRCA2, PALB2}`에, 종양 조직·cfDNA 결과를 `molecular.mutations`에 따로 담는다 (draft7 후보, §3.8). gBRCA·PALB2 판정은 유전자마다 ① 생식세포 칸에 결과가 있으면 그 결과를 쓰고, ② 없으면 `mutations`의 같은 유전자 결과를 쓴다. 아래 표의 `molecular.mutations.BRCA1/2`는 이 순서로 고른 칸을 뜻한다 (VC-0116 gBRCA1, VC-0119 gBRCA2 양성 확인).
 
 | 정보 (가상·실제 차트 공통) | 상태값 |
 |---|---|
@@ -349,8 +373,8 @@ BRCA 검사는 보통 생식세포 검사이므로 BRCA1/2 결과는 가상·실
 | HER2 음성 전이성 + gBRCA `not_done` | BM-4 검사 권고 |
 | HER2 음성 전이성 + gBRCA `not_recorded` | 검사 권고를 내지 않음 (기록 없음 규칙, 2026-10-15) |
 
-- B 요청: 바이오마커 모듈의 `_gene_marker`는 지금 가상·실제 차트의 BRCA를 sBRCA로 둔다. gBRCA로 바꿔 주세요.
-- 제안 (4명 검토): `biomarker_record`도 `patient_state`처럼 BRCA1, BRCA2를 하나씩만 받는 것이 가장 단순하다. 다만 C의 태그(`gBRCA`, `sBRCA`)와 D의 급여 조건(`gbrca`, `sbrca`)이 지금 마커 이름(`gBRCA1/2`, `sBRCA1/2`)에 맞춰 만들어지고 있으므로, 당장은 마커 이름을 그대로 두고 sBRCA 레코드만 만들지 않는다. 합칠지는 C·D 작업이 안정된 뒤 다시 정한다.
+- B 요청 (완료 2026-10-21 `cb610a5`): 가상·실제 차트의 BRCA를 sBRCA가 아니라 gBRCA로 둔다.
+- 제안 (4명 검토): `biomarker_record`도 `patient_state`처럼 BRCA1, BRCA2를 하나씩만 받는 것이 가장 단순하다. 다만 C의 태그(`gBRCA`, `sBRCA`)와 D의 급여 조건(`gbrca`, `sbrca`)이 지금 마커 이름(`gBRCA1/2`, `sBRCA1/2`)에 맞춰 만들어지고 있으므로, 당장은 마커 이름을 그대로 두고 sBRCA 레코드만 만들지 않는다. 합칠지는 C·D 작업이 안정된 뒤 다시 정한다. 화면 1의 `confirmed_state`에서는 A가 gBRCA1·gBRCA2를 `gBRCA` 하나로 합친다 (`handoff_confirmed_state_to_B.md` §5).
 
 ## 5. BM-3 근거 주석 출처: OncoKB 대신 대체 출처 [결정 2026-10-15. §5.5 스키마 변경은 4명 합의 필요]
 
@@ -534,9 +558,9 @@ A는 판정하지 않는다. B가 약제별로 판정한다.
 ### 6.7 anthracycline 누적 용량 (liposomal doxorubicin 급여 조건, 공고 p.60)
 
 - 조건: doxorubicin 누적 240mg/m² 이상 또는 epirubicin 450mg/m² 이상, 또는 심장 위험 요인.
-- 누적 용량 = `total_dose`(mg/m²). mg로 적힌 기록은 키·몸무게(`patient.height_cm`·`weight_kg`)로 구한 체표면적으로 나눈다.
+- 누적 용량 = `total_dose`(mg/m²). mg로 적힌 기록은 키·몸무게(`patient.height_cm`·`weight_kg`)로 구한 체표면적으로 나눈다. 투약 줄에 `doses[]`(draft7 후보)가 있으면 B 급여 판정기는 그 값을 먼저 쓴다 (2026-10-29).
 - 병용 기록(`doxorubicin+cyclophosphamide`, `60+600`)은 약 순서대로 나눈 값이다. 나눌 수 없는 4명은 정답 세트에서 뺐다 (§7).
-- 심장 위험 요인은 데이터가 없어 넘기지 않는다 (§9).
+- 심장 위험 요인은 TCGA에 데이터가 없었다. 가상 차트는 `patient.cardiac_history`·`lvef_percent`(draft7 후보)로 넘기고 B 급여 판정기가 읽는다 (§3.8, §9).
 - 누적 용량은 약별로 따로 본다 (doxorubicin은 doxorubicin 기록끼리, epirubicin은 epirubicin 기록끼리). 기준값(240, 450)은 D의 급여 조건에 있고 `patient_state`에는 없다.
 - `total_dose`가 `"No value"`이면 누적 용량 **기록 없음**이다. 1회 용량·주기로 계산할 수 있는 기록은 A가 모두 채웠다 (2026-10-21). 급여 판정은 `covered_conditions_unverified`, 사유 "누적 용량 기록 없음" (2026-10-22 A 결정).
 - 같은 날짜의 병용 기록과 단독 기록이 겹치면 A가 병용 기록 하나로 합친다 (2026-10-22). 같은 약이 날짜가 다른 기록으로 여러 번 나오면 더하는 규칙은 아직 정하지 않았다.
@@ -669,20 +693,22 @@ B의 기대 출력 (§4 조건을 따른 경우). `oncokb` 칸은 현재 스키�
 
 ## 9. 넘기지 않는 정보 (모델 한계)
 
+TCGA 기준으로 쓴 표다. "draft7 칸"이 적힌 줄은 가상·실제 차트에서 칸이 생겨 넘긴다 (§3.8).
+
 | 정보 | 이유 | 영향 |
 |---|---|---|
-| 장기 위기 (visceral crisis) | 데이터와 EMR 모두에서 판단 불가 | ESMO HR+/HER2− 1L에서 내분비요법 + CDK4/6i 대신 항암화학요법을 먼저 고려하는 분기가 빠짐 |
-| 심장 위험 요인 | 데이터 없음 | liposomal doxorubicin(고식적 항암화학요법 1차 이상, 공고 p.60)의 심장 위험 요인 조건을 판정 못 함. 누적 용량 조건만 판정 |
-| 투약 중 여부 | 확인 불가 | `end_day: null`이 "투약 중"인지 "기록 없음"인지 구분 못 함 |
+| 장기 위기 (visceral crisis) | 데이터와 EMR 모두에서 판단 불가 | ESMO HR+/HER2− 1L에서 내분비요법 + CDK4/6i 대신 항암화학요법을 먼저 고려하는 분기가 빠짐. **draft7 칸:** 의사가 적은 판단은 `patient.visceral_crisis`, 화면 1 확정값은 `confirmed_state.items.visceral_crisis` |
+| 심장 위험 요인 | 데이터 없음 | liposomal doxorubicin(고식적 항암화학요법 1차 이상, 공고 p.60)의 심장 위험 요인 조건을 판정 못 함. 누적 용량 조건만 판정. **draft7 칸:** `patient.cardiac_history`·`lvef_percent`·`mediastinal_radiation` |
+| 투약 중 여부 | 확인 불가 | `end_day: null`이 "투약 중"인지 "기록 없음"인지 구분 못 함. **draft7 칸:** `treatment_history[].ongoing` |
 | 재발 후 수술 의도 | 기록 없음 | 모두 `unknown`. `SET-LOCAL-ADJ`는 수술 여부만으로 적용 |
 | 원발암 첫 수술 종류 | 완치 목적 여부를 알 수 없음 | 넘기지 않음 |
 | ERBB2 변이 | 목록에서 제외 (협의) | |
-| gBRCA | 가상·실제 차트의 BRCA1/2 결과를 검사 종류와 관계없이 gBRCA로 봄 (2026-10-21) | 실제 생식세포 결과와 다를 수 있음. 체세포 BRCA(sBRCA) 근거 권고(ESMO 체세포 BRCA1/2 PARPi, 허가초과 olaparib)는 다루지 않음 |
+| gBRCA | 생식세포 칸이 없으면 종양 검사의 BRCA1/2 결과를 gBRCA로 봄 (2026-10-21, 2026-10-28) | 생식세포 검사가 없는 환자는 실제 생식세포 결과와 다를 수 있음. 체세포 BRCA(sBRCA) 근거 권고(ESMO 체세포 BRCA1/2 PARPi, 허가초과 olaparib)는 다루지 않음 |
 | 투여 주기 (추정값) | 투여 일수로 계산 | 독성으로 연기된 경우 반영 안 됨 |
 
 ## 10. B 진행 현황과 남은 작업 순서
 
-2026-10-16 기준. B 작업물은 main에 병합했다 (`b7362c2`, 유전자 판정은 PR #2).
+2026-10-16 작성, 2026-11-05 갱신. B 작업물은 main에 병합했다 (`b7362c2`, 유전자 판정은 PR #2, 이후 커밋은 `git log -- src/biomarker src/recommend`).
 
 ### 10.1 완료
 
@@ -696,6 +722,13 @@ B의 기대 출력 (§4 조건을 따른 경우). `oncokb` 칸은 현재 스키�
 | 유전자 BM-4 (PR #2) | 전이성 + 미시행일 때 gBRCA·PALB2, PIK3CA·AKT1·PTEN, ESR1 검사, ESR1 재검 | 같음 (`tests_needed_of`) |
 | patient_state 변환 | TCGA 크롭본 → patient_state (B 테스트용으로만 남김) | `src/input/script/tcga/tcga_to_patient_state.py` |
 | 테스트 | 판정 규칙 케이스 + TCGA 크롭본 변환 → BM 출력 스키마 확인 | `tests/biomarker/test_bm.py` |
+| PD-L1 약제별 판정 (2026-10-16) | 22C3 CPS ≥ 10, SP142 IC ≥ 1% (§6.5) | `BM1_…py` |
+| BM-3 ClinVar·CIViC 로컬 조회 (2026-10-19~20) | ClinVar는 BRCA1/2·PALB2 판정에, CIViC는 근거로만. VEP 미사용 | `BM1_…py`, `data/script/clinvar_download.py`, `civic_download.py` |
+| 차수 (2026-10-21~22) | 전이성 `setting.line_endocrine`·`line_chemo` = 이번에 결정할 차수 (전이 후 투약 없으면 1L). 판정 기준일 뒤 투약은 뺌 (2026-10-29) | `BM1_…py` |
+| ESR1 판정 (2026-10-22) | FDA 동반진단 범위 (codon 310~547 미스센스) | `BM1_…py`, `actionable_variants.csv` |
+| gBRCA 생식세포 칸 (2026-10-29) | §4.7 | `gene_field_of` |
+| 값 충돌 (2026-11-03) | §3.8 | `_from_conflict` |
+| [4] LLM 추천 모듈 (2026-10-21~11-04) | 프롬프트, 로컬 LLM `[recommend]` qwen3:14b, 환각 방지 후처리, `recommendation.json` 검사, 급여 판정기(`conditions_eval.py`), 참고란(`clinical_notes.py`), 안전 위반 검사, 보조 약물 | `src/recommend/` (`README.md`) |
 
 결정 사항 (2026-10-15):
 
@@ -722,13 +755,12 @@ B의 기대 출력 (§4 조건을 따른 경우). `oncokb` 칸은 현재 스키�
 
 ### 10.3 남은 B 작업 순서
 
-유전자 BM-2(옛 1번)와 유전자 BM-4(옛 3번)는 PR #2로 끝나 §10.1로 옮겼다.
+옛 1번(PD-L1), 2번(BM-3 로컬 조회), 5번([4] LLM 추천 모듈)은 끝나 §10.1로 옮겼다 (2026-11-05).
 
-1. **PD-L1 약제별 판정** (§6.5): 22C3 CPS ≥ 10, SP142 IC ≥ 1%.
-2. **BM-3 근거 주석 (로컬 조회)** (§5): AKT1·ESR1 변이 목록 원문 확인(`actionable_variants.csv`의 `verified = no`), CIViC·ClinVar 다운로드 스크립트(`data/script/`), 로컬 조회 코드(외부 API 호출 없음). 유전자 판정에서 VUS로 남는 변이(BRCA1 C61G 같은 병원성 미스센스)를 다시 가른다
-3. **국소 재발 후 수술 → 보조요법 (`SET-LOCAL-ADJ`)** (§6.4): 결과를 넣을 칸을 먼저 정한다 (아래 10.4)
-4. **BM-1 보고서 파싱 (로컬 LLM)**: `llm/` 공통 인터페이스와 가상 차트가 생긴 뒤
-5. **[4] LLM 추천 모듈**: 프롬프트, `recommendation.json` 검증, 환각 방지 후처리, 급여 분류. C의 검색 API(`src/rag/`)는 main에 있다. D의 급여 청크가 준비되면 본격 진행
+1. **국소 재발 후 수술 → 보조요법 (`SET-LOCAL-ADJ`)** (§6.4): 아직 없음 (`BM1_…py` 모듈 설명). 결과를 넣을 칸을 먼저 정한다 (아래 10.4). VC-0109가 이 경우다
+2. **BM-1 보고서 파싱 (로컬 LLM)**: 아직 없음. `genomic_reports[].raw_text`의 변이 파싱
+3. **[4] 추천 모듈 입력을 `confirmed_state`로**: 4명 결정 뒤 (`handoff_confirmed_state_to_B.md` §4 2번, `draft7_checklist_BCD_2026-10-28.md` §5 1번)
+4. **2026-11-04 46건 실행에서 나온 문제**: 선택지가 빈 사례 8건, 같은 선택지 반복 등 (`team_report_run_flow_2026-11-05.md` §4). B-1·2·4·5·7은 #137·#138로 반영됨 (2026-11-05). B-3(받지 않은 ID 인용)·B-6(조기 bisphosphonate 보조 칸)이 남았고, A가 재실행해 확인한다
 
 ### 10.4 정할 것
 
@@ -736,4 +768,4 @@ B의 기대 출력 (§4 조건을 따른 경우). `oncokb` 칸은 현재 스키�
 - [ ] `evidence.oncokb` → `annotation` 스키마 변경 (4명 합의)
 - [ ] 분자 아형을 `biomarker_record` 출력에 넣을지 (넣으려면 스키마 칸 추가)
 - [ ] 수치 기준 전체의 종양내과·병리과 검토. 바뀌면 A의 정답과 가상 차트도 바꿔야 한다
-- [ ] `patient_state` 0.1-draft6 검토 의견. 문제가 없으면 `0.1`로 확정한다
+- [ ] `patient_state` 0.1-draft6 검토 의견. 문제가 없으면 `0.1`로 확정한다. draft7 후보 칸(§3.8)을 넣어 `0.1-draft7`로 올리는 것이 먼저다 (`draft7_checklist_BCD_2026-10-28.md` §5 2번)
