@@ -173,6 +173,10 @@ def search_args(record: dict, query_style: str = "adaptive", **kwargs) -> dict:
     for key in ("neoadjuvant_received", "ici_received"):  # 조기 보조 결정의 갈래 감점 (searcher._early_adjust)
         if profile.get(key) in ("yes", "no"):
             args[key] = profile[key]
+    if profile.get("high_risk_early") in ("yes", "no"):
+        args["high_risk_early"] = profile["high_risk_early"]  # 고위험 전용 권고 감점 (searcher._high_risk_adjust)
+    if profile.get("stage_at_diagnosis") == "metastatic":
+        args["stage_at_diagnosis"] = "metastatic"  # de novo에 'DFI ≥12개월' 권고 감점 (searcher._dfi_adjust)
     if profile.get("her2_adjuvant_relapse") in ("yes", "no"):
         args["her2_adjuvant_relapse"] = profile["her2_adjuvant_relapse"]  # 보조 항HER2 뒤 조기 재발 권고 감점
     if profile.get("neoadjuvant_received") == "yes" and profile.get("pcr") in ("yes", "no"):
