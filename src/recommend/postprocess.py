@@ -196,16 +196,32 @@ def _added_drugs(chunk):
     return [d.lower() for d in combo.get("added_drug") or []], combo.get("added_drug_coverage")
 
 
+def _has_condition_field(chunk, field):
+    """급여 행의 투여 조건에 그 칸(field) 항목이 있는지 (all_of, stage_rules, any_of 묶음, any_of_exceptions, unless)."""
+    cond = (chunk.get("reimbursement") or {}).get("conditions") or {}
+    items = list(cond.get("all_of") or []) + list(cond.get("stage_rules") or [])
+    for g in cond.get("any_of") or []:
+        items += g.get("items") or []
+    for e in cond.get("any_of_exceptions") or []:
+        items += e.get("all_of") or []
+    items += [it["unless"] for it in items if isinstance(it.get("unless"), dict)]
+    return any(it.get("field") == field for it in items)
+
+
 def _drugs_match(option, chunk, exact=False):
     """후보 약 묶음마다 급여 행의 drugs에 하나 이상 있는지 (소문자로 비교). exact면 행의 약이 후보 약 밖에 없어야 한다
-    (C 검색 결과의 extra_drugs가 빈 행). 병용 행의 추가 약제가 후보에 없으면 맞지 않는다 (그 행 조건은 추가 약제의
+    (C 검색 결과의 extra_drugs가 빈 행). 40장 병용 행의 추가 약제가 후보에 없으면 맞지 않는다 (그 행 조건은 추가 약제의
     허가 조건이다, D 요청 2026-11-04 VC-0108). 후보 약이 없으면 맞출 수 없어 False."""
     groups = _groups(option)
     have = {d.lower() for d in chunk.get("drugs") or []}
     union = {d for g in groups for d in g}
     if not groups or not all(have & set(g) for g in groups):
         return False
-    if not set(_added_drugs(chunk)[0]) <= union:
+    # 추가 약제 검사는 40장 병용요법 행(stage combination)에만. 9장 보조요법 행의 각주("abemaciclib과 병용하면
+    # abemaciclib 100/100")도 added_drug로 들어 있지만, 그 행의 요법(AI 단독, tamoxifen 단독 등) 자체가 급여 대상이다
+    # (D 확인 2026-11-05, VC-0133 tamoxifen 단독이 r09를 잃고 '기준 없음'이 되던 문제)
+    is_combo = (chunk.get("reimbursement") or {}).get("stage") == "combination"
+    if is_combo and not set(_added_drugs(chunk)[0]) <= union:
         return False
     return have <= union if exact else True
 
@@ -234,6 +250,10 @@ def _classify(option, reimb_by_id, today, conditions_checker):
     # 후보 약과 행 약이 똑같은 행을 먼저 쓰고, 그런 행이 없을 때만 약이 더 든 행을 쓴다 (D 요청 2026-11-04.
     # 예: paclitaxel 후보가 paclitaxel + pembrolizumab 행의 조건으로 급여가 되지 않게)
     current = [c for c in reimb_by_id.values() if _valid_reimb(c, today)]
+    if _is_supportive(option):
+        # 골 보호제(보조 약물)는 뼈 전이 골 보호 목적의 행만 쓴다. 그런 행은 조건에 bone_metastasis 항목이 있다
+        # (supp-zoledronic-b, supp-denosumab-1). 고칼슘혈증 행(supp-zoledronic-a)에는 없다 (D 확인 2026-11-05, B-7)
+        current = [c for c in current if _has_condition_field(c, "bone_metastasis")]
     exact = [c for c in current if _drugs_match(option, c, exact=True)]
     pool = exact or [c for c in current if _drugs_match(option, c)]
     matched = [c for c in valid if c in pool]

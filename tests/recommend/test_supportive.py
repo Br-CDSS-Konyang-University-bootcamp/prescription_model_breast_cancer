@@ -27,7 +27,18 @@ def row(cid, drugs):
             "reimbursement": {"source_type": "baseline", "notice_no": "x", "effective_from": "2026-11-01"}}
 
 
-ROWS = [row("supp-denosumab-1", ["denosumab"]), row("supp-zoledronic-a", ["zoledronic acid"])]
+def bone_row(cid, drugs):
+    """뼈 전이 골 보호 행: 조건에 bone_metastasis 항목이 있다 (D 확인 2026-11-05)."""
+    r = row(cid, drugs)
+    r["reimbursement"] = {**r["reimbursement"], "stage": "supportive",
+                          "conditions": {"all_of": [{"id": "b", "field": "bone_metastasis", "op": "eq", "value": True,
+                                                     "text": "지어낸 조건"}]}}
+    return r
+
+
+# zoledronic-a는 고칼슘혈증 행이라 bone_metastasis 항목이 없다 (붙으면 안 됨)
+ROWS = [bone_row("supp-denosumab-1", ["denosumab"]), bone_row("supp-zoledronic-b", ["zoledronic acid"]),
+        row("supp-zoledronic-a", ["zoledronic acid"])]
 
 
 def opt(therapy, drugs, cid):
@@ -101,6 +112,6 @@ def test_bone_fill_by_guideline_names_and_schema():
     rec, _ = postprocess({"options": []}, RECORD, [LUM, BONE], ROWS, TODAY, bone_metastasis=True)
     sup = rec["supportive_options"]
     assert [o["drugs"] for o in sup] == [["denosumab"], ["zoledronic acid"], ["pamidronate", "ibandronate", "clodronate"]]
-    assert [o["reimbursement_citations"] for o in sup] == [["supp-denosumab-1"], ["supp-zoledronic-a"], []]
+    assert [o["reimbursement_citations"] for o in sup] == [["supp-denosumab-1"], ["supp-zoledronic-b"], []]   # zoledronic-a 안 붙음
     assert sup[2]["reimbursement"] == "no_criteria" and all("_groups" not in o for o in sup)
     assert validate({**base, **rec}) == []

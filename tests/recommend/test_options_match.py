@@ -114,9 +114,9 @@ def test_named_drug_kept_even_if_not_in_chunk_drugs_and_reason_is_rule_only():
     assert out["reimbursement"] == "covered" and out["reimbursement_reason"] == "조건 충족 (r-ana)"
 
 
-def combo_row(cid, drugs, added, coverage):
+def combo_row(cid, drugs, added, coverage, stage="combination"):
     r = row(cid, drugs)
-    r["reimbursement"] = {**r["reimbursement"],
+    r["reimbursement"] = {**r["reimbursement"], "stage": stage,
                           "combination": {"added_drug": added, "added_drug_coverage": coverage, "base_regimen": []}}
     return r
 
@@ -135,3 +135,11 @@ def test_combination_row_needs_added_drug_and_shows_nonpaid():
     o = rec["options"][0]
     assert o["reimbursement"] == "covered" and o["reimbursement_citations"] == ["r-ina"]
     assert o["reimbursement_reason"].startswith("inavolisib 비급여 + palbociclib·fulvestrant 급여")
+
+
+def test_added_drug_rule_only_for_chapter_40():
+    """D 확인 (2026-11-05, VC-0133): 9장 보조요법 행의 각주 추가 약(abemaciclib)은 행을 막지 않는다."""
+    g = {**G, "drugs": G["drugs"] + ["tamoxifen", "abemaciclib"]}
+    adj = combo_row("r09-adj", ["tamoxifen"], ["abemaciclib"], "100/100", stage="adjuvant")
+    rec, _ = postprocess({"options": [option("tamoxifen", ["tamoxifen"], [])]}, RECORD, [g], [adj], TODAY)
+    assert rec["options"][0]["reimbursement_citations"] == ["r09-adj"]
