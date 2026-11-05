@@ -409,6 +409,14 @@ def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursemen
         if unresolved:
             rec["conflicts"].append(f"{name}: {unresolved}")
             log.append(f"{name}: {unresolved}")
+        # 3번 앞: 인용한 지침 청크에 후보 약이 없지만 넘겨받은 다른 지침 청크에 그 약이 있으면, 그 청크(관련도 순서로 첫 것)를
+        # 근거에 더한다 (A 공유 2026-11-05 B-5, VC-0127 sacituzumab). 지어낸 근거가 아니라 받은 청크에 약이 있음을 확인하는 것
+        for d in [d for d in o.get("drugs") or [] if not _drug_in_chunks(d, [guide_by_id[i] for i in cites])]:
+            other = next((c["chunk_id"] for c in guideline_chunks if c["chunk_id"] not in cites and _drug_in_chunks(d, [c])), None)
+            if other:
+                cites.append(other)
+                log.append(f"{name}: 인용한 청크에 {d}가 없어 그 약이 든 받은 청크를 근거에 더함 ({other})")
+        o["citations"] = cites
         cited = [guide_by_id[i] for i in cites]
         if o.get("_groups"):   # 펼친 묶음은 인용 청크에 있는 약만 남기고, 묶음마다 하나 이상 있어야 한다
             o["_groups"] = [[d for d in g if _drug_in_chunks(d, cited)] for g in o["_groups"]]
@@ -438,6 +446,17 @@ def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursemen
                 support.append(o)
             else:
                 main.append(o)
+    # 같은 요법(약이 같거나, 약이 없으면 이름이 같은 후보)은 하나로 합치고 근거는 모은다 (A 공유 2026-11-05 B-4)
+    merged = []
+    for o in main:
+        key = frozenset(d.lower() for d in o.get("drugs") or []) or (o.get("therapy") or "").strip().lower()
+        same = next((m for m in merged if m[0] == key), None)
+        if same:
+            same[1]["citations"] = list(dict.fromkeys(same[1]["citations"] + o["citations"]))
+            log.append(f"{o.get('therapy')}: 같은 요법이라 앞 후보와 합침")
+        else:
+            merged.append((key, o))
+    main = [o for _, o in merged]
     for o in rec["supportive_options"]:
         if check(o):
             if _is_supportive(o):

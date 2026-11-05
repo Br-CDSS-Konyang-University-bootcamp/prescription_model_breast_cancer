@@ -48,3 +48,62 @@ def test_empty_llm_options_logged():
     _, log, errors = recommend({}, RECORD, [KID1], [], lambda p: answer, INDEX_STATUS, "fake", TODAY)
     assert errors == [] and "LLM이 후보를 내지 않음 (out_of_scope도 false)" in log
 
+
+
+# A 공유 team_report_run_flow_2026-11-05.md §4 B-1·B-2·B-4·B-5
+def test_answer_schema_keeps_citation_minimum():
+    """B-1: 지침 근거(citations) 1개 이상은 LLM 답 양식에 남긴다 (Ollama가 이 양식대로 쓰게 함)."""
+    schema = answer_schema()
+    assert schema["properties"]["options"]["items"]["properties"]["citations"].get("minItems") == 1
+    assert "minItems" not in schema["properties"]["options"]["items"]["properties"]["reimbursement_citations"]
+
+
+def test_retry_once_when_all_options_deleted_and_counts_only():
+    """B-1: 주 후보가 모두 지워지면 한 번 다시 묻는다. B-2: 답 원문 대신 숫자만 기록한다."""
+    seen = []
+    no_cite = opt(rationale="근거 없이 권고된다.", citations=[], reimbursement="no_criteria")
+    good = opt(rationale=f"권고된다 [{KID2['chunk_id']}].", citations=[KID2["chunk_id"]], reimbursement="no_criteria")
+
+    def llm(prompt):
+        seen.append(prompt)
+        options = [no_cite] if len(seen) == 1 else [good]
+        return {"options": options, "tests_needed": [], "out_of_scope": False, "conflicts": []}
+    rec, log, errors = recommend({}, RECORD, [KID1, KID2], [], llm, INDEX_STATUS, "fake", TODAY)
+    assert errors == [] and len(seen) == 2 and "[다시 쓰기]" in seen[1] and KID2["chunk_id"] in seen[1]
+    assert [o["therapy"] for o in rec["options"]] == ["letrozole"]
+    assert "주 후보가 모두 지워져 LLM에 한 번 다시 물음" in log
+    counts = [m for m in log if m.startswith("LLM 답:")]
+    assert counts[0] == ("LLM 답: 주 후보 1개, citations 칸이 빈 후보 1개, 근거 문장에 [ID]가 없는 후보 1개, "
+                         "받은 지침 청크 ID를 하나도 인용하지 않은 후보 1개")
+    assert not any("근거 없이 권고된다" in m for m in log)          # 답 내용은 남기지 않음
+
+
+def test_no_retry_when_some_option_survives():
+    calls = []
+
+    def llm(prompt):
+        calls.append(1)
+        return {"options": [opt(rationale=f"권고된다 [{KID2['chunk_id']}].", citations=[KID2["chunk_id"]],
+                                reimbursement="no_criteria")],
+                "tests_needed": [], "out_of_scope": False, "conflicts": []}
+    recommend({}, RECORD, [KID1, KID2], [], llm, INDEX_STATUS, "fake", TODAY)
+    assert len(calls) == 1
+
+
+def test_duplicate_options_merged():
+    """B-4: 약이 같은(약이 없으면 이름이 같은) 후보는 하나로 합친다."""
+    a = opt(rationale=f"권고된다 [{KID2['chunk_id']}].", citations=[KID2["chunk_id"]], reimbursement="no_criteria")
+    b = {**a, "therapy": "Letrozole"}
+    c = opt(therapy="ET alone", drugs=[], rationale=f"권고된다 [{KID1['chunk_id']}].", citations=[KID1["chunk_id"]],
+            reimbursement="no_criteria")
+    rec, log = postprocess({"options": [a, b, c, dict(c)]}, RECORD, [KID1, KID2], [], TODAY)
+    assert [o["therapy"] for o in rec["options"]] == ["letrozole", "ET alone"]
+    assert sum("같은 요법이라 앞 후보와 합침" in m for m in log) == 2
+
+
+def test_cite_received_chunk_with_the_drug():
+    """B-5: 인용한 청크에 약이 없지만 받은 다른 청크에 있으면 그 청크를 근거에 더한다 (VC-0127)."""
+    o = opt(rationale=f"권고된다 [{KID1['chunk_id']}].", citations=[KID1["chunk_id"]], reimbursement="no_criteria")
+    rec, log = postprocess({"options": [o]}, RECORD, [KID1, KID2], [], TODAY)
+    assert rec["options"][0]["citations"] == [KID1["chunk_id"], KID2["chunk_id"]]
+    assert any("그 약이 든 받은 청크를 근거에 더함" in m for m in log)
