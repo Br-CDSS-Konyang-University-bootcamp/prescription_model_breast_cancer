@@ -56,6 +56,21 @@ def _answer_counts(options, guide_ids):
             f"근거 문장에 [ID]가 없는 후보 {no_inline}개, 받은 지침 청크 ID를 하나도 인용하지 않은 후보 {no_guide}개")
 
 
+def _menopause_and_ofs(patient_state, confirmed_state):
+    """수술 후 bisphosphonate 보조 칸 규칙용 (폐경 상태, 난소 기능 억제를 받는 중인지). 의사 확정값을 먼저 본다.
+    OFS는 판정 기준일에 끝나지 않은 LHRH 작용제 투약이 있으면 예."""
+    meno = _confirmed(confirmed_state, "menopausal_status")
+    fields = (patient_state or {}).get("fields") or {}
+    if meno is None:
+        f = (fields.get("patient") or {}).get("menopausal_status") or {}
+        meno = f.get("value") if f.get("status") == "present" else None
+    index_day = (patient_state or {}).get("index_day")
+    ofs = any({d.lower() for d in t.get("drugs") or []} & {"goserelin", "leuprolide", "triptorelin"}
+              and (t.get("ongoing") or t.get("end_day") is None or (index_day is not None and t["end_day"] >= index_day))
+              for t in fields.get("treatment_history") or [])
+    return meno, ofs
+
+
 def _phase_and_bone(patient_state, biomarker_record, confirmed_state):
     """8번 보조 약물 규칙에 쓸 (치료 단계, 뼈 전이 여부). 의사 확정값을 먼저 보고, 없으면 B 판정·patient_state."""
     setting = biomarker_record.get("setting") or {}
@@ -89,6 +104,7 @@ def recommend(patient_state, biomarker_record, guideline_chunks, reimbursement_c
     reimbursement_chunks = all_reimbursement
     phase, bone = _phase_and_bone(patient_state, biomarker_record, confirmed_state)
     guide_ids = [c["chunk_id"] for c in guideline_chunks]
+    menopausal, ofs = _menopause_and_ofs(patient_state, confirmed_state)
 
     def ask(text):
         """LLM에 한 번 묻고 후처리까지. (후처리 결과, LLM이 낸 주 후보 수)."""
@@ -107,7 +123,8 @@ def recommend(patient_state, biomarker_record, guideline_chunks, reimbursement_c
         log.append(_answer_counts(rec["options"], set(guide_ids)))
         out, post_log = postprocess(rec, biomarker_record, guideline_chunks, reimbursement_chunks, today,
                                     conditions_checker, phase=phase, bone_metastasis=bone,
-                                    high_risk_early=_confirmed(confirmed_state, "high_risk_early"))
+                                    high_risk_early=_confirmed(confirmed_state, "high_risk_early"),
+                                    menopausal=menopausal, ofs=ofs)
         log.extend(post_log)
         return out, len(rec["options"])
 

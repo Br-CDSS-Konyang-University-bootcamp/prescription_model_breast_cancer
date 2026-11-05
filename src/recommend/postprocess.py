@@ -252,7 +252,8 @@ def _classify(option, reimb_by_id, today, conditions_checker):
             valid = valid + class_rows
             option["reimbursement_citations"] = [c["chunk_id"] for c in valid]
             option.update(reimbursement="covered_conditions_unverified",
-                          reimbursement_reason="계열 안의 요법마다 급여 조건이 다름, 요법을 정한 뒤 확인 필요")
+                          reimbursement_reason=f"약 확인 필요 (관련 급여 요법 {len(class_rows)}개): "
+                                               "계열 안의 요법마다 급여 조건이 다름, 요법을 정한 뒤 확인")
             return changes + [f"계열 이름 후보라 그 계열 급여 행 {len(class_rows)}개를 붙이고 급여(약 확인 필요)로 둠"]
         if cls in COVERED_CLASSES and valid:
             option.update(reimbursement="covered_conditions_unverified",
@@ -386,12 +387,47 @@ def _bone_supportive(guide_by_id, done):
     return out
 
 
+LHRH_DRUGS = {"goserelin", "leuprolide", "triptorelin"}
+
+
+def _early_bma_supportive(guideline_chunks, done):
+    """8번: 수술 후 보조요법 bisphosphonate 권고 청크(뼈 전이 청크가 아닌, 골 보호제가 든 조기 청크)의 골 보호제를
+    보조 후보로 만든다 (LLM이 빠뜨렸을 때, A 공유 2026-11-05 B-6, B·C 합의). 근거 문장은 정해진 틀이고 원문을 옮기지 않는다.
+    약 묶는 법은 _bone_supportive와 같다 (본문에 이름이 나오는 약은 따로, 나머지는 bisphosphonates 계열 한 줄)."""
+    out = []
+    for c in guideline_chunks:
+        cid = c["chunk_id"]
+        if "site-bone" in cid or "early" not in (c.get("setting") or []):
+            continue
+        bma = [d for d in (x.lower() for x in c.get("drugs") or []) if d in _bma_drugs()]
+        if not bma:
+            continue
+        ev = c.get("evidence") or {}
+        base = {"rationale": f"폐경 후 또는 난소 기능 억제 중인 여성의 수술 후 보조요법으로 bisphosphonate가 권고된다 [{cid}].",
+                "citations": [cid],
+                "evidence": (f"LoE {ev['loe']}" + (f", GoR {ev['gor']}" if ev.get("gor") else "")) if ev.get("loe") else None,
+                "reimbursement": "covered_conditions_unverified", "reimbursement_reason": "", "reimbursement_citations": []}
+        text = (c.get("text") or "").lower()
+        named = [d for d in bma if d in text and d not in done]
+        for d in named:
+            done.add(d)
+            out.append({**base, "therapy": d, "drugs": [d]})
+        group = [d for d in bma if d not in named and d not in done]
+        if group:
+            done.update(group)
+            out.append({**base, "therapy": f"bisphosphonates 계열 ({', '.join(group)} 중 하나)", "drugs": group,
+                        "_groups": [group]})
+    return out
+
+
 def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursement_chunks, today=None,
-                conditions_checker=None, phase=None, bone_metastasis=False, high_risk_early=None):
+                conditions_checker=None, phase=None, bone_metastasis=False, high_risk_early=None, menopausal=None,
+                ofs=False):
     """추천 결과를 고쳐서 돌려준다. (고친 결과, 로그 목록). 받은 값은 바꾸지 않는다.
     conditions_checker(option, 급여 청크 목록) -> {status, reason}: 급여 조건 판정 (conditions_eval.make_conditions_checker).
     phase(neoadjuvant / adjuvant / None)·bone_metastasis(bool)는 8번 보조 약물 규칙에, phase·high_risk_early
-    (confirmed_state의 {hira, esmo})는 조기 결정 단계 규칙에 쓴다."""
+    (confirmed_state의 {hira, esmo})는 조기 결정 단계 규칙에, menopausal·ofs(난소 기능 억제를 받는 중)는 수술 후
+    bisphosphonate 보조 칸 채우기에 쓴다."""
     today = today or date.today()
     rec = {**recommendation, "options": [dict(o) for o in recommendation.get("options") or []],
            "supportive_options": [dict(o) for o in recommendation.get("supportive_options") or []],
@@ -573,6 +609,18 @@ def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursemen
             log.append(f"{o['therapy']}: 뼈 전이 청크가 있어 보조 약물 칸에 채움 ({o['citations'][0]})")
             log.extend(f"{o['therapy']}: {c}" for c in _classify(o, reimb_by_id, today, conditions_checker))
             support.append(o)
+    # 8번: 수술 후 보조요법 결정(HR+/HER2-)에서 폐경 후이거나 난소 기능 억제(OFS) 중이면, bisphosphonate 권고 청크가 왔는데
+    # LLM이 빠뜨렸을 때 규칙으로 채운다. ESMO "난소 기능이 없는 여성(폐경 후 또는 OFS)에게 권고, 특히 재발 고위험"이라
+    # 고위험은 필수 조건이 아니다. 선행 결정은 위에서 이미 뺐다 (A 공유 2026-11-05 B-6, B·C 합의, v0.1은 HR+/HER2-만)
+    ofs_now = ofs or any({d.lower() for d in o.get("drugs") or []} & LHRH_DRUGS for o in main)
+    if (disease in ("early", "locally_advanced") and phase == "adjuvant" and biomarker_record.get("subtype") == "HR+/HER2-"
+            and (menopausal == "postmenopausal" or ofs_now)):
+        done = {d.lower() for o in support for d in o.get("drugs") or []}
+        if not done & set(_bma_drugs()):
+            for o in _early_bma_supportive(guideline_chunks, done):
+                log.append(f"{o['therapy']}: 수술 후 bisphosphonate 권고 청크가 있어 보조 약물 칸에 채움 ({o['citations'][0]})")
+                log.extend(f"{o['therapy']}: {c}" for c in _classify(o, reimb_by_id, today, conditions_checker))
+                support.append(o)
     for o in main + support:
         o.pop("_groups", None)   # 내부용 (스키마에 없는 칸)
     rec["options"], rec["supportive_options"] = main, support

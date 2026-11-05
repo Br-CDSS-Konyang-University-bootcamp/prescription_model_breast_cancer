@@ -183,4 +183,54 @@ def test_class_name_option_gets_class_rows_and_unverified():
     out = rec["options"][0]
     assert out["reimbursement"] == "covered_conditions_unverified"
     assert out["reimbursement_citations"] == ["adj-r10-ac", "adj-r17-tc"]
-    assert "요법마다 급여 조건이 다름" in out["reimbursement_reason"]
+    assert out["reimbursement_reason"].startswith("약 확인 필요 (관련 급여 요법 2개)")
+
+
+# B·C 합의 (2026-11-05): 안전 검사 ③·⑥, 수술 후 bisphosphonate 보조 칸(B-6), 약 확인 필요 개수(B-12)
+from src.recommend.safety import safety_violations
+
+HER2_REC = {"patient_ref": "T", "subtype": "HR-/HER2+", "setting": {"disease": "metastatic", "line": "1L"},
+            "records": [{"marker": "HER2", "status": "positive", "reason": "t"}], "tests_needed": []}
+
+
+def her2_opt(drugs):
+    return {"therapy": " + ".join(drugs), "drugs": drugs, "rationale": "권고 [x].", "citations": ["x"]}
+
+
+def test_safety_trastuzumab_continuation_and_early_relapse():
+    progressed = {"index_day": 900, "fields": {"treatment_history": [
+        {"drugs": ["docetaxel", "trastuzumab", "pertuzumab"], "setting": "metastatic", "start_day": 100,
+         "stop_reason": "progression"}]}}
+    rules = lambda rec, ps: [v["rule"] for v in safety_violations(rec, HER2_REC, ps)]
+    # 새 짝 약과 trastuzumab을 이어 쓰면 위반 아님, 같은 요법 반복은 위반
+    assert rules({"options": [her2_opt(["tucatinib", "trastuzumab", "capecitabine"])]}, progressed) == []
+    assert rules({"options": [her2_opt(["trastuzumab", "pertuzumab"])]}, progressed) == ["progressed_drug_again"]
+    early = {"index_day": 500, "fields": {
+        "deemed_lines": [{"rule_id": "DEEM-HER2ADC-6M", "status": "met"}],
+        "treatment_history": [
+            {"drugs": ["paclitaxel", "trastuzumab"], "setting": "adjuvant", "start_day": 10, "stop_reason": "planned_switch"},
+            {"drugs": ["trastuzumab"], "setting": "adjuvant", "start_day": 100, "stop_reason": "completed"}]}}
+    assert rules({"options": [her2_opt(["paclitaxel", "trastuzumab"])]}, early) == ["early_relapse_same_her2_regimen"]
+    assert rules({"options": [her2_opt(["trastuzumab deruxtecan"])]}, early) == []
+    no_deem = {**early, "fields": {**early["fields"], "deemed_lines": []}}
+    assert rules({"options": [her2_opt(["paclitaxel", "trastuzumab"])]}, no_deem) == []
+
+
+def test_early_bisphosphonate_fill_conditions():
+    """B-6: 수술 후 + HR+/HER2- + (폐경 후 또는 OFS)면 bisphosphonate 청크로 보조 칸을 채운다."""
+    rec_hr = {**RECORD, "subtype": "HR+/HER2-", "setting": {"disease": "early", "line": "adjuvant"}}
+    bis = {**KID1, "chunk_id": "esmo-ebc-hrpos-bis", "setting": ["early"], "drugs": ["zoledronic acid", "clodronate"],
+           "text": "TEST: bisphosphonates such as zoledronic acid."}
+    let = opt(rationale=f"권고된다 [{KID2['chunk_id']}].", citations=[KID2["chunk_id"]], reimbursement="no_criteria")
+
+    def sup(**kw):
+        rec, _ = postprocess({"options": [dict(let)]}, rec_hr, [KID1, KID2, bis], [], TODAY, **kw)
+        return [o["therapy"] for o in rec["supportive_options"]]
+    filled = ["zoledronic acid", "bisphosphonates 계열 (clodronate 중 하나)"]
+    assert sup(phase="adjuvant", menopausal="postmenopausal") == filled
+    assert sup(phase="adjuvant", menopausal="premenopausal", ofs=True) == filled
+    assert sup(phase="adjuvant", menopausal="premenopausal") == []           # 폐경 전, OFS 없음
+    assert sup(phase="neoadjuvant", menopausal="postmenopausal") == []       # 선행 결정
+    rec, _ = postprocess({"options": [dict(let)]}, {**rec_hr, "subtype": "HR+/HER2+"}, [KID1, KID2, bis], [], TODAY,
+                         phase="adjuvant", menopausal="postmenopausal")
+    assert rec["supportive_options"] == []                                    # v0.1은 HR+/HER2-만
