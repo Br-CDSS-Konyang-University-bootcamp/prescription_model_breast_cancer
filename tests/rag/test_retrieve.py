@@ -79,12 +79,10 @@ def test_retrieve_returns_guideline_with_parents_and_matching_reimbursement(inde
     from src.rag.retrieve import OldInputWarning
     with pytest.warns(OldInputWarning, match="confirmed_state"):  # 옛 방식은 재발 시점 값이 빠져 틀릴 수 있다고 알린다
         guideline, reimbursement = retrieve_for_recommend(PATIENT, RECORD, as_of="2026-10-20", rerank=False)
-    # 주 검색 1번 + 부위 표현을 뺀 같은 질의 1번(부위 필터는 그대로) + 뼈 전이 추가 검색 1번 (간은 부위별 질의 없음,
-    # de novo 아님: 진단 시 조기) + 알고리즘 그림 경로 검색 1번 (주 검색과 같은 조건). 모두 부모를 붙여 달라고 부른다
-    assert [kw["query_text"].split()[0] for kw in calls] == ["second-line", "second-line", "bone", "second-line"]
-    assert "bone" in calls[0]["query_text"] and "bone" not in calls[1]["query_text"]
-    assert calls[1]["metastatic_sites"] == calls[0]["metastatic_sites"]
-    assert [kw.get("chunk_kind", "recommendation") for kw in calls] == ["recommendation"] * 3 + ["algorithm"]
+    # 주 검색 1번 + 뼈 전이 추가 검색 1번 (간은 부위별 질의 없음, de novo 아님: 진단 시 조기) + 알고리즘 그림 경로 검색 1번 (주 검색과 같은 조건).
+    # 모두 부모를 붙여 달라고 부른다
+    assert [kw["query_text"].split()[0] for kw in calls] == ["second-line", "bone", "second-line"]
+    assert [kw.get("chunk_kind", "recommendation") for kw in calls] == ["recommendation", "recommendation", "algorithm"]
     assert all(kw["with_parent"] and kw["negative_tags"] == ["gBRCA"] for kw in calls)
     assert guideline and all(c["doc_type"] == "guideline" and c["parent"] for c in guideline)
     assert len({c["chunk_id"] for c in guideline}) == len(guideline)

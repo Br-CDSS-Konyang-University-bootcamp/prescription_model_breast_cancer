@@ -331,15 +331,8 @@ def retrieve_for_recommend(state: dict, biomarker_record: dict = None, as_of=Non
     # (VC-0114: 주 질의가 부위·이전 치료 표현에 밀려 sacituzumab·Dato-DXd가 10·11위). 다른 환자에게는 이 검색이 없다
     branch = [a for a in extras if a.get("query_text") == PRIOR_CHEMO_QUERY]
     searches = branch + [main] + [a for a in extras if a not in branch]
-    # 전이 부위가 질의에 들어가면 주 검색 상위를 부위 권고가 차지해, 이번 차수의 치료 권고가 밀렸다 (VC-0111 뇌 전이 HER2 2차:
-    # tucatinib 081a81, A run_flow 2026-11-05 C-4). 부위 표현을 뺀 같은 질의로 한 번 더 찾는다 (부위 필터는 그대로)
-    plain = search_args(biomarker_record, top_k=extra_top_k, **{**patient, "metastatic_sites": []})["query_text"]
-    if plain != main["query_text"]:
-        searches.insert(searches.index(main) + 1, {**main, "query_text": plain, "top_k": extra_top_k})
-    # HER2 양성 2차 권고는 4개(T-DXd, tucatinib, T-DM1, 뇌 전이 진행)뿐인데 한 차수 위 검색이 3개라 tucatinib이 빠졌다 (VC-0112)
-    next_top_k = extra_top_k + 1 if biomarker_record.get("subtype") in HER2_POSITIVE else extra_top_k
     for line in lines["guideline"][1:]:  # 전이성 HR+/HER2-에서 내분비·항암 차수가 다르면 항암 차수 권고도 찾는다
-        searches.append({**main, "line": line, "top_k": next_top_k})
+        searches.append({**main, "line": line, "top_k": extra_top_k})
     if algorithm_top_k:
         searches.append({**main, "top_k": algorithm_top_k, "chunk_kind": "algorithm"})
     for args in searches:
