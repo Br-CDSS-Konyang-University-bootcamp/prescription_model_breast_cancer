@@ -239,6 +239,21 @@ def _classify(option, reimb_by_id, today, conditions_checker):
         if cls == "offlabel_approved" and any(c.get("source") == "HIRA-offlabel" for c in valid):
             option["copay"] = next(c for c in valid if c.get("source") == "HIRA-offlabel")["reimbursement"].get("copay")
             return changes
+        # 계열 이름(ChT·ET·항HER2) 후보는 그 계열 약으로만 된 시행 중인 급여 행을 붙이고 '급여(약 확인 필요)'로 둔다.
+        # 계열 안의 요법(AC, TC, AC→T 등)마다 급여 조건이 달라 '급여 기준 없음'은 틀린 말이다 (D 의견 2026-11-05 B-12, VC-0118)
+        therapy = option.get("therapy") or ""
+        named = [k for k, rx in CLASS_TERMS.items() if rx.search(therapy)]
+        cited_ids = {c["chunk_id"] for c in valid}
+        class_rows = [c for c in reimb_by_id.values()
+                      if c["chunk_id"] not in cited_ids and _valid_reimb(c, today) and c.get("source") != "HIRA-offlabel"
+                      and c.get("drugs") and any(all(k in _drug_classes().get(d.lower(), set()) for d in c["drugs"])
+                                                 for k in named)]
+        if class_rows:
+            valid = valid + class_rows
+            option["reimbursement_citations"] = [c["chunk_id"] for c in valid]
+            option.update(reimbursement="covered_conditions_unverified",
+                          reimbursement_reason="계열 안의 요법마다 급여 조건이 다름, 요법을 정한 뒤 확인 필요")
+            return changes + [f"계열 이름 후보라 그 계열 급여 행 {len(class_rows)}개를 붙이고 급여(약 확인 필요)로 둠"]
         if cls in COVERED_CLASSES and valid:
             option.update(reimbursement="covered_conditions_unverified",
                           reimbursement_reason="후보 약을 정하지 못해 급여 조건을 판정하지 않음, 의사 확인")

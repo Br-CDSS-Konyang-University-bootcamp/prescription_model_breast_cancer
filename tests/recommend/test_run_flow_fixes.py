@@ -164,3 +164,23 @@ def test_prompt_has_phase_risk_deemed_and_positive_markers():
     assert '"phase": "adjuvant"' in text and '"esmo": "no"' in text
     assert '"deemed_lines_met": ["DEEM-HER2ADC-6M"]' in text and '"positive_markers": ["gBRCA1"]' in text
     assert "DEEM-HER2ADC-6M이 있으면" in text and "PARP 억제제" in text
+
+
+
+def test_class_name_option_gets_class_rows_and_unverified():
+    """B-12 (D 의견 2026-11-05, VC-0118): 'systemic ChT'처럼 약을 정하지 않은 후보는 항암제만으로 된 급여 행을 붙이고
+    '급여(약 확인 필요)'. 내분비·표적 약이 섞인 행은 붙이지 않는다."""
+    chemo = {**KID1, "chunk_id": "esmo-ebc-tnbc-cht", "drugs": [], "text": "TEST: systemic ChT for 6-8 cycles."}
+
+    def row(cid, drugs):
+        return {"chunk_id": cid, "doc_type": "reimbursement", "source": "HIRA-booklet", "drugs": drugs, "text": "지어낸 행",
+                "reimbursement": {"source_type": "baseline", "notice_no": "x", "effective_from": "2026-11-01"}}
+    rows = [row("adj-r10-ac", ["doxorubicin", "cyclophosphamide"]), row("adj-r17-tc", ["docetaxel", "cyclophosphamide"]),
+            row("adj-r01-ana", ["anastrozole"]), row("pal-tras", ["paclitaxel", "trastuzumab"])]
+    o = opt(therapy="6-8 cycles systemic ChT", drugs=[], rationale=f"권고된다 [{chemo['chunk_id']}].",
+            citations=[chemo["chunk_id"]], reimbursement="no_criteria")
+    rec, log = postprocess({"options": [o]}, RECORD, [chemo], rows, TODAY)
+    out = rec["options"][0]
+    assert out["reimbursement"] == "covered_conditions_unverified"
+    assert out["reimbursement_citations"] == ["adj-r10-ac", "adj-r17-tc"]
+    assert "요법마다 급여 조건이 다름" in out["reimbursement_reason"]
