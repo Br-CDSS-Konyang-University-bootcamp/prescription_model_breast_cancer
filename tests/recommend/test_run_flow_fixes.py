@@ -105,5 +105,62 @@ def test_cite_received_chunk_with_the_drug():
     """B-5: 인용한 청크에 약이 없지만 받은 다른 청크에 있으면 그 청크를 근거에 더한다 (VC-0127)."""
     o = opt(rationale=f"권고된다 [{KID1['chunk_id']}].", citations=[KID1["chunk_id"]], reimbursement="no_criteria")
     rec, log = postprocess({"options": [o]}, RECORD, [KID1, KID2], [], TODAY)
-    assert rec["options"][0]["citations"] == [KID1["chunk_id"], KID2["chunk_id"]]
+    # B-10: 약이 없는 KID1 인용은 빠지고, 문장 안 인용도 약이 든 KID2로 바뀐다
+    assert rec["options"][0]["citations"] == [KID2["chunk_id"]]
+    assert rec["options"][0]["rationale"] == f"권고된다 [{KID2['chunk_id']}]."
     assert any("그 약이 든 받은 청크를 근거에 더함" in m for m in log)
+
+
+# A 공유 2026-11-05 §6.4 B-8·B-9·B-10·B-11
+EARLY_REC = {"patient_ref": "T", "subtype": "HR+/HER2-", "setting": {"disease": "early", "line": "adjuvant"},
+             "records": [{"marker": "gBRCA1", "status": "positive", "reason": "테스트"}], "tests_needed": []}
+ABE = {**KID1, "chunk_id": "esmo-ebc-hrpos-abe", "drugs": ["abemaciclib", "letrozole"], "text": "TEST: abemaciclib + ET."}
+OLA = {**KID1, "chunk_id": "esmo-ebc-hrpos-ola", "drugs": ["olaparib"], "text": "TEST: adjuvant olaparib."}
+BIS = {**KID1, "chunk_id": "esmo-ebc-hrpos-bis", "drugs": ["zoledronic acid", "clodronate"],
+       "text": "TEST: adjuvant bisphosphonates."}
+
+
+def test_neoadjuvant_drops_post_surgery_drugs_and_low_risk_drops_abemaciclib():
+    """B-11: 선행 결정에는 수술 뒤 약을 내지 않고, 고위험이 아니면 abemaciclib을 내지 않는다."""
+    o_abe = opt(therapy="abemaciclib + letrozole", drugs=["abemaciclib", "letrozole"],
+                rationale=f"권고된다 [{ABE['chunk_id']}].", citations=[ABE["chunk_id"]], reimbursement="no_criteria")
+    o_ola = opt(therapy="olaparib", drugs=["olaparib"], rationale=f"권고된다 [{OLA['chunk_id']}].",
+                citations=[OLA["chunk_id"]], reimbursement="no_criteria")
+    o_ext = opt(therapy="Extended ET beyond 5 years", drugs=[], rationale=f"권고된다 [{KID1['chunk_id']}].",
+                citations=[KID1["chunk_id"]], reimbursement="no_criteria")
+    o_let = opt(rationale=f"권고된다 [{KID2['chunk_id']}].", citations=[KID2["chunk_id"]], reimbursement="no_criteria")
+    chunks = [KID1, KID2, ABE, OLA]
+    rec, log = postprocess({"options": [o_abe, o_ola, o_ext, o_let]}, EARLY_REC, chunks, [], TODAY, phase="neoadjuvant")
+    assert [o["therapy"] for o in rec["options"]] == ["letrozole"]
+    assert sum("선행요법 결정이라" in m for m in log) == 3
+    rec, log = postprocess({"options": [o_abe, o_let]}, EARLY_REC, chunks, [], TODAY, phase="adjuvant",
+                           high_risk_early={"hira": "no", "esmo": "no"})
+    assert [o["therapy"] for o in rec["options"]] == ["letrozole"] and any("고위험 조기" in m for m in log)
+    rec, _ = postprocess({"options": [o_abe]}, EARLY_REC, chunks, [], TODAY, phase="adjuvant",
+                         high_risk_early={"hira": "yes", "esmo": "yes"})
+    assert [o["therapy"] for o in rec["options"]] == ["abemaciclib + letrozole"]
+
+
+def test_unrelated_bisphosphonate_citation_dropped_and_supportive_purity():
+    """B-10: 골 보호제가 아닌 후보의 골 보호제 청크 인용은 빼고, 보조 칸에 내분비요법이 섞이면 지운다."""
+    o = opt(therapy="ET alone", drugs=[], rationale=f"권고된다 [{KID1['chunk_id']}]. 뼈도 본다 [{BIS['chunk_id']}].",
+            citations=[KID1["chunk_id"], BIS["chunk_id"]], reimbursement="no_criteria")
+    mixed = opt(therapy="ET + bisphosphonate", drugs=[], rationale=f"권고된다 [{BIS['chunk_id']}].",
+                citations=[BIS["chunk_id"]], reimbursement="no_criteria")
+    rec, log = postprocess({"options": [o], "supportive_options": [mixed]}, EARLY_REC, [KID1, BIS], [], TODAY,
+                           phase="adjuvant")
+    assert rec["options"][0]["citations"] == [KID1["chunk_id"]]
+    assert rec["options"][0]["rationale"] == f"권고된다 [{KID1['chunk_id']}]."
+    assert rec["supportive_options"] == [] and any("보조 약물 칸에는 골 보호제만" in m for m in log)
+
+
+def test_prompt_has_phase_risk_deemed_and_positive_markers():
+    """B-8·B-9·B-11: 수술 전후, 위험도, 간주 규칙, 양성 바이오마커를 질문지에 넣는다."""
+    from src.recommend.prompt import build_prompt
+    confirmed = {"items": {"setting.phase": {"confirmed": "adjuvant"},
+                           "high_risk_early": {"confirmed": {"hira": "no", "esmo": "no"}},
+                           "deemed_lines": {"confirmed": {"DEEM-HER2ADC-6M": "met", "DEEM-SG-1Y": "not_met"}}}}
+    text = build_prompt({}, EARLY_REC, [KID1], [], confirmed)
+    assert '"phase": "adjuvant"' in text and '"esmo": "no"' in text
+    assert '"deemed_lines_met": ["DEEM-HER2ADC-6M"]' in text and '"positive_markers": ["gBRCA1"]' in text
+    assert "DEEM-HER2ADC-6M이 있으면" in text and "PARP 억제제" in text

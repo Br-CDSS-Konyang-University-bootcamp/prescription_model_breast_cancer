@@ -31,6 +31,7 @@
 | 1 | 소단원(부모) ID 인용 | 넘겨받은 그 자식 청크 ID로 바꿈 (후보 약이 든 자식, 없으면 첫 자식. A 전달 2026-11-03 §5.3, VC-0134) |
 | 1 | 받은 청크에 없는 청크 ID 인용 | 그 인용을 지움 |
 | 2 | 근거 문장(rationale)에 `[청크ID]`가 없는 문장 | 문장을 지움. 남은 문장이나 지침 인용이 없으면 후보를 지움 |
+| 3 앞 | 후보 약과 상관없는 인용 (청크 drugs에 후보 약이 하나도 없거나, 골 보호제가 아닌 후보가 골 보호제만 다루는 청크를 인용) | 약이 든 다른 인용이 남으면 그 인용을 빼고, 그 인용만 있던 문장도 지움. 바로 위에서 약이 든 청크를 더했으면 문장 안 인용을 그 청크로 바꿈 (A 공유 2026-11-05 B-10) |
 | 3 앞 | 인용한 지침 청크에 후보 약이 없지만 넘겨받은 다른 지침 청크에 있음 | 그 청크(관련도 순서로 첫 것)를 근거에 더함 (A 공유 2026-11-05 B-5, VC-0127) |
 | 3 | 약 이름이 인용한 지침 청크(`drugs` 목록 또는 본문)에 없음. 다만 본문에 넓은 계열 이름이 있으면 그 계열 약은 통과: `ET`·endocrine → Hormone Therapy, `ChT`·chemotherapy → Chemotherapy, anti-HER2·HER2-directed·HER2-targeted → HER2-targeted Therapy (`drug_classes.csv`의 `drug_class`, C와 합의 2026-11-02. C는 이 세 계열을 청크 `drugs`로 풀지 않는다). `ET`·`ChT`는 대소문자까지 맞는 단어만 | 후보를 지움 |
 | 4 | 약에 필요한 바이오마커가 `not_done`·`not_recorded`·`unknown`·`retest_needed` (필요한 마커 중 양성이 하나도 없을 때) | 후보 대신 `tests_needed`에 "<마커> 검사 결과 확인" (`blocks_therapy`에 치료 이름) |
@@ -44,10 +45,13 @@
 | 5 | 급여 조건을 모두 확인하지 못함, 또는 판정기를 넘기지 않음 | `covered_conditions_unverified` |
 | 6 | 지침 청크가 하나도 없음 | 추천을 만들지 않고 `out_of_scope` |
 | 7 | `drugs`·`evidence`가 비어 옴 (2번 뒤, 3번 전) | `drugs`는 요법 이름에 적힌 약 (공용 약 사전의 일반명·별칭으로 찾음, 청크에 없는 약은 3번이 거름, D 확인 2026-11-04), `evidence`는 인용한 지침 청크의 LoE·GoR로 채움 (A 전달 2026-11-02 §6 4번). 요법 이름에 계열 이름(AI, ET, CDK4/6, taxane 등)이 있으면 `drugs`를 비워 두고 `conflicts`에 "약을 정하지 못함, 의사 확인 필요" (A 전달 2026-11-03 §2 3번). 다만 LHRH 작용제(LHRH·GnRH agonist, OFS, ovarian suppression)는 급여 행에 맞춰 goserelin·leuprolide로 펼친다 (둘 중 하나라는 뜻, D 요청 2026-11-04). LHRH 묶음은 급여 행과 맞출 때 둘 중 하나만 있어도 맞는 행으로 본다. AI·CDK4/6 등 다른 계열은 펼치지 않는다 (D 취소 2026-11-04) |
+| 끝 | 조기 결정 단계: 선행(수술 전) 결정에 수술 뒤에만 쓰는 약(abemaciclib, ribociclib, olaparib)이나 연장 내분비요법, ESMO 고위험이 아닌데(`high_risk_early.esmo` no) abemaciclib | 후보를 지움 (A 공유 2026-11-05 B-11) |
 | 끝 | 약이 같은(약이 없으면 이름이 같은) 주 후보 | 하나로 합치고 근거를 모음 (A 공유 2026-11-05 B-4) |
 | 8 | 골 보호제(`drug_classes.csv`의 Bone-modifying Agent: denosumab, zoledronic acid, pamidronate, ibandronate, clodronate, 약이 없으면 요법 이름의 bisphosphonate·BMA 등) | 주 후보 `options`에서 `supportive_options`(함께 처방할 보조 약물)로 옮김. 1~5·7번 검사를 보조 칸에도 똑같이 하고, 보조 칸의 골 보호제가 아닌 후보는 지움. 선행요법 결정(조기)이면 골 보호제를 내지 않음. 뼈 전이 환자에게 뼈 전이 청크(`site-bone`)가 왔는데 LLM이 빠뜨리면 급여 여부가 아니라 지침 근거로 채움: 청크 본문에 이름이 나오는 약(ESMO MBC는 zoledronic acid, denosumab)은 약마다 한 줄, C가 "bisphosphonates"를 계열 사전으로 풀어 넣은 나머지 약은 "bisphosphonates 계열" 한 줄(그중 하나). 정해진 문장에 청크 ID만, 급여는 5번 규칙이 판정 (A 의견, C 확인 2026-11-04) (팀 안건 A `src/input/team_agenda_A_2026-11-04.md`, 2026-11-04). 보조 칸 골 보호제는 조건에 `bone_metastasis` 항목이 있는 뼈 전이 골 보호 행(supp-zoledronic-b, supp-denosumab-1)만 쓰고 고칼슘혈증 행(supp-zoledronic-a)은 쓰지 않음 (D 확인 2026-11-05, B-7) |
 
 청크 `drugs`는 "본문에 나온 약"이라 금기로 언급된 약도 들어 있다 (예: 동반질환으로 CDK4/6을 못 쓸 때의 권고에 CDK4/6 약 3개). 3번 규칙은 약이 인용한 청크에 나오는지만 보는 환각 검사라 권하는 약인지는 가리지 않는다. 참고란은 이런 청크를 근거 ID로만 붙인다.
+
+**질문지의 환자 요약 (A 공유 2026-11-05 B-8·B-9·B-11):** `phase`(수술 전후, 의사 확정값 `setting.phase`), `high_risk_early`, `deemed_lines_met`(충족한 차수 간주 규칙), `positive_markers`를 넣고, 지시문 7번에 선행 결정에서 수술 뒤 약 금지, 저위험이면 abemaciclib 금지, `DEEM-HER2ADC-6M`이면 방금 쓴 항HER2 요법 대신 다음 차수 권고 먼저, 양성 바이오마커의 표적 약을 빠뜨리지 않기를 적었다.
 
 **다시 묻기와 기록 (A 공유 2026-11-05 B-1·B-2):** LLM이 낸 주 후보가 후처리에서 모두 지워지면, 무엇이 빠졌는지와 쓸 수 있는 지침 청크 ID를 알려 주고 한 번만 다시 묻는다. 다시 온 답도 같은 후처리를 거친다. LLM 답 원문은 실제 환자로 보고 남기지 않는다 (사용자 결정 2026-11-05). 대신 로그에 숫자만 적는다: 주 후보 수, citations 칸이 빈 후보, 근거 문장에 [ID]가 없는 후보, 받은 지침 청크 ID를 하나도 인용하지 않은 후보. LLM 답 양식은 지침 근거(citations) 1개 이상을 남긴다 (Ollama가 양식대로 쓰게 해서, 이 규칙을 빼자 근거 없는 답이 늘었음).
 
