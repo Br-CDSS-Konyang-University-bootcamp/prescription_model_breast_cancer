@@ -239,6 +239,21 @@ def _classify(option, reimb_by_id, today, conditions_checker):
         if cls == "offlabel_approved" and any(c.get("source") == "HIRA-offlabel" for c in valid):
             option["copay"] = next(c for c in valid if c.get("source") == "HIRA-offlabel")["reimbursement"].get("copay")
             return changes
+        # 계열 이름(ChT·ET·항HER2) 후보는 그 계열 약으로만 된 시행 중인 급여 행을 붙이고 '급여(약 확인 필요)'로 둔다.
+        # 계열 안의 요법(AC, TC, AC→T 등)마다 급여 조건이 달라 '급여 기준 없음'은 틀린 말이다 (D 의견 2026-11-05 B-12, VC-0118)
+        therapy = option.get("therapy") or ""
+        named = [k for k, rx in CLASS_TERMS.items() if rx.search(therapy)]
+        cited_ids = {c["chunk_id"] for c in valid}
+        class_rows = [c for c in reimb_by_id.values()
+                      if c["chunk_id"] not in cited_ids and _valid_reimb(c, today) and c.get("source") != "HIRA-offlabel"
+                      and c.get("drugs") and any(all(k in _drug_classes().get(d.lower(), set()) for d in c["drugs"])
+                                                 for k in named)]
+        if class_rows:
+            valid = valid + class_rows
+            option["reimbursement_citations"] = [c["chunk_id"] for c in valid]
+            option.update(reimbursement="covered_conditions_unverified",
+                          reimbursement_reason="계열 안의 요법마다 급여 조건이 다름, 요법을 정한 뒤 확인 필요")
+            return changes + [f"계열 이름 후보라 그 계열 급여 행 {len(class_rows)}개를 붙이고 급여(약 확인 필요)로 둠"]
         if cls in COVERED_CLASSES and valid:
             option.update(reimbursement="covered_conditions_unverified",
                           reimbursement_reason="후보 약을 정하지 못해 급여 조건을 판정하지 않음, 의사 확인")
@@ -323,11 +338,23 @@ def _bma_drugs():
 
 
 def _is_supportive(option):
-    """골 보호제만으로 된 후보인지. 약이 있으면 모두 골 보호제, 약이 없으면 요법 이름에 골 보호제 말이 있을 때."""
+    """골 보호제만으로 된 후보인지. 약이 있으면 모두 골 보호제, 약이 없으면 요법 이름에 골 보호제 말이 있을 때.
+    요법 이름에 골 보호제가 아닌 계열 이름(ET 등)이나 약 이름이 섞이면 골 보호제만으로 된 후보가 아니다
+    (A 공유 2026-11-05 B-10, 보조 칸에 "ET + bisphosphonate"가 섞임)."""
     drugs = [d.lower() for d in option.get("drugs") or []]
-    if drugs:
-        return all(d in _bma_drugs() for d in drugs)
-    return bool(BMA_TERM_RE.search(option.get("therapy") or ""))
+    if drugs and not all(d in _bma_drugs() for d in drugs):
+        return False
+    therapy = option.get("therapy") or ""
+    rest = BMA_TERM_RE.sub(" ", therapy)
+    if CLASS_NAME_RE.search(rest) or any(rx.search(rest.lower()) and g not in _bma_drugs() for rx, g in _name_patterns()):
+        return False
+    return bool(drugs) or bool(BMA_TERM_RE.search(therapy))
+
+
+# 8번 뒤: 조기 유방암에서 수술 뒤에만 쓰는 약 (보조요법 근거만 있음: abemaciclib monarchE, ribociclib NATALEE, olaparib OlympiA)
+# 선행(수술 전) 결정에는 내지 않는다 (A 공유 2026-11-05 B-11, VC-0121)
+POST_SURGERY_ONLY = {"abemaciclib", "ribociclib", "olaparib"}
+EXTENDED_ET_RE = re.compile(r"[Ee]xtended|연장")
 
 
 def _bone_supportive(guide_by_id, done):
@@ -360,10 +387,11 @@ def _bone_supportive(guide_by_id, done):
 
 
 def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursement_chunks, today=None,
-                conditions_checker=None, phase=None, bone_metastasis=False):
+                conditions_checker=None, phase=None, bone_metastasis=False, high_risk_early=None):
     """추천 결과를 고쳐서 돌려준다. (고친 결과, 로그 목록). 받은 값은 바꾸지 않는다.
     conditions_checker(option, 급여 청크 목록) -> {status, reason}: 급여 조건 판정 (conditions_eval.make_conditions_checker).
-    phase(neoadjuvant / adjuvant / None)·bone_metastasis(bool)는 8번 보조 약물 규칙에 쓴다."""
+    phase(neoadjuvant / adjuvant / None)·bone_metastasis(bool)는 8번 보조 약물 규칙에, phase·high_risk_early
+    (confirmed_state의 {hira, esmo})는 조기 결정 단계 규칙에 쓴다."""
     today = today or date.today()
     rec = {**recommendation, "options": [dict(o) for o in recommendation.get("options") or []],
            "supportive_options": [dict(o) for o in recommendation.get("supportive_options") or []],
@@ -431,11 +459,37 @@ def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursemen
             log.append(f"{name}: {unresolved}")
         # 3번 앞: 인용한 지침 청크에 후보 약이 없지만 넘겨받은 다른 지침 청크에 그 약이 있으면, 그 청크(관련도 순서로 첫 것)를
         # 근거에 더한다 (A 공유 2026-11-05 B-5, VC-0127 sacituzumab). 지어낸 근거가 아니라 받은 청크에 약이 있음을 확인하는 것
+        added_for_drug = []
         for d in [d for d in o.get("drugs") or [] if not _drug_in_chunks(d, [guide_by_id[i] for i in cites])]:
             other = next((c["chunk_id"] for c in guideline_chunks if c["chunk_id"] not in cites and _drug_in_chunks(d, [c])), None)
             if other:
                 cites.append(other)
+                added_for_drug.append(other)
                 log.append(f"{name}: 인용한 청크에 {d}가 없어 그 약이 든 받은 청크를 근거에 더함 ({other})")
+        # 3번 앞: 후보 약과 상관없는 인용은 뺀다 (A 공유 2026-11-05 B-10, B-5의 반대 방향). 약이 든 다른 인용이 남을 때만.
+        # 약이 있는 후보: 청크 drugs가 있는데 후보 약이 하나도 안 나오는 청크. 골 보호제가 아닌 후보: 골 보호제만 다루는 청크
+        def unrelated(cid):
+            c = guide_by_id[cid]
+            chunk_drugs = [x.lower() for x in c.get("drugs") or []]
+            if not chunk_drugs:
+                return False
+            if not _is_supportive(o) and all(x in _bma_drugs() for x in chunk_drugs):
+                return True
+            return bool(o.get("drugs")) and not any(_drug_in_chunks(d, [c]) for d in o["drugs"])
+        keep = [i for i in cites if not unrelated(i)]
+        if keep and len(keep) < len(cites):
+            dropped_ids = [i for i in cites if i not in keep]
+            log.append(f"{name}: 후보 약과 상관없는 인용 뺌 {dropped_ids}")
+            cites = keep
+            if added_for_drug:   # 바로 위에서 약이 든 청크를 더했으면, 뺀 인용을 문장 안에서 그 청크로 바꾼다
+                o["rationale"] = _CITE_RE.sub(lambda m: f"[{added_for_drug[0]}]" if m.group(1) in dropped_ids
+                                              else m.group(0), o["rationale"])
+            o["rationale"], _, gone = _keep_cited_sentences(o["rationale"], set(keep) | set(reimb_by_id))
+            if gone:
+                log.append(f"{name}: 뺀 인용만 있던 문장 {gone}개 삭제")
+            if not o["rationale"]:
+                log.append(f"후보 삭제: {name} (상관없는 인용을 빼자 근거 문장이 남지 않음)")
+                return False
         o["citations"] = cites
         cited = [guide_by_id[i] for i in cites]
         if o.get("_groups"):   # 펼친 묶음은 인용 청크에 있는 약만 남기고, 묶음마다 하나 이상 있어야 한다
@@ -466,6 +520,23 @@ def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursemen
                 support.append(o)
             else:
                 main.append(o)
+    # 조기 결정 단계 (A 공유 2026-11-05 B-11): 선행(수술 전) 결정에는 수술 뒤에만 쓰는 약·연장 내분비요법을 내지 않고,
+    # ESMO 기준 고위험이 아니면(high_risk_early.esmo = no) abemaciclib 보조요법을 내지 않는다
+    if disease != "metastatic":
+        kept_main = []
+        esmo_risk = (high_risk_early or {}).get("esmo") if isinstance(high_risk_early, dict) else None
+        for o in main:
+            drugs = {d.lower() for d in o.get("drugs") or []}
+            why = None
+            if phase == "neoadjuvant" and (drugs & POST_SURGERY_ONLY or EXTENDED_ET_RE.search(o.get("therapy") or "")):
+                why = "선행요법 결정이라 수술 뒤에 쓰는 약은 해당 없음"
+            elif esmo_risk == "no" and "abemaciclib" in drugs:
+                why = "고위험 조기 유방암이 아니라 abemaciclib 보조요법 해당 없음"
+            if why:
+                log.append(f"후보 삭제: {o.get('therapy')} ({why})")
+            else:
+                kept_main.append(o)
+        main = kept_main
     # 같은 요법(약이 같거나, 약이 없으면 이름이 같은 후보)은 하나로 합치고 근거는 모은다 (A 공유 2026-11-05 B-4)
     merged = []
     for o in main:

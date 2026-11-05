@@ -84,7 +84,8 @@ def recommend(patient_state, biomarker_record, guideline_chunks, reimbursement_c
     # 행까지 버리면 맞는 행이 있어도 '급여 기준 없음'이 된다 (D 확인 2026-11-04, VC-0101 fulvestrant 단독의 r06)
     all_reimbursement = list(reimbursement_chunks or [])
     prompt, guideline_chunks, _, log = fit_prompt(
-        patient_state, biomarker_record, guideline_chunks, reimbursement_chunks, getattr(llm, "prompt_budget", None))
+        patient_state, biomarker_record, guideline_chunks, reimbursement_chunks, getattr(llm, "prompt_budget", None),
+        confirmed_state)
     reimbursement_chunks = all_reimbursement
     phase, bone = _phase_and_bone(patient_state, biomarker_record, confirmed_state)
     guide_ids = [c["chunk_id"] for c in guideline_chunks]
@@ -105,7 +106,8 @@ def recommend(patient_state, biomarker_record, guideline_chunks, reimbursement_c
             log.append("LLM이 후보를 내지 않음 (out_of_scope도 false)")   # A 전달 §5.3 VC-0126
         log.append(_answer_counts(rec["options"], set(guide_ids)))
         out, post_log = postprocess(rec, biomarker_record, guideline_chunks, reimbursement_chunks, today,
-                                    conditions_checker, phase=phase, bone_metastasis=bone)
+                                    conditions_checker, phase=phase, bone_metastasis=bone,
+                                    high_risk_early=_confirmed(confirmed_state, "high_risk_early"))
         log.extend(post_log)
         return out, len(rec["options"])
 

@@ -25,6 +25,12 @@ INSTRUCTIONS = """너는 유방암 처방 후보를 정리하는 도우미다. �
 6. [지침 청크]에 이 환자에게 맞는 요법이 여러 개 있으면 요법마다 후보를 하나씩 쓴다 (최대 5개). 같은 요법을 두 번 쓰지 않는다.
    drugs에는 그 요법의 약 일반명을 모두 쓰고, evidence에는 인용한 지침 청크의 LoE·GoR를 그대로 쓴다.
 7. [환자]의 disease·line에 맞는 치료만 쓴다. 예: metastatic 환자에게 수술전·수술후보조요법을 쓰지 않는다.
+   - phase가 neoadjuvant(수술 전 결정)이면 수술 뒤에 쓰는 약(abemaciclib·ribociclib·olaparib 보조요법, 연장 내분비요법,
+     bisphosphonate)을 쓰지 않는다. high_risk_early의 esmo가 no면 abemaciclib 보조요법을 쓰지 않는다.
+   - deemed_lines_met에 DEEM-HER2ADC-6M이 있으면 보조 항HER2 치료가 끝나고 6개월 안에 재발한 것이다. 방금 쓴 항HER2 요법
+     (trastuzumab + pertuzumab + taxane)을 첫 후보로 쓰지 말고, [지침 청크]에 있는 다음 차수 권고(예: T-DXd)를 먼저 쓴다.
+   - positive_markers에 있는 바이오마커(예: gBRCA1·gBRCA2 → PARP 억제제, PIK3CA → PI3K/AKT 억제제)에 맞는 표적 약이
+     [지침 청크]에 있으면 그 약을 후보로 빠뜨리지 않는다.
 8. 골 보호제(denosumab, zoledronic acid, pamidronate, ibandronate, clodronate, bisphosphonate)는 options에 넣지 않고
    supportive_options(함께 처방할 보조 약물)에만 쓴다. 뼈 전이 환자의 골 보호제 권고나 수술 후 보조요법 단계의 bisphosphonate 권고가
    [지침 청크]에 있으면 주 처방과 상관없이 supportive_options에 쓴다. 수술 전(선행요법) 결정에는 쓰지 않는다.
@@ -46,11 +52,34 @@ def _value(field):
     return field.get("value") if field.get("status") == "present" else field.get("status")
 
 
-def patient_summary(patient_state, biomarker_record):
-    """프롬프트에 넣을 환자 요약 (구조화 값만, 원문 인용 없음)."""
+def _confirmed(confirmed_state, key):
+    item = ((confirmed_state or {}).get("items") or {}).get(key)
+    return item.get("confirmed") if isinstance(item, dict) else None
+
+
+def _deemed_met(patient_state, confirmed_state):
+    """충족한 심평원 차수 간주 규칙 ID. 의사 확정값을 먼저 보고, 없으면 patient_state."""
+    conf = _confirmed(confirmed_state, "deemed_lines")
+    if isinstance(conf, dict):
+        return [k for k, v in conf.items() if v == "met"]
+    rows = ((patient_state or {}).get("fields") or {}).get("deemed_lines") or []
+    return [d.get("rule_id") for d in rows if d.get("status") == "met"]
+
+
+def patient_summary(patient_state, biomarker_record, confirmed_state=None):
+    """프롬프트에 넣을 환자 요약 (구조화 값만, 원문 인용 없음).
+    phase·high_risk_early·deemed_lines_met은 A 공유 2026-11-05 B-8·B-11 (LLM이 수술 전후와 위험도, 조기 재발을 몰랐음)."""
     f = (patient_state or {}).get("fields") or {}
     setting = biomarker_record.get("setting") or {}
+    phase = _confirmed(confirmed_state, "setting.phase")
+    if phase not in ("neoadjuvant", "adjuvant"):
+        phase = setting.get("line") if setting.get("line") in ("neoadjuvant", "adjuvant") else None
     return {
+        "phase": phase,
+        "high_risk_early": _confirmed(confirmed_state, "high_risk_early"),
+        "deemed_lines_met": _deemed_met(patient_state, confirmed_state),
+        "positive_markers": [r["marker"] for r in biomarker_record.get("records") or []
+                             if r.get("status") in ("positive", "low", "ultralow")],
         "subtype": biomarker_record.get("subtype"),
         "disease": setting.get("disease"),
         "line": setting.get("line"),
@@ -90,14 +119,14 @@ def _parent_blocks(chunks):
     return out
 
 
-def build_prompt(patient_state, biomarker_record, guideline_chunks, reimbursement_chunks):
+def build_prompt(patient_state, biomarker_record, guideline_chunks, reimbursement_chunks, confirmed_state=None):
     """LLM에 넘길 글 한 덩어리."""
     records = [{"marker": r["marker"], "status": r["status"], "reason": r["reason"]}
                for r in biomarker_record.get("records") or []]
     parents = _parent_blocks(guideline_chunks)
     parts = [
         INSTRUCTIONS,
-        "[환자]\n" + json.dumps(patient_summary(patient_state, biomarker_record), ensure_ascii=False),
+        "[환자]\n" + json.dumps(patient_summary(patient_state, biomarker_record, confirmed_state), ensure_ascii=False),
         "[바이오마커]\n" + json.dumps(records, ensure_ascii=False),
         "[검사 공백]\n" + json.dumps(biomarker_record.get("tests_needed") or [], ensure_ascii=False),
         "[지침 청크]\n" + ("\n\n".join(_chunk_block(c) for c in guideline_chunks) or "(없음)"),
@@ -122,12 +151,12 @@ def estimate_tokens(text):
     return wide + (len(text or "") - wide + 2) // 3
 
 
-def fit_prompt(patient_state, biomarker_record, guideline_chunks, reimbursement_chunks, budget=None):
+def fit_prompt(patient_state, biomarker_record, guideline_chunks, reimbursement_chunks, budget=None, confirmed_state=None):
     """질문지가 budget(토큰) 안에 들도록 뒤쪽 청크부터 뺀다 (A 전달 §6 2번, 잘린 채로 조용히 돌지 않게).
     급여 청크를 뒤에서부터 먼저 빼고, 그래도 넘으면 지침 청크를 뒤에서부터 뺀다 (지침 청크는 1개는 남긴다).
     돌려주는 것: (질문지, 넣은 지침 청크, 넣은 급여 청크, 로그). budget이 없으면 자르지 않는다."""
     guide, reimb = list(guideline_chunks or []), list(reimbursement_chunks or [])
-    prompt = build_prompt(patient_state, biomarker_record, guide, reimb)
+    prompt = build_prompt(patient_state, biomarker_record, guide, reimb, confirmed_state)
     log = []
     if not budget:
         return prompt, guide, reimb, log
@@ -135,7 +164,7 @@ def fit_prompt(patient_state, biomarker_record, guideline_chunks, reimbursement_
     dropped = []
     while estimate_tokens(prompt) > limit and (reimb or len(guide) > 1):
         dropped.append((reimb or guide).pop()["chunk_id"])
-        prompt = build_prompt(patient_state, biomarker_record, guide, reimb)
+        prompt = build_prompt(patient_state, biomarker_record, guide, reimb, confirmed_state)
     if dropped:
         log.append(f"질문지 길이 제한({budget}토큰)으로 청크 {len(dropped)}개 뺌: {', '.join(reversed(dropped))}")
     if estimate_tokens(prompt) > limit:
