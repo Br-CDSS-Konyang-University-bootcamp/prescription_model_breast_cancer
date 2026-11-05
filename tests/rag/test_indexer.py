@@ -506,6 +506,8 @@ def test_rules_never_penalize_a_virtual_chart_answer():
                        + s._early_adjust(t, a.get("neoadjuvant_received"), a.get("ici_received"), a.get("pcr"))
                        + s._er_adjust(t, a.get("subtype"))
                        + s._targetable_adjust(t, a.get("biomarker_tags")) + s._third_line_adjust(t, a.get("line"))
+                       + s._phase_adjust(t, a.get("line")) + s._high_risk_adjust(t, a.get("high_risk_early"))
+                       + s._marker_scope_adjust(t, a.get("biomarker_tags")) + s._dfi_adjust(t, a.get("stage_at_diagnosis"))
                        + (1.0 if a.get("her2_adjuvant_relapse") == "no" and s.HER2_EARLY_RELAPSE.search(t.split(" Footnotes: ")[0]) else 0.0))
             if penalty:
                 bad.append((path.parts[-3], cid))
@@ -555,3 +557,31 @@ def test_targetable_and_third_line_rules():
     assert s._third_line_adjust(third, ">=3L") == 0.0
     assert s._third_line_adjust("For gBRCA wild type mTNBC: all ChT recommendations", "2L") == 0.0
     assert s._third_line_adjust("Figure 3. (algorithm path): PIK3CA → capivasertib → [PD] → Third-line treatment", "2L") == 0.0
+
+
+def test_rules_reach_the_chunks_run_flow_flagged():
+    # A run_flow 2026-11-05 C-5·C-6·B-11: 각 사례에서 '나오면 안 됨'으로 인용된 청크가 새 규칙으로 감점되는지 (실제 확정값으로)
+    import json, sys, types
+    from pathlib import Path
+    sys.modules.setdefault("sentence_transformers", types.SimpleNamespace(SentenceTransformer=None, CrossEncoder=None))
+    from src.rag.chunk_store import load_guideline_chunks
+    from src.rag.query import search_args
+    from src.rag.retrieve import from_confirmed_state
+    from src.rag import searcher as s
+    text = {c["chunk_id"]: c["text"] for c in load_guideline_chunks()}
+    base = Path(__file__).resolve().parents[2] / "tests" / "fixtures" / "virtual_charts"
+
+    def penalty(case, short):
+        state = json.loads((base / case / "expected" / "confirmed_state.json").read_text(encoding="utf-8"))
+        record, patient, _ = from_confirmed_state(state)
+        a = search_args(record, **patient)
+        t = next(v for k, v in text.items() if k.endswith(short))
+        return (s._phase_adjust(t, a.get("line")) + s._high_risk_adjust(t, a.get("high_risk_early"))
+                + s._marker_scope_adjust(t, a.get("biomarker_tags")) + s._dfi_adjust(t, a.get("stage_at_diagnosis"))
+                + s._prior_chemo_adjust(t, a.get("prior_metastatic_chemo")))
+
+    flagged = [("VC-0124", "hrpos-fca2a7"), ("VC-0121", "hrpos-fca2a7"), ("VC-0121", "hrpos-7568e8"),
+               ("VC-0107", "hrpos-1f97a2"), ("VC-0107", "hrpos-cca75c"), ("VC-0104", "tnbc-1l-a2bd8f"),
+               ("VC-0104", "tnbc-1l-2d012a"), ("VC-0116", "tnbc-1l-a2bd8f"), ("VC-0116", "tnbc-1l-2d012a"),
+               ("VC-0113", "luminal-3l-ae383b"), ("VC-0125", "luminal-3l-ae383b"), ("VC-0114", "luminal-3l-ae383b")]
+    assert [f for f in flagged if not penalty(*f)] == []
