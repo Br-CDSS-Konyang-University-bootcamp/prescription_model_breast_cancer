@@ -24,7 +24,7 @@ class NonLocalLLMError(RuntimeError):
 
 
 def _lenient(prop):
-    """후보 목록 칸에서 후보 하나의 규칙(인용 1개 이상, 급여 분류가 있으면 급여 인용 1개 이상)을 뺀다.
+    """후보 목록 칸에서 후보 하나의 급여 규칙(급여 분류가 있으면 급여 인용 1개 이상)을 뺀다.
     LLM 답은 이 양식으로 검사해 맞지 않으면 답 전체를 버리는데, 후보 하나의 빈칸 때문에 후보가 모두 사라졌다
     (A 전달 handoff_recommend_options_to_B_2026-11-03.md §5.3, VC-0110·0114·0116). 그 규칙은 후처리가 고치고
     (인용 없는 후보는 지우고, 급여 인용이 비면 약이 맞는 행을 붙이거나 급여 기준 없음), 최종 결과는 validate.py가
@@ -32,8 +32,11 @@ def _lenient(prop):
     prop = copy.deepcopy(prop)
     items = prop.get("items") or {}
     items.pop("allOf", None)
-    for v in (items.get("properties") or {}).values():
-        v.pop("minItems", None)
+    # citations(지침 근거) 1개 이상은 남긴다. Ollama는 이 양식대로만 글을 쓰게 하므로, 이 규칙을 빼자 모델이 근거 없이
+    # 답해 후처리가 후보를 모두 지웠다 (A 공유 2026-11-05 B-1, VC-0107·0108·0112·0119·0131·0142)
+    for name, v in (items.get("properties") or {}).items():
+        if name != "citations":
+            v.pop("minItems", None)
     return prop
 
 
