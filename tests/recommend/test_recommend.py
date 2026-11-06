@@ -91,8 +91,18 @@ def test_uncited_sentence_removed():
 
 
 def test_option_without_citation_removed():
-    rec, log = run([opt(rationale="근거 없이 권고한다.", citations=[])], bm(PIK3CA="positive"))
+    # 받은 지침 청크 어디에도 없는 약이면 지운다
+    rec, log = run([opt(therapy="olaparib", drugs=["olaparib"], rationale="근거 없이 권고한다.", citations=[])],
+                   bm(PIK3CA="positive"), guide=[G1])
     assert rec["options"] == [] and any("후보 삭제" in x for x in log)
+
+
+def test_option_without_citation_kept_with_fixed_sentence_when_drug_in_chunk():
+    """A 공유 2026-11-05 §7 B-13: 약이 받은 지침 청크에 있으면 지우지 않고, LLM의 근거 없는 문장 대신 정해진 문장을 쓴다."""
+    rec, log = run([opt(rationale="근거 없이 권고한다.", citations=[])], bm(PIK3CA="positive"))
+    o = rec["options"][0]
+    assert o["citations"] == ["g-capi"] and o["rationale"] == "이 요법의 약이 지침 권고에 있다 [g-capi]."
+    assert "근거 없이" not in o["rationale"] and any("정해진 문장" in x for x in log)
 
 
 def test_drug_not_in_cited_chunk_removed():
