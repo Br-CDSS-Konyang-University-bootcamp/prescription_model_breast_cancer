@@ -1014,7 +1014,8 @@ def assemble(docs: list[Document], candidates: list[dict], *, patient_ref: str, 
     rows.sort(key=lambda r: (r[3]["start_day"] is None, r[3]["start_day"] or 0))
     history = [{**out, "source": src} for _, _, src, out in rows]
     images = [{**out, "source": src} for c, _, src, out in items if c["field"] == "imaging_findings"]
-    _fill_treatment(history, fields, images)
+    for i in _fill_treatment(history, fields, images):
+        issues.append({"reason": "needs_review", "candidate": rows[i][0], "note": NO_SURGERY_NEO})
     anthra = []
     for (c, doc, src, out) in rows:
         a = normalize("anthracycline_drug_dose.drugs", src["quote"], Context.of(doc, src["char_start"], dx))
@@ -1190,22 +1191,35 @@ def _day_of(fields: dict, path: str) -> int | None:
     return (dt.date.fromisoformat(cur["observed_date"]) - dt.date.fromisoformat(dx)).days
 
 
+NO_SURGERY_NEO = ("투약 단계 확인: 투약 줄에 선행·보조 표시가 없고 수술 병리(pTNM·ypTNM)가 없어 선행요법으로 봄. "
+                  "다른 병원 수술 등으로 병리 보고서가 빠졌다면 보조요법으로 고칠 것")
 PROGRESSION_IMAGE = re.compile(r"진행|PD|새로|증가|악화|progress|new|increas", re.I)
 
 
-def _fill_treatment(history: list[dict], fields: dict, images: list[dict] = ()) -> None:
+def _fill_treatment(history: list[dict], fields: dict, images: list[dict] = ()) -> list[int]:
+    """단계·진행일을 채운다. 반환값: 수술 병리가 없어 선행요법으로 본 투약의 순번 (확인 사유 NO_SURGERY_NEO)."""
     mday = _value(fields, "recurrence.metastasis_day")
     # 진행을 보인 영상의 날 (정답은 영상으로 진행을 확인한 날, 6단계 2026-10-27)
     scans = [i["day"] for i in images if i.get("day") is not None and PROGRESSION_IMAGE.search(i["source"]["quote"])]
     surgery = _day_of(fields, "stage.yptnm") or _day_of(fields, "stage.ptnm")
+    # 수술 날짜를 몰라도 병리 TNM이 있으면 수술은 했다 (날짜 없는 pTNM은 예전처럼 보조로 본다)
+    operated = any(_value(fields, f"stage.{k}") for k in ("yptnm", "ptnm"))
     events = [d for d in (_value(fields, "recurrence.recurrence_day"), mday) if d is not None]
-    for t in history:
+    rday = min(events) if events else None   # 첫 재발일 (국소·원격). 진단 시 IV기는 위 metastatic에서 먼저 걸린다
+    guessed = []
+    for i, t in enumerate(history):
         s, e = t["start_day"], t["end_day"]
         if t["setting"] is None:
             if mday is not None and s is not None and s >= mday:
                 t["setting"] = "metastatic"
             elif surgery is not None and s is not None and s < surgery:
                 t["setting"] = "neoadjuvant"
+            elif rday is not None and s is not None and s < rday:
+                t["setting"] = "adjuvant"   # 재발했으면 원발암 치료는 끝났다: 재발 전 투약은 수술 병리가 없어도 보조 (2026-11-06)
+            elif not operated:
+                # 수술 병리가 없으면 아직 수술 전 = 선행요법 (화면 1 setting.phase와 같은 규칙, 2026-11-06)
+                t["setting"] = "neoadjuvant"
+                guessed.append(i)
             else:
                 t["setting"] = "adjuvant"
         prog = None
@@ -1220,6 +1234,7 @@ def _fill_treatment(history: list[dict], fields: dict, images: list[dict] = ()) 
         ordered = {k: t[k] for k in keys if k in t}
         t.clear()
         t.update(ordered)
+    return guessed
 
 
 def _endocrine_end_from_rows(fields: dict, history: list[dict]) -> None:
