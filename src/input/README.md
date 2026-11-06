@@ -17,6 +17,7 @@
 - [virtual_patient_cases.md](virtual_patient_cases.md): 가상 환자 사례 목록 (개발·시험·보류·표현 변형 세트, 사례별 기대 결과)
 - [line_rules.md](line_rules.md): ESMO 처방 기준 차수와 심평원 급여 투여단계 규칙 명세 (차수 코드 재작성 기준, 열린 결정 4개)
 - [proposal_remove_overall_line_2026-11-06.md](proposal_remove_overall_line_2026-11-06.md): 전이 후 전체 차수 `line` 삭제 제안 (내분비·항암 차수만 쓰기, 4명 검토)
+- [handoff_locoregional_rule_to_B_2026-11-06.md](handoff_locoregional_rule_to_B_2026-11-06.md): 국소 재발 후 치료 단계 규칙(SET-LOCAL-ADJ) 설계안. 선행·보조·고식 판정을 구간 표 하나로 (B 검토)
 - [team_report_run_flow_2026-11-05.md](team_report_run_flow_2026-11-05.md): **46건 재실행 결과와 조원별 할 일** (2026-11-05, 지금 상태)
 - B·C·D 전달: [handoff_to_B.md](handoff_to_B.md) (JSON 구조, BM-2 판정 조건, BM-3 출처, 치료 상황 규칙), [handoff_confirmed_state_to_B.md](handoff_confirmed_state_to_B.md) (confirmed_state 연결), [draft7_checklist_BCD_2026-10-28.md](draft7_checklist_BCD_2026-10-28.md) (draft7 후보 칸 확인 체크리스트, §5 4명 결정 남음)
 - 해결되어 지운 문서 (2026-11-05): `integration_status_2026-10-29.md`, `handoff_recommend_prompt_to_B_2026-11-02.md`, `handoff_recommend_options_to_B_2026-11-03.md`, `team_agenda_A_2026-11-04.md`. 다른 코드·문서의 주석이 이 이름을 가리키면 `git show 4c27c45:src/input/<파일 이름>`으로 볼 수 있다
