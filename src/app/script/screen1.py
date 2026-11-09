@@ -49,7 +49,8 @@ HR_POS = ("HR+/HER2-", "HR+/HER2+")
 HER2_NEG = ("HR+/HER2-", "TNBC")
 MET = "metastatic"
 # 오른쪽 칸 목록 (순서대로 보인다). (칸, 묶음 rule/judge/report, 적용 조건, 해당 없음 이유, 필수 여부)
-# 적용 조건은 x = {"sub": 아형, "dis": 병기 범주, "phase": 치료 단계, "prior": 이전 요법 있음, "er": ER 판정}을 받는다. None = 항상
+# 적용 조건은 x = {"sub": 아형, "dis": 병기 범주, "phase": 치료 단계, "prior": 이전 요법 있음, "er": ER 판정,
+# "rec": 재발 유형 시스템 값}을 받는다. None = 항상
 ROWS = [
     ("subtype", "rule", None, "", True),
     ("markers.ER", "rule", None, "", True),
@@ -65,7 +66,9 @@ ROWS = [
      "HR+/HER2- 보조요법에서만 판정 (보조 abemaciclib)", True),
     ("setting.line_endocrine", "rule", lambda x: x["dis"] == MET, "전이성에서만", True),
     ("setting.line_chemo", "rule", lambda x: x["dis"] == MET, "전이성에서만", True),
-    ("recurrence_type", "rule", lambda x: x["dis"] == MET, "전이성에서만", False),
+    # 국소 재발도 재발 부위 수술(완치 목적 여부)을 확인한다 (공고 p.48 수술후보조)
+    ("recurrence_type", "rule", lambda x: x["dis"] == MET or str(x["rec"]).startswith("locoregional"),
+     "전이성·국소 재발에서만", False),
     ("endocrine_relapse_12m", "rule", lambda x: x["dis"] == MET and x["sub"] in HR_POS, "전이성 HR+에서만", True),
     ("dfi_days", "rule", lambda x: x["dis"] == MET and x["sub"] == "TNBC", "전이성 TNBC에서만", True),
     ("deemed_lines", "rule", lambda x: x["dis"] == MET, "전이성에서만", False),
@@ -197,7 +200,9 @@ def rows(items: dict) -> list[dict]:
     """지금 확정값으로 본 칸 목록. 맞지 않는 칸도 빼지 않고 applies=False와 이유를 단다."""
     x = {"sub": _confirmed(items, "subtype"), "dis": _confirmed(items, "setting.disease"),
          "phase": _confirmed(items, "setting.phase"), "prior": bool(_confirmed(items, "prior_regimens")),
-         "er": _confirmed(items, "markers.ER")}
+         "er": _confirmed(items, "markers.ER"),
+         # 시스템 값으로 본다: 의사가 고친 확정값으로 보면 칸이 잠겨 되돌릴 수 없다
+         "rec": (c.items_get(items, "recurrence_type") or {}).get("system")}
     schema_req = set(c.required_items(items))
     out = []
     for key, group, when, why, req in ROWS:

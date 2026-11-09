@@ -236,6 +236,35 @@ def test_unmarked_drug_without_surgery_is_neoadjuvant():
     assert (row["setting"], after["setting"]) == ("adjuvant", "metastatic")
 
 
+def test_locoregional_recurrence_surgery_splits_settings():
+    """국소 재발 뒤 재발 부위 수술(S2) 전에 시작한 투약은 고식(지금 값 metastatic), S2 뒤는 보조 (공고 p.48).
+    재발 전 투약은 원발 보조 그대로. S2 날짜가 없거나 수술 yes가 아니면 예전 규칙(보조)."""
+    from src.input.script.pipeline import _fill_treatment
+
+    def rows():
+        return [{"drugs": ["tamoxifen"], "setting": None, "start_day": 45, "end_day": 1150, "stop_reason": None},
+                {"drugs": ["paclitaxel"], "setting": None, "start_day": 1150, "end_day": 1240, "stop_reason": None},
+                {"drugs": ["letrozole"], "setting": None, "start_day": 1300, "end_day": None, "stop_reason": None}]
+
+    def fields(surgery="yes", date="2023-04-22"):
+        f = {"stage": {"ptnm": {"status": "present", "value": {"t": "T2", "n": "N0"}, "observed_date": "2019-10-20"}},
+             "diagnosis": {"diagnosis_date": {"status": "present", "value": "2019-10-01"}},
+             "recurrence": {"status": {"status": "present", "value": "locoregional"},
+                            "recurrence_day": {"status": "present", "value": 1140},
+                            "surgery": {"status": "present", "value": surgery}}}
+        if date:
+            f["recurrence"]["surgery"]["observed_date"] = date   # 진단일 + 1299일
+        return f
+
+    hist = rows()
+    assert _fill_treatment(hist, fields()) == []
+    assert [t["setting"] for t in hist] == ["adjuvant", "metastatic", "adjuvant"]
+    for f in (fields(date=None), fields(surgery="no"), fields(surgery="unknown")):
+        hist = rows()
+        _fill_treatment(hist, f)
+        assert [t["setting"] for t in hist] == ["adjuvant", "adjuvant", "adjuvant"]
+
+
 def test_event_field_date_from_quote():
     """사건 칸은 LLM이 날짜를 비워도 인용 구절의 날짜 하나를 observed_date로 쓴다. 날짜가 없거나 둘 이상이면 비운다."""
     from src.input.script.pipeline import _quote_date

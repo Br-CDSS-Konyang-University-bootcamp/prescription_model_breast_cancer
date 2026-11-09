@@ -441,8 +441,14 @@ def build_draft(patient_state: dict, biomarker_record: dict, drug_table=None) ->
         ("not_applicable" if setting.get("disease") != "metastatic" else None), "patient_state")
     dfi, dfi_note = _dfi(fields, rday if isinstance(rday, int) else None, drug_table)
     put("dfi_days", "current", dfi, "derived", note=dfi_note)
+    rtype_note = None
     if rstatus == "locoregional":
-        rtype = "locoregional_curative" if _value(recurrence.get("surgery_intent")) == "curative" else "locoregional_other"
+        # 재발 부위를 수술했고 고식 목적이 아니면 완치 목적으로 본다 (handoff_to_B §6.4: 의도 unknown도 적용, 확인 사유)
+        operated = _value(recurrence.get("surgery")) == "yes"
+        intent = _value(recurrence.get("surgery_intent"))
+        rtype = "locoregional_curative" if operated and intent != "palliative" else "locoregional_other"
+        if operated and intent != "curative" and intent != "palliative":
+            rtype_note = "재발 부위 수술 의도 기록 없음: 완치 목적으로 봄. 고식 목적 수술이면 locoregional_other로 고칠 것"
     elif rstatus in ("none", "distant"):
         rtype = rstatus
     elif mday == 0:
@@ -450,7 +456,7 @@ def build_draft(patient_state: dict, biomarker_record: dict, drug_table=None) ->
     else:
         rtype = None
     put("recurrence_type", "current", rtype, "patient_state",
-        refs=_ref((recurrence.get("status") or {}).get("source")))
+        refs=_ref((recurrence.get("status") or {}).get("source")), note=rtype_note)
 
     sites = _value(recurrence.get("metastatic_sites"))
     if not isinstance(sites, list):

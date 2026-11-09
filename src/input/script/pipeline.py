@@ -1239,11 +1239,18 @@ def _fill_treatment(history: list[dict], fields: dict, images: list[dict] = ()) 
     operated = any(_value(fields, f"stage.{k}") for k in ("yptnm", "ptnm"))
     events = [d for d in (_value(fields, "recurrence.recurrence_day"), mday) if d is not None]
     rday = min(events) if events else None   # 첫 재발일 (국소·원격). 진단 시 IV기는 위 metastatic에서 먼저 걸린다
+    # 재발 부위 수술일 (S2) = recurrence.surgery = yes의 관찰일. 국소 재발 뒤 S2 전에 시작한 투약은 공고상 선행 행
+    # (원발 병기 대상)이 아니라 '재발성' 고식 행으로만 급여된다 → 고식. 고식 값이 아직 metastatic이라 그 값을 쓴다
+    # (palliative 이름 변경은 따로 PR, 2026-11-09). S2 뒤 투약은 공고 p.48대로 아래 규칙에서 보조가 된다
+    local = _value(fields, "recurrence.status") == "locoregional" and _value(fields, "recurrence.surgery") == "yes"
+    s2 = _day_of(fields, "recurrence.surgery") if local else None
     guessed = []
     for i, t in enumerate(history):
         s, e = t["start_day"], t["end_day"]
         if t["setting"] is None:
             if mday is not None and s is not None and s >= mday:
+                t["setting"] = "metastatic"
+            elif s2 is not None and rday is not None and s is not None and rday <= s < s2:
                 t["setting"] = "metastatic"
             elif surgery is not None and s is not None and s < surgery:
                 t["setting"] = "neoadjuvant"

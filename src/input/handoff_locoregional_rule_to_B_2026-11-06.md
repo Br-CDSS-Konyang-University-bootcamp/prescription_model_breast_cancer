@@ -1,6 +1,8 @@
 # A → B 전달: 국소 재발 후 치료 단계 규칙 (`SET-LOCAL-ADJ`) 설계안
 
-> 작성: 담당 A · 2026-11-06 · 상태: **제안 (B 검토, 열린 결정은 D·4명)**
+> 작성: 담당 A · 2026-11-06, 갱신 2026-11-09 · 상태: **A 쪽 일부 구현 (§7), 나머지 B 검토·4명 결정**
+>
+> 2026-11-09 갱신: 열린 결정 1·3·4가 정해졌고 A 코드에 반영했다. 바뀐 내용과 남은 일은 **§7**에 있다. §2~§6은 11-06 당시 기록이다.
 > 관련: [handoff_to_B.md](handoff_to_B.md) §6.4, [handoff_confirmed_state_to_B.md](handoff_confirmed_state_to_B.md) §6, [proposal_remove_overall_line_2026-11-06.md](proposal_remove_overall_line_2026-11-06.md)
 
 ## 1. 요약
@@ -112,3 +114,46 @@ VC-0109 짝 사례로 고정한다 (`src/input/script/virtual/cases/pairs.py`, �
 2. **의도 `unknown`:** `recurrence_operable`이 지금 `curative`만 yes로 본다. §6.4대로 `unknown`도 2번에 넣고 확인 사유를 다는 데 동의하는지 (D `conditions.py` 정의도 같이 바뀌므로 D 확인 필요).
 3. **`later_distant`:** 1번 규칙으로 대신하고, 충돌 검사용으로만 남기는 데 동의하는지.
 4. **`line_of` 비전이성 분기:** 화면 1 `setting.phase`와 같은 값을 쓰는 데 동의하는지. 이 PR의 `line` 삭제 제안(전이성 분기)과 함께 바꾸면 `line_of`를 한 번에 정리할 수 있다.
+
+## 7. 2026-11-09 결정과 구현
+
+### 7.1 정해진 것
+
+| §5 번호 | 결정 | 근거 |
+|---|---|---|
+| 1 | 국소 재발 뒤 재발 부위 수술 **전** 투약(3번 줄)은 **고식**이다. 고식 차수에 센다 | 공고 유방암 선행 행의 투여대상은 모두 원발 병기다 (국소진행성 = stage III, 직경 > 2㎝, 림프절 양성, stage II∼III). 재발 병소에는 이 병기가 없으므로 선행 행으로는 급여되지 않고, 대상에 "재발성"이 있는 고식 행으로만 급여된다. 고식 행의 투약은 투여단계(1차, 2차…)를 센다 (총칙 용어 정의: 투여대상·투여단계·투여요법). ESMO EBC 2024·MBC 2026은 국소 재발 치료를 다루지 않아 충돌하지 않는다 |
+| 3 | S2(재발 부위 수술일)는 **새 칸을 두지 않는다.** `recurrence.surgery` = yes 근거의 `observed_date`를 쓴다 | 사건 칸은 LLM이 날짜를 비워도 인용 구절에 날짜가 하나뿐이면 그 날짜를 넣는다 (`pipeline.py` `EVENT_FIELDS`, 커밋 bd20eef). VC-0109 정답에 2022-09-29가 들어갔다 |
+| 4 | 판정 함수는 **A가 계산하고 B는 읽는다** | A가 투약 `setting`·화면 1 `phase`를 이미 계산한다 |
+
+- `recurrence.surgery` 기록이 없을 때는 `unknown`으로 둔다. `no`로 바꾸지 않는다 (사용자 결정). 처방은 종양내과 판단이고 수술 가능 여부는 유방외과가 먼저 정한다는 전제다.
+- 의도 `unknown`(§6 질문 2)은 §6.4대로 2번 줄에 넣고 확인 사유를 단다. A `recurrence_type`에 반영했다 (§7.2). B·D `recurrence_operable`은 아직 `curative`만 yes로 본다.
+
+### 7.2 A 코드에 반영한 것
+
+| 위치 | 바뀐 것 | 시험 |
+|---|---|---|
+| `pipeline.py` `_fill_treatment` | 표시 없는 투약: 국소 재발(`locoregional`) + 재발 부위 수술 yes + S2 날짜가 있을 때, R ≤ 시작일 < S2 → `metastatic`(고식). S2 뒤는 기존 규칙대로 `adjuvant` | `test_locoregional_recurrence_surgery_splits_settings` |
+| `rules.py` `palliative_lines` | 전이 기준일이 없으면 `setting = metastatic`인 투약만 고식 차수(`line`·`endocrine_line`·`chemo_line`)로 센다. 그 뒤 보조 투약은 세지 않는다 | `test_palliative_without_metastasis_day_counts_only_palliative` |
+| `confirmed.py` `recurrence_type` | 재발 부위 수술 yes이고 의도가 palliative가 아니면 `locoregional_curative`. 의도 기록이 없으면 확인 사유 | VC-0109 `confirmed_state.json` 재생성 |
+| `screen1.py` | 재발 유형 칸을 전이성뿐 아니라 국소 재발에서도 보인다 (시스템 값 기준이라 의사가 고쳐도 잠기지 않는다) | `tests/app` |
+
+지금 fixture에는 국소 재발 뒤 수술 전에 시작한 투약이 없어 정답 `patient_state`는 바뀌지 않았다.
+
+### 7.3 고식 값 이름 (`metastatic` → `palliative`)
+
+`treatment_history[].setting`과 `confirmed_state` `prior_regimens[].setting`의 `metastatic`은 실제로는 "고식"(공고 투여요법 palliative)이다. 첫 스키마(TCGA, 10-12)가 전이일 기준으로만 단계를 나눠 기준 사건 이름을 값으로 붙였다. 이번 변경은 이름 변경이 4개 모듈 코드와 fixture 63개를 건드리므로 **값은 `metastatic` 그대로 두고**, 이름 변경은 별도 PR로 낸다. 병기 범주(`setting.disease`, 청크 `setting`)의 `metastatic`은 바꾸지 않는다.
+
+### 7.4 남은 일
+
+| 항목 | 내용 | 대상 |
+|---|---|---|
+| 값 이름 변경 | 위 7.3. 공용 스키마 2곳 | 4명 |
+| 재발 부위 수술 안 함·모름 (4번 줄) | 지금은 `adjuvant`로 남는다. 공고 "재발성" 고식 행 대상이지만 `unknown`을 `no`로 보지 않기로 해서 규칙으로 정하지 않았다 | A·B |
+| 전이 없는 고식의 검색 경로 | `setting.disease`가 metastatic이 아니면 C는 선행·보조로만 찾는다 (`retrieve.py` `decision_lines`). 수술 불가 3기, 국소 재발 수술 전 환자는 고식 행·차수 검색 경로가 없다. `confirmed_state` `setting.phase`에도 palliative 값이 없다. B `line_endocrine`·`line_chemo`도 전이성일 때만 채운다 | B·C, 스키마 4명 |
+| ESMO 근거 공백 | ESMO EBC 2024는 수술 가능한 조기·국소진행성, MBC 2026은 원격 전이만 다룬다. 수술 불가 국소진행성·국소 재발의 약물 치료 문장이 없다. 급여는 공고로 판정되지만 지침 인용을 어떻게 할지 (범위 밖 표시 / MBC 장 검색) 정해야 한다 | 4명 |
+| 간주 규칙 | `deemed_lines`는 전이 기준일만 본다. 국소 재발 고식 투약의 "보조요법 종료 후 1년 이내 재발" 판정은 재발일(R)을 기준으로 해야 하는지 확인 필요 | B |
+| `recurrence_operable` | 의도 `unknown`을 2번 줄에 넣는 §6.4와 맞추기 | B·D |
+| 수술 예정 (`planned`) | `recurrence.surgery`에 planned를 더하면 enum 변경. 그때 `observed_date`는 예정일이 된다 | 4명 |
+| `recurrence.status`의 `site_unknown`·`unknown` | TCGA 기록에서 온 값이다. 가상 차트 82개와 TCGA 정답 838명 모두 0건이다. 실제 진료에서 재발은 부위를 찾아야 진단되므로 지우고, 기록 없음·검사 중은 화면 1 필수 확인으로 처리하자고 제안한다. D `reimbursement_terms.csv`·`conditions.py`의 "재발성" 정의도 함께 바꾼다 | 4명 |
+| 반대쪽 유방 새 원발암 | 재발이 아니라 새 원발암이다 (ESMO EBC "second primary"). 병기·수술 가능 여부는 새로 판단하고 투약 이력(이전 AI 투여, anthracycline 누적)은 이어진다. 스키마가 원발 종양 하나만 담으므로 v0.1은 범위 밖으로 둔다 | 4명 |
+| 간 전이 | 유방암에서 온 전이면 전이성 유방암이다 (ESMO MBC: 첫 전이 때 생검으로 조직형 확인 [I, A]). 다른 원발암이면 범위 밖. 코드 변경 없음 | 기록만 |
