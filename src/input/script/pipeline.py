@@ -351,6 +351,17 @@ def _size_mm(text: str):
     return None if not m else _num(str(round(float(m.group(1)) * (10 if m.group(2) == "cm" else 1), 1)))
 
 
+def _clinical_size(q: str):
+    """치료 전 유방 원발 종괴 크기 (2026-11-09). 크기가 든 마디(쉼표·마침표로 나눈 한 토막)에 유방이 있어야 하고,
+    림프절·낭종 같은 양성 병변·치료 뒤 잔존 크기는 받지 않는다. 판독 한 줄에 유방 종괴와 액와 림프절이 함께 있어도
+    유방 종괴 마디만 본다. 폐 결절·간 종괴처럼 유방이 없는 마디는 받지 않는다."""
+    for part in re.split(r"[,;\n]|\.(?!\d)", q):
+        if (re.search(r"\d\s*(cm|mm)", part) and re.search(r"유방|breast", part, re.I)
+                and not re.search(r"림프절|액와|lymph|axill|낭종|cyst|양성|benign|잔존|residual", part, re.I)):
+            return _size_mm(part)
+    return None
+
+
 def _yes_no(text: str) -> str:
     return "no" if re.search(r"없음|아님|불가|inoperable|\bno\b", text, re.I) else "yes"
 
@@ -601,8 +612,7 @@ PARSERS = {
     "stage.metastatic_sites": _metastatic_sites,
     "stage.positive_ln_count": _ln_count,
     "stage.operable": lambda q, ctx: _yes_no(q),
-    # 유방 종괴 크기만 (흉부 CT의 폐 결절 크기 등은 받지 않는다)
-    "stage.clinical_size_mm": lambda q, ctx: _size_mm(q) if re.search(r"유방|breast|종괴|mass", q, re.I) else None,
+    "stage.clinical_size_mm": lambda q, ctx: _clinical_size(q),
     "stage.pathologic_size_mm": lambda q, ctx: _size_mm(q),
     "receptors.er_percent": _receptor("er_percent"),
     "receptors.pr_percent": _receptor("pr_percent"),
@@ -1014,7 +1024,8 @@ def assemble(docs: list[Document], candidates: list[dict], *, patient_ref: str, 
     rows.sort(key=lambda r: (r[3]["start_day"] is None, r[3]["start_day"] or 0))
     history = [{**out, "source": src} for _, _, src, out in rows]
     images = [{**out, "source": src} for c, _, src, out in items if c["field"] == "imaging_findings"]
-    _fill_treatment(history, fields, images)
+    for i in _fill_treatment(history, fields, images):
+        issues.append({"reason": "needs_review", "candidate": rows[i][0], "note": NO_SURGERY_NEO})
     anthra = []
     for (c, doc, src, out) in rows:
         a = normalize("anthracycline_drug_dose.drugs", src["quote"], Context.of(doc, src["char_start"], dx))
@@ -1109,6 +1120,23 @@ def _diagnosis_date(found) -> str | None:
     return None
 
 
+# 사건 칸: 값이 날짜가 아니고(수술 여부 등) 그 사건의 날짜를 observed_date로만 담는 칸 (2026-11-09).
+# LLM이 observed_date를 비워도 인용 구절에 날짜가 정확히 하나 있으면 그 날짜를 쓴다. 검사 결과 칸은 구절의 날짜가
+# 보고일일 수 있어(검체 채취일과 다름) 넣지 않는다
+EVENT_FIELDS = ("recurrence.surgery",)
+
+
+def _quote_date(quote: str) -> dict:
+    """인용 구절의 날짜 하나 → {"observed_date": YYYY-MM-DD}. 없거나 둘 이상이거나 날짜가 아니면 {}."""
+    dates = set()
+    for m in DATE.finditer(quote):
+        try:
+            dates.add(dt.date(*_ymd(m)).isoformat())
+        except ValueError:
+            return {}
+    return {"observed_date": dates.pop()} if len(dates) == 1 else {}
+
+
 def _entry(c: dict, doc: Document, src: dict, out: dict) -> dict:
     """정규화 결과 + 원문 표기·검체·관찰 날짜·근거. 유전자 칸에는 raw가 없다 (변이마다 raw가 있다)."""
     e = dict(out)
@@ -1117,9 +1145,15 @@ def _entry(c: dict, doc: Document, src: dict, out: dict) -> dict:
     for k in ("specimen",) if c["field"].startswith("molecular.") else ("specimen", "observed_date"):
         if c.get(k) is not None:
             e[k] = c[k]
+    if c["field"] in EVENT_FIELDS and e.get("observed_date") is None:
+        e.update(_quote_date(src["quote"]))
     e["source"] = src
     e["_date"] = c.get("observed_date") or doc.doc_date or ""
     return e
+
+
+# 가장 이른 날짜 값을 고르는 칸: 진단 시 나이, 치료 전 임상 크기 (선행요법 중·뒤 영상의 크기가 덮어쓰지 않게, 2026-11-09)
+EARLIEST_FIELDS = ("patient.age", "stage.clinical_size_mm")
 
 
 def _choose(field: str, entries: list[dict]):
@@ -1129,7 +1163,7 @@ def _choose(field: str, entries: list[dict]):
     (at_index.age가 진단 시 나이 + index_day로 계산한다). 현재 값과 값·검체가 같은 이전 값은 같은 내용을
     다시 적은 것이라 이력에서 뺀다 (성별·나이처럼 문서마다 나오는 칸)."""
     meta = [e for e in entries if e.get("specimen") == "metastasis"]
-    if field == "patient.age":
+    if field in EARLIEST_FIELDS:
         pool = [e for e in entries if e["_date"]] or entries
         pick = min(e["_date"] for e in pool)
     else:
@@ -1144,9 +1178,9 @@ def _choose(field: str, entries: list[dict]):
         values = ", ".join(e["source"]["quote"] for e in top)
         return {"conflict": {"field": field, "candidates": [_clean(e) for e in entries],
                              "note": f"같은 날짜({pick or '날짜 없음'})의 값이 다름: {values}"}}
-    cur = top[0] if field == "patient.age" else top[-1]
+    cur = top[0] if field in EARLIEST_FIELDS else top[-1]
     current = _clean(cur)
-    if field == "patient.age" or field.startswith("molecular."):     # 유전자 칸 스키마에는 history가 없다
+    if field in EARLIEST_FIELDS or field.startswith("molecular."):     # 유전자 칸 스키마에는 history가 없다
         return current
     hist = [{**_clean(e), "superseded_reason": "recurrence" if meta and e.get("specimen") != "metastasis"
              else "newer_result"} for e in entries
@@ -1190,22 +1224,35 @@ def _day_of(fields: dict, path: str) -> int | None:
     return (dt.date.fromisoformat(cur["observed_date"]) - dt.date.fromisoformat(dx)).days
 
 
+NO_SURGERY_NEO = ("투약 단계 확인: 투약 줄에 선행·보조 표시가 없고 수술 병리(pTNM·ypTNM)가 없어 선행요법으로 봄. "
+                  "다른 병원 수술 등으로 병리 보고서가 빠졌다면 보조요법으로 고칠 것")
 PROGRESSION_IMAGE = re.compile(r"진행|PD|새로|증가|악화|progress|new|increas", re.I)
 
 
-def _fill_treatment(history: list[dict], fields: dict, images: list[dict] = ()) -> None:
+def _fill_treatment(history: list[dict], fields: dict, images: list[dict] = ()) -> list[int]:
+    """단계·진행일을 채운다. 반환값: 수술 병리가 없어 선행요법으로 본 투약의 순번 (확인 사유 NO_SURGERY_NEO)."""
     mday = _value(fields, "recurrence.metastasis_day")
     # 진행을 보인 영상의 날 (정답은 영상으로 진행을 확인한 날, 6단계 2026-10-27)
     scans = [i["day"] for i in images if i.get("day") is not None and PROGRESSION_IMAGE.search(i["source"]["quote"])]
     surgery = _day_of(fields, "stage.yptnm") or _day_of(fields, "stage.ptnm")
+    # 수술 날짜를 몰라도 병리 TNM이 있으면 수술은 했다 (날짜 없는 pTNM은 예전처럼 보조로 본다)
+    operated = any(_value(fields, f"stage.{k}") for k in ("yptnm", "ptnm"))
     events = [d for d in (_value(fields, "recurrence.recurrence_day"), mday) if d is not None]
-    for t in history:
+    rday = min(events) if events else None   # 첫 재발일 (국소·원격). 진단 시 IV기는 위 metastatic에서 먼저 걸린다
+    guessed = []
+    for i, t in enumerate(history):
         s, e = t["start_day"], t["end_day"]
         if t["setting"] is None:
             if mday is not None and s is not None and s >= mday:
                 t["setting"] = "metastatic"
             elif surgery is not None and s is not None and s < surgery:
                 t["setting"] = "neoadjuvant"
+            elif rday is not None and s is not None and s < rday:
+                t["setting"] = "adjuvant"   # 재발했으면 원발암 치료는 끝났다: 재발 전 투약은 수술 병리가 없어도 보조 (2026-11-06)
+            elif not operated:
+                # 수술 병리가 없으면 아직 수술 전 = 선행요법 (화면 1 setting.phase와 같은 규칙, 2026-11-06)
+                t["setting"] = "neoadjuvant"
+                guessed.append(i)
             else:
                 t["setting"] = "adjuvant"
         prog = None
@@ -1220,6 +1267,7 @@ def _fill_treatment(history: list[dict], fields: dict, images: list[dict] = ()) 
         ordered = {k: t[k] for k in keys if k in t}
         t.clear()
         t.update(ordered)
+    return guessed
 
 
 def _endocrine_end_from_rows(fields: dict, history: list[dict]) -> None:
@@ -1362,7 +1410,8 @@ FIELDS = {
     "radiology": {
         "imaging_findings": "판독 결론에서 전이를 말하는 구절 하나 (전이 부위와 확실성: 전이, 전이 의심, 전이 없음). "
                             "림프절 전이 의심도 포함. 유방 종괴 크기는 stage.clinical_size_mm으로",
-        "stage.clinical_size_mm": "유방 종괴 크기가 든 구절 (예: 우측 유방 1.9 cm 종괴)",
+        "stage.clinical_size_mm": "유방 종괴 크기가 든 구절. Findings와 Conclusion 어디에 있든 뽑는다 "
+                                  "(예: 우측 유방 1.9 cm 종괴). 림프절·다른 장기 병변의 크기는 아니다",
     },
     "medication": {
         "treatment_history": "요법 한 줄: 약 이름부터 날짜·주기·반응·중단 사유까지 그 줄 전체. "
@@ -1450,11 +1499,11 @@ EXAMPLES = {
     "radiology": (
         "[영상의학 판독]\n환자명: [이름1]   등록번호: [등록번호1]   F/58\n"
         "검사: Chest-abdomen CT (contrast)   검사일: 2019.1.15\n\nFindings:\n"
-        "  우측 유방 상외측에 불규칙한 종괴. 간 S4에 1.0 cm 저음영 결절.\n"
-        "Conclusion:\n  1. 우측 유방 1.9 cm 불규칙 종괴, 유방암에 합당\n  2. 간 S4 1.0 cm 결절, 전이 의심\n",
+        "  우측 유방 1.9 cm 불규칙 종괴, 우측 액와 림프절 1개 비대. 간 S4에 1.0 cm 저음영 결절.\n"
+        "Conclusion:\n  1. 우측 유방암에 합당\n  2. 간 S4 결절, 전이 의심\n",
         [{"field": "stage.clinical_size_mm", "quote": "우측 유방 1.9 cm 불규칙 종괴", "specimen": None,
           "observed_date": "2019-01-15"},
-         {"field": "imaging_findings", "quote": "간 S4 1.0 cm 결절, 전이 의심", "specimen": None,
+         {"field": "imaging_findings", "quote": "간 S4 결절, 전이 의심", "specimen": None,
           "observed_date": "2019-01-15"}],
     ),
     "medication": (

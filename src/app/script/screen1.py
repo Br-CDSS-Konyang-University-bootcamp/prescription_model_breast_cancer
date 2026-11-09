@@ -37,7 +37,7 @@ from urllib.parse import parse_qs, urlparse
 
 from src.app.script import screen2 as s2
 from src.input.script import confirmed as c
-from src.input.script.pipeline import split
+from src.input.script.pipeline import NO_SURGERY_NEO, split
 
 ROOT = c.ROOT
 HTML = Path(__file__).resolve().parents[1] / "html" / "screen1.html"
@@ -282,8 +282,15 @@ def _list_cells(fields: dict):
         yield f"imaging:{f.get('modality')}", {**f, "raw": (f.get("source") or {}).get("quote"),
                                                 "observed_date": f.get("date"),
                                                 "note": f"{sites} · {CERTAINTY.get(f.get('certainty'), f.get('certainty'))}"}
+    stage = fields.get("stage") or {}
+    operated = any((stage.get(k) or {}).get("status") == "present" for k in ("ptnm", "yptnm"))
     for t in fields.get("treatment_history") or []:
-        yield f"treatment:{t.get('setting')}", {**t, "raw": (t.get("source") or {}).get("quote"), "observed_date": t.get("start_date")}
+        # 수술 병리가 없어 입력 모듈이 선행으로 본 투약 (투약 줄에 '선행' 표시 없음): 확인 사유를 붙인다
+        quote = (t.get("source") or {}).get("quote") or ""
+        guessed = t.get("setting") == "neoadjuvant" and not operated and "선행" not in quote
+        note = NO_SURGERY_NEO if guessed else None
+        yield f"treatment:{t.get('setting')}", {**t, "raw": (t.get("source") or {}).get("quote"),
+                                                 "observed_date": t.get("start_date"), "note": note}
 
 
 def _raw_text(path: str, cell: dict) -> str:
@@ -321,7 +328,7 @@ def documents(chart: str, patient_state: dict) -> list[dict]:
             continue
         seen.add((path, src["char_start"]))
         by_id[src["doc_id"]]["values"].append({
-            "label": _label(path), "raw": _raw_text(path, cell), "note": cell.get("note") if path.startswith("imaging:") else None,
+            "label": _label(path), "raw": _raw_text(path, cell), "note": cell.get("note") if path.startswith(("imaging:", "treatment:")) else None,
             "status": cell.get("status"), "specimen": cell.get("specimen"), "observed_date": cell.get("observed_date"),
             "start": src["char_start"], "end": src["char_end"]})
     for d in docs:

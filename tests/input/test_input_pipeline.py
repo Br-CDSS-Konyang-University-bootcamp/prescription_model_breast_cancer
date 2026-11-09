@@ -215,3 +215,33 @@ def test_tnm_with_prefixed_m_and_fna_suffix():
     """림프절 세침흡인(FNA) 양성은 임상 N에 (f)를 붙인다 (AJCC 8판, cN1(f)). 각 범주에 c가 붙어도 M을 읽는다."""
     from src.input.script.pipeline import _tnm
     assert _tnm("cT2 cN1(f) cM0", None, prefix="c") == {"t": "T2", "n": "N1", "m": "M0", "edition": None}
+
+
+def test_unmarked_drug_without_surgery_is_neoadjuvant():
+    """투약 줄에 선행·보조 표시가 없고 수술 병리도 없으면 아직 수술 전 = 선행요법으로 보고, 확인할 투약으로 돌려준다."""
+    from src.input.script.pipeline import _fill_treatment
+    row = {"drugs": ["doxorubicin"], "setting": None, "start_day": 30, "end_day": 90, "stop_reason": None}
+    assert _fill_treatment([row], {"stage": {}, "recurrence": {}, "diagnosis": {}}) == [0]
+    assert row["setting"] == "neoadjuvant"
+    # 날짜 없는 pTNM이라도 수술 기록이 있으면 예전처럼 보조
+    row = {"drugs": ["doxorubicin"], "setting": None, "start_day": 30, "end_day": 90, "stop_reason": None}
+    _fill_treatment([row], {"stage": {"ptnm": {"status": "present", "value": {"t": "T2", "n": "N1a"}}},
+                            "recurrence": {}, "diagnosis": {}})
+    assert row["setting"] == "adjuvant"
+    # 재발한 환자의 재발 전 투약은 수술 병리가 없어도 보조 (원발암 치료가 끝난 뒤 재발)
+    row = {"drugs": ["tamoxifen"], "setting": None, "start_day": 60, "end_day": 900, "stop_reason": None}
+    after = {"drugs": ["letrozole", "palbociclib"], "setting": None, "start_day": 1000, "end_day": None, "stop_reason": None}
+    fields = {"stage": {}, "diagnosis": {}, "recurrence": {"metastasis_day": {"status": "present", "value": 1000}}}
+    assert _fill_treatment([row, after], fields) == []
+    assert (row["setting"], after["setting"]) == ("adjuvant", "metastatic")
+
+
+def test_event_field_date_from_quote():
+    """사건 칸은 LLM이 날짜를 비워도 인용 구절의 날짜 하나를 observed_date로 쓴다. 날짜가 없거나 둘 이상이면 비운다."""
+    from src.input.script.pipeline import _quote_date
+    assert _quote_date("2022.9.29 흉벽 광범위 절제") == {"observed_date": "2022-09-29"}
+    assert _quote_date("2022년 9월 29일 흉벽 광범위 절제") == {"observed_date": "2022-09-29"}
+    assert _quote_date("22/09/29 흉벽 광범위 절제") == {"observed_date": "2022-09-29"}
+    assert _quote_date("흉벽 광범위 절제") == {}
+    assert _quote_date("2022.9.4 재발, 2022.9.29 절제") == {}
+    assert _quote_date("2022.13.40 절제") == {}

@@ -101,6 +101,10 @@ def _per_m2(dose, bsa: float | None):
 # ----------------------------------------------------------------------------------------------------
 
 def _neoadjuvant(fields: dict) -> bool:
+    """선행요법 환자: 선행 투약이 있거나, 투약 기록이 없어도 선행요법 뒤 수술 병기(ypTNM)가 있다 (다른 병원에서 선행요법).
+    입력 모듈의 진단 시 범주 계산(pipeline._set_extent)과 같은 기준."""
+    if _present((fields.get("stage") or {}).get("yptnm")):
+        return True
     return any(t.get("setting") == "neoadjuvant" for t in fields.get("treatment_history") or [])
 
 
