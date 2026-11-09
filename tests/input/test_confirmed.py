@@ -168,3 +168,14 @@ def test_finalize_refuses_missing_required(tmp_path):
     assert path is None
     assert any(e.startswith("subtype") for e in errors)
     assert not any(tmp_path.iterdir())
+
+
+def test_yptnm_without_neoadjuvant_drug_is_neoadjuvant():
+    """선행 투약 기록이 없어도 ypTNM이 있으면 선행요법 환자 (다른 병원 선행요법). T·N은 cTNM, pCR 칸은 잠그지 않는다."""
+    ps = load("VC-0119", "patient_state.json")
+    for t in ps["fields"]["treatment_history"]:
+        if t["setting"] == "neoadjuvant":
+            t["setting"] = "adjuvant"
+    items = c.build_draft(ps, bm.assess(ps))["items"]
+    assert items["stage.t"]["detail"] == {"basis": "c"}
+    assert items["pcr"]["system"] != "not_applicable"

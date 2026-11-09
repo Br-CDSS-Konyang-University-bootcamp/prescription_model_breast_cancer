@@ -408,6 +408,7 @@
         "status": "present",
         "value": "yes",
         "raw": "2022-09-29 흉벽 광범위 절제",
+        "observed_date": "2022-09-29",
         "source": {
           "doc_id": "D1",
           "quote": "2022-09-29 흉벽 광범위 절제",
