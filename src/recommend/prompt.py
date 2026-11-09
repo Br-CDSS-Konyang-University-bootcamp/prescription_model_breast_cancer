@@ -24,13 +24,9 @@ INSTRUCTIONS = """너는 유방암 처방 후보를 정리하는 도우미다. �
    허가초과 인정 청크와 맞으면 offlabel_approved, 둘 다 없으면 no_criteria. no_criteria를 "비급여"로 단정하지 않는다.
 6. [지침 청크]에 이 환자에게 맞는 요법이 여러 개 있으면 요법마다 후보를 하나씩 쓴다 (최대 5개). 같은 요법을 두 번 쓰지 않는다.
    drugs에는 그 요법의 약 일반명을 모두 쓰고, evidence에는 인용한 지침 청크의 LoE·GoR를 그대로 쓴다.
-7. [환자]의 disease·line에 맞는 치료만 쓴다. 예: metastatic 환자에게 수술전·수술후보조요법을 쓰지 않는다.
-   - phase가 neoadjuvant(수술 전 결정)이면 수술 뒤에 쓰는 약(abemaciclib·ribociclib·olaparib 보조요법, 연장 내분비요법,
-     bisphosphonate)을 쓰지 않는다. high_risk_early의 esmo가 no면 abemaciclib 보조요법을 쓰지 않는다.
-   - deemed_lines_met에 DEEM-HER2ADC-6M이 있으면 보조 항HER2 치료가 끝나고 6개월 안에 재발한 것이다. 방금 쓴 항HER2 요법
-     (trastuzumab + pertuzumab + taxane)을 첫 후보로 쓰지 말고, [지침 청크]에 있는 다음 차수 권고(예: T-DXd)를 먼저 쓴다.
-   - positive_markers에 있는 바이오마커(예: gBRCA1·gBRCA2 → PARP 억제제, PIK3CA → PI3K/AKT 억제제)에 맞는 표적 약이
-     [지침 청크]에 있으면 그 약을 후보로 빠뜨리지 않는다.
+7. [환자]의 disease·line·phase에 맞는 치료만 쓴다. 예: metastatic 환자에게 수술전·수술후보조요법을 쓰지 않고,
+   phase가 neoadjuvant(수술 전 결정)이면 수술 후 보조요법 권고를 쓰지 않는다.
+   deemed_lines_met·high_risk_early·positive_markers는 [지침 청크]의 권고 조건과 맞춰 보는 데 쓴다.
 8. 골 보호제(denosumab, zoledronic acid, pamidronate, ibandronate, clodronate, bisphosphonate)는 options에 넣지 않고
    supportive_options(함께 처방할 보조 약물)에만 쓴다. 뼈 전이 환자의 골 보호제 권고나 수술 후 보조요법 단계의 bisphosphonate 권고가
    [지침 청크]에 있으면 주 처방과 상관없이 supportive_options에 쓴다. 수술 전(선행요법) 결정에는 쓰지 않는다.
