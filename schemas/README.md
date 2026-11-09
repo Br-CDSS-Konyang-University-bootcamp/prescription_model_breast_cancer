@@ -141,7 +141,7 @@ TCGA 정답은 실제 날짜가 없으므로, 날짜 칸은 추출값이면 `sta
                             "source": {"doc_id": "D1", "quote": "폐경 후"}}
     },
     "treatment_history": [
-      {"drugs": ["letrozole", "palbociclib"], "setting": "metastatic", "start_date": "2025-01-10", "end_date": "2026-06-20",
+      {"drugs": ["letrozole", "palbociclib"], "setting": "palliative", "start_date": "2025-01-10", "end_date": "2026-06-20",
        "duration_days": 526, "start_day": 300, "end_day": 826, "cycles": null,
        "stop_reason": "progression", "best_response": "PR",
        "source": {"doc_id": "D1", "quote": "AI + palbociclib, PD"}}

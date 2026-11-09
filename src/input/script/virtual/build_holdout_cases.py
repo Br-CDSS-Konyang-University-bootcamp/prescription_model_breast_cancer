@@ -295,10 +295,10 @@ def vc_0138() -> Chart:
         dict(name="허셉틴 (trastuzumab) 6mg/kg", drugs=["trastuzumab"], setting="adjuvant", s=212, e=485,
              cyc=(14, 21), why="완료 (총 18회)", stop="completed"),
         dict(name="DPH (docetaxel 75mg/m2 + 퍼제타 + 허셉틴)", drugs=["docetaxel", "pertuzumab", "trastuzumab"],
-             setting="metastatic", s=1420, e=1525, cyc=(6, 21), resp="PR", why="유지요법 전환", stop="maintenance"),
-        dict(name="HP 유지 (퍼제타 + 허셉틴)", drugs=["pertuzumab", "trastuzumab"], setting="metastatic", s=1546,
+             setting="palliative", s=1420, e=1525, cyc=(6, 21), resp="PR", why="유지요법 전환", stop="maintenance"),
+        dict(name="HP 유지 (퍼제타 + 허셉틴)", drugs=["pertuzumab", "trastuzumab"], setting="palliative", s=1546,
              e=1882, cyc=(17, 21), resp="PD", why="진행", stop="progression", prog=1895),
-        dict(name="엔허투 (trastuzumab deruxtecan) 5.4mg/kg", drugs=["trastuzumab deruxtecan"], setting="metastatic",
+        dict(name="엔허투 (trastuzumab deruxtecan) 5.4mg/kg", drugs=["trastuzumab deruxtecan"], setting="palliative",
              s=1910, e=2385, cyc=(23, 21), resp="PD", why="진행", stop="progression", prog=2398),
     ])
     return c
@@ -332,7 +332,7 @@ def vc_0139() -> Chart:
     meds(c, 63, [
         dict(name="아리미덱스 (anastrozole) 1mg qd", drugs=["anastrozole"], setting="adjuvant", s=30, e=1860,
              why="완료 (5년)", stop="completed"),
-        dict(name="입랜스 (palbociclib) + 페마라 (letrozole)", drugs=["palbociclib", "letrozole"], setting="metastatic",
+        dict(name="입랜스 (palbociclib) + 페마라 (letrozole)", drugs=["palbociclib", "letrozole"], setting="palliative",
              s=2615, e=3165, cyc=(19, 28), resp="PD", why="진행", stop="progression", prog=3160),
     ])
     return c
@@ -358,7 +358,7 @@ def vc_0140() -> Chart:
     ngs(c, 600, 52, "primary", f"원발 중심 생검 조직 ({kdate(c.on(0))})", [], ["PIK3CA", "ESR1", "AKT1", "PTEN"])
     germline(c, 612, 52, {"BRCA1": None, "BRCA2": ("c.9097dupA", "T3033Nfs*11", "Pathogenic (병원성)")})
     meds(c, 52, [
-        dict(name="키스칼리 (ribociclib) + 페마라 (letrozole)", drugs=["ribociclib", "letrozole"], setting="metastatic",
+        dict(name="키스칼리 (ribociclib) + 페마라 (letrozole)", drugs=["ribociclib", "letrozole"], setting="palliative",
              s=18, e=590, cyc=(20, 28), resp="PD", why="진행", stop="progression", prog=588),
     ])
     return c
@@ -387,8 +387,8 @@ def vc_0141() -> Chart:
     ngs(c, 1250, 70, "cfDNA", f"혈장 cfDNA ({kdate(c.on(1245))})", [], ["PIK3CA", "ESR1", "AKT1", "PTEN"])
     meds(c, 70, [
         dict(name="아리미덱스 (anastrozole) + 입랜스 (palbociclib)", drugs=["anastrozole", "palbociclib"],
-             setting="metastatic", s=15, e=925, cyc=(32, 28), resp="PD", why="진행", stop="progression", prog=915),
-        dict(name="아로마신 (exemestane) + 아피니토 (everolimus)", drugs=["exemestane", "everolimus"], setting="metastatic",
+             setting="palliative", s=15, e=925, cyc=(32, 28), resp="PD", why="진행", stop="progression", prog=915),
+        dict(name="아로마신 (exemestane) + 아피니토 (everolimus)", drugs=["exemestane", "everolimus"], setting="palliative",
              s=940, e=1245, resp="PD", why="진행", stop="progression", prog=1240),
     ])
     return c

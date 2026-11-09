@@ -320,7 +320,7 @@
           "subclasses": [
             "Chemotherapy"
           ],
-          "setting": "metastatic",
+          "setting": "palliative",
           "start_day": 525,
           "end_day": 735,
           "line_endocrine": null,
@@ -449,7 +449,7 @@
           "subclasses": [
             "Chemotherapy"
           ],
-          "setting": "metastatic",
+          "setting": "palliative",
           "start_day": 525,
           "end_day": 735,
           "line_endocrine": null,

@@ -400,7 +400,7 @@
           "ribociclib",
           "anastrozole"
         ],
-        "setting": "metastatic",
+        "setting": "palliative",
         "start_date": "2020-02-02",
         "end_date": "2022-04-02",
         "start_day": 20,
@@ -429,7 +429,7 @@
         "drugs": [
           "fulvestrant"
         ],
-        "setting": "metastatic",
+        "setting": "palliative",
         "start_date": "2022-04-22",
         "end_date": "2022-10-19",
         "start_day": 830,
@@ -464,7 +464,7 @@
         "drugs": [
           "capecitabine"
         ],
-        "setting": "metastatic",
+        "setting": "palliative",
         "start_date": "2022-11-08",
         "end_date": "2023-08-05",
         "start_day": 1030,
@@ -504,7 +504,7 @@
         "drugs": [
           "paclitaxel"
         ],
-        "setting": "metastatic",
+        "setting": "palliative",
         "start_date": "2023-08-25",
         "end_date": "2024-05-31",
         "start_day": 1320,

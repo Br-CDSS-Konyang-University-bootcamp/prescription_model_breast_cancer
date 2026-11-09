@@ -349,7 +349,7 @@
           "pertuzumab",
           "trastuzumab"
         ],
-        "setting": "metastatic",
+        "setting": "palliative",
         "start_date": "2023-02-20",
         "end_date": "2023-06-05",
         "start_day": 14,
@@ -393,7 +393,7 @@
           "pertuzumab",
           "trastuzumab"
         ],
-        "setting": "metastatic",
+        "setting": "palliative",
         "start_date": "2023-06-26",
         "end_date": "2024-09-09",
         "start_day": 140,

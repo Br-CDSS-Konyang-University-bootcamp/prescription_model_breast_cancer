@@ -358,7 +358,7 @@
             "SERD",
             "CDK4/6_inhibitor"
           ],
-          "setting": "metastatic",
+          "setting": "palliative",
           "start_day": 2220,
           "end_day": 2700,
           "line_endocrine": 1,
@@ -381,7 +381,7 @@
             "AI_steroidal",
             "Other Targeted Therapy"
           ],
-          "setting": "metastatic",
+          "setting": "palliative",
           "start_day": 2720,
           "end_day": 2900,
           "line_endocrine": 2,
@@ -506,7 +506,7 @@
             "SERD",
             "CDK4/6_inhibitor"
           ],
-          "setting": "metastatic",
+          "setting": "palliative",
           "start_day": 2220,
           "end_day": 2700,
           "line_endocrine": 1,
@@ -529,7 +529,7 @@
             "AI_steroidal",
             "Other Targeted Therapy"
           ],
-          "setting": "metastatic",
+          "setting": "palliative",
           "start_day": 2720,
           "end_day": 2900,
           "line_endocrine": 2,

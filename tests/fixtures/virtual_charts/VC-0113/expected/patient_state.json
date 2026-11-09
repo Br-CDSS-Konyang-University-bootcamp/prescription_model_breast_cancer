@@ -550,7 +550,7 @@
           "palbociclib",
           "letrozole"
         ],
-        "setting": "metastatic",
+        "setting": "palliative",
         "start_date": "2021-05-12",
         "end_date": "2023-01-12",
         "start_day": 2620,
@@ -580,7 +580,7 @@
           "exemestane",
           "everolimus"
         ],
-        "setting": "metastatic",
+        "setting": "palliative",
         "start_date": "2023-01-27",
         "end_date": "2023-07-31",
         "start_day": 3245,

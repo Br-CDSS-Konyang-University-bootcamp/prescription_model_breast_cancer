@@ -199,7 +199,7 @@ def her2_opt(drugs):
 
 def test_safety_trastuzumab_continuation_and_early_relapse():
     progressed = {"index_day": 900, "fields": {"treatment_history": [
-        {"drugs": ["docetaxel", "trastuzumab", "pertuzumab"], "setting": "metastatic", "start_day": 100,
+        {"drugs": ["docetaxel", "trastuzumab", "pertuzumab"], "setting": "palliative", "start_day": 100,
          "stop_reason": "progression"}]}}
     rules = lambda rec, ps: [v["rule"] for v in safety_violations(rec, HER2_REC, ps)]
     # 새 짝 약과 trastuzumab을 이어 쓰면 위반 아님, 같은 요법 반복은 위반

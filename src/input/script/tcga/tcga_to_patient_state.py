@@ -270,11 +270,11 @@ def treatment(r) -> tuple[list[dict], list[str]]:
             continue
         s, e = day(starts[i]), day(ends[i])
         dur = e - s if s is not None and e is not None else None
-        # setting 유도 규칙 (유도값): 전이 기준일 이후 → metastatic, 진단일 전 시작한 항암 투약 → neoadjuvant (2026-10-20),
+        # setting 유도 규칙 (유도값): 전이 기준일 이후 → palliative, 진단일 전 시작한 항암 투약 → neoadjuvant (2026-10-20),
         # 선행요법 이력 + 첫 요법 → neoadjuvant, 나머지 → adjuvant
         anticancer = any(DRUG_TABLE.get(d, ("Unknown", ""))[0] not in NOT_COUNTED for d in m["drug"].split("+"))
         if met is not None and s is not None and s >= met:
-            setting, rule = "metastatic", "시작일 ≥ 전이 기준일"
+            setting, rule = "palliative", "시작일 ≥ 전이 기준일"
         elif s is not None and s < 0 and anticancer:
             setting, rule = "neoadjuvant", "진단일 전 시작한 항암 투약"
         elif neo and not out:
@@ -300,7 +300,7 @@ def progression(r, items: list[dict]) -> None:
     if r.stage_disease_extent != "metastatic" or not str(r.cbio_PFS_STATUS).startswith("1:"):
         return
     pfs = round(float(r.cbio_PFS_MONTHS) * 30.4375)
-    cands = [t for t in items if t["setting"] == "metastatic" and t["start_day"] is not None and t["start_day"] <= pfs
+    cands = [t for t in items if t["setting"] == "palliative" and t["start_day"] is not None and t["start_day"] <= pfs
              and (t["end_day"] is None or t["end_day"] >= pfs - 30)
              and any(DRUG_TABLE.get(d, ("Unknown", ""))[0] not in NOT_COUNTED for d in t["drugs"])]
     if cands and max(t["start_day"] for t in cands) - min(t["start_day"] for t in cands) <= GROUP_DAYS:

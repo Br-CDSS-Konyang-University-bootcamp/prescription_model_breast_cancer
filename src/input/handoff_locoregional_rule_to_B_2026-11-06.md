@@ -132,24 +132,28 @@ VC-0109 짝 사례로 고정한다 (`src/input/script/virtual/cases/pairs.py`, �
 
 | 위치 | 바뀐 것 | 시험 |
 |---|---|---|
-| `pipeline.py` `_fill_treatment` | 표시 없는 투약: 국소 재발(`locoregional`) + 재발 부위 수술 yes + S2 날짜가 있을 때, R ≤ 시작일 < S2 → `metastatic`(고식). S2 뒤는 기존 규칙대로 `adjuvant` | `test_locoregional_recurrence_surgery_splits_settings` |
-| 〃 | 국소 재발 + 재발 부위 수술 **no**(차트에 수술 안 함이 적힘): 재발일 이후 투약 → `metastatic`(공고 "재발성" 고식 행). 기록 없음(`unknown`)은 `no`로 보지 않아 예전대로 `adjuvant` (4번 줄 중 `no`만 정함) | `test_unoperated_recurrence_and_inoperable_stage_are_palliative` |
-| 〃 | 수술 불가(`stage.operable = no`)이고 원발 수술 병리(pTNM·ypTNM)가 없는 투약 → `metastatic`(공고 고식 행 대상 "국소진행성", 스키마 `operable` 설명 "선행요법 대상인지 고식적요법 대상인지 가른다"). 확인 사유(`NO_SURGERY_NEO`)를 달지 않는다. 선행 뒤 수술해 ypTNM이 생기면 수술 전 투약은 예전대로 `neoadjuvant` | 같은 테스트 |
-| `rules.py` `palliative_lines` | 전이 기준일이 없으면 `setting = metastatic`인 투약만 고식 차수(`line`·`endocrine_line`·`chemo_line`)로 센다. 그 뒤 보조 투약은 세지 않는다 | `test_palliative_without_metastasis_day_counts_only_palliative` |
+| `pipeline.py` `_fill_treatment` | 표시 없는 투약: 국소 재발(`locoregional`) + 재발 부위 수술 yes + S2 날짜가 있을 때, R ≤ 시작일 < S2 → `palliative`(고식). S2 뒤는 기존 규칙대로 `adjuvant` | `test_locoregional_recurrence_surgery_splits_settings` |
+| 〃 | 국소 재발 + 재발 부위 수술 **no**(차트에 수술 안 함이 적힘): 재발일 이후 투약 → `palliative`(공고 "재발성" 고식 행). 기록 없음(`unknown`)은 `no`로 보지 않아 예전대로 `adjuvant` (4번 줄 중 `no`만 정함) | `test_unoperated_recurrence_and_inoperable_stage_are_palliative` |
+| 〃 | 수술 불가(`stage.operable = no`)이고 원발 수술 병리(pTNM·ypTNM)가 없는 투약 → `palliative`(공고 고식 행 대상 "국소진행성", 스키마 `operable` 설명 "선행요법 대상인지 고식적요법 대상인지 가른다"). 확인 사유(`NO_SURGERY_NEO`)를 달지 않는다. 선행 뒤 수술해 ypTNM이 생기면 수술 전 투약은 예전대로 `neoadjuvant` | 같은 테스트 |
+| `rules.py` `palliative_lines` | 전이 기준일이 없으면 `setting = palliative`인 투약만 고식 차수(`line`·`endocrine_line`·`chemo_line`)로 센다. 그 뒤 보조 투약은 세지 않는다 | `test_palliative_without_metastasis_day_counts_only_palliative` |
 | `confirmed.py` `recurrence_type` | 재발 부위 수술 yes이고 의도가 palliative가 아니면 `locoregional_curative`. 의도 기록이 없으면 확인 사유 | VC-0109 `confirmed_state.json` 재생성 |
 | `screen1.py` | 재발 유형 칸을 전이성뿐 아니라 국소 재발에서도 보인다 (시스템 값 기준이라 의사가 고쳐도 잠기지 않는다) | `tests/app` |
 
 지금 fixture에는 국소 재발 뒤 수술 전에 시작한 투약이 없어 정답 `patient_state`는 바뀌지 않았다.
 
-### 7.3 고식 값 이름 (`metastatic` → `palliative`)
+### 7.3 고식 값 이름 (`metastatic` → `palliative`, 2026-11-09 반영)
 
-`treatment_history[].setting`과 `confirmed_state` `prior_regimens[].setting`의 `metastatic`은 실제로는 "고식"(공고 투여요법 palliative)이다. 첫 스키마(TCGA, 10-12)가 전이일 기준으로만 단계를 나눠 기준 사건 이름을 값으로 붙였다. 이번 변경은 이름 변경이 4개 모듈 코드와 fixture 63개를 건드리므로 **값은 `metastatic` 그대로 두고**, 이름 변경은 별도 PR로 낸다. 병기 범주(`setting.disease`, 청크 `setting`)의 `metastatic`은 바꾸지 않는다.
+`treatment_history[].setting`과 `confirmed_state` `prior_regimens[].setting`의 `metastatic`은 실제로는 "고식"(공고 투여요법 palliative)이었다. 첫 스키마(TCGA, 10-12)가 전이일 기준으로만 단계를 나눠 기준 사건 이름을 값으로 붙였다. 별도 PR(`input/rename-palliative-setting`)에서 두 스키마의 값을 `palliative`로 바꾸고 A·B 코드, 시험, fixture를 맞췄다.
+
+- 병기 범주(`stage.disease_extent`, `biomarker_record.setting.disease`, 청크 `setting`, `decision_context`)의 `metastatic`은 바꾸지 않았다.
+- D 급여 조건의 `of.setting` 어휘는 검토 끝난 조건 데이터에 `metastatic`으로 들어 있어 그대로 두었다. B `conditions_eval._entries`가 `of.setting`의 `metastatic`을 `palliative`로 읽는다. D가 조건 어휘를 바꿀 때 이 변환을 지운다.
+- C 정답 `expected/guideline.json`의 `decision.setting`은 C 형식이라 바꾸지 않았다.
 
 ### 7.4 남은 일
 
 | 항목 | 내용 | 대상 |
 |---|---|---|
-| 값 이름 변경 | 위 7.3. 공용 스키마 2곳 | 4명 |
+| D 조건 어휘 | `of.setting`의 `metastatic`을 `palliative`로 바꿀지 (7.3) | D |
 | 재발 부위 수술 기록 없음 (4번 줄 중 `unknown`) | 지금은 `adjuvant`로 남는다. `unknown`을 `no`로 보지 않기로 해서 규칙으로 정하지 않았다. 화면 1에서 의사가 재발 유형을 확인한다 | A·B |
 | 수술 불가 3기의 화면 1 `setting.phase` | 투약은 고식으로 정하지만 `confirmed_state` `setting.phase`에는 palliative 값이 없어 지금은 `neoadjuvant`(원발 병리 없음)로 나온다 | 스키마 4명 |
 | 전이 없는 고식의 검색 경로 | `setting.disease`가 metastatic이 아니면 C는 선행·보조로만 찾는다 (`retrieve.py` `decision_lines`). 수술 불가 3기, 국소 재발 수술 전 환자는 고식 행·차수 검색 경로가 없다. `confirmed_state` `setting.phase`에도 palliative 값이 없다. B `line_endocrine`·`line_chemo`도 전이성일 때만 채운다 | B·C, 스키마 4명 |

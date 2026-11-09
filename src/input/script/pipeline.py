@@ -775,7 +775,7 @@ def _treatment(q: str, ctx: Context) -> dict | None:
     setting = re.search(r"보조|선행|고식", ctx.line)
     s, e = _day(r["start"], ctx.dx_date), _day(r["end"], ctx.dx_date)
     return {"drugs": [g for g, _ in r["drugs"]],
-            "setting": setting and {"보조": "adjuvant", "선행": "neoadjuvant", "고식": "metastatic"}[setting.group(0)],
+            "setting": setting and {"보조": "adjuvant", "선행": "neoadjuvant", "고식": "palliative"}[setting.group(0)],
             "start_date": r["start"], "end_date": r["end"], "start_day": s, "end_day": e,
             "duration_days": e - s if s is not None and e is not None else None,
             **({"ongoing": True} if r["ongoing"] else {}),
@@ -1240,8 +1240,7 @@ def _fill_treatment(history: list[dict], fields: dict, images: list[dict] = ()) 
     events = [d for d in (_value(fields, "recurrence.recurrence_day"), mday) if d is not None]
     rday = min(events) if events else None   # 첫 재발일 (국소·원격). 진단 시 IV기는 위 metastatic에서 먼저 걸린다
     # 재발 부위 수술일 (S2) = recurrence.surgery = yes의 관찰일. 국소 재발 뒤 S2 전에 시작한 투약은 공고상 선행 행
-    # (원발 병기 대상)이 아니라 '재발성' 고식 행으로만 급여된다 → 고식. 고식 값이 아직 metastatic이라 그 값을 쓴다
-    # (palliative 이름 변경은 따로 PR, 2026-11-09). S2 뒤 투약은 공고 p.48대로 아래 규칙에서 보조가 된다
+    # (원발 병기 대상)이 아니라 '재발성' 고식 행으로만 급여된다 → 고식 (palliative). S2 뒤 투약은 공고 p.48대로 아래 규칙에서 보조가 된다
     local = _value(fields, "recurrence.status") == "locoregional"
     s2 = _day_of(fields, "recurrence.surgery") if local and _value(fields, "recurrence.surgery") == "yes" else None
     # 재발 부위를 수술하지 않았다고 기록된 국소 재발(surgery = no): 재발 뒤 투약은 '재발성' 고식 행 (공고 p.48).
@@ -1254,17 +1253,17 @@ def _fill_treatment(history: list[dict], fields: dict, images: list[dict] = ()) 
         s, e = t["start_day"], t["end_day"]
         if t["setting"] is None:
             if mday is not None and s is not None and s >= mday:
-                t["setting"] = "metastatic"
+                t["setting"] = "palliative"
             elif s2 is not None and rday is not None and s is not None and rday <= s < s2:
-                t["setting"] = "metastatic"
+                t["setting"] = "palliative"
             elif local_unoperated and rday is not None and s is not None and s >= rday:
-                t["setting"] = "metastatic"
+                t["setting"] = "palliative"
             elif surgery is not None and s is not None and s < surgery:
                 t["setting"] = "neoadjuvant"
             elif rday is not None and s is not None and s < rday:
                 t["setting"] = "adjuvant"   # 재발했으면 원발암 치료는 끝났다: 재발 전 투약은 수술 병리가 없어도 보조 (2026-11-06)
             elif not operated and inoperable:
-                t["setting"] = "metastatic"
+                t["setting"] = "palliative"
             elif not operated:
                 # 수술 병리가 없으면 아직 수술 전 = 선행요법 (화면 1 setting.phase와 같은 규칙, 2026-11-06)
                 t["setting"] = "neoadjuvant"

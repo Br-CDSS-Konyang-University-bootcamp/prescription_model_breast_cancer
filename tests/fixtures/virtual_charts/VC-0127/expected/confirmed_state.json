@@ -319,7 +319,7 @@
           "subclasses": [
             "taxane"
           ],
-          "setting": "metastatic",
+          "setting": "palliative",
           "start_day": 1330,
           "end_day": 1500,
           "line_endocrine": null,
@@ -441,7 +441,7 @@
           "subclasses": [
             "taxane"
           ],
-          "setting": "metastatic",
+          "setting": "palliative",
           "start_day": 1330,
           "end_day": 1500,
           "line_endocrine": null,

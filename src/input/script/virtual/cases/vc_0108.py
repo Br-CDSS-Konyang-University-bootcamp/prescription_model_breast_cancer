@@ -59,7 +59,7 @@ def build() -> Chart:
     d = c.doc("medication", None)
     d.t("<항암 처방 이력>\n").ident(70, full=False)
     d.t("- ").row(f"키스칼리 600mg qd (3주 복용 1주 휴약) + 페마라 2.5mg qd : {kdate(D(20))} ~ 현재 복용 중, SD",
-                  drugs=["ribociclib", "letrozole"], setting="metastatic", start=D(20), end=None,
+                  drugs=["ribociclib", "letrozole"], setting="palliative", start=D(20), end=None,
                   best_response="SD", ongoing=True)
     d.t("\n")
     return c

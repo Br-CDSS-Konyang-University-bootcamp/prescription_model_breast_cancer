@@ -611,7 +611,7 @@
           "pertuzumab",
           "trastuzumab"
         ],
-        "setting": "metastatic",
+        "setting": "palliative",
         "start_date": "2023-01-22",
         "end_date": "2023-05-07",
         "start_day": 1420,
@@ -655,7 +655,7 @@
           "pertuzumab",
           "trastuzumab"
         ],
-        "setting": "metastatic",
+        "setting": "palliative",
         "start_date": "2023-05-28",
         "end_date": "2024-04-28",
         "start_day": 1546,
@@ -684,7 +684,7 @@
         "drugs": [
           "trastuzumab deruxtecan"
         ],
-        "setting": "metastatic",
+        "setting": "palliative",
         "start_date": "2024-05-26",
         "end_date": "2025-09-13",
         "start_day": 1910,

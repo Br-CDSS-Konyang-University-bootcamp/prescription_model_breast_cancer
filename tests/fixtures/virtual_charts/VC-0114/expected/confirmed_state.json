@@ -224,7 +224,7 @@
             "CDK4/6_inhibitor",
             "AI_nonsteroidal"
           ],
-          "setting": "metastatic",
+          "setting": "palliative",
           "start_day": 20,
           "end_day": 810,
           "line_endocrine": 1,
@@ -245,7 +245,7 @@
           "subclasses": [
             "SERD"
           ],
-          "setting": "metastatic",
+          "setting": "palliative",
           "start_day": 830,
           "end_day": 1010,
           "line_endocrine": 2,
@@ -271,7 +271,7 @@
           "subclasses": [
             "Chemotherapy"
           ],
-          "setting": "metastatic",
+          "setting": "palliative",
           "start_day": 1030,
           "end_day": 1300,
           "line_endocrine": null,
@@ -303,7 +303,7 @@
           "subclasses": [
             "taxane"
           ],
-          "setting": "metastatic",
+          "setting": "palliative",
           "start_day": 1320,
           "end_day": 1600,
           "line_endocrine": null,
@@ -343,7 +343,7 @@
             "CDK4/6_inhibitor",
             "AI_nonsteroidal"
           ],
-          "setting": "metastatic",
+          "setting": "palliative",
           "start_day": 20,
           "end_day": 810,
           "line_endocrine": 1,
@@ -364,7 +364,7 @@
           "subclasses": [
             "SERD"
           ],
-          "setting": "metastatic",
+          "setting": "palliative",
           "start_day": 830,
           "end_day": 1010,
           "line_endocrine": 2,
@@ -390,7 +390,7 @@
           "subclasses": [
             "Chemotherapy"
           ],
-          "setting": "metastatic",
+          "setting": "palliative",
           "start_day": 1030,
           "end_day": 1300,
           "line_endocrine": null,
@@ -422,7 +422,7 @@
           "subclasses": [
             "taxane"
           ],
-          "setting": "metastatic",
+          "setting": "palliative",
           "start_day": 1320,
           "end_day": 1600,
           "line_endocrine": null,

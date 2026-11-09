@@ -33,7 +33,7 @@ CASES_MD = ROOT / "src" / "input" / "virtual_patient_cases.md"
 OUT = ROOT / "tests" / "fixtures" / "virtual_charts"
 
 CYC = lambda n, days: {"value": n, "basis": "recorded", "interval_days": days, "interval_basis": "recorded"}  # noqa: E731
-SETTING_KO = {"neoadjuvant": "선행", "adjuvant": "보조", "metastatic": "고식"}
+SETTING_KO = {"neoadjuvant": "선행", "adjuvant": "보조", "palliative": "고식"}
 NA = "[Not Applicable]"
 
 
@@ -342,9 +342,9 @@ def vc_0111(ref: str = "VC-0111", local: bool = False, extracns_pd: bool = True)
               ["liver"])
     meds(c, 53, [
         dict(name="DPH (docetaxel 75mg/m2 + 퍼제타 + 허셉틴)", drugs=["docetaxel", "pertuzumab", "trastuzumab"],
-             setting="metastatic", s=14, e=119, cyc=(6, 21), resp="PR", why="유지요법 전환", stop="maintenance"),
+             setting="palliative", s=14, e=119, cyc=(6, 21), resp="PR", why="유지요법 전환", stop="maintenance"),
         # 진행일 = 진행을 보인 첫 영상 (간 CT 588, 간이 안정이면 뇌 MRI 590)
-        dict(name="HP 유지 (퍼제타 + 허셉틴)", drugs=["pertuzumab", "trastuzumab"], setting="metastatic", s=140,
+        dict(name="HP 유지 (퍼제타 + 허셉틴)", drugs=["pertuzumab", "trastuzumab"], setting="palliative", s=140,
              e=581, cyc=(22, 21), resp="PD", why="뇌·간 진행" if extracns_pd else "뇌 진행", stop="progression",
              prog=588 if extracns_pd else 590),
     ])
@@ -417,8 +417,8 @@ def _luminal_late(ref: str, dx_date: str, age_dx: int, age_now: int, *, adj_ai: 
         ac(40, 103), wpac(124, 201),
         dict(name=f"{ai_ko} ({ai}) qd", drugs=[ai], setting="adjuvant", s=215, e=2041, why="완료 (5년)",
              stop="completed"),
-        {**first, "setting": "metastatic", "resp": "PD", "why": "진행", "stop": "progression"},
-        {**second, "setting": "metastatic", "resp": "PD", "why": "진행", "stop": "progression"},
+        {**first, "setting": "palliative", "resp": "PD", "why": "진행", "stop": "progression"},
+        {**second, "setting": "palliative", "resp": "PD", "why": "진행", "stop": "progression"},
     ])
     return c
 
@@ -470,12 +470,12 @@ def vc_0114() -> Chart:
     meta_path(c, 9, 62, "폐", [er(5, 3, "positive"), er(3, 2, "positive", "PR"), her2("0", False)])
     meds(c, 66, [
         dict(name="키스칼리 (ribociclib) + 아리미덱스 (anastrozole)", drugs=["ribociclib", "anastrozole"],
-             setting="metastatic", s=20, e=810, cyc=(28, 28), resp="PD", why="진행", stop="progression", prog=810),
-        dict(name="파슬로덱스 (fulvestrant) 500mg", drugs=["fulvestrant"], setting="metastatic", s=830, e=1010,
+             setting="palliative", s=20, e=810, cyc=(28, 28), resp="PD", why="진행", stop="progression", prog=810),
+        dict(name="파슬로덱스 (fulvestrant) 500mg", drugs=["fulvestrant"], setting="palliative", s=830, e=1010,
              resp="PD", why="진행", stop="progression", prog=1010),
-        dict(name="젤로다 (capecitabine) 1000mg/m2 bid", drugs=["capecitabine"], setting="metastatic", s=1030, e=1300,
+        dict(name="젤로다 (capecitabine) 1000mg/m2 bid", drugs=["capecitabine"], setting="palliative", s=1030, e=1300,
              cyc=(13, 21), resp="PD", why="진행", stop="progression", prog=1300),
-        wpac(1320, 1600, setting="metastatic", why="진행", stop="progression", resp="PD", prog=1600),
+        wpac(1320, 1600, setting="palliative", why="진행", stop="progression", resp="PD", prog=1600),
     ])
     return c
 
@@ -506,7 +506,7 @@ def vc_0115(ref: str = "VC-0115", gbrca1: tuple | None = None) -> Chart:
     meds(c, 42, [
         ac(35, 98), wpac(119, 196),
         dict(name="gemcitabine 1000mg/m2 + carboplatin AUC 2 (d1, d8)", drugs=["gemcitabine", "carboplatin"],
-             setting="metastatic", s=525, e=735, cyc=(10, 21), resp="PD", why="진행", stop="progression", prog=735),
+             setting="palliative", s=525, e=735, cyc=(10, 21), resp="PD", why="진행", stop="progression", prog=735),
     ])
     return c
 
@@ -739,7 +739,7 @@ def vc_0123() -> Chart:
         ["PIK3CA", "ESR1", "PTEN"])
     meds(c, 64, [
         dict(name="버제니오 (abemaciclib) 150mg bid + 페마라 (letrozole)", drugs=["abemaciclib", "letrozole"],
-             setting="metastatic", s=20, e=690, resp="PD", why="진행", stop="progression", prog=680),
+             setting="palliative", s=20, e=690, resp="PD", why="진행", stop="progression", prog=680),
     ])
     return c
 
@@ -810,7 +810,7 @@ def vc_0127() -> Chart:
              anthra=[{"drug": "doxorubicin", "dose_per_admin": {"value": 96, "unit": "mg"}, "cycles": CYC(3, 21),
                       "total_dose": {"value": 288, "unit": "mg"}}]),
         wpac(98, 175),
-        wpac(1330, 1500, setting="metastatic", why="진행", stop="progression", resp="PD", prog=1500),
+        wpac(1330, 1500, setting="palliative", why="진행", stop="progression", resp="PD", prog=1500),
     ])
     return c
 

@@ -12,7 +12,7 @@ def state(history, metastasis_day=100):
     return {"fields": {"recurrence": rec, "treatment_history": history}}
 
 
-def tx(drugs, start, end=None, stop=None, response=None, setting="metastatic"):
+def tx(drugs, start, end=None, stop=None, response=None, setting="palliative"):
     return {"drugs": drugs, "setting": setting, "start_day": start, "end_day": end,
             "stop_reason": stop, "best_response": response}
 

@@ -234,7 +234,7 @@
             "AI_nonsteroidal",
             "CDK4/6_inhibitor"
           ],
-          "setting": "metastatic",
+          "setting": "palliative",
           "start_day": 15,
           "end_day": 925,
           "line_endocrine": 1,
@@ -257,7 +257,7 @@
             "AI_steroidal",
             "Other Targeted Therapy"
           ],
-          "setting": "metastatic",
+          "setting": "palliative",
           "start_day": 940,
           "end_day": 1245,
           "line_endocrine": 2,
@@ -280,7 +280,7 @@
             "AI_nonsteroidal",
             "CDK4/6_inhibitor"
           ],
-          "setting": "metastatic",
+          "setting": "palliative",
           "start_day": 15,
           "end_day": 925,
           "line_endocrine": 1,
@@ -303,7 +303,7 @@
             "AI_steroidal",
             "Other Targeted Therapy"
           ],
-          "setting": "metastatic",
+          "setting": "palliative",
           "start_day": 940,
           "end_day": 1245,
           "line_endocrine": 2,

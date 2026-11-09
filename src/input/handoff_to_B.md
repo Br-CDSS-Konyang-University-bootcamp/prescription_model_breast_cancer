@@ -623,7 +623,7 @@ A는 판정하지 않는다. B가 약제별로 판정한다.
                             "source": {"doc_id": "D4", "quote": "폐경 후"}}
     },
     "treatment_history": [
-      {"drugs": ["letrozole", "palbociclib"], "setting": "metastatic", "start_date": null, "end_date": null,
+      {"drugs": ["letrozole", "palbociclib"], "setting": "palliative", "start_date": null, "end_date": null,
        "duration_days": 412, "start_day": 1500, "end_day": 1912, "cycles": null,
        "stop_reason": null, "best_response": "PD",
        "source": {"doc_id": "D4", "quote": "letrozole + palbociclib, PD"}}
