@@ -133,6 +133,8 @@ VC-0109 짝 사례로 고정한다 (`src/input/script/virtual/cases/pairs.py`, �
 | 위치 | 바뀐 것 | 시험 |
 |---|---|---|
 | `pipeline.py` `_fill_treatment` | 표시 없는 투약: 국소 재발(`locoregional`) + 재발 부위 수술 yes + S2 날짜가 있을 때, R ≤ 시작일 < S2 → `metastatic`(고식). S2 뒤는 기존 규칙대로 `adjuvant` | `test_locoregional_recurrence_surgery_splits_settings` |
+| 〃 | 국소 재발 + 재발 부위 수술 **no**(차트에 수술 안 함이 적힘): 재발일 이후 투약 → `metastatic`(공고 "재발성" 고식 행). 기록 없음(`unknown`)은 `no`로 보지 않아 예전대로 `adjuvant` (4번 줄 중 `no`만 정함) | `test_unoperated_recurrence_and_inoperable_stage_are_palliative` |
+| 〃 | 수술 불가(`stage.operable = no`)이고 원발 수술 병리(pTNM·ypTNM)가 없는 투약 → `metastatic`(공고 고식 행 대상 "국소진행성", 스키마 `operable` 설명 "선행요법 대상인지 고식적요법 대상인지 가른다"). 확인 사유(`NO_SURGERY_NEO`)를 달지 않는다. 선행 뒤 수술해 ypTNM이 생기면 수술 전 투약은 예전대로 `neoadjuvant` | 같은 테스트 |
 | `rules.py` `palliative_lines` | 전이 기준일이 없으면 `setting = metastatic`인 투약만 고식 차수(`line`·`endocrine_line`·`chemo_line`)로 센다. 그 뒤 보조 투약은 세지 않는다 | `test_palliative_without_metastasis_day_counts_only_palliative` |
 | `confirmed.py` `recurrence_type` | 재발 부위 수술 yes이고 의도가 palliative가 아니면 `locoregional_curative`. 의도 기록이 없으면 확인 사유 | VC-0109 `confirmed_state.json` 재생성 |
 | `screen1.py` | 재발 유형 칸을 전이성뿐 아니라 국소 재발에서도 보인다 (시스템 값 기준이라 의사가 고쳐도 잠기지 않는다) | `tests/app` |
@@ -148,7 +150,8 @@ VC-0109 짝 사례로 고정한다 (`src/input/script/virtual/cases/pairs.py`, �
 | 항목 | 내용 | 대상 |
 |---|---|---|
 | 값 이름 변경 | 위 7.3. 공용 스키마 2곳 | 4명 |
-| 재발 부위 수술 안 함·모름 (4번 줄) | 지금은 `adjuvant`로 남는다. 공고 "재발성" 고식 행 대상이지만 `unknown`을 `no`로 보지 않기로 해서 규칙으로 정하지 않았다 | A·B |
+| 재발 부위 수술 기록 없음 (4번 줄 중 `unknown`) | 지금은 `adjuvant`로 남는다. `unknown`을 `no`로 보지 않기로 해서 규칙으로 정하지 않았다. 화면 1에서 의사가 재발 유형을 확인한다 | A·B |
+| 수술 불가 3기의 화면 1 `setting.phase` | 투약은 고식으로 정하지만 `confirmed_state` `setting.phase`에는 palliative 값이 없어 지금은 `neoadjuvant`(원발 병리 없음)로 나온다 | 스키마 4명 |
 | 전이 없는 고식의 검색 경로 | `setting.disease`가 metastatic이 아니면 C는 선행·보조로만 찾는다 (`retrieve.py` `decision_lines`). 수술 불가 3기, 국소 재발 수술 전 환자는 고식 행·차수 검색 경로가 없다. `confirmed_state` `setting.phase`에도 palliative 값이 없다. B `line_endocrine`·`line_chemo`도 전이성일 때만 채운다 | B·C, 스키마 4명 |
 | ESMO 근거 공백 | ESMO EBC 2024는 수술 가능한 조기·국소진행성, MBC 2026은 원격 전이만 다룬다. 수술 불가 국소진행성·국소 재발의 약물 치료 문장이 없다. 급여는 공고로 판정되지만 지침 인용을 어떻게 할지 (범위 밖 표시 / MBC 장 검색) 정해야 한다 | 4명 |
 | 간주 규칙 | `deemed_lines`는 전이 기준일만 본다. 국소 재발 고식 투약의 "보조요법 종료 후 1년 이내 재발" 판정은 재발일(R)을 기준으로 해야 하는지 확인 필요 | B |
