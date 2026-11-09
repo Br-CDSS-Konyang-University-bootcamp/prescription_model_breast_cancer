@@ -1110,6 +1110,23 @@ def _diagnosis_date(found) -> str | None:
     return None
 
 
+# 사건 칸: 값이 날짜가 아니고(수술 여부 등) 그 사건의 날짜를 observed_date로만 담는 칸 (2026-11-09).
+# LLM이 observed_date를 비워도 인용 구절에 날짜가 정확히 하나 있으면 그 날짜를 쓴다. 검사 결과 칸은 구절의 날짜가
+# 보고일일 수 있어(검체 채취일과 다름) 넣지 않는다
+EVENT_FIELDS = ("recurrence.surgery",)
+
+
+def _quote_date(quote: str) -> dict:
+    """인용 구절의 날짜 하나 → {"observed_date": YYYY-MM-DD}. 없거나 둘 이상이거나 날짜가 아니면 {}."""
+    dates = set()
+    for m in DATE.finditer(quote):
+        try:
+            dates.add(dt.date(*_ymd(m)).isoformat())
+        except ValueError:
+            return {}
+    return {"observed_date": dates.pop()} if len(dates) == 1 else {}
+
+
 def _entry(c: dict, doc: Document, src: dict, out: dict) -> dict:
     """정규화 결과 + 원문 표기·검체·관찰 날짜·근거. 유전자 칸에는 raw가 없다 (변이마다 raw가 있다)."""
     e = dict(out)
@@ -1118,6 +1135,8 @@ def _entry(c: dict, doc: Document, src: dict, out: dict) -> dict:
     for k in ("specimen",) if c["field"].startswith("molecular.") else ("specimen", "observed_date"):
         if c.get(k) is not None:
             e[k] = c[k]
+    if c["field"] in EVENT_FIELDS and e.get("observed_date") is None:
+        e.update(_quote_date(src["quote"]))
     e["source"] = src
     e["_date"] = c.get("observed_date") or doc.doc_date or ""
     return e

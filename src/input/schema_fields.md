@@ -59,7 +59,7 @@ A는 원칙적으로 표기만 정리한다. 예외: HER2 IHC의 `result`는 ISH
 | `status` | `present`(값 있음) / `not_done`(미시행) / `not_recorded`(기록 없음) | `"present"` |
 | `value` | 표준값 | `{"percent": 95}` |
 | `raw` | 원문 표기 그대로 | `"ER(+) 95%"` |
-| `observed_date` | 검사일·기록일 | `"2024-03-05"` |
+| `observed_date` | 검사일·기록일. 사건 칸(`recurrence.surgery`, `pipeline.EVENT_FIELDS`)은 그 사건의 날짜: LLM이 비워도 인용 구절에 날짜가 정확히 하나 있으면 코드가 그 날짜를 넣는다 (2026-11-09) | `"2024-03-05"` |
 | `specimen` [합의 예정] | `primary` / `metastasis` / `cfDNA` / `unknown` | `"primary"` |
 | `confidence` | LLM 추출 확신도 0–1 | `0.97` |
 | `source` | 원문 근거 (문서 ID, 인용, 문자 위치) | `{"doc_id":"D1","quote":"ER(+) 95%","char_start":120,"char_end":129}` |

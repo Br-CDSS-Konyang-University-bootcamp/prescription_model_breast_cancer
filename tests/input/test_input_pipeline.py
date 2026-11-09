@@ -234,3 +234,14 @@ def test_unmarked_drug_without_surgery_is_neoadjuvant():
     fields = {"stage": {}, "diagnosis": {}, "recurrence": {"metastasis_day": {"status": "present", "value": 1000}}}
     assert _fill_treatment([row, after], fields) == []
     assert (row["setting"], after["setting"]) == ("adjuvant", "metastatic")
+
+
+def test_event_field_date_from_quote():
+    """사건 칸은 LLM이 날짜를 비워도 인용 구절의 날짜 하나를 observed_date로 쓴다. 날짜가 없거나 둘 이상이면 비운다."""
+    from src.input.script.pipeline import _quote_date
+    assert _quote_date("2022.9.29 흉벽 광범위 절제") == {"observed_date": "2022-09-29"}
+    assert _quote_date("2022년 9월 29일 흉벽 광범위 절제") == {"observed_date": "2022-09-29"}
+    assert _quote_date("22/09/29 흉벽 광범위 절제") == {"observed_date": "2022-09-29"}
+    assert _quote_date("흉벽 광범위 절제") == {}
+    assert _quote_date("2022.9.4 재발, 2022.9.29 절제") == {}
+    assert _quote_date("2022.13.40 절제") == {}

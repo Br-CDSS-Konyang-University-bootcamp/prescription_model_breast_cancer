@@ -94,3 +94,21 @@ def test_scenario_points():
     assert f["VC-0108"]["treatment_history"][0]["ongoing"] is True
     assert f["VC-0109"]["recurrence"]["surgery_intent"]["value"] == "curative"
     assert all(d["status"] == "not_applicable" for d in f["VC-0109"]["deemed_lines"])
+
+
+SAVED = sorted(FIXTURES.glob("**/expected/patient_state.json"))
+
+
+@pytest.mark.parametrize("path", SAVED, ids=lambda p: p.parent.parent.name)
+def test_event_fields_keep_quote_date(path):
+    """사건 칸(수술 여부 등)의 인용 구절에 날짜가 하나 있으면 정답 observed_date도 그 날짜다 (2026-11-09).
+    사례 하나가 아니라 저장된 모든 정답(개발·짝·시험·보류·표현 변형)을 본다."""
+    from src.input.script.pipeline import EVENT_FIELDS, _quote_date
+    fields = json.loads(path.read_text(encoding="utf-8"))["fields"]
+    for name in EVENT_FIELDS:
+        group, key = name.split(".")
+        e = (fields.get(group) or {}).get(key) or {}
+        quote = (e.get("source") or {}).get("quote") or ""
+        want = _quote_date(quote).get("observed_date")
+        if e.get("status") == "present" and want:
+            assert e.get("observed_date") == want, (name, quote)

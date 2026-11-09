@@ -25,7 +25,7 @@ def build(pr: tuple[int, int] = (3, 2)) -> Chart:
     d.t(" (조직검사로 확인).\n")
     d.put(f"tamoxifen {kdate(D(1150))} 중단", F("recurrence.adjuvant_endocrine_end_date", D(1150), raw=kdate(D(1150))))
     d.t(". PET-CT에서 ").put("원격 전이 없음", F("recurrence.metastatic_sites", "[Not Applicable]")).t(".\n")
-    d.put(f"{kdate(D(1165))} 흉벽 광범위 절제", F("recurrence.surgery", "yes")).t(" (")
+    d.put(f"{kdate(D(1165))} 흉벽 광범위 절제", F("recurrence.surgery", "yes", observed_date=D(1165))).t(" (")
     d.put("완치 목적", F("recurrence.surgery_intent", "curative")).t(", 절제연 음성). ")
     d.put("수술 후 원격 전이 소견 없음", F("recurrence.later_distant", "no")).t(".\n")
     d.put("ECOG PS 0", F("patient.ecog", 0, observed_date=idx)).t(". 재발 후 보조 내분비요법 결정.\n")
