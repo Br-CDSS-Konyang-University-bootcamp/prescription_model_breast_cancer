@@ -507,7 +507,7 @@ def test_rules_never_penalize_a_virtual_chart_answer():
                        + s._er_adjust(t, a.get("subtype"))
                        + s._targetable_adjust(t, a.get("biomarker_tags")) + s._third_line_adjust(t, a.get("line"))
                        + s._phase_adjust(t, a.get("line")) + s._high_risk_adjust(t, a.get("high_risk_early"))
-                       + s._marker_scope_adjust(t, a.get("biomarker_tags")) + s._dfi_adjust(t, a.get("stage_at_diagnosis"))
+                       + s._marker_scope_adjust(t, a.get("biomarker_tags"))
                        + (1.0 if a.get("her2_adjuvant_relapse") == "no" and s.HER2_EARLY_RELAPSE.search(t.split(" Footnotes: ")[0]) else 0.0))
             if penalty:
                 bad.append((path.parts[-3], cid))
@@ -577,11 +577,51 @@ def test_rules_reach_the_chunks_run_flow_flagged():
         a = search_args(record, **patient)
         t = next(v for k, v in text.items() if k.endswith(short))
         return (s._phase_adjust(t, a.get("line")) + s._high_risk_adjust(t, a.get("high_risk_early"))
-                + s._marker_scope_adjust(t, a.get("biomarker_tags")) + s._dfi_adjust(t, a.get("stage_at_diagnosis"))
+                + s._marker_scope_adjust(t, a.get("biomarker_tags"))
                 + s._prior_chemo_adjust(t, a.get("prior_metastatic_chemo")))
 
     flagged = [("VC-0124", "hrpos-fca2a7"), ("VC-0121", "hrpos-fca2a7"), ("VC-0121", "hrpos-7568e8"),
                ("VC-0107", "hrpos-1f97a2"), ("VC-0107", "hrpos-cca75c"), ("VC-0104", "tnbc-1l-a2bd8f"),
-               ("VC-0104", "tnbc-1l-2d012a"), ("VC-0116", "tnbc-1l-a2bd8f"), ("VC-0116", "tnbc-1l-2d012a"),
-               ("VC-0113", "luminal-3l-ae383b"), ("VC-0125", "luminal-3l-ae383b"), ("VC-0114", "luminal-3l-ae383b")]
+               ("VC-0104", "tnbc-1l-2d012a"), ("VC-0116", "tnbc-1l-a2bd8f"), ("VC-0116", "tnbc-1l-2d012a")]
     assert [f for f in flagged if not penalty(*f)] == []
+
+
+def test_overfit_review_rules_2026_11_10():
+    # 과적합 점검(src/rag/rule_review_2026-11-10.md): 선행 결정의 잔존암 권고는 아형과 관계없이 감점, de novo의 DFI 규칙과
+    # 'beyond third-line'을 고식 항암 뒤로 보던 규칙은 뺐다 (atezolizumab 6280b3는 de novo PD-L1 양성 환자에게도 맞다)
+    import sys, types
+    sys.modules.setdefault("sentence_transformers", types.SimpleNamespace(SentenceTransformer=None, CrossEncoder=None))
+    from src.rag import searcher as s
+    for residual in ("For patients with residual invasive disease after neoadjuvant ChT, T-DM1 is recommended",
+                     "In patients with TNBC and residual disease who did not receive ICIs, capecitabine"):
+        assert s._phase_adjust(residual, "neoadjuvant") == 1.0
+        assert s._phase_adjust(residual, "adjuvant") == 0.0
+    assert not hasattr(s, "_dfi_adjust")
+    rechallenge = "Rechallenge with anthracyclines or taxanes can be recommended beyond third-line treatment"
+    assert s._prior_chemo_adjust(rechallenge, "no") == 0.0
+    assert s._high_risk_adjust("Extended ET beyond 5 years should be considered in high-risk EBC", "no") == 1.0
+    assert s._high_risk_adjust("Bisphosphonates ... especially if at high risk of relapse", "no") == 0.0
+
+
+def test_rules_never_penalize_an_eval_set_answer():
+    # 28건 정답만으로 확인하면 그 답지에 맞춘 규칙을 못 거른다. 평가 문제집(10-20, 가상 차트보다 먼저 따로 만듦)의 정답도
+    # 감점 규칙에 걸리지 않아야 한다 (과적합 점검 2026-11-10)
+    import csv, re, sys, types
+    sys.modules.setdefault("sentence_transformers", types.SimpleNamespace(SentenceTransformer=None, CrossEncoder=None))
+    from src.rag.chunk_store import load_guideline_chunks
+    from src.rag.chunk_common import BASE_DIR
+    from src.rag import searcher as s
+    text = {c["chunk_id"]: c["text"] for c in load_guideline_chunks()}
+    bad = []
+    with open(BASE_DIR / "data" / "eval" / "rag_eval_cases.csv", encoding="utf-8-sig", newline="") as f:
+        for row in csv.DictReader(f):
+            tags = [t for t in re.split(r"[;,| ]+", row.get("biomarker_tags") or "") if t]
+            for cid in re.findall(r"esmo-[\w-]+", row.get("expected_chunks") or ""):
+                t = text.get(cid, "")
+                penalty = (s._menopause_adjust(t, row.get("menopausal_status")) + s._targetable_adjust(t, tags)
+                           + s._third_line_adjust(t, row.get("line")) + s._phase_adjust(t, row.get("line"))
+                           + s._high_risk_adjust(t, row.get("high_risk_early")) + s._marker_scope_adjust(t, tags)
+                           + s._er_adjust(t, row.get("subtype")))
+                if penalty:
+                    bad.append((row["case_id"], cid))
+    assert bad == []
