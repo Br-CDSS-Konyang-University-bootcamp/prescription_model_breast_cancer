@@ -61,7 +61,9 @@ def test_answer_schema_keeps_citation_minimum():
 def test_retry_once_when_all_options_deleted_and_counts_only():
     """B-1: 주 후보가 모두 지워지면 한 번 다시 묻는다. B-2: 답 원문 대신 숫자만 기록한다."""
     seen = []
-    no_cite = opt(rationale="근거 없이 권고된다.", citations=[], reimbursement="no_criteria")
+    # 받은 청크에 없는 약이라 근거를 붙여 살릴 수도 없는 후보
+    no_cite = opt(therapy="exemestane", drugs=["exemestane"], rationale="근거 없이 권고된다.", citations=[],
+                  reimbursement="no_criteria")
     good = opt(rationale=f"권고된다 [{KID2['chunk_id']}].", citations=[KID2["chunk_id"]], reimbursement="no_criteria")
 
     def llm(prompt):
@@ -163,7 +165,9 @@ def test_prompt_has_phase_risk_deemed_and_positive_markers():
     text = build_prompt({}, EARLY_REC, [KID1], [], confirmed)
     assert '"phase": "adjuvant"' in text and '"esmo": "no"' in text
     assert '"deemed_lines_met": ["DEEM-HER2ADC-6M"]' in text and '"positive_markers": ["gBRCA1"]' in text
-    assert "DEEM-HER2ADC-6M이 있으면" in text and "PARP 억제제" in text
+    # 지시문에는 특정 약 이름 예시를 넣지 않는다 (과적합 방지, 2026-11-06)
+    instructions = text.split("[환자]")[0]
+    assert "T-DXd" not in instructions and "PARP" not in instructions and "abemaciclib" not in instructions
 
 
 
@@ -234,3 +238,18 @@ def test_early_bisphosphonate_fill_conditions():
     rec, _ = postprocess({"options": [dict(let)]}, {**rec_hr, "subtype": "HR+/HER2+"}, [KID1, KID2, bis], [], TODAY,
                          phase="adjuvant", menopausal="postmenopausal")
     assert rec["supportive_options"] == []                                    # v0.1은 HR+/HER2-만
+
+
+
+def test_reimbursement_id_only_option_kept_and_non_drug_moved_to_note():
+    """B-13: 급여 행 ID만 인용한 맞는 약은 지침 청크를 붙여 살린다. B-14: 약이 아닌 후보는 참고로 옮긴다."""
+    reimb = [{"chunk_id": "bc-adj-r18", "doc_type": "reimbursement", "source": "HIRA-booklet", "drugs": ["letrozole"],
+              "text": "지어낸 행", "reimbursement": {"source_type": "baseline", "notice_no": "x", "effective_from": "2026-11-01"}}]
+    o = opt(rationale="권고된다 [bc-adj-r18].", citations=[], reimbursement="no_criteria")
+    mdt = opt(therapy="MDT discussion", drugs=[], rationale=f"논의한다 [{KID1['chunk_id']}].", citations=[KID1["chunk_id"]],
+              reimbursement="no_criteria")
+    rec, log = postprocess({"options": [o, mdt]}, RECORD, [KID1, KID2], reimb, TODAY)
+    assert [x["therapy"] for x in rec["options"]] == ["letrozole"]
+    assert rec["options"][0]["citations"] == [KID2["chunk_id"]]
+    assert rec["options"][0]["rationale"].startswith(f"이 요법의 약이 지침 권고에 있다 [{KID2['chunk_id']}].")
+    assert "참고 (약 후보 아님): MDT discussion" in rec["conflicts"]

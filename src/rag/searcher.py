@@ -68,10 +68,8 @@ VISCERAL_CRISIS_PENALTY = 1.0
 # (T-DXd HER2-low, sacituzumab, Dato-DXd)로 갈린다 (그림 4 'No previous ChT' / 'Previous ChT'). 고식 항암이 없는 환자에게
 # "ChT 1차례 이상 뒤" 권고가 정답보다 위에 왔다 (VC-0113 check_case, 2026-11-03). 확정 고식 항암 차수로 반대 갈래를 감점한다.
 # 보조·선행 항암은 세지 않는다 (DESTINY-Breast04처럼 보조 항암 6개월 안 재발을 1차례로 치는 예외는 차수 확정 때 의사가 정한다)
-# 'beyond third-line' 재투여(ae383b)도 고식 항암 뒤 갈래로 본다: 고식 항암 없이 내분비 3차 이후에 항암을 처음 고르는 환자
-# (VC-0113, VC-0125)에게 들어와 LLM이 인용했다 (A run_flow 2026-11-05 C-6)
 NEEDS_PRIOR_CHEMO = re.compile(r"after at least one (prior )?line of ChT|received at least one prior line of ChT|"
-                               r"→ Previous ChT →|beyond third-line treatment", re.IGNORECASE)
+                               r"→ Previous ChT →", re.IGNORECASE)
 NO_PRIOR_CHEMO = re.compile(r"not previously received ChT|→ No previous ChT →", re.IGNORECASE)
 PRIOR_CHEMO_MISMATCH_PENALTY = 1.0
 # 조기 보조 결정의 갈래: ESMO EBC 권고·그림 경로는 '수술 먼저 한 환자'(stage I 수술 뒤 paclitaxel-trastuzumab, 병기 II-III
@@ -111,7 +109,9 @@ THIRD_LINE = re.compile(r"\bthird-line\b", re.IGNORECASE)
 THIRD_LINE_PENALTY = 1.0
 # 선행요법 결정: 수술 뒤에만 쓰는 권고(보조 비스포스포네이트 fca2a7, '국소 치료를 마친 뒤' abemaciclib 1f97a2·olaparib 7568e8,
 # 보조 olaparib과 함께 ET 936c81, 5년 넘는 연장 ET cca75c)가 선행 결정(VC-0121, VC-0124)에 검색돼 LLM이 인용했다
-# (A run_flow 2026-11-05 C-5, B-11). 차수가 neoadjuvant면 감점한다. 그림 경로는 보지 않는다 (수술 뒤 단계까지 이어 그린다)
+# (A run_flow 2026-11-05 C-5, B-11). 차수가 neoadjuvant면 감점한다. 그림 경로는 보지 않는다 (수술 뒤 단계까지 이어 그린다).
+# 과적합 점검(2026-11-10): HR+ 장의 다섯 문장만 고르면 HER2 양성·TNBC 선행 결정에서 '잔존암' 권고(T-DM1 ae367a,
+# capecitabine cd090b, olaparib 83cc1d)가 남는다. 수술 결과가 있어야 정하는 권고라 잔존 표현(RESIDUAL)도 같은 감점에 넣는다
 POST_SURGERY_ONLY = re.compile(r"Bisphosphonates \(up to 5 years\)|after completion of locoregional therapy|"
                                r"Following completion of \(neo\)adjuvant and locoregional therapy|with adjuvant olaparib|"
                                r"Extended ET beyond 5 years", re.IGNORECASE)
@@ -119,7 +119,7 @@ PHASE_PENALTY = 1.0
 # 조기 고위험: '병기 III 또는 고위험 II기' abemaciclib(1f97a2)과 '고위험' 연장 ET(cca75c)가 고위험이 아닌 환자(VC-0107)에게
 # 나왔다 (A run_flow 2026-11-05 B-11, C-4: 그 자리에 정답 OFS 6308eb가 밀림). high_risk_early가 no면 감점한다.
 # '특히 고위험이면'(fca2a7), '고위험이면 OFS'(6308eb)처럼 고위험이 아닌 갈래도 말하는 권고는 그대로다
-HIGH_RISK_ONLY = re.compile(r"high-risk stage II|should be considered in high-risk EBC", re.IGNORECASE)
+HIGH_RISK_ONLY = re.compile(r"\bhigh-risk stage II\b|\bin high-risk EBC\b", re.IGNORECASE)
 HIGH_RISK_PENALTY = 1.0
 # 바이오마커 범위: ESMO TNBC 1차 권고는 'gBRCA 정상이고 PD-L1 음성'(taxane a2bd8f, ADC 2d012a)처럼 범위를 본문에 적고
 # 청크 태그는 비어 있다. PD-L1 양성 환자(VC-0104)·gBRCA 변이 환자(VC-0116)에게 이 권고가 들어왔다 (A run_flow 2026-11-05 C-6).
@@ -129,10 +129,9 @@ MARKER_NEGATIVE_SCOPE = {
     "gBRCA": re.compile(r"BRCA1/2[- ]+wild[- ]type", re.IGNORECASE),
 }
 MARKER_SCOPE_PENALTY = 1.0
-# 무병 기간: 'DFI ≥12개월' 환자 대상 재투여 권고(ae383b)가 de novo 환자(VC-0114, 무병 기간 없음)에게 들어왔다 (C-6).
-# 진단 시 전이성(stage_at_diagnosis metastatic)이면 감점한다
-DFI_REQUIRED = re.compile(r"disease-free interval \(DFI\) ≥ ?12 months|DFI ≥ ?12 months", re.IGNORECASE)
-DFI_PENALTY = 1.0
+# 무병 기간 규칙(de novo에 'DFI ≥12개월' 권고 감점)과 'beyond third-line' 재투여를 고식 항암 뒤 갈래로 보던 규칙은
+# 과적합 점검(2026-11-10)에서 뺐다: DFI 조건은 재발 환자를 거르는 말이라 de novo 환자는 해당된다(atezolizumab 6280b3도 감점됐다).
+# 'beyond third-line'은 차수 수이지 고식 항암 여부가 아니다. 둘 다 VC-0113·0114·0125 정답에 맞춘 규칙이었다 (src/rag/rule_review_2026-11-10.md)
 CACHE_SIZE = 256  # 같은 조건의 검색 결과를 기억해 두는 개수. 색인이 바뀌면 indexer가 비운다
 
 _cache = {}
@@ -161,7 +160,6 @@ def search_guidelines(
         pcr: str = None,
         her2_adjuvant_relapse: str = None,
         high_risk_early: str = None,
-        stage_at_diagnosis: str = None,
 ) -> list[dict]:
     """지침 권고 청크를 찾는다. with_parent=True면 각 결과에 부모(소단원) 청크를 "parent" 키로 붙인다
     (LLM에는 소단원 전체를 함께 넘긴다, PROJECT.md §6).
@@ -186,7 +184,7 @@ def search_guidelines(
     '면역항암을 받지 않은 잔존' / 보조 pembrolizumab 갈래 중 반대쪽만 가리키는 권고·그림 경로를 감점한다 (_early_adjust).
     HER2 양성 아형이면 HR 상태와 반대쪽 ER 상태만 대상으로 하는 권고를 감점한다 (_er_adjust, 인자 없이 subtype으로).
     her2_adjuvant_relapse("no")면 '보조 항HER2 종료 6-12개월 안 재발' 권고를 감점한다.
-    high_risk_early("no")면 고위험 전용 권고를, stage_at_diagnosis("metastatic")면 'DFI ≥12개월' 권고를 감점한다.
+    high_risk_early("no")면 고위험 전용 권고를 감점한다.
     차수가 neoadjuvant면 수술 뒤에만 쓰는 권고를, biomarker_tags에 PD-L1+·gBRCA가 있으면 그 마커 음성 전용 권고를 감점한다.
     같은 조건의 검색은 기억해 둔 결과를 돌려준다 (색인을 바꾸면 비워진다)."""
     sites = _site_keys(metastatic_sites)
@@ -194,14 +192,14 @@ def search_guidelines(
     key = (query_text, setting, subtype, line, source, tuple(biomarker_tags or ()), top_k, with_parent, rerank,
            tuple(sorted(sites)) if sites is not None else None, negatives, chunk_kind, endocrine_relapse_12m,
            menopausal_status, visceral_crisis, prior_metastatic_chemo, neoadjuvant_received, ici_received, pcr,
-           her2_adjuvant_relapse, high_risk_early, stage_at_diagnosis)
+           her2_adjuvant_relapse, high_risk_early)
     if key not in _cache:
         if len(_cache) >= CACHE_SIZE:
             _cache.clear()
         _cache[key] = _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, with_parent, rerank,
                               sites, negatives, chunk_kind, endocrine_relapse_12m, menopausal_status,
                               visceral_crisis, prior_metastatic_chemo, (neoadjuvant_received, ici_received, pcr),
-                              her2_adjuvant_relapse, high_risk_early, stage_at_diagnosis)
+                              her2_adjuvant_relapse, high_risk_early)
     return copy.deepcopy(_cache[key])  # 받은 쪽이 결과를 고쳐도 기억해 둔 값은 그대로
 
 
@@ -246,8 +244,7 @@ def _site_adjust(parent_id, sites) -> float:
 
 def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, with_parent, rerank,
             sites=None, negatives=frozenset(), chunk_kind="recommendation", relapse_12m=None,
-            menopause=None, crisis=None, prior_chemo=None, early=(None, None, None), her2_relapse=None, high_risk=None,
-            stage_at_diagnosis=None) -> list[dict]:
+            menopause=None, crisis=None, prior_chemo=None, early=(None, None, None), her2_relapse=None, high_risk=None) -> list[dict]:
     client = get_qdrant_client()
     model = get_embedding_model()
 
@@ -358,12 +355,10 @@ def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, w
         # 표적 변이가 있는 환자에게 '표적 변이가 없을 때' 권고, 1·2차 환자에게 '3차' 권고는 감점
         score -= _targetable_adjust(payload.get("text", ""), target_tags)
         score -= _third_line_adjust(payload.get("text", ""), line)
-        # 선행 결정에 수술 뒤 권고, 고위험이 아닌 환자에게 고위험 전용 권고, 양성 마커 환자에게 그 마커 음성 전용 권고,
-        # de novo 환자에게 'DFI ≥12개월' 권고는 감점
+        # 선행 결정에 수술 뒤 권고, 고위험이 아닌 환자에게 고위험 전용 권고, 양성 마커 환자에게 그 마커 음성 전용 권고는 감점
         score -= _phase_adjust(payload.get("text", ""), line)
         score -= _high_risk_adjust(payload.get("text", ""), high_risk)
         score -= _marker_scope_adjust(payload.get("text", ""), target_tags)
-        score -= _dfi_adjust(payload.get("text", ""), stage_at_diagnosis)
 
         scored_results.append({
             "score": score,
@@ -469,7 +464,7 @@ def _phase_adjust(text: str, line) -> float:
     """선행요법 결정인데 권고가 수술 뒤에만 쓰는 치료면 감점할 크기. 그림 경로는 보지 않는다."""
     if line != "neoadjuvant" or "(algorithm path)" in text:
         return 0.0
-    return PHASE_PENALTY if POST_SURGERY_ONLY.search(text) else 0.0
+    return PHASE_PENALTY if POST_SURGERY_ONLY.search(text) or RESIDUAL.search(text) else 0.0
 
 
 def _high_risk_adjust(text: str, high_risk) -> float:
@@ -487,12 +482,6 @@ def _marker_scope_adjust(text: str, tags) -> float:
             return MARKER_SCOPE_PENALTY
     return 0.0
 
-
-def _dfi_adjust(text: str, stage_at_diagnosis) -> float:
-    """진단 시 전이성(de novo, 무병 기간 없음)인데 권고가 'DFI ≥12개월' 환자 대상이면 감점할 크기."""
-    if stage_at_diagnosis != "metastatic":
-        return 0.0
-    return DFI_PENALTY if DFI_REQUIRED.search(_body(text)) else 0.0
 
 
 def _er_adjust(text: str, subtype) -> float:
