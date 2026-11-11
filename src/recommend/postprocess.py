@@ -484,8 +484,20 @@ def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursemen
         cites = [i for i in o.get("citations") or [] if i in guide_by_id]
         cites += [i for i in in_text if i in guide_by_id and i not in cites]
         if not cites or not o["rationale"]:
-            log.append(f"후보 삭제: {name} (지침 인용이 있는 근거 문장 없음)")
-            return False
+            # 2번 뒤: 지침 인용이 남지 않았어도, 후보 약이 모두 넘겨받은 지침 청크에 있으면 지우지 않는다. LLM의 근거 없는 문장은
+            # 보여 주지 않고, 약이 든 청크(관련도 순서로 첫 것)를 붙인 정해진 문장으로 대신한다. 근거 없는 내용을 보여 주지
+            # 않는 원칙은 지키면서 맞는 약을 살린다 (A 공유 2026-11-05 §7 B-13: LLM이 [ID]를 빠뜨리거나 급여 행 ID만 인용해
+            # 맞는 약이 지워짐). 약을 정하지 못한 후보는 살리지 않는다
+            _fill_drugs_evidence(o, [])
+            found = [next((c["chunk_id"] for c in guideline_chunks if _drug_in_chunks(d, [c])), None)
+                     for d in o.get("drugs") or []]
+            if not found or None in found:
+                log.append(f"후보 삭제: {name} (지침 인용이 있는 근거 문장 없음)")
+                return False
+            cites = list(dict.fromkeys(found))
+            o["rationale"] = " ".join(f"이 요법의 약이 지침 권고에 있다 [{cid}]." for cid in cites) + \
+                (" " + o["rationale"] if o["rationale"] else "")
+            log.append(f"{name}: 지침 인용이 없어 약이 든 받은 지침 청크를 근거로 붙이고 정해진 문장으로 씀 {cites}")
         o["citations"] = cites
         filled, unresolved = _fill_drugs_evidence(o, [guide_by_id[i] for i in cites])
         if filled:
@@ -493,6 +505,11 @@ def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursemen
         if unresolved:
             rec["conflicts"].append(f"{name}: {unresolved}")
             log.append(f"{name}: {unresolved}")
+        elif not o.get("drugs") and not _is_supportive(o):
+            # 약도 약 계열 이름도 없는 후보(예: 다학제 회의 토론, 국소 치료)는 처방 후보가 아니라 참고로 옮긴다 (A 공유 §7 B-14)
+            rec["conflicts"].append(f"참고 (약 후보 아님): {name}")
+            log.append(f"후보 삭제: {name} (약이 아닌 후보라 참고로 옮김)")
+            return False
         # 3번 앞: 인용한 지침 청크에 후보 약이 없지만 넘겨받은 다른 지침 청크에 그 약이 있으면, 그 청크(관련도 순서로 첫 것)를
         # 근거에 더한다 (A 공유 2026-11-05 B-5, VC-0127 sacituzumab). 지어낸 근거가 아니라 받은 청크에 약이 있음을 확인하는 것
         added_for_drug = []
