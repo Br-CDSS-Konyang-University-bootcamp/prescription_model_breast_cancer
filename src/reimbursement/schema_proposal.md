@@ -61,7 +61,7 @@ op는 설계의 8개에 `contains`(이전 치료에 있어야 함)를 더했다.
   항목마다 한 번씩 더한 값이다. 예: 'trastuzumab ± pertuzumab 투여 주기 18주기 이하' -> `of.drugs [trastuzumab, pertuzumab]`,
   'trastuzumab + pertuzumab 6주기' 항목은 6으로 센다 (12가 아님).
 - 공고 표현을 칸·값으로 옮기는 기준은 팀 사전 `data/dictionaries/reimbursement_terms.csv`다 (2026-10-20 대조, 테스트로 확인).
-  고식적요법은 `of.setting [metastatic]`, 림프절 양성·음성은 N 병기(선행요법 행은 `cn_status` = 임상 N, 수술후보조요법 행은 `pn_status` = 병리 N.
+  고식적요법은 `of.setting [palliative]`(2026-11-11, 예전 값 metastatic, A 스키마 값 이름 변경에 맞춤), 림프절 양성·음성은 N 병기(선행요법 행은 `cn_status` = 임상 N, 수술후보조요법 행은 `pn_status` = 병리 N.
   사전은 `stage.ptnm.n`만 적음, 2026-10-29 A draft7 체크리스트 §4로 나눔), HER2 음성은 `[negative, low, ultralow]`
   (값은 B의 `biomarker_record` 값 기준. 사전에는 `zero`가 있지만 B는 IHC 0을 `negative`로 내보내고 `zero`를 쓰지 않으므로 뺐다, 2026-10-20),
   국소진행성·전이성은 사전 값(early / locally_advanced / metastatic)을 쓰되 칸은 `biomarker_record.setting.disease`다.

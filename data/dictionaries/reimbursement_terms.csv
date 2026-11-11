@@ -8,7 +8,7 @@ disease_extent,원격 재발 / 원격 전이,patient_state,recurrence.status,dis
 disease_extent,진행성,patient_state,stage.disease_extent,locally_advanced | metastatic,partial,56,공고에 정의 없음,
 disease_extent,절제 불가능한 / 수술이 불가능한,patient_state,stage.operable,no,exact,"58,63",,
 disease_extent,염증성,patient_state,stage.ptnm.t,T4d,partial,49-50,enum에는 없는 자유 값. TCGA 데이터에 없음,
-disease_extent,고식적 (palliative),patient_state,treatment_history.setting,metastatic,partial,"55,58","고식적 = 전이성·재발성, 일부 절제 불가능한 국소진행성. JSON에 palliative 값 없음",확정 2026-10-15
+disease_extent,고식적 (palliative),patient_state,treatment_history.setting,palliative,exact,"55,58","고식적 = 전이성·재발성, 일부 절제 불가능한 국소진행성. 2026-11-11 A 스키마 값 이름 변경(metastatic → palliative)에 맞춤",확정 2026-10-15
 stage,stage Ⅰ / Ⅱ / Ⅲ / Ⅳ,patient_state,stage.group,I | II | III | IV,exact,"48,50,53",공고는 로마숫자 문자(Ⅰ Ⅱ Ⅲ Ⅳ)를 씀. 영문 I·V로 바꿔 매칭,
 stage,stage ⅢA,patient_state,stage.group,IIIA,exact,50,,
 stage,병기 분류,patient_state,stage.group,,exact,48,,

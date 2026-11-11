@@ -155,7 +155,7 @@ FIELDS: dict[str, tuple[str, list[str], object, str]] = {
                     "fulvestrant를 투여 받은 적이 없는'). 'A 또는 B를 받은'처럼 하나만 받으면 되는 조건은 any_of 묶음에 "
                     "항목을 나눠 넣는다. of.setting으로 시기를 좁힐 수 있음 "
                     "(예: 'paclitaxel을 포함한 보조요법' -> contains [paclitaxel], of.setting [adjuvant]). "
-                    "'고식적요법'은 of.setting [metastatic]"),
+                    "'고식적요법'은 of.setting [palliative]"),
     "prior_failed": ("patient_state.fields.treatment_history[].stop_reason = progression 또는 best_response = PD "
                      "(A의 data_needs_by_module §4)",
                      ["contains"], _DRUGS, "'~에 실패한'·'~ 투여 후 진행된' 약·계열. 목록은 모두 실패했어야 한다 "
@@ -217,9 +217,12 @@ UNLESS_ONLY_FIELDS = frozenset({"physician_opinion"})
 
 _VALUE = {"anyOf": [{"type": "string"}, {"type": "number"}, {"type": "boolean"},
                     {"type": "array", "items": {"anyOf": [{"type": "string"}, {"type": "number"}]}}]}
+# 투약 시기는 patient_state treatment_history[].setting 값 (고식 = palliative, A 스키마 2026-11-09).
+# 병기 범주의 metastatic(disease, 청크 setting)과는 다른 칸이다
+TREATMENT_SETTINGS = ["neoadjuvant", "adjuvant", "palliative"]
 _OF = {"type": "object", "additionalProperties": False,
        "properties": {"drugs": {"type": "array", "items": {"type": "string"}},
-                      "setting": {"type": "array", "items": {"enum": ["neoadjuvant", "adjuvant", "metastatic"]}}}}
+                      "setting": {"type": "array", "items": {"enum": TREATMENT_SETTINGS}}}}
 _BASE_ITEM = {"id": {"type": "string"}, "field": {"enum": list(FIELDS)}, "op": {"enum": OPS},
               "value": _VALUE, "text": {"type": "string"}, "of": _OF}
 _UNLESS = {"type": "object", "additionalProperties": False, "required": ["field", "op", "value", "text"],
@@ -247,7 +250,7 @@ def output_schema() -> dict:
             "counts_as_prior_line": {"type": "array", "items": {
                 "type": "object", "additionalProperties": False, "required": ["text", "setting", "drugs"],
                 "properties": {"text": {"type": "string"},
-                               "setting": {"type": "array", "items": {"enum": ["neoadjuvant", "adjuvant", "metastatic"]}},
+                               "setting": {"type": "array", "items": {"enum": TREATMENT_SETTINGS}},
                                "drugs": {"type": "array", "items": {"type": "string"}},
                                "within_days": {"type": "number"},
                                # A의 deemed_lines 규칙 이름. 적혀 있으면 판정 쪽이 이 규칙을 그대로 본다 (VC-0103, 2026-10-22)

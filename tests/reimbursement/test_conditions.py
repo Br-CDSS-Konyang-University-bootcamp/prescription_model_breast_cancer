@@ -586,9 +586,11 @@ def test_fields_follow_team_terms_dictionary():
     assert cm.FIELDS["disease"][0].startswith("biomarker_record.setting.disease")
     assert "duration_days" in cm.FIELDS["treatment_years"][0]
     assert terms["투여기간"]["json_field"] == "treatment_history[].duration_days"
-    # 고식적 = treatment_history.setting metastatic (JSON에 palliative 값 없음)
-    assert terms["고식적 (palliative)"]["json_value"] == "metastatic"
-    assert cm._OF["properties"]["setting"]["items"]["enum"] == ["neoadjuvant", "adjuvant", "metastatic"]
+    # 고식적 = treatment_history.setting palliative (A 스키마 2026-11-09, 예전 값 metastatic)
+    assert terms["고식적 (palliative)"]["json_value"] == "palliative"
+    assert cm._OF["properties"]["setting"]["items"]["enum"] == ["neoadjuvant", "adjuvant", "palliative"]
+    prior = cm.output_schema()["properties"]["counts_as_prior_line"]["items"]["properties"]["setting"]
+    assert prior["items"]["enum"] == ["neoadjuvant", "adjuvant", "palliative"]
 
 
 def test_fields_follow_input_paths():
