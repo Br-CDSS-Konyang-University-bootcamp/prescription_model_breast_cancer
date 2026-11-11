@@ -154,6 +154,26 @@ def decision_lines(items: dict) -> dict:
     return {"guideline": guideline, "reimbursement": reimbursement, "classes": classes}
 
 
+# ESMO 근거 범위 밖: 전이가 없는 국소 재발인데 재발 부위를 수술하지 않았거나 고식 목적(recurrence_type
+# locoregional_other)이면, ESMO EBC 2024·MBC 2026 어디에도 약물 치료 권고가 없다 (C 청크에서 inoperable·locoregional
+# recurrence·chest wall 검색, 2026-11-10). 지금 차수 규칙으로는 원발 병리 때문에 '보조'가 되어 원발암 보조 권고가 근거로
+# 붙었다. v0.1은 지침을 넘기지 않고 범위 밖으로 둔다 (B 후처리가 지침 없음 → out_of_scope). 급여는 공고 '재발성' 고식
+# 행이라 지금 급여 검색(병기·보조 차수)으로는 맞는 행을 고를 수 없어 함께 비운다 (팀 결정 2026-11-11, PR #143 C 검토).
+# 수술 불가 3기는 ESMO EBC가 국소진행성을 선행요법으로 다루므로 그대로 찾는다
+OUT_OF_SCOPE_LOCOREGIONAL = "ESMO 근거 범위 밖: 원격 전이 없는 국소 재발의 고식 치료 (재발 부위 수술 안 함 또는 고식 목적)"
+
+
+def out_of_scope_reason(confirmed_state: dict):
+    """confirmed_state가 C 검색 범위 밖이면 그 이유 문장, 아니면 None. retrieve_for_recommend는 이때 빈 목록을 돌려준다."""
+    if not is_confirmed_state(confirmed_state):
+        return None
+    items = confirmed_state.get("items") or {}
+    if (_confirmed(items, "setting.disease") != "metastatic"
+            and _confirmed(items, "recurrence_type") == "locoregional_other"):
+        return OUT_OF_SCOPE_LOCOREGIONAL
+    return None
+
+
 def from_confirmed_state(confirmed_state: dict):
     """confirmed_state → (biomarker_record 꼴의 레코드, 환자 정보, 차수). 검색 코드는 그대로 쓰고 입력만 바꾼다.
     읽는 값은 items.*.confirmed뿐이다 (system·previous는 보지 않는다)."""
@@ -315,6 +335,9 @@ def retrieve_for_recommend(state: dict, biomarker_record: dict = None, as_of=Non
     if biomarker_record is None:
         if not is_confirmed_state(state):
             raise TypeError("confirmed_state 하나 또는 (patient_state, biomarker_record)를 넘기세요.")
+        if out_of_scope_reason(state):  # 범위 밖이면 빈 목록 (B는 지침 없음 → out_of_scope)
+            warnings.warn(out_of_scope_reason(state), stacklevel=2)
+            return ([], [], []) if with_reimbursement_only else ([], [])
         biomarker_record, patient, lines = from_confirmed_state(state)
         as_of = as_of or (state.get("confirmed_at") or "")[:10] or None
     else:

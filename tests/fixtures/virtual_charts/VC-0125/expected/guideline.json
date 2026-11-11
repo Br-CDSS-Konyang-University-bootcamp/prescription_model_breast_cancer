@@ -18,7 +18,6 @@
     "esmo-mbc-2026-05-fig4-ddbc18"
   ],
   "not_expected": [
-    "esmo-mbc-2026-05-luminal-3l-ae383b",
     "esmo-mbc-2026-05-luminal-3l-5f9ed9",
     "esmo-mbc-2026-05-luminal-3l-990d33",
     "esmo-mbc-2026-05-luminal-3l-46be52",
@@ -39,5 +38,5 @@
   "status": "reviewed",
   "reviewer": "Claude 2차 점검 (염승민 위임)",
   "reviewed_on": "2026-11-04",
-  "note": "VC-0113과 같은 경과, HER2-ultralow(재생검) → T-DXd(044c33은 ultralow 포함)와 이전 ChT 없을 때 ChT(b023e3), 그림 4 ddbc18(PD 뒤 SG 등). 76de27은 PD 뒤 'HER2 low → T-DXd'라 ultralow에는 둘째 단계가 맞지 않아 넣지 않음. not_expected: VC-0113과 같고 5f9ed9는 HER2-low 전용. [판단 근거 · Claude 2차 점검 2026-11-04, 염승민 위임] VC-0113과 같은 판단: 보조 항암은 이전 ChT가 아님(재발이 끝난 뒤 6개월보다 훨씬 뒤), 재투여(ae383b)는 '3차를 넘어서'라 오답. HER2-ultralow라 T-DXd 권고 중 044c33(low·ultralow)만 정답, 5f9ed9(HER2-low 전용)는 오답"
+  "note": "VC-0113과 같은 경과, HER2-ultralow(재생검) → T-DXd(044c33은 ultralow 포함)와 이전 ChT 없을 때 ChT(b023e3), 그림 4 ddbc18(PD 뒤 SG 등). 76de27은 PD 뒤 'HER2 low → T-DXd'라 ultralow에는 둘째 단계가 맞지 않아 넣지 않음. not_expected: VC-0113과 같고 5f9ed9는 HER2-low 전용. [판단 근거 · Claude 2차 점검 2026-11-04, 염승민 위임] VC-0113과 같은 판단: 보조 항암은 이전 ChT가 아님(재발이 끝난 뒤 6개월보다 훨씬 뒤), 재투여(ae383b)는 '3차를 넘어서'라 오답. HER2-ultralow라 T-DXd 권고 중 044c33(low·ultralow)만 정답, 5f9ed9(HER2-low 전용)는 오답 [팀 결정 2026-11-11, 과적합 점검 rule_review_2026-11-10.md §5] 재투여 ae383b('3차를 넘어서, DFI ≥12개월이면 anthracycline·taxane 재투여')는 오답에서 빼고 정답에도 넣지 않음(판단에 맡김): 확정값 차수가 '>=3L'이라 3차인지 그 이상인지 가를 수 없고, 이전 anthracycline·taxane 노출이 있어 틀린 선택이라고 단정할 수 없다. 나와도 안 나와도 채점에 영향 없음"
 }

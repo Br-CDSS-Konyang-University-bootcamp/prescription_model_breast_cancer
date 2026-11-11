@@ -411,3 +411,27 @@ def test_chemo_class_recommendation_brings_chemo_only_rows(index, monkeypatch):
     assert "r-pac" in ids and "r-bev-pac" not in ids and "r-cape-2l" not in ids  # 1차 세포독성 항암 행만
     assert next(r for r in reimbursement if r["chunk_id"] == "r-pac")["matched_by"] == "ChT"
     assert "r-pac" not in {r["chunk_id"] for r in only}
+
+
+def test_locoregional_palliative_without_metastasis_is_out_of_scope(monkeypatch):
+    # 원격 전이 없는 국소 재발의 고식 치료(recurrence_type locoregional_other)는 ESMO 권고가 없어 지침·급여를 넘기지 않는다.
+    # 국소 재발 후 완치 목적 수술(locoregional_curative)은 수술후보조요법이라 그대로 찾는다 (팀 결정 2026-11-11)
+    import copy, json
+    from pathlib import Path
+    from src.rag import retrieve as r
+    from src.rag import searcher
+    base = Path(__file__).resolve().parents[2] / "tests" / "fixtures" / "virtual_charts" / "VC-0109" / "expected"
+    state = json.loads((base / "confirmed_state.json").read_text(encoding="utf-8"))
+    item = {"scope": "current", "system": "locoregional_other", "confirmed": "locoregional_other", "status": "confirmed"}
+    other = copy.deepcopy(state)
+    other["items"]["recurrence_type"] = item
+    curative = copy.deepcopy(state)
+    curative["items"]["recurrence_type"] = {**item, "system": "locoregional_curative", "confirmed": "locoregional_curative"}
+    assert r.out_of_scope_reason(other) == r.OUT_OF_SCOPE_LOCOREGIONAL
+    assert r.out_of_scope_reason(curative) is None
+    monkeypatch.setattr(searcher, "search_guidelines", lambda **kw: (_ for _ in ()).throw(AssertionError("검색하면 안 됨")))
+    with pytest.warns(UserWarning, match="범위 밖"):
+        assert r.retrieve_for_recommend(other, with_reimbursement_only=True) == ([], [], [])
+    metastatic = copy.deepcopy(other)
+    metastatic["items"]["setting.disease"]["confirmed"] = "metastatic"
+    assert r.out_of_scope_reason(metastatic) is None  # 원격 전이가 있으면 MBC 권고를 찾는다
