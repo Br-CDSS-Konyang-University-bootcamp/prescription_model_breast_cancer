@@ -21,7 +21,6 @@
     "esmo-mbc-2026-05-luminal-3l-044c33",
     "esmo-mbc-2026-05-luminal-3l-5f9ed9",
     "esmo-mbc-2026-05-luminal-3l-b023e3",
-    "esmo-mbc-2026-05-luminal-3l-ae383b",
     "esmo-mbc-2026-05-luminal-3l-53ed83",
     "esmo-mbc-2026-05-luminal-3l-46be52"
   ],
@@ -40,7 +39,7 @@
   "status": "reviewed",
   "reviewer": "Claude 2차 점검 (염승민 위임)",
   "reviewed_on": "2026-11-04",
-  "note": "de novo, 고식 ET 2차례·고식 항암 2차례(capecitabine, paclitaxel) 뒤, HER2 0 → sacituzumab(990d33)·Dato-DXd(b7dc93), 그림 4 'Previous ChT → SG·Dato-DXd → PD → SG·Dato·ChT' 경로(시나리오: HER2 0이라 T-DXd·HER2 low 갈래 아님). not_expected: T-DXd 2개(HER2-low·ultralow), 이전 ChT 없음 권고, 재투여(de novo라 DFI 없음, anthracycline 노출 없음), 내분비 감수성 권고 2개. [보조 약물 정답 · 2026-11-04, A 안 반영] 뼈 전이가 있어 골 보호제(BMA) 권고 087674('뼈 전이 환자에게 증상과 관계없이 BMA', ESMO MBC 뼈 전이)를 보조 약물 정답으로 둠. 주 처방 결정과 상관없이 뼈 전이면 보조 칸에 나와야 한다는 팀 결정(A 안)",
+  "note": "de novo, 고식 ET 2차례·고식 항암 2차례(capecitabine, paclitaxel) 뒤, HER2 0 → sacituzumab(990d33)·Dato-DXd(b7dc93), 그림 4 'Previous ChT → SG·Dato-DXd → PD → SG·Dato·ChT' 경로(시나리오: HER2 0이라 T-DXd·HER2 low 갈래 아님). not_expected: T-DXd 2개(HER2-low·ultralow), 이전 ChT 없음 권고, 재투여(de novo라 DFI 없음, anthracycline 노출 없음), 내분비 감수성 권고 2개. [보조 약물 정답 · 2026-11-04, A 안 반영] 뼈 전이가 있어 골 보호제(BMA) 권고 087674('뼈 전이 환자에게 증상과 관계없이 BMA', ESMO MBC 뼈 전이)를 보조 약물 정답으로 둠. 주 처방 결정과 상관없이 뼈 전이면 보조 칸에 나와야 한다는 팀 결정(A 안) [팀 결정 2026-11-11, 과적합 점검 rule_review_2026-11-10.md §5] 재투여 ae383b('3차를 넘어서, DFI ≥12개월이면 anthracycline·taxane 재투여')는 오답에서 빼고 정답에도 넣지 않음(판단에 맡김): 확정값 차수가 '>=3L'이라 3차인지 그 이상인지 가를 수 없고, 이전 anthracycline·taxane 노출이 있어 틀린 선택이라고 단정할 수 없다. 나와도 안 나와도 채점에 영향 없음",
   "expected_supportive": [
     "esmo-mbc-2026-05-site-bone-087674"
   ]

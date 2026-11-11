@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 
 from .chunk_common import BASE_DIR
-from .retrieve import from_confirmed_state, is_confirmed_state
+from .retrieve import from_confirmed_state, is_confirmed_state, out_of_scope_reason
 
 SCHEMA = BASE_DIR / "schemas" / "confirmed_state.json"
 SAFE_OUT_DIR = BASE_DIR / "data" / "reimbursement"
@@ -89,6 +89,8 @@ def main(argv=None):
     print(f"환자 {state.get('patient_ref')} · {record['subtype']} · {record['setting']['disease']} · "
           f"지침 차수 {lines['guideline']} · 급여 차수 {lines['reimbursement']}")
     print(f"환자 정보 {patient}")
+    if out_of_scope_reason(state):
+        print(f"[범위 밖] {out_of_scope_reason(state)} → 지침·급여 청크를 넘기지 않음")
     try:
         guideline, reimbursement, only = retrieve_for_recommend(state, as_of=args.as_of, top_k=args.top_k,
                                                                 rerank=not args.no_rerank, with_reimbursement_only=True)
