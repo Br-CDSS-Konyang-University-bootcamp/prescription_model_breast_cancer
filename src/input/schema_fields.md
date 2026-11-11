@@ -233,7 +233,7 @@ TNM·병기군 표기 규칙 [A 결정]:
 | 필드 | 의미 | 표준값 형태 | 정규화 방식 | 원문 → 정규화 예시 |
 |---|---|---|---|---|
 | `drugs` | 약제 목록 | 일반명 소문자 목록 | 사전 (`drug_names.csv` + 요법 약어 사전) | `AC #4` → `["doxorubicin","cyclophosphamide"]` |
-| `setting` | 치료 단계 | `neoadjuvant` / `adjuvant` / `metastatic` / `unknown` | 사전. 투약 줄에 선행·보조·고식 표시가 없으면 날짜로: 전이일 이후 시작 → `metastatic`, 수술일(ypTNM·pTNM 관찰일) 전 → `neoadjuvant`, 첫 재발일(국소·원격) 전 → `adjuvant`(재발했으면 원발암 치료는 끝남, 병리가 없어도), 병리 TNM이 아예 없으면 아직 수술 전으로 보고 `neoadjuvant` + 확인 사유(다른 병원 수술 등으로 병리가 빠졌으면 보조로 고칠 것. issues `needs_review`, 화면 1 왼쪽 투약 줄에 표시, 2026-11-06), 그 밖 → `adjuvant` | `수술 전 항암` → `"neoadjuvant"` |
+| `setting` | 치료 단계 | `neoadjuvant` / `adjuvant` / `metastatic` / `unknown` | 사전. 투약 줄에 선행·보조·고식 표시가 없으면 날짜로: 전이일 이후 시작 → `metastatic`, 국소 재발 뒤 재발 부위 수술일(`recurrence.surgery` = yes의 관찰일) 전 → `metastatic`(공고 '재발성' 고식 행, 값 이름은 고식이 아직 `metastatic`, 2026-11-09), 국소 재발 + 재발 부위 수술 `no`면 재발일 이후 → `metastatic`(기록 없음 `unknown`은 해당 없음), 수술일(ypTNM·pTNM 관찰일) 전 → `neoadjuvant`, 첫 재발일(국소·원격) 전 → `adjuvant`(재발했으면 원발암 치료는 끝남, 병리가 없어도), 병리 TNM이 아예 없고 `stage.operable = no`면 → `metastatic`(수술 불가 국소진행성 = 고식, 2026-11-09), 병리 TNM이 아예 없으면 아직 수술 전으로 보고 `neoadjuvant` + 확인 사유(다른 병원 수술 등으로 병리가 빠졌으면 보조로 고칠 것. issues `needs_review`, 화면 1 왼쪽 투약 줄에 표시, 2026-11-06), 그 밖 → `adjuvant` | `수술 전 항암` → `"neoadjuvant"` |
 | `start_date` | 시작일 | `YYYY-MM-DD` | 해석 | `'25.1.10부터` → `"2025-01-10"` |
 | `end_date` | 종료일 | `YYYY-MM-DD` 또는 `null` | 해석 | `2026.6.20 중단` → `"2026-06-20"` |
 | `start_day`, `end_day` [draft5] | 시작일·종료일 (진단일 = 0) | 정수 또는 `null` | 해석 (날짜 → 진단일 기준 일수) | 진단 2024-03-05, 시작 2024-04-04 → `30` |

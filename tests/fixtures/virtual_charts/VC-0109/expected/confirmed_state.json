@@ -209,6 +209,21 @@
       "confirmed": "not_applicable",
       "status": "confirmed"
     },
+    "recurrence_type": {
+      "scope": "current",
+      "system": "locoregional_curative",
+      "system_source": "patient_state",
+      "confirmed": "locoregional_curative",
+      "status": "confirmed",
+      "evidence_refs": [
+        {
+          "doc_id": "D1",
+          "quote": "흉벽 국소 재발",
+          "char_start": 219,
+          "char_end": 227
+        }
+      ]
+    },
     "bone_metastasis_imaging": {
       "scope": "current",
       "system": "no",

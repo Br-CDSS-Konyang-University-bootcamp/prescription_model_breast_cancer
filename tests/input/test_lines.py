@@ -101,8 +101,16 @@ def test_missing_start_day_is_dropped_with_note():
 
 
 def test_no_metastasis_day():
-    r = palliative_lines(state([tx(["letrozole"], 10)], metastasis_day=None))
+    r = palliative_lines(state([tx(["letrozole"], 10, setting="adjuvant")], metastasis_day=None))
     assert r["counts"] is None
+
+
+def test_palliative_without_metastasis_day_counts_only_palliative():
+    """국소 재발 뒤 재발 부위 수술 전 투약(고식, 값 metastatic)은 전이 기준일 없이도 센다. 수술 뒤 보조 투약은 세지 않는다."""
+    r = palliative_lines(state([tx(["tamoxifen"], 45, 1150, setting="adjuvant"),
+                                tx(["paclitaxel"], 1150, 1240, stop="completed"),
+                                tx(["letrozole"], 1300, setting="adjuvant")], metastasis_day=None))
+    assert numbers(r) == [(["paclitaxel"], 1, None, 1)]
 
 
 # ---------- 간주 규칙 (deemed_lines) ----------

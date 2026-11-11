@@ -81,6 +81,7 @@ class Vocab:
 #
 # 차수 규칙
 # 1. 전이 기준일(recurrence.metastasis_day) 이후 시작한 투약이 전이 후 요법이다. 시작일이 없는 투약은 순서를 알 수 없어 뺀다.
+#    전이 기준일이 없으면 고식 단계(setting = metastatic)로 정한 투약만 센다 (국소 재발 뒤 재발 부위 수술 전, 2026-11-09).
 # 2. 보조약(Supportive Care), 골 보호제(Bone-modifying Agent), 임상시험 백신(Vaccine)은 세지 않는다 (백신은 2026-10-22 사용자 결정).
 # 3. 시작일이 묶음 첫 투약에서 GROUP_DAYS(28일) 이내인 투약은 한 요법으로 묶는다.
 # 4. 요법 종류: 항암화학·HER2 표적·면역항암제가 하나라도 있으면 항암, 아니면 내분비요법이 있으면 내분비,
@@ -185,17 +186,26 @@ def palliative_lines(patient_state: dict, drug_classes: dict[str, str] | None = 
     fields = patient_state.get("fields") or {}
     metastasis_day = _metastasis_day(fields)
     notes: list[str] = []
+    history = fields.get("treatment_history") or []
+    # 전이 없이 고식 단계(값 metastatic)로 정해진 투약 (국소 재발 뒤 재발 부위 수술 전, 공고 '재발성' 고식 행)은
+    # 첫 고식 투약일부터 고식 투약만 센다. 그 뒤 수술후보조 투약은 세지 않는다 (2026-11-09)
+    only_palliative = False
     if metastasis_day is None:
-        return {"metastasis_day": None, "regimens": [], "counts": None, "notes": ["전이 기준일이 없어 차수를 셀 수 없음"]}
+        starts = [t["start_day"] for t in history if t.get("setting") == "metastatic" and t.get("start_day") is not None]
+        if not starts:
+            return {"metastasis_day": None, "regimens": [], "counts": None, "notes": ["전이 기준일이 없어 차수를 셀 수 없음"]}
+        only_palliative = True
+        notes.append("전이 기준일 없음: 고식 단계로 정한 투약만 셈 (국소 재발 등)")
+    anchor = metastasis_day if metastasis_day is not None else min(starts)
 
     items = []
-    for i, t in enumerate(fields.get("treatment_history") or []):
+    for i, t in enumerate(history):
         start = t.get("start_day")
         if start is None:
             if t.get("setting") == "metastatic":
                 notes.append(f"시작일이 없는 전이 후 투약은 뺌: {'+'.join(t['drugs'])}")
             continue
-        if start < metastasis_day:
+        if start < anchor or (only_palliative and t.get("setting") != "metastatic"):
             continue
         drugs = [d for d in t["drugs"] if classes.get(d, "Unknown") not in NOT_COUNTED]
         if drugs:

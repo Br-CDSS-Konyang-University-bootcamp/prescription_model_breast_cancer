@@ -236,6 +236,65 @@ def test_unmarked_drug_without_surgery_is_neoadjuvant():
     assert (row["setting"], after["setting"]) == ("adjuvant", "metastatic")
 
 
+def test_locoregional_recurrence_surgery_splits_settings():
+    """국소 재발 뒤 재발 부위 수술(S2) 전에 시작한 투약은 고식(지금 값 metastatic), S2 뒤는 보조 (공고 p.48).
+    재발 전 투약은 원발 보조 그대로. S2 날짜가 없거나 수술 기록이 없으면(unknown) 예전 규칙(보조).
+    수술 no는 test_unoperated_recurrence_and_inoperable_stage_are_palliative에서 본다."""
+    from src.input.script.pipeline import _fill_treatment
+
+    def rows():
+        return [{"drugs": ["tamoxifen"], "setting": None, "start_day": 45, "end_day": 1150, "stop_reason": None},
+                {"drugs": ["paclitaxel"], "setting": None, "start_day": 1150, "end_day": 1240, "stop_reason": None},
+                {"drugs": ["letrozole"], "setting": None, "start_day": 1300, "end_day": None, "stop_reason": None}]
+
+    def fields(surgery="yes", date="2023-04-22"):
+        f = {"stage": {"ptnm": {"status": "present", "value": {"t": "T2", "n": "N0"}, "observed_date": "2019-10-20"}},
+             "diagnosis": {"diagnosis_date": {"status": "present", "value": "2019-10-01"}},
+             "recurrence": {"status": {"status": "present", "value": "locoregional"},
+                            "recurrence_day": {"status": "present", "value": 1140},
+                            "surgery": {"status": "present", "value": surgery}}}
+        if date:
+            f["recurrence"]["surgery"]["observed_date"] = date   # 진단일 + 1299일
+        return f
+
+    hist = rows()
+    assert _fill_treatment(hist, fields()) == []
+    assert [t["setting"] for t in hist] == ["adjuvant", "metastatic", "adjuvant"]
+    for f in (fields(date=None), fields(surgery="unknown")):
+        hist = rows()
+        _fill_treatment(hist, f)
+        assert [t["setting"] for t in hist] == ["adjuvant", "adjuvant", "adjuvant"]
+
+
+def test_unoperated_recurrence_and_inoperable_stage_are_palliative():
+    """재발 부위를 수술하지 않았다고 기록된 국소 재발(surgery = no)의 재발 뒤 투약, 수술 불가(operable = no)이고
+    원발 수술 병리가 없는 투약은 고식 (값 metastatic). 재발 수술 기록 없음(unknown)은 예전처럼 보조."""
+    from src.input.script.pipeline import _fill_treatment
+
+    def recurrence(surgery):
+        return {"stage": {"ptnm": {"status": "present", "value": {"t": "T2", "n": "N0"}}}, "diagnosis": {},
+                "recurrence": {"status": {"status": "present", "value": "locoregional"},
+                               "recurrence_day": {"status": "present", "value": 1140},
+                               "surgery": {"status": "present", "value": surgery}}}
+
+    for surgery, want in (("no", "metastatic"), ("unknown", "adjuvant")):
+        hist = [{"drugs": ["tamoxifen"], "setting": None, "start_day": 45, "end_day": 1150, "stop_reason": None},
+                {"drugs": ["letrozole"], "setting": None, "start_day": 1160, "end_day": None, "stop_reason": None}]
+        _fill_treatment(hist, recurrence(surgery))
+        assert [t["setting"] for t in hist] == ["adjuvant", want]
+
+    row = {"drugs": ["paclitaxel"], "setting": None, "start_day": 20, "end_day": 120, "stop_reason": None}
+    inoperable = {"stage": {"operable": {"status": "present", "value": "no"}}, "recurrence": {}, "diagnosis": {}}
+    assert _fill_treatment([row], inoperable) == []        # 확인 사유(NO_SURGERY_NEO) 대상이 아니다
+    assert row["setting"] == "metastatic"
+    # 수술 불가였다가 선행 뒤 수술했으면(ypTNM) 수술 전 투약은 선행
+    row = {"drugs": ["paclitaxel"], "setting": None, "start_day": 20, "end_day": 120, "stop_reason": None}
+    inoperable["stage"]["yptnm"] = {"status": "present", "value": {"t": "T1", "n": "N0"}, "observed_date": "2021-06-30"}
+    inoperable["diagnosis"]["diagnosis_date"] = {"status": "present", "value": "2021-01-01"}
+    _fill_treatment([row], inoperable)
+    assert row["setting"] == "neoadjuvant"
+
+
 def test_event_field_date_from_quote():
     """사건 칸은 LLM이 날짜를 비워도 인용 구절의 날짜 하나를 observed_date로 쓴다. 날짜가 없거나 둘 이상이면 비운다."""
     from src.input.script.pipeline import _quote_date
