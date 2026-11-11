@@ -99,10 +99,10 @@ def test_rules_against_llm_mistakes():
                                          _cand("D3", "stage.positive_ln_count", "1/3 (+)")])
     assert "pathologic_size_mm" not in got["fields"]["stage"]                  # 기본 칸이 아니라 후보가 없으면 없다
     assert got["fields"]["stage"]["positive_ln_count"] == want["fields"]["stage"]["positive_ln_count"]
-    # 진단 시 IV기: 전이일 후보가 없어도 0, 표 첫 칸이 없는 투약은 전이 setting
+    # 진단 시 IV기: 전이일 후보가 없어도 0, 표 첫 칸이 없는 투약은 고식 setting
     got, _, want = _run_with("VC-0108", drop_fields={"recurrence.metastasis_day"})
     assert got["fields"]["recurrence"]["metastasis_day"]["value"] == 0
-    assert [t["setting"] for t in got["fields"]["treatment_history"]] == ["metastatic"]
+    assert [t["setting"] for t in got["fields"]["treatment_history"]] == ["palliative"]
     assert got["fields"]["treatment_history"] == want["fields"]["treatment_history"]
     # 진단 시 IV기: 진행 소견을 재발 부위·상태로 내도 재발 칸은 비운다 (4단계, 2026-10-27)
     got, _, want = _run_with("VC-0108", [_cand("D1", "recurrence.metastatic_sites", "(de novo, bone only)"),
@@ -233,7 +233,7 @@ def test_unmarked_drug_without_surgery_is_neoadjuvant():
     after = {"drugs": ["letrozole", "palbociclib"], "setting": None, "start_day": 1000, "end_day": None, "stop_reason": None}
     fields = {"stage": {}, "diagnosis": {}, "recurrence": {"metastasis_day": {"status": "present", "value": 1000}}}
     assert _fill_treatment([row, after], fields) == []
-    assert (row["setting"], after["setting"]) == ("adjuvant", "metastatic")
+    assert (row["setting"], after["setting"]) == ("adjuvant", "palliative")
 
 
 def test_locoregional_recurrence_surgery_splits_settings():
@@ -259,7 +259,7 @@ def test_locoregional_recurrence_surgery_splits_settings():
 
     hist = rows()
     assert _fill_treatment(hist, fields()) == []
-    assert [t["setting"] for t in hist] == ["adjuvant", "metastatic", "adjuvant"]
+    assert [t["setting"] for t in hist] == ["adjuvant", "palliative", "adjuvant"]
     for f in (fields(date=None), fields(surgery="unknown")):
         hist = rows()
         _fill_treatment(hist, f)
@@ -277,7 +277,7 @@ def test_unoperated_recurrence_and_inoperable_stage_are_palliative():
                                "recurrence_day": {"status": "present", "value": 1140},
                                "surgery": {"status": "present", "value": surgery}}}
 
-    for surgery, want in (("no", "metastatic"), ("unknown", "adjuvant")):
+    for surgery, want in (("no", "palliative"), ("unknown", "adjuvant")):
         hist = [{"drugs": ["tamoxifen"], "setting": None, "start_day": 45, "end_day": 1150, "stop_reason": None},
                 {"drugs": ["letrozole"], "setting": None, "start_day": 1160, "end_day": None, "stop_reason": None}]
         _fill_treatment(hist, recurrence(surgery))
@@ -286,7 +286,7 @@ def test_unoperated_recurrence_and_inoperable_stage_are_palliative():
     row = {"drugs": ["paclitaxel"], "setting": None, "start_day": 20, "end_day": 120, "stop_reason": None}
     inoperable = {"stage": {"operable": {"status": "present", "value": "no"}}, "recurrence": {}, "diagnosis": {}}
     assert _fill_treatment([row], inoperable) == []        # 확인 사유(NO_SURGERY_NEO) 대상이 아니다
-    assert row["setting"] == "metastatic"
+    assert row["setting"] == "palliative"
     # 수술 불가였다가 선행 뒤 수술했으면(ypTNM) 수술 전 투약은 선행
     row = {"drugs": ["paclitaxel"], "setting": None, "start_day": 20, "end_day": 120, "stop_reason": None}
     inoperable["stage"]["yptnm"] = {"status": "present", "value": {"t": "T1", "n": "N0"}, "observed_date": "2021-06-30"}

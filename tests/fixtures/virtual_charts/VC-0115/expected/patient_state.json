@@ -526,7 +526,7 @@
           "gemcitabine",
           "carboplatin"
         ],
-        "setting": "metastatic",
+        "setting": "palliative",
         "start_date": "2022-12-12",
         "end_date": "2023-07-10",
         "start_day": 525,

@@ -859,7 +859,7 @@ def line_of(fields, disease):
     if disease == "metastatic":
         lined = [t for t in history if t.get("line")]
         if not lined:
-            if any(t.get("setting") == "metastatic" for t in history):
+            if any(t.get("setting") == "palliative" for t in history):
                 return "unknown", "전이 후 투약은 있지만 차수 정보(line)가 없음"
             return "1L", "전이 후 고식적 투약 없음 -> 이번에 결정할 차수 1차"
         last = max(t["line"] for t in lined)
@@ -902,7 +902,7 @@ def line_kind_of(fields, kind, subtype=None):
     if kind == "endocrine" and subtype in HR_NEGATIVE_SUBTYPES:
         return "not_applicable", f"{subtype}라 내분비요법 대상 아님"
     history = [t for t in fields.get("treatment_history") or [] if t.get("drugs")]
-    metastatic = [t for t in history if t.get("setting") == "metastatic"]
+    metastatic = [t for t in history if t.get("setting") == "palliative"]
     if metastatic and not any(t.get("line") for t in metastatic):
         return "unknown", "전이 후 투약은 있지만 차수 정보(line)가 없음"
     rows = [t for t in history if t.get(key)]

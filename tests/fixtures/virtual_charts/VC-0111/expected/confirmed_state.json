@@ -192,7 +192,7 @@
             "taxane",
             "HER2-targeted Therapy"
           ],
-          "setting": "metastatic",
+          "setting": "palliative",
           "start_day": 14,
           "end_day": 119,
           "line_endocrine": null,
@@ -228,7 +228,7 @@
           "subclasses": [
             "HER2-targeted Therapy"
           ],
-          "setting": "metastatic",
+          "setting": "palliative",
           "start_day": 140,
           "end_day": 581,
           "line_endocrine": null,
@@ -255,7 +255,7 @@
             "taxane",
             "HER2-targeted Therapy"
           ],
-          "setting": "metastatic",
+          "setting": "palliative",
           "start_day": 14,
           "end_day": 119,
           "line_endocrine": null,
@@ -291,7 +291,7 @@
           "subclasses": [
             "HER2-targeted Therapy"
           ],
-          "setting": "metastatic",
+          "setting": "palliative",
           "start_day": 140,
           "end_day": 581,
           "line_endocrine": null,

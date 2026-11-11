@@ -404,15 +404,15 @@ def tx(drugs, setting, start, line=None, endo=None, chemo=None, resp="unknown", 
 
 
 LINE_CASES = [
-    ("L01", "metastatic", [tx(["letrozole", "palbociclib"], "metastatic", 1500, 1, endo=1)], "1L", "1차 진행 기록 없음"),
-    ("L02", "metastatic", [tx(["letrozole", "palbociclib"], "metastatic", 1500, 1, endo=1, resp="PD")], "2L",
+    ("L01", "metastatic", [tx(["letrozole", "palbociclib"], "palliative", 1500, 1, endo=1)], "1L", "1차 진행 기록 없음"),
+    ("L02", "metastatic", [tx(["letrozole", "palbociclib"], "palliative", 1500, 1, endo=1, resp="PD")], "2L",
      "1차에서 진행 -> 2차 대상 (전달 문서 8.2절 예시)"),
-    ("L03", "metastatic", [tx(["capecitabine"], "metastatic", 180, 1, chemo=1),
-                           tx(["docetaxel"], "metastatic", 242, 2, chemo=2, stop="progression")], ">=3L",
+    ("L03", "metastatic", [tx(["capecitabine"], "palliative", 180, 1, chemo=1),
+                           tx(["docetaxel"], "palliative", 242, 2, chemo=2, stop="progression")], ">=3L",
      "2차에서 진행 -> 3차 이상"),
     ("L04", "metastatic", [tx(["paclitaxel"], "adjuvant", 69)], "1L",
      "전이 후 투약 없음: 이번에 결정할 차수는 1차 (handoff_confirmed_state_to_B.md §6 1번, VC-0103)"),
-    ("L05", "metastatic", [tx(["letrozole"], "metastatic", 1500)], "unknown", "전이 후 투약은 있는데 line 없음"),
+    ("L05", "metastatic", [tx(["letrozole"], "palliative", 1500)], "unknown", "전이 후 투약은 있는데 line 없음"),
     ("L06", "early", [tx(["doxorubicin"], "adjuvant", 30), tx(["zoledronic acid"], "adjuvant", 400)], "adjuvant",
      "골 보호제는 차수를 정하지 않음"),
     ("L07", "early", [tx(["anastrozole"], "neoadjuvant", 10)], "neoadjuvant", ""),
@@ -424,15 +424,15 @@ LINE_CASES = [
 LINE_KIND_CASES = [
     ("LK01", "HR+/HER2-", [tx(["anastrozole"], "adjuvant", 40)], "1L", "1L",
      "전이 후 투약 없음: 결정할 차수는 둘 다 1차 (VC-0103)"),
-    ("LK02", "HR+/HER2-", [tx(["letrozole", "palbociclib"], "metastatic", 1500, 1, endo=1, resp="PD")], "2L", "1L",
+    ("LK02", "HR+/HER2-", [tx(["letrozole", "palbociclib"], "palliative", 1500, 1, endo=1, resp="PD")], "2L", "1L",
      "내분비 1차 진행 -> 내분비 2차, 항암은 따로 세서 1차"),
-    ("LK03", "HR+/HER2-", [tx(["letrozole"], "metastatic", 1500, 1, endo=1)], "1L", "1L", "진행 기록 없으면 그 차수"),
-    ("LK04", "TNBC", [tx(["capecitabine"], "metastatic", 180, 1, chemo=1),
-                      tx(["docetaxel"], "metastatic", 242, 2, chemo=2, stop="progression")], "not_applicable", ">=3L",
+    ("LK03", "HR+/HER2-", [tx(["letrozole"], "palliative", 1500, 1, endo=1)], "1L", "1L", "진행 기록 없으면 그 차수"),
+    ("LK04", "TNBC", [tx(["capecitabine"], "palliative", 180, 1, chemo=1),
+                      tx(["docetaxel"], "palliative", 242, 2, chemo=2, stop="progression")], "not_applicable", ">=3L",
      "HR 음성은 내분비 대상 아님"),
-    ("LK05", "HR+/HER2-", [tx(["letrozole"], "metastatic", 1500)], "unknown", "unknown", "전이 후 투약은 있는데 line 없음"),
-    ("LK06", "HR+/HER2-", [tx(["paclitaxel"], "metastatic", 100, 1, chemo=1, resp="PD"),
-                           tx(["letrozole"], "metastatic", 300, 2, endo=1)], "1L", "2L",
+    ("LK05", "HR+/HER2-", [tx(["letrozole"], "palliative", 1500)], "unknown", "unknown", "전이 후 투약은 있는데 line 없음"),
+    ("LK06", "HR+/HER2-", [tx(["paclitaxel"], "palliative", 100, 1, chemo=1, resp="PD"),
+                           tx(["letrozole"], "palliative", 300, 2, endo=1)], "1L", "2L",
      "항암 1차 진행 후 내분비 시작: 전체로는 2차지만 내분비 1차, 항암 2차 (공고 p.55 따로 셈)"),
 ]
 
@@ -593,7 +593,7 @@ def main():
     early = bm.setting_of({"treatment_history": [], "stage": {"disease_extent": {"status": "present", "value": "early"}}})
     report("LK07", "line_endocrine" not in early and "line_chemo" not in early, "조기는 내분비·항암 차수 칸을 만들지 않음",
            str(early))
-    deemed = {"treatment_history": [tx(["eribulin"], "metastatic", 900, 1, chemo=1)],
+    deemed = {"treatment_history": [tx(["eribulin"], "palliative", 900, 1, chemo=1)],
               "deemed_lines": [{"rule_id": "DEEM-ANTHRA-TAXANE", "status": "met"},
                                {"rule_id": "DEEM-SG-1Y", "status": "not_met"}],
               "stage": {"disease_extent": {"status": "present", "value": "metastatic"}}}
@@ -685,8 +685,8 @@ def main():
         report(case_id, ok, note, detail)
 
     # 판정 기준일 뒤에 시작한 투약은 보지 않는다 (B README 차수 절, 2026-10-29)
-    first = tx(["letrozole", "palbociclib"], "metastatic", 1500, 1, endo=1, resp="PD")
-    later = tx(["fulvestrant"], "metastatic", 1800, 2, endo=2, resp="PD")
+    first = tx(["letrozole", "palbociclib"], "palliative", 1500, 1, endo=1, resp="PD")
+    later = tx(["fulvestrant"], "palliative", 1800, 2, endo=2, resp="PD")
     for case_id, index_day, want, note in (("IX01", 1700, "2L", "기준일 1700 뒤 2차(1800 시작)는 빼서 2차를 결정할 차례"),
                                            ("IX02", 1900, ">=3L", "기준일 1900이면 2차 진행까지 봐서 3차"),
                                            ("IX03", None, ">=3L", "기준일이 없으면(TCGA) 그대로")):

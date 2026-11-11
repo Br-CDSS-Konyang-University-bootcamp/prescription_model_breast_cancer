@@ -32,7 +32,7 @@ def patient(**fields):
             "treatment_history": [
                 {"drugs": ["letrozole"], "setting": "adjuvant", "start_day": 100, "end_day": 700, "line": None,
                  "endocrine_line": None, "chemo_line": None, "stop_reason": None, "best_response": "unknown"},
-                {"drugs": ["letrozole", "palbociclib"], "setting": "metastatic", "start_day": 920, "end_day": 1300,
+                {"drugs": ["letrozole", "palbociclib"], "setting": "palliative", "start_day": 920, "end_day": 1300,
                  "line": 1, "endocrine_line": 1, "chemo_line": None, "stop_reason": "progression", "best_response": "PD"}]}
     base.update(fields)
     return {"fields": base, "index_day": 1400}

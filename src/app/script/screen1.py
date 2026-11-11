@@ -137,7 +137,7 @@ PS_LABELS = {
 }
 GENE_RESULT = {"detected": "검출", "not_detected": "검출되지 않음"}
 IMAGING = {"bone_scan": "뼈 스캔", "CT": "CT", "MRI": "MRI", "PET": "PET", "ultrasound": "초음파", "X-ray": "X선", "other": "기타"}
-TREATMENT = {"neoadjuvant": "선행 투약", "adjuvant": "보조 투약", "metastatic": "고식적 투약"}
+TREATMENT = {"neoadjuvant": "선행 투약", "adjuvant": "보조 투약", "palliative": "고식적 투약"}
 CERTAINTY = {"confirmed": "확정", "suspected": "의심", "equivocal": "불확실"}
 SKIP_PS = {"stage.disease_extent"}   # 코드가 정한 값이라 병기 범주 칸의 근거로 보여준다
 

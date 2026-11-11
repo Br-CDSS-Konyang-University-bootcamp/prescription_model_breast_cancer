@@ -128,7 +128,7 @@ def build(her2: str = "1+") -> Chart:
     d.t("\n보조    ").row(f"페마라 (letrozole) 2.5mg qd   {kdate(D(230))}   {kdate(D(2056))}   -   -   완료 (5년)",
                          drugs=["letrozole"], setting="adjuvant", start=D(230), end=D(2056), stop_reason="completed")
     d.t("\n고식    ").row(f"입랜스 (palbociclib) 125mg + 페마라 2.5mg   {kdate(D(3180))}   {kdate(D(3720))}   28일 #18   PD   진행",
-                         drugs=["palbociclib", "letrozole"], setting="metastatic", start=D(3180), end=D(3720),
+                         drugs=["palbociclib", "letrozole"], setting="palliative", start=D(3180), end=D(3720),
                          cycles=CYC(18, 28), stop_reason="progression", best_response="PD", progression=D(3720))
     d.t("\n")
     return c

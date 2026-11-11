@@ -196,7 +196,7 @@ def _regimens(fields: dict, index_day, drug_table, bsa) -> list[dict]:
             subs.append(sub or cls)
         cycles = t.get("cycles")
         r = {"drugs": t["drugs"], "subclasses": list(dict.fromkeys(subs)),
-             "setting": t.get("setting") if t.get("setting") in ("neoadjuvant", "adjuvant", "metastatic") else "unknown",
+             "setting": t.get("setting") if t.get("setting") in ("neoadjuvant", "adjuvant", "palliative") else "unknown",
              "start_day": t.get("start_day"), "end_day": t.get("end_day"),
              "line_endocrine": t.get("endocrine_line"), "line_chemo": t.get("chemo_line"),
              "response": t.get("best_response") or "unknown", "stop_reason": t.get("stop_reason"),

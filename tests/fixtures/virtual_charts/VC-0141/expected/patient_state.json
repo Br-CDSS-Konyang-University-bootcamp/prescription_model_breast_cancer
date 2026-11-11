@@ -371,7 +371,7 @@
           "anastrozole",
           "palbociclib"
         ],
-        "setting": "metastatic",
+        "setting": "palliative",
         "start_date": "2020-02-18",
         "end_date": "2022-08-16",
         "start_day": 15,
@@ -401,7 +401,7 @@
           "exemestane",
           "everolimus"
         ],
-        "setting": "metastatic",
+        "setting": "palliative",
         "start_date": "2022-08-31",
         "end_date": "2023-07-02",
         "start_day": 940,
