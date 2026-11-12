@@ -89,7 +89,7 @@ def test_any_of_exceptions_and_unless():
 
 
 def test_prior_drugs_and_failed():
-    assert ev(cond([item("prior_drugs", "contains", ["CDK4/6_inhibitor"], of={"setting": ["metastatic"]})])) == "met"
+    assert ev(cond([item("prior_drugs", "contains", ["CDK4/6_inhibitor"], of={"setting": ["palliative"]})])) == "met"
     assert ev(cond([item("prior_drugs", "not_contains", ["fulvestrant"])])) == "met"
     assert ev(cond([item("prior_failed", "contains", ["AI_nonsteroidal"])])) == "met"             # letrozole 진행
     assert ev(cond([item("prior_failed", "contains", ["taxane"])])) == "not_met"
@@ -147,7 +147,7 @@ def test_endocrine_adjuvant_relapse_counts_as_first_line():
     deem = [{"text": "TEST (made up): 보조 내분비 1년 이내 진행 간주", "setting": ["adjuvant"], "drugs": [], "rule_id": "DEEM-ENDO-ADJ-1Y"}]
     c = cond(any_of=[{"text": "내분비요법 후 진행", "items": [
         item("days_end_to_metastasis", "lte", 365, of={"drugs": ["AI_nonsteroidal"], "setting": ["adjuvant"]}),
-        item("days_end_to_progression", "lte", 30, of={"setting": ["metastatic"]})]}],
+        item("days_end_to_progression", "lte", 30, of={"setting": ["palliative"]})]}],
         line_rule={"stage": "palliative_endocrine", "line": "2차 이상"}, prior=deem)
     assert ev(c, ps=vc("met")) == "met"
     assert ev(c, ps=vc("not_met")) == "not_met"
