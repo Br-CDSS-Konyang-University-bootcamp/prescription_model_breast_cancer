@@ -192,3 +192,14 @@ def test_recurrence_type_before_recurrence_surgery_is_other():
     assert "수술 전" in item["note"]
     del ps["fields"]["recurrence"]["surgery"]["observed_date"]   # 수술일을 모르면 예전처럼 완치 목적
     assert c.build_draft(ps, bm.assess(ps))["items"]["recurrence_type"]["system"] == "locoregional_curative"
+
+
+def test_local_recurrence_palliative_phase():
+    """원격 전이 없는 국소 재발의 고식(recurrence_type = locoregional_other)이면 setting.phase = palliative.
+    수술 예정 짝 사례(VC-0109-plan)와 수술 뒤 보조 사례(VC-0109)를 비교한다. 고위험 칸은 보조에서만 판정한다."""
+    with open(CHARTS / "pairs" / "VC-0109-plan" / "expected" / "patient_state.json", encoding="utf-8") as f:
+        ps = json.load(f)
+    items = c.build_draft(ps, bm.assess(ps))["items"]
+    assert items["recurrence_type"]["system"] == "locoregional_other"
+    assert items["setting.phase"]["system"] == "palliative"
+    assert draft_of("VC-0109")["items"]["setting.phase"]["system"] == "adjuvant"

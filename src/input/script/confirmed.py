@@ -14,6 +14,7 @@
 - dfi_days·high_risk_early는 여기서 계산한다 (전달 문서 §6-5 제안).
 - setting.phase (조기·국소 진행성의 이번 결정, 2026-11-02 사용자 결정): 원발 수술 기록(pTNM·ypTNM)이 있으면 adjuvant,
   없으면 neoadjuvant. 수술 시점은 시스템이 고를 근거가 없어 규칙으로 정한다. B setting.line(마지막 투약의 단계)은 쓰지 않는다.
+  원격 전이 없는 국소 재발의 고식(recurrence_type = locoregional_other)이면 palliative (2026-11-12).
 - gBRCA = gBRCA1·gBRCA2 하나로: 하나라도 positive → positive, vus → vus, 둘 다 negative → negative,
   하나만 negative이고 나머지가 기록 없음 → 의사 확인. sBRCA도 같다.
 """
@@ -474,6 +475,11 @@ def build_draft(patient_state: dict, biomarker_record: dict, drug_table=None) ->
         rtype = None
     put("recurrence_type", "current", rtype, "patient_state",
         refs=_ref((recurrence.get("status") or {}).get("source")), note=rtype_note)
+    if rtype == "locoregional_other" and setting.get("disease") != "metastatic":
+        # 원격 전이 없는 국소 재발의 고식: 이번 결정은 선행·보조가 아니라 고식 (공고 '재발성' 고식 행, 2026-11-12).
+        # 원발 병리로 정한 adjuvant를 덮는다. 화면 1 고위험 칸이 잠기고 화면 2 처방 단계가 palliative로 저장된다
+        put("setting.phase", "current", "palliative", "derived", refs=_ref((recurrence.get("status") or {}).get("source")),
+            note=f"국소 재발 고식 ({rtype_note or '재발 부위 수술 안 함 또는 고식 목적'}): 선행·보조 아님")
 
     sites = _value(recurrence.get("metastatic_sites"))
     if not isinstance(sites, list):

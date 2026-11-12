@@ -217,8 +217,8 @@
       "additionalProperties": false,
       "properties": {
         "setting.disease": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"enum": ["early", "locally_advanced", "metastatic"]}}}]},
-        "setting.phase": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"enum": ["neoadjuvant", "adjuvant"]}}}],
-                          "description": "조기 결정만. 이번에 정할 치료가 선행인지 보조인지"},
+        "setting.phase": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"enum": ["neoadjuvant", "adjuvant", "palliative"]}}}],
+                          "description": "조기 결정만. 이번에 정할 치료가 선행인지 보조인지. palliative = 원격 전이 없는 고식 (국소 재발 중 재발 부위 수술 안 함·수술 전·수술 예정·고식 목적, recurrence_type = locoregional_other, 2026-11-12). 수술 불가 국소진행성은 ESMO EBC가 선행요법으로 다뤄 neoadjuvant 그대로"},
         "setting.line_endocrine": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"enum": ["1L", "2L", ">=3L", "not_applicable"]}}}],
                                    "description": "전이성만. 이번에 정할 고식적 내분비요법 차수 (심평원 투여단계). 간주 규칙은 반영하지 않는다 (deemed_lines로 따로)"},
         "setting.line_chemo": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"enum": ["1L", "2L", ">=3L"]}}}],

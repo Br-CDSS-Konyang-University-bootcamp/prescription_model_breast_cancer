@@ -156,6 +156,7 @@ VC-0109 짝 사례로 고정한다 (`src/input/script/virtual/cases/pairs.py`, �
 |---|---|---|
 | D 조건 어휘 | `of.setting`의 `metastatic`을 `palliative`로 바꿀지 (7.3) | D |
 | 재발 부위 수술 기록 없음 (4번 줄 중 `unknown`) | 지금은 `adjuvant`로 남는다. `unknown`을 `no`로 보지 않기로 해서 규칙으로 정하지 않았다. 화면 1에서 의사가 재발 유형을 확인한다 | A·B |
+| 국소 재발 고식의 화면 1 `setting.phase` | 2026-11-12 반영: `confirmed_state` `setting.phase` enum에 `palliative` 추가. `recurrence_type = locoregional_other`이고 원격 전이가 없으면 `palliative` (화면 1 고위험 칸 잠김, 화면 2 처방 단계 palliative 저장). 수술 불가 3기는 C 의견대로 `neoadjuvant` 그대로 | 완료 |
 | 수술 불가 3기의 화면 1 `setting.phase` | 투약은 고식으로 정하지만 `confirmed_state` `setting.phase`에는 palliative 값이 없어 지금은 `neoadjuvant`(원발 병리 없음)로 나온다 | 스키마 4명 |
 | 전이 없는 고식의 검색 경로 | `setting.disease`가 metastatic이 아니면 C는 선행·보조로만 찾는다 (`retrieve.py` `decision_lines`). 수술 불가 3기, 국소 재발 수술 전 환자는 고식 행·차수 검색 경로가 없다. `confirmed_state` `setting.phase`에도 palliative 값이 없다. B `line_endocrine`·`line_chemo`도 전이성일 때만 채운다 | B·C, 스키마 4명 |
 | ESMO 근거 공백 | ESMO EBC 2024는 수술 가능한 조기·국소진행성, MBC 2026은 원격 전이만 다룬다. 수술 불가 국소진행성·국소 재발의 약물 치료 문장이 없다. 급여는 공고로 판정되지만 지침 인용을 어떻게 할지 (범위 밖 표시 / MBC 장 검색) 정해야 한다 | 4명 |
