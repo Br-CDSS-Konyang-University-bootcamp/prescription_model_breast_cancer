@@ -85,9 +85,8 @@ def _entries(fields, of):
     rows = fields.get("treatment_history") or []
     of = of or {}
     if of.get("setting"):
-        # D 조건 어휘의 고식은 아직 metastatic이다 (검토 끝난 조건 데이터). 투약 단계 값은 palliative (2026-11-09)
-        want = {"palliative" if s == "metastatic" else s for s in of["setting"]}
-        rows = [t for t in rows if t.get("setting") in want]
+        # D 조건 어휘도 고식은 palliative다 (D #148, 2026-11-11). 예전 metastatic → palliative 변환은 지웠다
+        rows = [t for t in rows if t.get("setting") in of["setting"]]
     if of.get("drugs"):
         rows = [t for t in rows if any(_has_drug(t, d) for d in of["drugs"])]
     return rows
