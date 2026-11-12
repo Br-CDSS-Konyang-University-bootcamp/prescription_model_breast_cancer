@@ -277,8 +277,8 @@
             "recurrence_day": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {"type": "integer", "minimum": 0}}}],
               "description": "첫 재발일 (진단일 = 0). 국소·원격 재발 모두. 진단 시 IV기는 재발이 아니므로 넣지 않는다. '보조요법 종료 후 1년 이내 재발' 같은 급여 조건에 쓴다. TCGA는 locoregional_dx_days, metastasis_dx_days(원격 전이 재발일 때) 중 이른 값"},
             "surgery": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {
-              "enum": ["yes", "no", "unknown"],
-              "description": "재발 후 수술 여부. TCGA는 nte_surgery (YES가 하나라도 있으면 yes)"}}}]},
+              "enum": ["yes", "planned", "no", "unknown"],
+              "description": "재발 후 수술 여부. TCGA는 nte_surgery (YES가 하나라도 있으면 yes). planned = 재발 부위 수술 예정 (2026-11-12): 재발 뒤 수술 전 투약은 고식, 절제 가능으로 본다. observed_date는 yes면 수술일, planned면 예정일"}}}]},
             "surgery_intent": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {
               "enum": ["curative", "palliative", "unknown"],
               "description": "재발 후 수술 의도. TCGA는 기록이 없어 모두 unknown"}}}]},

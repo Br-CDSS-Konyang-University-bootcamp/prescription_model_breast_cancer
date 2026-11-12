@@ -59,7 +59,7 @@ A는 원칙적으로 표기만 정리한다. 예외: HER2 IHC의 `result`는 ISH
 | `status` | `present`(값 있음) / `not_done`(미시행) / `not_recorded`(기록 없음) | `"present"` |
 | `value` | 표준값 | `{"percent": 95}` |
 | `raw` | 원문 표기 그대로 | `"ER(+) 95%"` |
-| `observed_date` | 검사일·기록일. 사건 칸(`recurrence.surgery`, `pipeline.EVENT_FIELDS`)은 그 사건의 날짜: LLM이 비워도 인용 구절에 날짜가 정확히 하나 있으면 코드가 그 날짜를 넣는다 (2026-11-09) | `"2024-03-05"` |
+| `observed_date` | 검사일·기록일. 사건 칸(`recurrence.surgery`, `pipeline.EVENT_FIELDS`)은 그 사건의 날짜: LLM이 비워도 인용 구절에 날짜가 정확히 하나 있으면 코드가 그 날짜를 넣는다 (2026-11-09). `recurrence.surgery = planned`면 예정일 (2026-11-12) | `"2024-03-05"` |
 | `specimen` [합의 예정] | `primary` / `metastasis` / `cfDNA` / `unknown` | `"primary"` |
 | `confidence` | LLM 추출 확신도 0–1 | `0.97` |
 | `source` | 원문 근거 (문서 ID, 인용, 문자 위치) | `{"doc_id":"D1","quote":"ER(+) 95%","char_start":120,"char_end":129}` |
@@ -233,7 +233,7 @@ TNM·병기군 표기 규칙 [A 결정]:
 | 필드 | 의미 | 표준값 형태 | 정규화 방식 | 원문 → 정규화 예시 |
 |---|---|---|---|---|
 | `drugs` | 약제 목록 | 일반명 소문자 목록 | 사전 (`drug_names.csv` + 요법 약어 사전) | `AC #4` → `["doxorubicin","cyclophosphamide"]` |
-| `setting` | 치료 단계 | `neoadjuvant` / `adjuvant` / `palliative` / `unknown` | 사전. 공고 투여요법(선행·수술후보조·고식)이다. 병기 범주와 다른 축 (2026-11-09 `metastatic`에서 `palliative`로 이름 바꿈). 투약 줄에 선행·보조·고식 표시가 없으면 날짜로: 전이일 이후 시작 → `palliative`, 국소 재발 뒤 재발 부위 수술일(`recurrence.surgery` = yes의 관찰일) 전 → `palliative`(공고 '재발성' 고식 행, 2026-11-09), 국소 재발 + 재발 부위 수술 `no`면 재발일 이후 → `palliative`(기록 없음 `unknown`은 해당 없음), 수술일(ypTNM·pTNM 관찰일) 전 → `neoadjuvant`, 첫 재발일(국소·원격) 전 → `adjuvant`(재발했으면 원발암 치료는 끝남, 병리가 없어도), 병리 TNM이 아예 없고 `stage.operable = no`면 → `palliative`(수술 불가 국소진행성 = 고식, 2026-11-09), 병리 TNM이 아예 없으면 아직 수술 전으로 보고 `neoadjuvant` + 확인 사유(다른 병원 수술 등으로 병리가 빠졌으면 보조로 고칠 것. issues `needs_review`, 화면 1 왼쪽 투약 줄에 표시, 2026-11-06), 그 밖 → `adjuvant` | `수술 전 항암` → `"neoadjuvant"` |
+| `setting` | 치료 단계 | `neoadjuvant` / `adjuvant` / `palliative` / `unknown` | 사전. 공고 투여요법(선행·수술후보조·고식)이다. 병기 범주와 다른 축 (2026-11-09 `metastatic`에서 `palliative`로 이름 바꿈). 투약 줄에 선행·보조·고식 표시가 없으면 날짜로: 전이일 이후 시작 → `palliative`, 국소 재발 뒤 재발 부위 수술일(`recurrence.surgery` = yes의 관찰일) 전 → `palliative`(공고 '재발성' 고식 행, 2026-11-09), 국소 재발 + 재발 부위 수술 `no`·`planned`면 재발일 이후 → `palliative`(기록 없음 `unknown`은 해당 없음), 수술일(ypTNM·pTNM 관찰일) 전 → `neoadjuvant`, 첫 재발일(국소·원격) 전 → `adjuvant`(재발했으면 원발암 치료는 끝남, 병리가 없어도), 병리 TNM이 아예 없고 `stage.operable = no`면 → `palliative`(수술 불가 국소진행성 = 고식, 2026-11-09), 병리 TNM이 아예 없으면 아직 수술 전으로 보고 `neoadjuvant` + 확인 사유(다른 병원 수술 등으로 병리가 빠졌으면 보조로 고칠 것. issues `needs_review`, 화면 1 왼쪽 투약 줄에 표시, 2026-11-06), 그 밖 → `adjuvant` | `수술 전 항암` → `"neoadjuvant"` |
 | `start_date` | 시작일 | `YYYY-MM-DD` | 해석 | `'25.1.10부터` → `"2025-01-10"` |
 | `end_date` | 종료일 | `YYYY-MM-DD` 또는 `null` | 해석 | `2026.6.20 중단` → `"2026-06-20"` |
 | `start_day`, `end_day` [draft5] | 시작일·종료일 (진단일 = 0) | 정수 또는 `null` | 해석 (날짜 → 진단일 기준 일수) | 진단 2024-03-05, 시작 2024-04-04 → `30` |
@@ -255,7 +255,7 @@ TNM·병기군 표기 규칙 [A 결정]:
 | `neoadjuvant_response.rcb` | 잔존암 부담 등급 | `RCB-0` / `RCB-I` / `RCB-II` / `RCB-III` | 사전 + 해석 | `RCB class II (index 2.1)` → `"RCB-II"` |
 | `recurrence.recurrence_date` | 재발일 | 날짜 | 해석 | `2026년 6월 간 전이로 재발` → `"2026-06"` [제안: 부분 날짜] |
 | `recurrence.adjuvant_endocrine_end_date` | 보조 내분비요법 종료일 | 날짜 | 해석 | `타목시펜 5년 복용 후 2023.3 종료` → `"2023-03"` |
-| `recurrence.status`, `metastatic_sites`, `metastasis_day`, `surgery`, `surgery_intent`, `later_distant` [draft5] | 재발 상태, 재발 전이 부위, 전이 기준일, 재발 후 수술 | handoff_to_B.md §3.1 | 사전 + 해석 | `2026.6 간 전이 재발` → `status: distant`, `metastatic_sites: ["liver"]` |
+| `recurrence.status`, `metastatic_sites`, `metastasis_day`, `surgery`, `surgery_intent`, `later_distant` [draft5] | 재발 상태, 재발 전이 부위, 전이 기준일, 재발 후 수술 | handoff_to_B.md §3.1 | 사전 + 해석. `surgery`: 수술함 `yes`, 수술 예정 `planned`(예정·계획·planned, 2026-11-12), 안 함·불가 `no` | `2026.6 간 전이 재발` → `status: distant`, `metastatic_sites: ["liver"]`; `2022.10.14 흉벽 광범위 절제 예정` → `surgery: planned` |
 | `recurrence.recurrence_day` [draft6] | 첫 재발일 (국소·원격, 진단일 = 0). 진단 시 IV기는 넣지 않음 | 정수 | 해석 | `2026.6 흉벽 재발` → 진단일 기준 일수 |
 | `deemed_lines[]` [draft6] | 심평원 차수 간주 규칙 4개의 충족 여부 | `{rule_id, category, status, basis, regimen_refs, gap_days, notice_page}` | 계산 (`rules.py`) | 보조 AC → paclitaxel 후 전이 → `DEEM-ANTHRA-TAXANE: met` |
 | `at_index` [draft7 후보, 2026-10-20] | 기준일 시점 값. `age`(기준일 나이 = 진단 시 나이 + `index_day` ÷ 365.25의 몫), `recent_therapy_28d`(최근 4주 이내 항암제·호르몬제 투여 `{status, basis, regimen_refs, gap_days}`, 보조약·골 보호제 제외) | 객체 | 계산 (`rules.py at_index`: `index_day`, 진단 시 나이, `treatment_history[]`) | `index_day` 1000, letrozole `end_day` 980 → `{"status":"yes","gap_days":20,…}` |

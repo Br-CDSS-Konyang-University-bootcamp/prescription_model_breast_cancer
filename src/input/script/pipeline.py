@@ -542,6 +542,7 @@ def _metastasis_day(q, ctx):
 
 
 SURGERY = re.compile(r"수술|절제|surgery|resection|excision|mastectomy", re.I)
+PLANNED = re.compile(r"예정|계획|planned|scheduled", re.I)
 
 
 def _need(pattern: str, parse):
@@ -648,7 +649,9 @@ PARSERS = {
     "recurrence.metastatic_sites": lambda q, ctx: None if re.fullmatch(r"\s*[cpy]*M[01X]\s*", q) else _metastatic_sites(q, ctx),
     "recurrence.metastasis_day": _metastasis_day,
     "recurrence.recurrence_day": _day_field,
-    "recurrence.surgery": _need(SURGERY.pattern, lambda q, ctx: _yes_no(q)),
+    # 수술 예정은 planned (2026-11-12). '수술 예정 없음'은 no
+    "recurrence.surgery": _need(SURGERY.pattern, lambda q, ctx: "planned" if _yes_no(q) == "yes" and PLANNED.search(q)
+                                else _yes_no(q)),
     # 수술 목적은 그 줄에 수술·절제가 있을 때만 ('고식 항암'의 '고식'을 받지 않는다, 2026-10-28 시험 VC-0114·0127)
     "recurrence.surgery_intent": lambda q, ctx: _intent(q, ctx) if SURGERY.search(q + " " + ctx.line) else None,
     "recurrence.later_distant": _need(r"원격|distant", lambda q, ctx: _yes_no(q)),
@@ -1243,9 +1246,9 @@ def _fill_treatment(history: list[dict], fields: dict, images: list[dict] = ()) 
     # (원발 병기 대상)이 아니라 '재발성' 고식 행으로만 급여된다 → 고식 (palliative). S2 뒤 투약은 공고 p.48대로 아래 규칙에서 보조가 된다
     local = _value(fields, "recurrence.status") == "locoregional"
     s2 = _day_of(fields, "recurrence.surgery") if local and _value(fields, "recurrence.surgery") == "yes" else None
-    # 재발 부위를 수술하지 않았다고 기록된 국소 재발(surgery = no): 재발 뒤 투약은 '재발성' 고식 행 (공고 p.48).
-    # 기록 없음(unknown)은 no로 보지 않는다 (사용자 결정) → 아래 예전 규칙(보조)
-    local_unoperated = local and _value(fields, "recurrence.surgery") == "no"
+    # 재발 부위를 수술하지 않았다고 기록된 국소 재발(surgery = no)과 수술 예정(planned, 아직 수술 전):
+    # 재발 뒤 투약은 '재발성' 고식 행 (공고 p.48). 기록 없음(unknown)은 no로 보지 않는다 (사용자 결정) → 아래 예전 규칙(보조)
+    local_unoperated = local and _value(fields, "recurrence.surgery") in ("no", "planned")
     # 수술 불가 국소진행성(stage.operable = no)이고 원발 수술 병리가 없으면 고식 (공고 고식 행 대상 '국소진행성', 2026-11-09)
     inoperable = _value(fields, "stage.operable") == "no"
     guessed = []

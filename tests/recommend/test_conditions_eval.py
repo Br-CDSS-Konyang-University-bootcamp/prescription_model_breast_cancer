@@ -195,6 +195,8 @@ def test_d_requests_2026_10_22():
     assert ev(cond([item("recurrence_operable", "eq", "no")]), ps=rec("yes", "curative")) == "not_met"
     assert ev(cond([item("recurrence_operable", "eq", "no")]), ps=rec("no", "unknown")) == "unknown"
     assert ev(cond([item("recurrence_operable", "eq", "yes")]), ps=rec("yes", "palliative")) == "unknown"
+    # 수술 예정은 절제 가능: '절제 불가능한 국소재발성'(eq no)은 충족 안 됨 (2026-11-12)
+    assert ev(cond([item("recurrence_operable", "eq", "no")]), ps=rec("planned", "unknown")) == "not_met"
     indet = patient(patient={"menopausal_status": present("indeterminate"), "gender": present("FEMALE")})
     assert ev(cond([item("menopause", "eq", "postmenopausal")]), ps=indet) == "unknown"
     empty = patient(treatment_history=[])

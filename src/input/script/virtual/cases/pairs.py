@@ -25,6 +25,7 @@ GROUPS = {
     "G4": ("ER Allred 총점", "VC-0107", "기본: Allred 8 (5+3). 0~2 음성, 3~4 저발현, 5는 비율 점수로 가름, 6~8 양성"),
     "G5": ("PR Allred 총점", "VC-0109", "기본: Allred 5 (3+2). 0~2 음성, 3 이상 양성"),
     "G6": ("HER2 IHC·ISH", "VC-0101", "기본: 간 재생검 HER2 1+ (저발현)"),
+    "G7": ("국소 재발 부위 수술 전후", "VC-0109", "기본: 흉벽 재발 day 1140, 절제 day 1165 뒤 day 1190 결정 (수술후보조)"),
 }
 
 PAIRS = [
@@ -86,6 +87,13 @@ PAIRS = [
     Pair("VC-0109-pr3", "VC-0109", {"pr": (2, 1)}, "G5", "PR Allred 3 (2+1)",
          {"receptors.pr_percent.value.allred.total": 3},
          {"B": "PR positive (3점 이상)"}),
+    Pair("VC-0109-plan", "VC-0109", {"surgery": "planned"}, "G7",
+         "흉벽 재발 절제를 day 1180에 예정하고 그 전 day 1162에 결정 (수술 기록 없음)",
+         {"recurrence.surgery.value": "planned", "recurrence.surgery.observed_date": "2022-10-14"},
+         {"A": "화면 1 recurrence_type = locoregional_other (수술 예정 확인 사유)",
+          "B": "recurrence_operable = yes (수술 예정 = 절제 가능)",
+          "C": "원격 전이 없는 국소 재발 고식 → ESMO 근거 범위 밖 (out_of_scope_reason)",
+          "D": "'절제 불가능한 국소재발성' 행 충족 안 됨, '재발성' 고식 행이 후보"}),
     Pair("VC-0101-her2-0", "VC-0101", {"her2": "0"}, "G6", "간 재생검 HER2 IHC 0, 막 염색 없음",
          {"receptors.her2_ihc.value.score": "0"},
          {"B": "HER2 negative (0). 원발 1+와 다름 → reason에 변화 기록, 전이성 HER2 재판정 확인"}),
