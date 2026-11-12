@@ -66,7 +66,7 @@ A가 짚은 과적합("28개 정답에 맞추는 규칙") 걱정이 C 규칙에�
    - 두 사례 이상에 적용된다.
    - 28건 정답과 평가 문제집 29문항 정답을 깎지 않는다 (`test_rules_never_penalize_*`).
    - 남은 틀린 사례는 발표·보고서에 한계로 적는다.
-3. **국소 재발 고식은 범위 밖:** 원격 전이가 없고 `recurrence_type`이 `locoregional_other`(재발 부위 수술 안 함 또는 고식 목적)면, `retrieve_for_recommend`가 지침·급여를 넘기지 않는다 (`out_of_scope_reason`).
+3. **국소 재발 고식은 범위 밖:** 원격 전이가 없고 `recurrence_type`이 `locoregional_other`(재발 부위 수술 안 함, 수술 전·수술 예정, 또는 고식 목적. 수술 전·예정은 A #150 2026-11-12)면, `retrieve_for_recommend`가 지침·급여를 넘기지 않는다 (`out_of_scope_reason`).
    - B 후처리는 지침이 없으면 이미 `out_of_scope`로 처리한다.
    - 공용 스키마(`setting.phase` palliative)를 기다리지 않고, 이미 있는 확정값으로 가른다.
    - 수술 불가 3기는 지금처럼 EBC 선행 권고를 찾는다.
