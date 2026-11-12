@@ -154,13 +154,14 @@ def decision_lines(items: dict) -> dict:
     return {"guideline": guideline, "reimbursement": reimbursement, "classes": classes}
 
 
-# ESMO 근거 범위 밖: 전이가 없는 국소 재발인데 재발 부위를 수술하지 않았거나 고식 목적(recurrence_type
-# locoregional_other)이면, ESMO EBC 2024·MBC 2026 어디에도 약물 치료 권고가 없다 (C 청크에서 inoperable·locoregional
+# ESMO 근거 범위 밖: 전이가 없는 국소 재발인데 재발 부위를 수술하지 않았거나, 수술 전·수술 예정이거나, 고식 목적이면
+# (recurrence_type locoregional_other. 수술 전·예정은 A #150부터 이 값), ESMO EBC 2024·MBC 2026 어디에도 약물 치료 권고가 없다 (C 청크에서 inoperable·locoregional
 # recurrence·chest wall 검색, 2026-11-10). 지금 차수 규칙으로는 원발 병리 때문에 '보조'가 되어 원발암 보조 권고가 근거로
 # 붙었다. v0.1은 지침을 넘기지 않고 범위 밖으로 둔다 (B 후처리가 지침 없음 → out_of_scope). 급여는 공고 '재발성' 고식
 # 행이라 지금 급여 검색(병기·보조 차수)으로는 맞는 행을 고를 수 없어 함께 비운다 (팀 결정 2026-11-11, PR #143 C 검토).
 # 수술 불가 3기는 ESMO EBC가 국소진행성을 선행요법으로 다루므로 그대로 찾는다
-OUT_OF_SCOPE_LOCOREGIONAL = "ESMO 근거 범위 밖: 원격 전이 없는 국소 재발의 고식 치료 (재발 부위 수술 안 함 또는 고식 목적)"
+OUT_OF_SCOPE_LOCOREGIONAL = ("ESMO 근거 범위 밖: 원격 전이 없는 국소 재발의 고식 치료 "
+                             "(재발 부위 수술 안 함, 수술 전·수술 예정, 또는 고식 목적)")
 
 
 def out_of_scope_reason(confirmed_state: dict):
