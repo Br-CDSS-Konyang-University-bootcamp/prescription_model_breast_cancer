@@ -107,7 +107,7 @@ VALUE_LABELS = {
     "not_done": "미시행", "not_recorded": "기록 없음", "vus": "VUS", "unknown": "판정 불가", "retest_needed": "재검 필요",
     "yes": "예", "no": "아니오", "not_applicable": "해당 없음", "not_assessed": "평가 안됨",
     "early": "조기 (I~II)", "locally_advanced": "국소 진행성 (III)", "metastatic": "전이성 (IV)",
-    "neoadjuvant": "선행요법", "adjuvant": "보조요법", "premenopausal": "폐경 전", "postmenopausal": "폐경 후",
+    "neoadjuvant": "선행요법", "adjuvant": "보조요법", "palliative": "고식요법", "premenopausal": "폐경 전", "postmenopausal": "폐경 후",
     "markers.ER:low": "저발현 (1~10%)", "markers.Ki-67:positive": "고증식 (20% 이상)", "markers.Ki-67:negative": "저증식",
     "markers.PD-L1:positive": "양성 (22C3 CPS 10 이상)", "stage.n:positive": "양성 (N1mi 이상)", "stage.n:negative": "음성 (N0)",
     "stage.n:not_assessed": "평가 안됨 (NX)", "stage.t:not_assessed": "TX (평가 안됨)", "grade:1": "1", "grade:2": "2", "grade:3": "3",
