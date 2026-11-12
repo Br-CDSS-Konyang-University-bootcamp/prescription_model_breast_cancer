@@ -179,3 +179,16 @@ def test_yptnm_without_neoadjuvant_drug_is_neoadjuvant():
     items = c.build_draft(ps, bm.assess(ps))["items"]
     assert items["stage.t"]["detail"] == {"basis": "c"}
     assert items["pcr"]["system"] != "not_applicable"
+
+
+def test_recurrence_type_before_recurrence_surgery_is_other():
+    """국소 재발 + 재발 부위 수술 yes라도 판정 기준일이 수술일(관찰일) 전이면 이번 결정은 수술 전 투약(고식) →
+    locoregional_other (C가 원발 보조 권고 대신 범위 밖으로 둔다). 수술 뒤면 locoregional_curative."""
+    ps = load("VC-0109", "patient_state.json")          # 재발 부위 수술 2022-09-29 = day 1165, 기준일 1190
+    assert c.build_draft(ps, bm.assess(ps))["items"]["recurrence_type"]["system"] == "locoregional_curative"
+    ps["index_day"] = 1150
+    item = c.build_draft(ps, bm.assess(ps))["items"]["recurrence_type"]
+    assert item["system"] == "locoregional_other"
+    assert "수술 전" in item["note"]
+    del ps["fields"]["recurrence"]["surgery"]["observed_date"]   # 수술일을 모르면 예전처럼 완치 목적
+    assert c.build_draft(ps, bm.assess(ps))["items"]["recurrence_type"]["system"] == "locoregional_curative"

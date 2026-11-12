@@ -137,6 +137,15 @@ def _size(fields: dict, basis: str | None) -> tuple[object, str | None, dict | N
     return "not_recorded", None, None
 
 
+def _surgery_day(fields: dict) -> int | None:
+    """재발 부위 수술일 (진단일 = 0). recurrence.surgery = yes의 관찰일, 없으면 None."""
+    cell = (fields.get("recurrence") or {}).get("surgery") or {}
+    dx = _value((fields.get("diagnosis") or {}).get("diagnosis_date") or {})
+    if _value(cell) != "yes" or not cell.get("observed_date") or not dx:
+        return None
+    return (datetime.fromisoformat(cell["observed_date"]) - datetime.fromisoformat(dx)).days
+
+
 def _phase(fields: dict) -> tuple[str, str, dict | None]:
     """이번 결정의 치료 단계 (사용자 결정 2026-11-02). 수술을 먼저 할지는 우리 시스템이 고를 근거가 없으므로 규칙으로 정한다:
     원발 수술 기록(pTNM 또는 선행 뒤 ypTNM)이 있으면 adjuvant, 없으면 선행요법 대상으로 넘어왔다고 보고 neoadjuvant."""
@@ -449,6 +458,12 @@ def build_draft(patient_state: dict, biomarker_record: dict, drug_table=None) ->
         rtype = "locoregional_curative" if operated and intent != "palliative" else "locoregional_other"
         if operated and intent != "curative" and intent != "palliative":
             rtype_note = "재발 부위 수술 의도 기록 없음: 완치 목적으로 봄. 고식 목적 수술이면 locoregional_other로 고칠 것"
+        # 판정 기준일이 재발 부위 수술일(recurrence.surgery 관찰일) 전이면 이번 결정은 수술 전 투약 = 고식
+        # (투약 단계 규칙과 같음, 공고 '재발성' 고식 행). 완치 목적 수술 뒤 보조는 수술일부터 (2026-11-12)
+        s2 = _surgery_day(fields)
+        if rtype == "locoregional_curative" and s2 is not None and index_day is not None and index_day < s2:
+            rtype = "locoregional_other"
+            rtype_note = "재발 부위 수술 전 결정: 수술 전 투약은 고식으로 봄 (수술 뒤 보조요법은 수술 뒤 다시 확인)"
     elif rstatus in ("none", "distant"):
         rtype = rstatus
     elif mday == 0:

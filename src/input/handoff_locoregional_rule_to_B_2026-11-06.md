@@ -137,6 +137,7 @@ VC-0109 짝 사례로 고정한다 (`src/input/script/virtual/cases/pairs.py`, �
 | 〃 | 수술 불가(`stage.operable = no`)이고 원발 수술 병리(pTNM·ypTNM)가 없는 투약 → `palliative`(공고 고식 행 대상 "국소진행성", 스키마 `operable` 설명 "선행요법 대상인지 고식적요법 대상인지 가른다"). 확인 사유(`NO_SURGERY_NEO`)를 달지 않는다. 선행 뒤 수술해 ypTNM이 생기면 수술 전 투약은 예전대로 `neoadjuvant` | 같은 테스트 |
 | `rules.py` `palliative_lines` | 전이 기준일이 없으면 `setting = palliative`인 투약만 고식 차수(`line`·`endocrine_line`·`chemo_line`)로 센다. 그 뒤 보조 투약은 세지 않는다 | `test_palliative_without_metastasis_day_counts_only_palliative` |
 | `confirmed.py` `recurrence_type` | 재발 부위 수술 yes이고 의도가 palliative가 아니면 `locoregional_curative`. 의도 기록이 없으면 확인 사유 | VC-0109 `confirmed_state.json` 재생성 |
+| 〃 (2026-11-12) | 판정 기준일이 재발 부위 수술일(관찰일) 전이면 `locoregional_other` + 확인 사유. 이번 결정은 수술 전 투약(고식)이라 C `out_of_scope_reason`(#147)이 원발 보조 권고 대신 범위 밖으로 둔다. 수술일을 모르면 예전처럼 `locoregional_curative` | `test_recurrence_type_before_recurrence_surgery_is_other` |
 | `screen1.py` | 재발 유형 칸을 전이성뿐 아니라 국소 재발에서도 보인다 (시스템 값 기준이라 의사가 고쳐도 잠기지 않는다) | `tests/app` |
 
 지금 fixture에는 국소 재발 뒤 수술 전에 시작한 투약이 없어 정답 `patient_state`는 바뀌지 않았다.
