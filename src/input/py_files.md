@@ -67,7 +67,7 @@ from src.input.script.rules import Vocab, annotate, load_drug_table
 | 절 | 시작 줄 | 역할 | 작업 내용 | 주요 이름 | 테스트 |
 |---|---|---|---|---|---|
 | `candidates` | 24 | IN-2 후보 형식, 정답 후보 | 후보 형식 `{doc_id, field, quote, specimen, observed_date}`을 정한다. 정답 `patient_state`의 근거마다 후보를 만들어 LLM 없이 규칙 쪽(pipeline)을 시험한다 | `from_expected`, `KEYS` | `test_candidates.py` |
-| `score` | 73 | 채점 | 출력과 가상 차트 정답을 칸 단위로 비교해 필드 정확도(전체·정답 present 칸만), 정밀도·재현율(칸별로도), 상태 혼동표, 근거 위치(정확 일치·겹침), 인용 준수율, 틀린 칸 목록을 낸다. 사례 묶음: `dev` 10건, `pairs` 짝 19건, `test` 새 20건 | `compare`, `total`, `report`, `case_set`, `expected`, `main` | `test_score.py` |
+| `score` | 73 | 채점 | 출력과 가상 차트 정답을 칸 단위로 비교해 필드 정확도(전체·정답 present 칸만), 정밀도·재현율(칸별로도), 상태 혼동표, 근거 위치(정확 일치·겹침), 인용 준수율, 틀린 칸 목록을 낸다. 사례 묶음: `dev` 10건, `pairs` 짝 20건, `test` 새 20건 | `compare`, `total`, `report`, `case_set`, `expected`, `main` | `test_score.py` |
 
 ## 3. `rules.py`: 공용 규칙·사전
 
@@ -82,7 +82,7 @@ from src.input.script.rules import Vocab, annotate, load_drug_table
 |---|---|---|---|
 | `virtual_chart.py` | 가상 차트 작성 도구 | `Chart`·`Doc`·`F`로 사례 코드가 글을 쓰는 순간 값과 원문 위치를 함께 기록해 `chart.txt`와 정답 `patient_state.json`이 어긋나지 않게 만든다. 스키마·인용 위치·차수 재계산을 검사한다. 다른 파일이 쓰는 `CASES`, `out_dir`도 여기 있다 | `test_virtual_charts.py` |
 | `cases/vc_0101.py` ~ `vc_0109.py`, `vc_0106b.py` | 가상 차트 10건 사례 코드 (개발 세트) | 파일마다 `build()`가 차트 하나를 만든다. 일부는 짝 사례용 매개변수가 있다 (예: VC-0103 `adj_gap`, VC-0107 `er`) | `test_virtual_charts.py` |
-| `cases/pairs.py` | 짝 사례 19건 | 기본 사례에서 판정을 가르는 값 하나만 바꾸고, A 정답 확인값(`expect_a`)과 B·C·D 기대 판정 초안(`expect`)을 적는다 | `test_virtual_charts.py` |
+| `cases/pairs.py` | 짝 사례 20건 | 기본 사례에서 판정을 가르는 값 하나만 바꾸고, A 정답 확인값(`expect_a`)과 B·C·D 기대 판정 초안(`expect`)을 적는다 | `test_virtual_charts.py` |
 | `build_virtual_cases.py` | 가상 사례 20건 생성 (시험 세트) | `virtual_patient_cases.md` §3의 값으로 VC-0110 ~ VC-0129의 차트·정답·`scenario.md`·`cases.csv`를 만든다 (`virtual_chart.py`의 `Chart`·`F`를 쓴다) | `test_virtual_cases.py` |
 | `build_holdout_cases.py` | 보류 세트 18건 생성 | `virtual_patient_cases.md` §3의 N21~N35·G20·G21로 VC-0130 ~ VC-0144와 짝 3건의 차트·정답·`scenario.md`·`holdout_cases.csv`. 규칙을 고칠 때 보지 않는 세트 | `test_holdout_cases.py` |
 | `build_variant_cases.py` | 표현 변형 15건 생성 | 개발 세트 5건을 날짜 형식만 바꿔 (`virtual_chart.date_style`) `variants/`에 쓴다. 값은 원래 사례와 같다 | `test_variant_cases.py` |

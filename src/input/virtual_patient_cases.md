@@ -24,7 +24,7 @@
 | **N01~N20** | 시험 세트 사례 (VC-0110~VC-0129). evaluation_plan §6.5의 # 1~20과 같은 순서 |
 | **N21~N35** | 보류 세트 사례 (VC-0130~VC-0144, 2026-10-27). DCIS 단독 사례는 빼고 다시 번호를 매김 (모델 범위 밖) |
 | **I01~I12** | 입력 모듈(IN-0~IN-7) 시험용 사례·변형 (§5) |
-| **G1~G6** | 만든 짝 사례 묶음 (`cases/pairs.py`, 19건) |
+| **G1~G7** | 만든 짝 사례 묶음 (`cases/pairs.py`, 20건) |
 | **G7~G19** | 아직 안 만든 짝 사례 묶음 (§4) |
 | **G20·G21** | 보류 세트 짝 (VC-0111-g20a·g20b, VC-0115-g21, §3) |
 | **R01~R11** | 옛 예비 사례 번호. 대부분 N21~N35로 만들었다 (§2.9) |
@@ -99,7 +99,7 @@
 | VC-0108 | HR+/HER2- | 전이 1차 진행 중 | 골 보호제, 최근 4주 투여 | MBC 그림 2 `1ae139` |
 | VC-0109 | HR+/HER2- | 국소 재발 후 보조 | `SET-LOCAL-ADJ`, 간주 규칙 not_applicable | 그림 없음 (본문) |
 
-### 1.2 짝 사례 19건 (`cases/pairs.py`, `tests/fixtures/virtual_charts/pairs/`)
+### 1.2 짝 사례 20건 (`cases/pairs.py`, `tests/fixtures/virtual_charts/pairs/`)
 
 | 묶음 | 경계 | 기본 | 짝 사례 |
 |---|---|---|---|
@@ -109,8 +109,9 @@
 | G4 | ER Allred | VC-0107 | er2, er3, er5ps2, er5ps3, er6 |
 | G5 | PR Allred | VC-0109 | pr2, pr3 |
 | G6 | HER2 IHC·ISH | VC-0101 | her2-0, her2-0f, her2-2n, her2-2a, her2-3p |
+| G7 | 국소 재발 부위 수술 전후 (수술 예정 `planned`, 2026-11-12) | VC-0109 | plan |
 
-evaluation_plan §2.1에는 "6묶음 20건"으로 적혀 있음. `pairs.py` 목록 기준 19건.
+evaluation_plan §2.1에는 "6묶음 20건"으로 적혀 있음. `pairs.py` 목록 기준 G1~G6 19건, 2026-11-12 G7 1건 추가로 20건.
 
 ### 1.3 옛 출처 `AB_gap_tasks.md`와의 관계
 

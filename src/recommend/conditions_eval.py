@@ -276,8 +276,10 @@ def _value(field, it, patient_state, record):
         v = _present(patient.get("menopausal_status"))
         return None if v == "indeterminate" else v
     if field == "recurrence_operable":   # D FIELDS: 재발 후 수술 yes + 의도 curative면 yes, 그 밖은 알 수 없음
-        done = _present(recurrence.get("surgery")) == "yes" and _present(recurrence.get("surgery_intent")) == "curative"
-        return "yes" if done else None
+        surgery = _present(recurrence.get("surgery"))
+        done = surgery == "yes" and _present(recurrence.get("surgery_intent")) == "curative"
+        # 수술 예정(planned)은 절제할 수 있다고 본 것이다 → '절제 불가능한 국소재발성' 행은 충족 안 됨 (2026-11-12)
+        return "yes" if done or surgery == "planned" else None
     if field == "sex":
         return _present(patient.get("gender"))
     if field == "age":

@@ -64,7 +64,7 @@ def test_precision_and_recall():
 
 
 def test_case_sets():
-    assert len(case_set("dev")) == 10 and len(case_set("pairs")) == 19
+    assert len(case_set("dev")) == 10 and len(case_set("pairs")) == 20
     test = case_set("test")
     assert len(test) == 20 and test[0] == "VC-0110" and not set(test) & set(case_set("all"))
 

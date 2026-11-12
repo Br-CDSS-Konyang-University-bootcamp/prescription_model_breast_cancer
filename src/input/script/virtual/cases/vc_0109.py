@@ -4,13 +4,16 @@
 재발 병소 수용체는 '원발과 같음'으로만 적혀 있어 칸으로 옮기지 않는다 (판정은 원발 값).
 
 짝 사례 매개변수: pr = PR Allred (PS, IS) (기본 3+2 = 5). PR은 총점 0~2 음성, 3 이상 양성 (저발현 없음).
+surgery = "yes" (기본, day 1165 절제 뒤 day 1190 외래) / "planned" (day 1180 절제 예정, 그 전 day 1162 외래.
+수술 기록이 아직 없고 수술 뒤 원격 전이 문장도 없다. 이번 결정은 수술 전 투약 = 고식, 2026-11-12).
 """
 from src.input.script.virtual.virtual_chart import Chart, F, allred, allred_text, kdate
 
 
-def build(pr: tuple[int, int] = (3, 2)) -> Chart:
+def build(pr: tuple[int, int] = (3, 2), surgery: str = "yes") -> Chart:
     pr_word = "음성" if sum(pr) <= 2 else "양성"
-    c = Chart("VC-0109", "2019-07-22", 1190)
+    planned = surgery == "planned"
+    c = Chart("VC-0109", "2019-07-22", 1162 if planned else 1190)
     D = c.on
     idx = c.index_date
 
@@ -25,16 +28,21 @@ def build(pr: tuple[int, int] = (3, 2)) -> Chart:
     d.t(" (조직검사로 확인).\n")
     d.put(f"tamoxifen {kdate(D(1150))} 중단", F("recurrence.adjuvant_endocrine_end_date", D(1150), raw=kdate(D(1150))))
     d.t(". PET-CT에서 ").put("원격 전이 없음", F("recurrence.metastatic_sites", "[Not Applicable]")).t(".\n")
-    d.put(f"{kdate(D(1165))} 흉벽 광범위 절제", F("recurrence.surgery", "yes", observed_date=D(1165))).t(" (")
-    d.put("완치 목적", F("recurrence.surgery_intent", "curative")).t(", 절제연 음성). ")
-    d.put("수술 후 원격 전이 소견 없음", F("recurrence.later_distant", "no")).t(".\n")
-    d.put("ECOG PS 0", F("patient.ecog", 0, observed_date=idx)).t(". 재발 후 보조 내분비요법 결정.\n")
+    if planned:
+        d.put(f"{kdate(D(1180))} 흉벽 광범위 절제 예정", F("recurrence.surgery", "planned", observed_date=D(1180))).t(" (")
+        d.put("완치 목적", F("recurrence.surgery_intent", "curative")).t(", 유방외과 협진).\n")
+        d.put("ECOG PS 0", F("patient.ecog", 0, observed_date=idx)).t(". 수술 전 내분비요법 결정.\n")
+    else:
+        d.put(f"{kdate(D(1165))} 흉벽 광범위 절제", F("recurrence.surgery", "yes", observed_date=D(1165))).t(" (")
+        d.put("완치 목적", F("recurrence.surgery_intent", "curative")).t(", 절제연 음성). ")
+        d.put("수술 후 원격 전이 소견 없음", F("recurrence.later_distant", "no")).t(".\n")
+        d.put("ECOG PS 0", F("patient.ecog", 0, observed_date=idx)).t(". 재발 후 보조 내분비요법 결정.\n")
 
-    d = c.doc("progress_note", D(1165))
-    d.t("[수술 기록 요약]\n").ident(61, full=False)
-    d.t(f"수술일: {kdate(D(1165))}   집도의: 정가상 (유방외과)\n")
-    d.t("수술명: 좌측 흉벽 재발 병소 광범위 절제술\n수술 목적: 국소 재발 병소 완전 절제 (완치 목적)\n")
-    d.t("소견: 흉벽 피하 1.6 cm 결절, 근막 침범 없음. 육안적 완전 절제.\n")
+        d = c.doc("progress_note", D(1165))
+        d.t("[수술 기록 요약]\n").ident(61, full=False)
+        d.t(f"수술일: {kdate(D(1165))}   집도의: 정가상 (유방외과)\n")
+        d.t("수술명: 좌측 흉벽 재발 병소 광범위 절제술\n수술 목적: 국소 재발 병소 완전 절제 (완치 목적)\n")
+        d.t("소견: 흉벽 피하 1.6 cm 결절, 근막 침범 없음. 육안적 완전 절제.\n")
 
     d = c.doc("radiology", D(1160))
     d.t("[PET-CT 판독지]\n").ident(61, full=False)

@@ -64,3 +64,11 @@
 | `VC-0101-her2-2n` | 간 재생검 HER2 IHC 2+, SISH 비증폭 | B: HER2 low (2+ / ISH 비증폭) |
 | `VC-0101-her2-2a` | 간 재생검 HER2 IHC 2+, SISH 증폭 | B: HER2 positive → 아형 HR+/HER2+ (재생검 기준)<br>C: ESMO MBC HER2+ 1차 (그림 5, ER+) — 전이 후 HER2 표적 치료 없음<br>D: HER2 표적 요법 행이 후보가 됨 (고식적 항암) |
 | `VC-0101-her2-3p` | 간 재생검 HER2 IHC 3+ | B: HER2 positive → 아형 HR+/HER2+<br>C: VC-0101-her2-2a와 같음<br>D: VC-0101-her2-2a와 같음 |
+
+## G7 국소 재발 부위 수술 전후 (기본 VC-0109)
+
+기본: 흉벽 재발 day 1140, 절제 day 1165 뒤 day 1190 결정 (수술후보조)
+
+| 짝 사례 | 바꾼 값 | 기대 판정 (초안) |
+|---|---|---|
+| `VC-0109-plan` | 흉벽 재발 절제를 day 1180에 예정하고 그 전 day 1162에 결정 (수술 기록 없음) | A: 화면 1 recurrence_type = locoregional_other (수술 예정 확인 사유)<br>B: recurrence_operable = yes (수술 예정 = 절제 가능)<br>C: 원격 전이 없는 국소 재발 고식 → ESMO 근거 범위 밖 (out_of_scope_reason)<br>D: '절제 불가능한 국소재발성' 행 충족 안 됨, '재발성' 고식 행이 후보 |

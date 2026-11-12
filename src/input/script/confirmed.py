@@ -456,6 +456,8 @@ def build_draft(patient_state: dict, biomarker_record: dict, drug_table=None) ->
         operated = _value(recurrence.get("surgery")) == "yes"
         intent = _value(recurrence.get("surgery_intent"))
         rtype = "locoregional_curative" if operated and intent != "palliative" else "locoregional_other"
+        if _value(recurrence.get("surgery")) == "planned":
+            rtype_note = "재발 부위 수술 예정: 수술 전 투약은 고식으로 봄 (수술 뒤 보조요법은 수술 뒤 다시 확인)"
         if operated and intent != "curative" and intent != "palliative":
             rtype_note = "재발 부위 수술 의도 기록 없음: 완치 목적으로 봄. 고식 목적 수술이면 locoregional_other로 고칠 것"
         # 판정 기준일이 재발 부위 수술일(recurrence.surgery 관찰일) 전이면 이번 결정은 수술 전 투약 = 고식
