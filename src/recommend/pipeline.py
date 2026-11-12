@@ -44,6 +44,11 @@ rationale의 모든 문장 끝에 아래 지침 청크 ID 중 그 문장의 근�
 급여 청크 ID만으로는 근거가 되지 않는다. 쓸 수 있는 지침 청크 ID: {ids}"""
 
 
+SCOPE_NOTE = """[다시 쓰기] 앞의 답은 사유 없이 out_of_scope를 true로 했다. 범위 밖은 이 시스템이 다루지 않는 환자(예: 남성,
+상피내암)일 때만이고, 그때는 out_of_scope_reason에 이유를 적는다. 범위 밖이 아니면 out_of_scope를 false로 두고
+[지침 청크]의 권고로 후보를 쓴다."""
+
+
 def _answer_counts(options, guide_ids):
     """LLM이 낸 주 후보를 내용 없이 숫자로만 적는다 (A 공유 2026-11-05 B-2). 실제 환자로 보고 답 원문은 남기지 않는다
     (사용자 결정 2026-11-05). 무엇 때문에 지워졌는지는 이 숫자와 후처리 로그로 본다."""
@@ -118,6 +123,12 @@ def recommend(patient_state, biomarker_record, guideline_chunks, reimbursement_c
                "tests_needed": raw.get("tests_needed") or [],
                "out_of_scope": bool(raw.get("out_of_scope")), "out_of_scope_reason": raw.get("out_of_scope_reason"),
                "conflicts": raw.get("conflicts") or []}
+        if rec["out_of_scope"] and not (rec["out_of_scope_reason"] or "").strip() and guideline_chunks:
+            # 사유 없는 범위 밖 판정은 믿지 않는다. 범위 밖 환자(남성, 상피내암 등)는 이유를 적어야 한다
+            # (D 확인 2026-11-12, VC-0126: HR+ 전이 환자인데 사유 없이 out_of_scope true)
+            log.append("LLM이 사유 없이 범위 밖으로 답함")
+            rec["out_of_scope_reason"] = "LLM이 사유 없이 범위 밖으로 답함 (확인 필요)"
+            noreason[0] = True
         if not rec["options"] and not rec["out_of_scope"]:
             log.append("LLM이 후보를 내지 않음 (out_of_scope도 false)")   # A 전달 §5.3 VC-0126
         log.append(_answer_counts(rec["options"], set(guide_ids)))
@@ -128,12 +139,17 @@ def recommend(patient_state, biomarker_record, guideline_chunks, reimbursement_c
         log.extend(post_log)
         return out, len(rec["options"])
 
+    noreason = [False]
     rec, asked = ask(prompt)
     # LLM이 낸 주 후보가 후처리에서 모두 지워지면 한 번만 다시 묻는다. 무엇이 빠졌는지와 쓸 수 있는 지침 청크 ID를
     # 콕 집어 알려 준다 (A 공유 2026-11-05 B-1: 근거 문장에 [청크ID]가 없어 6건이 빈 결과). 다시 온 답도 같은 후처리를 거친다
     if asked and not rec["options"]:
         log.append("주 후보가 모두 지워져 LLM에 한 번 다시 물음")
         rec, _ = ask(prompt + "\n\n" + RETRY_NOTE.format(ids=", ".join(guide_ids)))
+    elif noreason[0] and not rec["options"]:
+        log.append("사유 없는 범위 밖 판정이라 LLM에 한 번 다시 물음")
+        noreason[0] = False
+        rec, _ = ask(prompt + "\n\n" + SCOPE_NOTE)
     rec["tests_needed"] = _merge_tests(rec["tests_needed"], biomarker_record.get("tests_needed"))
     rec["clinical_notes"] = clinical_notes(patient_state, rec["options"], guideline_chunks, confirmed_state)
     result = {**base, **rec}

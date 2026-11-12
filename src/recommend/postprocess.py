@@ -90,6 +90,24 @@ CLASS_NAME_RE = re.compile(r"\bAIs?\b|[Aa]romatase inhibitor|\bET\b|[Ee]ndocrine
                            r"\b[Aa]nthracyclines?\b|\bChT\b|[Cc]hemotherapy|[Aa]nti-HER2|\bSERDs?\b|\bLHRH\b|\bOFS\b")
 
 
+def _class_words():
+    """약 계열을 가리키는 말 (B-14에서 약 후보인지 가릴 때만 쓴다. 약 이름을 비우는 데는 쓰지 않는다).
+    drug_classes.csv의 계열·세부 계열 이름(영문, 한글)과 흔한 계열 표현."""
+    words = {"inhibitor", "inhibitors", "억제제", "parp", "pi3k", "akt", "mtor", "adc", "antibody-drug conjugate",
+             "checkpoint", "immunotherapy", "면역", "표적", "bisphosphonate", "비스포스포네이트"}
+    with open(DRUG_CLASSES_CSV, encoding="utf-8-sig") as fh:
+        for r in csv.DictReader(fh):
+            for k in ("drug_class", "drug_class_ko", "drug_subclass"):
+                v = (r.get(k) or "").strip().lower().replace("_", " ")
+                if v and v not in ("other", "unknown", "기타", "알 수 없음"):
+                    words.add(v)
+    return words
+
+
+CLASS_WORD_RE = re.compile("|".join(rf"(?<![a-z0-9]){re.escape(w)}(?![a-z0-9])"
+                                    for w in sorted(_class_words(), key=len, reverse=True)), re.IGNORECASE)
+
+
 # 7번: 약으로 펼치는 계열 이름. LHRH 작용제는 급여 행이 goserelin·leuprolide로 적혀 있어 두 약의 "그중 하나" 묶음(_groups)으로
 # 펼친다 (D 요청 2026-11-04, 급여 행 r04~r06). 급여 행은 묶음마다 하나 이상 맞으면 맞는 행으로 본다.
 # AI·CDK4/6 등 다른 계열은 펼치지 않고 약을 비워 둔다 (A 전달 2026-11-03 규칙 7, D가 펼치기 요청을 취소 2026-11-04)
@@ -506,10 +524,17 @@ def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursemen
             rec["conflicts"].append(f"{name}: {unresolved}")
             log.append(f"{name}: {unresolved}")
         elif not o.get("drugs") and not _is_supportive(o):
-            # 약도 약 계열 이름도 없는 후보(예: 다학제 회의 토론, 국소 치료)는 처방 후보가 아니라 참고로 옮긴다 (A 공유 §7 B-14)
-            rec["conflicts"].append(f"참고 (약 후보 아님): {name}")
-            log.append(f"후보 삭제: {name} (약이 아닌 후보라 참고로 옮김)")
-            return False
+            if CLASS_WORD_RE.search(name or ""):
+                # 7번 계열 이름 목록(CLASS_NAME_RE)에 없는 계열 이름(예: "PARP 억제제", "ADC")도 약 후보로 보고 남긴다.
+                # 약은 정하지 않고 의사 확인으로 둔다 (D 확인 2026-11-12, VC-0113·0125)
+                note = "요법 이름에 계열 이름이 있어 약을 정하지 못함, 의사 확인 필요"
+                rec["conflicts"].append(f"{name}: {note}")
+                log.append(f"{name}: {note}")
+            else:
+                # 약도 약 계열 이름도 없는 후보(예: 다학제 회의 토론, 국소 치료)는 처방 후보가 아니라 참고로 옮긴다 (A 공유 §7 B-14)
+                rec["conflicts"].append(f"참고 (약 후보 아님): {name}")
+                log.append(f"후보 삭제: {name} (약이 아닌 후보라 참고로 옮김)")
+                return False
         # 3번 앞: 인용한 지침 청크에 후보 약이 없지만 넘겨받은 다른 지침 청크에 그 약이 있으면, 그 청크(관련도 순서로 첫 것)를
         # 근거에 더한다 (A 공유 2026-11-05 B-5, VC-0127 sacituzumab). 지어낸 근거가 아니라 받은 청크에 약이 있음을 확인하는 것
         added_for_drug = []
