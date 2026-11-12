@@ -253,3 +253,41 @@ def test_reimbursement_id_only_option_kept_and_non_drug_moved_to_note():
     assert rec["options"][0]["citations"] == [KID2["chunk_id"]]
     assert rec["options"][0]["rationale"].startswith(f"이 요법의 약이 지침 권고에 있다 [{KID2['chunk_id']}].")
     assert "참고 (약 후보 아님): MDT discussion" in rec["conflicts"]
+
+
+# D 확인 (2026-11-12): 사유 없는 범위 밖 판정, 약어, 계열 이름 후보
+def test_out_of_scope_without_reason_retried():
+    seen = []
+
+    def llm(prompt):
+        seen.append(prompt)
+        if len(seen) == 1:
+            return {"options": [], "tests_needed": [], "out_of_scope": True, "out_of_scope_reason": None, "conflicts": []}
+        return {"options": [opt(rationale=f"권고된다 [{KID2['chunk_id']}].", citations=[KID2["chunk_id"]],
+                                reimbursement="no_criteria")],
+                "tests_needed": [], "out_of_scope": False, "conflicts": []}
+    rec, log, errors = recommend({}, RECORD, [KID1, KID2], [], llm, INDEX_STATUS, "fake", TODAY)
+    assert errors == [] and len(seen) == 2 and "out_of_scope를 true로 했다" in seen[1]
+    assert rec["out_of_scope"] is False and [o["therapy"] for o in rec["options"]] == ["letrozole"]
+    # 다시 물어도 사유 없이 범위 밖이면 이유를 '확인 필요'로 남긴다
+    rec, log, errors = recommend({}, RECORD, [KID1], [], lambda p: {"options": [], "tests_needed": [], "out_of_scope": True,
+                                 "out_of_scope_reason": None, "conflicts": []}, INDEX_STATUS, "fake", TODAY)
+    assert errors == [] and rec["out_of_scope_reason"] == "LLM이 사유 없이 범위 밖으로 답함 (확인 필요)"
+
+
+def test_abbreviation_and_class_word_options_kept():
+    dato = {**KID1, "chunk_id": "esmo-mbc-dato", "drugs": ["datopotamab deruxtecan"], "text": "TEST: Dato-DXd."}
+    parp = {**KID1, "chunk_id": "esmo-mbc-parp", "drugs": ["olaparib", "talazoparib"], "text": "TEST: PARP inhibitors."}
+    rec_m = {**RECORD, "setting": {"disease": "metastatic", "line": "2L"},
+             "records": [{"marker": "gBRCA1", "status": "positive", "reason": "t"}]}
+    o1 = opt(therapy="Dato-DXd", drugs=[], rationale=f"권고 [{dato['chunk_id']}].", citations=[dato["chunk_id"]],
+             reimbursement="no_criteria")
+    o2 = opt(therapy="PARP 억제제 단독 요법", drugs=[], rationale=f"권고 [{parp['chunk_id']}].",
+             citations=[parp["chunk_id"]], reimbursement="no_criteria")
+    o3 = opt(therapy="Radiotherapy to bone", drugs=[], rationale=f"권고 [{parp['chunk_id']}].",
+             citations=[parp["chunk_id"]], reimbursement="no_criteria")
+    rec, log = postprocess({"options": [o1, o2, o3]}, rec_m, [dato, parp], [], TODAY)
+    assert [(o["therapy"], o["drugs"]) for o in rec["options"]] == [("Dato-DXd", ["datopotamab deruxtecan"]),
+                                                                    ("PARP 억제제 단독 요법", [])]
+    assert any("PARP 억제제 단독 요법: 요법 이름에 계열 이름" in c for c in rec["conflicts"])
+    assert "참고 (약 후보 아님): Radiotherapy to bone" in rec["conflicts"]
