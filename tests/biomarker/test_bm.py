@@ -593,6 +593,19 @@ def main():
     early = bm.setting_of({"treatment_history": [], "stage": {"disease_extent": {"status": "present", "value": "early"}}})
     report("LK07", "line_endocrine" not in early and "line_chemo" not in early, "조기는 내분비·항암 차수 칸을 만들지 않음",
            str(early))
+    local = {"treatment_history": [tx(["tamoxifen"], "adjuvant", 45)],
+             "stage": {"disease_extent": {"status": "present", "value": "early"}},
+             "diagnosis": {"diagnosis_date": {"status": "present", "value": "2019-07-22"}},
+             "recurrence": {"status": {"status": "present", "value": "locoregional"},
+                            "surgery": {"status": "present", "value": "planned", "observed_date": "2022-10-14"},
+                            "surgery_intent": {"status": "present", "value": "curative"}}}
+    got = bm.setting_of(local, "HR+/HER2-", 1162)
+    report("LK08", (got["disease"], got.get("line_endocrine"), got.get("line_chemo")) == ("early", "1L", "1L"),
+           "국소 재발 고식(수술 예정)은 병기 범주는 그대로, 내분비·항암 차수를 채움 (2026-11-16)", str(got))
+    local["recurrence"]["surgery"] = {"status": "present", "value": "yes", "observed_date": "2022-09-29"}
+    got = bm.setting_of(local, "HR+/HER2-", 1190)
+    report("LK09", "line_endocrine" not in got and "line_chemo" not in got,
+           "국소 재발을 완치 목적 수술한 뒤 보조 결정은 차수 칸을 만들지 않음", str(got))
     deemed = {"treatment_history": [tx(["eribulin"], "palliative", 900, 1, chemo=1)],
               "deemed_lines": [{"rule_id": "DEEM-ANTHRA-TAXANE", "status": "met"},
                                {"rule_id": "DEEM-SG-1Y", "status": "not_met"}],

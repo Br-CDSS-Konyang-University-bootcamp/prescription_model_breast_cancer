@@ -23,6 +23,7 @@ PD-L1은 약제별 기준(22C3 CPS ≥ 10, SP142 IC ≥ 1%)으로 판정한다 (
 import csv
 import json
 import re
+from datetime import date
 from pathlib import Path
 
 # ------------------------------------------------------------------ CONFIG
@@ -916,8 +917,31 @@ def line_kind_of(fields, kind, subtype=None):
     return _line_label(last), f"고식적 {name} {last}차({drugs}), 진행 기록 없음"
 
 
-def setting_of(fields, subtype=None):
-    """현재 범주(전달 문서 6.1절), 차수(6.2절, line_of), 전이성이면 내분비·항암 차수(line_kind_of), 이전 약제 계열."""
+def _present_value(cell):
+    return cell.get("value") if isinstance(cell, dict) and cell.get("status") == "present" else None
+
+
+def local_recurrence_palliative(fields, index_day=None):
+    """원격 전이 없는 국소 재발이고 이번 결정이 고식인가 (2026-11-16). A의 화면 1 recurrence_type = locoregional_other,
+    setting.phase = palliative, rules.local_recurrence_palliative와 같은 판정이다 (모듈끼리 내부 코드를 부르지 않아 같은 규칙을 둔다).
+    재발 부위를 완치 목적으로 수술했고(yes, 의도 palliative 아님) 판정 기준일이 수술일 이후면 보조 결정이라 False.
+    수술 안 함·예정·기록 없음, 고식 목적, 수술 전 결정이면 True."""
+    rec = fields.get("recurrence") or {}
+    if _present_value(rec.get("status")) != "locoregional":
+        return False
+    if _present_value(rec.get("surgery")) == "yes" and _present_value(rec.get("surgery_intent")) != "palliative":
+        cell = rec.get("surgery") or {}
+        dx = _present_value((fields.get("diagnosis") or {}).get("diagnosis_date"))
+        if not cell.get("observed_date") or not dx or index_day is None:
+            return False
+        s2 = (date.fromisoformat(cell["observed_date"]) - date.fromisoformat(dx)).days
+        return index_day < s2
+    return True
+
+
+def setting_of(fields, subtype=None, index_day=None):
+    """현재 범주(전달 문서 6.1절), 차수(6.2절, line_of), 전이성이거나 국소 재발 고식이면 내분비·항암 차수(line_kind_of),
+    이전 약제 계열. index_day는 국소 재발 수술 전 결정을 가르는 판정 기준일 (patient_state.index_day)."""
     stage = fields.get("stage") or {}
     extent = stage.get("disease_extent") or {}
     recurrence = (fields.get("recurrence") or {}).get("status") or {}
@@ -941,7 +965,10 @@ def setting_of(fields, subtype=None):
     if deemed:
         line_why += f" / 심평원 차수 간주 규칙 충족: {', '.join(deemed)} (급여 판정에서 차수 +1, 전달 문서 6.3a절)"
     out = {"disease": disease, "line": line}
-    if disease == "metastatic":
+    local_palliative = disease in ("early", "locally_advanced") and local_recurrence_palliative(fields, index_day)
+    if local_palliative:
+        line_why += " / 국소 재발 고식 결정 (원격 전이 없음): 고식 차수를 셈 (공고 '재발성' 고식 행, 2026-11-16)"
+    if disease == "metastatic" or local_palliative:
         for kind in LINE_KIND:
             label, kind_why = line_kind_of(fields, kind, subtype)
             out[f"line_{kind}"] = label
@@ -1083,7 +1110,7 @@ def assess(patient_state):
     by = {r["marker"]: r for r in records}
 
     subtype = subtype_of(by["ER"]["status"], by["PR"]["status"], by["HER2"]["status"])
-    setting = setting_of(fields, subtype)
+    setting = setting_of(fields, subtype, (patient_state or {}).get("index_day"))
     return {
         "schema_version": "0.1-draft",
         "patient_ref": patient_ref,

@@ -64,8 +64,8 @@ ROWS = [
     ("setting.phase", "rule", lambda x: x["dis"] != MET, "전이성은 고식적 치료", True),
     ("high_risk_early", "rule", lambda x: x["sub"] == "HR+/HER2-" and x["dis"] != MET and x["phase"] == "adjuvant",
      "HR+/HER2- 보조요법에서만 판정 (보조 abemaciclib)", True),
-    ("setting.line_endocrine", "rule", lambda x: x["dis"] == MET, "전이성에서만", True),
-    ("setting.line_chemo", "rule", lambda x: x["dis"] == MET, "전이성에서만", True),
+    ("setting.line_endocrine", "rule", lambda x: x["dis"] == MET or x["phase"] == "palliative", "전이성·국소 재발 고식에서만", True),
+    ("setting.line_chemo", "rule", lambda x: x["dis"] == MET or x["phase"] == "palliative", "전이성·국소 재발 고식에서만", True),
     # 국소 재발도 재발 부위 수술(완치 목적 여부)을 확인한다 (공고 p.48 수술후보조)
     ("recurrence_type", "rule", lambda x: x["dis"] == MET or str(x["rec"]).startswith("locoregional"),
      "전이성·국소 재발에서만", False),

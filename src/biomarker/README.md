@@ -95,7 +95,7 @@ PD-L1 판정 (2026-10-16, 전달 문서 6.5절). 입력 `receptors.pdl1` (`assay
 | early, locally_advanced | `adjuvant` | 선행·보조 투약 없음 + 병리 병기(`stage.ptnm`) 있음: 수술을 먼저 했으니 이번에 정할 치료는 보조 (2026-11-02, 선행요법 뒤 수술 병기는 `yptnm`에 들어가 `ptnm`은 수술 먼저 한 환자). A 확정값 초안의 `setting.phase` 빈칸이 가상 차트 16명 → 3명 |
 | early, locally_advanced | `unknown` | 선행·보조 투약 없음 + 수술 전: 선행요법을 할지 수술을 먼저 할지는 의사가 정한다 |
 
-전이성이면 `setting.line_endocrine`·`setting.line_chemo`도 낸다 (A 전달 문서 `handoff_confirmed_state_to_B.md` §6 2번, 2026-10-21 A 동의). **이번에 결정할** 고식적 내분비·항암 차수를 따로 센 값으로, 화면 1(`confirmed_state`)의 기본값이다 (공고 p.55 따로 셈). 조기·국소 진행성은 이 두 칸을 만들지 않는다.
+전이성이면 `setting.line_endocrine`·`setting.line_chemo`도 낸다. 원격 전이 없는 국소 재발의 고식 결정(재발 부위 수술 안 함·예정·기록 없음, 고식 목적, 수술 전 결정 — A의 `recurrence_type = locoregional_other`와 같은 판정, `local_recurrence_palliative`)도 같은 규칙으로 낸다 (2026-11-16, 공고 '재발성' 고식 행). 병기 범주(`disease`)는 진단 시 범주 그대로다 (A 전달 문서 `handoff_confirmed_state_to_B.md` §6 2번, 2026-10-21 A 동의). **이번에 결정할** 고식적 내분비·항암 차수를 따로 센 값으로, 화면 1(`confirmed_state`)의 기본값이다 (공고 p.55 따로 셈). 조기·국소 진행성은 이 두 칸을 만들지 않는다.
 
 | 경우 | `line_endocrine` / `line_chemo` |
 |---|---|
