@@ -169,8 +169,11 @@ def out_of_scope_reason(confirmed_state: dict):
     if not is_confirmed_state(confirmed_state):
         return None
     items = confirmed_state.get("items") or {}
-    if (_confirmed(items, "setting.disease") != "metastatic"
-            and _confirmed(items, "recurrence_type") == "locoregional_other"):
+    # A #153(2026-11-16)부터 같은 환자는 setting.phase = palliative로도 온다. 의사가 둘 중 하나만 고쳐도 범위 밖으로 본다
+    # (phase palliative를 decision_lines가 받으면 'palliative' 차수로 검색해 모든 차수 권고가 감점되는 엉뚱한 목록이 된다)
+    if _confirmed(items, "setting.disease") != "metastatic" and (
+            _confirmed(items, "recurrence_type") == "locoregional_other"
+            or _confirmed(items, "setting.phase") == "palliative"):
         return OUT_OF_SCOPE_LOCOREGIONAL
     return None
 

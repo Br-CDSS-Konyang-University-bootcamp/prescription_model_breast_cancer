@@ -435,3 +435,7 @@ def test_locoregional_palliative_without_metastasis_is_out_of_scope(monkeypatch)
     metastatic = copy.deepcopy(other)
     metastatic["items"]["setting.disease"]["confirmed"] = "metastatic"
     assert r.out_of_scope_reason(metastatic) is None  # 원격 전이가 있으면 MBC 권고를 찾는다
+    # A #153: 같은 환자는 setting.phase = palliative로도 온다. 의사가 재발 유형만 고쳐도 phase가 palliative면 범위 밖
+    phase_only = copy.deepcopy(curative)
+    phase_only["items"]["setting.phase"] = {**item, "system": "palliative", "confirmed": "palliative"}
+    assert r.out_of_scope_reason(phase_only) == r.OUT_OF_SCOPE_LOCOREGIONAL
