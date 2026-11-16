@@ -203,3 +203,17 @@ def test_local_recurrence_palliative_phase():
     assert items["recurrence_type"]["system"] == "locoregional_other"
     assert items["setting.phase"]["system"] == "palliative"
     assert draft_of("VC-0109")["items"]["setting.phase"]["system"] == "adjuvant"
+
+
+def test_local_recurrence_palliative_lines_in_draft():
+    """국소 재발 고식(VC-0109-plan)은 B가 내분비·항암 차수를 채우고 화면 1에 차수 칸이 보인다. 스키마를 통과한다."""
+    from src.app.script import screen1 as s1
+    with open(CHARTS / "pairs" / "VC-0109-plan" / "expected" / "patient_state.json", encoding="utf-8") as f:
+        ps = json.load(f)
+    draft = c.build_draft(ps, bm.assess(ps))
+    items = draft["items"]
+    assert (items["setting.line_endocrine"]["system"], items["setting.line_chemo"]["system"]) == ("1L", "1L")
+    rows = {r["key"]: r for r in s1.rows(items)}
+    assert rows["setting.line_endocrine"]["applies"] and rows["setting.line_chemo"]["applies"]
+    doc, errors = c.to_confirmed_state(fill_required(draft), "user-test", "2026-11-16T09:00:00+09:00")
+    assert errors == [], errors
