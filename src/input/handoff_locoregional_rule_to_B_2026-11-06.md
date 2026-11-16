@@ -160,7 +160,7 @@ VC-0109 짝 사례로 고정한다 (`src/input/script/virtual/cases/pairs.py`, �
 | 수술 불가 3기의 화면 1 `setting.phase` | 투약은 고식으로 정하지만 `confirmed_state` `setting.phase`에는 palliative 값이 없어 지금은 `neoadjuvant`(원발 병리 없음)로 나온다 | 스키마 4명 |
 | 전이 없는 고식의 검색 경로 | `setting.disease`가 metastatic이 아니면 C는 선행·보조로만 찾는다 (`retrieve.py` `decision_lines`). 수술 불가 3기, 국소 재발 수술 전 환자는 고식 행·차수 검색 경로가 없다. `confirmed_state` `setting.phase`에도 palliative 값이 없다. B `line_endocrine`·`line_chemo`도 전이성일 때만 채운다 | B·C, 스키마 4명 |
 | ESMO 근거 공백 | ESMO EBC 2024는 수술 가능한 조기·국소진행성, MBC 2026은 원격 전이만 다룬다. 수술 불가 국소진행성·국소 재발의 약물 치료 문장이 없다. 급여는 공고로 판정되지만 지침 인용을 어떻게 할지 (범위 밖 표시 / MBC 장 검색) 정해야 한다 | 4명 |
-| 간주 규칙 | `deemed_lines`는 전이 기준일만 본다. 국소 재발 고식 투약의 "보조요법 종료 후 1년 이내 재발" 판정은 재발일(R)을 기준으로 해야 하는지 확인 필요 | B |
+| 간주 규칙 | 2026-11-16 반영: 원격 전이가 없고 국소 재발 고식 결정(`rules.local_recurrence_palliative`, 화면 1 `recurrence_type = locoregional_other`와 같은 판정)이면 첫 재발일 기준으로 계산한다 (공고 문구 "재발", B 검토 #143). 완치 목적 수술 뒤 보조 결정은 해당 없음 그대로. VC-0109-plan: `DEEM-ENDO-ADJ-1Y` met (보조 tamoxifen 중 재발) | 완료 |
 | `recurrence_operable` | 의도 `unknown`을 2번 줄에 넣는 §6.4와 맞추기 | B·D |
 | 수술 예정 (`planned`) | 2026-11-12 추가: enum `planned`, 관찰일은 예정일. A: 재발 뒤 투약 고식, `recurrence_type = locoregional_other`. B: `recurrence_operable = yes`. 짝 사례 VC-0109-plan. D `conditions.py` FIELDS 설명 한 줄은 D가 고침 | D (설명) |
 | `recurrence.status`의 `site_unknown`·`unknown` | TCGA 기록에서 온 값이다. 가상 차트 82개와 TCGA 정답 838명 모두 0건이다. 실제 진료에서 재발은 부위를 찾아야 진단되므로 지우고, 기록 없음·검사 중은 화면 1 필수 확인으로 처리하자고 제안한다. D `reimbursement_terms.csv`·`conditions.py`의 "재발성" 정의도 함께 바꾼다 | 4명 |

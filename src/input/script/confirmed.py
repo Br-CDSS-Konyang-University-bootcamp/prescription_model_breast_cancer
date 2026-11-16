@@ -27,7 +27,7 @@ from pathlib import Path
 
 from jsonschema import Draft202012Validator
 
-from src.input.script.rules import NOT_ANTICANCER, load_drug_table
+from src.input.script.rules import NOT_ANTICANCER, load_drug_table, local_recurrence_palliative
 
 ROOT = Path(__file__).resolve().parents[3]
 SCHEMA_PATH = ROOT / "schemas" / "confirmed_state.json"
@@ -136,15 +136,6 @@ def _size(fields: dict, basis: str | None) -> tuple[object, str | None, dict | N
         if _present(stage.get(key)):
             return stage[key]["value"], key[0], stage[key].get("source")
     return "not_recorded", None, None
-
-
-def _surgery_day(fields: dict) -> int | None:
-    """재발 부위 수술일 (진단일 = 0). recurrence.surgery = yes의 관찰일, 없으면 None."""
-    cell = (fields.get("recurrence") or {}).get("surgery") or {}
-    dx = _value((fields.get("diagnosis") or {}).get("diagnosis_date") or {})
-    if _value(cell) != "yes" or not cell.get("observed_date") or not dx:
-        return None
-    return (datetime.fromisoformat(cell["observed_date"]) - datetime.fromisoformat(dx)).days
 
 
 def _phase(fields: dict) -> tuple[str, str, dict | None]:
@@ -454,19 +445,17 @@ def build_draft(patient_state: dict, biomarker_record: dict, drug_table=None) ->
     rtype_note = None
     if rstatus == "locoregional":
         # 재발 부위를 수술했고 고식 목적이 아니면 완치 목적으로 본다 (handoff_to_B §6.4: 의도 unknown도 적용, 확인 사유)
+        # 고식 여부는 rules.local_recurrence_palliative 한 곳에서 정한다 (간주 규칙의 재발일 기준과 같은 판정, 2026-11-16).
+        # 판정 기준일이 재발 부위 수술일 전이면 수술 전 투약 = 고식 (투약 단계 규칙, 공고 '재발성' 고식 행)
         operated = _value(recurrence.get("surgery")) == "yes"
         intent = _value(recurrence.get("surgery_intent"))
-        rtype = "locoregional_curative" if operated and intent != "palliative" else "locoregional_other"
+        rtype = "locoregional_other" if local_recurrence_palliative(patient_state) else "locoregional_curative"
         if _value(recurrence.get("surgery")) == "planned":
             rtype_note = "재발 부위 수술 예정: 수술 전 투약은 고식으로 봄 (수술 뒤 보조요법은 수술 뒤 다시 확인)"
-        if operated and intent != "curative" and intent != "palliative":
-            rtype_note = "재발 부위 수술 의도 기록 없음: 완치 목적으로 봄. 고식 목적 수술이면 locoregional_other로 고칠 것"
-        # 판정 기준일이 재발 부위 수술일(recurrence.surgery 관찰일) 전이면 이번 결정은 수술 전 투약 = 고식
-        # (투약 단계 규칙과 같음, 공고 '재발성' 고식 행). 완치 목적 수술 뒤 보조는 수술일부터 (2026-11-12)
-        s2 = _surgery_day(fields)
-        if rtype == "locoregional_curative" and s2 is not None and index_day is not None and index_day < s2:
-            rtype = "locoregional_other"
+        elif operated and intent != "palliative" and rtype == "locoregional_other":
             rtype_note = "재발 부위 수술 전 결정: 수술 전 투약은 고식으로 봄 (수술 뒤 보조요법은 수술 뒤 다시 확인)"
+        elif operated and intent != "curative" and intent != "palliative":
+            rtype_note = "재발 부위 수술 의도 기록 없음: 완치 목적으로 봄. 고식 목적 수술이면 locoregional_other로 고칠 것"
     elif rstatus in ("none", "distant"):
         rtype = rstatus
     elif mday == 0:
