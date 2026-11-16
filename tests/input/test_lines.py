@@ -191,3 +191,25 @@ def test_recent_therapy_unknown_without_index_day():
 @pytest.mark.parametrize("index_day,age", [(0, 60), (365, 60), (366, 61), (3735, 70), (None, None)])
 def test_age_at_index(index_day, age):
     assert indexed([], index_day=index_day)["age"] == age
+
+
+def local_state(history, surgery, intent="curative", surgery_date=None, index_day=1162):
+    rec = {"status": {"status": "present", "value": "locoregional"},
+           "recurrence_day": {"status": "present", "value": 1140},
+           "surgery": {"status": "present", "value": surgery, **({"observed_date": surgery_date} if surgery_date else {})},
+           "surgery_intent": {"status": "present", "value": intent}}
+    return {"index_day": index_day,
+            "fields": {"recurrence": rec, "treatment_history": history,
+                       "diagnosis": {"diagnosis_date": {"status": "present", "value": "2019-07-22"}}}}
+
+
+def test_deemed_local_recurrence_palliative_uses_recurrence_day():
+    """국소 재발 고식 결정(수술 안 함·예정·수술 전)은 첫 재발일 기준으로 간주 규칙을 본다 (공고 '재발').
+    완치 목적 수술 뒤 보조 결정은 고식 행을 보지 않으므로 해당 없음. VC-0109: 보조 tamoxifen 중 day 1140 재발."""
+    history = [tx(["tamoxifen"], 45, 1150, setting="adjuvant")]
+    for surgery, date_ in (("planned", "2022-10-14"), ("no", None), ("yes", "2022-10-14")):   # yes: 기준일 1162 < 수술일 1180
+        d = {x["rule_id"]: x for x in deemed_lines(local_state(history, surgery, surgery_date=date_))}
+        assert d["DEEM-ENDO-ADJ-1Y"]["status"] == "met", surgery
+        assert d["DEEM-ENDO-ADJ-1Y"]["gap_days"] == -10 and "재발" in d["DEEM-ENDO-ADJ-1Y"]["basis"]
+    after = local_state(history, "yes", surgery_date="2022-09-29", index_day=1190)        # 수술(1165) 뒤 보조 결정
+    assert {x["status"] for x in deemed_lines(after)} == {"not_applicable"}

@@ -12,6 +12,7 @@ from __future__ import annotations
 import csv
 import re
 from collections import defaultdict
+from datetime import date
 from pathlib import Path
 
 
@@ -176,6 +177,33 @@ def _same_line_reason(prev: dict, group: list[dict], classes: dict[str, str]) ->
     return None
 
 
+def _cell_value(cell) -> object:
+    return cell.get("value") if isinstance(cell, dict) and cell.get("status") == "present" else None
+
+
+def recurrence_surgery_day(fields: dict) -> int | None:
+    """재발 부위 수술일 (진단일 = 0). recurrence.surgery = yes의 관찰일, 없으면 None."""
+    cell = (fields.get("recurrence") or {}).get("surgery") or {}
+    dx = _cell_value((fields.get("diagnosis") or {}).get("diagnosis_date"))
+    if _cell_value(cell) != "yes" or not cell.get("observed_date") or not dx:
+        return None
+    return (date.fromisoformat(cell["observed_date"]) - date.fromisoformat(dx)).days
+
+
+def local_recurrence_palliative(patient_state: dict) -> bool:
+    """국소 재발이고 이번 결정이 고식인가 (화면 1 recurrence_type = locoregional_other, 2026-11-12).
+    재발 부위를 완치 목적으로 수술했고(yes, 의도 palliative 아님) 판정 기준일이 수술일 이후면 보조 결정이라 False.
+    수술 안 함·예정·기록 없음, 고식 목적, 수술 전 결정이면 True. 국소 재발이 아니면 False."""
+    fields = patient_state.get("fields") or {}
+    rec = fields.get("recurrence") or {}
+    if _cell_value(rec.get("status")) != "locoregional":
+        return False
+    if _cell_value(rec.get("surgery")) == "yes" and _cell_value(rec.get("surgery_intent")) != "palliative":
+        s2, idx = recurrence_surgery_day(fields), patient_state.get("index_day")
+        return s2 is not None and idx is not None and idx < s2
+    return True
+
+
 def _metastasis_day(fields: dict) -> int | None:
     mday = (fields.get("recurrence") or {}).get("metastasis_day") or {}
     return mday.get("value") if mday.get("status") == "present" else None
@@ -260,8 +288,8 @@ def _deem(rule_id: str, status: str, basis: str, refs: list[int], gap: int | Non
             "regimen_refs": refs, "gap_days": gap, "notice_page": page}
 
 
-def _within(rule_id: str, cands: list[tuple[int, dict]], mday: int, limit: int, what: str) -> dict:
-    """후보 투약 중 종료일(없으면 시작일 하한)이 전이 기준일 limit일 이내인 것이 있으면 met."""
+def _within(rule_id: str, cands: list[tuple[int, dict]], mday: int, limit: int, what: str, event: str = "전이") -> dict:
+    """후보 투약 중 종료일(없으면 시작일 하한)이 기준일(전이, 국소 재발 고식이면 재발) limit일 이내인 것이 있으면 met."""
     if not cands:
         return _deem(rule_id, "not_met", f"{what} 없음", [], None)
 
@@ -275,26 +303,30 @@ def _within(rule_id: str, cands: list[tuple[int, dict]], mday: int, limit: int, 
         i, t = max(inside, key=lambda c: bound(c[1]))
         gap = mday - bound(t)
         if t.get("end_day") is None and t.get("ongoing") is True:
-            how = "투여 중 전이 (투약 중 표시)"
+            how = f"투여 중 {event} (투약 중 표시)"
         elif t.get("end_day") is None:
-            how = f"종료일 없음, 시작 후 {gap}일 뒤 전이"
+            how = f"종료일 없음, 시작 후 {gap}일 뒤 {event}"
         elif gap < 0:
-            how = f"투여 중 전이 (종료 {-gap}일 전)"
+            how = f"투여 중 {event} (종료 {-gap}일 전)"
         else:
-            how = f"종료 후 {gap}일 뒤 전이"
+            how = f"종료 후 {gap}일 뒤 {event}"
         return _deem(rule_id, "met", f"{what} {'+'.join(t['drugs'])} {how} (기준 {limit}일 이내)", [i], gap)
     if any(c[1].get("end_day") is None for c in cands):
         return _deem(rule_id, "unknown", f"{what} 중 종료일 없는 투약이 있어 기간을 알 수 없음",
                      [c[0] for c in cands if c[1].get("end_day") is None], None)
     i, t = max(cands, key=lambda c: c[1]["end_day"])
     gap = mday - t["end_day"]
-    return _deem(rule_id, "not_met", f"{what} {'+'.join(t['drugs'])} 종료 후 {gap}일 뒤 전이 (기준 {limit}일 초과)", [i], gap)
+    return _deem(rule_id, "not_met", f"{what} {'+'.join(t['drugs'])} 종료 후 {gap}일 뒤 {event} (기준 {limit}일 초과)", [i], gap)
 
 
 def deemed_lines(patient_state: dict, drug_table: dict[str, tuple[str, str]] | None = None) -> list[dict]:
     table = drug_table if drug_table is not None else load_drug_table()
     fields = patient_state.get("fields") or {}
-    mday = _metastasis_day(fields)
+    mday, event = _metastasis_day(fields), "전이"
+    if mday is None and local_recurrence_palliative(patient_state):
+        # 국소 재발 고식 결정: 공고 문구가 '재발'이라 첫 재발일을 기준으로 한다 (B 검토 #143, 2026-11-16).
+        # 완치 목적 수술 뒤 보조 결정은 고식 행을 보지 않으므로 해당 없음 그대로
+        mday, event = _cell_value((fields.get("recurrence") or {}).get("recurrence_day")), "재발"
     if mday is None:
         return [_deem(r, "not_applicable", "전이 기준일 없음 (전이성 아님)", [], None) for r in DEEM_RULES]
     history = fields.get("treatment_history") or []
@@ -320,11 +352,11 @@ def deemed_lines(patient_state: dict, drug_table: dict[str, tuple[str, str]] | N
     else:
         lacking = " · ".join(x for x, ok in (("anthracycline", anthra), ("taxane", taxane)) if not ok)
         out.append(_deem("DEEM-ANTHRA-TAXANE", "not_met", f"선행·보조요법에 {lacking} 없음", sorted(set(anthra + taxane)), None))
-    out.append(_within("DEEM-SG-1Y", pre, mday, 365, "선행·보조요법"))
+    out.append(_within("DEEM-SG-1Y", pre, mday, 365, "선행·보조요법", event))
     out.append(_within("DEEM-HER2ADC-6M", before(("adjuvant",), lambda ds: "trastuzumab" in ds), mday, 183,
-                       "trastuzumab 포함 보조요법"))
+                       "trastuzumab 포함 보조요법", event))
     out.append(_within("DEEM-ENDO-ADJ-1Y", before(("adjuvant",), lambda ds: any(cls(d) == "Hormone Therapy" for d in ds)),
-                       mday, 365, "보조 내분비요법"))
+                       mday, 365, "보조 내분비요법", event))
     return out
 
 

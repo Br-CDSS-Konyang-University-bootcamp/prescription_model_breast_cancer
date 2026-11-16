@@ -71,4 +71,4 @@
 
 | 짝 사례 | 바꾼 값 | 기대 판정 (초안) |
 |---|---|---|
-| `VC-0109-plan` | 흉벽 재발 절제를 day 1180에 예정하고 그 전 day 1162에 결정 (수술 기록 없음) | A: 화면 1 recurrence_type = locoregional_other (수술 예정 확인 사유)<br>B: recurrence_operable = yes (수술 예정 = 절제 가능)<br>C: 원격 전이 없는 국소 재발 고식 → ESMO 근거 범위 밖 (out_of_scope_reason)<br>D: '절제 불가능한 국소재발성' 행 충족 안 됨, '재발성' 고식 행이 후보 |
+| `VC-0109-plan` | 흉벽 재발 절제를 day 1180에 예정하고 그 전 day 1162에 결정 (수술 기록 없음) | A: 화면 1 recurrence_type = locoregional_other (수술 예정 확인 사유)<br>B: recurrence_operable = yes (수술 예정 = 절제 가능). 간주 규칙은 재발일 기준: 보조 tamoxifen 중 재발 → DEEM-ENDO-ADJ-1Y met<br>C: 원격 전이 없는 국소 재발 고식 → ESMO 근거 범위 밖 (out_of_scope_reason)<br>D: '절제 불가능한 국소재발성' 행 충족 안 됨, '재발성' 고식 행이 후보 |
