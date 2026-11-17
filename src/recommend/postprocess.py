@@ -244,6 +244,13 @@ def _drugs_match(option, chunk, exact=False):
     return have <= union if exact else True
 
 
+# 맞는 급여 행이 없을 때의 규칙 문구. 검색은 이번 결정 단계(선행·보조·고식 차수)의 행만 찾으므로 비급여라는 뜻이 아니다
+NO_ROW_REASON = ("후보 약과 맞는 시행 중인 급여 행 없음: 이번 결정 단계의 급여 행 검색 기준이며, "
+                 "비급여로 확정한 것은 아님 (다른 단계·요법의 급여 행은 의사 확인)")
+NO_CLASS_ROW_REASON = ("약 확인 필요: 요법 이름이 계열이라 약을 정하지 못했고, 이번 결정 단계의 급여 행 검색에 "
+                       "이 계열 행이 없음. 비급여로 확정한 것은 아님 (요법을 정한 뒤 확인)")
+
+
 def _classify(option, reimb_by_id, today, conditions_checker):
     """5번. 급여 분류와 이유를 고친다. 바꾼 내용을 문장 목록으로 돌려준다 (없으면 빈 목록)."""
     cls = option.get("reimbursement")
@@ -273,14 +280,15 @@ def _classify(option, reimb_by_id, today, conditions_checker):
                           reimbursement_reason=f"약 확인 필요 (관련 급여 요법 {len(class_rows)}개): "
                                                "계열 안의 요법마다 급여 조건이 다름, 요법을 정한 뒤 확인")
             return changes + [f"계열 이름 후보라 그 계열 급여 행 {len(class_rows)}개를 붙이고 급여(약 확인 필요)로 둠"]
-        if cls in COVERED_CLASSES and valid:
+        if valid:   # 인용한 시행 중 급여 행이 있으면 LLM이 no_criteria라고 했어도 조건 확인 필요로 둔다
             option.update(reimbursement="covered_conditions_unverified",
                           reimbursement_reason="후보 약을 정하지 못해 급여 조건을 판정하지 않음, 의사 확인")
             return changes + ([] if cls == "covered_conditions_unverified" else [f"{cls} → 급여(조건 확인 필요) (후보 약 미정)"])
-        if cls in COVERED_CLASSES:
-            option.update(reimbursement="no_criteria", reimbursement_citations=[], copay=None)
-            return changes + [f"{cls} → 급여 기준 없음 (시행 중인 급여 청크 인용 없음)"]
-        return changes
+        # 이 계열 급여 행이 검색에 없으면 LLM 분류·문장과 상관없이 규칙 문구로 둔다. '급여 기준 없음'만 보이면 급여가 안 되는
+        # 약으로 읽히므로 검색 범위의 문제임을 적는다 (D #157 2026-11-17, VC-0121 'Adjuvant Endocrine Therapy')
+        option.update(reimbursement="no_criteria", reimbursement_citations=[], copay=None,
+                      reimbursement_reason=NO_CLASS_ROW_REASON)
+        return changes + ([] if cls == "no_criteria" else [f"{cls} → 급여 기준 없음 (이 계열 급여 행 검색 안 됨)"])
     # 후보 약과 행 약이 똑같은 행을 먼저 쓰고, 그런 행이 없을 때만 약이 더 든 행을 쓴다 (D 요청 2026-11-04.
     # 예: paclitaxel 후보가 paclitaxel + pembrolizumab 행의 조건으로 급여가 되지 않게)
     current = [c for c in reimb_by_id.values() if _valid_reimb(c, today)]
@@ -311,9 +319,10 @@ def _classify(option, reimb_by_id, today, conditions_checker):
     valid = [c for c in valid if c.get("source") != "HIRA-offlabel"]
     option["reimbursement_citations"] = [c["chunk_id"] for c in valid]
     if not valid:
+        # 맞는 행이 없으면 LLM이 처음에 no_criteria라고 썼어도 규칙 문구로 통일한다 (D #157, VC-0121 'Tamoxifen alone'은
+        # LLM 문장, VC-0105는 규칙 문구였다)
+        option.update(reimbursement="no_criteria", reimbursement_citations=[], reimbursement_reason=NO_ROW_REASON)
         if cls in COVERED_CLASSES:
-            option.update(reimbursement="no_criteria", reimbursement_citations=[],
-                          reimbursement_reason="후보 약과 맞는 시행 중인 급여 행 없음")
             changes.append(f"{cls} → 급여 기준 없음 (후보 약과 맞는 시행 중인 급여 행 없음)")
         return changes
     if cls not in COVERED_CLASSES:

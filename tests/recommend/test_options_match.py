@@ -143,3 +143,20 @@ def test_added_drug_rule_only_for_chapter_40():
     adj = combo_row("r09-adj", ["tamoxifen"], ["abemaciclib"], "100/100", stage="adjuvant")
     rec, _ = postprocess({"options": [option("tamoxifen", ["tamoxifen"], [])]}, RECORD, [g], [adj], TODAY)
     assert rec["options"][0]["reimbursement_citations"] == ["r09-adj"]
+
+
+def test_no_row_reason_is_rule_text_even_if_llm_said_no_criteria():
+    """D #157 (2026-11-17): 맞는 급여 행이 없으면 LLM이 처음부터 no_criteria라고 써도 규칙 문구로 통일한다.
+    약이 있는 후보(VC-0121 'Tamoxifen alone')와 계열 이름 후보(VC-0121 'Adjuvant Endocrine Therapy (ET)') 모두."""
+    from src.recommend.postprocess import NO_CLASS_ROW_REASON, NO_ROW_REASON
+    llm = {"reimbursement": "no_criteria", "reimbursement_reason": "No reimbursement criteria found for this therapy."}
+    rec, _ = run({**option("anastrozole", ["anastrozole"], []), **llm})
+    o = rec["options"][0]
+    assert (o["reimbursement"], o["reimbursement_reason"], o["reimbursement_citations"]) == ("no_criteria", NO_ROW_REASON, [])
+    assert "비급여로 확정한 것은 아님" in o["reimbursement_reason"]
+    rec, _ = run({**option("Adjuvant Endocrine Therapy (ET)", [], []), **llm})
+    o = rec["options"][0]
+    assert (o["reimbursement"], o["reimbursement_reason"]) == ("no_criteria", NO_CLASS_ROW_REASON)
+    # 계열 이름 후보가 시행 중인 급여 행을 인용했으면 LLM이 no_criteria라고 했어도 조건 확인 필요
+    rec, _ = run({**option("ET alone", [], ["r-pal-let"]), **llm})
+    assert rec["options"][0]["reimbursement"] == "covered_conditions_unverified"
