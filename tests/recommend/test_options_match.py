@@ -160,3 +160,41 @@ def test_no_row_reason_is_rule_text_even_if_llm_said_no_criteria():
     # 계열 이름 후보가 시행 중인 급여 행을 인용했으면 LLM이 no_criteria라고 했어도 조건 확인 필요
     rec, _ = run({**option("ET alone", [], ["r-pal-let"]), **llm})
     assert rec["options"][0]["reimbursement"] == "covered_conditions_unverified"
+
+
+def test_narrow_class_candidates_and_basis():
+    """좁은 계열(AI)을 인용 청크에 있는 약으로 펼쳐 조합마다 급여를 판정한다 (2026-11-17). 후보 drugs는 비운 채,
+    급여는 가장 나은 조합. G의 drugs에 AI는 anastrozole·letrozole만 있어 exemestane은 펼치지 않는다."""
+    rec, log = run(option("AI—palbociclib", [], []))
+    o = rec["options"][0]
+    assert o["drugs"] == [] and o["reimbursement_basis"] == "drug_undetermined"
+    cands = {tuple(sorted(c["drugs"])): c for c in o["candidates"]}
+    assert set(cands) == {("letrozole", "palbociclib"), ("anastrozole", "palbociclib")}
+    let = cands[("letrozole", "palbociclib")]
+    assert let["reimbursement_citations"] == ["r-pal-let"] and let["reimbursement_basis"] == "conditions_unverified"
+    ana = cands[("anastrozole", "palbociclib")]
+    assert (ana["reimbursement"], ana["reimbursement_basis"]) == ("no_criteria", "no_matching_row")
+    assert o["reimbursement"] == "covered_conditions_unverified" and o["reimbursement_citations"] == ["r-pal-let"]
+    assert any("약 조합 2개로 펼쳐" in m for m in log)
+    # 넓은 계열(ET)이 섞이면 펼치지 않는다
+    rec, _ = run(option("ET + CDK4/6 inhibitor", [], []))
+    assert "candidates" not in rec["options"][0]
+
+
+def test_basis_splits_no_criteria():
+    """no_criteria를 '맞는 행 없음'과 '조건 불충족'으로 나눈다 (reimbursement_basis)."""
+    rec, _ = run(option("fulvestrant + abemaciclib", ["fulvestrant", "abemaciclib"], ["r-pal-fulv"]))
+    assert rec["options"][0]["reimbursement_basis"] == "no_matching_row"
+    rec, _ = postprocess({"options": [option("letrozole + palbociclib", ["letrozole", "palbociclib"], [])]}, RECORD, [G], ROWS,
+                         TODAY, lambda o, rows: {"status": "not_met", "reason": "r-pal-let 불충족: 폐경 후"})
+    o = rec["options"][0]
+    assert (o["reimbursement"], o["reimbursement_basis"]) == ("no_criteria", "conditions_not_met")
+
+
+def test_narrow_class_or_is_alternative():
+    """계열 사이 'or'는 둘 중 하나라 조합으로 곱하지 않고, 시험약(tesetaxel)은 넣지 않는다 (20261117 VC-0113)."""
+    from src.recommend.postprocess import _narrow_candidates
+    cands = _narrow_candidates({"therapy": "Rechallenge with anthracyclines or taxanes", "drugs": []}, [], {}, TODAY, None)
+    assert cands and all(len(c["drugs"]) == 1 for c in cands)
+    names = {c["drugs"][0] for c in cands}
+    assert {"doxorubicin", "paclitaxel"} <= names and "tesetaxel" not in names

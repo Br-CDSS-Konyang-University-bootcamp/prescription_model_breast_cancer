@@ -25,6 +25,7 @@ LLM이 낸 추천을 받은 청크와 B의 판정에 비추어 고친다. 규칙
 지운 것과 바꾼 것은 모두 로그로 돌려준다.
 """
 import csv
+import itertools
 import re
 from datetime import date
 from pathlib import Path
@@ -244,6 +245,98 @@ def _drugs_match(option, chunk, exact=False):
     return have <= union if exact else True
 
 
+# 좁은 계열 펼치기 (2026-11-17): 요법 이름의 좁은 계열(AI, CDK4/6 inhibitor, taxane, anthracycline, SERD)을
+# drug_classes.csv 세부 계열의 약으로 펼쳐 약 조합마다 급여를 판정한다. 넓은 계열(ET, ChT, 항HER2)은 아직 펼치지 않는다
+# (ET는 폐경별 청크, ChT는 단계·범주 사전으로 따로 한다). 후보 drugs는 비운 채 두고 candidates에 조합별 판정을 단다
+NARROW_CLASS = [
+    (re.compile(r"\bAIs?\b|[Aa]romatase inhibitors?"), ("AI_nonsteroidal", "AI_steroidal")),
+    (re.compile(r"CDK4/6(?:\s*inhibitors?|i\b)?"), ("CDK4/6_inhibitor",)),
+    (re.compile(r"\b[Tt]axanes?\b"), ("taxane",)),
+    (re.compile(r"\b[Aa]nthracyclines?\b"), ("anthracycline",)),
+    (re.compile(r"\bSERDs?\b"), ("SERD",)),
+]
+BROAD_CLASS_RE = re.compile(r"\bET\b|[Ee]ndocrine|\bChT\b|[Cc]hemotherapy|[Aa]nti-HER2")
+MAX_CANDIDATES = 12
+# 계열에 들어 있지만 ESMO 권고의 뜻으로 넣지 않는 약 (허가되지 않은 시험약, C chunk_common.CLASS_EXCLUDE와 같음)
+CANDIDATE_EXCLUDE = {"tesetaxel"}
+# 계열 사이의 "or"·"또는"은 둘 중 하나다 (예: "Rechallenge with anthracyclines or taxanes"). 병용 조합으로 곱하지 않는다
+ALTERNATIVE_RE = re.compile(r"\bor\b|또는|혹은")
+REIMB_RANK = {"covered": 0, "covered_conditions_unverified": 1, "offlabel_approved": 2, "no_criteria": 3}
+
+
+def _subclass_members(keys):
+    """세부 계열(drug_subclass) → 약 일반명 (사전 순서, 'nos'는 뺀다)."""
+    if not hasattr(_subclass_members, "cache"):
+        table = {}
+        with open(DRUG_CLASSES_CSV, encoding="utf-8-sig") as fh:
+            for r in csv.DictReader(fh):
+                name, sub = (r.get("generic_name") or "").strip().lower(), (r.get("drug_subclass") or "").strip()
+                if name and sub and "nos" not in name.split():
+                    table.setdefault(sub, []).append(name)
+        _subclass_members.cache = table
+    return [n for k in keys for n in _subclass_members.cache.get(k, [])]
+
+
+def _narrow_candidates(option, cited, reimb_by_id, today, conditions_checker):
+    """계열 이름 후보를 약 조합으로 펼쳐 조합마다 급여를 판정한다. 펼칠 수 없으면 None.
+    계열의 약은 인용한 지침 청크의 drugs에 있는 것만 쓴다 (C가 좁은 계열을 청크 drugs로 풀어 둔다). 없으면 사전의 약 전체"""
+    therapy = option.get("therapy") or ""
+    if option.get("drugs") or BROAD_CLASS_RE.search(therapy):
+        return None
+    blank = lambda m: " " * len(m.group())   # noqa: E731  자리를 지켜 순서를 남긴다
+    text, fixed, choices = therapy, [], []
+    for rx, names in EXPAND_CLASS:   # LHRH·OFS는 goserelin·leuprolide '그중 하나' 묶음 그대로
+        if rx.search(text):
+            fixed.append(names())
+            text = rx.sub(blank, text)
+    in_chunks = {d.lower() for c in cited for d in c.get("drugs") or []}
+    for rx, keys in NARROW_CLASS:
+        if rx.search(text):
+            members = [m for m in _subclass_members(keys) if m not in CANDIDATE_EXCLUDE]
+            choices.append([m for m in members if m in in_chunks] or members)
+            text = rx.sub(blank, text)
+    if not choices or CLASS_NAME_RE.search(text):
+        return None
+    low = text.lower()
+    for rx, g in _name_patterns():
+        if rx.search(low):
+            fixed.append([g])
+            low = rx.sub(blank, low)
+    if len(choices) > 1 and ALTERNATIVE_RE.search(therapy):
+        combos = [(m,) for members in choices for m in members]
+    else:
+        combos = list(itertools.product(*choices))
+    if len(combos) > MAX_CANDIDATES:
+        return None
+    out = []
+    for combo in combos:
+        groups = fixed + [[m] for m in combo]
+        temp = {"therapy": therapy, "drugs": list(dict.fromkeys(d for g in groups for d in g)),
+                "reimbursement": "covered_conditions_unverified", "reimbursement_reason": "", "reimbursement_citations": []}
+        if any(len(g) > 1 for g in groups):
+            temp["_groups"] = groups
+        _classify(temp, reimb_by_id, today, conditions_checker)
+        out.append({k: temp.get(k) for k in ("drugs", "reimbursement", "reimbursement_basis", "reimbursement_reason",
+                                               "reimbursement_citations")} | {"copay": temp.get("copay")})
+    return sorted(out, key=lambda c: REIMB_RANK.get(c["reimbursement"], 9))
+
+
+def _apply_candidates(option, candidates):
+    """후보에 조합별 판정을 달고, 후보 자체의 급여는 가장 나은 조합으로 둔다 (순위에 쓰인다). 약은 비운 채로 둔다."""
+    option["candidates"] = candidates
+    best = candidates[0]["reimbursement"]
+    rows = [i for c in candidates if c["reimbursement"] == best for i in c["reimbursement_citations"]]
+    counts = {}
+    for c in candidates:
+        counts[c["reimbursement"]] = counts.get(c["reimbursement"], 0) + 1
+    names = {"covered": "급여", "covered_conditions_unverified": "조건 확인 필요", "offlabel_approved": "허가초과",
+             "no_criteria": "급여 기준 없음"}
+    summary = ", ".join(f"{names[k]} {v}" for k, v in sorted(counts.items(), key=lambda x: REIMB_RANK[x[0]]))
+    option.update(reimbursement=best, reimbursement_citations=list(dict.fromkeys(rows)), reimbursement_basis="drug_undetermined",
+                  reimbursement_reason=f"약 조합 {len(candidates)}개로 펼쳐 판정 ({summary}). 조합을 골라 처방",
+                  copay=None)
+
+
 # 맞는 급여 행이 없을 때의 규칙 문구. 검색은 이번 결정 단계(선행·보조·고식 차수)의 행만 찾으므로 비급여라는 뜻이 아니다
 NO_ROW_REASON = ("후보 약과 맞는 시행 중인 급여 행 없음: 이번 결정 단계의 급여 행 검색 기준이며, "
                  "비급여로 확정한 것은 아님 (다른 단계·요법의 급여 행은 의사 확인)")
@@ -252,7 +345,30 @@ NO_CLASS_ROW_REASON = ("약 확인 필요: 요법 이름이 계열이라 약을 
 
 
 def _classify(option, reimb_by_id, today, conditions_checker):
-    """5번. 급여 분류와 이유를 고친다. 바꾼 내용을 문장 목록으로 돌려준다 (없으면 빈 목록)."""
+    """5번. 급여 분류·이유·근거(reimbursement_basis)를 고친다. 바꾼 내용을 문장 목록으로 돌려준다 (없으면 빈 목록)."""
+    changes = _classify_class(option, reimb_by_id, today, conditions_checker)
+    option["reimbursement_basis"] = _basis(option)
+    return changes
+
+
+def _basis(option):
+    """최종 급여 분류에서 근거 값 (schemas/recommendation.json $defs/reimbursement_basis, 2026-11-17).
+    no_criteria를 '맞는 행 없음'과 '조건 불충족'으로 나눠 보인다."""
+    cls = option.get("reimbursement")
+    if not option.get("drugs") and cls != "offlabel_approved":
+        return "drug_undetermined"
+    if cls == "offlabel_approved":
+        return "offlabel"
+    if cls == "covered":
+        return "conditions_met"
+    if cls == "covered_conditions_unverified":
+        return "conditions_unverified"
+    reason = option.get("reimbursement_reason") or ""
+    return "conditions_not_met" if reason.startswith("급여 조건 불충족") else "no_matching_row"
+
+
+def _classify_class(option, reimb_by_id, today, conditions_checker):
+    """_classify의 분류 본체."""
     cls = option.get("reimbursement")
     changes = []
     cited = [reimb_by_id[i] for i in option.get("reimbursement_citations") or [] if i in reimb_by_id]
@@ -643,6 +759,10 @@ def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursemen
         if any(guide_by_id[i].get("source", "").startswith("ESMO") for i in cites):
             o["guideline_source"] = "ESMO"
         log.extend(f"{name}: {c}" for c in _classify(o, reimb_by_id, today, conditions_checker))
+        cands = _narrow_candidates(o, [guide_by_id[i] for i in cites], reimb_by_id, today, conditions_checker)
+        if cands:
+            _apply_candidates(o, cands)
+            log.append(f"{name}: 좁은 계열을 약 조합 {len(cands)}개로 펼쳐 급여 판정 ({o['reimbursement_reason']})")
         return True
 
     main, support = [], []
