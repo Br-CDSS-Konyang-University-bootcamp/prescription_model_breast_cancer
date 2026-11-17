@@ -27,6 +27,8 @@
           "reimbursement": {"enum": ["covered", "covered_conditions_unverified", "offlabel_approved", "no_criteria"]},
           "reimbursement_reason": {"type": "string", "description": "충족한 조건 또는 빠진 조건"},
           "reimbursement_citations": {"type": "array", "items": {"type": "string"}, "description": "급여 청크 ID. no_criteria면 빈 배열 가능"},
+          "reimbursement_basis": {"$ref": "#/$defs/reimbursement_basis"},
+          "candidates": {"type": "array", "items": {"$ref": "#/$defs/candidate"}, "description": "계열 이름 후보(예: AI—CDK4/6 inhibitor)를 약 조합으로 펼친 급여 판정 (2026-11-17 제안, 선택 칸). 이때 후보의 drugs는 비어 있고 의사가 여기서 하나를 고른다"},
           "copay": {"type": ["string", "null"], "description": "본인부담률. 허가초과 인정이면 그 본인부담률. 급여 요법은 급여 청크의 reimbursement.copay(요법 전체에 하나일 때)를 쓰고, 약제마다 다르면 regimen_parsed.copay_by_drug를 약제별로 이어 쓴다 (예: pertuzumab 30/100). 해당 없으면 null (2026-10-20)."},
           "pending_notices": {
             "type": "array",
@@ -69,6 +71,8 @@
           "reimbursement": {"enum": ["covered", "covered_conditions_unverified", "offlabel_approved", "no_criteria"]},
           "reimbursement_reason": {"type": "string", "description": "충족한 조건 또는 빠진 조건"},
           "reimbursement_citations": {"type": "array", "items": {"type": "string"}, "description": "급여 청크 ID. no_criteria면 빈 배열 가능"},
+          "reimbursement_basis": {"$ref": "#/$defs/reimbursement_basis"},
+          "candidates": {"type": "array", "items": {"$ref": "#/$defs/candidate"}, "description": "계열 이름 후보(예: AI—CDK4/6 inhibitor)를 약 조합으로 펼친 급여 판정 (2026-11-17 제안, 선택 칸). 이때 후보의 drugs는 비어 있고 의사가 여기서 하나를 고른다"},
           "copay": {"type": ["string", "null"], "description": "본인부담률. 허가초과 인정이면 그 본인부담률. 급여 요법은 급여 청크의 reimbursement.copay(요법 전체에 하나일 때)를 쓰고, 약제마다 다르면 regimen_parsed.copay_by_drug를 약제별로 이어 쓴다 (예: pertuzumab 30/100). 해당 없으면 null (2026-10-20)."},
           "pending_notices": {
             "type": "array",
@@ -137,6 +141,26 @@
         "scheduled_count": {"type": "integer", "minimum": 0},
         "in_progress_count": {"type": "integer", "minimum": 0}
       }
+    }
+  },
+  "$defs": {
+    "reimbursement_basis": {"enum": ["conditions_met", "conditions_unverified", "conditions_not_met", "no_matching_row", "drug_undetermined", "offlabel"],
+      "description": "급여 분류의 근거 (2026-11-17 제안, 선택 칸). conditions_met = 맞는 급여 행의 조건 충족(covered). conditions_unverified = 맞는 행은 있으나 조건 일부를 판정하지 못함(covered_conditions_unverified). conditions_not_met = 맞는 행은 있으나 조건 불충족(no_criteria). no_matching_row = 이번 결정 단계 검색에서 후보 약과 맞는 시행 중인 행 없음(no_criteria, 비급여 확정 아님). drug_undetermined = 계열 이름이라 약을 정하지 못함(candidates에 조합별 판정). offlabel = 허가초과 인정. no_criteria를 이 값으로 나눠 보인다"},
+    "candidate": {
+      "type": "object",
+      "description": "계열 이름 후보를 펼친 약 조합 하나 (B 후처리가 규칙으로 만든다. LLM은 쓰지 않는다)",
+      "required": ["drugs", "reimbursement", "reimbursement_basis", "reimbursement_reason", "reimbursement_citations"],
+      "additionalProperties": false,
+      "properties": {
+        "drugs": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+        "reimbursement": {"enum": ["covered", "covered_conditions_unverified", "offlabel_approved", "no_criteria"]},
+        "reimbursement_basis": {"$ref": "#/$defs/reimbursement_basis"},
+        "reimbursement_reason": {"type": "string"},
+        "reimbursement_citations": {"type": "array", "items": {"type": "string"}, "description": "약이 정확히 같은 시행 중인 급여 청크 ID"},
+        "copay": {"type": ["string", "null"]}
+      },
+      "allOf": [{"if": {"properties": {"reimbursement": {"enum": ["covered", "covered_conditions_unverified", "offlabel_approved"]}}},
+                 "then": {"properties": {"reimbursement_citations": {"minItems": 1}}}}]
     }
   }
 }

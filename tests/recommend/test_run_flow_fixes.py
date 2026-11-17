@@ -291,3 +291,36 @@ def test_abbreviation_and_class_word_options_kept():
                                                                     ("PARP 억제제 단독 요법", [])]
     assert any("PARP 억제제 단독 요법: 요법 이름에 계열 이름" in c for c in rec["conflicts"])
     assert "참고 (약 후보 아님): Radiotherapy to bone" in rec["conflicts"]
+
+
+def test_typo_chunk_id_is_repaired():
+    """받지 않은 ID가 받은 ID 하나의 오타면 고쳐서 후보를 살린다 (20261116 VC-0124 'hrpos-05ca0c8d' → 'hrpos-ca0c8d').
+    맞는 ID가 둘 이상이거나 앞부분이 다르면 고치지 않는다."""
+    typo = KID2["chunk_id"].replace("bbb222", "05bbb222")
+    o = opt(rationale=f"권고된다 [{typo}].", citations=[typo], reimbursement="no_criteria")
+    rec, log = postprocess({"options": [o]}, RECORD, [KID1, KID2], [], TODAY)
+    assert rec["options"][0]["citations"] == [KID2["chunk_id"]]
+    assert rec["options"][0]["rationale"] == f"권고된다 [{KID2['chunk_id']}]."
+    assert any("청크 ID 오타를 받은 ID로 고침" in m for m in log)
+    other = opt(rationale="권고된다 [esmo-mbc-2026-05-hrpos-bbb222].", citations=["esmo-mbc-2026-05-hrpos-bbb222"],
+                reimbursement="no_criteria")
+    rec, log = postprocess({"options": [other]}, RECORD, [KID1, KID2], [], TODAY)
+    assert not any("오타" in m for m in log)                       # 앞부분(문서·절)이 다르면 오타로 보지 않는다
+    doubled = KID2["chunk_id"].replace("hrpos-", "hrpos-02-hrpos-")  # 앞부분을 두 번 적음 (20261117_fix VC-0121)
+    o = opt(rationale=f"권고된다 [{doubled}].", citations=[doubled], reimbursement="no_criteria")
+    rec, log = postprocess({"options": [o]}, RECORD, [KID1, KID2], [], TODAY)
+    assert rec["options"][0]["citations"] == [KID2["chunk_id"]]
+
+
+def test_neoadjuvant_drops_class_name_post_surgery_options():
+    """계열 이름 후보는 약 목록이 비어 있어도 요법 이름의 abemaciclib·olaparib로 선행 결정에서 뺀다
+    (20261116 VC-0121·0124). 이름의 'Adjuvant'는 보지 않는다 (선행 항암 후 ET를 잘못 이름 붙인 정답이 지워짐)."""
+    o_abe = opt(therapy="Abemaciclib for 2 years + ET", drugs=[], rationale=f"권고된다 [{KID1['chunk_id']}].",
+                citations=[KID1["chunk_id"]], reimbursement="no_criteria")
+    o_adj = opt(therapy="Adjuvant Endocrine Therapy (ET)", drugs=[], rationale=f"권고된다 [{KID1['chunk_id']}].",
+                citations=[KID1["chunk_id"]], reimbursement="no_criteria")
+    o_neo = opt(therapy="Neoadjuvant ChT followed by ET", drugs=[], rationale=f"권고된다 [{KID1['chunk_id']}].",
+                citations=[KID1["chunk_id"]], reimbursement="no_criteria")
+    rec, log = postprocess({"options": [o_abe, o_adj, o_neo]}, EARLY_REC, [KID1, KID2], [], TODAY, phase="neoadjuvant")
+    assert [o["therapy"] for o in rec["options"]] == ["Adjuvant Endocrine Therapy (ET)", "Neoadjuvant ChT followed by ET"]
+    assert sum("선행요법 결정이라" in m for m in log) == 1

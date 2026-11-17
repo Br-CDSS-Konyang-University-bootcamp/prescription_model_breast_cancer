@@ -32,6 +32,9 @@ def _lenient(prop):
     prop = copy.deepcopy(prop)
     items = prop.get("items") or {}
     items.pop("allOf", None)
+    # 급여 근거·계열 펼침은 후처리가 규칙으로 채운다. LLM 양식에는 넣지 않는다 (2026-11-17)
+    for name in ("reimbursement_basis", "candidates"):
+        (items.get("properties") or {}).pop(name, None)
     # citations(지침 근거) 1개 이상은 남긴다. Ollama는 이 양식대로만 글을 쓰게 하므로, 이 규칙을 빼자 모델이 근거 없이
     # 답해 후처리가 후보를 모두 지웠다 (A 공유 2026-11-05 B-1, VC-0107·0108·0112·0119·0131·0142)
     for name, v in (items.get("properties") or {}).items():
