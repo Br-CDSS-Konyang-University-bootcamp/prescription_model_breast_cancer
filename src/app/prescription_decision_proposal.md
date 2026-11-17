@@ -27,12 +27,14 @@
 | `action` | `accept_option` / `custom` / `defer` | 추천안 채택 / 기타 처방 / 보류 |
 | `selected_option_index` | `options[]` 순서 (0부터) | accept_option만 |
 | `selected_rank` | **새 칸.** 화면에 보인 순서 (1부터) | accept_option만 |
+| `selected_candidate_index` | **새 칸 (2026-11-17).** 계열 이름 안(예: AI—palbociclib)에서 고른 약 조합의 순서 (`options[].candidates`, 0부터). 고르면 `therapy`·`drugs`·급여 칸은 그 조합 값 | accept_option + 조합 후보가 있을 때만, 아니면 null. 조합 후보가 있으면 고르지 않으면 저장 안 됨 |
 | `shown_option_count` | 처음 보인 안 개수 (5 이하) | |
 | `therapy`, `drugs` | 최종 처방 이름, 일반명 목록 | defer면 null·빈 목록 |
 | `setting` | `neoadjuvant` / `adjuvant` / `palliative` | accept_option은 확정값에서 채움 |
 | `line` | `1L` / `2L` / `>=3L` | custom + palliative만. accept_option은 확정 파일의 차수를 따름 |
 | `reimbursement` | **새 칸.** 고른 안의 급여 분류 | accept_option만. custom·defer는 `null` = 판정 안 함 (기타 처방 급여는 v0.1에서 판정하지 않음) |
 | `reimbursement_reason` | **새 칸.** 고른 안의 급여 판정 이유 | accept_option만, 아니면 null |
+| `reimbursement_basis` | **새 칸 (2026-11-17).** 급여 근거 (`conditions_met` / `conditions_unverified` / `conditions_not_met` / `no_matching_row` / `drug_undetermined` / `offlabel`, recommendation과 같은 값) | accept_option만, 아니면 null |
 | `citations` | **새 칸.** 고른 안이 인용한 지침 청크 ID | accept_option만, 아니면 빈 목록 |
 | `reimbursement_citations` | **새 칸.** 고른 안의 급여 행 ID (책자 날짜 포함) | accept_option만, 아니면 빈 목록 |
 | `custom_unlisted_drugs` | 약 사전에 없어 글로 쓴 약 | custom만 |

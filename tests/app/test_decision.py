@@ -117,3 +117,36 @@ def test_schema_continue_current_rules(tmp_path):
     assert list(v.iter_errors(doc)) == []
     assert list(v.iter_errors({**doc, "reimbursement": "covered"}))
     assert list(v.iter_errors({**doc, "drugs": []}))
+
+
+CAND_OPTIONS = [{"therapy": "AI—palbociclib", "drugs": [], "evidence": "LoE I, GoR A", "reimbursement": "covered_conditions_unverified",
+                 "reimbursement_basis": "drug_undetermined", "reimbursement_reason": "약 조합 2개로 펼쳐 판정",
+                 "citations": ["esmo-mbc-2026-05-luminal-1l-0fd38a"], "reimbursement_citations": ["r-let-pal"],
+                 "candidates": [
+                     {"drugs": ["letrozole", "palbociclib"], "reimbursement": "covered_conditions_unverified",
+                      "reimbursement_basis": "conditions_unverified", "reimbursement_reason": "r-let-pal 확인 필요",
+                      "reimbursement_citations": ["r-let-pal"], "copay": None},
+                     {"drugs": ["exemestane", "palbociclib"], "reimbursement": "no_criteria",
+                      "reimbursement_basis": "no_matching_row", "reimbursement_reason": "맞는 급여 행 없음",
+                      "reimbursement_citations": [], "copay": None}]}]
+CAND_REC = {"recommendation": {"generated_at": "2026-11-17T09:00:00+09:00", "model": "qwen3:14b", "options": CAND_OPTIONS},
+            "ranked": s2.ranked(CAND_OPTIONS)}
+
+
+def test_accept_class_option_needs_candidate(tmp_path):
+    """계열 이름 안은 약 조합(candidates)을 하나 골라야 저장된다. 고른 조합의 약·급여·근거를 옮긴다 (2026-11-17)."""
+    path, _, errors = s2.save_decision({"decided_by": "u", "action": "accept_option", "selected_option_index": 0},
+                                       CONFIRMED, CAND_REC, tmp_path)
+    assert path is None and any("약 조합" in e for e in errors)
+    path, doc, errors = s2.save_decision({"decided_by": "u", "action": "accept_option", "selected_option_index": 0,
+                                          "selected_candidate_index": 1}, CONFIRMED, CAND_REC, tmp_path)
+    assert errors == [] and doc["selected_candidate_index"] == 1
+    assert doc["drugs"] == ["exemestane", "palbociclib"] and doc["therapy"] == "AI—palbociclib: exemestane + palbociclib"
+    assert (doc["reimbursement"], doc["reimbursement_basis"], doc["reimbursement_citations"]) == ("no_criteria", "no_matching_row", [])
+
+
+def test_basis_copied_and_null_outside_accept(tmp_path):
+    _, doc, errors = save(tmp_path, action="accept_option", selected_option_index=1)
+    assert errors == [] and doc["selected_candidate_index"] is None and doc["reimbursement_basis"] is None   # 옛 추천 결과는 칸이 없음
+    _, doc, errors = save(tmp_path, action="defer", defer_reason="mdt")
+    assert errors == [] and doc["reimbursement_basis"] is None and doc["selected_candidate_index"] is None

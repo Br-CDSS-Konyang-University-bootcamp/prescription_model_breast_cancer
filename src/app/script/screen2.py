@@ -166,8 +166,10 @@ def save_decision(body: dict, confirmed_state: dict, rec_status: dict, decision_
            "confirmed_state_ref": {"version": confirmed_state["version"], "confirmed_at": confirmed_state["confirmed_at"]},
            "recommendation_ref": {"generated_at": rec.get("generated_at"), "model": rec.get("model")} if rec else None,
            "decided_at": datetime.now().astimezone().isoformat(timespec="seconds"), "decided_by": by, "action": action,
-           "selected_option_index": None, "selected_rank": None, "shown_option_count": min(SHOWN, len(options)),
-           "therapy": None, "drugs": [], "setting": None, "line": None, "reimbursement": None, "reimbursement_reason": None,
+           "selected_option_index": None, "selected_candidate_index": None, "selected_rank": None,
+           "shown_option_count": min(SHOWN, len(options)),
+           "therapy": None, "drugs": [], "setting": None, "line": None, "reimbursement": None, "reimbursement_basis": None,
+           "reimbursement_reason": None,
            "citations": [], "reimbursement_citations": [], "supportive": [], "custom_unlisted_drugs": [], "defer_reason": None, "memo": (body.get("memo") or "").strip() or None}
     if action == "accept_option":
         i = body.get("selected_option_index")
@@ -178,8 +180,22 @@ def save_decision(body: dict, confirmed_state: dict, rec_status: dict, decision_
             shown = [r["index"] for r in rec_status.get("ranked") or ranked(options)]
             doc.update(selected_option_index=i, selected_rank=shown.index(i) + 1, therapy=o["therapy"],
                        drugs=o.get("drugs") or [], reimbursement=o.get("reimbursement"),
+                       reimbursement_basis=o.get("reimbursement_basis"),
                        reimbursement_reason=o.get("reimbursement_reason"), citations=o.get("citations") or [],
                        reimbursement_citations=o.get("reimbursement_citations") or [])
+            # 계열 이름 안(예: AI—palbociclib)은 B가 펼친 약 조합(candidates) 중 하나를 골라야 처방이 된다 (2026-11-17)
+            cands = o.get("candidates") or []
+            if cands:
+                k = body.get("selected_candidate_index")
+                if not isinstance(k, int) or not 0 <= k < len(cands):
+                    errors.append("이 추천안은 계열 이름이라 약 조합을 하나 고르세요")
+                else:
+                    c = cands[k]
+                    doc.update(selected_candidate_index=k, therapy=f"{o['therapy']}: {' + '.join(c['drugs'])}",
+                               drugs=list(dict.fromkeys(c["drugs"])), reimbursement=c.get("reimbursement"),
+                               reimbursement_basis=c.get("reimbursement_basis"),
+                               reimbursement_reason=c.get("reimbursement_reason"),
+                               reimbursement_citations=c.get("reimbursement_citations") or [])
     elif action == "continue_current":
         drugs = list(dict.fromkeys(d for r in current_regimens(confirmed_state) for d in r.get("drugs") or []))
         if not drugs:
