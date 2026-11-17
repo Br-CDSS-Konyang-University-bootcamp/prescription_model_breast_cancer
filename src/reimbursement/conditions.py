@@ -102,8 +102,10 @@ FIELDS: dict[str, tuple[str, list[str], object, str]] = {
                  "'절제 불가능한'·'수술이 불가능한' -> eq no (진단 시 기준)"),
     # 재발 병소를 절제할 수 있는지는 데이터에 없어 칸을 두지 않고, 재발 후 실제 수술 여부로 대신한다 (A 답변 2026-10-21).
     # 수술하지 않은 것(surgery = no)은 절제할 수 없는 것과 같지 않으므로 no로 읽지 않는다
+    # 수술 예정(planned, A 스키마 2026-11-12)은 절제할 수 있다고 본 것이라 yes (B conditions_eval과 같음)
     "recurrence_operable": ("patient_state.fields.recurrence.surgery.value = yes 이고 surgery_intent.value = curative -> yes "
-                            "(절제함). 그 밖(no, unknown, palliative)은 알 수 없음 (사유: 재발 병소 절제 가능 여부 확인 필요)",
+                            "(절제함). surgery.value = planned -> yes (수술 예정). "
+                            "그 밖(no, unknown, palliative)은 알 수 없음 (사유: 재발 병소 절제 가능 여부 확인 필요)",
                             ["eq"], ["yes", "no"], "'절제 불가능한 국소 재발성' -> eq no"),
     # 병기·크기는 치료 시기에 맞는 칸을 고른다 (A draft7 체크리스트 §4, 2026-10-28): 선행요법 행은 임상(c),
     # 수술후보조요법 행은 수술 병리 병기: 수술을 먼저 했으면 ptnm, 선행요법 뒤 수술이면 yptnm (§4 표 '선행요법 뒤 보조').

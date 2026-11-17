@@ -179,6 +179,7 @@ A가 전이 기준일로 세라고 한 것은 3가뿐이라, 그 밖에 '재발'
 - 칸을 두지 않는 조건 (A 답변 2026-10-21):
   - 재발 병소 절제 가능 여부(`recurrence_operable`): 데이터에 없고 의학적 판단이라, 재발 후 실제 수술 여부로 대신한다.
     `recurrence.surgery = yes`이고 `surgery_intent = curative`면 절제했으므로 '절제 불가능한 국소 재발성'은 거짓.
+    `recurrence.surgery = planned`(수술 예정, 2026-11-12)도 절제할 수 있다고 본 것이라 거짓 (B `conditions_eval`과 같음).
     그 밖(`no`, `unknown`, `palliative`)은 알 수 없음, 사유 "재발 병소 절제 가능 여부 확인 필요". 수술하지 않은 것을 절제 불가로 읽지 않는다.
 - 심장 병력·종격동 방사선(`cardiac_history`, `mediastinal_radiation`): 2026-10-22에 `patient` 칸이 생겨 제외 조항을 없앴다
   (A draft7 체크리스트 §3.1). `yes` → true, `no` → false, 기록 없음은 알 수 없음. 4나-19 '심장위험요소'의 공고 원문 정의는
