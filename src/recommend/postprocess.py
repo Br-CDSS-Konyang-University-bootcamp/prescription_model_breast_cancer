@@ -374,6 +374,49 @@ def _is_supportive(option):
 # 선행(수술 전) 결정에는 내지 않는다 (A 공유 2026-11-05 B-11, VC-0121)
 POST_SURGERY_ONLY = {"abemaciclib", "ribociclib", "olaparib"}
 EXTENDED_ET_RE = re.compile(r"[Ee]xtended|연장")
+# 요법 이름이 '수술 후 보조'를 뜻하는 경우 (neoadjuvant의 adjuvant는 빼고 본다)
+ADJUVANT_NAME_RE = re.compile(r"(?<![Nn]eo)(?<![Nn]eo-)[Aa]djuvant|수술\s*후")
+
+
+def _near_id(cited: str, known: set) -> str | None:
+    """받지 않은 청크 ID가 받은 ID 하나의 오타면 그 ID (2026-11-17, 20261116 VC-0124 'hrpos-05ca0c8d' → 'hrpos-ca0c8d').
+    앞부분(마지막 '-' 앞)이 같고, 끝 해시가 서로를 포함하거나 같은 길이에서 한 글자만 다른 것이 정확히 하나일 때만 바꾼다."""
+    if "-" not in cited:
+        return None
+    head, tail = cited.rsplit("-", 1)
+    hits = []
+    for k in known:
+        if "-" not in k:
+            continue
+        kh, kt = k.rsplit("-", 1)
+        if kh != head or not kt:
+            continue
+        if kt in tail or tail in kt or (len(kt) == len(tail) and sum(a != b for a, b in zip(kt, tail)) == 1):
+            hits.append(k)
+    return hits[0] if len(hits) == 1 else None
+
+
+def _repair_ids(o: dict, known: set, log: list) -> None:
+    """후보의 citations·reimbursement_citations·근거 문장의 [ID]에서 오타 ID를 받은 ID로 고친다."""
+    fixed = {}
+    for key in ("citations", "reimbursement_citations"):
+        for i in o.get(key) or []:
+            if i not in known and i not in fixed:
+                near = _near_id(i, known)
+                if near:
+                    fixed[i] = near
+    for i in _CITE_RE.findall(o.get("rationale") or ""):
+        if i not in known and i not in fixed:
+            near = _near_id(i, known)
+            if near:
+                fixed[i] = near
+    if not fixed:
+        return
+    for key in ("citations", "reimbursement_citations"):
+        if o.get(key):
+            o[key] = list(dict.fromkeys(fixed.get(i, i) for i in o[key]))
+    o["rationale"] = _CITE_RE.sub(lambda m: f"[{fixed.get(m.group(1), m.group(1))}]", o.get("rationale") or "")
+    log.append(f"{o.get('therapy')}: 청크 ID 오타를 받은 ID로 고침 {fixed}")
 
 
 def _bone_supportive(guide_by_id, done):
@@ -491,6 +534,7 @@ def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursemen
     def check(o):
         """1~5·7번을 후보 하나에 적용한다. 남기면 True."""
         resolve_parents(o)
+        _repair_ids(o, set(guide_by_id) | set(reimb_by_id), log)
         name = o.get("therapy")
         bad = [i for i in o.get("citations") or [] if i not in guide_by_id]
         bad += [i for i in o.get("reimbursement_citations") or [] if i not in reimb_by_id]
@@ -605,10 +649,14 @@ def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursemen
         esmo_risk = (high_risk_early or {}).get("esmo") if isinstance(high_risk_early, dict) else None
         for o in main:
             drugs = {d.lower() for d in o.get("drugs") or []}
+            # 계열 이름 후보(#151)는 약 목록이 비어 있어 요법 이름의 약 이름도 본다 (2026-11-17, 20261116 VC-0121·0124)
+            therapy = o.get("therapy") or ""
+            named = {d for d in POST_SURGERY_ONLY if d in therapy.lower()}
             why = None
-            if phase == "neoadjuvant" and (drugs & POST_SURGERY_ONLY or EXTENDED_ET_RE.search(o.get("therapy") or "")):
+            if phase == "neoadjuvant" and (drugs & POST_SURGERY_ONLY or named or EXTENDED_ET_RE.search(therapy)
+                                           or ADJUVANT_NAME_RE.search(therapy)):
                 why = "선행요법 결정이라 수술 뒤에 쓰는 약은 해당 없음"
-            elif esmo_risk == "no" and "abemaciclib" in drugs:
+            elif esmo_risk == "no" and "abemaciclib" in drugs | named:
                 why = "고위험 조기 유방암이 아니라 abemaciclib 보조요법 해당 없음"
             if why:
                 log.append(f"후보 삭제: {o.get('therapy')} ({why})")
