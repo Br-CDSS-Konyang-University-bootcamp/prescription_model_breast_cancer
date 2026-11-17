@@ -2,6 +2,7 @@
 import copy
 import csv
 import json
+from pathlib import Path
 
 import pytest
 
@@ -603,6 +604,11 @@ def test_fields_follow_input_paths():
     assert "best_response = PD" in cm.FIELDS["prior_failed"][0]
     # A 답변 2026-10-21: 재발 병소 절제 가능 여부는 재발 후 수술 여부로 대신
     assert "recurrence.surgery" in cm.FIELDS["recurrence_operable"][0] and "curative" in cm.FIELDS["recurrence_operable"][0]
+    # 수술 예정(planned, A 스키마 2026-11-12)은 절제 가능 (B conditions_eval과 같음)
+    assert "planned -> yes" in cm.FIELDS["recurrence_operable"][0]
+    # 설명의 값이 patient_state 스키마 enum에 있는지
+    schema = Path(__file__).resolve().parents[2] / "schemas" / "patient_state.json"
+    assert '"planned"' in schema.read_text(encoding="utf-8")
     # 2026-10-22 칸 추가로 심장·종격동 제외 조항을 없앴다 (draft7 체크리스트 §3.1)
     assert cm.FIELDS["cardiac_history"][0].startswith("patient_state.fields.patient.cardiac_history.value")
     assert cm.FIELDS["mediastinal_radiation"][0].startswith("patient_state.fields.patient.mediastinal_radiation.value")
