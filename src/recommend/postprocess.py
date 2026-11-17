@@ -374,13 +374,13 @@ def _is_supportive(option):
 # 선행(수술 전) 결정에는 내지 않는다 (A 공유 2026-11-05 B-11, VC-0121)
 POST_SURGERY_ONLY = {"abemaciclib", "ribociclib", "olaparib"}
 EXTENDED_ET_RE = re.compile(r"[Ee]xtended|연장")
-# 요법 이름이 '수술 후 보조'를 뜻하는 경우 (neoadjuvant의 adjuvant는 빼고 본다)
-ADJUVANT_NAME_RE = re.compile(r"(?<![Nn]eo)(?<![Nn]eo-)[Aa]djuvant|수술\s*후")
 
 
 def _near_id(cited: str, known: set) -> str | None:
     """받지 않은 청크 ID가 받은 ID 하나의 오타면 그 ID (2026-11-17, 20261116 VC-0124 'hrpos-05ca0c8d' → 'hrpos-ca0c8d').
-    앞부분(마지막 '-' 앞)이 같고, 끝 해시가 서로를 포함하거나 같은 길이에서 한 글자만 다른 것이 정확히 하나일 때만 바꾼다."""
+    정확히 하나가 맞을 때만 바꾼다. 맞는 경우는 둘이다.
+    - 앞부분(마지막 '-' 앞)이 같고, 끝 해시가 서로를 포함하거나 같은 길이에서 한 글자만 다름
+    - 앞부분을 두 번 적음: 받은 ID의 앞부분으로 시작하고 끝 해시가 같음 ('hrpos-02-hrpos-49918b', 20261117_fix VC-0121)"""
     if "-" not in cited:
         return None
     head, tail = cited.rsplit("-", 1)
@@ -389,9 +389,11 @@ def _near_id(cited: str, known: set) -> str | None:
         if "-" not in k:
             continue
         kh, kt = k.rsplit("-", 1)
-        if kh != head or not kt:
+        if not kt:
             continue
-        if kt in tail or tail in kt or (len(kt) == len(tail) and sum(a != b for a, b in zip(kt, tail)) == 1):
+        if kh == head and (kt in tail or tail in kt or (len(kt) == len(tail) and sum(a != b for a, b in zip(kt, tail)) == 1)):
+            hits.append(k)
+        elif kh != head and kt == tail and cited.startswith(kh + "-"):
             hits.append(k)
     return hits[0] if len(hits) == 1 else None
 
@@ -653,8 +655,9 @@ def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursemen
             therapy = o.get("therapy") or ""
             named = {d for d in POST_SURGERY_ONLY if d in therapy.lower()}
             why = None
-            if phase == "neoadjuvant" and (drugs & POST_SURGERY_ONLY or named or EXTENDED_ET_RE.search(therapy)
-                                           or ADJUVANT_NAME_RE.search(therapy)):
+            # 이름의 'Adjuvant'는 보지 않는다: 'Adjuvant ChT followed by ET'처럼 선행 항암 후 ET를 잘못 이름 붙인
+            # 정답 후보가 지워졌다 (20261117_fix VC-0121). 수술 뒤에만 쓰는 약 이름만 본다
+            if phase == "neoadjuvant" and (drugs & POST_SURGERY_ONLY or named or EXTENDED_ET_RE.search(therapy)):
                 why = "선행요법 결정이라 수술 뒤에 쓰는 약은 해당 없음"
             elif esmo_risk == "no" and "abemaciclib" in drugs | named:
                 why = "고위험 조기 유방암이 아니라 abemaciclib 보조요법 해당 없음"

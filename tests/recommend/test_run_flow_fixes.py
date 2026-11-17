@@ -306,11 +306,15 @@ def test_typo_chunk_id_is_repaired():
                 reimbursement="no_criteria")
     rec, log = postprocess({"options": [other]}, RECORD, [KID1, KID2], [], TODAY)
     assert not any("오타" in m for m in log)                       # 앞부분(문서·절)이 다르면 오타로 보지 않는다
+    doubled = KID2["chunk_id"].replace("hrpos-", "hrpos-02-hrpos-")  # 앞부분을 두 번 적음 (20261117_fix VC-0121)
+    o = opt(rationale=f"권고된다 [{doubled}].", citations=[doubled], reimbursement="no_criteria")
+    rec, log = postprocess({"options": [o]}, RECORD, [KID1, KID2], [], TODAY)
+    assert rec["options"][0]["citations"] == [KID2["chunk_id"]]
 
 
 def test_neoadjuvant_drops_class_name_post_surgery_options():
-    """계열 이름 후보는 약 목록이 비어 있어도 요법 이름의 abemaciclib·olaparib·'Adjuvant'로 선행 결정에서 뺀다
-    (20261116 VC-0121·0124). 'neoadjuvant' 안의 adjuvant는 걸리지 않는다."""
+    """계열 이름 후보는 약 목록이 비어 있어도 요법 이름의 abemaciclib·olaparib로 선행 결정에서 뺀다
+    (20261116 VC-0121·0124). 이름의 'Adjuvant'는 보지 않는다 (선행 항암 후 ET를 잘못 이름 붙인 정답이 지워짐)."""
     o_abe = opt(therapy="Abemaciclib for 2 years + ET", drugs=[], rationale=f"권고된다 [{KID1['chunk_id']}].",
                 citations=[KID1["chunk_id"]], reimbursement="no_criteria")
     o_adj = opt(therapy="Adjuvant Endocrine Therapy (ET)", drugs=[], rationale=f"권고된다 [{KID1['chunk_id']}].",
@@ -318,5 +322,5 @@ def test_neoadjuvant_drops_class_name_post_surgery_options():
     o_neo = opt(therapy="Neoadjuvant ChT followed by ET", drugs=[], rationale=f"권고된다 [{KID1['chunk_id']}].",
                 citations=[KID1["chunk_id"]], reimbursement="no_criteria")
     rec, log = postprocess({"options": [o_abe, o_adj, o_neo]}, EARLY_REC, [KID1, KID2], [], TODAY, phase="neoadjuvant")
-    assert [o["therapy"] for o in rec["options"]] == ["Neoadjuvant ChT followed by ET"]
-    assert sum("선행요법 결정이라" in m for m in log) == 2
+    assert [o["therapy"] for o in rec["options"]] == ["Adjuvant Endocrine Therapy (ET)", "Neoadjuvant ChT followed by ET"]
+    assert sum("선행요법 결정이라" in m for m in log) == 1
