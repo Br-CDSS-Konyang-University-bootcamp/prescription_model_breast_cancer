@@ -571,10 +571,9 @@ team_project/
 │   ├── fixtures/       가상 차트, 모듈별 예상 출력 — 공용
 │   ├── input/  biomarker/  rag/  reimbursement/  recommend/   — 각 모듈 담당
 └── data/               데이터 (csv·txt·py만 git에 올림)
-    ├── script/         TCGA-BRCA 데이터 탐색 스크립트
+    ├── script/         CIViC·ClinVar 다운로드 스크립트
     ├── dictionaries/   약제명·치료 종류 사전
-    ├── metadata/       v0.2 슬라이드 목록
-    └── tcga_brca/      다운로드한 TCGA 데이터와 합친 파일
+    └── metadata/       v0.2 슬라이드 목록
 ```
 
 규칙:
@@ -648,29 +647,11 @@ git 규칙: `data/` 안은 기본적으로 제외하고 **csv·txt·py 파일만
 
 | 경로 | 내용 | git |
 |---|---|---|
-| `data/script/tcga_brca_download.py` | TCGA-BRCA 임상 파일(GDC BCR Biotab)과 cBioPortal 임상·변이·바이오마커 유전자 CNA 데이터를 `data/tcga_brca/`에 내려받는다. 이미 받은 파일은 건너뛴다 | 올림 |
-| `data/script/tcga_brca_explore.py` | 구조 요약을 출력하고 `data/tcga_brca/structure_report.md`를 만든다 (`tabulate` 필요) | 올림 |
-| `data/script/tcga_brca_merge.py` | 모든 표를 환자 ID로 합쳐 환자 1명 = 1행 파일을 만든다. 약제명은 `data/dictionaries/` 사전으로 바로잡고, 사전에 없는 약제명이 나오면 멈춘다 | 올림 |
-| `data/script/tcga_brca_crop.py` | 합친 파일에서 남성 환자와 `DROP` 목록의 열을 빼고, 열 설명과 변경 기록을 만든다 | 올림 |
 | `data/dictionaries/drug_names.csv` | 원문 약제명 → 일반명 사전. IN-3 약어 사전의 출발점 | 올림 |
 | `data/dictionaries/drug_classes.csv` | 일반명 → 치료 종류 사전 | 올림 |
 | `data/metadata/slides_files.csv`, `gdc_manifest_slides_test.txt` | v0.2용 TCGA-BRCA 진단 슬라이드 목록과 GDC 다운로드 매니페스트 | 올림 |
-| `data/tcga_brca/gdc_clinical/` | GDC Biotab 임상 파일 9개 (환자, 투약, 방사선, 추적 관찰 v1.5·v2.1·v4.0, 새 종양 사건, 기타 악성종양). 헤더 3줄, 결측은 `[Not Available]` = 기록 없음, `[Not Evaluated]` = 미시행 | 올림 (txt) |
-| `data/tcga_brca/cbioportal/` | cBioPortal PanCancer Atlas 파일 6개 (환자·샘플 임상, 임상 속성 설명, 변이, 바이오마커 유전자 CNA, 검사 대상 샘플) | 제외 (tsv). 다운로드 스크립트로 다시 받는다 |
-| `data/tcga_brca/structure_report.md` | 탐색 스크립트가 만든 열 단위 구조 보고서 | 제외 (md). 탐색 스크립트로 다시 만든다 |
-| `data/tcga_brca/merged/tcga_brca_merged.csv` | 환자 1명 = 1행으로 합친 파일, 열 설명은 `tcga_brca_merged_columns.csv`, 약제명 수정 기록은 `drug_corrections.csv` | 올림 (csv·txt) |
-| `data/tcga_brca/merged/tcga_brca_merging_cropped.csv` | 남성 환자와 불필요한 열을 뺀 최종 파일. 열 설명 `_columns.txt`, 변경 기록 `_changes.txt` | 올림 (csv·txt) |
 
-스크립트 실행 순서 (`team_project` 폴더에서, `team_project` conda 환경으로):
-
-```bash
-python data/script/tcga_brca_download.py
-python data/script/tcga_brca_explore.py
-python data/script/tcga_brca_merge.py
-python data/script/tcga_brca_crop.py
-```
-
-새로 받은 팀원은 git에 없는 파일(cbioportal tsv, structure_report.md)을 위 순서대로 스크립트를 실행해 만든다. 합친 파일(`merged/`)은 git으로 받으므로, 다운로드 없이 바로 쓸 수도 있다. 단, 합친 파일을 다시 만들려면 cbioportal 파일이 필요하므로 다운로드부터 실행한다.
+TCGA-BRCA 다운로드·탐색·합치기·자르기 스크립트(`data/script/tcga_brca_*.py`)와 그 데이터(`data/tcga_brca/`)는 2026-11-18에 지웠다. TCGA·BCNB 기반 가상환자는 별도 저장소에서 만든다.
 
 ### 15.3 진행 단계
 

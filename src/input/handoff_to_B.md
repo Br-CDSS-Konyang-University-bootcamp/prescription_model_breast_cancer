@@ -720,8 +720,7 @@ TCGA 기준으로 쓴 표다. "draft7 칸"이 적힌 줄은 가상·실제 차�
 | BM-4 수용체 검사 공백 | ER·PR·HER2 미시행, HER2 ISH 권고(2+), 전이성 HER2 재판정, 전이성 TNBC PD-L1 미시행 | 같음 (`tests_needed_of`) |
 | 유전자 7개 BM-2 (1차 규칙, PR #2) | ESR1, PIK3CA, AKT1, PTEN, BRCA1/2, PALB2. 허가 동반진단 변이 목록 또는 절단 변이로 양성, 나머지 검출 변이는 VUS, ESR1 재검 필요 | 같음 (`judge_gene`), `src/biomarker/actionable_variants.csv` |
 | 유전자 BM-4 (PR #2) | 전이성 + 미시행일 때 gBRCA·PALB2, PIK3CA·AKT1·PTEN, ESR1 검사, ESR1 재검 | 같음 (`tests_needed_of`) |
-| patient_state 변환 | TCGA 크롭본 → patient_state (B 테스트용으로만 남김) | `src/input/script/tcga/tcga_to_patient_state.py` |
-| 테스트 | 판정 규칙 케이스 + TCGA 크롭본 변환 → BM 출력 스키마 확인 | `tests/biomarker/test_bm.py` |
+| 테스트 | 판정 규칙 케이스 → BM 출력 스키마 확인 (TCGA 크롭본 검사는 2026-11-18 삭제) | `tests/biomarker/test_bm.py` |
 | PD-L1 약제별 판정 (2026-10-16) | 22C3 CPS ≥ 10, SP142 IC ≥ 1% (§6.5) | `BM1_…py` |
 | BM-3 ClinVar·CIViC 로컬 조회 (2026-10-19~20) | ClinVar는 BRCA1/2·PALB2 판정에, CIViC는 근거로만. VEP 미사용 | `BM1_…py`, `data/script/clinvar_download.py`, `civic_download.py` |
 | 차수 (2026-10-21~22) | 전이성 `setting.line_endocrine`·`line_chemo` = 이번에 결정할 차수 (전이 후 투약 없으면 1L). 판정 기준일 뒤 투약은 뺌 (2026-10-29) | `BM1_…py` |

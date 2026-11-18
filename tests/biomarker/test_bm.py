@@ -14,8 +14,6 @@ from pathlib import Path
 
 from jsonschema import Draft202012Validator
 
-from src.input.script.tcga.tcga_to_patient_state import convert, load_rows
-
 ROOT = Path(__file__).resolve().parents[2]
 
 # BM 파일 이름에 괄호·쉼표가 있어 import 문으로 불러올 수 없으므로 파일 경로로 불러온다
@@ -740,11 +738,6 @@ def main():
           and out["setting"]["disease"] == expected["setting"]["disease"] and not list(validator.iter_errors(out)))
     report("HAND", ok, "ER·PR·HER2·PIK3CA·ESR1·아형·현재 범주만 비교 (보고서 원문 파싱(BRCA)·차수는 아직 없음)",
            f"전달 문서 8.2절 {want} -> {({m: got.get(m) for m in want})}, {out['subtype']}, {out['setting']['disease']}")
-
-    # TCGA 크롭본 전체: patient_state로 변환(파일 없이)한 뒤 BM 출력이 스키마를 통과하는지
-    docs = convert(load_rows())
-    bad = [pid for pid, doc in docs.items() if list(validator.iter_errors(assess(doc)))]
-    report("TCGA", not bad, "", f"TCGA 크롭본 {len(docs)}명 중 BM 출력 스키마 검증 실패 {len(bad)}명 {bad[:3]}")
 
     print()
     print(f"통과 {passed}  실패 {failed}")
