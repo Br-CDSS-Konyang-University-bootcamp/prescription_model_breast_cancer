@@ -51,3 +51,18 @@ def test_recommend_output_passes_schema():
                                confirmed_state=confirmed(contraindicated_classes=["CDK4/6_inhibitor"]))
     assert not errors
     assert {n["topic"] for n in out["clinical_notes"]} >= {"comorbidity", "contraindicated_classes"}
+
+
+def test_drug_caution_olaparib_then_abemaciclib():
+    """olaparib 후보와 abemaciclib 후보가 함께 나오면 abemaciclib 쪽에 병용·순서 주의를 단다 (ESMO 5b21e4, 2026-11-18).
+    계열 이름 후보는 펼친 조합의 약까지 본다. 5b21e4가 넘어오지 않았으면 인용은 달지 않는다."""
+    from src.recommend.clinical_notes import caution_notes
+    opts = [{"therapy": "olaparib + ET", "drugs": ["olaparib"]},
+            {"therapy": "abemaciclib + ET", "drugs": [], "candidates": [{"drugs": ["tamoxifen", "abemaciclib"]}]}]
+    notes = caution_notes(opts, given=set())
+    assert len(notes) == 1 and notes[0]["topic"] == "drug_caution"
+    assert notes[0]["applies_to"] == ["abemaciclib + ET"] and "olaparib을 먼저" in notes[0]["text"]
+    assert "citations" not in notes[0]
+    notes = caution_notes(opts, given={"esmo-ebc-2024-02-hrpos-5b21e4"})
+    assert notes[0]["citations"] == ["esmo-ebc-2024-02-hrpos-5b21e4"]
+    assert caution_notes([opts[1]], given=set()) == []          # olaparib 후보가 없으면 경고하지 않음

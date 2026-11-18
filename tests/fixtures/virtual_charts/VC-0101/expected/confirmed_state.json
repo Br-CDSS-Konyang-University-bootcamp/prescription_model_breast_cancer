@@ -27,6 +27,14 @@
       "confirmed": "HR+/HER2-",
       "status": "confirmed"
     },
+    "molecular_subtype": {
+      "scope": "current",
+      "system": "Luminal B(HER2 negative)",
+      "system_source": "biomarker_record",
+      "confirmed": "Luminal B(HER2 negative)",
+      "status": "confirmed",
+      "note": "Ki-67로 정함 (저증식 Luminal A, 고증식·중간 Luminal B). Ki-67을 모르면 비움"
+    },
     "setting.line_endocrine": {
       "scope": "current",
       "system": "2L",

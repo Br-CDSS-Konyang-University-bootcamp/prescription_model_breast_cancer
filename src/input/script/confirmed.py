@@ -361,6 +361,9 @@ def build_draft(patient_state: dict, biomarker_record: dict, drug_table=None) ->
     # 치료 상황
     put("setting.disease", "current", setting.get("disease"), "biomarker_record")
     put("subtype", "current", biomarker_record.get("subtype"), "biomarker_record")
+    mol = biomarker_record.get("molecular_subtype")
+    put("molecular_subtype", "current", mol if mol not in (None, "unknown") else None, "biomarker_record",
+        note="Ki-67로 정함 (저증식 Luminal A, 고증식·중간 Luminal B). Ki-67을 모르면 비움" if mol else None)
     if setting.get("disease") == "metastatic":
         put("setting.phase", "current", None, "derived", note="전이성은 고식적 (선행/보조 아님)")
     else:

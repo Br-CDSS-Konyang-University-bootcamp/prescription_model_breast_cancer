@@ -38,7 +38,7 @@ PD-L1 판정 (2026-10-16, 전달 문서 6.5절). 입력 `receptors.pdl1` (`assay
 - 검사법과 점수는 `evidence.assay`, `evidence.score`에 남긴다. 기준 숫자는 코드 맨 위 `PDL1_22C3_CPS_MIN`, `PDL1_SP142_IC_MIN`.
 - TCGA는 PD-L1이 모두 기록 없음이라 테스트 케이스(P01~P11)로만 확인했다.
 
-분자 아형(Luminal A, Luminal B(HER2 negative), Luminal B(HER2 positive), HER2_enriched, Basal_like)은 `molecular_subtype_of(아형, Ki-67 상태값)` 규칙 함수로만 있고 출력에는 넣지 않는다 (PROJECT.md §5).
+분자 아형(Luminal A, Luminal B(HER2 negative), Luminal B(HER2 positive), HER2_enriched, Basal_like)은 `molecular_subtype_of(아형, Ki-67 상태값)`로 정해 2026-11-18부터 `biomarker_record.molecular_subtype`으로 낸다 (Ki-67을 모르면 unknown). 화면 1 확정값 `molecular_subtype`의 기본값이고, C는 ESMO EBC 그림 5의 반대 경로(Luminal A-like / B-like) 청크를 감점하는 데, B 프롬프트는 [환자] 요약에 쓴다.
 
 유전자 7개 판정 (2026-10-20 팀 회의 반영. 전달 문서 3.6·4.6·4.7·5.4절). 판정과 근거를 나눈다: 판정은 아래 표로만 하고, 판정에 쓰지 않은 근거까지 모두 이유(`reason`)에 적는다. 위에서부터 처음 맞는 줄로 판정한다:
 
