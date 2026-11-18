@@ -82,7 +82,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe_class"
   },
   {
     "schema_version": "0.1-draft",
@@ -117,7 +118,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe_class"
   },
   {
     "schema_version": "0.1-draft",
@@ -147,7 +149,8 @@
     "drugs": [],
     "evidence": null,
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "judgment"
   },
   {
     "schema_version": "0.1-draft",
@@ -177,7 +180,8 @@
     "drugs": [],
     "evidence": null,
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "judgment"
   },
   {
     "schema_version": "0.1-draft",
@@ -208,7 +212,8 @@
     "drugs": [],
     "evidence": null,
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "judgment"
   },
   {
     "schema_version": "0.1-draft",
@@ -237,7 +242,8 @@
     "drugs": [],
     "evidence": null,
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "judgment"
   },
   {
     "schema_version": "0.1-draft",
@@ -267,7 +273,8 @@
     "drugs": [],
     "evidence": null,
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "judgment"
   },
   {
     "schema_version": "0.1-draft",
@@ -342,7 +349,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -385,7 +393,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -425,7 +434,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -498,7 +508,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -536,7 +547,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -573,7 +585,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -612,7 +625,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -649,7 +663,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -688,7 +703,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -761,7 +777,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -798,7 +815,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -836,7 +854,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe_class"
   },
   {
     "schema_version": "0.1-draft",
@@ -875,7 +894,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -914,7 +934,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe_class"
   },
   {
     "schema_version": "0.1-draft",
@@ -954,7 +975,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -1041,7 +1063,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -1086,7 +1109,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -1129,7 +1153,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -1172,7 +1197,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -1217,7 +1243,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -1264,7 +1291,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -1308,7 +1336,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -1352,7 +1381,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -1386,7 +1416,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "judgment"
   },
   {
     "schema_version": "0.1-draft",
@@ -1420,7 +1451,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe_class"
   },
   {
     "schema_version": "0.1-draft",
@@ -1458,7 +1490,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -1535,7 +1568,8 @@
     ],
     "evidence": null,
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -1571,7 +1605,8 @@
     ],
     "evidence": null,
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -1604,7 +1639,8 @@
     ],
     "evidence": null,
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -1692,7 +1728,8 @@
     ],
     "evidence": null,
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -1726,7 +1763,8 @@
     ],
     "evidence": null,
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -1760,7 +1798,8 @@
     ],
     "evidence": null,
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -1793,7 +1832,8 @@
     ],
     "evidence": null,
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -1826,7 +1866,8 @@
     ],
     "evidence": null,
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -1862,7 +1903,8 @@
     ],
     "evidence": null,
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -1936,7 +1978,8 @@
     "drugs": [],
     "evidence": null,
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe_class"
   },
   {
     "schema_version": "0.1-draft",
@@ -1974,7 +2017,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -2014,7 +2058,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -2056,7 +2101,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -2097,7 +2143,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -2134,7 +2181,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -2173,7 +2221,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -2212,7 +2261,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -2248,7 +2298,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -2324,7 +2375,8 @@
     ],
     "evidence": null,
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -2358,7 +2410,8 @@
     ],
     "evidence": null,
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -2390,7 +2443,8 @@
     ],
     "evidence": null,
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -2421,7 +2475,8 @@
     ],
     "evidence": null,
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -2454,7 +2509,8 @@
     ],
     "evidence": null,
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -2485,7 +2541,8 @@
     ],
     "evidence": null,
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -2555,7 +2612,8 @@
     ],
     "evidence": null,
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -2590,7 +2648,8 @@
     ],
     "evidence": null,
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -2619,7 +2678,8 @@
     "drugs": [],
     "evidence": null,
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe_class"
   },
   {
     "schema_version": "0.1-draft",
@@ -2654,7 +2714,8 @@
     ],
     "evidence": null,
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -2735,7 +2796,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -2778,7 +2840,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -2819,7 +2882,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -2862,7 +2926,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -2945,7 +3010,8 @@
     ],
     "evidence": null,
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -2984,7 +3050,8 @@
     ],
     "evidence": null,
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -3018,7 +3085,8 @@
     ],
     "evidence": null,
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -3102,7 +3170,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -3145,7 +3214,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -3181,7 +3251,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -3220,7 +3291,8 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "prescribe"
   },
   {
     "schema_version": "0.1-draft",
@@ -3281,6 +3353,7 @@
       "escat": null
     },
     "superseded_by": null,
-    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved"
+    "copyright_notice": "Copyright © European Society for Medical Oncology. All rights reserved",
+    "role": "judgment"
   }
 ]
