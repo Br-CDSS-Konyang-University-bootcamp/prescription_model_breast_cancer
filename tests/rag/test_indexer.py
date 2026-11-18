@@ -625,3 +625,30 @@ def test_rules_never_penalize_an_eval_set_answer():
                 if penalty:
                     bad.append((row["case_id"], cid))
     assert bad == []
+
+
+def test_luminal_rule():
+    # 분자 아형(B 확정값 molecular_subtype)과 반대쪽 Luminal 경로·권고만 감점 (B #158·#160 요청, 2026-11-18)
+    import json, sys, types
+    from pathlib import Path
+    sys.modules.setdefault("sentence_transformers", types.SimpleNamespace(SentenceTransformer=None, CrossEncoder=None))
+    from src.rag.chunk_store import load_guideline_chunks
+    from src.rag.retrieve import _luminal
+    from src.rag import searcher as s
+    text = {c["chunk_id"].split("-", 4)[-1]: c["text"] for c in load_guideline_chunks()}
+    assert [_luminal(v) for v in ("Luminal A", "Luminal B(HER2 negative)", "Luminal B(HER2 positive)", "Basal_like", None)] \
+        == ["A", "B", "B", None, None]
+    for cid in ("hrpos-941c55", "fig5-21a119", "fig5-f453eb", "fig4-08ac92"):   # Luminal A 전용
+        assert s._luminal_adjust(text[cid], "B") == 1.0 and s._luminal_adjust(text[cid], "A") == 0.0
+    for cid in ("hrpos-ca0c8d", "fig5-6ffe04", "fig5-d83cba"):                  # Luminal B 전용
+        assert s._luminal_adjust(text[cid], "A") == 1.0 and s._luminal_adjust(text[cid], "B") == 0.0
+    for cid in ("hrpos-6308eb", "fig4-a14908", "hrpos-0656d9"):  # 괄호 속 예시, 두 쪽 다, 말하지 않음 → 그대로
+        assert s._luminal_adjust(text[cid], "A") == 0.0 and s._luminal_adjust(text[cid], "B") == 0.0
+    assert s._luminal_adjust(text["hrpos-941c55"], None) == 0.0   # 값이 없으면 감점하지 않는다
+    # Luminal B 사례(Ki-67 고증식)의 C 정답은 감점되지 않는다
+    base = Path(__file__).resolve().parents[2] / "tests" / "fixtures" / "virtual_charts"
+    full = {c["chunk_id"]: c["text"] for c in load_guideline_chunks()}
+    for case in ("VC-0106", "VC-0107", "VC-0119", "VC-0121"):
+        exp = json.loads((base / case / "expected" / "guideline.json").read_text(encoding="utf-8"))
+        assert [c for c in exp["expected_chunks"] + exp.get("expected_algorithm", [])
+                if s._luminal_adjust(full[c], "B")] == [], case

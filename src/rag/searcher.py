@@ -129,6 +129,13 @@ MARKER_NEGATIVE_SCOPE = {
     "gBRCA": re.compile(r"BRCA1/2[- ]+wild[- ]type", re.IGNORECASE),
 }
 MARKER_SCOPE_PENALTY = 1.0
+# 분자 아형: ESMO EBC HR+/HER2- 장은 Luminal A-like / B-like로 항암 여부가 갈린다 (그림 5 경로, 941c55 'Luminal A 대부분 항암
+# 불필요', ca0c8d 'Luminal B는 항암 뒤 ET'). Luminal B 환자(VC-0121)에게 그림 5 Luminal A 경로가 1위로 왔고, Luminal A로 바꿔도
+# LLM이 항암을 빼지 않았다 (B #158·#160). B 확정값 molecular_subtype으로 반대쪽만 대상으로 하는 경로·권고를 감점한다.
+# 규칙 추가 기준(rule_review_2026-11-10.md §5): ESMO 원문 표현, 조기 HR+ 사례 여러 건, 정답을 깎지 않음 (시험)
+LUMINAL_A = re.compile(r"luminal A[- ]like", re.IGNORECASE)
+LUMINAL_B = re.compile(r"luminal B[- ]like", re.IGNORECASE)
+LUMINAL_PENALTY = 1.0
 # 무병 기간 규칙(de novo에 'DFI ≥12개월' 권고 감점)과 'beyond third-line' 재투여를 고식 항암 뒤 갈래로 보던 규칙은
 # 과적합 점검(2026-11-10)에서 뺐다: DFI 조건은 재발 환자를 거르는 말이라 de novo 환자는 해당된다(atezolizumab 6280b3도 감점됐다).
 # 'beyond third-line'은 차수 수이지 고식 항암 여부가 아니다. 둘 다 VC-0113·0114·0125 정답에 맞춘 규칙이었다 (src/rag/rule_review_2026-11-10.md)
@@ -160,6 +167,7 @@ def search_guidelines(
         pcr: str = None,
         her2_adjuvant_relapse: str = None,
         high_risk_early: str = None,
+        luminal: str = None,
 ) -> list[dict]:
     """지침 권고 청크를 찾는다. with_parent=True면 각 결과에 부모(소단원) 청크를 "parent" 키로 붙인다
     (LLM에는 소단원 전체를 함께 넘긴다, PROJECT.md §6).
@@ -184,7 +192,7 @@ def search_guidelines(
     '면역항암을 받지 않은 잔존' / 보조 pembrolizumab 갈래 중 반대쪽만 가리키는 권고·그림 경로를 감점한다 (_early_adjust).
     HER2 양성 아형이면 HR 상태와 반대쪽 ER 상태만 대상으로 하는 권고를 감점한다 (_er_adjust, 인자 없이 subtype으로).
     her2_adjuvant_relapse("no")면 '보조 항HER2 종료 6-12개월 안 재발' 권고를 감점한다.
-    high_risk_early("no")면 고위험 전용 권고를 감점한다.
+    high_risk_early("no")면 고위험 전용 권고를 감점한다. luminal("A" / "B", 분자 아형 확정값)이면 반대쪽 Luminal 경로·권고를 감점한다.
     차수가 neoadjuvant면 수술 뒤에만 쓰는 권고를, biomarker_tags에 PD-L1+·gBRCA가 있으면 그 마커 음성 전용 권고를 감점한다.
     같은 조건의 검색은 기억해 둔 결과를 돌려준다 (색인을 바꾸면 비워진다)."""
     sites = _site_keys(metastatic_sites)
@@ -192,14 +200,14 @@ def search_guidelines(
     key = (query_text, setting, subtype, line, source, tuple(biomarker_tags or ()), top_k, with_parent, rerank,
            tuple(sorted(sites)) if sites is not None else None, negatives, chunk_kind, endocrine_relapse_12m,
            menopausal_status, visceral_crisis, prior_metastatic_chemo, neoadjuvant_received, ici_received, pcr,
-           her2_adjuvant_relapse, high_risk_early)
+           her2_adjuvant_relapse, high_risk_early, luminal)
     if key not in _cache:
         if len(_cache) >= CACHE_SIZE:
             _cache.clear()
         _cache[key] = _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, with_parent, rerank,
                               sites, negatives, chunk_kind, endocrine_relapse_12m, menopausal_status,
                               visceral_crisis, prior_metastatic_chemo, (neoadjuvant_received, ici_received, pcr),
-                              her2_adjuvant_relapse, high_risk_early)
+                              her2_adjuvant_relapse, high_risk_early, luminal)
     return copy.deepcopy(_cache[key])  # 받은 쪽이 결과를 고쳐도 기억해 둔 값은 그대로
 
 
@@ -244,7 +252,8 @@ def _site_adjust(parent_id, sites) -> float:
 
 def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, with_parent, rerank,
             sites=None, negatives=frozenset(), chunk_kind="recommendation", relapse_12m=None,
-            menopause=None, crisis=None, prior_chemo=None, early=(None, None, None), her2_relapse=None, high_risk=None) -> list[dict]:
+            menopause=None, crisis=None, prior_chemo=None, early=(None, None, None), her2_relapse=None, high_risk=None,
+            luminal=None) -> list[dict]:
     client = get_qdrant_client()
     model = get_embedding_model()
 
@@ -359,6 +368,7 @@ def _search(query_text, setting, subtype, line, source, biomarker_tags, top_k, w
         score -= _phase_adjust(payload.get("text", ""), line)
         score -= _high_risk_adjust(payload.get("text", ""), high_risk)
         score -= _marker_scope_adjust(payload.get("text", ""), target_tags)
+        score -= _luminal_adjust(payload.get("text", ""), luminal)
 
         scored_results.append({
             "score": score,
@@ -482,6 +492,19 @@ def _marker_scope_adjust(text: str, tags) -> float:
             return MARKER_SCOPE_PENALTY
     return 0.0
 
+
+
+def _luminal_adjust(text: str, luminal) -> float:
+    """분자 아형이 Luminal A(B)인데 권고·그림 경로가 Luminal B(A)만 대상으로 하면 감점할 크기.
+    괄호 속 예시('tamoxifen alone (luminal A like, stage I)', 6308eb는 고위험 OFS 갈래도 말한다)와 각주는 보지 않고,
+    두 쪽을 다 말하는 것(그림 4 a14908)은 그대로 둔다."""
+    if luminal not in ("A", "B"):
+        return 0.0
+    body = re.sub(r"\([^)]*\)", " ", _body(text))
+    a, b = bool(LUMINAL_A.search(body)), bool(LUMINAL_B.search(body))
+    if (luminal == "A" and b and not a) or (luminal == "B" and a and not b):
+        return LUMINAL_PENALTY
+    return 0.0
 
 
 def _er_adjust(text: str, subtype) -> float:

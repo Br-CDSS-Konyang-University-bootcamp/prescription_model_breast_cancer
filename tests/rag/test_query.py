@@ -128,3 +128,19 @@ def test_extra_search_args_add_bisphosphonate_search_for_hr_positive_adjuvant_on
     tnbc = {"subtype": "TNBC", "setting": {"disease": "early", "line": "adjuvant"}, "records": []}
     for record in (neo, tnbc):
         assert all(a["query_text"] != ADJUVANT_BONE_QUERY for a in extra_search_args(record))
+
+
+def test_luminal_goes_from_confirmed_state_to_search_args():
+    # 확정값 molecular_subtype → 검색 인자 luminal (값이 없으면 넘기지 않는다)
+    import copy, json
+    from pathlib import Path
+    from src.rag.retrieve import from_confirmed_state
+    path = Path(__file__).resolve().parents[2] / "tests" / "fixtures" / "virtual_charts" / "VC-0121" / "expected" / "confirmed_state.json"
+    state = json.loads(path.read_text(encoding="utf-8"))
+    record, patient, _ = from_confirmed_state(state)
+    assert "luminal" not in search_args(record, **patient)
+    for value, want in (("Luminal B(HER2 negative)", "B"), ("Luminal A", "A")):
+        s = copy.deepcopy(state)
+        s["items"]["molecular_subtype"] = {"scope": "current", "system": value, "confirmed": value, "status": "confirmed"}
+        record, patient, _ = from_confirmed_state(s)
+        assert search_args(record, **patient)["luminal"] == want

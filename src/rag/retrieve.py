@@ -245,8 +245,21 @@ def from_confirmed_state(confirmed_state: dict):
         "her2_adjuvant_relapse": ({"met": "yes", "not_met": "no"}.get((_confirmed(items, "deemed_lines") or {})
                                                                       .get("DEEM-HER2ADC-6M"))
                                   if disease == "metastatic" and subtype in HER2_POSITIVE else None),
+        # 분자 아형 (B 확정값 molecular_subtype, 2026-11-18): ESMO EBC는 Luminal A-like / B-like로 항암 여부가 갈린다
+        # (그림 5, hrpos-941c55·ca0c8d). 반대쪽 경로·권고를 감점한다 (B #160 요청: Luminal A로 바꿔도 LLM이 항암을 빼지 않음)
+        "luminal": _luminal(_confirmed(items, "molecular_subtype")),
     }
     return record, patient, lines
+
+
+def _luminal(value):
+    """molecular_subtype 확정값 → "A" / "B" / None. Luminal B(HER2 negative)·Luminal B(HER2 positive)는 모두 B."""
+    value = str(value or "")
+    if value.startswith("Luminal A"):
+        return "A"
+    if value.startswith("Luminal B"):
+        return "B"
+    return None
 
 
 def _clinical_stage(items: dict, disease):
