@@ -1,0 +1,457 @@
+{
+  "schema_version": "0.1-draft6",
+  "patient_ref": "VH-T0427",
+  "created_at": "2026-11-09T00:00:00+09:00",
+  "index_day": 49,
+  "documents": [
+    {
+      "doc_id": "D1",
+      "doc_type": "progress_note",
+      "doc_date": "2023-06-23"
+    },
+    {
+      "doc_id": "D2",
+      "doc_type": "pathology",
+      "doc_date": "2023-06-01"
+    },
+    {
+      "doc_id": "D3",
+      "doc_type": "molecular",
+      "doc_date": "2023-06-15"
+    }
+  ],
+  "fields": {
+    "diagnosis": {
+      "diagnosis_date": {
+        "status": "present",
+        "value": "2023-05-05",
+        "raw": "2023.5.5",
+        "source": {
+          "doc_id": "D1",
+          "quote": "2023.5.5 core bx로 진단",
+          "char_start": 244,
+          "char_end": 264
+        }
+      },
+      "histology": {
+        "status": "present",
+        "value": "IDC",
+        "raw": "침윤성 유관암 (invasive ductal carcinoma, NST)",
+        "source": {
+          "doc_id": "D2",
+          "quote": "침윤성 유관암 (invasive ductal carcinoma, NST)",
+          "char_start": 420,
+          "char_end": 460
+        }
+      },
+      "grade": {
+        "status": "present",
+        "value": 3,
+        "raw": "III (Nottingham grade 3)",
+        "source": {
+          "doc_id": "D2",
+          "quote": "III (Nottingham grade 3)",
+          "char_start": 472,
+          "char_end": 496
+        }
+      }
+    },
+    "stage": {
+      "ctnm": {
+        "status": "not_recorded"
+      },
+      "ptnm": {
+        "status": "present",
+        "value": {
+          "t": "T2",
+          "n": "N1",
+          "m": "M0",
+          "edition": "6th"
+        },
+        "raw": "pT2 N1 M0, stage IIB (AJCC 6th)",
+        "observed_date": "2023-05-26",
+        "source": {
+          "doc_id": "D2",
+          "quote": "pT2 N1 M0, stage IIB (AJCC 6th)",
+          "char_start": 539,
+          "char_end": 570
+        }
+      },
+      "group": {
+        "status": "present",
+        "value": "IIB",
+        "raw": "stage IIB",
+        "source": {
+          "doc_id": "D2",
+          "quote": "stage IIB",
+          "char_start": 550,
+          "char_end": 559
+        }
+      },
+      "positive_ln_count": {
+        "status": "not_recorded"
+      },
+      "disease_extent": {
+        "status": "present",
+        "value": "early",
+        "raw": "stage IIB",
+        "source": {
+          "doc_id": "D2",
+          "quote": "stage IIB",
+          "char_start": 550,
+          "char_end": 559
+        }
+      },
+      "metastatic_sites": {
+        "status": "present",
+        "value": "[Not Applicable]",
+        "raw": "pT2 N1 M0",
+        "source": {
+          "doc_id": "D2",
+          "quote": "pT2 N1 M0",
+          "char_start": 539,
+          "char_end": 548
+        }
+      },
+      "operable": {
+        "status": "present",
+        "value": "yes",
+        "raw": "우측 유방 절제술 + 액와 림프절 수술",
+        "source": {
+          "doc_id": "D2",
+          "quote": "우측 유방 절제술 + 액와 림프절 수술",
+          "char_start": 387,
+          "char_end": 408
+        }
+      }
+    },
+    "receptors": {
+      "er_percent": {
+        "status": "present",
+        "value": {
+          "allred": {
+            "total": 7,
+            "ps": 5,
+            "is": 2
+          },
+          "result": "positive"
+        },
+        "raw": "ER 양성 (Allred 7, 5+2)",
+        "specimen": "primary",
+        "observed_date": "2023-05-26",
+        "source": {
+          "doc_id": "D2",
+          "quote": "ER 양성 (Allred 7, 5+2)",
+          "char_start": 581,
+          "char_end": 602
+        }
+      },
+      "pr_percent": {
+        "status": "present",
+        "value": {
+          "allred": {
+            "total": 8,
+            "ps": 5,
+            "is": 3
+          },
+          "result": "positive"
+        },
+        "raw": "PR 강양성 (Allred 8, 5+3)",
+        "specimen": "primary",
+        "observed_date": "2023-05-26",
+        "source": {
+          "doc_id": "D2",
+          "quote": "PR 강양성 (Allred 8, 5+3)",
+          "char_start": 605,
+          "char_end": 627
+        }
+      },
+      "her2_ihc": {
+        "status": "present",
+        "value": {
+          "score": "1+"
+        },
+        "raw": "HER2 (4B5): 1+",
+        "specimen": "primary",
+        "observed_date": "2023-05-26",
+        "source": {
+          "doc_id": "D2",
+          "quote": "HER2 (4B5): 1+",
+          "char_start": 630,
+          "char_end": 644
+        }
+      },
+      "her2_ish": {
+        "status": "not_done",
+        "raw": "시행하지 않음",
+        "source": {
+          "doc_id": "D2",
+          "quote": "HER2 ISH: 시행하지 않음",
+          "char_start": 647,
+          "char_end": 664
+        }
+      },
+      "pdl1": {
+        "status": "not_recorded"
+      }
+    },
+    "proliferation": {
+      "ki67_percent": {
+        "status": "present",
+        "value": {
+          "percent": 60
+        },
+        "raw": "Ki-67: 60%",
+        "specimen": "primary",
+        "observed_date": "2023-05-26",
+        "source": {
+          "doc_id": "D2",
+          "quote": "Ki-67: 60%",
+          "char_start": 667,
+          "char_end": 677
+        }
+      }
+    },
+    "patient": {
+      "gender": {
+        "status": "present",
+        "value": "FEMALE",
+        "raw": "F/48",
+        "source": {
+          "doc_id": "D2",
+          "quote": "F/48",
+          "char_start": 347,
+          "char_end": 351
+        }
+      },
+      "age": {
+        "status": "present",
+        "value": 48,
+        "raw": "F/48",
+        "source": {
+          "doc_id": "D2",
+          "quote": "F/48",
+          "char_start": 347,
+          "char_end": 351
+        }
+      },
+      "menopausal_status": {
+        "status": "present",
+        "value": "perimenopausal",
+        "raw": "Peri (6-12 months since last menstrual period)",
+        "source": {
+          "doc_id": "D1",
+          "quote": "Peri (6-12 months since last menstrual period)",
+          "char_start": 161,
+          "char_end": 207
+        }
+      },
+      "menopausal_basis": {
+        "status": "not_recorded"
+      },
+      "ecog": {
+        "status": "present",
+        "value": 0,
+        "raw": "ECOG PS 0",
+        "observed_date": "2023-06-23",
+        "source": {
+          "doc_id": "D1",
+          "quote": "ECOG PS 0",
+          "char_start": 211,
+          "char_end": 220
+        }
+      }
+    },
+    "treatment_history": [],
+    "anthracycline_drug_dose": {
+      "administered": "No value",
+      "drugs": []
+    },
+    "neoadjuvant_response": {
+      "pcr": {
+        "status": "not_recorded"
+      },
+      "rcb": {
+        "status": "not_recorded"
+      }
+    },
+    "recurrence": {
+      "recurrence_date": {
+        "status": "not_recorded"
+      },
+      "adjuvant_endocrine_end_date": {
+        "status": "not_recorded"
+      },
+      "status": {
+        "status": "present",
+        "value": "none",
+        "raw": "재발 소견 없음",
+        "source": {
+          "doc_id": "D1",
+          "quote": "재발 소견 없음",
+          "char_start": 282,
+          "char_end": 290
+        }
+      },
+      "metastatic_sites": {
+        "status": "not_recorded"
+      },
+      "metastasis_day": {
+        "status": "not_recorded"
+      },
+      "recurrence_day": {
+        "status": "not_recorded"
+      },
+      "surgery": {
+        "status": "not_recorded"
+      },
+      "surgery_intent": {
+        "status": "not_recorded"
+      }
+    },
+    "molecular": {
+      "mutations": {
+        "ESR1": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": {
+            "doc_id": "D3",
+            "quote": "ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2",
+            "char_start": 882,
+            "char_end": 927
+          }
+        },
+        "PIK3CA": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": {
+            "doc_id": "D3",
+            "quote": "ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2",
+            "char_start": 882,
+            "char_end": 927
+          }
+        },
+        "AKT1": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": {
+            "doc_id": "D3",
+            "quote": "ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2",
+            "char_start": 882,
+            "char_end": 927
+          }
+        },
+        "PTEN": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": {
+            "doc_id": "D3",
+            "quote": "ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2",
+            "char_start": 882,
+            "char_end": 927
+          }
+        },
+        "BRCA1": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": {
+            "doc_id": "D3",
+            "quote": "ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2",
+            "char_start": 882,
+            "char_end": 927
+          }
+        },
+        "BRCA2": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": {
+            "doc_id": "D3",
+            "quote": "ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2",
+            "char_start": 882,
+            "char_end": 927
+          }
+        },
+        "PALB2": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": {
+            "doc_id": "D3",
+            "quote": "ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2",
+            "char_start": 882,
+            "char_end": 927
+          }
+        }
+      }
+    },
+    "genomic_reports": [
+      {
+        "doc_id": "D3",
+        "report_date": "2023-06-15",
+        "specimen": "primary",
+        "raw_text": "[분자병리 검사 결과]\n환자명: 김가상   등록번호: 00000427   F/48\n검사기관: 가상유전체검사센터   보고일: 2023.6.15\n검체: 원발 종양 조직 (수술 검체)\n검사법: 전장 엑솜 염기서열 분석\n\n검출된 변이 (Clinically significant variants)\n  없음\n\n검출되지 않음 (Not detected)\n  ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2\n\n* 분석 유전자: ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2"
+      }
+    ],
+    "deemed_lines": [
+      {
+        "rule_id": "DEEM-ANTHRA-TAXANE",
+        "category": "chemo",
+        "status": "not_applicable",
+        "basis": "전이 기준일 없음 (전이성 아님)",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "61-62"
+      },
+      {
+        "rule_id": "DEEM-SG-1Y",
+        "category": "chemo",
+        "status": "not_applicable",
+        "basis": "전이 기준일 없음 (전이성 아님)",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "63"
+      },
+      {
+        "rule_id": "DEEM-HER2ADC-6M",
+        "category": "chemo",
+        "status": "not_applicable",
+        "basis": "전이 기준일 없음 (전이성 아님)",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "62-63"
+      },
+      {
+        "rule_id": "DEEM-ENDO-ADJ-1Y",
+        "category": "endocrine",
+        "status": "not_applicable",
+        "basis": "전이 기준일 없음 (전이성 아님)",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "57"
+      }
+    ],
+    "at_index": {
+      "age": 48,
+      "recent_therapy_28d": {
+        "status": "no",
+        "basis": "기준일 이전 항암제·호르몬제 투약 없음",
+        "regimen_refs": [],
+        "gap_days": null
+      }
+    }
+  },
+  "conflicts": []
+}

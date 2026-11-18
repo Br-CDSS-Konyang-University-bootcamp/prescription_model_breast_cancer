@@ -1,0 +1,57 @@
+표,열,형식,필수,설명,예
+annotations,ann_id,문자,예,주석 번호,VH-B0125-A1
+annotations,slide_id,문자,예,slides.csv의 슬라이드 번호,VH-B0125-S1
+annotations,vp_id,문자,예,가상환자 번호,VH-B0125
+annotations,kind,tumor_region / tissue_mask / pen_mask,예,주석 종류,tumor_region
+annotations,origin,real / pipeline,예,real = 원 데이터 주석 (BCNB) / pipeline = 전처리 결과 (조직·펜 마스크 등),real
+annotations,file,경로,예,주석 파일 (level 0 픽셀 좌표 다각형),local/bcnb/images/annotations/VH-B0125.json
+annotations,n_polygons,정수,예,쓰는 다각형 수,7
+annotations,dropped_outside,정수,아니오,이미지 밖이라 뺀 다각형 수 (I-02),1
+annotations,rule_id,문자,예,만든 규칙,I-02
+module_runs,run_id,문자,예,모듈 실행 1번의 번호,M2-20261120-VH-B0125
+module_runs,vp_id,문자,예,가상환자 번호,VH-B0125
+module_runs,slide_id,문자,예,입력 슬라이드,VH-B0125-S1
+module_runs,module,1 / 2 / 3 / 4B,예,모듈,2
+module_runs,model,문자,예,모델 이름,abmil_ln
+module_runs,model_version,문자,예,모델 버전,2026-11-20
+module_runs,weights_sha256,문자,예,가중치 파일 해시 (같은 모델인지 확인),…
+module_runs,encoder,문자,예,타일 특징 인코더,h_optimus_0
+module_runs,grid_id,문자,예,tile_grids.csv의 격자 번호,G-VH-B0125-S1-m2
+module_runs,inputs,JSON 목록,예,모델에 넣은 것. 수술 뒤 정보(림프절 결과 등)가 없어야 한다 (V4·G4),"[""slide"", ""age"", ""tumour_size""]"
+module_runs,score_kind,attention / tile_prediction,예,타일 점수의 뜻,attention
+module_runs,prediction_file,경로,예,예측 JSON (모듈 결과 형식 제안 §2.1),local/bcnb/images/predictions/M2-….json
+module_runs,format_version,문자,예,결과 형식 버전,0.1
+module_runs,created_at,날짜시각,예,실행 시각,2026-11-20T10:00:00+09:00
+predictions,run_id,문자,예,module_runs.csv의 실행 번호,M2-20261120-VH-B0125
+predictions,vp_id,문자,예,가상환자 번호 (화면에서 바로 찾기),VH-B0125
+predictions,target,문자,예,예측 대상 (모듈 2: N+ · N_group / 모듈 3: ER · PR · HER2 · HER2_IHC · Ki67 / 모듈 1: risk),N+
+predictions,label,문자,아니오,예측 범주,high
+predictions,prob,숫자 0~1,아니오,확률,0.42
+predictions,value,숫자,아니오,확률이 아닌 수치 (Ki-67 %·위험 점수 등),
+tile_grids,grid_id,문자,예,격자 번호,G-VH-B0125-S1-m2
+tile_grids,slide_id,문자,예,슬라이드 번호,VH-B0125-S1
+tile_grids,vp_id,문자,예,가상환자 번호,VH-B0125
+tile_grids,module,1 / 2 / 3 / 4B,예,이 격자를 만든 모듈 (조원마다 파이프라인이 달라 모듈마다 따로),2
+tile_grids,tile_px,정수,예,타일 한 변의 원본(level 0) 픽셀 수,512
+tile_grids,tile_um,숫자,아니오,타일 한 변의 µm (mpp를 알 때),128
+tile_grids,mpp,숫자,아니오,원본 1픽셀의 µm,0.25
+tile_grids,overlap_px,정수,아니오,타일 겹침,0
+tile_grids,n_tiles,정수,예,타일 수,4321
+tile_grids,grid_file,경로,예,".h5: coords (N,2) level 0 왼쪽 위 [x, y], 속성 tile·mpp, (선택) tumor_tile",local/bcnb/images/grids/G-….h5
+attention,layer_id,문자,예,점수 층 번호,L-M2-…-N+
+attention,run_id,문자,예,module_runs.csv의 실행 번호,M2-20261120-VH-B0125
+attention,target,문자,예,점수의 대상 (predictions.target과 같은 이름),N+
+attention,score_file,경로,예,".parquet: tile_index + 대상별 열 (격자 타일 순서, softmax 뒤 가중치)",local/bcnb/images/scores/M2-….parquet
+attention,score_column,문자,예,점수 파일의 열 이름,N+
+attention,n_tiles,정수,예,점수가 있는 타일 수 (격자 타일 수와 같아야 함),4321
+attention,normalization,문자,예,화면 표시용 정규화,percentile_in_slide
+attention,top_k_tiles,JSON 목록,아니오,점수 상위 타일 번호,"[12, 873, 40]"
+renders,render_id,문자,예,그림 번호 (지워도 다시 만들 수 있는 캐시),R-…
+renders,layer_id,문자,아니오,히트맵이면 attention.csv 층 번호,L-M2-…-N+
+renders,slide_id,문자,예,슬라이드 번호,VH-B0125-S1
+renders,kind,thumbnail / heatmap_overlay / top_tile_crop,예,그림 종류,heatmap_overlay
+renders,file,경로,예,그림 파일,local/bcnb/images/renders/R-….png
+renders,downsample,숫자,예,원본 대비 축소 배율 (좌표 ÷ downsample = 그림 좌표),64
+renders,colormap,문자,아니오,색표,yellow_orange
+renders,threshold,숫자,아니오,색을 칠하는 백분위 하한,0.9
+renders,code_version,문자,예,그린 코드 버전 (V7 다시 그리기 비교),…

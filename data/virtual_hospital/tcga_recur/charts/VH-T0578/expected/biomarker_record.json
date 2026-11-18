@@ -1,0 +1,191 @@
+{
+  "schema_version": "0.1-draft",
+  "patient_ref": "VH-T0578",
+  "records": [
+    {
+      "marker": "ER",
+      "status": "positive",
+      "reason": "Allred 총점 7 (6~8, 양성)",
+      "rule_id": "BM2-ER-ALLRED-TOTAL",
+      "evidence": {
+        "specimen": "primary",
+        "test_date": "2024-02-16"
+      },
+      "source_span": {
+        "doc_id": "D2",
+        "quote": "ER 강양성 (Allred 7, 4+3)"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "PR",
+      "status": "positive",
+      "reason": "Allred 총점 5 (3 이상, 양성)",
+      "rule_id": "BM2-PR-ALLRED-TOTAL",
+      "evidence": {
+        "specimen": "primary",
+        "test_date": "2024-02-16"
+      },
+      "source_span": {
+        "doc_id": "D2",
+        "quote": "PR 양성 (Allred 5, 4+1)"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "HER2",
+      "status": "positive",
+      "reason": "IHC 3+ -> 양성",
+      "rule_id": "BM2-HER2-IHC3",
+      "evidence": {
+        "specimen": "primary",
+        "test_date": "2024-02-16"
+      },
+      "source_span": {
+        "doc_id": "D2",
+        "quote": "HER2 (4B5): 3+"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "Ki-67",
+      "status": "negative",
+      "reason": "Ki-67 10% (20% 미만)",
+      "rule_id": "BM2-KI67-PERCENT",
+      "evidence": {
+        "specimen": "primary",
+        "test_date": "2024-02-16",
+        "percent": 10.0
+      },
+      "source_span": {
+        "doc_id": "D2",
+        "quote": "Ki-67: 10%"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "PD-L1",
+      "status": "not_recorded",
+      "reason": "PD-L1 기록 없음",
+      "rule_id": "BM2-PDL1-NOTRECORDED",
+      "evidence": {
+        "specimen": null
+      },
+      "source_span": {
+        "doc_id": "",
+        "quote": ""
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "ESR1",
+      "status": "retest_needed",
+      "reason": "원발 조직 결과(negative)이고 이후 내분비요법 진행이 있어 재검 필요 (cfDNA·재생검) / 원래 판정: ESR1 변이 없음",
+      "rule_id": "BM2-ESR1-RETEST",
+      "evidence": {
+        "specimen": "primary"
+      },
+      "source_span": {
+        "doc_id": "D3",
+        "quote": "ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "PIK3CA",
+      "status": "negative",
+      "reason": "PIK3CA 변이 없음",
+      "rule_id": "BM2-PIK3CA-NOTDETECTED",
+      "evidence": {
+        "specimen": "primary"
+      },
+      "source_span": {
+        "doc_id": "D3",
+        "quote": "ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "AKT1",
+      "status": "negative",
+      "reason": "AKT1 변이 없음",
+      "rule_id": "BM2-AKT1-NOTDETECTED",
+      "evidence": {
+        "specimen": "primary"
+      },
+      "source_span": {
+        "doc_id": "D3",
+        "quote": "ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "PTEN",
+      "status": "negative",
+      "reason": "PTEN 변이 없음",
+      "rule_id": "BM2-PTEN-NOTDETECTED",
+      "evidence": {
+        "specimen": "primary"
+      },
+      "source_span": {
+        "doc_id": "D3",
+        "quote": "ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "gBRCA1",
+      "status": "negative",
+      "reason": "BRCA1 변이 없음",
+      "rule_id": "BM2-BRCA1-NOTDETECTED",
+      "evidence": {
+        "specimen": "primary"
+      },
+      "source_span": {
+        "doc_id": "D3",
+        "quote": "ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "gBRCA2",
+      "status": "negative",
+      "reason": "BRCA2 변이 없음",
+      "rule_id": "BM2-BRCA2-NOTDETECTED",
+      "evidence": {
+        "specimen": "primary"
+      },
+      "source_span": {
+        "doc_id": "D3",
+        "quote": "ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "PALB2",
+      "status": "negative",
+      "reason": "PALB2 변이 없음",
+      "rule_id": "BM2-PALB2-NOTDETECTED",
+      "evidence": {
+        "specimen": "primary"
+      },
+      "source_span": {
+        "doc_id": "D3",
+        "quote": "ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2"
+      },
+      "rag_tags": []
+    }
+  ],
+  "subtype": "HR+/HER2+",
+  "setting": {
+    "disease": "metastatic",
+    "line": "1L",
+    "line_endocrine": "1L",
+    "line_chemo": "1L",
+    "prior_drug_classes": [
+      "Hormone Therapy"
+    ],
+    "reason": "진단 시 early, 이후 원격 전이 재발 / 전이성 HR+/HER2+: 항암 차수 1L를 주 차수로 / 심평원 차수 간주 규칙 충족: DEEM-SG-1Y, DEEM-ENDO-ADJ-1Y (급여 판정에서 차수 +1, 전달 문서 6.3a절) / 고식적 내분비요법 이력 없음 -> 내분비 1차 / 고식적 항암요법 이력 없음 -> 항암 1차"
+  },
+  "tests_needed": []
+}

@@ -1,0 +1,23 @@
+rule_id,문서,칸,표기 (예),가져온 곳
+R-01,경과기록,(머리글),<외래 경과기록>   2024.6.1   종양내과,mini build_virtual_cases.py note()
+R-01,경과기록,patient.menopausal_status,폐경 후 / 폐경 전,mini field_vocab.csv (chart)
+R-01,경과기록,patient.menopausal_status,Peri (6-12 months since last menstrual period),mini field_vocab.csv (tcga)
+R-01,경과기록,patient.ecog,ECOG PS 0,mini build_virtual_cases.py vc_0118
+R-01,경과기록,diagnosis.diagnosis_date,2024.4.13 core bx로 진단,mini build_virtual_cases.py dx()
+R-01,경과기록,recurrence.status,재발 소견 없음,mini build_virtual_cases.py vc_0118
+R-01,경과기록,molecular.mutations.*,"ESR1, PIK3CA, … 유전자 검사: 시행하지 않음",mini report_templates.md §1.5 (not_done) + pipeline._gene (유전자 이름 필요)
+R-02,병리,(머리글),[병리결과보고서],mini build_virtual_cases.py surgery_path()
+R-02,병리,stage.operable,우측 유방 절제술 + 액와 림프절 수술,mini build_virtual_cases.py surgery_path() op
+R-02,병리,diagnosis.histology,침윤성 유관암 (invasive ductal carcinoma NST),mini build_virtual_cases.py surgery_path()
+R-02,병리,diagnosis.histology,Infiltrating Lobular Carcinoma (그 밖 조직형도 tcga 표기),mini field_vocab.csv (tcga)
+R-02,병리,diagnosis.grade,II (Nottingham grade 2),mini build_virtual_cases.py surgery_path()
+R-02,병리,stage.positive_ln_count,전이 0개 / 검사 6개,mini build_virtual_cases.py surgery_path()
+R-02,병리,stage.ptnm·group·disease_extent,"pT1c N0 M0, stage IA (AJCC 7th)",mini build_virtual_cases.py surgery_path() (판수는 실제 값)
+R-04,병리,receptors.er_percent·pr_percent,"ER 강양성 (Allred 8, 5+3) / PR 약양성 (Allred 3, 2+1)",2026-11-10 사용자 지정 형식 + mini field_vocab (강양성·약양성·양성·음성) + pipeline._receptor Allred 읽기
+R-02,병리,receptors.her2_ihc,HER2 (4B5): 1+,mini build_virtual_cases.py her2()
+R-02,병리,receptors.her2_ish,HER2 FISH: not amplified,mini field_vocab.csv (chart) + VC 'SISH: not amplified'
+R-02,병리,receptors.*,HER2 ISH: 시행하지 않음,mini report_templates.md §1.5 (not_done)
+R-02,병리,proliferation.ki67_percent,Ki-67: 30%,mini build_virtual_cases.py receptor_lines()
+R-03,분자병리,(머리글),[분자병리 검사 결과],mini build_virtual_cases.py ngs()
+R-03,분자병리,molecular.mutations.*,PIK3CA   c.1624G>A (p.E542K)   VAF 32.9%,mini build_virtual_cases.py ngs()
+R-03,분자병리,molecular.mutations.*,"검출되지 않음 (Not detected) / ESR1, AKT1, …",mini build_virtual_cases.py ngs()

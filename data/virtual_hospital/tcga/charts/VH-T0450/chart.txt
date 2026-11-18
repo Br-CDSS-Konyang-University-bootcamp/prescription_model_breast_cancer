@@ -1,0 +1,48 @@
+<외래 경과기록>   2024.2.29   종양내과
+환자명: 김가상   등록번호: 00000450   F/80   주민번호: 440101-2******   연락처: 010-0000-0450
+병원: 가상대학교병원 종양내과   담당의: 이가상
+
+S) 수술 후 외래, 회복 양호.
+   폐경: 폐경 후
+O) ECOG PS 0
+
+A) Rt. breast cancer, 2024.1.11 core bx로 진단, 2024.2.1 수술
+   재발 소견 없음
+
+P) 보조 전신 요법 결정
+
+
+[병리결과보고서]
+환자명: 김가상   등록번호: 00000450   F/80
+접수일: 2024.2.1   보고일: 2024.2.7
+검체: 우측 유방 절제술 + 액와 림프절 수술
+
+진단
+  조직형: Infiltrating Lobular Carcinoma
+  조직학적 등급: I (Nottingham grade 1)
+    관 형성 1, 핵 다형성 2, 유사분열 1 (합 4)
+  림프절: 전이 11개 / 검사 13개
+  pTNM: pT3 N3a M0, stage IIIC (AJCC 7th)
+
+면역조직화학
+  ER 강양성 (Allred 8, 5+3)
+  PR 약양성 (Allred 4, 2+2)
+  HER2 FISH: not amplified
+  Ki-67: 5%
+
+판독의: 박가상
+
+
+[분자병리 검사 결과]
+환자명: 김가상   등록번호: 00000450   F/80
+검사기관: 가상유전체검사센터   보고일: 2024.2.21
+검체: 원발 종양 조직 (수술 검체)
+검사법: 전장 엑솜 염기서열 분석
+
+검출된 변이 (Clinically significant variants)
+  PIK3CA   c.1633G>A (p.E545K)   VAF 51.6%
+
+검출되지 않음 (Not detected)
+  ESR1, AKT1, PTEN, BRCA1, BRCA2, PALB2
+
+* 분석 유전자: ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2

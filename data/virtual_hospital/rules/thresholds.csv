@@ -1,0 +1,7 @@
+항목,값,뜻,상태
+boundary.er_percent,1-19,합성 ER %가 이 구간에 걸치면 안 됨 (G5),제안
+boundary.pr_percent,1-19,합성 PR %가 이 구간에 걸치면 안 됨 (G5),제안
+boundary.ki67_percent,15-25,합성 Ki-67 %가 이 구간에 있으면 안 됨 (G5),제안
+v3.max_diff_pp,5,V3 분포 비교 범주 비율 차이 상한 (%p),제안
+v3.mask_fraction,0.3,V3 가려 놓고 다시 만들기에서 가리는 비율,제안
+s05.test_fraction,0.2,S-05 임시 테스트 분할 비율 (TSS 묶음),제안
