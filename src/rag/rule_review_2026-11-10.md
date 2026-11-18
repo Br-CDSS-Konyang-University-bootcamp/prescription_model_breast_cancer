@@ -37,8 +37,7 @@ A가 짚은 과적합("28개 정답에 맞추는 규칙") 걱정이 C 규칙에�
 | 선행 결정에 수술 뒤 권고 (`POST_SURGERY_ONLY`) | VC-0121·0124 | 5 / 0 | ⚠ → 넓힘 | HR+ 장 다섯 문장만 골라, HER2 양성·TNBC 선행 결정의 잔존암 권고(T-DM1 ae367a, capecitabine cd090b, olaparib 83cc1d)가 남았다. 잔존 표현(`RESIDUAL`)도 넣음 |
 | ~~de novo면 'DFI ≥12개월' (`DFI_REQUIRED`)~~ | VC-0114 | 2 / 0 | ❗ → **뺌** | DFI 조건은 재발 환자를 거르는 말이다. de novo 환자는 해당되는데, PD-L1 양성 atezolizumab(6280b3)까지 깎았다 |
 | ~~'beyond third-line'을 고식 항암 뒤 갈래로~~ | VC-0113·0125 | 1 / 0 | ❗ → **뺌** | '3차를 넘어'는 차수 수이지 고식 항암 여부가 아니다. 정답 파일의 ae383b 오답 표시에 맞춘 규칙이었다 |
-
-| (2026-11-18 추가) 반대쪽 Luminal 경로·권고 (`_luminal_adjust`) | VC-0121, B #158·#160 | 4 / 6 | ✅ | 멈춘 뒤 첫 추가. §5 기준 통과: ESMO 원문 표현(Luminal A-like / B-like), 조기 HR+ 사례 여러 건(VC-0106·0107·0119·0121 등), 정답을 깎지 않음 (`test_luminal_rule`). B 확정값 `molecular_subtype`이 없으면 작동하지 않는다 |
+| (2026-11-18 추가) 반대쪽 Luminal 경로·권고 (`_luminal_adjust`) | VC-0121, B #158·#160 | 2 / 7 | ✅ | 멈춘 뒤 첫 추가. §5 기준 통과: ESMO 원문 표현(Luminal A-like / B-like), 조기 HR+ 사례 여러 건(VC-0106·0107·0119·0121 등), 정답을 깎지 않음 (`test_luminal_rule`). B 확정값 `molecular_subtype`이 없으면 작동하지 않는다 |
 
 ## 3. 추가 검색과 질의 (`query.py`, `retrieve.py`)
 
