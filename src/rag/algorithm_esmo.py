@@ -748,6 +748,8 @@ def process_all(pdf_dir: Path = GUIDELINES_DIR, show=None) -> list[dict]:
             if c["chunk_id"].startswith(f"esmo-{slug}-") and f"-fig{number}-" in c["chunk_id"]:
                 print(f"\n{c['chunk_id']} {c['subtype']} {c['line']}\n  {c['text']}")
         return all_chunks
+    from .chunk_role import apply_roles
+    apply_roles(all_chunks)  # 청크 역할 (검토표 esmo_chunk_roles.csv의 사람 값 우선)
     OUTPUT_JSON.write_text(json.dumps(all_chunks, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     write_review_sheet(all_chunks)
     n_paths = sum(1 for c in all_chunks if c.get("parent_id"))

@@ -122,8 +122,8 @@ def find_class_drugs(text: str) -> list[str]:
     return found
 
 
-def find_drugs(text: str) -> list[str]:
-    """본문의 약 이름 (일반명). 적힌 약 이름 다음에, 계열 이름으로만 적힌 약을 풀어 덧붙인다 (find_class_drugs)."""
+def explicit_drugs(text: str) -> list[str]:
+    """본문에 이름으로 적힌 약 (일반명). 계열 이름을 푼 약은 넣지 않는다 (청크 역할 판정, chunk_role)."""
     global _DRUG_NAMES
     if _DRUG_NAMES is None:
         _DRUG_NAMES = _load_drug_names()
@@ -136,6 +136,12 @@ def find_drugs(text: str) -> list[str]:
             if generic not in found:
                 found.append(generic)
             remaining = re.sub(pattern, " ", remaining)
+    return found
+
+
+def find_drugs(text: str) -> list[str]:
+    """본문의 약 이름 (일반명). 적힌 약 이름 다음에, 계열 이름으로만 적힌 약을 풀어 덧붙인다 (find_class_drugs)."""
+    found = explicit_drugs(text)
     return found + [d for d in find_class_drugs(text) if d not in found]
 
 

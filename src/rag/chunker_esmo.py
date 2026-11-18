@@ -289,6 +289,8 @@ def process_all_esmo() -> list[dict]:
     for stem in DOCS:
         all_chunks.extend(parse_esmo_chunks(esmo_md_dir / f"{stem}.md"))
 
+    from .chunk_role import apply_roles
+    apply_roles(all_chunks)  # 청크 역할 (검토표 esmo_chunk_roles.csv의 사람 값 우선)
     output_json = CHUNKS_DIR / "esmo_chunks.json"
     output_json.parent.mkdir(parents=True, exist_ok=True)
     output_json.write_text(json.dumps(all_chunks, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
