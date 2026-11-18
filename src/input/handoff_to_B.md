@@ -477,9 +477,9 @@ PROJECT.md §5 판정 기준표에 반영했다 (2026-10-15). 위에서부터 �
 | `stage.disease_extent = metastatic` 또는 `recurrence.status = distant` | `metastatic` |
 | 그 밖 (재발 없음, 국소 재발, 부위 모름, 재발 여부 모름) | `stage.disease_extent` 그대로 |
 
-### 6.2 차수 (`treatment_history[].line`, `endocrine_line`, `chemo_line`) [draft6]
+### 6.2 차수 (`treatment_history[].endocrine_line`, `chemo_line`) [draft6]
 
-A가 변환할 때 계산해 투약마다 넣는다 (`src/input/script/rules.py`의 `palliative_lines`, 2026-10-16). 전이 전 투약·보조약·골 보호제·시작일 없는 투약은 `null`. B는 이 값으로 `setting.line`을 채운다. 규칙:
+A가 변환할 때 계산해 투약마다 넣는다 (`src/input/script/rules.py`의 `palliative_lines`, 2026-10-16). 전이 전 투약·보조약·골 보호제·시작일 없는 투약은 `null`. B는 이 값으로 `setting.line_endocrine`·`line_chemo`와 `setting.line`(주 차수)을 채운다. 전이 후 전체 차수 `line`은 2026-11-18 삭제했다 (4명 확인, `proposal_remove_overall_line_2026-11-06.md`). 아래 규칙의 '차수'는 진행이면 다음으로 넘어가는 차수 묶음이고, 저장하는 값은 묶음 안에서 종류별로 센 내분비·항암 차수다. 규칙:
 
 1. `treatment_history`를 `start_day` 순으로 정렬한다 (`start_day` null은 순서를 알 수 없음).
 2. `start_day ≥ recurrence.metastasis_day`인 기록이 전이 이후 요법이다. 그 전은 선행·보조요법이다.

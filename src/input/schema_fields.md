@@ -244,7 +244,7 @@ TNM·병기군 표기 규칙 [A 결정]:
 | `ongoing` [draft7 후보] | 기준일에 투약 중인지. `end_day` null만으로는 "투약 중"과 "종료 기록 없음"을 가를 수 없어 둔다 | `true` / `false` / `null`(모름) | 사전 | `현재 키스칼리·페마라 복용 중` → `true` (`end_day`는 `null`) |
 | `stop_reason` | 중단 사유 | `progression` / `toxicity` / `completed` / `planned_switch` / `maintenance` / `other` | 사전 | `PD로 중단` → `"progression"` |
 | `best_response` | 최선 반응 | `CR` / `PR` / `SD` / `PD` / `unknown` | 사전 | `완전관해` → `"CR"` |
-| `line`, `endocrine_line`, `chemo_line` [draft6] | 전이 후 전체 차수, 고식적 내분비 차수, 고식적 항암 차수 (간주 규칙 없음) | 정수 또는 `null` | 계산 (`rules.py`) | 전이 후 letrozole → paclitaxel → `1/1/null`, `2/null/1` |
+| `endocrine_line`, `chemo_line` [draft6] | 고식적 내분비 차수, 고식적 항암 차수 (간주 규칙 없음). 전이 후 전체 차수 `line`은 2026-11-18 삭제 | 정수 또는 `null` | 계산 (`rules.py`) | 전이 후 letrozole → paclitaxel → `1/null`, `null/1` |
 | `source` | 원문 근거 | 공통 틀과 같음 | — | `{"doc_id":"D3","quote":"AI + palbociclib, PD"}` |
 
 ## 9. 선행요법 반응, 재발, 기준일 값, 영상 소견, 유전자 보고서
