@@ -344,11 +344,21 @@ def _row(cid, drugs, subtype=("any",)):
 
 def test_broad_et_by_menopause_and_risk():
     """ET는 폐경 상태·고위험으로 요법을 고른다. 약이 정확히 같은 행만 써서, abemaciclib 병용 행으로 판정하지 않는다."""
-    rows = [_row("adj-tam-abe", ["tamoxifen", "abemaciclib"])]
-    cands, _ = _broad("Endocrine Therapy (ET)", rows)
+    combo = _row("cdk-tam-abe", ["tamoxifen", "abemaciclib"])                              # 병용 행: 단독과 맞추지 않음
+    combo["reimbursement"]["stage"] = "combination"
+    combo["reimbursement"]["combination"] = {"added_drug": ["abemaciclib"]}
+    cands, _ = _broad("Endocrine Therapy (ET)", [combo])
     drugs = {tuple(sorted(c["drugs"])) for c in cands}
     assert ("tamoxifen",) in drugs and ("goserelin", "leuprolide", "tamoxifen") in drugs   # 폐경 전 고위험: OFS 포함
-    assert all(c["reimbursement_basis"] == "no_matching_row" for c in cands)               # 병용 행으로 맞추지 않음
+    assert all(c["reimbursement_basis"] == "no_matching_row" for c in cands)
+    # 보조 내분비 행은 요법이 tamoxifen 단독이고 abemaciclib은 각주(병용 시 본인부담)로 붙은 약이다 (공고 인쇄 p.51~52)
+    adj = _row("adj-tam", ["tamoxifen", "abemaciclib"])
+    adj["reimbursement"]["stage"] = "adjuvant"
+    adj["reimbursement"]["combination"] = {"added_drug": ["abemaciclib"], "base_regimen": ["tamoxifen"]}
+    cands, _ = _broad("ET", [adj])
+    tam = next(c for c in cands if c["drugs"] == ["tamoxifen"])
+    assert tam["reimbursement_citations"] == ["adj-tam"] and tam["reimbursement_basis"] == "conditions_unverified"
+    rows = [combo]
     cands, _ = _broad("ET", rows, high_risk="no")
     assert {tuple(sorted(c["drugs"])) for c in cands} == {("tamoxifen",)}                    # 저위험이면 OFS 빼기
     cands, _ = _broad("ET", rows, menopausal="postmenopausal")

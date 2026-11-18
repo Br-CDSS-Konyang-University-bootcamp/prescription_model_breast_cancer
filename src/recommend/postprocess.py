@@ -215,6 +215,21 @@ def _added_drugs(chunk):
     return [d.lower() for d in combo.get("added_drug") or []], combo.get("added_drug_coverage")
 
 
+def _base_match(option, chunk):
+    """병용 행(40장)이 아닌 급여 행에서, 각주로 붙은 추가 약제를 뺀 요법(base_regimen)과 후보 약이 똑같은가.
+    보조 내분비 행(공고 인쇄 p.51~52)은 요법이 'anastrozole' 단독인데, 각주(주2) 'abemaciclib과 병용 시 본인부담'
+    때문에 D 청크 drugs에 abemaciclib이 함께 들어 있다. 그래도 그 행은 단독 요법의 급여 행이다 (2026-11-18 원문 확인)."""
+    if (chunk.get("reimbursement") or {}).get("stage") == "combination":
+        return False
+    added = set(_added_drugs(chunk)[0])
+    base = {d.lower() for d in chunk.get("drugs") or []} - added
+    if not added or not base:
+        return False
+    groups = _groups(option)
+    union = {d for g in groups for d in g}
+    return bool(groups) and all(base & set(g) for g in groups) and base <= union
+
+
 def _has_condition_field(chunk, field):
     """급여 행의 투여 조건에 그 칸(field) 항목이 있는지 (all_of, stage_rules, any_of 묶음, any_of_exceptions, unless)."""
     cond = (chunk.get("reimbursement") or {}).get("conditions") or {}
@@ -536,7 +551,7 @@ def _classify_class(option, reimb_by_id, today, conditions_checker, exact_only=F
         # 골 보호제(보조 약물)는 뼈 전이 골 보호 목적의 행만 쓴다. 그런 행은 조건에 bone_metastasis 항목이 있다
         # (supp-zoledronic-b, supp-denosumab-1). 고칼슘혈증 행(supp-zoledronic-a)에는 없다 (D 확인 2026-11-05, B-7)
         current = [c for c in current if _has_condition_field(c, "bone_metastasis")]
-    exact = [c for c in current if _drugs_match(option, c, exact=True)]
+    exact = [c for c in current if _drugs_match(option, c, exact=True) or _base_match(option, c)]
     pool = exact if exact_only else (exact or [c for c in current if _drugs_match(option, c)])
     matched = [c for c in valid if c in pool]
     if len(matched) < len(valid):
