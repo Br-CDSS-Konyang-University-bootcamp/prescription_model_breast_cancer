@@ -850,28 +850,28 @@ def _line_label(n):
     return {1: "1L", 2: "2L"}.get(n, ">=3L")
 
 
-def line_of(fields, disease):
+LINE_LABELS = ("1L", "2L", ">=3L")
+
+
+def line_of(fields, disease, subtype=None):
     """setting.line (전달 문서 6.2절, draft6). 이번에 결정할 차수 (handoff_confirmed_state_to_B.md §6 1번, A 제안·B 찬성).
-    차수는 A가 treatment_history[].line에 계산해 넘긴다.
-    전이성: 마지막 고식적 요법의 차수. 그 요법이 진행(PD, progression)으로 끝났으면 다음 차수를 추천 대상으로 본다
-    (전달 문서 8.2절 예시: 1차 letrozole + palbociclib 진행 -> 2L). 전이 후 투약이 없으면 1L (이번이 첫 고식적 치료).
+    전이성: 고식적 내분비·항암 차수(line_kind_of) 중 이번 결정의 주 차수. C decision_lines와 같은 규칙이다:
+    HR+/HER2-이고 내분비 차수가 있으면 내분비 차수, 그 밖은 항암 차수 (없으면 내분비 차수).
+    전체 차수 treatment_history[].line은 쓰지 않는다 (src/input/proposal_remove_overall_line_2026-11-06.md, 2026-11-18 삭제).
     전이성이 아니면 마지막 선행·보조 투약에 A가 적은 setting (neoadjuvant / adjuvant)을 그대로 쓴다."""
     history = [t for t in fields.get("treatment_history") or [] if t.get("drugs")]
     if disease == "metastatic":
-        lined = [t for t in history if t.get("line")]
-        if not lined:
-            if any(t.get("setting") == "palliative" for t in history):
-                return "unknown", "전이 후 투약은 있지만 차수 정보(line)가 없음"
-            return "1L", "전이 후 고식적 투약 없음 -> 이번에 결정할 차수 1차"
-        last = max(t["line"] for t in lined)
-        regimen = [t for t in lined if t["line"] == last]
-        drugs = " + ".join(sorted({d for t in regimen for d in t["drugs"]}))
-        sub = regimen[-1]
-        kind = (f", 내분비 {sub['endocrine_line']}차" if sub.get("endocrine_line") else "") + \
-               (f", 항암 {sub['chemo_line']}차" if sub.get("chemo_line") else "")
-        if any(_progressed(t) for t in regimen):
-            return _line_label(last + 1), f"마지막 고식적 요법 {last}차({drugs}{kind})에서 진행 -> {last + 1}차 대상"
-        return _line_label(last), f"마지막 고식적 요법 {last}차({drugs}{kind}), 진행 기록 없음"
+        endo = line_kind_of(fields, "endocrine", subtype)[0]
+        chemo = line_kind_of(fields, "chemo", subtype)[0]
+        endo = endo if endo in LINE_LABELS else None
+        chemo = chemo if chemo in LINE_LABELS else None
+        if subtype == "HR+/HER2-" and endo:
+            return endo, f"전이성 HR+/HER2-: 내분비 차수 {endo}를 주 차수로"
+        if chemo:
+            return chemo, f"전이성 {subtype or '아형 모름'}: 항암 차수 {chemo}를 주 차수로"
+        if endo:
+            return endo, f"전이성 {subtype or '아형 모름'}: 항암 차수를 몰라 내분비 차수 {endo}를 주 차수로"
+        return "unknown", "전이 후 투약은 있지만 내분비·항암 차수가 없음"
     # 보조약·골 보호제는 차수를 정하지 않는다 (전달 문서 6.2절 규칙 3)
     classes = _drug_class_map()
     timed = [t for t in history if t.get("setting") in ("neoadjuvant", "adjuvant")
@@ -897,15 +897,15 @@ def line_kind_of(fields, kind, subtype=None):
     """전이성의 setting.line_endocrine / line_chemo: 이번에 결정할 고식적 내분비·항암 차수 (A 전달 문서
     handoff_confirmed_state_to_B.md §6 2번, 2026-10-21. 화면 1 기본값). 공고 p.55처럼 두 종류를 따로 센다.
     그 종류의 고식적 요법이 없으면 1L, 마지막 차수에서 진행했으면 다음 차수, 진행 기록이 없으면 그 차수.
-    전이 후 투약은 있는데 A가 차수를 하나도 넣지 않았으면 unknown. HR 음성은 내분비 not_applicable.
+    전이 후 투약은 있는데 A가 내분비·항암 차수를 하나도 넣지 않았으면 unknown. HR 음성은 내분비 not_applicable.
     간주 규칙(deemed_lines)은 넣지 않는다 (급여 판정에서 행마다 +1, 전달 문서 6.3a절)."""
     key, name = LINE_KIND[kind]
     if kind == "endocrine" and subtype in HR_NEGATIVE_SUBTYPES:
         return "not_applicable", f"{subtype}라 내분비요법 대상 아님"
     history = [t for t in fields.get("treatment_history") or [] if t.get("drugs")]
     metastatic = [t for t in history if t.get("setting") == "palliative"]
-    if metastatic and not any(t.get("line") for t in metastatic):
-        return "unknown", "전이 후 투약은 있지만 차수 정보(line)가 없음"
+    if metastatic and not any(t.get("endocrine_line") or t.get("chemo_line") for t in metastatic):
+        return "unknown", "전이 후 투약은 있지만 차수 정보(endocrine_line·chemo_line)가 없음"
     rows = [t for t in history if t.get(key)]
     if not rows:
         return "1L", f"고식적 {name}요법 이력 없음 -> {name} 1차"
@@ -960,7 +960,7 @@ def setting_of(fields, subtype=None, index_day=None):
     classes = _drug_class_map()
     prior = sorted({classes.get(d, "Unknown") for t in fields.get("treatment_history") or [] for d in t["drugs"]}
                    - NON_ANTICANCER_CLASSES)
-    line, line_why = line_of(fields, disease)
+    line, line_why = line_of(fields, disease, subtype)
     deemed = [d["rule_id"] for d in fields.get("deemed_lines") or [] if d.get("status") == "met"]
     if deemed:
         line_why += f" / 심평원 차수 간주 규칙 충족: {', '.join(deemed)} (급여 판정에서 차수 +1, 전달 문서 6.3a절)"

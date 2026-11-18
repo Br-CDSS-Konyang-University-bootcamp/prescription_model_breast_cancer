@@ -384,7 +384,6 @@
             "basis": "estimated"
           }
         ],
-        "line": 1,
         "endocrine_line": null,
         "chemo_line": 1
       },
@@ -414,7 +413,6 @@
           "char_start": 1608,
           "char_end": 1672
         },
-        "line": 1,
         "endocrine_line": null,
         "chemo_line": 1
       }

@@ -1,6 +1,6 @@
 # 제안: 전이 후 전체 차수 `line` 삭제
 
-> 작성: 담당 A · 2026-11-06 · 상태: **제안 (4명 검토 필요: 공용 스키마, B·C 코드)**
+> 작성: 담당 A · 2026-11-06 · 상태: **반영 (4명 확인, 2026-11-18)**. A 계산 삭제와 B `line_of`·`line_kind_of`·추천 프롬프트 변경을 한 PR로 냈다. C·D 코드는 바꾸지 않았다 (`treatment_history[].line`을 읽지 않음)
 > 관련: [line_rules.md](line_rules.md) §1·§3·결정 4, [handoff_to_B.md](handoff_to_B.md) §6.2, [handoff_confirmed_state_to_B.md](handoff_confirmed_state_to_B.md) §6 1·2번
 
 ## 1. 제안

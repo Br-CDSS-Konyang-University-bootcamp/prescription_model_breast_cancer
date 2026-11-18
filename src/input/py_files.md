@@ -74,7 +74,7 @@ from src.input.script.rules import Vocab, annotate, load_drug_table
 | 절 | 시작 줄 | 역할 | 작업 내용 | 쓰는 곳 | 테스트 |
 |---|---|---|---|---|---|
 | `vocab` | 19 | 표준값 사전 | `data/dictionaries/field_vocab.csv`를 읽어 "양성"·"Positive" 같은 표현을 표준값 하나로 바꾼다. 공백·대소문자는 무시하고, 한 표현이 두 값에 대응하면 멈춘다 | `pipeline.py` (normalize) | `test_vocab.py` |
-| `lines` | 73 | 치료 상황 규칙 | 전이 후 차수(`line`, 고식적 내분비 `endocrine_line`, 고식적 항암 `chemo_line`), 심평원 차수 간주 규칙(`deemed_lines`), 판정 기준일 값(`at_index`: 기준일 나이, 최근 4주 투약)을 계산한다. `annotate()`가 셋을 한 번에 채운다 | `pipeline.py` (assemble), `virtual/` | `test_lines.py` |
+| `lines` | 73 | 치료 상황 규칙 | 전이 후 차수(고식적 내분비 `endocrine_line`, 고식적 항암 `chemo_line`. 전체 차수 `line`은 2026-11-18 삭제), 심평원 차수 간주 규칙(`deemed_lines`), 판정 기준일 값(`at_index`: 기준일 나이, 최근 4주 투약)을 계산한다. `annotate()`가 셋을 한 번에 채운다 | `pipeline.py` (assemble), `virtual/` | `test_lines.py` |
 
 ## 4. `virtual/`: 가상 차트
 
