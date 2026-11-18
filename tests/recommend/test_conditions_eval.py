@@ -30,10 +30,10 @@ def patient(**fields):
             "recurrence": {"status": present("distant"), "recurrence_day": present(900), "metastasis_day": present(900),
                            "metastatic_sites": present(["bone"])},
             "treatment_history": [
-                {"drugs": ["letrozole"], "setting": "adjuvant", "start_day": 100, "end_day": 700, "line": None,
+                {"drugs": ["letrozole"], "setting": "adjuvant", "start_day": 100, "end_day": 700,
                  "endocrine_line": None, "chemo_line": None, "stop_reason": None, "best_response": "unknown"},
                 {"drugs": ["letrozole", "palbociclib"], "setting": "palliative", "start_day": 920, "end_day": 1300,
-                 "line": 1, "endocrine_line": 1, "chemo_line": None, "stop_reason": "progression", "best_response": "PD"}]}
+                 "endocrine_line": 1, "chemo_line": None, "stop_reason": "progression", "best_response": "PD"}]}
     base.update(fields)
     return {"fields": base, "index_day": 1400}
 
@@ -138,7 +138,7 @@ def test_endocrine_adjuvant_relapse_counts_as_first_line():
     """VC-0103: 보조 anastrozole 중 전이 (전이 후 투약 없음). 공고에 보조요법 1년 이내 진행을 인정하는 문구가 있는 행에만
     D가 counts_as_prior_line + rule_id: DEEM-ENDO-ADJ-1Y를 넣는다 (A 기대값: fulvestrant + CDK4/6 급여, D 확인 2026-10-22).
     문구 없는 내분비 "2차 이상" 행에는 적용하지 않는다."""
-    adj = {"drugs": ["anastrozole"], "setting": "adjuvant", "start_day": 40, "end_day": 765, "line": None,
+    adj = {"drugs": ["anastrozole"], "setting": "adjuvant", "start_day": 40, "end_day": 765,
            "endocrine_line": None, "chemo_line": None, "stop_reason": "progression", "best_response": "PD"}
     def vc(status):
         return patient(recurrence={"status": present("distant"), "recurrence_day": present(760),
@@ -263,7 +263,7 @@ def test_cumulative_dose_mg_to_mg_m2():
     """누적 용량 (D FIELDS 2026-10-29): doses[]의 total을 더하고, mg이면 Mosteller 체표면적으로 나눈다."""
     def with_doses(total, unit="mg", height=158, weight=58):
         ps = patient(treatment_history=[{"drugs": ["doxorubicin", "cyclophosphamide"], "setting": "adjuvant",
-                                         "start_day": 100, "end_day": 160, "line": None,
+                                         "start_day": 100, "end_day": 160,
                                          "doses": [{"drug": "doxorubicin", "per_admin": {"value": 96, "unit": unit},
                                                     "total": total if total == "No value" else {"value": total, "unit": unit},
                                                     "basis": "estimated"}]}])
