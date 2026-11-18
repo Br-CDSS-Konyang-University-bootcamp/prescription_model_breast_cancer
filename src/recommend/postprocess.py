@@ -763,6 +763,10 @@ def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursemen
         if cands:
             _apply_candidates(o, cands)
             log.append(f"{name}: 좁은 계열을 약 조합 {len(cands)}개로 펼쳐 급여 판정 ({o['reimbursement_reason']})")
+            # 확인 띠의 "약을 정하지 못함" 문구는 조합을 고르라는 안내로 바꾼다 (화면 2에서 조합을 고른다)
+            old = f"{name}: {unresolved}" if unresolved else None
+            if old in rec["conflicts"]:
+                rec["conflicts"][rec["conflicts"].index(old)] = f"{name}: 계열 이름이라 약 조합 {len(cands)}개 중 하나를 고를 것"
         return True
 
     main, support = [], []

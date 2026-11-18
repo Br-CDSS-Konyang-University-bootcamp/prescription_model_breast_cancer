@@ -82,6 +82,10 @@ header h1 { font-size: 15px; margin: 0; }
 .reimb.covered { background: var(--ok-bg); color: var(--ok); }
 .reimb.covered_conditions_unverified, .reimb.offlabel_approved { background: var(--warn-bg); color: var(--warn); }
 .reimb.no_criteria { background: var(--soft); color: var(--muted); }
+.reimb.notmet { color: var(--warn); }
+.cands { margin-top: 6px; font-size: 13px; }
+.cands .cand { padding: 3px 8px; border-left: 3px solid var(--soft); margin: 2px 0; }
+.cands .cand.sel { border-left-color: var(--ok); }
 .reimb small { display: block; color: inherit; opacity: .9; }
 .note { font-size: 12px; color: var(--warn); margin-top: 4px; }
 .extra { margin: 8px 12px; font-size: 13px; }
@@ -156,6 +160,13 @@ const REIMB = {
   covered: "급여 (조건 충족)", covered_conditions_unverified: "급여 (조건 확인 필요)",
   offlabel_approved: "허가초과 인정 · 다학제적위원회 협의 필요", no_criteria: "급여 기준 없음 (비급여 가능성, 확인 필요)",
 };
+// no_criteria는 근거(reimbursement_basis)로 나눠 보인다 (2026-11-17): 맞는 행 없음은 비급여 확정이 아니다
+const BASIS = {
+  conditions_not_met: "급여 조건 불충족", no_matching_row: "맞는 급여 행 없음 (이번 결정 단계 검색 기준, 비급여 확정 아님)",
+  drug_undetermined: "약 확인 필요 (계열 이름)",
+};
+const reimbLabel = (o) => (o.reimbursement === "no_criteria" && BASIS[o.reimbursement_basis]) || REIMB[o.reimbursement] || o.reimbursement;
+const reimbClass = (o) => `${o.reimbursement}${o.reimbursement_basis === "conditions_not_met" ? " notmet" : ""}`;
 const DEFER = [["pending_test", "검사 후 결정"], ["mdt", "다학제 회의"], ["patient_discussion", "환자 상의"], ["other", "기타"]];
 
 function vl(key, v) {
@@ -242,6 +253,16 @@ function withCites(text) {
   return esc(text).replace(/\[([A-Za-z0-9_.:\-]+)\]/g, (m, id) => REC.chunks[id] ? cite(id) : m);
 }
 
+// 계열 이름 안의 약 조합 후보 (B 후처리 candidates). 조합마다 급여 판정을 보이고, 아래 처방 선택에서 하나를 고른다
+function candList(o) {
+  const cands = o.candidates || [];
+  if (!cands.length) return "";
+  const picked = CHOICE && CHOICE.action === "accept_option" && CHOICE.index === o.index ? CHOICE.cand : undefined;
+  return `<div class="cands"><b>약 조합 ${cands.length}개</b> <span class="headinfo">계열 이름이라 아래 처방 선택에서 조합을 하나 고릅니다</span>${cands.map((c, k) =>
+    `<div class="cand ${picked === k ? "sel" : ""}">${esc(c.drugs.join(" + "))} · <span class="reimb ${esc(reimbClass(c))}">${esc(reimbLabel(c))}</span>
+      <small>${esc(c.reimbursement_reason)} ${(c.reimbursement_citations || []).map(cite).join("")}</small></div>`).join("")}</div>`;
+}
+
 function renderRecs() {
   const rec = REC.recommendation, opts = REC.ranked, shown = MORE ? opts : opts.slice(0, REC.shown);
   $("#recinfo").textContent = `${rec.model} · ${REC.seconds}초 · 정렬: 근거 수준 → 급여`;
@@ -262,8 +283,9 @@ function renderRecs() {
       <div class="top"><span class="no">${n + 1}안</span><span class="therapy">${esc(o.therapy)}</span>
         <span class="ev">${esc([o.guideline_source, o.evidence].filter(Boolean).join(" · "))}</span></div>
       <div class="why">${withCites(o.rationale)} ${(o.citations || []).map(cite).join("")}</div>
-      <div class="reimb ${esc(o.reimbursement)}">${esc(REIMB[o.reimbursement] || o.reimbursement)}${o.copay ? ` · 본인부담 ${esc(o.copay)}` : ""}
+      <div class="reimb ${esc(reimbClass(o))}">${esc(reimbLabel(o))}${o.copay ? ` · 본인부담 ${esc(o.copay)}` : ""}
         <small>${esc(o.reimbursement_reason)} ${(o.reimbursement_citations || []).map(cite).join("")}</small></div>
+      ${candList(o)}
       ${applies.map((x) => `<div class="note">⚠ ${esc(x.text)}</div>`).join("")}
     </div>`;
   }).join("");
@@ -272,7 +294,7 @@ function renderRecs() {
       <div class="top"><span class="no">보조</span><span class="therapy">${esc(o.therapy)}</span>
         <span class="ev">${esc([o.guideline_source, o.evidence].filter(Boolean).join(" · "))}</span></div>
       <div class="why">${withCites(o.rationale)} ${(o.citations || []).map(cite).join("")}</div>
-      <div class="reimb ${esc(o.reimbursement)}">${esc(REIMB[o.reimbursement] || o.reimbursement)}${o.copay ? ` · 본인부담 ${esc(o.copay)}` : ""}
+      <div class="reimb ${esc(reimbClass(o))}">${esc(reimbLabel(o))}${o.copay ? ` · 본인부담 ${esc(o.copay)}` : ""}
         <small>${esc(o.reimbursement_reason)} ${(o.reimbursement_citations || []).map(cite).join("")}</small></div></div>`).join("")}</div>`;
   if (opts.length > REC.shown) html += `<div class="sortnote"><button class="link" id="more">${MORE ? "접기" : `추천안 ${opts.length - REC.shown}개 더 보기`}</button></div>`;
   const general = notes.filter((x) => !(x.applies_to || []).length);
@@ -293,7 +315,8 @@ function renderChoices() {
   const opts = REC ? (MORE ? REC.ranked : REC.ranked.slice(0, REC.shown)) : [];
   const is = (a) => CHOICE && CHOICE.action === a;
   const custom = is("custom") ? CHOICE : {};
-  let html = opts.map((o, n) => `<div class="opt"><label><input type="radio" name="c" data-act="accept_option" data-index="${o.index}" ${is("accept_option") && CHOICE.index === o.index ? "checked" : ""}> ${n + 1}안</label> <span>${esc(o.therapy)}</span></div>`).join("");
+  let html = opts.map((o, n) => `<div class="opt"><label><input type="radio" name="c" data-act="accept_option" data-index="${o.index}" ${is("accept_option") && CHOICE.index === o.index ? "checked" : ""}> ${n + 1}안</label> <span>${esc(o.therapy)}</span></div>` +
+    (is("accept_option") && CHOICE.index === o.index ? (o.candidates || []).map((c, k) => `<div class="sub"><label><input type="radio" name="cand" data-cand="${k}" ${CHOICE.cand === k ? "checked" : ""}> ${esc(c.drugs.join(" + "))}</label> <span class="headinfo">${esc(reimbLabel(c))}</span></div>`).join("") : "")).join("");
   if (!REC) html += `<div class="opt"><span class="headinfo">추천이 끝나면 추천안이 여기에 나옵니다.</span></div>`;
   const cur = currentDrugs();
   if (cur.length) html += `<div class="opt"><label><input type="radio" name="c" data-act="continue_current" ${is("continue_current") ? "checked" : ""}> 현재 치료 유지</label> <span>${esc(cur.join(" + "))}</span></div>`;
@@ -309,13 +332,14 @@ function renderChoices() {
     ${is("defer") ? `<select id="defer"><option value="">(이유)</option>${DEFER.map(([v, t]) => `<option value="${v}" ${CHOICE.reason === v ? "selected" : ""}>${t}</option>`).join("")}</select>` : ""}</div>`;
   const supp = REC ? (REC.recommendation.supportive_options || []) : [];
   if (supp.length) html += `<div class="opt"><b>함께 처방할 보조 약물</b> <span class="headinfo">해당되면 체크 (여러 개 가능)</span></div>` +
-    supp.map((o, i) => `<div class="sub"><label><input type="checkbox" data-supp="${i}" ${SUPP.has(i) ? "checked" : ""}> ${esc(o.therapy)}</label> <span class="headinfo">${esc(REIMB[o.reimbursement] || o.reimbursement)}</span></div>`).join("");
+    supp.map((o, i) => `<div class="sub"><label><input type="checkbox" data-supp="${i}" ${SUPP.has(i) ? "checked" : ""}> ${esc(o.therapy)}</label> <span class="headinfo">${esc(reimbLabel(o))}</span></div>`).join("");
   html += `<datalist id="druglist">${D.drugs.map((d) => `<option value="${esc(d)}">`).join("")}</datalist>`;
   $("#choices").innerHTML = html;
   document.querySelectorAll('#choices input[name="c"]').forEach((el) => el.onchange = () => {
     CHOICE = el.dataset.act === "accept_option" ? { action: "accept_option", index: +el.dataset.index } : { action: el.dataset.act };
     renderChoices(); if (REC) renderRecs();
   });
+  document.querySelectorAll("#choices [data-cand]").forEach((el) => el.onchange = () => { CHOICE.cand = +el.dataset.cand; renderChoices(); renderRecs(); });
   document.querySelectorAll("#choices [data-supp]").forEach((el) => el.onchange = () => {
     const i = +el.dataset.supp; if (el.checked) SUPP.add(i); else SUPP.delete(i); renderChoices(); renderRecs();
   });
@@ -328,9 +352,10 @@ function renderChoices() {
     if ($("#line")) $("#line").onchange = (e) => { CHOICE.line = e.target.value; renderChoices(); };
   }
   if ($("#defer")) $("#defer").onchange = (e) => { CHOICE.reason = e.target.value; renderChoices(); };
-  const ok = CHOICE && (CHOICE.action === "accept_option" || CHOICE.action === "continue_current" || (CHOICE.action === "custom" && CUSTOM.length && CHOICE.setting) || (CHOICE.action === "defer" && CHOICE.reason));
+  const needCand = CHOICE && CHOICE.action === "accept_option" && REC && ((REC.recommendation.options[CHOICE.index] || {}).candidates || []).length;
+  const ok = CHOICE && ((CHOICE.action === "accept_option" && (!needCand || CHOICE.cand !== undefined)) || CHOICE.action === "continue_current" || (CHOICE.action === "custom" && CUSTOM.length && CHOICE.setting) || (CHOICE.action === "defer" && CHOICE.reason));
   $("#save").disabled = !ok;
-  $("#pickinfo").textContent = ok ? "" : "하나를 골라야 확인이 켜집니다";
+  $("#pickinfo").textContent = ok ? "" : (needCand ? "약 조합을 하나 고르세요" : "하나를 골라야 확인이 켜집니다");
 }
 
 async function save() {
@@ -338,7 +363,7 @@ async function save() {
   try { localStorage.setItem("screen1.by", by); } catch (e) {}
   const body = { case: Q.case, version: +Q.version, decided_by: by, action: CHOICE.action, memo: $("#memo").value,
     supportive_option_indexes: [...SUPP].sort((a, b) => a - b) };
-  if (CHOICE.action === "accept_option") body.selected_option_index = CHOICE.index;
+  if (CHOICE.action === "accept_option") Object.assign(body, { selected_option_index: CHOICE.index, selected_candidate_index: CHOICE.cand ?? null });
   if (CHOICE.action === "custom") Object.assign(body, { drugs: CUSTOM.filter((d) => !d.unlisted).map((d) => d.name),
     custom_unlisted_drugs: CUSTOM.filter((d) => d.unlisted).map((d) => d.name), setting: CHOICE.setting, line: CHOICE.line || null });
   if (CHOICE.action === "defer") body.defer_reason = CHOICE.reason;

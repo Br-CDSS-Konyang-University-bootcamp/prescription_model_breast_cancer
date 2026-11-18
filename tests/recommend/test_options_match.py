@@ -55,7 +55,9 @@ def test_class_name_therapy():
     assert any("계열 이름(ET)" in c for c in rec["conflicts"])
     rec, _ = run(option("AI—palbociclib", [], ["r-pal-let"]))
     o = rec["options"][0]
-    assert o["drugs"] == [] and any("계열 이름(AI)" in c for c in rec["conflicts"])   # AI는 펼치지 않음 (D 취소 11-04)
+    # AI는 약 목록으로 펼치지 않고 (D 취소 11-04), 조합 후보(candidates)로 판정한다 (2026-11-17). 확인 띠는 조합을 고르라는 안내
+    assert o["drugs"] == [] and o.get("candidates")
+    assert any("약 조합" in c and "고를 것" in c for c in rec["conflicts"])
     rec, _ = run(option("fulvestrant + palbociclib", [], []))
     assert rec["options"][0]["drugs"] == ["fulvestrant", "palbociclib"]  # 약 이름만 있으면 그대로 채움
 
