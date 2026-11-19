@@ -429,7 +429,6 @@
       "drugs": [
         {
           "drug": "doxorubicin",
-          "timeline_index": null,
           "combined_with": [
             "pembrolizumab",
             "cyclophosphamide"

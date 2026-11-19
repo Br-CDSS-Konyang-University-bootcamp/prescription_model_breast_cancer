@@ -842,7 +842,7 @@ def _anthracycline(q: str, ctx: Context) -> dict | None:
         dose = dose and {"value": _num(dose.group(1)), "unit": dose.group(2)}
         cycles = r["cycles"]
         total = dose and cycles and {"value": _num(str(dose["value"] * cycles["value"])), "unit": dose["unit"]}
-        return {"drug": g, "timeline_index": None, "combined_with": [x for x in drugs if x != g],
+        return {"drug": g, "combined_with": [x for x in drugs if x != g],
                 "dose_per_admin": dose, "cycles": cycles, "total_dose": total}
     return None
 

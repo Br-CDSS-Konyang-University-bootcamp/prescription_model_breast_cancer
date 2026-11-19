@@ -227,7 +227,7 @@ class Chart:
                 item["doses"] = doses
             history.append(item)
             for a in r["_anthra"]:
-                anthra.append({"drug": a["drug"], "timeline_index": None,
+                anthra.append({"drug": a["drug"],
                                "combined_with": [x for x in r["drugs"] if x != a["drug"]],
                                "dose_per_admin": a["dose_per_admin"], "cycles": a["cycles"],
                                "total_dose": a["total_dose"], "raw": sp.text, "source": src(d, sp)})

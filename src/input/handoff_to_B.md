@@ -130,7 +130,7 @@ patient_state.json
 │   ├── anthracycline_drug_dose
 │   │   ├── administered      positive / negative / No value
 │   │   └── drugs[]
-│   │       ├── drug, timeline_index, combined_with[]
+│   │       ├── drug, combined_with[]
 │   │       ├── dose_per_admin   {value, unit} 또는 "No value"
 │   │       ├── cycles           cycles 형식 또는 "No value"
 │   │       ├── total_dose       {value, unit} 또는 "No value"
@@ -172,7 +172,7 @@ patient_state.json
 | `source` | 원문 근거 `{doc_id, quote, char_start, char_end}` | B 출력의 `source_span`에 그대로 사용 |
 | `history[]` | 새 결과에 밀려난 이전 값. `superseded_reason`: `recurrence` / `newer_result` | 판정에는 쓰지 않고 "바뀜" 설명에 사용 |
 
-특수 표기: `not_assessed` 평가 안됨, `[Not Available]` 그 항목만 기록 없음, `[Not Applicable]` 해당 없음, `No value` anthracycline 용량 값 없음. 해당 없는 칸은 만들지 않는다.
+특수 표기: `not_assessed` 평가 안됨, `[Not Applicable]` 해당 없음, `No value` anthracycline 용량 값 없음. 해당 없는 칸은 만들지 않는다.
 
 ### 3.3 ER·PR (`receptors.er_percent`, `receptors.pr_percent`)
 
