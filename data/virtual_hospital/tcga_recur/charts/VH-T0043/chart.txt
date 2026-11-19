@@ -1,0 +1,62 @@
+<외래 경과기록>   2028.8.28   종양내과
+환자명: 김가상   등록번호: 00000043   F/53   주민번호: 710101-2******   연락처: 010-0000-0043
+병원: 가상대학교병원 종양내과   담당의: 이가상
+
+S) 고식 내분비 1차 치료 후 외래.
+   폐경: 폐경 후
+O) ECOG PS 0
+
+A) Rt. breast cancer, 2024.3.24 core bx로 진단, 2024.4.14 수술
+   2027.12.7 골 전이
+   보조 exemestane 2027.12.19 종료
+
+P) 고식 내분비 2차 치료 결정
+
+
+[병리결과보고서]
+환자명: 김가상   등록번호: 00000043   F/53
+접수일: 2024.4.14   보고일: 2024.4.20
+검체: 우측 유방 절제술 + 액와 림프절 수술
+
+진단
+  조직형: Infiltrating Lobular Carcinoma
+  조직학적 등급: I (Nottingham grade 1)
+  pTNM: pT1b N3a M0, stage IIIC (AJCC 6th)
+
+면역조직화학
+  ER 강양성 (Allred 8, 5+3)
+  PR 강양성 (Allred 6, 3+3)
+  HER2 (4B5): 0
+  HER2 FISH: not amplified
+  Ki-67: 5%
+
+판독의: 박가상
+
+
+[분자병리 검사 결과]
+환자명: 김가상   등록번호: 00000043   F/53
+검사기관: 가상유전체검사센터   보고일: 2024.5.4
+검체: 원발 종양 조직 (수술 검체)
+검사법: 전장 엑솜 염기서열 분석
+
+검출된 변이 (Clinically significant variants)
+  PIK3CA   c.1637A>G (p.Q546R)   VAF 22.6%
+
+검출되지 않음 (Not detected)
+  ESR1, AKT1, PTEN, BRCA1, BRCA2, PALB2
+
+* 분석 유전자: ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2
+
+
+[투약 기록]
+환자명: 김가상   등록번호: 00000043   F/53
+구분    요법                                              시작         종료         주기       반응   중단 사유
+보조    doxorubicin 63mg/m2 + cyclophosphamide   2024.6.17   2024.7.29   q2w #4   -   계획된 변경
+보조    paclitaxel   2024.8.12   2024.9.24   q2w #4   -   -
+보조    anastrozole   2024.10.31   2026.6.14   -   -   -
+보조    letrozole   2026.6.15   2026.9.13   -   CR   -
+보조    anastrozole   2026.9.14   2026.12.20   -   CR   -
+보조    exemestane   2026.12.21   2027.12.19   -   PD   진행
+보조    zoledronic acid   2027.5.26   2028.2.14   -   PD   진행
+고식    fulvestrant   2027.12.20   2028.7.3   -   PD   진행
+고식    denosumab   2028.2.17   현재 투약 중   -   -   -

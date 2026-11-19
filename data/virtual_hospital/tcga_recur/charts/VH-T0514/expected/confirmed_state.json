@@ -1,0 +1,503 @@
+{
+  "schema_version": "0.1-draft",
+  "patient_ref": "VH-T0514",
+  "version": 1,
+  "visit_type": "initial",
+  "decision_context": "metastatic",
+  "index_day": 196,
+  "confirmed_at": "2026-11-09T00:00:00+09:00",
+  "confirmed_by": "virtual-hospital",
+  "based_on": {
+    "patient_state_created_at": "2026-11-09T00:00:00+09:00",
+    "biomarker_record_version": "0.1-draft"
+  },
+  "supersedes": null,
+  "items": {
+    "setting.disease": {
+      "scope": "current",
+      "system": "metastatic",
+      "system_source": "biomarker_record",
+      "confirmed": "metastatic",
+      "status": "confirmed"
+    },
+    "subtype": {
+      "scope": "current",
+      "system": "HR+/HER2-",
+      "system_source": "biomarker_record",
+      "confirmed": "HR+/HER2-",
+      "status": "confirmed"
+    },
+    "setting.line_endocrine": {
+      "scope": "current",
+      "system": "1L",
+      "system_source": "biomarker_record",
+      "confirmed": "1L",
+      "status": "confirmed"
+    },
+    "setting.line_chemo": {
+      "scope": "current",
+      "system": "1L",
+      "system_source": "biomarker_record",
+      "confirmed": "1L",
+      "status": "confirmed"
+    },
+    "menopausal_status": {
+      "scope": "current",
+      "system": "postmenopausal",
+      "system_source": "patient_state",
+      "confirmed": "postmenopausal",
+      "status": "confirmed",
+      "detail": {
+        "basis": "not_recorded"
+      },
+      "evidence_refs": [
+        {
+          "doc_id": "D1",
+          "quote": "폐경 후",
+          "char_start": 156,
+          "char_end": 160
+        }
+      ]
+    },
+    "age_at_index": {
+      "scope": "current",
+      "system": 64,
+      "system_source": "patient_state",
+      "confirmed": 64,
+      "status": "confirmed"
+    },
+    "stage.t": {
+      "scope": "diagnosis",
+      "system": "T1c",
+      "system_source": "patient_state",
+      "confirmed": "T1c",
+      "status": "confirmed",
+      "detail": {
+        "basis": "p"
+      },
+      "evidence_refs": [
+        {
+          "doc_id": "D2",
+          "quote": "pT1c N0 M0, stage I (AJCC 6th)",
+          "char_start": 558,
+          "char_end": 588
+        }
+      ]
+    },
+    "stage.size_mm": {
+      "scope": "diagnosis",
+      "system": "not_recorded",
+      "system_source": "patient_state",
+      "confirmed": "not_recorded",
+      "status": "confirmed"
+    },
+    "stage.n": {
+      "scope": "diagnosis",
+      "system": "negative",
+      "system_source": "patient_state",
+      "confirmed": "negative",
+      "status": "confirmed",
+      "detail": {
+        "basis": "p"
+      },
+      "evidence_refs": [
+        {
+          "doc_id": "D2",
+          "quote": "pT1c N0 M0, stage I (AJCC 6th)",
+          "char_start": 558,
+          "char_end": 588
+        }
+      ]
+    },
+    "stage.positive_ln_count": {
+      "scope": "diagnosis",
+      "system": 0,
+      "system_source": "patient_state",
+      "confirmed": 0,
+      "status": "confirmed",
+      "evidence_refs": [
+        {
+          "doc_id": "D2",
+          "quote": "전이 0개 / 검사 1개",
+          "char_start": 536,
+          "char_end": 549
+        }
+      ]
+    },
+    "stage.group": {
+      "scope": "diagnosis",
+      "system": "I",
+      "system_source": "patient_state",
+      "confirmed": "I",
+      "status": "confirmed",
+      "evidence_refs": [
+        {
+          "doc_id": "D2",
+          "quote": "stage I",
+          "char_start": 570,
+          "char_end": 577
+        }
+      ]
+    },
+    "operable": {
+      "scope": "diagnosis",
+      "system": "yes",
+      "system_source": "patient_state",
+      "confirmed": "yes",
+      "status": "confirmed"
+    },
+    "grade": {
+      "scope": "diagnosis",
+      "system": 2,
+      "system_source": "patient_state",
+      "confirmed": 2,
+      "status": "confirmed"
+    },
+    "deemed_lines": {
+      "scope": "current",
+      "system": {
+        "DEEM-ANTHRA-TAXANE": "not_met",
+        "DEEM-SG-1Y": "met",
+        "DEEM-HER2ADC-6M": "not_met",
+        "DEEM-ENDO-ADJ-1Y": "met"
+      },
+      "system_source": "patient_state",
+      "confirmed": {
+        "DEEM-ANTHRA-TAXANE": "not_met",
+        "DEEM-SG-1Y": "met",
+        "DEEM-HER2ADC-6M": "not_met",
+        "DEEM-ENDO-ADJ-1Y": "met"
+      },
+      "status": "confirmed"
+    },
+    "endocrine_relapse_12m": {
+      "scope": "current",
+      "system": "yes",
+      "system_source": "patient_state",
+      "confirmed": "yes",
+      "status": "confirmed",
+      "note": "보조 내분비요법 anastrozole 종료 후 0일 뒤 전이 (기준 365일 이내)"
+    },
+    "recurrence_day": {
+      "scope": "current",
+      "system": 188,
+      "system_source": "patient_state",
+      "confirmed": 188,
+      "status": "confirmed",
+      "evidence_refs": [
+        {
+          "doc_id": "D1",
+          "quote": "2024.12.28 골·간 전이",
+          "char_start": 236,
+          "char_end": 253
+        }
+      ]
+    },
+    "metastasis_day": {
+      "scope": "current",
+      "system": 188,
+      "system_source": "patient_state",
+      "confirmed": 188,
+      "status": "confirmed"
+    },
+    "recurrence_type": {
+      "scope": "current",
+      "system": "distant",
+      "system_source": "patient_state",
+      "confirmed": "distant",
+      "status": "confirmed",
+      "evidence_refs": [
+        {
+          "doc_id": "D1",
+          "quote": "골·간 전이",
+          "char_start": 247,
+          "char_end": 253
+        }
+      ]
+    },
+    "metastatic_sites": {
+      "scope": "current",
+      "system": [
+        "bone",
+        "liver"
+      ],
+      "system_source": "patient_state",
+      "confirmed": [
+        "bone",
+        "liver"
+      ],
+      "status": "confirmed"
+    },
+    "prior_regimens": {
+      "scope": "current",
+      "system": [
+        {
+          "drugs": [
+            "anastrozole"
+          ],
+          "subclasses": [
+            "AI_nonsteroidal"
+          ],
+          "setting": "adjuvant",
+          "start_day": 110,
+          "end_day": 188,
+          "line_endocrine": null,
+          "line_chemo": null,
+          "response": "unknown",
+          "stop_reason": "progression",
+          "progression_day": 188,
+          "cycles": null,
+          "ongoing": null
+        }
+      ],
+      "system_source": "patient_state",
+      "confirmed": [
+        {
+          "drugs": [
+            "anastrozole"
+          ],
+          "subclasses": [
+            "AI_nonsteroidal"
+          ],
+          "setting": "adjuvant",
+          "start_day": 110,
+          "end_day": 188,
+          "line_endocrine": null,
+          "line_chemo": null,
+          "response": "unknown",
+          "stop_reason": "progression",
+          "progression_day": 188,
+          "cycles": null,
+          "ongoing": null
+        }
+      ],
+      "status": "confirmed"
+    },
+    "anthracycline_cumulative": {
+      "scope": "current",
+      "system": {},
+      "system_source": "patient_state",
+      "confirmed": {},
+      "status": "confirmed"
+    },
+    "recent_therapy_28d": {
+      "scope": "current",
+      "system": "yes",
+      "system_source": "patient_state",
+      "confirmed": "yes",
+      "status": "confirmed",
+      "note": "anastrozole 기준일 8일 전 종료"
+    },
+    "contraindicated_classes": {
+      "scope": "current",
+      "system": [],
+      "system_source": "derived",
+      "confirmed": [],
+      "status": "confirmed"
+    },
+    "markers": {
+      "ER": {
+        "scope": "current",
+        "system": "positive",
+        "system_source": "biomarker_record",
+        "confirmed": "positive",
+        "status": "confirmed",
+        "detail": {
+          "specimen": "primary",
+          "test_date": "2024-07-14",
+          "allred": {
+            "total": 8,
+            "ps": 5,
+            "is": 3
+          }
+        },
+        "evidence_refs": [
+          {
+            "doc_id": "D2",
+            "quote": "ER 강양성 (Allred 8, 5+3)",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      },
+      "PR": {
+        "scope": "current",
+        "system": "positive",
+        "system_source": "biomarker_record",
+        "confirmed": "positive",
+        "status": "confirmed",
+        "detail": {
+          "specimen": "primary",
+          "test_date": "2024-07-14",
+          "allred": {
+            "total": 8,
+            "ps": 5,
+            "is": 3
+          }
+        },
+        "evidence_refs": [
+          {
+            "doc_id": "D2",
+            "quote": "PR 강양성 (Allred 8, 5+3)",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      },
+      "HER2": {
+        "scope": "current",
+        "system": "low",
+        "system_source": "biomarker_record",
+        "confirmed": "low",
+        "status": "confirmed",
+        "detail": {
+          "specimen": "primary",
+          "test_date": "2024-07-14",
+          "ihc_score": "1+"
+        },
+        "evidence_refs": [
+          {
+            "doc_id": "D2",
+            "quote": "HER2 (4B5): 1+",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      },
+      "Ki-67": {
+        "scope": "diagnosis",
+        "system": "positive",
+        "system_source": "biomarker_record",
+        "confirmed": "positive",
+        "status": "confirmed",
+        "detail": {
+          "specimen": "primary",
+          "test_date": "2024-07-14",
+          "percent": 30.0
+        },
+        "evidence_refs": [
+          {
+            "doc_id": "D2",
+            "quote": "Ki-67: 30%",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      },
+      "ESR1": {
+        "scope": "current",
+        "system": "retest_needed",
+        "system_source": "biomarker_record",
+        "confirmed": "retest_needed",
+        "status": "confirmed",
+        "detail": {
+          "specimen": "primary"
+        },
+        "evidence_refs": [
+          {
+            "doc_id": "D3",
+            "quote": "ESR1, PIK3CA, AKT1, BRCA1, BRCA2, PALB2",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      },
+      "PIK3CA": {
+        "scope": "current",
+        "system": "negative",
+        "system_source": "biomarker_record",
+        "confirmed": "negative",
+        "status": "confirmed",
+        "detail": {
+          "specimen": "primary"
+        },
+        "evidence_refs": [
+          {
+            "doc_id": "D3",
+            "quote": "ESR1, PIK3CA, AKT1, BRCA1, BRCA2, PALB2",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      },
+      "AKT1": {
+        "scope": "current",
+        "system": "negative",
+        "system_source": "biomarker_record",
+        "confirmed": "negative",
+        "status": "confirmed",
+        "detail": {
+          "specimen": "primary"
+        },
+        "evidence_refs": [
+          {
+            "doc_id": "D3",
+            "quote": "ESR1, PIK3CA, AKT1, BRCA1, BRCA2, PALB2",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      },
+      "PTEN": {
+        "scope": "current",
+        "system": "positive",
+        "system_source": "biomarker_record",
+        "confirmed": "positive",
+        "status": "confirmed",
+        "detail": {
+          "specimen": "primary",
+          "variant": "p.D252Rfs*42",
+          "vaf": 0.331
+        },
+        "evidence_refs": [
+          {
+            "doc_id": "D3",
+            "quote": "PTEN   c.754_764del (p.D252Rfs*42)   VAF 33.1%",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      },
+      "PALB2": {
+        "scope": "current",
+        "system": "negative",
+        "system_source": "biomarker_record",
+        "confirmed": "negative",
+        "status": "confirmed",
+        "detail": {
+          "specimen": "primary"
+        },
+        "evidence_refs": [
+          {
+            "doc_id": "D3",
+            "quote": "ESR1, PIK3CA, AKT1, BRCA1, BRCA2, PALB2",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      },
+      "gBRCA": {
+        "scope": "current",
+        "system": "negative",
+        "system_source": "derived",
+        "confirmed": "negative",
+        "status": "confirmed",
+        "note": "gBRCA1 negative, gBRCA2 negative",
+        "evidence_refs": [
+          {
+            "doc_id": "D3",
+            "quote": "ESR1, PIK3CA, AKT1, BRCA1, BRCA2, PALB2",
+            "char_start": null,
+            "char_end": null
+          },
+          {
+            "doc_id": "D3",
+            "quote": "ESR1, PIK3CA, AKT1, BRCA1, BRCA2, PALB2",
+            "char_start": null,
+            "char_end": null
+          }
+        ]
+      }
+    }
+  }
+}

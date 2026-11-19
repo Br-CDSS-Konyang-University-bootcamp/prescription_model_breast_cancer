@@ -1,0 +1,5 @@
+vp_id,reason
+VH-T0083,"전이 부위를 차트로 쓸 수 없음: ['lung', 'other: Mediastinal and Supraclavicular Lymph Nodes', 'brain']"
+VH-T0102,"전이 부위를 차트로 쓸 수 없음: ['lung', 'bone', 'liver', 'brain', 'other: Skin Nodules']"
+VH-T0516,"전이 부위를 차트로 쓸 수 없음: ['other: Breast', 'bone', 'liver']"
+VH-T0637,"전이 부위를 차트로 쓸 수 없음: ['bone', 'liver', 'other: Intrathoracic Lymph Node', 'brain']"

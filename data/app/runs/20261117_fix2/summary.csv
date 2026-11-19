@@ -1,0 +1,4 @@
+﻿case,set,subtype,disease,decision,guideline_answer,retrieved,cited,top,wrong,supp_cited,options,supportive,conflicts,schema_errors,seconds,error
+VC-0119,test,HR+/HER2-,locally_advanced,adjuvant,reviewed,3/5,1/5,yes,,0/1,수술 후 보조요법: olaparib + ET [covered_conditions_unverified]; 수술 후 보조요법: abemaciclib + ET [covered_conditions_unverified]; 수술 후 보조요법: ET [covered_conditions_unverified],,3,0,28,
+VC-0121,test,HR+/HER2-,locally_advanced,neoadjuvant,reviewed,1/1,0/1,no,,,Adjuvant ChT followed by ET [covered_conditions_unverified]; Tamoxifen or OFS-tamoxifen or OFS-AI [no_criteria],,2,0,15,
+VC-0124,test,HR+/HER2-,early,neoadjuvant,reviewed,4/4,1/4,yes,,,Chemotherapy followed by Endocrine Therapy [covered_conditions_unverified]; Ovarian Suppression with OFS-tamoxifen [no_criteria],,1,0,16,

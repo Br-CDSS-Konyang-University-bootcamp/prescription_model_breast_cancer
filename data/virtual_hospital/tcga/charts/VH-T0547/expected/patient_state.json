@@ -1,0 +1,475 @@
+{
+  "schema_version": "0.1-draft6",
+  "patient_ref": "VH-T0547",
+  "created_at": "2026-11-09T00:00:00+09:00",
+  "index_day": 41,
+  "documents": [
+    {
+      "doc_id": "D1",
+      "doc_type": "progress_note",
+      "doc_date": "2022-03-15"
+    },
+    {
+      "doc_id": "D2",
+      "doc_type": "pathology",
+      "doc_date": "2022-03-01"
+    },
+    {
+      "doc_id": "D3",
+      "doc_type": "molecular",
+      "doc_date": "2022-03-15"
+    }
+  ],
+  "fields": {
+    "diagnosis": {
+      "diagnosis_date": {
+        "status": "present",
+        "value": "2022-02-02",
+        "raw": "2022.2.2",
+        "source": {
+          "doc_id": "D1",
+          "quote": "2022.2.2 core bx로 진단",
+          "char_start": 202,
+          "char_end": 222
+        }
+      },
+      "histology": {
+        "status": "present",
+        "value": "IDC",
+        "raw": "침윤성 유관암 (invasive ductal carcinoma, NST)",
+        "source": {
+          "doc_id": "D2",
+          "quote": "침윤성 유관암 (invasive ductal carcinoma, NST)",
+          "char_start": 378,
+          "char_end": 418
+        }
+      },
+      "grade": {
+        "status": "present",
+        "value": 1,
+        "raw": "I (Nottingham grade 1)",
+        "source": {
+          "doc_id": "D2",
+          "quote": "I (Nottingham grade 1)",
+          "char_start": 430,
+          "char_end": 452
+        }
+      }
+    },
+    "stage": {
+      "ctnm": {
+        "status": "not_recorded"
+      },
+      "ptnm": {
+        "status": "present",
+        "value": {
+          "t": "T1c",
+          "n": "N0",
+          "m": "M0",
+          "edition": "6th"
+        },
+        "raw": "pT1c N0 M0, stage I (AJCC 6th)",
+        "observed_date": "2022-02-23",
+        "source": {
+          "doc_id": "D2",
+          "quote": "pT1c N0 M0, stage I (AJCC 6th)",
+          "char_start": 516,
+          "char_end": 546
+        }
+      },
+      "group": {
+        "status": "present",
+        "value": "I",
+        "raw": "stage I",
+        "source": {
+          "doc_id": "D2",
+          "quote": "stage I",
+          "char_start": 528,
+          "char_end": 535
+        }
+      },
+      "positive_ln_count": {
+        "status": "present",
+        "value": {
+          "positive": 0,
+          "examined": 4
+        },
+        "raw": "전이 0개 / 검사 4개",
+        "source": {
+          "doc_id": "D2",
+          "quote": "전이 0개 / 검사 4개",
+          "char_start": 494,
+          "char_end": 507
+        }
+      },
+      "disease_extent": {
+        "status": "present",
+        "value": "early",
+        "raw": "stage I",
+        "source": {
+          "doc_id": "D2",
+          "quote": "stage I",
+          "char_start": 528,
+          "char_end": 535
+        }
+      },
+      "metastatic_sites": {
+        "status": "present",
+        "value": "[Not Applicable]",
+        "raw": "pT1c N0 M0",
+        "source": {
+          "doc_id": "D2",
+          "quote": "pT1c N0 M0",
+          "char_start": 516,
+          "char_end": 526
+        }
+      },
+      "operable": {
+        "status": "present",
+        "value": "yes",
+        "raw": "좌측 유방 절제술 + 액와 림프절 수술",
+        "source": {
+          "doc_id": "D2",
+          "quote": "좌측 유방 절제술 + 액와 림프절 수술",
+          "char_start": 345,
+          "char_end": 366
+        }
+      }
+    },
+    "receptors": {
+      "er_percent": {
+        "status": "present",
+        "value": {
+          "allred": {
+            "total": 8,
+            "ps": 5,
+            "is": 3
+          },
+          "result": "positive"
+        },
+        "raw": "ER 강양성 (Allred 8, 5+3)",
+        "specimen": "primary",
+        "observed_date": "2022-02-23",
+        "source": {
+          "doc_id": "D2",
+          "quote": "ER 강양성 (Allred 8, 5+3)",
+          "char_start": 557,
+          "char_end": 579
+        }
+      },
+      "pr_percent": {
+        "status": "present",
+        "value": {
+          "allred": {
+            "total": 6,
+            "ps": 4,
+            "is": 2
+          },
+          "result": "positive"
+        },
+        "raw": "PR 양성 (Allred 6, 4+2)",
+        "specimen": "primary",
+        "observed_date": "2022-02-23",
+        "source": {
+          "doc_id": "D2",
+          "quote": "PR 양성 (Allred 6, 4+2)",
+          "char_start": 582,
+          "char_end": 603
+        }
+      },
+      "her2_ihc": {
+        "status": "present",
+        "value": {
+          "score": "1+"
+        },
+        "raw": "HER2 (4B5): 1+",
+        "specimen": "primary",
+        "observed_date": "2022-02-23",
+        "source": {
+          "doc_id": "D2",
+          "quote": "HER2 (4B5): 1+",
+          "char_start": 606,
+          "char_end": 620
+        }
+      },
+      "her2_ish": {
+        "status": "not_done",
+        "raw": "시행하지 않음",
+        "source": {
+          "doc_id": "D2",
+          "quote": "HER2 ISH: 시행하지 않음",
+          "char_start": 623,
+          "char_end": 640
+        }
+      },
+      "pdl1": {
+        "status": "not_recorded"
+      }
+    },
+    "proliferation": {
+      "ki67_percent": {
+        "status": "present",
+        "value": {
+          "percent": 5
+        },
+        "raw": "Ki-67: 5%",
+        "specimen": "primary",
+        "observed_date": "2022-02-23",
+        "source": {
+          "doc_id": "D2",
+          "quote": "Ki-67: 5%",
+          "char_start": 643,
+          "char_end": 652
+        }
+      }
+    },
+    "patient": {
+      "gender": {
+        "status": "present",
+        "value": "FEMALE",
+        "raw": "F/74",
+        "source": {
+          "doc_id": "D2",
+          "quote": "F/74",
+          "char_start": 305,
+          "char_end": 309
+        }
+      },
+      "age": {
+        "status": "present",
+        "value": 74,
+        "raw": "F/74",
+        "source": {
+          "doc_id": "D2",
+          "quote": "F/74",
+          "char_start": 305,
+          "char_end": 309
+        }
+      },
+      "menopausal_status": {
+        "status": "present",
+        "value": "postmenopausal",
+        "raw": "폐경 후",
+        "source": {
+          "doc_id": "D1",
+          "quote": "폐경 후",
+          "char_start": 161,
+          "char_end": 165
+        }
+      },
+      "menopausal_basis": {
+        "status": "not_recorded"
+      },
+      "ecog": {
+        "status": "present",
+        "value": 0,
+        "raw": "ECOG PS 0",
+        "observed_date": "2022-03-15",
+        "source": {
+          "doc_id": "D1",
+          "quote": "ECOG PS 0",
+          "char_start": 169,
+          "char_end": 178
+        }
+      }
+    },
+    "treatment_history": [],
+    "anthracycline_drug_dose": {
+      "administered": "No value",
+      "drugs": []
+    },
+    "neoadjuvant_response": {
+      "pcr": {
+        "status": "not_recorded"
+      },
+      "rcb": {
+        "status": "not_recorded"
+      }
+    },
+    "recurrence": {
+      "recurrence_date": {
+        "status": "not_recorded"
+      },
+      "adjuvant_endocrine_end_date": {
+        "status": "not_recorded"
+      },
+      "status": {
+        "status": "present",
+        "value": "none",
+        "raw": "재발 소견 없음",
+        "source": {
+          "doc_id": "D1",
+          "quote": "재발 소견 없음",
+          "char_start": 240,
+          "char_end": 248
+        }
+      },
+      "metastatic_sites": {
+        "status": "not_recorded"
+      },
+      "metastasis_day": {
+        "status": "not_recorded"
+      },
+      "recurrence_day": {
+        "status": "not_recorded"
+      },
+      "surgery": {
+        "status": "not_recorded"
+      },
+      "surgery_intent": {
+        "status": "not_recorded"
+      }
+    },
+    "molecular": {
+      "mutations": {
+        "ESR1": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": {
+            "doc_id": "D3",
+            "quote": "ESR1, AKT1, PTEN, BRCA1, BRCA2, PALB2",
+            "char_start": 896,
+            "char_end": 933
+          }
+        },
+        "PIK3CA": {
+          "status": "present",
+          "result": "detected",
+          "variants": [
+            {
+              "protein_change": "H1047R",
+              "variant_type": "Missense_Mutation",
+              "vaf": 0.185,
+              "raw": "PIK3CA   c.3140A>G (p.H1047R)   VAF 18.5%"
+            }
+          ],
+          "specimen": "primary",
+          "source": {
+            "doc_id": "D3",
+            "quote": "PIK3CA   c.3140A>G (p.H1047R)   VAF 18.5%",
+            "char_start": 828,
+            "char_end": 869
+          }
+        },
+        "AKT1": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": {
+            "doc_id": "D3",
+            "quote": "ESR1, AKT1, PTEN, BRCA1, BRCA2, PALB2",
+            "char_start": 896,
+            "char_end": 933
+          }
+        },
+        "PTEN": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": {
+            "doc_id": "D3",
+            "quote": "ESR1, AKT1, PTEN, BRCA1, BRCA2, PALB2",
+            "char_start": 896,
+            "char_end": 933
+          }
+        },
+        "BRCA1": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": {
+            "doc_id": "D3",
+            "quote": "ESR1, AKT1, PTEN, BRCA1, BRCA2, PALB2",
+            "char_start": 896,
+            "char_end": 933
+          }
+        },
+        "BRCA2": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": {
+            "doc_id": "D3",
+            "quote": "ESR1, AKT1, PTEN, BRCA1, BRCA2, PALB2",
+            "char_start": 896,
+            "char_end": 933
+          }
+        },
+        "PALB2": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": {
+            "doc_id": "D3",
+            "quote": "ESR1, AKT1, PTEN, BRCA1, BRCA2, PALB2",
+            "char_start": 896,
+            "char_end": 933
+          }
+        }
+      }
+    },
+    "genomic_reports": [
+      {
+        "doc_id": "D3",
+        "report_date": "2022-03-15",
+        "specimen": "primary",
+        "raw_text": "[분자병리 검사 결과]\n환자명: 김가상   등록번호: 00000547   F/74\n검사기관: 가상유전체검사센터   보고일: 2022.3.15\n검체: 원발 종양 조직 (수술 검체)\n검사법: 전장 엑솜 염기서열 분석\n\n검출된 변이 (Clinically significant variants)\n  PIK3CA   c.3140A>G (p.H1047R)   VAF 18.5%\n\n검출되지 않음 (Not detected)\n  ESR1, AKT1, PTEN, BRCA1, BRCA2, PALB2\n\n* 분석 유전자: ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2"
+      }
+    ],
+    "deemed_lines": [
+      {
+        "rule_id": "DEEM-ANTHRA-TAXANE",
+        "category": "chemo",
+        "status": "not_applicable",
+        "basis": "전이 기준일 없음 (전이성 아님)",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "61-62"
+      },
+      {
+        "rule_id": "DEEM-SG-1Y",
+        "category": "chemo",
+        "status": "not_applicable",
+        "basis": "전이 기준일 없음 (전이성 아님)",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "63"
+      },
+      {
+        "rule_id": "DEEM-HER2ADC-6M",
+        "category": "chemo",
+        "status": "not_applicable",
+        "basis": "전이 기준일 없음 (전이성 아님)",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "62-63"
+      },
+      {
+        "rule_id": "DEEM-ENDO-ADJ-1Y",
+        "category": "endocrine",
+        "status": "not_applicable",
+        "basis": "전이 기준일 없음 (전이성 아님)",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "57"
+      }
+    ],
+    "at_index": {
+      "age": 74,
+      "recent_therapy_28d": {
+        "status": "no",
+        "basis": "기준일 이전 항암제·호르몬제 투약 없음",
+        "regimen_refs": [],
+        "gap_days": null
+      }
+    }
+  },
+  "conflicts": []
+}

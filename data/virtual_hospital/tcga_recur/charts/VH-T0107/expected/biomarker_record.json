@@ -1,0 +1,201 @@
+{
+  "schema_version": "0.1-draft",
+  "patient_ref": "VH-T0107",
+  "records": [
+    {
+      "marker": "ER",
+      "status": "positive",
+      "reason": "Allred 총점 8 (6~8, 양성)",
+      "rule_id": "BM2-ER-ALLRED-TOTAL",
+      "evidence": {
+        "specimen": "primary",
+        "test_date": "2024-01-30"
+      },
+      "source_span": {
+        "doc_id": "D2",
+        "quote": "ER 강양성 (Allred 8, 5+3)"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "PR",
+      "status": "negative",
+      "reason": "Allred 총점 0 (0~2, 음성)",
+      "rule_id": "BM2-PR-ALLRED-TOTAL",
+      "evidence": {
+        "specimen": "primary",
+        "test_date": "2024-01-30"
+      },
+      "source_span": {
+        "doc_id": "D2",
+        "quote": "PR 음성 (Allred 0, 0+0)"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "HER2",
+      "status": "positive",
+      "reason": "IHC 2+, ISH 증폭 -> 양성",
+      "rule_id": "BM2-HER2-2PLUS-AMP",
+      "evidence": {
+        "specimen": "primary",
+        "test_date": "2024-01-30"
+      },
+      "source_span": {
+        "doc_id": "D2",
+        "quote": "HER2 (4B5): 2+"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "Ki-67",
+      "status": "positive",
+      "reason": "Ki-67 50% (20% 이상, 고증식)",
+      "rule_id": "BM2-KI67-PERCENT",
+      "evidence": {
+        "specimen": "primary",
+        "test_date": "2024-01-30",
+        "percent": 50.0
+      },
+      "source_span": {
+        "doc_id": "D2",
+        "quote": "Ki-67: 50%"
+      },
+      "rag_tags": [
+        "Ki-67-high"
+      ]
+    },
+    {
+      "marker": "PD-L1",
+      "status": "not_recorded",
+      "reason": "PD-L1 기록 없음",
+      "rule_id": "BM2-PDL1-NOTRECORDED",
+      "evidence": {
+        "specimen": null
+      },
+      "source_span": {
+        "doc_id": "",
+        "quote": ""
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "ESR1",
+      "status": "retest_needed",
+      "reason": "원발 조직 결과(negative)이고 이후 내분비요법 진행이 있어 재검 필요 (cfDNA·재생검) / 원래 판정: ESR1 변이 없음",
+      "rule_id": "BM2-ESR1-RETEST",
+      "evidence": {
+        "specimen": "primary"
+      },
+      "source_span": {
+        "doc_id": "D3",
+        "quote": "ESR1, AKT1, PTEN, BRCA2, PALB2"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "PIK3CA",
+      "status": "positive",
+      "reason": "PIK3CA H1047R (Missense_Mutation, VAF 0.373) → 양성: alpelisib 허가 동반진단 변이 (FDA List of FDA-Authorized Companion Diagnostic Devices (alpelisib 행, 2026-10-22 확인)) / 근거: 허가 동반진단 목록: H1047R 해당; CIViC 근거 등급 C (Predictive Sensitivity/Response, HER2 Positive Breast Cancer, Fulvestrant,Everolimus, EID1623), 파일 civic_bm3_evidence_2026-10-19.csv, 판정에 쓰지 않음; 급여: 심평원 공고책자 2026-11-01판 p.167·170 (병용 연번 22 capivasertib, 23 alpelisib, 30 inavolisib; hira-booklet-20261101-combo-r22·r23·r30); 지침: ESMO MBC 2026 p.1205 (capivasertib)",
+      "rule_id": "BM2-PIK3CA-LABEL",
+      "evidence": {
+        "specimen": "primary",
+        "variant": "p.H1047R",
+        "vaf": 0.373
+      },
+      "source_span": {
+        "doc_id": "D3",
+        "quote": "PIK3CA   c.3140A>G (p.H1047R)   VAF 37.3%"
+      },
+      "rag_tags": [
+        "PIK3CA-mut"
+      ]
+    },
+    {
+      "marker": "AKT1",
+      "status": "negative",
+      "reason": "AKT1 변이 없음",
+      "rule_id": "BM2-AKT1-NOTDETECTED",
+      "evidence": {
+        "specimen": "primary"
+      },
+      "source_span": {
+        "doc_id": "D3",
+        "quote": "ESR1, AKT1, PTEN, BRCA2, PALB2"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "PTEN",
+      "status": "negative",
+      "reason": "PTEN 변이 없음",
+      "rule_id": "BM2-PTEN-NOTDETECTED",
+      "evidence": {
+        "specimen": "primary"
+      },
+      "source_span": {
+        "doc_id": "D3",
+        "quote": "ESR1, AKT1, PTEN, BRCA2, PALB2"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "gBRCA1",
+      "status": "positive",
+      "reason": "BRCA1 T688Vfs*12 (Frame_Shift_Del, 절단형, VAF 0.367) → 양성: 절단 변이 (기능 소실) / 근거: ClinVar 파일 없음 (data/script/clinvar_download.py 실행 필요); 급여: 심평원 공고책자 2026-11-01판 p.171–173 (병용 연번 31 olaparib; hira-booklet-20261101-combo-r31); 지침: ESMO EBC 2024 p.172–173, ESMO MBC 2026 p.1206·1212 (PARP 억제제)",
+      "rule_id": "BM2-BRCA1-TRUNC",
+      "evidence": {
+        "specimen": "primary",
+        "variant": "p.T688Vfs*12",
+        "vaf": 0.367
+      },
+      "source_span": {
+        "doc_id": "D3",
+        "quote": "BRCA1   c.2061_2064del (p.T688Vfs*12)   VAF 36.7%"
+      },
+      "rag_tags": [
+        "gBRCA"
+      ]
+    },
+    {
+      "marker": "gBRCA2",
+      "status": "negative",
+      "reason": "BRCA2 변이 없음",
+      "rule_id": "BM2-BRCA2-NOTDETECTED",
+      "evidence": {
+        "specimen": "primary"
+      },
+      "source_span": {
+        "doc_id": "D3",
+        "quote": "ESR1, AKT1, PTEN, BRCA2, PALB2"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "PALB2",
+      "status": "negative",
+      "reason": "PALB2 변이 없음",
+      "rule_id": "BM2-PALB2-NOTDETECTED",
+      "evidence": {
+        "specimen": "primary"
+      },
+      "source_span": {
+        "doc_id": "D3",
+        "quote": "ESR1, AKT1, PTEN, BRCA2, PALB2"
+      },
+      "rag_tags": []
+    }
+  ],
+  "subtype": "HR+/HER2+",
+  "setting": {
+    "disease": "metastatic",
+    "line": "1L",
+    "line_endocrine": "1L",
+    "line_chemo": "1L",
+    "prior_drug_classes": [
+      "Hormone Therapy"
+    ],
+    "reason": "진단 시 early, 이후 원격 전이 재발 / 전이성 HR+/HER2+: 항암 차수 1L를 주 차수로 / 심평원 차수 간주 규칙 충족: DEEM-SG-1Y, DEEM-ENDO-ADJ-1Y (급여 판정에서 차수 +1, 전달 문서 6.3a절) / 고식적 내분비요법 이력 없음 -> 내분비 1차 / 고식적 항암요법 이력 없음 -> 항암 1차"
+  },
+  "tests_needed": []
+}

@@ -1,0 +1,6 @@
+﻿case,set,subtype,disease,decision,guideline_answer,retrieved,cited,top,wrong,supp_cited,options,supportive,conflicts,schema_errors,seconds,error
+VC-0106,dev,HR+/HER2-,locally_advanced,adjuvant,reviewed,2/4,1/4,yes,,1/1,내분비요법 [no_criteria],"bisphosphonates 계열 (zoledronic acid, pamidronate, ibandronate, clodronate 중 하나) [no_criteria]",3,0,34,
+VC-0107,dev,HR+/HER2-,early,adjuvant,reviewed,3/3,2/3,yes,,0/1,수술 후 보조 화학요법 (ChT) + 내분비요법 (ET) [covered]; 내분비요법 (ET) (타목시펜 또는 AI) [no_criteria]; 내분비요법 (ET) (타목시펜 또는 AI) + 올라파리브 [no_criteria]; 내분비요법 (ET) (타목시펜 또는 AI) + 아베마시클리브 [no_criteria]; 내분비요법 (ET) (타목시펜 또는 AI) + LHRH agonist [no_criteria],,5,0,19,
+VC-0119,test,HR+/HER2-,locally_advanced,adjuvant,reviewed,3/5,1/5,yes,,0/1,수술 후 보조요법: olaparib + ET [no_criteria]; 수술 후 보조요법: abemaciclib + ET [no_criteria]; 수술 후 보조요법: ET [no_criteria],,3,0,16,
+VC-0121,test,HR+/HER2-,locally_advanced,neoadjuvant,reviewed,1/1,0/1,no,,,Adjuvant ChT followed by ET [covered]; Tamoxifen or OFS-tamoxifen or OFS-AI [no_criteria],,2,0,16,
+VC-0124,test,HR+/HER2-,early,neoadjuvant,reviewed,4/4,1/4,yes,,,Chemotherapy followed by Endocrine Therapy [covered]; Ovarian Suppression with OFS-tamoxifen [no_criteria],,1,0,17,
