@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.input.virtual_hospital.common import FINAL, LOCAL, MINI, ROOT, Patient, Rec, boundary, mini_on_path, read_csv, ref, rng, thresholds
+from src.virtual_hospital.common import FINAL, LOCAL, MINI, ROOT, Patient, Rec, boundary, mini_on_path, read_csv, ref, rng, thresholds
 
 GENES = ["ESR1", "PIK3CA", "AKT1", "PTEN", "BRCA1", "BRCA2", "PALB2"]
 # M-01: 판정 기준일(수술 직후)까지 차트에 보이는 실제 칸
@@ -27,7 +27,7 @@ HR_POS = {"positive", "low_positive"}
 def load() -> tuple[pd.DataFrame, dict[str, dict]]:
     """mini 크롭본과 mini 변환기 결과 (S-01, M-01)."""
     mini_on_path()
-    from src.input.virtual_hospital.tcga_convert import convert, load_rows
+    from src.virtual_hospital.tcga_convert import convert, load_rows
     df = load_rows()
     return df, convert(df)
 
@@ -617,5 +617,5 @@ def build_all() -> tuple[list[Patient], list[dict], dict[str, dict], pd.DataFram
 
 
 def out_dir() -> Path:
-    from src.input.virtual_hospital.common import OUT
+    from src.virtual_hospital.common import OUT
     return OUT / "tcga"

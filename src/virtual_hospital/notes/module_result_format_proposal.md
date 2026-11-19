@@ -1,6 +1,6 @@
 # 제안: 이미지 모듈 결과 형식 맞추기 (모듈 1 · 2 · 3 · 4-B)
 
-작성: 2026-11-09 (A) · 상태: **제안** (2026-11-18까지 팀 합의 전) · 관련: [../README.md](../README.md) §10, 받을 표의 틀 [../rules/image_tables.csv](../../../../data/virtual_hospital/rules/image_tables.csv) (2026-11-16)
+작성: 2026-11-09 (A) · 상태: **제안** (2026-11-18까지 팀 합의 전) · 관련: [../README.md](../README.md) §10, 받을 표의 틀 [../rules/image_tables.csv](../../../data/virtual_hospital/rules/image_tables.csv) (2026-11-16)
 
 ## 1. 왜 맞추나
 

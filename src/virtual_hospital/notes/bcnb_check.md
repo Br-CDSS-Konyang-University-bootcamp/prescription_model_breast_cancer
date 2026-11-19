@@ -1,6 +1,6 @@
 # BCNB 자료 점검
 
-점검: 2026-11-10 (주석 좌표는 2026-11-16 다시 확인) · 자료: `data/virtual_hospital/local/BCNB/BCNB/` (37GB, `.gitignore`) · 실행: `python -m src.input.virtual_hospital.bcnb_check data/virtual_hospital/local/BCNB/BCNB`
+점검: 2026-11-10 (주석 좌표는 2026-11-16 다시 확인) · 자료: `data/virtual_hospital/local/BCNB/BCNB/` (37GB, `.gitignore`) · 실행: `python -m src.virtual_hospital.bcnb_check data/virtual_hospital/local/BCNB/BCNB`
 환자별 라벨은 적지 않고 Patient ID와 이유만 적는다 (약관).
 
 ## 1. 결과 요약

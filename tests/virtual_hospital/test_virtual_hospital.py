@@ -1,6 +1,6 @@
-"""가상 병원 환자 (src/input/virtual_hospital/) 검사: 규칙 표 ↔ 코드, 저장된 차트가 다시 만든 것과 같은지, mini check() 통과.
+"""가상 병원 환자 (src/virtual_hospital/) 검사: 규칙 표 ↔ 코드, 저장된 차트가 다시 만든 것과 같은지, mini check() 통과.
 
-실행 (team_project 폴더): python -m pytest tests/input/test_virtual_hospital.py
+실행 (team_project 폴더): python -m pytest tests/virtual_hospital/test_virtual_hospital.py
 다시 만들기 검사는 team_project_final(모듈 1 데이터)이 있어야 하고, BCNB 검사는 data/virtual_hospital/local/bcnb/가 있어야 한다.
 없으면 건너뛴다.
 """
@@ -9,7 +9,7 @@ import re
 
 import pytest
 
-from src.input.virtual_hospital.common import CODE, FINAL, LOCAL, OUT, ROOT, read_csv, rules
+from src.virtual_hospital.common import CODE, FINAL, LOCAL, OUT, ROOT, read_csv, rules
 
 RULE_ID = re.compile(r"\b([SMDYNRIG]-\d\d)\b")
 CHARTS = OUT / "tcga" / "charts"
@@ -58,14 +58,14 @@ def test_no_source_ids_outside_local():
 def built():
     if not FINAL.exists():
         pytest.skip(f"{FINAL} 없음 (모듈 1 데이터)")
-    from src.input.virtual_hospital.tcga import build_all
+    from src.virtual_hospital.tcga import build_all
     pts, *_ = build_all()
     return {p.vp_id: p for p in pts}
 
 
 def test_saved_charts_match_rebuild(built):
     """저장된 차트 중 앞·가운데·끝 3건을 다시 만들어 같은지 (같은 규칙 + 같은 원본 → 같은 글)."""
-    from src.input.virtual_hospital.render import chart
+    from src.virtual_hospital.render import chart
     saved = sorted(d.name for d in CHARTS.iterdir())
     for vp in (saved[0], saved[len(saved) // 2], saved[-1]):
         text, ps, errs = chart(built[vp])

@@ -8,9 +8,9 @@ TCGA 정답 세트 정리(chore/remove-tcga-pipeline)로 지워질 예정이라,
 - 값 대응: data/dictionaries/field_vocab.csv. 사전에 없는 값이 나오면 멈춘다
 
 usage (team_project 폴더에서):
-    python -m src.input.virtual_hospital.tcga_convert                       # 변환만 하고 인원 수 출력
-    python -m src.input.virtual_hospital.tcga_convert --ids TCGA-A2-A0EW --show   # 한 명 변환 결과를 화면에 출력
-    python -m src.input.virtual_hospital.tcga_convert --out <폴더>          # 파일로 저장
+    python -m src.virtual_hospital.tcga_convert                       # 변환만 하고 인원 수 출력
+    python -m src.virtual_hospital.tcga_convert --ids TCGA-A2-A0EW --show   # 한 명 변환 결과를 화면에 출력
+    python -m src.virtual_hospital.tcga_convert --out <폴더>          # 파일로 저장
 """
 from __future__ import annotations
 
@@ -25,7 +25,7 @@ import pandas as pd
 from src.input.script.rules import GROUP_DAYS, NOT_COUNTED, annotate, load_drug_table
 from src.input.script.rules import Vocab
 
-ROOT = Path(__file__).resolve().parents[3]
+ROOT = Path(__file__).resolve().parents[2]
 CSV = ROOT / "data" / "virtual_hospital" / "source" / "tcga_brca_merging_cropped.csv"
 DRUG_CLASSES = ROOT / "data" / "dictionaries" / "drug_classes.csv"
 

@@ -27,7 +27,7 @@ __pycache__/
 # 개인 Claude Code 설정
 CLAUDE.local.md
 
-# 가상 병원 환자 (A, src/input/virtual_hospital/): 차트 정답 JSON과 문서도 올린다.
+# 가상 병원 환자 (A, src/virtual_hospital/): 차트 정답 JSON과 문서도 올린다.
 # local/은 올리지 않는다 (BCNB 약관, 원본 ID 대응표, 라이선스 원본 파일, LLM 실행 결과)
 !data/virtual_hospital/**/*.json
 !data/virtual_hospital/**/*.md

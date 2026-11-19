@@ -8,7 +8,7 @@
 - 투약은 처방된 그대로 (mini 변환기의 treatment_history: 약, 구분, 시작·종료일, 주기, 반응)
 - 중단 사유는 실제 값으로만 정한다 (D-R2). 근거가 없으면 비운다 → 차수는 mini lines.annotate가 계산
 
-실행 (team_project 폴더, team_project 환경): python -m src.input.virtual_hospital.tcga_recur
+실행 (team_project 폴더, team_project 환경): python -m src.virtual_hospital.tcga_recur
 결과: out/tcga_recur/ (patients·fields·treatments·truth CSV, charts/), reports/tcga_recur*.csv·md
 """
 from __future__ import annotations
@@ -17,9 +17,9 @@ import collections
 import json
 import shutil
 
-from src.input.virtual_hospital import gates, render
-from src.input.virtual_hospital.common import MINI, OUT, REPORTS, Rec, read_csv, write_csv
-from src.input.virtual_hospital.tcga import build_all, entry
+from src.virtual_hospital import gates, render
+from src.virtual_hospital.common import MINI, OUT, REPORTS, Rec, read_csv, write_csv
+from src.virtual_hospital.tcga import build_all, entry
 
 ADJ_ENDOCRINE_DONE = 1640                      # D-R2: 보조 내분비를 약 4.5년(1,640일) 이상 쓰면 완료
 ADJ_ENDOCRINE_FULL = 1825                      # D-R5: 보조 내분비 5년

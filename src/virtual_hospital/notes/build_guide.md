@@ -1,6 +1,6 @@
 # 가상환자 데이터를 만든 규칙과 코드 (안내)
 
-작성: 2026-11-18 (A) · 코드: `src/input/virtual_hospital/` · 데이터: `data/virtual_hospital/` (2026-11-18 별도 저장소 `virtual_hospital`에서 옮김)
+작성: 2026-11-18 (A) · 코드: `src/virtual_hospital/` · 데이터: `data/virtual_hospital/` (2026-11-18 별도 저장소 `virtual_hospital`에서 옮김)
 
 TCGA-BRCA와 BCNB의 실제 값을 뼈대로, 빈칸만 근거 있는 규칙으로 채운 가상 병원 환자다. 이 문서는 **어떤 규칙 문서와 어떤 코드로 만들었는지**를 한곳에 모은 안내다. 규칙 하나하나의 내용은 아래 규칙 문서에 있다.
 
@@ -22,11 +22,11 @@ TCGA-BRCA와 BCNB의 실제 값을 뼈대로, 빈칸만 근거 있는 규칙으�
 
 | 파일 | 내용 |
 |---|---|
-| [../rules/rules.csv](../../../../data/virtual_hospital/rules/rules.csv) | **규칙 원본 69개.** 규칙마다 id, 묶음, 설명, 갈래, 입력 열, 출력 칸, 근거, 출처, 예, 상태(확정 15·제안 53·폐기 1), 결정일. 코드와 출력의 `rule_id`가 모두 이 표에 있어야 한다 (테스트) |
-| [../rules/references.csv](../../../../data/virtual_hospital/rules/references.csv) | 합성에 쓴 문헌 값 12행 (Ki-67, grade, ECOG, 겨드랑이 초음파). 값, 출처, 표 번호, 확인일 |
-| [../rules/thresholds.csv](../../../../data/virtual_hospital/rules/thresholds.csv) | 판정 경계 금지 구간 6개 (예: ER 1~10%, Ki-67 15~25%). 합성값이 경계에 걸려 판정이 흔들리지 않게 |
-| [../rules/phrases.csv](../../../../data/virtual_hospital/rules/phrases.csv) | 차트 표기 22개 (mini 가상 차트·field_vocab 표기) |
-| [../rules/image_tables.csv](../../../../data/virtual_hospital/rules/image_tables.csv) | 이미지·모듈 결과를 받을 표의 틀 (주석, 실행, 예측, 타일 격자, 점수, 그림) |
+| [../rules/rules.csv](../../../data/virtual_hospital/rules/rules.csv) | **규칙 원본 69개.** 규칙마다 id, 묶음, 설명, 갈래, 입력 열, 출력 칸, 근거, 출처, 예, 상태(확정 15·제안 53·폐기 1), 결정일. 코드와 출력의 `rule_id`가 모두 이 표에 있어야 한다 (테스트) |
+| [../rules/references.csv](../../../data/virtual_hospital/rules/references.csv) | 합성에 쓴 문헌 값 12행 (Ki-67, grade, ECOG, 겨드랑이 초음파). 값, 출처, 표 번호, 확인일 |
+| [../rules/thresholds.csv](../../../data/virtual_hospital/rules/thresholds.csv) | 판정 경계 금지 구간 6개 (예: ER 1~10%, Ki-67 15~25%). 합성값이 경계에 걸려 판정이 흔들리지 않게 |
+| [../rules/phrases.csv](../../../data/virtual_hospital/rules/phrases.csv) | 차트 표기 22개 (mini 가상 차트·field_vocab 표기) |
+| [../rules/image_tables.csv](../../../data/virtual_hospital/rules/image_tables.csv) | 이미지·모듈 결과를 받을 표의 틀 (주석, 실행, 예측, 타일 격자, 점수, 그림) |
 | [synthetic_criteria.md](synthetic_criteria.md) | **칸별로 어떻게 채웠는지** 사람이 읽는 정리 (실제 값을 바꾼 것, 합성한 것, 뺀 것, 재발 갈래, 문헌 값) |
 | [progress.md](progress.md) | 날짜순 진행 기록과 사용자 결정 |
 | [bcnb_check.md](bcnb_check.md) | BCNB 원자료 점검 |
@@ -48,7 +48,7 @@ TCGA-BRCA와 BCNB의 실제 값을 뼈대로, 빈칸만 근거 있는 규칙으�
 | 관문 | G- | 2 | mini 규칙 검사 |
 | 이미지 | I- | 2 | 슬라이드·주석 좌표 |
 
-## 3. 코드 (`src/input/virtual_hospital/`, 모두 `virtual_hospital` 폴더에서 `python -m src.input.virtual_hospital.<이름>`)
+## 3. 코드 (`src/virtual_hospital/`, 모두 `virtual_hospital` 폴더에서 `python -m src.virtual_hospital.<이름>`)
 
 ### 3.1 만들기
 
@@ -79,17 +79,17 @@ TCGA-BRCA와 BCNB의 실제 값을 뼈대로, 빈칸만 근거 있는 규칙으�
 | `bcnb_check.py` | BCNB 원자료 점검 (개수·ID만, 라벨은 안 찍음) | 화면 출력 |
 | `mini_probe.py` | 만든 정답을 mini B `assess`와 화면 1 초안에 넣어 봄 (읽기만) | `data/virtual_hospital/reports/mini_probe.md` |
 | `llm_run.py` | 차트를 mini 입력 모듈 LLM으로 끝까지 돌리고 mini 채점기로 채점 (GPU 터널 필요) | `data/virtual_hospital/local/llm_runs/<이름>/` |
-| `tests/input/test_virtual_hospital.py` | 규칙 id가 표에 있는지, 다시 만들면 같은지, BCNB가 `data/virtual_hospital/local/`에만 있는지 등 9개 | `python -m pytest tests` |
+| `tests/virtual_hospital/test_virtual_hospital.py` | 규칙 id가 표에 있는지, 다시 만들면 같은지, BCNB가 `data/virtual_hospital/local/`에만 있는지 등 9개 | `python -m pytest tests` |
 
 ### 3.4 실행 순서
 
 ```bash
-python -m src.input.virtual_hospital.fetch_hgvsc        # 처음 한 번 (build를 먼저 한 번 돌려 data/virtual_hospital/local/source_map.csv가 있어야 함)
-python -m src.input.virtual_hospital.fetch_thennavan    # 처음 한 번
-python -m src.input.virtual_hospital.build              # TCGA ①
-python -m src.input.virtual_hospital.tcga_recur         # TCGA ②
-python -m src.input.virtual_hospital.bcnb               # BCNB (data/BCNB/ 필요)
-python -m src.input.virtual_hospital.confirmed          # 확정 상태 초안 (build가 차트 폴더를 새로 만드므로 마지막에)
+python -m src.virtual_hospital.fetch_hgvsc        # 처음 한 번 (build를 먼저 한 번 돌려 data/virtual_hospital/local/source_map.csv가 있어야 함)
+python -m src.virtual_hospital.fetch_thennavan    # 처음 한 번
+python -m src.virtual_hospital.build              # TCGA ①
+python -m src.virtual_hospital.tcga_recur         # TCGA ②
+python -m src.virtual_hospital.bcnb               # BCNB (data/BCNB/ 필요)
+python -m src.virtual_hospital.confirmed          # 확정 상태 초안 (build가 차트 폴더를 새로 만드므로 마지막에)
 python -m pytest tests
 ```
 

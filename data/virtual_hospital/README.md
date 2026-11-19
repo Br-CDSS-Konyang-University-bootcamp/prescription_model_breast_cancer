@@ -1,6 +1,6 @@
 # data/virtual_hospital — 가상 병원 환자 데이터
 
-TCGA-BRCA·BCNB 실제 값을 뼈대로 만든 가상 유방암 환자다. 만든 코드와 규칙 설명은 [../../src/input/virtual_hospital/](../../src/input/virtual_hospital/README.md), 파일 안내는 [build_guide.md](../../src/input/virtual_hospital/notes/build_guide.md).
+TCGA-BRCA·BCNB 실제 값을 뼈대로 만든 가상 유방암 환자다. 만든 코드와 규칙 설명은 [../../src/virtual_hospital/](../../src/virtual_hospital/README.md), 파일 안내는 [build_guide.md](../../src/virtual_hospital/notes/build_guide.md).
 
 | 폴더·파일 | 내용 |
 |---|---|
@@ -11,4 +11,4 @@ TCGA-BRCA·BCNB 실제 값을 뼈대로 만든 가상 유방암 환자다. 만�
 | `reports/` | 생성 보고, 뺀 환자, 관문 결과 |
 | `local/` | **git 제외**: BCNB 원자료·결과 (약관), 원본 ID 대응표, 등급 판독 원본, LLM 결과 |
 
-`truth.csv`의 실제 처방 기록은 참고용이고 정답이 아니다. 다시 만들기: `python -m src.input.virtual_hospital.build` 등 (코드 폴더 README의 "실행").
+`truth.csv`의 실제 처방 기록은 참고용이고 정답이 아니다. 다시 만들기: `python -m src.virtual_hospital.build` 등 (코드 폴더 README의 "실행").

@@ -9,10 +9,10 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
-MINI = Path(__file__).resolve().parents[3]            # 이 저장소 (team_project)
+MINI = Path(__file__).resolve().parents[2]            # 이 저장소 (team_project)
 PROJECT = MINI.parent
 FINAL = PROJECT / "team_project_final"                 # 모듈 1 데이터 (MKI67 발현, 슬라이드 목록). 읽기만
-CODE = Path(__file__).resolve().parent                 # src/input/virtual_hospital/ (코드·문서)
+CODE = Path(__file__).resolve().parent                 # src/virtual_hospital/ (코드·문서)
 ROOT = MINI / "data" / "virtual_hospital"              # 가상환자 데이터 (규칙 표, 차트, 보고)
 RULES = ROOT / "rules"
 OUT = ROOT                                             # OUT / "tcga", OUT / "tcga_recur"

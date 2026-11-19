@@ -3,7 +3,7 @@
 PMC 부록 주소는 자동 받기를 막는 확인 화면이 떠서, 같은 부록을 공식 API로 주는 Europe PMC를 쓴다
 (부록 전체 zip에서 mmc3.xlsx만 꺼내고 zip은 지운다). 원본은 CC BY-NC-ND 4.0이라 git에 넣지 않는다.
 
-실행 (team_project 폴더, team_project 환경): python -m src.input.virtual_hospital.fetch_thennavan
+실행 (team_project 폴더, team_project 환경): python -m src.virtual_hospital.fetch_thennavan
 """
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ import zipfile
 
 import requests
 
-from src.input.virtual_hospital.tcga import NOTTINGHAM
+from src.virtual_hospital.tcga import NOTTINGHAM
 
 URL = "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC9028992/supplementaryFiles"
 
