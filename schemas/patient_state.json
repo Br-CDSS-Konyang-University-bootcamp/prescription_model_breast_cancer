@@ -58,8 +58,8 @@
               "required": ["positive", "examined"],
               "additionalProperties": false,
               "properties": {
-                "positive": {"anyOf": [{"type": "integer", "minimum": 0}, {"const": "[Not Available]"}]},
-                "examined": {"anyOf": [{"type": "integer", "minimum": 0}, {"const": "[Not Available]"}]}
+                "positive": {"type": "integer", "minimum": 0},
+                "examined": {"type": "integer", "minimum": 0}
               }}}}]},
             "disease_extent": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {
               "enum": ["early", "locally_advanced", "metastatic"],
@@ -240,7 +240,6 @@
                 "additionalProperties": false,
                 "properties": {
                   "drug": {"enum": ["doxorubicin", "epirubicin", "liposomal doxorubicin"]},
-                  "timeline_index": {"type": ["integer", "null"], "minimum": 0, "description": "TCGA drug_timeline에서 몇 번째 항목인지 (0부터). 차트에서는 null"},
                   "combined_with": {"type": "array", "items": {"type": "string"}, "description": "같은 기록에 함께 적힌 약 (예: AC의 cyclophosphamide)"},
                   "dose_per_admin": {"$ref": "#/$defs/dose_or_novalue", "description": "1회 용량. TCGA drug_prescribed_dose + drug_dose_units"},
                   "cycles": {"anyOf": [{"$ref": "#/$defs/cycles_value"}, {"const": "No value"}], "description": "주기 수 기록값만 (basis는 항상 recorded, 추정하지 않음). TCGA drug_cycles"},
@@ -366,7 +365,7 @@
     "sites_value": {
       "anyOf": [
         {"type": "array", "items": {"type": "string"}, "description": "bone, liver, lung, brain, distant_ln, skin, other: <자유 기재>. 여러 개 나열"},
-        {"enum": ["[Not Applicable]", "[Not Available]"]}
+        {"enum": ["[Not Applicable]"]}
       ]
     },
     "cycles_value": {
