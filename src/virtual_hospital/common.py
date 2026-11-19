@@ -18,6 +18,11 @@ RULES = ROOT / "rules"
 OUT = ROOT                                             # OUT / "tcga", OUT / "tcga_recur"
 LOCAL = ROOT / "local"                                 # git 제외: BCNB, 원본 ID 대응, 라이선스 원본, LLM 결과
 REPORTS = ROOT / "reports"
+# BCNB 원자료 (patient-clinical-data.xlsx, WSIs/). 약관상 각자 받아 local/bcnb_raw/에 둔다 (git 제외).
+# local/BCNB/는 Windows에서 결과 폴더 local/bcnb/와 같은 폴더라 쓰지 않는다. 없으면 예전 별도 저장소 위치
+BCNB_RAW = next((p for p in (LOCAL / "bcnb_raw", PROJECT / "virtual_hospital" / "data" / "BCNB" / "BCNB")
+                 if (p / "patient-clinical-data.xlsx").exists()), LOCAL / "bcnb_raw")
+FEATURES = LOCAL / "features"                          # 슬라이드 벡터 (<묶음>.npz), 타일 벡터 (<묶음>/<파일>.h5)
 CREATED_AT = "2026-11-09T00:00:00+09:00"               # 같은 입력 → 같은 출력
 
 

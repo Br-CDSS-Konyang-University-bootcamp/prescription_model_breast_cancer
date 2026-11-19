@@ -14,13 +14,11 @@ import shutil
 import pandas as pd
 
 from src.virtual_hospital import gates
-from src.virtual_hospital.common import CREATED_AT, LOCAL, PROJECT, ROOT, Patient, Rec, mini_on_path, ref, rng, write_csv
+from src.virtual_hospital.common import BCNB_RAW, CREATED_AT, LOCAL, ROOT, Patient, Rec, mini_on_path, ref, rng, write_csv
 from src.virtual_hospital.render import allred_word
 from src.virtual_hospital.tcga import Context, allred_is_choices, allred_ps, dx_date, load as load_tcga, pick, pick_is, synth_ecog, synth_meno
 
-# BCNB 원자료 (37GB, 약관상 git 제외): data/virtual_hospital/local/BCNB/BCNB/. 없으면 예전 위치 ../virtual_hospital/data/BCNB/BCNB
-BCNB = next((p for p in (LOCAL / "BCNB" / "BCNB", PROJECT / "virtual_hospital" / "data" / "BCNB" / "BCNB") if p.exists()),
-            LOCAL / "BCNB" / "BCNB")
+BCNB = BCNB_RAW                                       # BCNB 원자료 (common.BCNB_RAW)
 OUT = LOCAL / "bcnb"
 REPORT = LOCAL / "reports"
 # 모듈 3 정제 규칙(연구 계획 6-2-1)에서 ER·PR 예측과 아형 평가에서 뺀 환자: ER−/PR+ 등 모순 10명 + Ki-67 80% Luminal A 1명

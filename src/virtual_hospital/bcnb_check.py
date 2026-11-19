@@ -1,4 +1,4 @@
-"""BCNB 자료 점검 (환자별 라벨은 출력하지 않고 개수·ID만). 실행: python -m src.virtual_hospital.bcnb_check data/virtual_hospital/local/BCNB/BCNB"""
+"""BCNB 자료 점검 (환자별 라벨은 출력하지 않고 개수·ID만). 실행: python -m src.virtual_hospital.bcnb_check data/virtual_hospital/local/bcnb_raw"""
 import collections
 import json
 import re
