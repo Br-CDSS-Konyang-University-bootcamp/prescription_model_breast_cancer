@@ -21,3 +21,7 @@ R-02,병리,proliferation.ki67_percent,Ki-67: 30%,mini build_virtual_cases.py re
 R-03,분자병리,(머리글),[분자병리 검사 결과],mini build_virtual_cases.py ngs()
 R-03,분자병리,molecular.mutations.*,PIK3CA   c.1624G>A (p.E542K)   VAF 32.9%,mini build_virtual_cases.py ngs()
 R-03,분자병리,molecular.mutations.*,"검출되지 않음 (Not detected) / ESR1, AKT1, …",mini build_virtual_cases.py ngs()
+R-B1,경과기록,stage.operable,수술 가능 (operable),2026-11-11 사용자 결정 (D-B6)
+R-B1,경과기록,molecular.mutations.*,"ESR1, PIK3CA, … 유전자 검사: 시행하지 않음",R-01과 같은 표기 (Y-B4)
+R-B2,병리,(머리글),"[병리결과보고서] / 검체: 우측 유방, 초음파 유도 중심 생검",R-02 머리글·칸 이름 (수술 칸 없음)
+R-B2,병리,receptors.her2_ish,HER2 ISH: amplified / HER2 ISH: 시행하지 않음,R-02 표기 (방법을 몰라 ISH)

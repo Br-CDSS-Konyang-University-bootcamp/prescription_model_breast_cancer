@@ -15,16 +15,15 @@ import pandas as pd
 
 from src.virtual_hospital import gates
 from src.virtual_hospital.common import BCNB_RAW, CREATED_AT, LOCAL, ROOT, Patient, Rec, mini_on_path, ref, rng, write_csv
-from src.virtual_hospital.render import allred_word
-from src.virtual_hospital.tcga import Context, allred_is_choices, allred_ps, dx_date, load as load_tcga, pick, pick_is, synth_ecog, synth_meno
+from src.virtual_hospital.render import HISTOLOGY as HISTOLOGY_KO, allred_word
+from src.virtual_hospital.tcga import GENES, Context, allred_is_choices, allred_ps, dx_date, load as load_tcga, pick, pick_is, synth_ecog, synth_meno
 
 BCNB = BCNB_RAW                                       # BCNB 원자료 (common.BCNB_RAW)
 OUT = LOCAL / "bcnb"
 REPORT = LOCAL / "reports"
 # 모듈 3 정제 규칙(연구 계획 6-2-1)에서 ER·PR 예측과 아형 평가에서 뺀 환자: ER−/PR+ 등 모순 10명 + Ki-67 80% Luminal A 1명
 EXCLUDE_M3 = {49, 162, 420, 449, 623, 953, 199, 619, 842, 844, 174}
-HISTOLOGY = {"Invasive ductal carcinoma": ("IDC", "Invasive ductal carcinoma, NST"),          # VC core_path 표기
-             "Invasive lobular carcinoma": ("ILC", "Infiltrating Lobular Carcinoma")}         # field_vocab tcga 표기
+HISTOLOGY = {"Invasive ductal carcinoma": "IDC", "Invasive lobular carcinoma": "ILC"}   # 차트 표기는 render.HISTOLOGY
 DAY_PATH, DAY_US, DAY_INDEX = 4, 5, 14                     # D-B5: 생검 0일, 보고 4일, 초음파 5일, 초진 14일
 STAGE = {("T1", "N0"): "IA", ("T1", "N1"): "IIA", ("T2", "N0"): "IIA", ("T2", "N1"): "IIB",
          ("T3", "N0"): "IIB", ("T3", "N1"): "IIIA"}         # AJCC 8판 해부학 병기 (M0)
@@ -73,7 +72,7 @@ def build(vp: str, row: pd.Series, ctx: Context) -> Patient:
     on = lambda d: (dt.date.fromisoformat(dxd) + dt.timedelta(days=d)).isoformat()   # noqa: E731
     p = Patient(vp, str(pid), "BCNB_preop", "", dxd, DAY_INDEX, side=rng(vp, "D-04").choice(["좌측", "우측"]))
     age = int(row["Age(years)"])
-    hist = HISTOLOGY[row["Tumour Type"]][0]
+    hist = HISTOLOGY[row["Tumour Type"]]
     p.add(Rec("patient.gender", "present", "FEMALE", "synthetic", "⑤", "Y-B3", note="BCNB에 성별 열 없음"))
     p.add(Rec("patient.age", "present", age, "real", rule_id="M-B1", source_column="Age(years)"))
     p.add(Rec("diagnosis.histology", "present", hist, "real", rule_id="M-B1", source_column="Tumour Type"))
@@ -100,8 +99,9 @@ def build(vp: str, row: pd.Series, ctx: Context) -> Patient:
         amp = "amplified" if row["HER2"] == "Positive" else "not_amplified"
         p.add(Rec("receptors.her2_ish", "present", {"result": amp, "method": "unknown"}, "derived", "①", "D-B2",
                   source_column="HER2", observed_date=obs, specimen="primary"))
-    else:
-        p.add(Rec("receptors.her2_ish", "not_recorded", origin="derived", rule_id="D-B2"))
+    else:                                                    # TCGA와 같이 안 한 검사는 미시행 (N-04)
+        p.add(Rec("receptors.her2_ish", "not_done", origin="derived", rule_id="D-B2",
+                  note="2+가 아니면 ISH를 하지 않음 → 'HER2 ISH: 시행하지 않음'"))
     k, _ = ki67(row["Ki67"])
     p.add(Rec("proliferation.ki67_percent", "present", k, "real" if "percent" in k else "derived",
               "" if "percent" in k else "①", "D-B4", source_column="Ki67", observed_date=obs, specimen="primary"))
@@ -124,6 +124,9 @@ def build(vp: str, row: pd.Series, ctx: Context) -> Patient:
               note="TCGA 나이대별 실제 비율"))
     p.add(Rec("patient.ecog", "present", synth_ecog(vp, age), "synthetic", "④", "Y-01", observed_date=on(DAY_INDEX)))
     p.add(Rec("diagnosis.diagnosis_date", "present", dxd, "derived", "⑤", "D-01"))
+    for g in GENES:                                          # Y-B4: 생검 직후라 종양 유전자 검사 전 (TCGA 미시행 표기)
+        p.add(Rec(f"molecular.mutations.{g}", "not_done", origin="synthetic", basis="⑤", rule_id="Y-B4",
+                  note="BCNB에 변이 자료 없음. 수술 전 생검 시점이라 미시행으로 둔다"))
     p.truth = {"aln_status": row["ALN status"], "ln_metastases": int(row["Number of lymph node metastases"]),
                "surgical": row["Surgical"], "molecular_subtype": row["Molecular subtype"], "cN_synthetic": n,
                "her2_label": row["HER2"]}
@@ -159,20 +162,21 @@ def chart(p: Patient):
     d.put(f"{tn}, stage {group}", F("stage.ctnm", ctnm, observed_date=D(0), within=tn),
           F("stage.group", group, within=f"stage {group}"), F("stage.disease_extent", extent, within=f"stage {group}"),
           F("stage.metastatic_sites", "[Not Applicable]", within=tn)).t("\n   ")
-    d.put("수술 가능 (operable)", F("stage.operable", "yes")).t("\n\n")          # D-B6
+    d.put("수술 가능 (operable)", F("stage.operable", "yes")).t("\n")          # D-B6
+    d.t("   ").put(f"{', '.join(GENES)} 유전자 검사: 시행하지 않음",              # Y-B4 (TCGA render N-04와 같은 표기)
+                   *(F(f"molecular.mutations.{g}", status="not_done", raw="시행하지 않음") for g in GENES)).t("\n\n")
     d.t("P) 다학제 회의에서 수술 범위와 선행요법 여부 결정\n")
 
-    # R-B2 중심 생검 병리 (core_path 형식)
+    # R-B2 중심 생검 병리 (TCGA R-02 수술 병리와 같은 머리글·칸 이름, 수술 칸 없음)
     d = c.doc("pathology", D(DAY_PATH))
-    d.t("SURGICAL PATHOLOGY REPORT\n").ident(age, F("patient.gender", "FEMALE"), F("patient.age", age), full=False)
-    d.t(f"Received: {kdate(D(0))}   Reported: {kdate(D(DAY_PATH))}\nSpecimen: {p.side} 유방, 초음파 유도 중심 생검\n\n")
+    d.t("[병리결과보고서]\n").ident(age, F("patient.gender", "FEMALE"), F("patient.age", age), full=False)
+    d.t(f"접수일: {kdate(D(0))}   보고일: {kdate(D(DAY_PATH))}\n검체: {p.side} 유방, 초음파 유도 중심 생검\n\n")
     hist = R["diagnosis.histology"].value
-    d.t("DIAGNOSIS\n  ").put({"IDC": "Invasive ductal carcinoma, NST", "ILC": "Infiltrating Lobular Carcinoma"}[hist],
-                             F("diagnosis.histology", hist))
+    d.t("진단\n  조직형: ").put(HISTOLOGY_KO[hist], F("diagnosis.histology", hist))
     if R["diagnosis.grade"].status == "present":
         g = R["diagnosis.grade"].value
-        d.t("\n  Histologic grade: ").put(f"Nottingham grade {g}", F("diagnosis.grade", g))
-    d.t("\n\nIMMUNOHISTOCHEMISTRY\n  ")
+        d.t("\n  조직학적 등급: ").put(f"{'I' * g} (Nottingham grade {g})", F("diagnosis.grade", g))
+    d.t("\n\n면역조직화학\n  ")
     obs = D(0)
     for path, label in (("receptors.er_percent", "ER"), ("receptors.pr_percent", "PR")):
         v = R[path].value
@@ -181,14 +185,16 @@ def chart(p: Patient):
               F(path, v, specimen="primary", observed_date=obs)).t("\n  ")
     d.put(f"HER2 (4B5): {R['receptors.her2_ihc'].value['score']}",
           F("receptors.her2_ihc", R["receptors.her2_ihc"].value, specimen="primary", observed_date=obs)).t("\n  ")
+    if R["receptors.her2_ish"].status == "present":          # TCGA render.her2()와 같은 순서·표기 (방법은 모름 → ISH)
+        v = R["receptors.her2_ish"].value
+        d.put(f"HER2 ISH: {'amplified' if v['result'] == 'amplified' else 'not amplified'}",
+              F("receptors.her2_ish", v, specimen="primary", observed_date=obs)).t("\n  ")
+    else:
+        d.put("HER2 ISH: 시행하지 않음", F("receptors.her2_ish", status="not_done", raw="시행하지 않음")).t("\n  ")
     _, ktext = ki67_text(p)
     d.put(f"Ki-67: {ktext}", F("proliferation.ki67_percent", R["proliferation.ki67_percent"].value,
                                 specimen="primary", observed_date=obs))
-    if R["receptors.her2_ish"].status == "present":
-        v = R["receptors.her2_ish"].value
-        d.t("\n  ").put(f"HER2 ISH: {'amplified' if v['result'] == 'amplified' else 'not amplified'}",
-                        F("receptors.her2_ish", v, specimen="primary", observed_date=obs))
-    d.t("\n\nPathologist: 박가상\n")
+    d.t("\n\n판독의: 박가상\n")
 
     # R-B3 유방 초음파 (image 형식)
     d = c.doc("radiology", D(DAY_US))

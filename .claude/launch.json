@@ -1,0 +1,22 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "screen1",
+      "runtimeExecutable": "C:/Users/301-10/anaconda3/envs/team_project/python.exe",
+      "runtimeArgs": [
+        "-m",
+        "src.app.script.screen1",
+        "--port",
+        "8501",
+        "--save-dir",
+        "C:/Users/301-10/AppData/Local/Temp/claude/ac14790a36c1108e/bb5ca0eb-5dc5-4395-a720-54984eff21c6/scratchpad/confirmed",
+        "--app-dir",
+        "C:/Users/301-10/AppData/Local/Temp/claude/ac14790a36c1108e/bb5ca0eb-5dc5-4395-a720-54984eff21c6/scratchpad/app",
+        "--llm-host",
+        "http://127.0.0.1:11435"
+      ],
+      "port": 8501
+    }
+  ]
+}
