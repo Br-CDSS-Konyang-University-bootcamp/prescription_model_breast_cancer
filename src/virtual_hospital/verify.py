@@ -1,4 +1,4 @@
-"""V 검증: 가상 데이터가 실제 TCGA와 같은지 (README §11.1). 생성기와 다른 코드로 다시 읽는다."""
+"""V 검증: 가상 데이터가 실제 TCGA와 같은지 (notes/design.md §11.1). 생성기와 다른 코드로 다시 읽는다."""
 from __future__ import annotations
 
 import collections

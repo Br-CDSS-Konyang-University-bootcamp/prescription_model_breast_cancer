@@ -1,4 +1,4 @@
-"""G 관문: 처방 모듈(mini) 입력 규칙에 맞는지. 실패하면 mini를 고치지 않고 생성기를 고치거나 환자를 뺀다 (README §11.2)."""
+"""G 관문: 처방 모듈(mini) 입력 규칙에 맞는지. 실패하면 mini를 고치지 않고 생성기를 고치거나 환자를 뺀다 (notes/design.md §11.2)."""
 from __future__ import annotations
 
 import importlib.util

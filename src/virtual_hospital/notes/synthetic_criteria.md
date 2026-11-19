@@ -2,7 +2,7 @@
 
 작성: 2026-11-12 (A) · 고침: 2026-11-18 (실제 등급, 판정 기준일, 재발 갈래) · 규칙 원본: [../rules/rules.csv](../../../data/virtual_hospital/rules/rules.csv), 숫자·출처: [../rules/references.csv](../../../data/virtual_hospital/rules/references.csv)
 
-이 문서는 TCGA·BCNB에 **없는 값을 어떻게 만들었는지**, **실제 값을 어떻게 바꿨는지**를 한곳에 모은 것이다. 실제 값을 그대로 옮긴 칸은 README §6에 있다.
+이 문서는 TCGA·BCNB에 **없는 값을 어떻게 만들었는지**, **실제 값을 어떻게 바꿨는지**를 한곳에 모은 것이다. 실제 값을 그대로 옮긴 칸은 [design.md](design.md) §6에 있다.
 
 ## 0. 근거 순위
 

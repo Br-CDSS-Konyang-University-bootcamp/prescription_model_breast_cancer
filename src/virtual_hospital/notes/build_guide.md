@@ -32,7 +32,8 @@ TCGA-BRCA와 BCNB의 실제 값을 뼈대로, 빈칸만 근거 있는 규칙으�
 | [bcnb_check.md](bcnb_check.md) | BCNB 원자료 점검 |
 | [mini_findings.md](mini_findings.md) | mini 처방 모듈 점검 (읽기만) |
 | [module_result_format_proposal.md](module_result_format_proposal.md) | 이미지 모듈 결과 형식 제안 (팀 합의 전) |
-| [../README.md](../README.md) | 설계 전체 (§4 규칙 체계, §5 시점, §6 칸별 규칙, §9 CSV·chart.txt, §10 이미지, §11 검증·관문) |
+| [design.md](design.md) | 설계 전체 (§4 규칙 체계, §5 시점, §6 칸별 규칙, §9 CSV·chart.txt, §10 이미지, §11 검증·관문) |
+| [../README.md](../README.md) | 지금 상태, 폴더 구조, 만드는 순서, 가상 병원 DB, 데이터 출처와 인용 |
 | `data/virtual_hospital/tcga/NOTICE.md` | 조직학적 등급 판독 자료(Thennavan 2021)의 출처·라이선스·합성 표시 |
 
 ### 규칙 묶음
@@ -48,7 +49,7 @@ TCGA-BRCA와 BCNB의 실제 값을 뼈대로, 빈칸만 근거 있는 규칙으�
 | 관문 | G- | 2 | mini 규칙 검사 |
 | 이미지 | I- | 2 | 슬라이드·주석 좌표 |
 
-## 3. 코드 (`src/virtual_hospital/`, 모두 `virtual_hospital` 폴더에서 `python -m src.virtual_hospital.<이름>`)
+## 3. 코드 (`src/virtual_hospital/`, 모두 `team_project` 폴더에서 `python -m src.virtual_hospital.<이름>`)
 
 ### 3.1 만들기
 
@@ -64,6 +65,8 @@ TCGA-BRCA와 BCNB의 실제 값을 뼈대로, 빈칸만 근거 있는 규칙으�
 | `tcga_recur.py` | **TCGA ② 실행.** 원격 재발 환자의 결정 시점 차트 (실제 투약 기록, 중단 사유) | S-R1, D-R1~D-R5, R-05~R-07 | `data/virtual_hospital/tcga_recur/` |
 | `bcnb.py` | **BCNB 실행.** 고르기부터 검증까지 (Allred는 TCGA 분포 사용) | S-B, D-B, Y-B, I-02 | `data/virtual_hospital/local/bcnb/` |
 | `confirmed.py` | **확정 상태 초안.** 정답 patient_state + biomarker_record → mini `build_draft` 기본값 (화면 1에서 그대로 확정한 것과 같음) | — | `<차트>/expected/confirmed_state.json`, `data/virtual_hospital/reports/confirmed.md` |
+| `embed_slides.py` | 타일 벡터 `.h5` → 슬라이드 벡터 (종양 타일 평균, 없으면 전체 평균). GPU 서버에서 파일 하나만 복사해 돌림 | — | `data/virtual_hospital/local/features/<묶음>_hoptimus0.npz` |
+| `db.py`, `db_schema.sql` | **가상 병원 DB.** 위 결과와 슬라이드 벡터를 SQLite 한 파일로 (`build`, `info`) + 읽기 함수 (README "가상 병원 DB") | — | `data/virtual_hospital/local/virtual_hospital.db` |
 
 ### 3.2 자료 받기
 
@@ -79,7 +82,7 @@ TCGA-BRCA와 BCNB의 실제 값을 뼈대로, 빈칸만 근거 있는 규칙으�
 | `bcnb_check.py` | BCNB 원자료 점검 (개수·ID만, 라벨은 안 찍음) | 화면 출력 |
 | `mini_probe.py` | 만든 정답을 mini B `assess`와 화면 1 초안에 넣어 봄 (읽기만) | `data/virtual_hospital/reports/mini_probe.md` |
 | `llm_run.py` | 차트를 mini 입력 모듈 LLM으로 끝까지 돌리고 mini 채점기로 채점 (GPU 터널 필요) | `data/virtual_hospital/local/llm_runs/<이름>/` |
-| `tests/virtual_hospital/test_virtual_hospital.py` | 규칙 id가 표에 있는지, 다시 만들면 같은지, BCNB가 `data/virtual_hospital/local/`에만 있는지 등 9개 | `python -m pytest tests` |
+| `tests/virtual_hospital/test_virtual_hospital.py` | 규칙 id가 표에 있는지, 다시 만들면 같은지, BCNB가 `data/virtual_hospital/local/`에만 있는지 등 9개, `test_db.py` DB 6개 | `python -m pytest tests/virtual_hospital` |
 
 ### 3.4 실행 순서
 
@@ -88,12 +91,13 @@ python -m src.virtual_hospital.fetch_hgvsc        # 처음 한 번 (build를 먼
 python -m src.virtual_hospital.fetch_thennavan    # 처음 한 번
 python -m src.virtual_hospital.build              # TCGA ①
 python -m src.virtual_hospital.tcga_recur         # TCGA ②
-python -m src.virtual_hospital.bcnb               # BCNB (data/BCNB/ 필요)
+python -m src.virtual_hospital.bcnb               # BCNB (data/virtual_hospital/local/bcnb_raw/ 필요)
 python -m src.virtual_hospital.confirmed          # 확정 상태 초안 (build가 차트 폴더를 새로 만드므로 마지막에)
-python -m pytest tests
+python -m src.virtual_hospital.db build           # 가상 병원 DB (위 결과 + local/features/)
+python -m pytest tests/virtual_hospital
 ```
 
-실행은 team_project 폴더에서. 필요한 것: 같은 상위 폴더의 `team_project_final`(모듈 1 MKI67 발현, 슬라이드 목록), `team_project` conda 환경. BCNB는 원자료를 `data/virtual_hospital/local/BCNB/BCNB/`에.
+실행은 team_project 폴더에서. 필요한 것: 같은 상위 폴더의 `team_project_final`(모듈 1 MKI67 발현, 슬라이드 목록), `team_project` conda 환경. BCNB는 원자료를 `data/virtual_hospital/local/bcnb_raw/`에.
 
 ## 4. 원자료
 

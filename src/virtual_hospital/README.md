@@ -2,49 +2,140 @@
 
 > A virtual hospital environment built on synthetic breast cancer patients derived from the TCGA-BRCA and BCNB datasets.
 
-작성: 2026-11-09 (A) · 갱신: 2026-11-18 (별도 저장소 `virtual_hospital`에서 이 저장소 `src/virtual_hospital/`로 옮김)
+작성: 2026-11-09 (A) · 갱신: 2026-11-19. 2026-11-18까지는 별도 저장소(`seonjinj0616-cyber/virtual_patient_database_based_TCGA_and_BCNB`)에서 만들었고, 그 저장소 작업은 끝났다. 이후 작업은 이 폴더에서 한다. 그동안 한 일: [notes/progress.md](notes/progress.md)
 
-## 지금 상태 (2026-11-18)
+TCGA-BRCA와 BCNB의 실제 값을 뼈대로, 데이터에 없는 칸만 근거 있는 규칙으로 채운 가상 유방암 환자다. 처방 모듈(입력 → 바이오마커 → 확정 → 지침 검색·추천·급여)을 실제 슬라이드가 붙은 환자로 끝까지 돌려 보려고 만들었다.
 
-| | TCGA ① (수술 후 갈래) | TCGA ② (재발 갈래) | BCNB (수술 전 갈래) |
+## 지금 상태 (2026-11-19)
+
+| | TCGA ① 수술 후 | TCGA ② 재발 | BCNB 수술 전 |
 |---|---|---|---|
-| 가상환자 | **671명** | **9명** (원격 재발 13명 중: 고식 내분비 2차 결정 3, 항암 1차 결정 6) | **971명** |
-| 차트 | 외래 경과기록 + 수술 병리 + 분자병리 | ① + 재발 외래 경과기록 + **투약 기록** (실제 투약, 중단 사유) | 초진 기록 + 중심 생검 병리 + 유방 초음파 |
+| 가상환자 | **671명** | **9명** (원격 재발 13명 중) | **971명** (1,058명 중) |
+| 장면 (판정 기준일) | 실제 첫 보조 투약일과 수술 후 49일 중 빠른 날 → 보조 요법 결정 | 실제로 다음 고식 치료를 정한 날 → 내분비 2차 결정 3, 항암 1차 결정 6 | 초진일 → 선행요법 여부 결정 |
+| 차트 | 외래 경과기록 + 수술 병리 + 분자병리 | ① + 재발 경과기록 + 투약 기록 | 초진 기록 + 중심 생검 병리 + 유방 초음파 |
 | 위치 | `data/virtual_hospital/tcga/` | `data/virtual_hospital/tcga_recur/` | `data/virtual_hospital/local/bcnb/` (**git 제외**, BCNB 약관) |
 
-- 검증 V1~V4·V6과 관문 G1~G7(입력 모듈 재현 포함) 통과
-- 모든 차트에 확정 상태(confirmed_state) 초안 `expected/confirmed_state.json`: 처방 흐름(C 지침 검색 → B 추천 → D 급여)의 입력. 2026-11-18 시험 49명(재발 9, TCGA ① 20, BCNB 20)이 처방 흐름을 오류 없이 끝까지 통과
-- 규칙 문서와 코드 안내: [notes/build_guide.md](notes/build_guide.md) · 진행 기록: [notes/progress.md](notes/progress.md) · 가상 데이터를 넣은 기준: [notes/synthetic_criteria.md](notes/synthetic_criteria.md)
+- 검증 V1~V4·V6, 관문 G1~G7 (입력 모듈 재현 포함) 통과. 모든 차트에 확정 상태 초안 `expected/confirmed_state.json`이 있다
+- 처방 흐름 시험 (2026-11-18, 49명): 모두 오류 없이 끝까지 돌았다. 고칠 거리 8가지는 [notes/progress.md](notes/progress.md) §3
+- 입력 모듈 LLM 시험 (qwen3:14b, 59명): 필드 정확도 98.8%
+- 가상 병원 DB (SQLite 한 파일, 아래 "가상 병원 DB"): 환자·차트·정답 JSON·슬라이드·BCNB 주석·슬라이드 벡터 1,634장을 한곳에서 읽는다
 
-## 폴더
+## 원칙
 
-| 폴더 | 내용 | git |
-|---|---|---|
-| `src/virtual_hospital/` | 생성·관문·검증 코드, 이 문서, `notes/` | 올림 |
-| `data/virtual_hospital/rules/` | 규칙 표 (`rules.csv`), 문헌 값과 출처 (`references.csv`), 기준값, 표기, 이미지·모듈 결과 표 정의 | 올림 |
-| `data/virtual_hospital/source/` | TCGA 원본 사본: mini 크롭본·병합본 CSV (`tcga_convert.py`의 입력) | 올림 |
-| `data/virtual_hospital/tcga/` | TCGA ①: `patients.csv`, `fields.csv`(칸마다 실제·계산·합성 출처), `truth.csv`(차트에 없는 값: 생존, PAM50, 실제 처방 기록), `charts/<번호>/chart.txt`·`expected/*.json`, `images/`, `NOTICE.md` | 올림 |
-| `data/virtual_hospital/tcga_recur/` | TCGA ②: 위와 같은 구성 + `treatments.csv` (요법 줄마다 중단 사유와 근거, 차수) | 올림 |
-| `data/virtual_hospital/reports/` | 생성 보고, 뺀 환자와 이유, 관문 결과, 점검 | 올림 |
-| `data/virtual_hospital/tcga_hgvsc.csv` | GDC·Genome Nexus 변이 c. 표기 | 올림 |
-| `data/virtual_hospital/local/` | BCNB 원자료(`BCNB/`)와 결과(`bcnb/`), 원본 ID 대응표, 등급 판독 원본(`thennavan2021/`), cBioPortal 변이, LLM 결과 | **제외** |
-| `tests/virtual_hospital/test_virtual_hospital.py` | 규칙 표 ↔ 코드, 저장본 = 다시 만든 것, check, 표 정의 | 올림 |
+- **실제 값 먼저.** 없는 값만 합성하고 칸마다 `real` / `derived` / `synthetic`과 거친 규칙 id를 남긴다. 합성 근거 순위: ① 같은 환자 계산 → ② 같은 데이터 안 분포 → ③ 같은 환자 대리 지표 → ④ 문헌 → ⑤ 고정값
+- **처방 모듈을 고치지 않는다.** 생성기가 처방 모듈 입력 규칙에 맞추고, 실제 값이 못 맞추면 그 환자를 뺀다. 이 폴더는 입력 모듈 규칙, B `assess`, 화면 1 초안 코드를 불러 쓰기만 한다
+- **결정 시점마다 차트.** 차트에는 판정 기준일 전에 일어난 일만 쓰고, 그날부터의 값(수술 림프절, 이후 투약, 생존)은 `truth.csv`에만 둔다
+- **실제 처방 기록은 참고용이다.** 2000년대 미국 처방이라 정답이 아니다. 처방이 맞는지는 `tests/fixtures/virtual_charts/`로 본다
+- **BCNB에서 나온 것은 git에 올리지 않는다.** 약관상 수정본도 재배포할 수 없어서 각자 원자료를 받아 직접 만든다
 
-`.gitignore`: `data/` 안은 원래 csv·txt·py만 올리지만, `data/virtual_hospital/` 아래 json·md도 올리고 `local/`은 뺀다.
+## 폴더 구조
 
-## 실행 (team_project 폴더, team_project 환경)
-
-필요한 것: 같은 상위 폴더의 `team_project_final`(모듈 1 MKI67 발현, 슬라이드 목록). BCNB 갈래는 BCNB 자료를 `data/virtual_hospital/local/BCNB/BCNB/`에 따로 받아야 한다.
-
-```bash
-python -m src.virtual_hospital.fetch_hgvsc       # 처음 한 번: 변이 c. 표기 (GDC, Genome Nexus)
-python -m src.virtual_hospital.fetch_thennavan   # 처음 한 번: 등급 판독 점수 (Europe PMC, local/에만)
-python -m src.virtual_hospital.build             # TCGA ① → data/virtual_hospital/tcga/, reports/
-python -m src.virtual_hospital.tcga_recur        # TCGA ② → data/virtual_hospital/tcga_recur/
-python -m src.virtual_hospital.bcnb              # BCNB → data/virtual_hospital/local/bcnb/ (git 제외)
-python -m src.virtual_hospital.confirmed         # 확정 상태 초안 (build가 차트 폴더를 새로 만드므로 마지막에)
-python -m pytest tests/virtual_hospital/test_virtual_hospital.py
 ```
+src/virtual_hospital/                 ← git: 코드와 문서
+├── README.md                         이 문서
+├── common.py                         경로, 규칙 표 읽기, vp 번호로 정한 난수
+├── tcga_convert.py · tcga.py         TCGA → patient_state, 고르기·옮기기·계산·합성
+├── render.py · gates.py · verify.py  chart.txt, 관문 G, 검증 V
+├── build.py · tcga_recur.py · bcnb.py · confirmed.py   만들기 (아래 "만드는 순서")
+├── fetch_hgvsc.py · fetch_thennavan.py                 자료 받기
+├── bcnb_check.py · mini_probe.py · llm_run.py          점검·시험
+├── embed_slides.py                   타일 벡터 .h5 → 슬라이드 벡터 .npz (GPU 서버에서, numpy·h5py만)
+├── db_schema.sql                     가상 병원 DB 표 정의
+├── db.py                             DB 만들기 + 읽기 함수
+└── notes/                            설계·기준·기록 (아래 "문서")
+
+data/virtual_hospital/
+├── rules/                            ← git: rules.csv(규칙 원본), references.csv(문헌 값),
+│                                        thresholds.csv, phrases.csv, image_tables.csv
+├── source/                           ← git: TCGA 크롭본·병합본 CSV (tcga_convert.py 입력)
+├── tcga_hgvsc.csv                    ← git: 변이 c. 표기 (fetch_hgvsc가 만듦)
+├── tcga/, tcga_recur/                ← git: patients·fields·truth(·treatments).csv, NOTICE.md,
+│   │                                    images/(이미지 표 틀), charts/<VH-T…>/
+│   └── charts/<VH-T…>/chart.txt, expected/{patient_state, biomarker_record, confirmed_state}.json
+├── reports/                          ← git: 생성 보고, 뺀 환자, 관문 결과, confirmed.md
+└── local/                            ← git 제외
+    ├── bcnb_raw/                     BCNB 원자료 37GB (각자 받음: WSIs/, patient-clinical-data.xlsx)
+    ├── bcnb/                         BCNB 차트·정답·이미지 표 (각자 만듦, tcga/와 같은 구성)
+    ├── reports/                      BCNB 보고, 처방 흐름 시험 결과 (vh_flow_runs_2026-11-18/)
+    ├── source_map.csv · slide_map.csv   가상 번호 ↔ 원본 ID·슬라이드
+    ├── mutations.tsv                 cBioPortal 변이 (fetch_hgvsc 입력)
+    ├── thennavan2021/                등급 판독 원본 (CC BY-NC-ND, fetch_thennavan이 받음)
+    ├── llm_runs/                     입력 모듈 LLM 시험 결과
+    ├── features/                     슬라이드 벡터 tcga_hoptimus0.npz · bcnb_hoptimus0.npz
+    │   └── <묶음>/<파일>.h5          타일 벡터 (보통 GPU 서버에만, 필요할 때 받음)
+    └── virtual_hospital.db           각자 만드는 DB 한 파일 (약 56MB)
+
+tests/virtual_hospital/               ← git
+├── test_virtual_hospital.py          규칙 id ↔ 표, 다시 만들면 같은지, BCNB가 local/에만 있는지
+└── test_db.py                        DB (BCNB·벡터가 없으면 그 검사만 건너뜀)
+```
+
+`.gitignore`: `data/` 안은 원래 csv·txt·py만 올리지만, `data/virtual_hospital/` 아래는 json·md도 올리고 `local/`은 뺀다.
+
+## 만드는 순서
+
+`team_project` 폴더에서 `team_project` 환경으로 실행한다. 같은 상위 폴더에 `team_project_final`(모듈 1: MKI67 발현, 슬라이드 QC·썸네일)이 있어야 한다.
+
+| 단계 | 명령 | 읽는 것 | 만드는 것 | 언제 |
+|---|---|---|---|---|
+| 0 | `python -m src.virtual_hospital.fetch_thennavan` | Europe PMC | `local/thennavan2021/mmc3.xlsx` | 처음 한 번 (1단계의 grade 판독 점수) |
+| 1 | `python -m src.virtual_hospital.build` | `source/`, `tcga_hgvsc.csv`, `local/thennavan2021/`, `team_project_final` | `tcga/`, `reports/`, `local/source_map.csv`·`slide_map.csv` | 규칙·코드를 바꿀 때마다 |
+| (1-1) | `python -m src.virtual_hospital.fetch_hgvsc` | `local/source_map.csv`, `local/mutations.tsv`, GDC·Genome Nexus | `tcga_hgvsc.csv` | 변이 표기가 없을 때만 (git에 있음). 받은 뒤 1단계를 다시 |
+| 2 | `python -m src.virtual_hospital.tcga_recur` | 1단계와 같은 원본 (TCGA ①을 다시 계산해 씀) | `tcga_recur/` | 1단계 뒤 |
+| 3 | `python -m src.virtual_hospital.bcnb` | `local/bcnb_raw/`, `source/`(Allred·폐경 분포) | `local/bcnb/`, `local/reports/` | BCNB 원자료를 받은 사람만 |
+| 4 | `python -m src.virtual_hospital.confirmed` | 1~3단계의 `charts/*/expected/` | 차트마다 `expected/confirmed_state.json`, `reports/confirmed.md` | **마지막에** (1·2단계가 차트 폴더를 새로 만들어서) |
+| 5 | `python -m pytest tests/virtual_hospital` | 위 결과 | — | 만들 때마다 |
+| 6 | `python embed_slides.py <h5 폴더> <출력.npz>` | 타일 벡터 `.h5` (GPU 서버의 `tcga_all/features`, `bcnb-ln-module2/outputs/features_hoptimus0`) | `local/features/<묶음>_hoptimus0.npz` | 타일 벡터가 바뀔 때. 저장소 없이 파일 하나만 서버에 복사해 돌림 |
+| 7 | `python -m src.virtual_hospital.db build` | 1~4단계 결과, `local/features/` | `local/virtual_hospital.db` | 1~6단계 뒤. 매번 새로 만듦. 확인: `python -m src.virtual_hospital.db info` |
+
+점검·시험 (필요할 때):
+
+- `python -m src.virtual_hospital.bcnb_check data/virtual_hospital/local/bcnb_raw`: BCNB 원자료 점검 (개수·ID만)
+- `python -m src.virtual_hospital.mini_probe`: 정답을 B `assess`와 화면 1 초안에 넣어 `unknown`·빈 칸을 셈
+- `python -m src.virtual_hospital.llm_run`: 차트를 입력 모듈 LLM으로 끝까지 돌리고 채점 (GPU 터널 필요)
+- 처방 흐름 전체(C 검색 → B 추천 → D 급여)는 `src.app.script.run_flow`로 돈다. 가상 병원 차트로 돌린 방법은 [notes/progress.md](notes/progress.md) §3
+
+## 가상 병원 DB
+
+`local/virtual_hospital.db` (SQLite, git 제외). BCNB 값이 들어 있어 각자 7단계로 만든다.
+
+| 들어 있는 것 (2026-11-19) | 수 |
+|---|---|
+| 환자 (장면) | 1,651: tcga_postop 671, tcga_recur 9, bcnb_preop 971 |
+| 차트, 정답 JSON (patient_state·biomarker_record·confirmed_state) | 1,651, 4,953 |
+| fields, truth, treatments | 35,201, 13,324, 28 |
+| 슬라이드, BCNB 주석 | 1,691, 971 |
+| 슬라이드 벡터 (H-optimus-0, 종양 타일 평균, 없으면 전체 평균) | 1,634: TCGA 663, BCNB 971 |
+
+읽기 함수 (`src.virtual_hospital.db`):
+
+```python
+from src.virtual_hospital import db
+con = db.connect()
+db.list_patients(con, branch="bcnb_preop", subtype=...)   # 환자 목록
+db.get_chart(con, vp_id)                                   # chart.txt
+db.get_state(con, vp_id, kind="confirmed_state")           # patient_state / biomarker_record / confirmed_state
+db.slides(con, vp_id); db.slide_file(con, slide_id)        # 슬라이드 목록, 원본 파일 위치
+db.similar(con, slide_id, k=10)                            # 같은 묶음 안 cosine 유사 슬라이드 (같은 환자 제외)
+db.tile_features(con, slide_id, feature_set)               # 타일 벡터 (local/features/<묶음>/에 .h5가 있을 때, h5py 필요)
+db.truth(con, vp_id, allow_future=True)                    # 판정 기준일 뒤의 값: allow_future를 줘야만 읽힘
+```
+
+- 열쇠는 `(vp_id, branch)`. 같은 TCGA 환자가 수술 후·재발 두 장면에 있을 수 있다 (예: VH-T0043). `branch`를 안 주면 하나뿐일 때만 찾는다
+- 차트 등록번호는 TCGA와 BCNB에서 겹친다 (VH-T0002와 VH-B0002 모두 00000002). 찾기는 `vp_id`로
+- TCGA와 BCNB 벡터는 타일 크기·배율이 달라 섞어 비교하지 않는다
+
+## 문서
+
+| 문서 | 내용 |
+|---|---|
+| [notes/progress.md](notes/progress.md) | 2026-11-09 ~ 11-19 한 일, 사용자 결정, 처방 흐름 시험 결과, 남은 것 |
+| [notes/design.md](notes/design.md) | 설계: 규칙 체계, 시점과 정답 분리, 칸별 규칙, 결측, CSV·chart.txt, 이미지, 검증·관문 |
+| [notes/synthetic_criteria.md](notes/synthetic_criteria.md) | 칸별로 어떻게 합성했는지, 실제 값을 바꾼 것, 문헌 값 |
+| [notes/build_guide.md](notes/build_guide.md) | 규칙 문서·코드 안내, 처방 모듈에서 쓰는 파일 |
+| [notes/bcnb_check.md](notes/bcnb_check.md) | BCNB 원자료 점검 |
+| [notes/mini_findings.md](notes/mini_findings.md) | 처방 모듈 점검 결과 (읽기만) |
+| [notes/module_result_format_proposal.md](notes/module_result_format_proposal.md) | 이미지 모듈 결과 형식 제안 (팀 합의 전) |
 
 ## 데이터 출처와 인용
 
@@ -62,13 +153,13 @@ The results shown here are in whole or part based upon data generated by the TCG
 **BCNB**
 
 - Xu F, Zhu C, Tang W, et al. Predicting axillary lymph node metastasis in early breast cancer using deep learning on primary tumor biopsy slides. Front Oncol. 2021;11:759007. doi:10.3389/fonc.2021.759007 · https://bupt-ai-cz.github.io/BCNB/
-- BCNB 약관(원본·수정본 재배포 금지)에 따라 이 저장소에는 BCNB 원본과 BCNB로 만든 가상환자 기록·차트·정답·주석을 넣지 않는다 (`data/virtual_hospital/local/BCNB/`, `data/virtual_hospital/local/`은 git 제외). BCNB를 쓰는 코드는 비상업 연구 목적에 한한다.
+- BCNB 약관(원본·수정본 재배포 금지)에 따라 이 저장소에는 BCNB 원본과 BCNB로 만든 가상환자 기록·차트·정답·주석을 넣지 않는다 (`data/virtual_hospital/local/`은 git 제외). BCNB를 쓰는 코드는 비상업 연구 목적에 한한다.
 
 **조직학적 등급 (TCGA, 병리 전문의 판독)**
 
 - Thennavan A, Beca F, Xia Y, et al. Molecular analysis of TCGA breast cancer histologic types. Cell Genomics. 2021;1(3):100067. doi:10.1016/j.xgen.2021.100067 · Data S2 (`mmc3.xlsx`, 조직 소견 11가지 점수)
 - Heng YJ, et al. The molecular basis of breast cancer pathological phenotypes. J Pathol. 2017;241(3):375-391. PMID 27861902 (판독 채점표)
-- Data S2는 CC BY-NC-ND 4.0이라 원본은 `data/virtual_hospital/local/thennavan2021/`에만 둔다 (git 제외, `python -m src.virtual_hospital.fetch_thennavan`으로 Europe PMC에서 받음). 가상환자 차트에는 그 판독 점수로 정한 등급과 세 점수(관 형성·핵 다형성·유사분열)를 쓴다 (규칙 M-05, 650명). 판독이 없는 21명은 합성(Y-05). 자세한 출처와 표시: [data/virtual_hospital/tcga/NOTICE.md](../../data/virtual_hospital/tcga/NOTICE.md)
+- Data S2는 CC BY-NC-ND 4.0이라 원본은 `data/virtual_hospital/local/thennavan2021/`에만 둔다. 가상환자 차트에는 그 판독 점수로 정한 등급과 세 점수(관 형성·핵 다형성·유사분열)를 쓴다 (규칙 M-05, 650명). 판독이 없는 21명은 합성(Y-05). 자세한 출처와 표시: [data/virtual_hospital/tcga/NOTICE.md](../../data/virtual_hospital/tcga/NOTICE.md)
 
 **변이 주석**
 
@@ -80,546 +171,4 @@ The results shown here are in whole or part based upon data generated by the TCG
 
 - 연구·교육용 가상 데이터다. 진단·처방에 쓰지 않는다
 - 차트의 이름·등록번호·주민번호는 모두 가짜다
-
----
-
-아래는 설계 문서다 (2026-11-09 작성, 이후 갱신). 실제 슬라이드가 붙은 가상환자로 **모듈 1~3·4-B(슬라이드) → 처방 모듈(입력 → 판정 → 확정 → 처방·급여)**을 한 환자로 이어서 확인한다. 이 문서는 가상환자를 만드는 **규칙을 어떻게 세우고, 어디에 두고, 어떻게 검사하는지** 정한다.
-
-- 처방 모듈의 다른 코드(입력 모듈 규칙, 바이오마커, 화면)와 `team_project_final`(모듈 1)은 **불러 쓰기만** 하고 고치지 않는다. 2026-11-18까지는 별도 저장소 `virtual_hospital`에 있었다
-- BCNB 약관을 지킨다 (§12).
-
-## 목차
-
-| 번호 | 제목 | 한 줄 요약 |
-|---|---|---|
-| 1 | 정한 것 | 두 갈래, 실제 값이 뼈대, 출처 표시, 테스트 분할만 |
-| 2 | 원칙: 처방 모듈을 고치지 않는다 | 생성기가 처방 모듈에 맞추고, 못 맞추면 그 환자를 뺀다 |
-| 3 | 만드는 흐름 | 원본 → 고르기 → 옮기기 → 계산 → 합성 → 치료 이력 → CSV → 관문 → chart.txt → 검증 |
-| 4 | 규칙 체계 | 규칙 묶음 11개, 공통 열, 근거 순위, 바꾸는 절차 |
-| 5 | 시점과 정답 분리 | 판정 기준일 뒤의 값은 정답 표에만 |
-| 6 | 칸별 규칙 | BCNB·TCGA 칸마다 실제 / 계산 / 합성과 규칙 id |
-| 7 | 치료 이력 규칙 | L1 절대 규칙 → L2 표준 경로 → L3 비정형 목록 |
-| 8 | 결측 규칙 | 필수는 환자 제외, 보조는 합성, 선택은 처방 모듈이 처리하는 형태로 |
-| 9 | CSV와 chart.txt | 칸 이름 = `patient_state` 경로, 표기는 기존 표기에서만 |
-| 10 | 이미지 데이터 | 슬라이드는 경로만, 위치는 좌표로, 히트맵 그림은 다시 만들 수 있는 캐시 |
-| 11 | 검증과 관문 | V1~V8 (실제와 같은지, 이미지 좌표), G1~G7 (처방 모듈을 지키는지) |
-| 12 | BCNB 약관과 폴더 | 공개 / 비공개 폴더 |
-| 13 | 작업 순서 | TCGA 먼저, BCNB는 `data/virtual_hospital/local/`에서 |
-| 14 | 정할 것 | |
-
----
-
-## 1. 정한 것 (2026-11-09)
-
-| 항목 | 결정 |
-|---|---|
-| 환자 갈래 | **BCNB = 수술 전 (생검 직후)**, **TCGA = 수술 후**. 한 사람의 생검·절제 슬라이드 짝은 어느 데이터에도 없어서 섞지 않는다 |
-| 뼈대 | 실제 슬라이드 1장 + 그 슬라이드 주인의 실제 라벨. 데이터에 없는 칸만 합성한다 |
-| 값의 출처 | 칸마다 `real` (원값) / `derived` (실제 값에서 계산) / `synthetic` (합성). 모델 채점은 `real` 칸으로만 한다. 모듈이 낸 예측·주의 점수는 `model`로 따로 둔다 (§10) |
-| 환자 고르기 | **학습·시험 분할은 나누지도 표시하지도 않는다** (2026-11-10). 목적은 데이터셋이 아니라 가상환자 차트를 만드는 것이다. 모듈 평가에 쓰게 되면 그때 각 모듈의 분할로 거른다 |
-| Synthea | 쓰지 않고 시작한다. 배경 기록(방문, 동반 질환)이 필요해지면 그때 검토 |
-
----
-
-## 2. 원칙: 처방 모듈을 고치지 않는다
-
-1. **처방 모듈이 기준이다.** 생성기는 처방 모듈이 지금 받는 것(`schemas/patient_state.json`, `field_vocab.csv`, `drug_names.csv`, `report_templates.md`의 틀, 상태값)만 만든다.
-2. **못 맞추면 환자를 뺀다.** 실제 값이 처방 모듈 입력 규칙에 들어가지 않으면 그 환자를 정상 세트에서 빼고 **넘길 목록**(§11.3)에 적는다. 처방 모듈을 바꿀지는 팀이 기존 절차(4명 검토)로 정한다.
-3. **바꾸자는 근거는 실제 값이어야 한다.** 넘길 목록에는 `real` 칸에서 생긴 문제만 올린다. `synthetic` 칸에서 생긴 문제는 생성기 버그라서 생성기를 고친다.
-4. **경계 시험은 기존 가상 차트가 맡는다.** 합성 수치는 판정 경계에서 떨어진 값만 쓴다 (§4.4). 경계 사례는 지금처럼 mini `tests/fixtures/virtual_charts/`가 맡는다.
-5. **mini 버전을 기록한다.** 생성할 때마다 mini 커밋과 스키마 버전을 남기고, mini가 바뀌면 관문(§11.2)을 다시 돌린다.
-
----
-
-## 3. 만드는 흐름
-
-```
-원본 (TCGA 병합 CSV, 변이, RNA / BCNB 임상 xlsx)  + 슬라이드
-   │ S  환자 고르기 (테스트 분할, 범위, 필수 칸, 제외 목록)
-   │ M  실제 값 옮기기 (원본 열 → patient_state 칸, 정규값)
-   │ D  계산 (병기, ISH, cT, 날짜)
-   │ Y  합성 (근거 순위 ①~⑤)
-   │ T  치료 이력 (L1 → L2 → L3, TCGA 재발 갈래만)
-   │ N  결측 처리
-   ▼
-CSV (patients · fields · treatments · slides · truth)
-   │ G  관문 G1~G7 ── 실패 → 생성기 수정 또는 환자 제외 + 넘길 목록
-   ▼
-   │ R  표기 (mini Chart/F로 chart.txt + 정답 patient_state)
-   ▼
-chart.txt · expected/patient_state.json · slides.csv
-   │ V  검증 V1~V5 → reports/
-
-슬라이드 (§10)
-   │ I  등록 (경로·해시·mpp·썸네일) → slides.csv, 정답 주석 → annotations.csv
-   │    모듈 1·2·3·4-B 실행 (각 모듈 코드) → module_runs.csv · 타일 격자 · 타일 점수
-   │ I  그리기 (썸네일 + 히트맵 겹침 + 상위 타일) → renders.csv (캐시)
-   │ V  검증 V5~V8
-```
-
----
-
-## 4. 규칙 체계
-
-### 4.1 규칙 묶음
-
-규칙은 **표(CSV)로 두고 코드는 표를 실행만** 한다. 그래야 규칙을 코드를 읽지 않고 검토할 수 있다. 만든 값마다 어느 규칙으로 만들었는지(`rule_id`)를 남긴다.
-
-| 묶음 | id | 정하는 것 | 규칙 파일 (`data/virtual_hospital/rules/`) |
-|---|---|---|---|
-| 고르기 | `S-` | 어떤 환자를 쓰고 뺄지 | `select.csv`, 제외 목록 `exclude_tcga.csv` (`data/virtual_hospital/local/exclude_bcnb.csv`) |
-| 옮기기 | `M-` | 원본 열 → `patient_state` 칸, 원본 값 → 정규값, 차트 / 정답 / 안 씀 | `map_tcga.csv`, `map_bcnb.csv` |
-| 계산 | `D-` | 실제 값에서 계산하는 칸 | `derive.csv` |
-| 합성 | `Y-` | 데이터에 없는 칸을 만드는 법 | `synth.csv` + 근거 표 `references.csv` |
-| 치료 이력 | `L1-` `L2-` `L3-` | 약을 쓸 수 있는 조건, 표준 경로, 비정형 목록 | `drug_label.csv`, `standard_paths.csv`, `deviations.csv` |
-| 결측 | `N-` | 비어 있는 칸을 어떻게 할지 | `missing.csv` |
-| 표기 | `R-` | 칸 값 → 차트 글, 문서 구성 | `phrases.csv`, `documents.csv` |
-| 이미지 | `I-` | 슬라이드 등록, 주석 변환, 썸네일 배율, 히트맵 정규화·색표·임계값 (§10) | `images.csv` |
-| 기준값 | — | 경계 금지 구간, 검증 통과 기준 | `thresholds.csv` |
-| 검증 | `V-` | 실제 데이터와 같은지 | (코드, §11.1) |
-| 관문 | `G-` | 처방 모듈 입력 규칙에 맞는지 | (코드, §11.2) |
-
-**지금 파일 (2026-11-09):** 규칙 목록은 묶음별 파일로 나누지 않고 `data/virtual_hospital/rules/rules.csv` 한 표(`묶음` 열)에 둔다. 숫자·분포는 `references.csv`·`thresholds.csv`, 표기는 `phrases.csv`. 코드(`src/virtual_hospital/`)는 규칙 id로 표와 이어지고, `tests/virtual_hospital/test_virtual_hospital.py`가 코드·산출물에 쓴 규칙 id가 모두 표에 있는지 본다. 위 표의 나머지 파일(`drug_label.csv` 등)은 그 단계를 할 때 만든다.
-
-### 4.2 규칙 표의 공통 열
-
-| 열 | 내용 | 예 |
-|---|---|---|
-| `rule_id` | 묶음 + 번호 | `Y-07` |
-| `설명` | 한 줄 | TCGA Ki-67을 MKI67 발현 순위로 만든다 |
-| `갈래` | BCNB / TCGA① / TCGA② / 공통 | TCGA① |
-| `입력` | 쓰는 원본 열 또는 칸 | `MKI67` 발현, `cbio_SUBTYPE` |
-| `출력 칸` | `patient_state` 경로 | `proliferation.ki67_percent` |
-| `근거` | §4.3의 ①~⑤, 또는 허가사항·문헌 | ③ |
-| `출처` | 파일·열 / 문헌(쪽) / 허가사항(날짜) | `references.csv` R-03 |
-| `예` | 입력 → 출력 하나 | MKI67 상위 30% → Ki-67 30% |
-| `상태` | 제안 / 확정 | 제안 |
-| `결정일` | 확정한 날 | |
-
-- `근거`나 `출처`가 비어 있는 규칙은 **확정할 수 없다**.
-- `references.csv`: 문헌·통계 값 하나 = 한 행 (값, 대상, 출처, 쪽, 확인일). ④ 근거 규칙은 여기를 가리킨다.
-
-### 4.3 합성 근거 순위
-
-합성값은 위에서부터 쓸 수 있는 첫 근거로 만든다.
-
-| 순위 | 근거 | 예 |
-|---|---|---|
-| ① | **같은 환자의 다른 실제 값에서 계산** (`derived`) | TNM → 병기, BCNB HER2 2+ + 양성 → ISH 증폭, 종양 크기 → cT, 진단 후 일수 → 날짜 |
-| ② | **같은 데이터셋 안의 실제 관계** (조건부 분포) | TCGA 폐경 결측 → TCGA 나이대별 폐경 비율. TCGA ER % 결측 → ER 양성 환자의 실제 % 구간 분포 |
-| ③ | **같은 환자의 다른 실제 데이터** (대리 지표) | TCGA Ki-67 → 같은 환자의 `MKI67` RNA 발현 순위 (`expr_common_genes.txt`에 있음 확인) |
-| ④ | **문헌·공개 통계** (`references.csv`에 출처 필수) | ECOG, 초음파 cN 정확도, 아형별 grade 분포, gBRCA 양성률 |
-| ⑤ | **고정값** (근거가 없을 때) | 병원 이름, 담당의, 문서 사이 날짜 간격 (생검 → 보고 5일 등) |
-
-- BCNB 값으로 TCGA 칸을 채우지 않는다 (반대로도). BCNB 통계는 검증(V3·V4)에만 쓰고 `data/virtual_hospital/local/`에 둔다. 섞으면 TCGA 산출물을 공개할 수 있는지 애매해진다.
-- 합성값은 **실제 값과 같은 판정**이 나와야 한다. 예: BCNB ER `Positive`에 붙이는 %는 B 규칙으로도 양성.
-- 난수는 `vp_id`로 정한다. 같은 규칙 표 + 같은 원본 → 같은 결과.
-
-### 4.4 경계 금지 구간 (`thresholds.csv`)
-
-합성 수치에만 적용한다. 실제 값은 경계에 있어도 그대로 쓴다.
-
-| 칸 | 금지 구간 (제안) | 이유 |
-|---|---|---|
-| ER % | 1~19% | 저발현(1~10%)과 B의 판정 경계 |
-| PR % | 1~19% | B의 PR 9% 기준 |
-| Ki-67 % | 15~25% | 20% 기준 |
-
-### 4.5 규칙을 바꾸는 절차
-
-1. 규칙 표의 행을 고친다 (상태 `제안`).
-2. 전체를 다시 만든다 → 관문(G1~G7)과 검증(V1~V5)이 다시 돈다.
-3. 결과가 바뀐 환자 수와 칸을 `data/virtual_hospital/reports/changes.md`에 적는다.
-4. 확인되면 상태를 `확정`, 결정일을 적는다.
-
-**검증 기준(`thresholds.csv`)은 결과를 본 뒤 바꾸지 않는다.** 바꿔야 하면 이유를 적고 다음 생성부터 적용한다.
-
----
-
-## 5. 시점과 정답 분리
-
-병원 DB와 chart.txt는 **판정 기준일까지 일어난 일만** 담는다. 그 뒤의 값(미래 값)은 `truth.csv`에만 둔다. 예: BCNB 수술 림프절 결과가 차트에 들어가면 모듈 2가 맞혀야 할 답이 보인다.
-
-| 갈래 | 판정 기준일 | 차트에 보임 | 정답 표에만 | 쓰는 모듈 → 처방 장면 |
-|---|---|---|---|---|
-| **BCNB** | 초진일 (생검 보고 뒤) | 생검 병리, 임상 크기, 나이, 합성 칸 | 수술 림프절 결과(`ALN status`, 개수), 수술 방법 | 2, 3, 4-B 파트 1 → 수술 전 (선행요법 여부) |
-| **TCGA ①** | 수술 후 외래일 = 실제 첫 보조 투약일과 49일 중 빠른 날 (D-10) | 절제 병리, 수용체, 변이, 폐경, 합성 칸 | 이후 투약(실제 처방 기록, 참고용), 재발, 생존, PAM50 | 1, 3(ER/PR), 4-B 파트 2 → 수술 후 보조요법 |
-| **TCGA ②** | 고식 차수 약의 실제 시작일 (D-R1, 실제 원격 재발 환자만) | ① + 그 전 투약(실제) + 재발 | 그날부터의 투약(실제 처방 기록, 참고용), 생존 | → 고식 2차 (2차가 있으면) 또는 1차 |
-
-- 날짜: TCGA는 진단일 기준 일수, BCNB는 날짜 없음. 가짜 기준일을 정하고 일수를 더한다 (`D-`).
-- TCGA ②는 적다 (2026-11-17: ① 671명 중 원격 재발 13명 → 관문 통과 9명, 뺀 이유 `data/virtual_hospital/reports/tcga_recur_excluded.csv`). 장면은 실제로 다음 치료를 정한 시점이다 (D-R1): 두 번째 고식 요법이 있으면 그 시작일, 없으면 첫 고식 요법 시작일. 문구는 그 요법의 종류와 차수 (예: 내분비 1차 뒤 capecitabine → "고식 항암 1차 치료 결정"). HR+/HER2-라도 실제로 항암을 고른 시점을 건너뛰지 않는다. 장면 차수와 B 확정값이 다른 1명(VH-T0213: 내분비 1차가 진행 기록 없이 끝남)은 `data/virtual_hospital/reports/confirmed.md`에 적는다. 기준일에 투약 중인 줄은 반응을 쓰지 않는다. 전이성 분기 시험은 mini 가상 차트가 계속 맡는다.
-- **처방 모듈을 이미 시작한 약에 또 쓰지 않는다:** 차트는 약을 새로 정하는 시점마다 만들고, 그 시점에 시작한 약부터는 차트에 없다. 투약 중간 시점(예: tamoxifen 3년째)의 차트는 만들지 않는다.
-- **실제 처방 기록은 정답이 아니다:** `truth.csv`의 `actual_prescriptions_reference`(①, 전체 투약)와 `actual_prescriptions_from_index_reference`(②, 기준일부터)는 2000년대 미국 실제 처방이라 지금 ESMO·급여 기준과 다를 수 있다. 처방 모듈을 이 기록에 맞추지 않고, 추천과 나란히 놓고 참고로만 본다. 처방 모듈이 맞는지는 mini 가상 차트(지침·급여 정답)로 본다. 이 폴더의 차트는 끝까지 실행되는지와 앞 단계(입력·바이오마커·치료 상황·차수) 정답(`expected/`)을 보는 데 쓴다.
-- **투약 기록이 없는 TCGA ① 환자(146명, 2026-11-17)**는 수술 후 이제 처방이 들어가는 환자로 쓴다. 실제 처방 기록이 없으므로 추천과 실제 처방을 나란히 보는 데서는 빠진다.
-
----
-
-## 6. 칸별 규칙
-
-`차트` = 병원 DB와 chart.txt에 씀, `정답` = `truth.csv`에만, `거르기` = 환자 고르기에만, `안 씀`. 규칙 id는 자리만 잡은 것이고 규칙 표를 만들 때 확정한다.
-
-### 6.1 BCNB (1,058명, 14열 + 슬라이드)
-
-| 원본 열 | 쓰는 곳 | `patient_state` 칸 | 출처 | 규칙 |
-|---|---|---|---|---|
-| `Patient ID` | `data/virtual_hospital/local/source_map.csv` | — | — | — |
-| `Age(years)` | 차트 | `patient.age` | real | M |
-| `Tumour Size(cm)` | 차트 | `stage.clinical_size_mm` (×10) | real | M. 선행요법 크기 조건(2cm 초과)에 쓰이는 칸 |
-| (계산) | 차트 | `stage.ctnm`의 T | derived | D: 크기 → cT |
-| `Tumour Type` | 차트 | `diagnosis.histology` | real | M. `field_vocab`에 없으면 환자 제외 (G2) |
-| `Histological grading` | 차트 | `diagnosis.grade` | real | M. 결측 132명은 합성하지 않고 줄을 안 씀 (N) |
-| `ER`, `PR` | 차트 | `receptors.er_percent`·`pr_percent`의 `result` | real | M |
-| (합성) | 차트 | 같은 칸의 `percent` | synthetic | Y ④: 양성 → 20% 이상, 음성 → 0% (§4.4) |
-| `HER2 Expression` | 차트 | `receptors.her2_ihc.score` | real | M |
-| `HER2` | 차트 | `receptors.her2_ish` | derived | D: 2+일 때만, 양성 → 증폭, 음성 → 비증폭 |
-| `Ki67` | 차트 | `proliferation.ki67_percent` | real | M: 숫자 → `percent`, 범위 문자열 → `range` |
-| (합성) | 차트 | `patient.menopausal_status` | synthetic | Y ④: 45세 이하 폐경 전, 55세 이상 폐경 후, 사이는 ② TCGA 나이대 비율 (BCNB 환자에 TCGA 공개 통계를 쓰는 것은 허용) |
-| (합성) | 차트 | `patient.ecog` | synthetic | Y ④: 0 또는 1 |
-| (합성) | 차트 | `stage.ctnm`의 N (초음파) | synthetic | Y ④: 정답 림프절과 문헌 초음파 민감도·특이도로 정함 (출처 확인 필요) |
-| `Molecular subtype` | 안 씀 | — | — | 아형은 B가 판정. 모듈 3이 다시 계산한 아형은 `truth.csv` |
-| `ALN status`, `Number of lymph node metastases` | **정답** | — | real | 모듈 2 정답 |
-| `Surgical` | **정답** | — | real | 수술 뒤 정보 |
-| 슬라이드, 종양 주석 | `slides.csv` | — | real | 모듈 2·3·4-B 입력 |
-
-- 모듈 3 정제 규칙의 제외 대상(ER−/PR+ 등 11명)은 같은 목록으로 뺀다 (`S-`, `data/virtual_hospital/local/exclude_bcnb.csv`).
-
-### 6.2 TCGA-BRCA (`tcga_brca_merged.csv` 1,098명 + 변이 + RNA + 슬라이드)
-
-| 원본 열 | 채움 | 쓰는 곳 | `patient_state` 칸 | 출처 | 규칙 |
-|---|---|---|---|---|---|
-| `gdc_gender` | 99.9% | 거르기 | `patient.gender` | real | S: 남성 제외 (범위 외) |
-| `gdc_history_neoadjuvant_treatment` | 99.7% | 거르기 | — | real | S: Yes 13명 제외 |
-| `gdc_age_at_diagnosis` | 99.9% | 차트 | `patient.age` | real | M |
-| `gdc_menopause_status` | 91.7% | 차트 | `patient.menopausal_status` | real | M. Pre/Peri/Post 973명. 나머지는 Y ② (나이대별 실제 비율) |
-| `gdc_histological_type` | 99.8% | 차트 | `diagnosis.histology` | real | M (`field_vocab`에 TCGA 표기 있음) |
-| (합성) | — | 차트 | `diagnosis.grade` | synthetic | Y ④: 아형별 grade 분포 |
-| `gdc_ajcc_*_pt` / `pn` / `pm`, `gdc_ajcc_pathologic_tumor_stage`, `gdc_ajcc_staging_edition` | 87~99.9% | 차트 | `stage.ptnm`, `stage.group` | real | M. 판수(5th~7th)는 실제대로. 판수 결측은 §14 |
-| `gdc_lymph_nodes_examined_count`, `gdc_lymph_nodes_examined_he_count` | 84~88% | 차트 | `stage.positive_ln_count` | real | M |
-| `gdc_margin_status`, `gdc_surgical_procedure_first` | 94% | 차트 | (병리 글), `recurrence.surgery` | real | M |
-| `gdc_er_status_by_ihc`, `gdc_pr_status_by_ihc` | 95.4% | 차트 | `receptors.*.result` | real | M |
-| `gdc_er_status_ihc_Percent_Positive`, `gdc_pr_status_ihc_percent_positive` | 42.8%, 39.2% | 차트 | `receptors.*.range` | real | M. 결측은 Y ② (같은 판정 환자의 실제 구간 분포, §4.4) |
-| `gdc_her2_status_by_ihc`, `gdc_her2_ihc_score`, `gdc_her2_fish_status` | 83.7%, 56.6%, 38.3% | 차트 | `receptors.her2_ihc`, `her2_ish` | real | M. 2+인데 FISH 없음은 그대로 둔다 (§8) |
-| `MKI67` 발현 | 슬라이드 환자 | 합성 근거 | `proliferation.ki67_percent` | synthetic | Y ③: 발현 순위 → % (§4.4) |
-| 체세포 변이 (`mutations.tsv`, 7개 유전자) | `has_mutation_data` | 차트 | `molecular.mutations.*` | real | M. 지금 TCGA 차트와 같은 방식. BRCA1/2는 mini 규칙대로 gBRCA로 본다 |
-| (합성) | — | 차트 | `patient.ecog` | synthetic | Y ④: 0 또는 1 |
-| `drug_timeline` | 71% | 차트 (TCGA ②만) | `treatment_history` | real | M + 빈칸은 §7 |
-| NTE 재발 날짜·부위 | 59명 | 차트 (TCGA ②만) | `recurrence.*` | real | M |
-| `cbio_OS_*`, `PFS_*`, `DFS_*`, `gdc_last_contact_days_to` | 86~99% | **정답** | — | real | 모듈 1·4-B 파트 2 평가 |
-| `cbio_SUBTYPE` (PAM50) | 89.3% | **정답** | — | real | 차트에 쓰지 않음 |
-| `gdc_tissue_source_site` | 99.9% | 분할 | — | real | S: 모듈 1과 같은 TSS 분할 |
-| 인종·민족, hypoxia·aneuploidy·MSI·TMB, 방사선, 투약 용량 | | 안 씀 | | | 병원 차트에 없거나 처방 모듈이 안 씀 |
-
----
-
-## 7. 치료 이력 규칙
-
-### 7.1 합성할 치료 이력은 적다
-
-- BCNB(생검 직후)와 TCGA ①(수술 직후)은 판정 기준일에 **투약 이력이 없다**.
-- TCGA ②는 TCGA 실제 투약 기록(780명, 2,406건)을 쓴다. 실제 기록이라 비정형 경로가 이미 섞여 있다.
-- 합성은 실제 기록의 빈칸(중단 사유, 반응)과, 합성 재발을 허용할 때(§14)의 실제 마지막 추적일 이후뿐이다.
-
-### 7.2 세 층
-
-| 층 | 무엇 | 기준의 출처 | 파일 |
-|---|---|---|---|
-| **L1 절대 규칙** | 어떤 환자에게도 어기면 안 되는 조건. 관문 G4가 모든 환자를 검사해 어기면 버린다 | **약 허가사항** (식약처·FDA 라벨의 치료 상황과 바이오마커 조건) + 시간 순서. 처방 모듈이 쓰는 ESMO·급여 기준은 쓰지 않는다 (같은 기준으로 만들면 처방 모듈이 자기 답을 맞히는 꼴) | `drug_label.csv` (약 × 허가 상황 × 마커 조건 × 출처·날짜) |
-| **L2 표준 경로** | 시점·아형별로 흔한 치료 | TCGA 실제 투약 빈도 (TCGA 환자는 실제 약이 우선) | `standard_paths.csv` |
-| **L3 비정형** | 정해 둔 **벗어남 목록**에 있는 것만. 약을 무작위로 넣지 않고, 실제로 일어나는 사유를 고른다. L3도 L1을 통과해야 한다 | 목록마다 일어나는 조건, 바뀌는 것, 차트 사유 문장 | `deviations.csv` |
-
-### 7.3 L1 절대 규칙
-
-| id | 규칙 | 막는 예 |
-|---|---|---|
-| L1-1 | **치료 상황**: 약마다 허가된 상황(선행 / 보조 / 전이성)에서만. 상황은 그 날짜의 환자 상태로 정한다 (수술 전 M0 = 선행, 수술 후 재발 전 = 보조, 재발·de novo M1 뒤 = 전이성) | 선행 환자에게 전이성 전용 약 (fulvestrant, eribulin, palbociclib 등) |
-| L1-2 | **바이오마커**: 허가 조건의 마커가 맞을 때만 | HER2 음성에 trastuzumab, HR 음성에 내분비, gBRCA 음성에 PARP 억제제 |
-| L1-3 | **시간 순서**: 진단 → (선행) → 수술 → 보조 → 재발 → 1차 → 2차. 바꿀 때는 중단 사유가 있다 | 수술 전 날짜의 보조요법, 사유 없이 약 바뀜 |
-| L1-4 | 진행(PD)으로 끊은 요법을 다음 차수에 다시 쓰지 않음 | |
-| L1-5 | 환자 조건: 폐경 전 AI는 난소기능억제와 함께, 누적 안트라사이클린 상한 | 폐경 전 AI 단독 |
-
-### 7.4 L3 비정형 목록 (초안)
-
-| id | 비정형 | 일어나는 조건 | 바뀌는 것 | 차트 사유 문장 (예) | 처방 모듈에서 시험하는 곳 |
-|---|---|---|---|---|---|
-| L3-1 | 부작용으로 약 변경 | 보조 AI 중 | AI → tamoxifen | "관절통으로 anastrozole 중단, tamoxifen으로 변경" | 이전 내분비 계열, 종료일 |
-| L3-2 | 자의 중단 | 보조 내분비 1~4년차 | 종료일이 앞당겨짐 | "환자 자의로 복용 중단" | 종료 후 1년 이내 재발 간주 |
-| L3-3 | 항암 생략 | 70세 이상 또는 ECOG 2 이상 | 내분비만 | "고령, 환자가 원해 항암 생략" | 항암 이력 없음 |
-| L3-4 | 항암 조기 종료 | 항암 중 | 계획보다 적은 주기 | "호중구감소성 발열로 4주기 후 중단" | 누적 안트라사이클린, 완료 여부 |
-| L3-5 | 타 병원 치료 | 아무 때 | 날짜·주기 없이 약 이름만 | "외부 병원에서 AC 4회 후 전원" | 기록 없음 처리 |
-| L3-6 | 임상시험 참여 | 아무 때 | 약 이름 대신 시험 표시 | "임상시험 참여 중 (약 이름 비공개)" | 알 수 없는 약 처리 |
-
-어느 환자에게 어느 비정형을 넣을지는 `deviations.csv`의 비율로 정하고, 넣은 비정형은 `truth.csv`에 적는다.
-
-### 7.5 실제 기록이 L1을 어길 때
-
-> **2026-11-17 바뀜:** 아래 "전이성에서 주로 쓰는 약" 목록은 근거 없이 고른 것이라 철회한다. 재발 갈래는 실제 재발 기록이 있는 환자만 대상이므로 아래 21명 제외 규칙은 쓰지 않는다. TCGA 투약 기록은 처방된 그대로 쓰고, 차수 계산에 필요한 약 계열은 mini `drug_classes.csv`를 쓴다. L1 허가 조건 표는 만들지 않는다.
-
-TCGA 실제 투약 기록에서 전이성에서 주로 쓰는 약(gemcitabine, fulvestrant, bevacizumab, vinorelbine, lapatinib 등)이 **재발 기록 없이** 나온 환자가 21명이다 (27건, 2026-11-09 확인). 재발 기록이 빠졌거나 당시 임상시험에서 보조요법으로 쓴 경우로 보이며, 데이터로는 가릴 수 없다.
-
-- 이 환자들은 **TCGA ①로만** 쓴다. 판정 기준일 뒤의 투약은 미래 값이라 차트에 들어가지 않는다.
-- TCGA ②에서는 뺀다 (`exclude_tcga.csv`). 재발일을 지어내 맞추지 않는다.
-
-"선행 환자인데 전이성 약"처럼 앞뒤가 안 맞는 기록은 **정상 환자에는 넣지 않는다.** 입력 모듈의 충돌 검사를 시험할 때만 `오류 주입` 사례로 따로 만들고 정답에 "충돌로 표시해야 함"을 적는다.
-
----
-
-## 8. 결측 규칙
-
-**처방 모듈이 이미 처리하는 결측만 차트에 남긴다.**
-
-| id | 종류 | 칸 | 처리 | 이유 |
-|---|---|---|---|---|
-| N-1 | **필수** | 성별, 나이, ER, PR, HER2 (IHC 또는 ISH 중 하나), 병기 (T·N·M) | 실제가 결측이면 **환자 제외** | 채우면 실제 라벨을 지어내는 셈이고 모듈 3 정답도 오염된다 |
-| N-2 | **보조** | 폐경, grade, Ki-67, ECOG, ER/PR % | §6 규칙으로 합성. BCNB grade 결측은 실제 결측이라 그대로 둠 | 처방 분기(AI, 보조 CDK4/6 조건 등)에 쓰인다 |
-| N-3 | **선택** | PD-L1, gBRCA, NGS, 영상 | 그 시점에 검사하는 상황이면 합성 결과를 쓰고, 아니면 줄을 쓰지 않는다 (`not_recorded`). 일부는 일부러 `not_done` ("시행하지 않음") | B의 검사 공백 판정(BM-4)이 이미 처리한다 |
-| N-4 | **처방 모듈이 처리하는 실제 결측** | 예: TCGA HER2 2+인데 FISH 없음 | 그대로 둔다 | B가 `unknown` + ISH 검사 권고를 낸다. 실제 병원에서도 있는 상황 |
-
-결측 비율은 생성 뒤 칸별로 세어 실제 데이터의 결측 비율과 나란히 보고한다 (V3).
-
----
-
-## 9. CSV와 chart.txt
-
-### 9.1 CSV
-
-**칸 이름은 `patient_state` 경로, 값은 `field_vocab.csv`의 정규값으로 쓴다.** CSV가 처방 모듈과 같은 말을 쓰므로 관문을 CSV 단계에서 바로 돌릴 수 있다.
-
-| 파일 | 1행 | 주요 열 |
-|---|---|---|
-| `patients.csv` | 환자 1명 | `vp_id`, `branch` (BCNB_preop / TCGA_postop / TCGA_recur), `split`, `index_date`, 가짜 등록번호, 성별, 나이 |
-| `fields.csv` | 칸 1개 | `vp_id`, `field`, `value` (JSON), `status` (present / not_done / not_recorded), `origin` (real / derived / synthetic), `basis` (①~⑤), `rule_id`, `source_column`, `observed_date`, `specimen`, `role` (current / history:*) |
-| `treatments.csv` | 요법 1개 | `vp_id`, 순서, `drugs`, `setting`, 시작·종료, 중단 사유, 최선 반응, `origin`, `rule_id` |
-| 이미지 표 6개 (`slides.csv` 등) | — | §10.3 |
-| `truth.csv` | 정답 1개 | `vp_id`, 항목 (ALN status, OS, PAM50, 넣은 비정형 등), 값. **chart.txt에 넣지 않음** |
-| `source_map.csv` | 환자 1명 | `vp_id`, 원본 ID. **`data/virtual_hospital/local/`에만** |
-
-### 9.2 chart.txt 만드는 법
-
-```
-fields.csv · treatments.csv
-   │ 환자마다 문서 구성을 정한다 (documents.csv, 9.3)
-   ▼
-build_case(vp_id) — mini의 Chart / F / d.put / d.row를 불러 쓴다 (mini 파일은 고치지 않음)
-   │ 칸마다 phrases.csv에서 표기 하나를 고른다 (vp_id로 정한 난수)
-   ▼
-chart.txt + expected/patient_state.json (글을 쓰는 순간 위치 기록, mini check()가 검사)
-```
-
-- mini `virtual_chart.py`의 방식(글을 쓰는 순간 칸 값과 위치를 함께 기록)을 그대로 쓴다. 그래서 chart.txt와 정답이 어긋날 수 없다.
-- 만든 정답 `patient_state`는 `fields.csv`와 같아야 한다 (G1).
-
-### 9.3 문서 구성 (`documents.csv`, 순서 고정: mini `system_structure.md` §5.1)
-
-| 갈래 | 문서 (순서대로) |
-|---|---|
-| BCNB 수술 전 | 경과기록 (초진) → 병리 (생검) → 영상 (유방 초음파·MRI) |
-| TCGA ① 수술 후 | 경과기록 (수술 후 외래) → 병리 (수술) → 분자병리 (NGS) |
-| TCGA ② 재발 | 경과기록 (재발 외래) → 병리 (수술, 이전 값) → 분자병리 → 투약 기록 → 영상 (재발 확인) |
-
-### 9.4 표기 규칙 (`phrases.csv`)
-
-- 한 행 = 칸 × 정규값 × 표기 하나. **이미 있는 표기에서만 모은다**: mini 가상 차트 사례 스크립트(`cases/vc_*.py`), `report_templates.md`의 예, `field_vocab.csv`의 `expression`, `drug_names.csv`. 행마다 어디서 가져왔는지 적는다.
-- 머리글은 `report_templates.md` §1.2의 "지금 10건에서 쓰는 머리글"에서만 고른다.
-- 상태값을 쓰는 법은 `report_templates.md` §1.5, 값 구절은 §1.6을 따른다 (`not_recorded`는 줄을 쓰지 않음).
-- 새 표기를 시험하고 싶으면 정상 세트와 섞지 않고 "새 표기 세트"를 따로 만든다.
-
----
-
-## 10. 이미지 데이터
-
-### 10.1 보여 줄 것 (착수 발표 v2 21·22쪽)
-
-- 모듈 3·모듈 2 화면 왼쪽의 **"생검 H&E · 주의 영역"**: 슬라이드 썸네일 위에, 모델이 판단에 크게 쓴 타일을 노랑·주황으로 덮은 그림 (MIL attention). 모듈 3은 마커(ER·PR·HER2·Ki-67)마다, 모듈 2는 림프절 전이(N+) 하나. 모듈 1(절제 H&E)과 4-B(이웃 환자 썸네일)도 같은 틀을 쓴다.
-- 지금 상태 (2026-11-09 확인): 발표 자료의 히트맵은 도형으로 그린 예시다. 모듈 1 `scripts/predict.py`는 결과 형식(예측 JSON + 히트맵 PNG)만 적혀 있고 코드는 없다. 모듈 1 특징 파일(`.h5`)에는 타일 좌표 `coords`(원본 픽셀, 왼쪽 위)와 `tile`·`mpp` 속성이 이미 있다.
-
-### 10.2 원칙
-
-1. **원본 슬라이드는 DB에 넣지 않는다.** 파일 경로와 해시만 둔다 (병원 PACS처럼 DB는 목록과 위치만). WSI는 한 장에 수백 MB~수 GB이고 TCGA 전체가 약 1.16TB다.
-2. **위치는 그림이 아니라 좌표로 저장한다.** 모든 위치는 슬라이드 원본(level 0) 픽셀 좌표 + mpp로 적는다. 히트맵 PNG와 잘라낸 타일 그림은 좌표·점수·원본으로 **다시 만들 수 있는 캐시**다.
-3. **세 구역을 나눈다.**
-   - 병원 기록: 슬라이드 자체와 썸네일 (병원 PACS 역할)
-   - 모듈 결과: 예측값과 타일별 주의 점수 (AI 결과 저장소 역할). 출처는 `model`
-   - 정답: BCNB 종양 주석, 림프절 결과
-   모듈 결과는 chart.txt에 넣지 않는다. 처방 모듈에는 발표 20쪽처럼 "조건"으로만 넘긴다 (§14 연결 자리).
-4. **타일 격자는 모듈 실행마다 따로 등록한다.** 조원마다 파이프라인을 따로 만들어서 모듈마다 타일 크기·인코더가 다르다 (모듈 1은 128 µm, H-optimus-0). 히트맵은 그 실행의 격자로만 그린다.
-5. **virtual_hospital은 모듈 코드를 고치지 않는다.** 각 모듈이 정해진 형식(§10.7)으로 낸 결과를 등록만 한다.
-
-### 10.3 표
-
-| 파일 | 1행 | 주요 열 | 구역 |
-|---|---|---|---|
-| `slides.csv` | 슬라이드 1장 | `slide_id`, `vp_id`, 데이터셋, 검체 (생검 / 절제), 파일 경로, `sha256`, 형식, 원본 너비·높이 (level 0), `mpp`, `mpp_source` (파일 속성 / 데이터셋 설명), 배율, QC 결과 (펜·바램 등, 모듈 1 `slide_qc.csv`), 썸네일 경로, 썸네일 `downsample` | 병원 기록 |
-| `annotations.csv` | 주석 1개 | `ann_id`, `slide_id`, 종류 (`tumor_region` / `tissue_mask` / `pen_mask`), `origin` (BCNB 원 주석 = `real`, 파이프라인 = `pipeline`), GeoJSON 파일 (level 0 좌표), 변환 규칙 `I-` | 정답 (BCNB 주석) / 파이프라인 |
-| `tile_grids.csv` | 격자 1개 | `grid_id`, `slide_id`, 모듈, `tile_px` (level 0), `tile_um`, 겹침, 타일 수, 격자 파일 (`coords`, 조직·종양 타일 표시) | 모듈 결과 |
-| `module_runs.csv` | 모듈 실행 1번 | `run_id`, `vp_id`, `slide_id`, 모듈 (1 / 2 / 3 / 4-B), 모델 이름·버전·가중치 해시, 인코더, `grid_id`, 입력 목록 (어떤 칸을 썼는지), 테스트 분할 여부, 실행일, 예측 JSON 경로 | 모듈 결과 |
-| `attention.csv` | 점수 층 1개 | `layer_id`, `run_id`, 대상 (모듈 3: ER / PR / HER2 / Ki-67, 모듈 2: N+, 모듈 1: 재발 위험), 점수 파일·열, 정규화 방법, 상위 k 타일 번호 | 모듈 결과 |
-| `renders.csv` | 그림 1장 | `render_id`, `layer_id` 또는 `slide_id`, 종류 (썸네일 / 히트맵 겹침 / 상위 타일 잘라낸 그림), 파일 경로, `downsample`, 색표, 임계값, 그린 코드 버전 | 캐시 (지워도 다시 만듦) |
-
-- **틀 (2026-11-16 만듦):** 열 정의는 `data/virtual_hospital/rules/image_tables.csv`. 빈 표(머리글만)와 폴더(`grids/`, `scores/`, `predictions/`, `renders/`)가 `data/virtual_hospital/tcga/images/`와 `data/virtual_hospital/local/bcnb/images/`에 있다. `predictions.csv`(실행별 예측값, 화면용)를 더했다. BCNB `annotations.csv`는 채워져 있다. 등록·그리기 코드는 아직 없다
-- 타일 점수는 슬라이드당 수천~수만 행이라 CSV에 넣지 않는다. 실행마다 Parquet(또는 모듈이 쓰는 `.h5`) 파일 하나로 두고, 표에는 경로만 둔다. 점수의 행 순서는 `tile_grids`의 타일 순서와 같다.
-
-### 10.4 좌표 규칙 (`I-`)
-
-| 항목 | 규칙 |
-|---|---|
-| 기준 좌표 | level 0 픽셀, 타일은 왼쪽 위 `(x, y)` (모듈 1 `.h5` `coords`와 같음). µm = 픽셀 × `mpp` |
-| 썸네일 | 썸네일 좌표 = level 0 좌표 ÷ `downsample`. 썸네일마다 `downsample`을 저장한다 (모듈 1 `slide_qc.py`와 같은 방식) |
-| 주석 | GeoJSON, level 0 좌표 (QuPath 등에서 바로 열림). BCNB 원 주석 JSON → GeoJSON 변환은 `derived`. 원 주석의 좌표계(원본 크기 기준인지)는 확인 필요 |
-| 히트맵 | 타일 점수 → 슬라이드 안 백분위로 정규화 → 썸네일 크기 격자에 칠함 → 색표로 겹침. 상위 구간만 노랑·주황 (발표 예시와 같게). 정규화·임계값·색표는 `images.csv` |
-| 상위 타일 그림 | 상위 k 타일을 원본에서 잘라 저장 (판독자 확인용). k는 `images.csv` |
-
-### 10.5 시점과 정답 분리 (이미지)
-
-| 갈래 | 병원 기록 | 모듈 결과 | 정답 |
-|---|---|---|---|
-| BCNB 수술 전 | 생검 슬라이드, 썸네일 | 모듈 2 (N+ 주의), 모듈 3 (마커별 주의), 4-B 파트 1 | BCNB 종양 주석, `ALN status` |
-| TCGA ① 수술 후 | 절제 슬라이드 (진단 슬라이드 DX), 썸네일, QC | 모듈 1, 모듈 3 (ER/PR), 4-B 파트 2 | 없음 (TCGA에는 종양 주석이 없다. CellViT 종양 타일은 `pipeline` 결과) |
-
-- 수술 전 갈래의 모듈 2는 수술 전에 나오는 결과다. `module_runs.csv`의 입력 목록에 정답 칸(`ALN status`, 수술 방법)이 없어야 한다 (G4에서 검사).
-- 4-B 이웃 환자 카드의 썸네일은 검색 DB(BCNB 또는 TCGA) 쪽 슬라이드다. 가상 병원 환자가 아니므로 `slides.csv`가 아니라 4-B 결과 JSON에 경로로만 남긴다.
-
-### 10.6 이미지 검증 (V6~V8, §11.1 표에 함께)
-
-| id | 확인 | 통과 기준 |
-|---|---|---|
-| V6 좌표 | 모든 타일·주석 좌표가 슬라이드 크기 안. 썸네일 크기 × `downsample`이 원본 크기와 맞음 | 100% |
-| V7 다시 그리기 | `renders` 그림을 지우고 좌표·점수로 다시 만든 그림이 저장본과 같음 (픽셀 해시) | 100% |
-| V8 위치 참고 지표 | BCNB: 상위 주의 타일 중 종양 주석 안에 든 비율. TCGA: 상위 주의 타일 중 CellViT 종양 타일 비율 | 기준 없음, 보고만 (모델 평가는 각 모듈 담당) |
-
-### 10.7 모듈에 부탁할 결과 형식 (팀 합의 필요)
-
-| 결과 | 형식 |
-|---|---|
-| 예측 JSON | 실행 정보 (모델·버전·가중치 해시·인코더·격자 id), 예측값, 입력으로 쓴 칸 목록 |
-| 격자 파일 | `coords` (level 0, 왼쪽 위), `tile`, `mpp` (모듈 1 `.h5`와 같은 키) |
-| 타일 점수 파일 | 격자의 타일 순서대로, 대상마다 한 열 (attention 원값, 정규화 전) |
-
----
-
-## 11. 검증과 관문
-
-### 11.1 검증: 실제 데이터와 같은지 (V)
-
-생성할 때마다 돌리고 결과를 `data/virtual_hospital/reports/`(BCNB는 `data/virtual_hospital/local/reports/`)에 쓴다. 통과 기준은 `thresholds.csv`에 생성 전에 정한다.
-
-| id | 대상 | 방법 | 통과 기준 |
-|---|---|---|---|
-| V1 복사 | `real` 칸 | 원본에서 다시 읽어 환자·칸마다 비교 | 100% 같음 |
-| V2 계산 | `derived` 칸 | 생성기와 **다른 코드**로 다시 계산해 비교 (병기는 AJCC 표, 날짜는 일수 더하기) | 100% 같음 |
-| V3 분포 | `synthetic` 칸 | ② 근거는 **가려 놓고 다시 만들기**: 실제 값이 있는 환자 일부를 가리고 같은 규칙으로 합성한 뒤 실제 분포와 비교. ③·④ 근거는 근거 분포(문헌 표, BCNB 실제 분포)와 비교 | 범주 비율 차이 5%p 이내 (제안) |
-| V4 관계 | 칸 사이 | 아래 관계 규칙 + L1, 아형별 분포 비교 (예: 합성 Ki-67 높음 비율이 PAM50 LumA < LumB인지) | 위반 0건, 분포는 V3 기준 |
-| V5 모듈 입력 | 슬라이드 | 가상환자 번호로 모듈 2·3을 돌린 결과가 원래 ID로 돌린 결과와 같은지 | 100% 같음 |
-| V6~V8 이미지 | 좌표, 다시 그리기, 위치 참고 지표 | §10.6 | §10.6 |
-
-V4 관계 규칙 (초안):
-
-| 규칙 | 예 |
-|---|---|
-| 수용체와 치료 | HR 음성 환자에게 내분비요법이 없음, HER2 3+는 양성 |
-| 나이와 폐경 | 폐경 전 70세, 폐경 후 30세 금지 (난소 절제 기록이 있으면 예외) |
-| 병기와 TNM | 병기군이 T·N·M과 판수 표에 맞음 |
-| 시간 순서 | 생검 → 보고 → 수술 → 병리 보고 → 보조 → 재발 |
-| 시점 | 판정 기준일 뒤의 값이 차트에 없고, 모듈 실행의 입력 목록에도 없음 (§10.5) |
-
-### 11.2 관문: 처방 모듈을 지키는지 (G)
-
-환자 한 명이 세트에 들어가려면 모두 통과해야 한다. **하나라도 실패하면 처방 모듈을 고치지 않는다.**
-
-| id | 확인 | 언제 | 실패하면 |
-|---|---|---|---|
-| G1 스키마 | 정답 `patient_state`가 mini 스키마를 통과하고 `fields.csv`와 같다 | 매번 | 생성기 수정 |
-| G2 사전 | 모든 값이 `field_vocab.csv` 정규값, 모든 약이 `drug_names.csv`에, 모든 표기가 `phrases.csv`에 있음 | 매번 | 실제 값이 원인이면 환자 제외 + 넘길 목록 |
-| G3 범위 | 처방 모듈 범위 안: 침윤성, 여성, DCIS·남성·임신 아님 (mini PROJECT.md §1) | 매번 | 환자 제외 (범위 외 목록) |
-| G4 일관성 | V4 관계 규칙과 L1 통과 | 매번 | 합성 칸이면 생성기 수정, 실제 칸이면 환자 제외 |
-| G5 경계 거리 | 합성 수치가 경계 금지 구간(§4.4)에 없음 | 매번 | 생성기 수정 |
-| G6 봉투 | 새로 나온 (칸, 정규값)과 (칸, 표기) 조합이 기존 가상 차트·TCGA 차트에 모두 있었는지 | 매번 | 없던 조합은 보고하고 정상 세트에서 뺀다 |
-| G7 시험 실행 | 빠른: mini B `assess(patient_state)`와 `lines.annotate`가 오류 없이 돌고, 합성으로 채운 칸 때문에 `unknown`이 나오지 않음. 느린: 입력 모듈 LLM 추출 vs 정답, `run_flow` 전체 | 빠른 것은 매번, 느린 것은 세트 확정 때 | 원인을 생성기 / 실제 값으로 나눠 처리 |
-
-### 11.3 넘길 목록
-
-`data/virtual_hospital/reports/handoff_candidates.csv`: 실제 값 때문에 관문을 못 넘은 환자와 이유. 예: TCGA 조직형이 사전에 없음, AJCC 판수가 없어 병기군 판정이 안 됨. 처방 모듈을 바꿀지는 팀이 정한다. 이 폴더에서 mini를 고치지 않는다.
-
----
-
-## 12. BCNB 약관과 폴더
-
-BCNB 약관은 원본과 수정본의 재배포를 금지한다. BCNB 값이 들어간 가상환자 기록, chart.txt, 정답, 통계도 수정본으로 본다.
-
-```
-virtual_hospital/
-  README.md          이 문서
-  rules/             규칙 표 (§4.1)                         공개 가능
-  src/virtual_hospital/   생성·관문·검증 코드   공개 가능
-  tests/             규칙 표 ↔ 코드, 저장본 = 다시 만든 것, mini check   공개 가능
-  data/              받아 온 공개 자료 (TCGA 변이 c. 표기, GDC)  공개 가능
-  notes/             제안 글·진행 기록                        공개 가능
-  data/virtual_hospital/tcga/          TCGA 갈래 CSV · chart.txt · 정답         공개 가능 (출처·인용 표기)
-  data/virtual_hospital/tcga/images/   TCGA 썸네일 · 히트맵 · 타일 점수          공개 가능 (원본 WSI는 GDC file_id로 가리키고 복사하지 않음)
-  reports/           TCGA 검증·관문 결과                     공개 가능
-  local/             BCNB 원본·제외 목록·CSV·chart.txt·정답,   공개 안 함
-                     source_map.csv (TCGA 포함), local/reports/
-  local/images/      BCNB 슬라이드 경로 · 썸네일 · 주석 ·      공개 안 함
-                     히트맵 · 잘라낸 타일 · 타일 점수
-```
-
-- BCNB 이미지에서 나온 것은 **모두** `data/virtual_hospital/local/images/`에 둔다. 썸네일, 히트맵 겹침, 잘라낸 타일에는 BCNB 픽셀이 들어가고, 타일 점수와 주석은 환자별 값이다.
-
-- `data/virtual_hospital/local/`은 git·공유 드라이브에 올리지 않는다. 이 폴더를 git에 넣게 되면 `.gitignore`에 `data/virtual_hospital/local/`을 먼저 넣는다.
-- 차트 글은 처방 모듈 원칙대로 로컬 모델에서만 처리한다 (외부 API 금지).
-
----
-
-## 13. 작업 순서 (제안)
-
-| 단계 | 할 일 | 끝났다는 기준 |
-|---|---|---|
-| 1 | 규칙 표 틀 (`data/virtual_hospital/rules/*.csv` 공통 열만) | 열 이름 확정 |
-| 2 | TCGA `S-`·`M-` + V1 | V1 100% |
-| 3 | TCGA `D-` + V2 | V2 100% |
-| 4 | `references.csv` 문헌 값 모으기, TCGA `Y-`·`N-` + V3·V4 | `thresholds.csv` 기준 통과 |
-| 5 | `phrases.csv`·`documents.csv` + chart.txt + G1~G7 (빠른 G7) | TCGA ① 세트가 관문 통과 |
-| 6 | BCNB 같은 순서 (`data/virtual_hospital/local/`) | BCNB 세트가 관문 통과 |
-| 7 | `drug_label.csv` + TCGA ② | L1 위반 0건 |
-| 8 | 슬라이드 등록 (`slides.csv`, 썸네일, BCNB 주석 → GeoJSON) + V6 | 좌표 100% |
-| 9 | 모듈 결과 등록 (`module_runs`·격자·타일 점수) + 히트맵 그리기 + V5·V7·V8, 느린 G7 | 모듈 2·3 결과 같음, 다시 그린 그림 같음, `run_flow` 오류 없음 |
-
-### 13.1 진행 (2026-11-09)
-
-| 단계 | 상태 | 결과 |
-|---|---|---|
-| 1 | 끝 | `data/virtual_hospital/rules/rules.csv` (규칙 29개), `references.csv`, `thresholds.csv`, `phrases.csv` |
-| 2·3 | 끝 | TCGA ① 후보 741명 (S-02~S-04 뒤) → 관문 통과 **675명**. V1·V2 100%. 2026-11-10 사용자 결정: MX + I~III기 → M0 (D-06, 118명), NX 제외 (S-08, 7명), HER2 원자료 모순 제외 (S-07, 25명), 점수·FISH 없는 HER2 판정은 같은 판정의 실제 조합으로 합성 (Y-07, 198명), ER·PR은 Allred 형식 (D-07 비율 점수 + Y-06 강도 점수, R-04 표기). 남은 넘길 목록 34명: c. 없는 변이 33, ER indeterminate 1 |
-| 4 | 끝 (문헌 값은 후보) | Y-01~05, N-01~05. V3 최대 차이 0.5~2.1%p (기준 5%p), V4 통과 (합성 Ki-67 높음 비율 PAM50 LumA 0.25 < LumB 0.80). `references.csv` 값은 검색으로 찾은 후보이고 원문 확인 전 |
-| 5 | 끝 | chart.txt 132건 + 정답 `patient_state`·`biomarker_record`. G1~G7 모두 통과 (G7에 mini 입력 모듈 재현 검사 포함) |
-| 6 | 끝 (2026-11-10) | BCNB 1,058명 → 관문 통과 **971명**. 뺀 87명: 모듈 3 정제 11 (S-B1), 조직형 Other type 76 (S-B2). V1·V2·V3(초음파 cN 민감도 0.65 / 특이도 0.85)·V6 통과. 산출물은 모두 `data/virtual_hospital/local/bcnb/`, 보고 `data/virtual_hospital/local/reports/bcnb_preop.md`. 자료 점검: `notes/bcnb_check.md`. 실행: `python -m src.virtual_hospital.bcnb` |
-| 7 | 끝 (2026-11-17) | TCGA ② 재발 갈래 **9명** (원격 재발 13명 중): 고식 2차 결정 5, 1차 결정 4. 차수는 mini가 실제 전체 투약으로 센 값, 판정 기준일 = 그 차수 약의 실제 시작일 (D-R1). `[투약 기록]`은 실제 투약 그대로 (병용 약은 한 줄, D-R4), 중단 사유는 실제 값으로만 (D-R2: PD·재발 직전까지 투약 → 진행, 보조 내분비 ≥1,640일 → 완료, AC 뒤 28일 안 탁산 → 계획된 변경, 그 밖 비움), 기준일에 투약 중인 줄은 반응을 쓰지 않음. 뺀 4명: 전이 부위 'other'. G1~G7 통과. 국소 재발은 다루지 않음. 같은 날 TCGA ①은 판정 기준일을 실제 첫 보조 투약일로 앞당기고 (D-10, 81명), 첫 투약이 가짜 병리 보고일 전인 36명을 뺌 (S-10) → **671명** |
-| 8 | 일부 | TCGA 슬라이드 등록 (`data/virtual_hospital/tcga/images/slides.csv` 공개용, `data/virtual_hospital/local/slide_map.csv` 원본 대응) + V6 통과. 원본 svs가 로컬에 없어 mpp는 비어 있음. BCNB 주석은 6단계와 같이 멈춤 |
-| 9 | 틀만 (2026-11-16) | 모듈 결과를 받을 표·폴더 틀을 만듦 (`data/virtual_hospital/rules/image_tables.csv`). 등록·히트맵 코드는 모듈 결과가 나오면. 결과 형식 제안: `notes/module_result_format_proposal.md` |
-
-실행 (virtual_hospital 폴더, mini의 `team_project` 환경):
-
-```bash
-python -m src.virtual_hospital.fetch_hgvsc     # 처음 한 번: 변이 c. 표기를 GDC에서 받음 (local/source_map.csv가 있어야 함 → 없으면 vh.build를 먼저 한 번)
-python -m src.virtual_hospital.build           # data/virtual_hospital/tcga/, reports/, local/
-python -m pytest tests
-```
-
-결과 요약: `data/virtual_hospital/reports/tcga_postop.md`. 뺀 환자와 이유: `data/virtual_hospital/reports/excluded.csv`. 실제 값 때문에 못 쓴 환자 (mini에 넘길 후보): `data/virtual_hospital/reports/handoff_candidates.csv`. 진행 기록: `notes/progress.md`.
-
----
-
-## 14. 정할 것
-
-| 항목 | 메모 |
-|---|---|
-| V3 통과 기준 숫자 | 범주 비율 5%p 이내 제안. 생성 전에 확정 |
-| `references.csv` 문헌 값 | 초음파 cN 민감도·특이도, 아형별 grade, gBRCA 양성률, ER/PR % 분포, ECOG |
-| 경계 금지 구간 | ER 1~19%, PR 1~19%, Ki-67 15~25% 제안 |
-| TCGA AJCC 판수 결측 환자 | 제외할지, 판수 없이 쓸지 (mini가 판수 없는 병기를 어떻게 다루는지 먼저 확인) |
-| MKI67 → Ki-67 | 어느 분포에 맞출지 (문헌 아형별 Ki-67 분포 제안) |
-| 합성 재발 | TCGA 실제 마지막 추적일 **이후**에만 재발을 합성하면 실제 기록과 모순이 없다. 전이성 사례를 늘릴 수 있지만 `synthetic`으로 표시하고 모듈 1 평가에는 쓰지 않는다 |
-| 모듈 1~3 결과가 처방 모듈에 들어갈 자리 | 지금 mini 스키마에 없다 (PROJECT.md는 v0.2로 미룸). 예: 화면 1에 모듈 3 불일치 배지, 모듈 1 → Oncotype 검사 권고. 공용 스키마라 4명 검토 |
-| L3 비율 | 비정형을 몇 % 환자에게 넣을지 |
-| 모듈 결과 형식 (§10.7) | 예측 JSON·격자·타일 점수 형식. 모듈 1(C)·2(A)·3(B)·4-B(D)가 같은 형식을 내야 히트맵을 한 방식으로 그린다. 팀 합의 필요 |
-| 히트맵 그리는 법 | 정규화 (슬라이드 안 백분위 제안), 임계값, 색표, 상위 k |
-| BCNB 원 주석 좌표계 | 원 주석 JSON이 원본 크기 기준인지 확인한 뒤 변환 규칙 확정 |
+- 차트 글은 로컬 모델에서만 처리한다 (외부 API 금지)
