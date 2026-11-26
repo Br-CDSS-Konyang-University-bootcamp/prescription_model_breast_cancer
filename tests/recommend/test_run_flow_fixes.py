@@ -365,7 +365,8 @@ def test_broad_et_by_menopause_and_risk():
     cands, _ = _broad("ET", rows, menopausal="postmenopausal")
     assert {c["drugs"][0] for c in cands} == {"anastrozole", "letrozole", "exemestane", "tamoxifen"}
     assert _broad("ET", rows, menopausal=None) == (None, None)                                # 폐경 미상은 펼치지 않음
-    assert _broad("ET", rows, disease="metastatic") == (None, None)                           # 전이성은 이번 범위 밖
+    assert _broad("ET", rows, disease=None) == (None, None)                                   # 병기 범주 미상은 펼치지 않음
+    # 전이성은 전이성 행으로 펼친다 (2026-11-26, 아래 test_metastatic_*)
 
 
 def test_broad_cht_followed_by_et_by_phase_and_history():
@@ -396,3 +397,53 @@ def test_narrow_or_parts_are_separate_regimens():
     assert ("tamoxifen",) in drugs and ("goserelin", "tamoxifen") in drugs and ("leuprolide", "tamoxifen") in drugs
     assert ("anastrozole", "goserelin") in drugs and ("anastrozole", "leuprolide") in drugs   # LHRH 약 하나씩 (2026-11-26)
     assert all(len(set(d) & {"tamoxifen", "anastrozole", "letrozole", "exemestane"}) == 1 for d in drugs)
+
+
+def test_one_lhrh_candidate_matches_row_listing_both_lhrh():
+    """2026-11-26: LHRH 약을 조합마다 하나씩 넣은 OFS+AI 후보도 goserelin·leuprolide를 함께 적은 급여 행에 정확히 맞는다.
+    (#169 뒤 조기 보조 r04~r06을 잃고 '맞는 급여 행 없음'이 되던 문제) 행에 없는 약까지 맞다고 하지는 않는다."""
+    from src.recommend.postprocess import _drugs_match
+    adj = _row("adj-ofs-ana", ["goserelin", "leuprolide", "anastrozole", "abemaciclib"])
+    adj["reimbursement"]["stage"] = "adjuvant"
+    adj["reimbursement"]["combination"] = {"added_drug": ["abemaciclib"],
+                                           "base_regimen": ["goserelin", "leuprolide", "anastrozole"]}
+    cands, _ = _broad("ET", [adj])
+    hit = {tuple(c["drugs"]): c["reimbursement_citations"] for c in cands}
+    assert hit[("goserelin", "anastrozole")] == ["adj-ofs-ana"] and hit[("leuprolide", "anastrozole")] == ["adj-ofs-ana"]
+    plain = _row("pal-ofs-ana", ["goserelin", "leuprolide", "anastrozole"])
+    assert _drugs_match({"drugs": ["leuprolide", "anastrozole"]}, plain, exact=True)
+    assert not _drugs_match({"drugs": ["anastrozole"]}, plain, exact=True)
+    assert not _drugs_match({"drugs": ["goserelin", "letrozole"]}, plain, exact=True)
+
+
+# 2026-11-26 전이성 넓은 계열(ET·ChT) 펼치기 (사전의 disease=metastatic 행, ESMO MBC 2026)
+MET = {"disease": "metastatic", "phase": None, "high_risk": None, "menopausal": "postmenopausal"}
+
+
+def test_metastatic_et_alone_by_menopause_and_subtype():
+    """ET 단독: 폐경 후 HR+/HER2-는 AI·fulvestrant, 폐경 전은 모두 OFS와 함께, HR+/HER2+는 AI만 (ESMO MBC e03e88·c0c05b·2cded5)."""
+    cands, _ = _broad("ET alone", [], **MET)
+    assert {tuple(c["drugs"]) for c in cands} == {("anastrozole",), ("letrozole",), ("exemestane",), ("fulvestrant",)}
+    cands, _ = _broad("ET alone", [], **{**MET, "menopausal": "premenopausal"})
+    assert cands and all(len({"goserelin", "leuprolide"} & set(c["drugs"])) == 1 for c in cands)
+    assert {d for c in cands for d in c["drugs"]} - {"goserelin", "leuprolide"} == {"anastrozole", "letrozole", "exemestane",
+                                                                                      "fulvestrant"}
+    cands, _ = _broad("pertuzumab-trastuzumab-ET", [], **{**MET, "subtype": "HR+/HER2+"})
+    assert {c["drugs"][0] for c in cands} == {"anastrozole", "letrozole", "exemestane"}
+    assert all({"pertuzumab", "trastuzumab"} <= set(c["drugs"]) for c in cands)
+    assert _broad("ET alone", [], **{**MET, "menopausal": None}) == (None, None)
+
+
+def test_metastatic_cht_uses_allowed_rows_and_name_hints():
+    """전이성 항암: 허용 범주 안의 급여 행만 (HR+/HER2-는 taxane·capecitabine). 'single-agent'는 약 하나짜리 행만,
+    'Carboplatin-based'는 carboplatin이 든 항암 행만 (함께 쓰는 약은 항암이면 된다)."""
+    rows = [_row("doc", ["docetaxel"]), _row("cap", ["capecitabine"]), _row("doc-cap", ["docetaxel", "capecitabine"]),
+            _row("dox", ["doxorubicin"]), _row("ifo", ["ifosfamide"]), _row("carbo", ["carboplatin"]),
+            _row("pac-carbo", ["paclitaxel", "carboplatin"]), _row("gem-carbo", ["gemcitabine", "carboplatin"]),
+            _row("pac", ["paclitaxel"])]
+    cands, _ = _broad("Chemotherapy", rows, **MET)
+    assert {tuple(c["drugs"]) for c in cands} == {("docetaxel",), ("capecitabine",), ("docetaxel", "capecitabine"), ("paclitaxel",)}
+    cands, _ = _broad("Sequential single-agent ChT", rows, **MET)
+    assert {tuple(c["drugs"]) for c in cands} == {("docetaxel",), ("capecitabine",), ("paclitaxel",)}
+    cands, _ = _broad("Carboplatin-based ChT", rows, **{**MET, "subtype": "TNBC", "menopausal": None})
+    assert {tuple(c["drugs"]) for c in cands} == {("carboplatin",), ("paclitaxel", "carboplatin"), ("gemcitabine", "carboplatin")}

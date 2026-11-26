@@ -227,7 +227,16 @@ def _base_match(option, chunk):
         return False
     groups = _groups(option)
     union = {d for g in groups for d in g}
+    base = _one_lhrh(base, union)
     return bool(groups) and all(base & set(g) for g in groups) and base <= union
+
+
+def _one_lhrh(have, union):
+    """급여 행에 LHRH 작용제가 여럿 적혀 있으면 '그중 하나'다 (D 행 goserelin·leuprolide, D 요청 2026-11-04).
+    후보의 LHRH 약이 행에 있으면 행의 다른 LHRH 약은 빼고 비교한다. 후보에 LHRH 약을 하나씩 넣으면서(2026-11-26)
+    goserelin + anastrozole이 goserelin·leuprolide·anastrozole 행과 '약이 정확히 같다'가 되지 않던 문제 (조기 r04~r06)"""
+    picked = have & union & LHRH_DRUGS
+    return have - (LHRH_DRUGS - picked) if picked else have
 
 
 def _has_condition_field(chunk, field):
@@ -257,7 +266,7 @@ def _drugs_match(option, chunk, exact=False):
     is_combo = (chunk.get("reimbursement") or {}).get("stage") == "combination"
     if is_combo and not set(_added_drugs(chunk)[0]) <= union:
         return False
-    return have <= union if exact else True
+    return _one_lhrh(have, union) <= union if exact else True
 
 
 # 좁은 계열 펼치기 (2026-11-17): 요법 이름의 좁은 계열(AI, CDK4/6 inhibitor, taxane, anthracycline, SERD)을
@@ -426,11 +435,16 @@ def _apply_candidates(option, candidates):
 
 # 넓은 계열 펼치기 (2026-11-18): 조기 유방암의 ET·ChT 계열 이름 후보를 B 사전 dictionaries/class_candidates.csv로
 # 펼친다. ET는 폐경 상태·고위험으로 고른 요법(ESMO EBC 폐경별 권고 청크), ChT는 이번 결정 단계의 급여 행 중 약이 모두
-# 허용 범주(ESMO EBC 본문)인 요법. "ChT followed by ET"는 선행 항암을 이미 받은 보조 결정이면 ET, 그 밖은 ChT를 펼친다
+# 허용 범주(ESMO EBC 본문)인 요법. "ChT followed by ET"는 선행 항암을 이미 받은 보조 결정이면 ET, 그 밖은 ChT를 펼친다.
+# 전이성도 같은 방법으로 펼친다 (2026-11-26, 사전의 disease=metastatic 행, ESMO MBC 2026 청크)
 CLASS_CANDIDATES_CSV = Path(__file__).resolve().parent / "dictionaries" / "class_candidates.csv"
 ET_RE = re.compile(r"\bET\b|[Ee]ndocrine|내분비|호르몬")
 CHT_RE = re.compile(r"\bChT\b|[Cc]hemotherapy|항암|화학요법")
 OTHER_CLASS_RE = re.compile(r"[Aa]nti-HER2|HER2-(?:directed|targeted)|\bICI\b|PARP")
+# 항암 이름의 단서 (2026-11-26): 단독 항암은 약 하나짜리 급여 행만 ("Sequential single-agent ChT", ESMO MBC luminal 219e18).
+# "<약>-based"는 그 약이 든 항암 행만, 함께 쓰는 약은 항암이면 된다 ("Carboplatin-based ChT", ESMO MBC TNBC 015580·aa0873)
+SINGLE_AGENT_RE = re.compile(r"single[- ]agent|monotherapy|단독|단일")
+BASED_RE = re.compile(r"([A-Za-z]+)[\s-]*based\b", re.IGNORECASE)
 
 
 def _class_rows():
@@ -463,8 +477,9 @@ def _broad_candidates(option, reimb_by_id, today, conditions_checker, ctx):
     """ET·ChT 계열 이름 후보를 펼쳐 조합마다 급여를 판정한다. 펼칠 수 없으면 (None, 메모). ctx: disease, subtype,
     menopausal, high_risk(ESMO yes/no/None), phase, prior_chemo(bool)."""
     therapy = option.get("therapy") or ""
-    if option.get("drugs") or ctx["disease"] in (None, "metastatic") or OTHER_CLASS_RE.search(therapy):
+    if option.get("drugs") or ctx["disease"] is None or OTHER_CLASS_RE.search(therapy):
         return None, None
+    disease = "metastatic" if ctx["disease"] == "metastatic" else "early"
     has_et, has_cht = bool(ET_RE.search(therapy)), bool(CHT_RE.search(therapy))
     if not (has_et or has_cht):
         return None, None
@@ -474,7 +489,7 @@ def _broad_candidates(option, reimb_by_id, today, conditions_checker, ctx):
             has_cht, note = False, "선행 항암을 이미 받아 내분비요법을 펼침"
         else:
             has_et, note = False, "항암을 먼저 펼침 (내분비요법은 항암·수술 뒤 다음 단계)"
-    rows = [r for r in _class_rows() if r["class"] == ("ET" if has_et else "ChT") and r["disease"] == "early"
+    rows = [r for r in _class_rows() if r["class"] == ("ET" if has_et else "ChT") and r["disease"] == disease
             and ctx["subtype"] in r["subtypes"].split(";")]
     # 요법 이름에 함께 적힌 약 (예: "olaparib + ET", "ET + LHRH agonist"). 내분비 약은 사전 규칙이 고르므로 빼고,
     # LHRH가 적혀 있으면 OFS가 든 요법만 쓴다. 그 밖의 약(olaparib, abemaciclib 등)은 조합마다 더한다 (2026-11-18 VC-0107·0119)
@@ -500,10 +515,16 @@ def _broad_candidates(option, reimb_by_id, today, conditions_checker, ctx):
         allowed = _allowed_drugs([t for r in rows for t in r["members"].split(";")])
         if not allowed:
             return None, None
+        single = bool(SINGLE_AGENT_RE.search(therapy))
+        based = {g for m in BASED_RE.finditer(therapy) for rx, g in _name_patterns()
+                 if rx.fullmatch(m.group(1).lower())}
+        if based:   # "<약>-based": 그 약이 든 항암 행. 함께 쓰는 약은 항암이면 된다
+            allowed = allowed | based | {d for d, cls in _drug_classes().items() if "chemotherapy" in cls}
         source = "; ".join(dict.fromkeys(r["source"] for r in rows))
         for c in reimb_by_id.values():
             drugs = [d.lower() for d in c.get("drugs") or []]
             if (drugs and _valid_reimb(c, today) and c.get("source") != "HIRA-offlabel" and set(drugs) <= allowed
+                    and based <= set(drugs) and (not single or len(set(drugs)) == 1)
                     and (c.get("subtype") in (None, []) or "any" in c["subtype"] or ctx["subtype"] in c["subtype"])):
                 combos.append(([[d] for d in dict.fromkeys(drugs)], source))
     if not combos or _row_count([[d for g in groups for d in g] for groups, _ in combos]) > MAX_CANDIDATES:
