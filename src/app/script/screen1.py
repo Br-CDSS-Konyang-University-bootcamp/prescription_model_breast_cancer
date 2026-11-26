@@ -467,6 +467,7 @@ class App:
         self._drugs = self._drugs or s2.drug_list()
         _ = self.bm
         return {"confirmed": doc, "rec": self.recommender.status(ps["patient_ref"], version), "drugs": self._drugs,
+                "lhrh": s2.lhrh_drugs(),
                 "decisions": sorted(p.name for p in (self.decision_dir / ps["patient_ref"]).glob("v*.json")),
                 "versions": [p.name for p in c._versions(ps["patient_ref"], self.save_dir)]}
 

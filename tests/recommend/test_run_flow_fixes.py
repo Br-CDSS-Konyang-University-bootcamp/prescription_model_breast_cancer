@@ -349,7 +349,8 @@ def test_broad_et_by_menopause_and_risk():
     combo["reimbursement"]["combination"] = {"added_drug": ["abemaciclib"]}
     cands, _ = _broad("Endocrine Therapy (ET)", [combo])
     drugs = {tuple(sorted(c["drugs"])) for c in cands}
-    assert ("tamoxifen",) in drugs and ("goserelin", "leuprolide", "tamoxifen") in drugs   # 폐경 전 고위험: OFS 포함
+    assert ("tamoxifen",) in drugs and ("goserelin", "tamoxifen") in drugs   # 폐경 전 고위험: OFS 포함
+    assert ("leuprolide", "tamoxifen") in drugs   # LHRH 약은 조합마다 하나 (화면 2에서 고름, 2026-11-26)
     assert all(c["reimbursement_basis"] == "no_matching_row" for c in cands)
     # 보조 내분비 행은 요법이 tamoxifen 단독이고 abemaciclib은 각주(병용 시 본인부담)로 붙은 약이다 (공고 인쇄 p.51~52)
     adj = _row("adj-tam", ["tamoxifen", "abemaciclib"])
@@ -382,7 +383,7 @@ def test_broad_keeps_named_drugs_and_korean():
     cands, _ = _broad("olaparib + ET", [])
     assert cands and all("olaparib" in c["drugs"] for c in cands)
     cands, _ = _broad("내분비요법 (ET) + LHRH agonist", [])
-    assert cands and all({"goserelin", "leuprolide"} <= set(c["drugs"]) for c in cands)
+    assert cands and all(len({"goserelin", "leuprolide"} & set(c["drugs"])) == 1 for c in cands)   # LHRH 약 하나씩
     cands, _ = _broad("내분비요법", [], menopausal="postmenopausal")
     assert {c["drugs"][0] for c in cands} == {"anastrozole", "letrozole", "exemestane", "tamoxifen"}
 
@@ -392,6 +393,6 @@ def test_narrow_or_parts_are_separate_regimens():
     from src.recommend.postprocess import _narrow_candidates
     cands = _narrow_candidates({"therapy": "Tamoxifen or OFS-tamoxifen or OFS-AI", "drugs": []}, [], {}, TODAY, None)
     drugs = {tuple(sorted(c["drugs"])) for c in cands}
-    assert ("tamoxifen",) in drugs and ("goserelin", "leuprolide", "tamoxifen") in drugs
-    assert ("anastrozole", "goserelin", "leuprolide") in drugs
+    assert ("tamoxifen",) in drugs and ("goserelin", "tamoxifen") in drugs and ("leuprolide", "tamoxifen") in drugs
+    assert ("anastrozole", "goserelin") in drugs and ("anastrozole", "leuprolide") in drugs   # LHRH 약 하나씩 (2026-11-26)
     assert all(len(set(d) & {"tamoxifen", "anastrozole", "letrozole", "exemestane"}) == 1 for d in drugs)
