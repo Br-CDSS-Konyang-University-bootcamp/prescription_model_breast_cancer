@@ -40,6 +40,20 @@ def test_two_scenes_need_branch(con):
     assert "고식" in db.get_chart(con, vp, branch="tcga_recur")
 
 
+def test_ident_per_patient_and_ref_per_scene(con):
+    """R-08·Y-08: 등록번호·이름은 환자 단위로 하나 (두 장면은 같고, 환자끼리는 다름). D-12: patient_ref는 장면 단위."""
+    rows = db.list_patients(con)
+    by_vp: dict[str, set] = {}
+    for r in rows:
+        by_vp.setdefault(r["vp_id"], set()).add((r["registration_no"], r["patient_name"]))
+        assert r["patient_ref"] == (r["vp_id"] + "-R" if r["branch"] == "tcga_recur" else r["vp_id"])
+        assert r["registration_no"] == ("1" if r["vp_id"].startswith("VH-T") else "2") + r["vp_id"][4:].zfill(7)
+    assert all(len(v) == 1 for v in by_vp.values())
+    idents = [next(iter(v)) for v in by_vp.values()]
+    assert len({i[0] for i in idents}) == len({i[1] for i in idents}) == len(idents)
+    assert len({r["patient_ref"] for r in rows}) == len(rows)
+
+
 def test_truth_needs_allow_future(con):
     vp = read_csv(OUT / "tcga" / "patients.csv")[0]["vp_id"]
     with pytest.raises(PermissionError):

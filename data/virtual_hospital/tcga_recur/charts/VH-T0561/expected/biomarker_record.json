@@ -1,6 +1,6 @@
 {
   "schema_version": "0.1-draft",
-  "patient_ref": "VH-T0561",
+  "patient_ref": "VH-T0561-R",
   "records": [
     {
       "marker": "ER",
@@ -179,6 +179,7 @@
     }
   ],
   "subtype": "HR-/HER2+",
+  "molecular_subtype": "HER2_enriched",
   "setting": {
     "disease": "metastatic",
     "line": "1L",

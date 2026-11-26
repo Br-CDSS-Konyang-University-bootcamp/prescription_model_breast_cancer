@@ -1,6 +1,6 @@
 {
   "schema_version": "0.1-draft",
-  "patient_ref": "VH-T0203",
+  "patient_ref": "VH-T0203-R",
   "version": 1,
   "visit_type": "initial",
   "decision_context": "metastatic",
@@ -26,6 +26,14 @@
       "system_source": "biomarker_record",
       "confirmed": "HR+/HER2-",
       "status": "confirmed"
+    },
+    "molecular_subtype": {
+      "scope": "current",
+      "system": "Luminal A",
+      "system_source": "biomarker_record",
+      "confirmed": "Luminal A",
+      "status": "confirmed",
+      "note": "Ki-67로 정함 (저증식 Luminal A, 고증식·중간 Luminal B). Ki-67을 모르면 비움"
     },
     "setting.line_endocrine": {
       "scope": "current",

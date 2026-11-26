@@ -179,6 +179,7 @@
     }
   ],
   "subtype": "HR+/HER2+",
+  "molecular_subtype": "Luminal B(HER2 positive)",
   "setting": {
     "disease": "locally_advanced",
     "line": "adjuvant",

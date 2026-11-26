@@ -181,6 +181,7 @@
     }
   ],
   "subtype": "HR-/HER2+",
+  "molecular_subtype": "HER2_enriched",
   "setting": {
     "disease": "early",
     "line": "adjuvant",
