@@ -187,7 +187,9 @@ def test_class_name_option_gets_class_rows_and_unverified():
     out = rec["options"][0]
     assert out["reimbursement"] == "covered_conditions_unverified"
     assert out["reimbursement_citations"] == ["adj-r10-ac", "adj-r17-tc"]
-    assert out["reimbursement_reason"].startswith("약 확인 필요 (관련 급여 요법 2개)")
+    # 2026-11-18: 조기 HR+/HER2-의 ChT는 사전 허용 범주(anthracycline·taxane·cyclophosphamide) 행으로 펼친다
+    assert out["reimbursement_reason"].startswith("약 조합 2개로 펼쳐 판정")
+    assert {tuple(c["drugs"]) for c in out["candidates"]} == {("doxorubicin", "cyclophosphamide"), ("docetaxel", "cyclophosphamide")}
 
 
 # B·C 합의 (2026-11-05): 안전 검사 ③·⑥, 수술 후 bisphosphonate 보조 칸(B-6), 약 확인 필요 개수(B-12)
@@ -324,3 +326,72 @@ def test_neoadjuvant_drops_class_name_post_surgery_options():
     rec, log = postprocess({"options": [o_abe, o_adj, o_neo]}, EARLY_REC, [KID1, KID2], [], TODAY, phase="neoadjuvant")
     assert [o["therapy"] for o in rec["options"]] == ["Adjuvant Endocrine Therapy (ET)", "Neoadjuvant ChT followed by ET"]
     assert sum("선행요법 결정이라" in m for m in log) == 1
+
+
+# 2026-11-18 넓은 계열(ET·ChT) 펼치기 (B 사전 src/recommend/dictionaries/class_candidates.csv)
+def _broad(therapy, rows, **ctx):
+    from src.recommend.postprocess import _broad_candidates
+    base = {"disease": "early", "subtype": "HR+/HER2-", "menopausal": "premenopausal", "high_risk": "yes",
+            "phase": "adjuvant", "prior_chemo": False}
+    return _broad_candidates({"therapy": therapy, "drugs": []}, {r["chunk_id"]: r for r in rows}, TODAY, None,
+                             {**base, **ctx})
+
+
+def _row(cid, drugs, subtype=("any",)):
+    return {"chunk_id": cid, "doc_type": "reimbursement", "source": "HIRA-booklet", "drugs": drugs, "subtype": list(subtype),
+            "text": "지어낸 행", "reimbursement": {"source_type": "baseline", "notice_no": "x", "effective_from": "2026-11-01"}}
+
+
+def test_broad_et_by_menopause_and_risk():
+    """ET는 폐경 상태·고위험으로 요법을 고른다. 약이 정확히 같은 행만 써서, abemaciclib 병용 행으로 판정하지 않는다."""
+    combo = _row("cdk-tam-abe", ["tamoxifen", "abemaciclib"])                              # 병용 행: 단독과 맞추지 않음
+    combo["reimbursement"]["stage"] = "combination"
+    combo["reimbursement"]["combination"] = {"added_drug": ["abemaciclib"]}
+    cands, _ = _broad("Endocrine Therapy (ET)", [combo])
+    drugs = {tuple(sorted(c["drugs"])) for c in cands}
+    assert ("tamoxifen",) in drugs and ("goserelin", "leuprolide", "tamoxifen") in drugs   # 폐경 전 고위험: OFS 포함
+    assert all(c["reimbursement_basis"] == "no_matching_row" for c in cands)
+    # 보조 내분비 행은 요법이 tamoxifen 단독이고 abemaciclib은 각주(병용 시 본인부담)로 붙은 약이다 (공고 인쇄 p.51~52)
+    adj = _row("adj-tam", ["tamoxifen", "abemaciclib"])
+    adj["reimbursement"]["stage"] = "adjuvant"
+    adj["reimbursement"]["combination"] = {"added_drug": ["abemaciclib"], "base_regimen": ["tamoxifen"]}
+    cands, _ = _broad("ET", [adj])
+    tam = next(c for c in cands if c["drugs"] == ["tamoxifen"])
+    assert tam["reimbursement_citations"] == ["adj-tam"] and tam["reimbursement_basis"] == "conditions_unverified"
+    rows = [combo]
+    cands, _ = _broad("ET", rows, high_risk="no")
+    assert {tuple(sorted(c["drugs"])) for c in cands} == {("tamoxifen",)}                    # 저위험이면 OFS 빼기
+    cands, _ = _broad("ET", rows, menopausal="postmenopausal")
+    assert {c["drugs"][0] for c in cands} == {"anastrozole", "letrozole", "exemestane", "tamoxifen"}
+    assert _broad("ET", rows, menopausal=None) == (None, None)                                # 폐경 미상은 펼치지 않음
+    assert _broad("ET", rows, disease="metastatic") == (None, None)                           # 전이성은 이번 범위 밖
+
+
+def test_broad_cht_followed_by_et_by_phase_and_history():
+    """'ChT followed by ET': 선행 항암 뒤 보조 결정이면 ET, 그 밖은 ChT(허용 범주 안의 급여 행만)를 펼친다."""
+    rows = [_row("ac", ["doxorubicin", "cyclophosphamide"]), _row("fac", ["fluorouracil", "doxorubicin", "cyclophosphamide"]),
+            _row("cap", ["capecitabine"], ("HR+/HER2-", "TNBC")), _row("tras", ["trastuzumab"], ("HR+/HER2+",))]
+    cands, note = _broad("ChT followed by ET", rows, phase="neoadjuvant")
+    assert [c["drugs"] for c in cands] == [["doxorubicin", "cyclophosphamide"]] and "항암을 먼저" in note
+    cands, note = _broad("ChT followed by ET", rows, phase="adjuvant", prior_chemo=True)
+    assert "내분비요법" in note and all("doxorubicin" not in c["drugs"] for c in cands)
+
+
+def test_broad_keeps_named_drugs_and_korean():
+    """ET와 함께 적힌 약(olaparib)은 조합마다 더하고, LHRH가 적혀 있으면 OFS 요법만 쓴다. 한국어 '내분비요법'도 ET다."""
+    cands, _ = _broad("olaparib + ET", [])
+    assert cands and all("olaparib" in c["drugs"] for c in cands)
+    cands, _ = _broad("내분비요법 (ET) + LHRH agonist", [])
+    assert cands and all({"goserelin", "leuprolide"} <= set(c["drugs"]) for c in cands)
+    cands, _ = _broad("내분비요법", [], menopausal="postmenopausal")
+    assert {c["drugs"][0] for c in cands} == {"anastrozole", "letrozole", "exemestane", "tamoxifen"}
+
+
+def test_narrow_or_parts_are_separate_regimens():
+    """'Tamoxifen or OFS-tamoxifen or OFS-AI'는 세 요법 중 하나다. 약 네 개 병용으로 합치지 않는다 (20261118 VC-0121)."""
+    from src.recommend.postprocess import _narrow_candidates
+    cands = _narrow_candidates({"therapy": "Tamoxifen or OFS-tamoxifen or OFS-AI", "drugs": []}, [], {}, TODAY, None)
+    drugs = {tuple(sorted(c["drugs"])) for c in cands}
+    assert ("tamoxifen",) in drugs and ("goserelin", "leuprolide", "tamoxifen") in drugs
+    assert ("anastrozole", "goserelin", "leuprolide") in drugs
+    assert all(len(set(d) & {"tamoxifen", "anastrozole", "letrozole", "exemestane"}) == 1 for d in drugs)

@@ -1,0 +1,8 @@
+class,disease,subtypes,menopausal,risk,members,source,note
+ET,early,HR+/HER2-;HR+/HER2+,premenopausal,any,tamoxifen,esmo-ebc-2024-02-hrpos-6308eb,폐경 전 tamoxifen 단독 (luminal A-like I기)
+ET,early,HR+/HER2-;HR+/HER2+,premenopausal,high,LHRH+tamoxifen,esmo-ebc-2024-02-hrpos-6308eb,폐경 전 고위험 OFS + tamoxifen
+ET,early,HR+/HER2-;HR+/HER2+,premenopausal,high,LHRH+AI,esmo-ebc-2024-02-hrpos-6308eb,폐경 전 고위험 OFS + AI
+ET,early,HR+/HER2-;HR+/HER2+,postmenopausal,any,AI,esmo-ebc-2024-02-hrpos-0656d9,폐경 후 AI (tamoxifen 뒤 AI 포함)
+ET,early,HR+/HER2-;HR+/HER2+,postmenopausal,any,tamoxifen,esmo-ebc-2024-02-hrpos-0656d9,폐경 후 저위험이거나 AI를 쓸 수 없을 때
+ChT,early,HR+/HER2-,,,anthracycline;taxane;cyclophosphamide,ESMO EBC 2024 p.9 본문,HR+/HER2- 항암은 anthracycline·taxane·alkylator 기반이 표준. I~II기 림프절 적으면 anthracycline 없는 요법도 가능
+ChT,early,TNBC,,,anthracycline;taxane;cyclophosphamide;carboplatin,ESMO EBC 2024 p.11 본문,AC·EC 뒤 taxane 또는 taxane-carboplatin. anthracycline을 못 쓰면 TC
