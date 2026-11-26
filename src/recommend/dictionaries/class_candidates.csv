@@ -6,3 +6,11 @@ ET,early,HR+/HER2-;HR+/HER2+,postmenopausal,any,AI,esmo-ebc-2024-02-hrpos-0656d9
 ET,early,HR+/HER2-;HR+/HER2+,postmenopausal,any,tamoxifen,esmo-ebc-2024-02-hrpos-0656d9,폐경 후 저위험이거나 AI를 쓸 수 없을 때
 ChT,early,HR+/HER2-,,,anthracycline;taxane;cyclophosphamide,ESMO EBC 2024 p.9 본문,HR+/HER2- 항암은 anthracycline·taxane·alkylator 기반이 표준. I~II기 림프절 적으면 anthracycline 없는 요법도 가능
 ChT,early,TNBC,,,anthracycline;taxane;cyclophosphamide;carboplatin,ESMO EBC 2024 p.11 본문,AC·EC 뒤 taxane 또는 taxane-carboplatin. anthracycline을 못 쓰면 TC
+ET,metastatic,HR+/HER2-,postmenopausal,any,AI,esmo-mbc-2026-05-luminal-1l-e03e88,ET 단독은 동반질환·PS로 CDK4/6 병용을 못 쓸 때 [V; B]. 1차 단원의 ET는 AI·fulvestrant
+ET,metastatic,HR+/HER2-,postmenopausal,any,fulvestrant,esmo-mbc-2026-05-luminal-1l-e03e88,위와 같음
+ET,metastatic,HR+/HER2-,premenopausal,any,LHRH+AI,esmo-mbc-2026-05-luminal-1l-e03e88; esmo-mbc-2026-05-luminal-1l-c0c05b,폐경 전·주변기는 모든 내분비 기반 치료에 OFS [I; A]
+ET,metastatic,HR+/HER2-,premenopausal,any,LHRH+fulvestrant,esmo-mbc-2026-05-luminal-1l-e03e88; esmo-mbc-2026-05-luminal-1l-c0c05b,위와 같음
+ET,metastatic,HR+/HER2+,postmenopausal,any,AI,esmo-mbc-2026-05-her2-1l-2cded5,ER+ HER2+에서 심장 질환 등으로 항HER2를 못 쓸 때 ET 단독 [III; C]. HER2 단원의 ET는 AI
+ET,metastatic,HR+/HER2+,premenopausal,any,LHRH+AI,esmo-mbc-2026-05-her2-1l-2cded5; esmo-mbc-2026-05-luminal-1l-c0c05b,위와 같음 + 폐경 전·주변기 OFS
+ChT,metastatic,HR+/HER2-,,,taxane;capecitabine,esmo-mbc-2026-05-luminal-3l-219e18; esmo-mbc-2026-05-luminal-3l-b023e3,항암 경험이 없으면 단독 순차 항암 [II; A]: capecitabine·taxane [I; C]. anthracycline은 3차 이후 재투여(ae383b)로만 나와 넣지 않음
+ChT,metastatic,TNBC,,,taxane;anthracycline;capecitabine;eribulin;vinorelbine;carboplatin,esmo-mbc-2026-05-tnbc-1l-a2bd8f; esmo-mbc-2026-05-tnbc-1l-961901; esmo-mbc-2026-05-tnbc-1l-015580; esmo-mbc-2026-05-tnbc-2l-e9b4f6; esmo-mbc-2026-05-tnbc-2l-aa0873,taxane·anthracycline 단독 [I; A]; gBRCA면 carboplatin 기반 [II; A]; 2차 이후 eribulin·capecitabine·vinorelbine [I; B]
