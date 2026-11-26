@@ -652,17 +652,26 @@ def _versions(patient_ref: str, save_dir: Path) -> list[Path]:
     return sorted(folder.glob("v*.json"), key=lambda p: int(p.stem[1:])) if folder.exists() else []
 
 
+def next_version(draft: dict, confirmed_by: str, confirmed_at: str | None = None,
+                 last: dict | None = None) -> tuple[dict, list[str]]:
+    """저장할 확정 문서 (finalize와 같은 규칙, 저장은 하지 않음). last = 그 환자의 마지막 확정 문서 (없으면 v1).
+    파일 대신 다른 곳(DB)에 저장할 때 쓴다."""
+    draft = copy.deepcopy(draft)
+    if last:
+        draft.update(version=last["version"] + 1, visit_type="follow_up",
+                     supersedes={"version": last["version"], "confirmed_at": last["confirmed_at"]})
+    return to_confirmed_state(draft, confirmed_by, confirmed_at)
+
+
 def finalize(draft: dict, confirmed_by: str, confirmed_at: str | None = None,
              save_dir: Path = SAVE_DIR) -> tuple[Path | None, dict, list[str]]:
     """확정 저장. 오류가 없으면 save_dir/<patient_ref>/v<n>.json에 새 버전으로 쓴다 (이전 버전은 그대로)."""
     previous = _versions(draft["patient_ref"], save_dir)
-    draft = copy.deepcopy(draft)
+    last = None
     if previous:
         with open(previous[-1], encoding="utf-8") as f:
             last = json.load(f)
-        draft.update(version=last["version"] + 1, visit_type="follow_up",
-                     supersedes={"version": last["version"], "confirmed_at": last["confirmed_at"]})
-    doc, errors = to_confirmed_state(draft, confirmed_by, confirmed_at)
+    doc, errors = next_version(draft, confirmed_by, confirmed_at, last)
     if errors:
         return None, doc, errors
     path = save_dir / draft["patient_ref"] / f"v{doc['version']}.json"

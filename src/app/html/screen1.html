@@ -103,6 +103,10 @@ header h1 { font-size: 15px; margin: 0; }
 #msg .errors { color: var(--req); white-space: pre-wrap; font-size: 13px; padding: 0 12px; margin: 6px 0; }
 #msg .saved { color: var(--ok); font-size: 13px; padding: 0 12px; margin: 6px 0; }
 .emptymsg { padding: 40px; text-align: center; color: var(--muted); }
+.find { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.find .hits { display: flex; gap: 4px; flex-wrap: wrap; font-size: 12px; }
+.find .hits button { font-size: 12px; }
+.find .none { color: var(--muted); }
 
 @media (max-width: 900px) {
   body { display: block; }
@@ -115,7 +119,11 @@ header h1 { font-size: 15px; margin: 0; }
 <body>
 <header>
   <h1>화면 1 · 처방 조건 확인</h1>
+  <form id="findform" class="find"><input id="q" placeholder="환자 번호 또는 이름" size="16" autocomplete="off">
+    <button type="submit">찾기</button><span id="hits" class="hits"></span></form>
   <label>사례 <select id="case"></select></label>
+  <label title="정답: 미리 만든 정답 patient_state · 입력 모듈 LLM: 받은 차트를 입력 모듈이 지금 읽음">입력값
+    <select id="input"><option value="answer">정답</option><option value="llm">입력 모듈 LLM</option></select></label>
   <span id="headinfo" class="headinfo"></span>
 </header>
 <div id="band"></div>
@@ -173,23 +181,76 @@ async function init() {
   const sel = $("#case");
   sel.innerHTML = '<option value="">-- 사례 --</option>' + META.cases.map((c) => `<option>${esc(c)}</option>`).join("");
   sel.onchange = () => sel.value && load(sel.value);
-  const want = new URLSearchParams(location.search).get("case");
+  const params = new URLSearchParams(location.search);
+  if (params.get("input") === "llm") $("#input").value = "llm";
+  $("#input").onchange = () => sel.value && load(sel.value);
+  const want = params.get("case");
   if (want && META.cases.includes(want)) { sel.value = want; load(want); }
   try { $("#by").value = localStorage.getItem("screen1.by") || ""; } catch (e) {}
   $("#save").onclick = save;
+  $("#findform").onsubmit = (e) => { e.preventDefault(); find(); };
 }
 
-async function load(caseId) {
-  const data = await api("/api/draft?case=" + encodeURIComponent(caseId));
+// 환자 번호·이름으로 찾기. 하나면 바로 열고, 여럿이면 고르게 한다
+async function find() {
+  const box = $("#hits");
+  const { hits } = await api("/api/find", { q: $("#q").value });
+  const open = (c) => { $("#case").value = c; box.innerHTML = ""; load(c); };
+  if (hits.length === 1) { open(hits[0].case); return; }
+  box.innerHTML = hits.length ? hits.map((h) => `<button type="button" data-case="${esc(h.case)}">${esc(h.case)} · ${esc(h.name || "")} · ${esc(h.registration_no || "")} · ${esc(h.set)}</button>`).join("")
+    : '<span class="none">찾는 환자가 없습니다</span>';
+  box.querySelectorAll("button").forEach((b) => { b.onclick = () => open(b.dataset.case); });
+}
+
+// 입력 모듈 방식: 서버가 차트를 입력 모듈 LLM으로 읽는 동안 문서 진행을 보여 준다
+const DOC_KO = { progress_note: "외래 경과기록", pathology: "병리결과보고서", molecular: "분자병리 검사",
+  medication: "투약 기록", radiology: "영상의학 판독" };
+let LOADING = 0;
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function readChart(caseId, token, force) {
+  let st = await api("/api/extract/start", { case: caseId, force: !!force });
+  while (st.stage === "reading") {
+    if (token !== LOADING) return null;                  // 다른 사례를 골랐다
+    const n = st.total === null ? "" : ` ${Math.min(st.done + 1, st.total)}/${st.total}`;
+    $("#docs").innerHTML = `<div class="emptymsg reading">입력 모듈이 차트를 읽는 중: 문서${n}` +
+      `${st.current ? ` (${esc(DOC_KO[st.current] || st.current)})` : ""} · ${st.elapsed || 0}초` +
+      `${st.model ? `<br><small>${esc(st.model)} · 문서마다 LLM 한 번</small>` : ""}</div>`;
+    await sleep(1000);
+    st = await api("/api/extract/status?case=" + encodeURIComponent(caseId));
+  }
+  if (st.stage !== "done") {
+    $("#docs").innerHTML = `<div class="emptymsg"><p class="errors">입력 모듈 실패: ${esc(st.error || st.stage)}</p>` +
+      `<button id="reread">다시 읽기</button></div>`;
+    $("#reread").onclick = () => load(caseId, true);
+    return null;
+  }
+  return st;
+}
+
+async function load(caseId, force) {
+  const input = $("#input").value, token = ++LOADING;
+  S = null; $("#groups").innerHTML = ""; $("#band").innerHTML = ""; $("#msg").innerHTML = ""; $("#decision").innerHTML = "";
+  let st = null;
+  if (input === "llm") {
+    st = await readChart(caseId, token, force);
+    if (!st || token !== LOADING) return;
+  }
+  const data = await api(`/api/draft?case=${encodeURIComponent(caseId)}&input=${input}`);
+  if (token !== LOADING) return;
   S = data; DOCS = data.documents; CHECKED = new Set(); OPEN = new Set();
   $("#memo").value = "";
   const h = data.header;
-  $("#headinfo").textContent = [S.draft.patient_ref,
-    h.index_day !== null ? `기준일 ${h.index_date || ""} (진단 후 ${h.index_day}일)` : "기준일 없음"].join(" · ");
+  $("#headinfo").innerHTML = esc([S.draft.patient_ref,
+    h.index_day !== null ? `기준일 ${h.index_date || ""} (진단 후 ${h.index_day}일)` : "기준일 없음",
+    input === "llm" ? `입력 모듈 LLM${st && st.seconds !== null ? ` ${st.seconds}초` : ""}` +
+      `${st && st.issues ? ` · 문제 ${st.issues}개` : ""}${st && st.llm_errors ? ` · LLM 실패 ${st.llm_errors}개` : ""}` : "정답 입력값"]
+    .join(" · ")) + (input === "llm" ? ' <button id="reread2" type="button">다시 읽기</button>' : "");
+  if (input === "llm") $("#reread2").onclick = () => load(caseId, true);
   $("#band").innerHTML = data.warnings.length
     ? `<div class="band">${data.warnings.map((w) => `<div><b>${esc(w.kind)}</b>${esc(w.text)}</div>`).join("")}</div>` : "";
   $("#msg").innerHTML = data.saved.length ? `<p class="saved">저장된 버전: ${data.saved.map((v) =>
-    `<a href="/screen2?case=${encodeURIComponent(caseId)}&version=${v.slice(1, -5)}">${esc(v)} 처방 추천 보기</a>`).join(", ")} (새로 저장하면 다음 버전)</p>` : "";
+    `<a href="/screen2?case=${encodeURIComponent(caseId)}&version=${v.slice(1, -5)}&input=${input}">${esc(v)} 처방 추천 보기</a>`).join(", ")} (새로 저장하면 다음 버전)</p>` : "";
   renderDocs(); render();
 }
 
@@ -381,15 +442,16 @@ function onEdit(el) {
 }
 
 async function save() {
+  if (!S) return;                                        // 아직 차트를 읽는 중
   const by = $("#by").value.trim();
   try { localStorage.setItem("screen1.by", by); } catch (e) {}
-  const data = await api("/api/finalize", { draft: S.draft, confirmed_by: by, memo: $("#memo").value });
+  const data = await api("/api/finalize", { draft: S.draft, confirmed_by: by, memo: $("#memo").value, input: S.header.input });
   $("#msg").innerHTML = data.errors && data.errors.length
     ? `<p class="errors">저장하지 못함:\n${data.errors.map(esc).join("\n")}</p>`
     : `<p class="saved">저장함: ${esc(data.path)} (version ${data.doc.version}). 처방 추천 화면으로 넘어갑니다…</p>`;
   $("#msg").scrollIntoView({ block: "nearest" });
   if (!(data.errors && data.errors.length)) {
-    setTimeout(() => { location.href = `/screen2?case=${encodeURIComponent($("#case").value)}&version=${data.doc.version}`; }, 800);
+    setTimeout(() => { location.href = `/screen2?case=${encodeURIComponent($("#case").value)}&version=${data.doc.version}&input=${$("#input").value}`; }, 800);
   }
 }
 
