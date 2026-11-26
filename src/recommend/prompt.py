@@ -24,7 +24,7 @@ INSTRUCTIONS = """너는 유방암 처방 후보를 정리하는 도우미다. �
    허가초과 인정 청크와 맞으면 offlabel_approved, 둘 다 없으면 no_criteria. no_criteria를 "비급여"로 단정하지 않는다.
 6. [지침 청크]에 이 환자에게 맞는 요법이 여러 개 있으면 요법마다 후보를 하나씩 쓴다 (최대 5개). 같은 요법을 두 번 쓰지 않는다.
    drugs에는 그 요법의 약 일반명을 모두 쓰고, evidence에는 인용한 지침 청크의 LoE·GoR를 그대로 쓴다.
-7. [환자]의 disease·line·phase에 맞는 치료만 쓴다. 예: metastatic 환자에게 수술전·수술후보조요법을 쓰지 않고,
+7. [환자]의 disease·line_endocrine·line_chemo·phase에 맞는 치료만 쓴다. 예: metastatic 환자에게 수술전·수술후보조요법을 쓰지 않고,
    phase가 neoadjuvant(수술 전 결정)이면 수술 후 보조요법 권고를 쓰지 않는다.
    deemed_lines_met·high_risk_early·positive_markers는 [지침 청크]의 권고 조건과 맞춰 보는 데 쓴다.
 8. 골 보호제(denosumab, zoledronic acid, pamidronate, ibandronate, clodronate, bisphosphonate)는 options에 넣지 않고
@@ -64,7 +64,8 @@ def _deemed_met(patient_state, confirmed_state):
 
 def patient_summary(patient_state, biomarker_record, confirmed_state=None):
     """프롬프트에 넣을 환자 요약 (구조화 값만, 원문 인용 없음).
-    phase·high_risk_early·deemed_lines_met은 A 공유 2026-11-05 B-8·B-11 (LLM이 수술 전후와 위험도, 조기 재발을 몰랐음)."""
+    phase·high_risk_early·deemed_lines_met은 A 공유 2026-11-05 B-8·B-11 (LLM이 수술 전후와 위험도, 조기 재발을 몰랐음).
+    차수는 고식적 내분비·항암 차수 둘이다 (의사 확정값을 먼저 보고, 없으면 biomarker_record). 전체 차수는 2026-11-18 삭제."""
     f = (patient_state or {}).get("fields") or {}
     setting = biomarker_record.get("setting") or {}
     phase = _confirmed(confirmed_state, "setting.phase")
@@ -78,13 +79,15 @@ def patient_summary(patient_state, biomarker_record, confirmed_state=None):
                              if r.get("status") in ("positive", "low", "ultralow")],
         "subtype": biomarker_record.get("subtype"),
         "disease": setting.get("disease"),
-        "line": setting.get("line"),
+        "line_endocrine": _confirmed(confirmed_state, "setting.line_endocrine") or setting.get("line_endocrine"),
+        "line_chemo": _confirmed(confirmed_state, "setting.line_chemo") or setting.get("line_chemo"),
         "line_reason": setting.get("reason"),
         "prior_drug_classes": setting.get("prior_drug_classes") or [],
         "menopausal_status": _value((f.get("patient") or {}).get("menopausal_status")),
         "histology": _value((f.get("diagnosis") or {}).get("histology")),
         "metastatic_sites": _value((f.get("recurrence") or {}).get("metastatic_sites")),
-        "treatment_history": [{"drugs": t.get("drugs"), "setting": t.get("setting"), "line": t.get("line"),
+        "treatment_history": [{"drugs": t.get("drugs"), "setting": t.get("setting"),
+                               "endocrine_line": t.get("endocrine_line"), "chemo_line": t.get("chemo_line"),
                                "best_response": t.get("best_response"), "stop_reason": t.get("stop_reason")}
                               for t in f.get("treatment_history") or []],
     }

@@ -521,7 +521,7 @@ H&E에서 ER/PR/HER2를 예측해 차트 값과의 불일치를 표시하는 QC 
 - [x] TCGA 투약 기록의 약제명·치료 종류 정규화 사전 (`data/dictionaries/drug_names.csv`, `drug_classes.csv`). IN-3 약어 사전의 출발점으로 쓴다
 - [x] 병기 범주 (2026-10-13 결정): I~II기 = 조기, III기 = 국소 진행성 (심평원 급여 조건 기준), IV기 = 전이성. `patient_state.stage.disease_extent`(진단 시), `biomarker_record.setting.disease`·`chunk.setting`(현재 치료 상황)에 `locally_advanced`를 추가했다. TCGA 크롭본에 `stage_disease_extent` 열을 만들었다. A의 정답 세트 규칙(병기 `[Discrepancy]` 6명, `[Not Available]` 5명, 전부 빈칸 1명 제외)을 먼저 적용하고, 범주를 정할 수 없는 Stage X 11명과 조직형 NOS·기록 없음 2명을 더 뺐다 (25명, 1,086명 → 1,061명). 이어서 재발 상태(`recurrence_status`)를 정하고, 진단 시 전이성이 아니면서 새 원발암만 있는 18명을 뺐다 (1,061명 → 1,043명). 현재 범주(`current_disease_extent`, `setting.disease` 정답)는 전이가 됐는지만 본다: 진단 시 전이성(Stage IV·M1) 또는 원격 전이 재발 → 전이성, 그 밖(재발 없음, 국소 재발, 재발 부위 모름, 재발 여부 모름)은 진단 시 범주 그대로다. 급여·처방 기준에서 필요한 것은 전이 여부뿐이기 때문이다. 국소 재발(첫 치료 후 유방·흉벽·주변 림프절 재발)은 전이가 아니고, 국소 진행성(진단 시 III기)과도 다른 개념이다. 병합 스크립트가 `follow_up_v2.1`의 재발 종류를 읽지 않아 46명의 재발 종류가 비어 있던 것도 고쳤다. 2026-10-14: 차수는 정답 데이터에 넣지 않고 B 모듈이 투약 이력으로 판단하게 한다. 그 재료로 전이 기준일(`metastasis_dx_days`)을 추가하고, 현재 전이성인데 전이 후 항암 투약 기록이 없는 46명을 뺐다 (1,043명 → 997명, 전이성 32명). TCGA 정답은 진단 시(원발 종양) 병리 병기·수용체만 쓴다. 재발 병소 수용체는 재발 기록과 맞는 환자가 1명뿐이라 정답에 쓰지 않고, 재발 병소 결과 우선 규칙(IN-4)은 가상 차트와 실제 차트에만 적용한다. 크롭본이 곧 정답 세트다
 - [x] `patient_state` 0.1-draft5 (2026-10-15 협의): 차수는 정답에 넣지 않고 B가 투약 시작일(`treatment_history[].start_day`, 진단일 = 0)과 전이 기준일(`recurrence.metastasis_day`)로 판단한다. 심평원 투여단계는 고식적 내분비요법과 고식적 항암화학요법을 따로 센다. 국소 재발 후 수술(재발 후 원격 전이 없음)이면 이후 요법은 수술후보조요법(공고 p.48). TCGA 정답에서는 BRCA1/2 종양 엑솜 결과를 gBRCA 측정으로 가정한다. PD-L1은 발현 점수만 넘기고 B가 약제별 기준으로 판정한다. 유전자 변이(ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2)는 유전자별로, anthracycline 투약 용량(liposomal doxorubicin 급여 조건용)은 약별로 넘긴다. 투여 주기에는 주기 길이를 붙인다 (`data/dictionaries/drug_classes.csv`의 `cycle_days`). anthracycline 병용 용량을 나눌 수 없는 4명과 재발했지만 부위를 모르는 7명을 빼 정답 세트는 985명이다. 모델 한계: 장기 위기, 심장 위험 요인, 투약 중 여부, 재발 후 수술 의도는 판단하지 않는다 (2026-10-22: 평가를 가상 차트로 바꾸며 칸을 추가해 이 한계를 없앰, §12). 전달 문서는 `src/input/handoff_to_B.md` (BM-3 제안과 draft5 내용을 2026-10-15에 한 파일로 합침)
-- [x] `patient_state` 0.1-draft6 (2026-10-16 A 제안, 4명 검토 전): 차수는 A가 변환할 때 계산해 `treatment_history[]`의 `line`(전체)·`endocrine_line`(고식적 내분비)·`chemo_line`(고식적 항암)에 넣는다 (`src/input/script/rules.py`). 심평원 차수 간주 규칙 4개(anthracycline·taxane 선행·보조, sacituzumab 1년, T-DM1·T-DXd 6개월, 보조 내분비 1년)는 차수를 바꾸지 않고 `fields.deemed_lines`에 충족 여부만 넣는다. 판정 기준일 `index_day`(TCGA = 마지막 추적일), 첫 재발일 `recurrence.recurrence_day` 추가. TCGA BRCA는 gBRCA 가정 유지
+- [x] `patient_state` 0.1-draft6 (2026-10-16 A 제안, 4명 검토 전): 차수는 A가 변환할 때 계산해 `treatment_history[]`의 `endocrine_line`(고식적 내분비)·`chemo_line`(고식적 항암)에 넣는다 (`src/input/script/rules.py`). 전체 차수 `line`은 2026-11-18 삭제 (4명 확인, `src/input/proposal_remove_overall_line_2026-11-06.md`). 심평원 차수 간주 규칙 4개(anthracycline·taxane 선행·보조, sacituzumab 1년, T-DM1·T-DXd 6개월, 보조 내분비 1년)는 차수를 바꾸지 않고 `fields.deemed_lines`에 충족 여부만 넣는다. 판정 기준일 `index_day`(TCGA = 마지막 추적일), 첫 재발일 `recurrence.recurrence_day` 추가. TCGA BRCA는 gBRCA 가정 유지
 - [x] TCGA 필드를 v0.1 추출 스키마에 대응 (규칙 `src/input/tcga_mapping.md`) + 정답 생성기 (2026-10-15, `src/input/script/tcga/tcga_truth.py`, 874명 전원 스키마 통과 (2026-10-15 HER2 판정 불가 62명, PR Indeterminate 4명, ER·PR·HER2 모두 미시행 43명, ER 또는 PR 미시행 2명 제외 후), 테스트 `tests/input/`)
 - [ ] 가상 차트 작성 방법 정하기 (양식 종류, 문장으로 쓸 필드, 합성값, 국내 표현 수집). 2026-10-19 시나리오 10건 설계: `tests/fixtures/virtual_charts/` (사례당 텍스트 한 파일에 문서 2~4개, 가짜 날짜 사용, 가짜 식별정보, 정답은 담당자별 분담). 차트 원문과 정답은 draft6 병합 뒤 VC-0103부터 작성. TCGA 기반 30건 추출 세트의 형식은 아직
 - [ ] LLM 공통 인터페이스 `llm/` (0단계 A 담당)
@@ -571,10 +571,9 @@ team_project/
 │   ├── fixtures/       가상 차트, 모듈별 예상 출력 — 공용
 │   ├── input/  biomarker/  rag/  reimbursement/  recommend/   — 각 모듈 담당
 └── data/               데이터 (csv·txt·py만 git에 올림)
-    ├── script/         TCGA-BRCA 데이터 탐색 스크립트
+    ├── script/         CIViC·ClinVar 다운로드 스크립트
     ├── dictionaries/   약제명·치료 종류 사전
-    ├── metadata/       v0.2 슬라이드 목록
-    └── tcga_brca/      다운로드한 TCGA 데이터와 합친 파일
+    └── metadata/       v0.2 슬라이드 목록
 ```
 
 규칙:
@@ -648,29 +647,11 @@ git 규칙: `data/` 안은 기본적으로 제외하고 **csv·txt·py 파일만
 
 | 경로 | 내용 | git |
 |---|---|---|
-| `data/script/tcga_brca_download.py` | TCGA-BRCA 임상 파일(GDC BCR Biotab)과 cBioPortal 임상·변이·바이오마커 유전자 CNA 데이터를 `data/tcga_brca/`에 내려받는다. 이미 받은 파일은 건너뛴다 | 올림 |
-| `data/script/tcga_brca_explore.py` | 구조 요약을 출력하고 `data/tcga_brca/structure_report.md`를 만든다 (`tabulate` 필요) | 올림 |
-| `data/script/tcga_brca_merge.py` | 모든 표를 환자 ID로 합쳐 환자 1명 = 1행 파일을 만든다. 약제명은 `data/dictionaries/` 사전으로 바로잡고, 사전에 없는 약제명이 나오면 멈춘다 | 올림 |
-| `data/script/tcga_brca_crop.py` | 합친 파일에서 남성 환자와 `DROP` 목록의 열을 빼고, 열 설명과 변경 기록을 만든다 | 올림 |
 | `data/dictionaries/drug_names.csv` | 원문 약제명 → 일반명 사전. IN-3 약어 사전의 출발점 | 올림 |
 | `data/dictionaries/drug_classes.csv` | 일반명 → 치료 종류 사전 | 올림 |
 | `data/metadata/slides_files.csv`, `gdc_manifest_slides_test.txt` | v0.2용 TCGA-BRCA 진단 슬라이드 목록과 GDC 다운로드 매니페스트 | 올림 |
-| `data/tcga_brca/gdc_clinical/` | GDC Biotab 임상 파일 9개 (환자, 투약, 방사선, 추적 관찰 v1.5·v2.1·v4.0, 새 종양 사건, 기타 악성종양). 헤더 3줄, 결측은 `[Not Available]` = 기록 없음, `[Not Evaluated]` = 미시행 | 올림 (txt) |
-| `data/tcga_brca/cbioportal/` | cBioPortal PanCancer Atlas 파일 6개 (환자·샘플 임상, 임상 속성 설명, 변이, 바이오마커 유전자 CNA, 검사 대상 샘플) | 제외 (tsv). 다운로드 스크립트로 다시 받는다 |
-| `data/tcga_brca/structure_report.md` | 탐색 스크립트가 만든 열 단위 구조 보고서 | 제외 (md). 탐색 스크립트로 다시 만든다 |
-| `data/tcga_brca/merged/tcga_brca_merged.csv` | 환자 1명 = 1행으로 합친 파일, 열 설명은 `tcga_brca_merged_columns.csv`, 약제명 수정 기록은 `drug_corrections.csv` | 올림 (csv·txt) |
-| `data/tcga_brca/merged/tcga_brca_merging_cropped.csv` | 남성 환자와 불필요한 열을 뺀 최종 파일. 열 설명 `_columns.txt`, 변경 기록 `_changes.txt` | 올림 (csv·txt) |
 
-스크립트 실행 순서 (`team_project` 폴더에서, `team_project` conda 환경으로):
-
-```bash
-python data/script/tcga_brca_download.py
-python data/script/tcga_brca_explore.py
-python data/script/tcga_brca_merge.py
-python data/script/tcga_brca_crop.py
-```
-
-새로 받은 팀원은 git에 없는 파일(cbioportal tsv, structure_report.md)을 위 순서대로 스크립트를 실행해 만든다. 합친 파일(`merged/`)은 git으로 받으므로, 다운로드 없이 바로 쓸 수도 있다. 단, 합친 파일을 다시 만들려면 cbioportal 파일이 필요하므로 다운로드부터 실행한다.
+TCGA-BRCA 다운로드·탐색·합치기·자르기 스크립트(`data/script/tcga_brca_*.py`)와 그 데이터(`data/tcga_brca/`)는 2026-11-18에 지웠다. TCGA·BCNB 기반 가상환자는 별도 저장소에서 만든다.
 
 ### 15.3 진행 단계
 

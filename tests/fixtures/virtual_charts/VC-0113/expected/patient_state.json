@@ -474,7 +474,6 @@
             "basis": "estimated"
           }
         ],
-        "line": null,
         "endocrine_line": null,
         "chemo_line": null
       },
@@ -517,7 +516,6 @@
             "basis": "estimated"
           }
         ],
-        "line": null,
         "endocrine_line": null,
         "chemo_line": null
       },
@@ -541,7 +539,6 @@
           "char_start": 1812,
           "char_end": 1874
         },
-        "line": null,
         "endocrine_line": null,
         "chemo_line": null
       },
@@ -571,7 +568,6 @@
           "char_start": 1881,
           "char_end": 1960
         },
-        "line": 1,
         "endocrine_line": 1,
         "chemo_line": null
       },
@@ -596,7 +592,6 @@
           "char_start": 1967,
           "char_end": 2042
         },
-        "line": 2,
         "endocrine_line": 2,
         "chemo_line": null
       }
@@ -606,7 +601,6 @@
       "drugs": [
         {
           "drug": "doxorubicin",
-          "timeline_index": null,
           "combined_with": [
             "cyclophosphamide"
           ],

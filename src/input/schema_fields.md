@@ -72,7 +72,6 @@ A는 원칙적으로 표기만 정리한다. 예외: HER2 IHC의 `result`는 ISH
 | 표기 | 의미 | 쓰는 곳 |
 |---|---|---|
 | `not_assessed` (평가 안됨) | 평가하지 않았거나 평가할 수 없음 | TNM의 TX·NX·MX, 병기군 `Stage X` |
-| `[Not Available]` | 그 항목만 기록 없음 | 림프절 수의 한쪽 값 |
 | `[Not Applicable]` (해당 없음) | 해당 사항 없음 | 진단 시 전이 없음(M0)일 때 전이 부위 |
 | `No value` | 값 없음 | `anthracycline_drug_dose`의 투여 여부·용량·주기 |
 
@@ -123,7 +122,7 @@ A는 원칙적으로 표기만 정리한다. 예외: HER2 IHC의 `result`는 ISH
 | `group` [합의 예정] | 병기군 | `I`, `IA`, `IIA` … `IV` / `not_assessed` | 해석 | `Stage IIA` → `"IIA"` / `Stage X` → `"not_assessed"` |
 | `positive_ln_count` [합의 예정] | 양성 림프절 수 / 검사한 수 | `{positive, examined}` | 해석 | `LN 2/15 (+)` → `{"positive":2,"examined":15}` |
 | `disease_extent` | 진단 시 병기 범주 | `early` / `locally_advanced` / `metastatic` | 규칙 | `Stage IIB` → `"early"`, `Stage IIIA` → `"locally_advanced"`, `pT2N1M1` → `"metastatic"` |
-| `metastatic_sites` | 진단 시 원격 전이 부위 | `bone` / `liver` / `lung` / `brain` / `distant_ln` / `skin` / `other` 목록, 또는 `[Not Applicable]` / `[Not Available]` | 사전 | `간과 뼈에 다발성 전이` → `["liver","bone"]` |
+| `metastatic_sites` | 진단 시 원격 전이 부위 | `bone` / `liver` / `lung` / `brain` / `distant_ln` / `skin` / `other` 목록, 또는 `[Not Applicable]` | 사전 | `간과 뼈에 다발성 전이` → `["liver","bone"]` |
 | `operable` [draft5] | 수술 가능 여부 | `yes` / `no` / `unknown` | 사전 | `inoperable, locally advanced` → `"no"` |
 | `clinical_size_mm` [draft7 후보] | 치료 전 임상 종양 크기 (영상·촉진 최대 직경) | 숫자 (mm) | 해석 (cm → mm) | `유방 초음파상 3.2cm 종괴` → `32` |
 | `pathologic_size_mm` [draft7 후보] | 수술 검체 침윤암 최대 직경 (관내암 제외). 선행요법 뒤 잔존 크기는 여기가 아니라 `yptnm.value.residual_size_mm` | 숫자 (mm) | 해석 (cm → mm) | `invasive tumor size 5.5 x 4.0 cm` → `55` |
@@ -244,7 +243,7 @@ TNM·병기군 표기 규칙 [A 결정]:
 | `ongoing` [draft7 후보] | 기준일에 투약 중인지. `end_day` null만으로는 "투약 중"과 "종료 기록 없음"을 가를 수 없어 둔다 | `true` / `false` / `null`(모름) | 사전 | `현재 키스칼리·페마라 복용 중` → `true` (`end_day`는 `null`) |
 | `stop_reason` | 중단 사유 | `progression` / `toxicity` / `completed` / `planned_switch` / `maintenance` / `other` | 사전 | `PD로 중단` → `"progression"` |
 | `best_response` | 최선 반응 | `CR` / `PR` / `SD` / `PD` / `unknown` | 사전 | `완전관해` → `"CR"` |
-| `line`, `endocrine_line`, `chemo_line` [draft6] | 전이 후 전체 차수, 고식적 내분비 차수, 고식적 항암 차수 (간주 규칙 없음) | 정수 또는 `null` | 계산 (`rules.py`) | 전이 후 letrozole → paclitaxel → `1/1/null`, `2/null/1` |
+| `endocrine_line`, `chemo_line` [draft6] | 고식적 내분비 차수, 고식적 항암 차수 (간주 규칙 없음). 전이 후 전체 차수 `line`은 2026-11-18 삭제 | 정수 또는 `null` | 계산 (`rules.py`) | 전이 후 letrozole → paclitaxel → `1/null`, `null/1` |
 | `source` | 원문 근거 | 공통 틀과 같음 | — | `{"doc_id":"D3","quote":"AI + palbociclib, PD"}` |
 
 ## 9. 선행요법 반응, 재발, 기준일 값, 영상 소견, 유전자 보고서
@@ -287,7 +286,7 @@ A가 받아들인 제안과 A 결정이다. 2026-10-12에 `schemas/patient_state
 | `stage.group`, `stage.positive_ln_count` 추가 | 스키마 반영 (0.1-draft3) |
 | `patient.gender` 추가 | 스키마 반영 (0.1-draft3) |
 | `treatment_history[].duration_days` 추가 | 스키마 반영 (0.1-draft3) |
-| 특수 표기값 `not_assessed`, `[Not Available]`, `[Not Applicable]`을 `value`에 허용 | A 결정 (평가 안됨·불가 통합) |
+| 특수 표기값 `not_assessed`, `[Not Applicable]`을 `value`에 허용 (TCGA 결측 코드 `[Not Available]`은 2026-11-19 삭제, 차트에서는 나오지 않음) | A 결정 (평가 안됨·불가 통합) |
 | `stop_reason` 표준값 목록 | 스키마 반영 (0.1-draft3) |
 | 부분 날짜(`YYYY-MM`, `YYYY`) 허용 | 스키마 반영 (0.1-draft3) |
 | `stage.disease_extent` 추가 (I~II 조기, III 국소 진행성, IV 전이성) | 사용자 결정 (2026-10-13), 스키마 반영 (0.1-draft4) |

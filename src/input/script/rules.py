@@ -75,8 +75,8 @@ class Vocab:
 # ====================================================================================================
 # 전이 후 치료 차수와 심평원 차수 간주 규칙 (전달 문서 handoff_to_B.md §6.2·§6.3).
 #
-# patient_state 한 명의 treatment_history로 전이 후 요법마다 차수를 매긴다. 세 가지를 따로 센다.
-# - line: 전이 후 전체 차수 (지침용 1L, 2L, >=3L)
+# patient_state 한 명의 treatment_history로 전이 후 요법마다 차수를 매긴다. 두 가지를 따로 센다.
+# 전체 차수(line)는 두지 않는다 (src/input/proposal_remove_overall_line_2026-11-06.md, 4명 확인 후 2026-11-18 삭제).
 # - endocrine_line: 고식적 내분비요법 차수 (심평원 투여단계)
 # - chemo_line: 고식적 항암화학요법 차수 (심평원 투여단계). 심평원은 내분비와 항암을 따로 센다 (공고 p.55)
 #
@@ -248,8 +248,8 @@ def palliative_lines(patient_state: dict, drug_classes: dict[str, str] | None = 
             groups.append([t])
 
     regimens = []
-    line = endocrine = chemo = 0
-    in_line: dict[str, int] = {}  # 지금 차수에서 이미 센 요법 종류 → 그 종류의 차수
+    line = endocrine = chemo = 0  # line: 차수 묶음 번호 (진행이면 다음 묶음). 저장하지 않고 종류별 차수를 올릴 때만 쓴다
+    in_line: dict[str, int] = {}  # 지금 차수 묶음에서 이미 센 요법 종류 → 그 종류의 차수
     for g in groups:
         drugs = list(dict.fromkeys(d for t in g for d in t["drugs"]))
         category = _category({classes.get(d, "Unknown") for d in drugs})
@@ -270,8 +270,7 @@ def palliative_lines(patient_state: dict, drug_classes: dict[str, str] | None = 
             elif category == "chemo":
                 chemo += 1
                 in_line[category] = chemo
-        numbers = {"line": line,
-                   "endocrine_line": in_line.get("endocrine") if category == "endocrine" else None,
+        numbers = {"endocrine_line": in_line.get("endocrine") if category == "endocrine" else None,
                    "chemo_line": in_line.get("chemo") if category == "chemo" else None}
         regimens.append({"drugs": drugs, "start_day": g[0]["start_day"], "category": category, **numbers,
                          "refs": [t["_index"] for t in g], "_items": g})
@@ -279,7 +278,7 @@ def palliative_lines(patient_state: dict, drug_classes: dict[str, str] | None = 
     for r in regimens:
         del r["_items"]
     return {"metastasis_day": metastasis_day, "regimens": regimens,
-            "counts": {"line": line, "endocrine": endocrine, "chemo": chemo}, "notes": notes}
+            "counts": {"endocrine": endocrine, "chemo": chemo}, "notes": notes}
 
 
 def _deem(rule_id: str, status: str, basis: str, refs: list[int], gap: int | None) -> dict:
@@ -417,15 +416,15 @@ def at_index(patient_state: dict, drug_table: dict[str, tuple[str, str]] | None 
 
 
 def annotate(patient_state: dict, drug_table: dict[str, tuple[str, str]] | None = None) -> dict:
-    """patient_state에 차수 3칸(treatment_history[]), deemed_lines, at_index를 채워 그대로 돌려준다."""
+    """patient_state에 차수 2칸(treatment_history[].endocrine_line·chemo_line), deemed_lines, at_index를 채워 그대로 돌려준다."""
     table = drug_table if drug_table is not None else load_drug_table()
     fields = patient_state["fields"]
     numbers: dict[int, dict] = {}
     for r in palliative_lines(patient_state, {g: c for g, (c, _) in table.items()})["regimens"]:
         for i in r["refs"]:
-            numbers[i] = {k: r[k] for k in ("line", "endocrine_line", "chemo_line")}
+            numbers[i] = {k: r[k] for k in ("endocrine_line", "chemo_line")}
     for i, t in enumerate(fields["treatment_history"]):
-        t.update(numbers.get(i, {"line": None, "endocrine_line": None, "chemo_line": None}))
+        t.update(numbers.get(i, {"endocrine_line": None, "chemo_line": None}))
     fields["deemed_lines"] = deemed_lines(patient_state, table)
     fields["at_index"] = at_index(patient_state, table)
     return patient_state

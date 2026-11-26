@@ -24,6 +24,8 @@
     "line": {"type": "array", "items": {"enum": ["neoadjuvant", "adjuvant", "1L", "2L", ">=3L", "any"]}, "minItems": 1},
     "biomarker_tags": {"type": "array", "items": {"type": "string"}},
     "drugs": {"type": "array", "items": {"type": "string"}, "description": "일반명 소문자. 예: elacestrant"},
+    "role": {"enum": ["prescribe", "prescribe_class", "judgment", "caution"],
+             "description": "지침 권고·그림 경로의 역할 (C, 2026-11-18 제안, B #158 요청). prescribe = 약 이름을 적어 권고, prescribe_class = 계열 이름(ET·ChT·AI 등)으로만 권고, judgment = 약을 고르지 않는 권고(항암 필요 여부·검사·순서·기간·국소 치료·MDT), caution = 금기·병용 금지·감시·예방. B는 처방 후보가 prescribe·prescribe_class 청크를 하나 이상 인용해야 남긴다. 급여 청크·소단원·그림 부모에는 없다 (src/rag/chunk_role.py, 검토표 data/chunks/esmo_chunk_roles.csv)"},
     "evidence": {
       "type": ["object", "null"],
       "additionalProperties": false,

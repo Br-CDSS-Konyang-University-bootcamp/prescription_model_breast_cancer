@@ -17,12 +17,10 @@ src/input/script/
 ├── pipeline.py     1,306줄  차트 원문 → patient_state 처리 단계 (IN-0 ~ IN-7). 실행 명령 있음
 ├── evaluation.py     284줄  정답 후보와 채점. 실행 명령 있음
 ├── rules.py          389줄  공용 규칙·사전 (pipeline·virtual이 같이 쓴다)
-├── virtual/                 가상 차트 (모듈 검증용 정답)
-│   ├── virtual_chart.py
-│   ├── build_virtual_cases.py
-│   └── cases/               vc_0101 ~ vc_0109, vc_0106b, pairs
-└── tcga/                    B 테스트용 변환기만 남김
-    └── tcga_to_patient_state.py
+└── virtual/                 가상 차트 (모듈 검증용 정답)
+    ├── virtual_chart.py
+    ├── build_virtual_cases.py
+    └── cases/               vc_0101 ~ vc_0109, vc_0106b, pairs
 ```
 
 파일 사이의 관계:
@@ -74,7 +72,7 @@ from src.input.script.rules import Vocab, annotate, load_drug_table
 | 절 | 시작 줄 | 역할 | 작업 내용 | 쓰는 곳 | 테스트 |
 |---|---|---|---|---|---|
 | `vocab` | 19 | 표준값 사전 | `data/dictionaries/field_vocab.csv`를 읽어 "양성"·"Positive" 같은 표현을 표준값 하나로 바꾼다. 공백·대소문자는 무시하고, 한 표현이 두 값에 대응하면 멈춘다 | `pipeline.py` (normalize) | `test_vocab.py` |
-| `lines` | 73 | 치료 상황 규칙 | 전이 후 차수(`line`, 고식적 내분비 `endocrine_line`, 고식적 항암 `chemo_line`), 심평원 차수 간주 규칙(`deemed_lines`), 판정 기준일 값(`at_index`: 기준일 나이, 최근 4주 투약)을 계산한다. `annotate()`가 셋을 한 번에 채운다 | `pipeline.py` (assemble), `virtual/` | `test_lines.py` |
+| `lines` | 73 | 치료 상황 규칙 | 전이 후 차수(고식적 내분비 `endocrine_line`, 고식적 항암 `chemo_line`. 전체 차수 `line`은 2026-11-18 삭제), 심평원 차수 간주 규칙(`deemed_lines`), 판정 기준일 값(`at_index`: 기준일 나이, 최근 4주 투약)을 계산한다. `annotate()`가 셋을 한 번에 채운다 | `pipeline.py` (assemble), `virtual/` | `test_lines.py` |
 
 ## 4. `virtual/`: 가상 차트
 
@@ -89,7 +87,7 @@ from src.input.script.rules import Vocab, annotate, load_drug_table
 
 ## 5. `tcga/`
 
-2026-10-27 TCGA 정답 세트 폐기, 평가는 가상 차트로. B 모듈 테스트(`tests/biomarker/test_bm.py`)가 쓰는 `tcga_to_patient_state.py`만 남겼다.
+2026-10-27 TCGA 정답 세트 폐기, 평가는 가상 차트로. 2026-11-18 B 모듈 테스트용으로 남겼던 `tcga_to_patient_state.py`도 지웠다 (TCGA·BCNB 기반 가상환자는 별도 저장소에서 만든다).
 
 ## 6. `virtual/`를 파일 하나로 합치지 않은 이유 (2026-10-26 확인)
 

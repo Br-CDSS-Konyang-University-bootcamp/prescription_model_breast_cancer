@@ -1,0 +1,789 @@
+{
+  "schema_version": "0.1-draft6",
+  "patient_ref": "VH-T0043",
+  "created_at": "2026-11-09T00:00:00+09:00",
+  "index_day": 1618,
+  "documents": [
+    {
+      "doc_id": "D1",
+      "doc_type": "progress_note",
+      "doc_date": "2028-08-28"
+    },
+    {
+      "doc_id": "D2",
+      "doc_type": "pathology",
+      "doc_date": "2024-04-20"
+    },
+    {
+      "doc_id": "D3",
+      "doc_type": "molecular",
+      "doc_date": "2024-05-04"
+    },
+    {
+      "doc_id": "D4",
+      "doc_type": "medication",
+      "doc_date": null
+    }
+  ],
+  "fields": {
+    "diagnosis": {
+      "diagnosis_date": {
+        "status": "present",
+        "value": "2024-03-24",
+        "raw": "2024.3.24",
+        "source": {
+          "doc_id": "D1",
+          "quote": "2024.3.24 core bx로 진단",
+          "char_start": 205,
+          "char_end": 226
+        }
+      },
+      "histology": {
+        "status": "present",
+        "value": "ILC",
+        "raw": "Infiltrating Lobular Carcinoma",
+        "source": {
+          "doc_id": "D2",
+          "quote": "Infiltrating Lobular Carcinoma",
+          "char_start": 424,
+          "char_end": 454
+        }
+      },
+      "grade": {
+        "status": "present",
+        "value": 1,
+        "raw": "I (Nottingham grade 1)",
+        "source": {
+          "doc_id": "D2",
+          "quote": "I (Nottingham grade 1)",
+          "char_start": 466,
+          "char_end": 488
+        }
+      }
+    },
+    "stage": {
+      "ctnm": {
+        "status": "not_recorded"
+      },
+      "ptnm": {
+        "status": "present",
+        "value": {
+          "t": "T1b",
+          "n": "N3a",
+          "m": "M0",
+          "edition": "6th"
+        },
+        "raw": "pT1b N3a M0, stage IIIC (AJCC 6th)",
+        "observed_date": "2024-04-14",
+        "source": {
+          "doc_id": "D2",
+          "quote": "pT1b N3a M0, stage IIIC (AJCC 6th)",
+          "char_start": 497,
+          "char_end": 531
+        }
+      },
+      "group": {
+        "status": "present",
+        "value": "IIIC",
+        "raw": "stage IIIC",
+        "source": {
+          "doc_id": "D2",
+          "quote": "stage IIIC",
+          "char_start": 510,
+          "char_end": 520
+        }
+      },
+      "positive_ln_count": {
+        "status": "not_recorded"
+      },
+      "disease_extent": {
+        "status": "present",
+        "value": "locally_advanced",
+        "raw": "stage IIIC",
+        "source": {
+          "doc_id": "D2",
+          "quote": "stage IIIC",
+          "char_start": 510,
+          "char_end": 520
+        }
+      },
+      "metastatic_sites": {
+        "status": "present",
+        "value": "[Not Applicable]",
+        "raw": "pT1b N3a M0",
+        "source": {
+          "doc_id": "D2",
+          "quote": "pT1b N3a M0",
+          "char_start": 497,
+          "char_end": 508
+        }
+      },
+      "operable": {
+        "status": "present",
+        "value": "yes",
+        "raw": "우측 유방 절제술 + 액와 림프절 수술",
+        "source": {
+          "doc_id": "D2",
+          "quote": "우측 유방 절제술 + 액와 림프절 수술",
+          "char_start": 391,
+          "char_end": 412
+        }
+      }
+    },
+    "receptors": {
+      "er_percent": {
+        "status": "present",
+        "value": {
+          "allred": {
+            "total": 8,
+            "ps": 5,
+            "is": 3
+          },
+          "result": "positive"
+        },
+        "raw": "ER 강양성 (Allred 8, 5+3)",
+        "specimen": "primary",
+        "observed_date": "2024-04-14",
+        "source": {
+          "doc_id": "D2",
+          "quote": "ER 강양성 (Allred 8, 5+3)",
+          "char_start": 542,
+          "char_end": 564
+        }
+      },
+      "pr_percent": {
+        "status": "present",
+        "value": {
+          "allred": {
+            "total": 6,
+            "ps": 3,
+            "is": 3
+          },
+          "result": "positive"
+        },
+        "raw": "PR 강양성 (Allred 6, 3+3)",
+        "specimen": "primary",
+        "observed_date": "2024-04-14",
+        "source": {
+          "doc_id": "D2",
+          "quote": "PR 강양성 (Allred 6, 3+3)",
+          "char_start": 567,
+          "char_end": 589
+        }
+      },
+      "her2_ihc": {
+        "status": "present",
+        "value": {
+          "score": "0"
+        },
+        "raw": "HER2 (4B5): 0",
+        "specimen": "primary",
+        "observed_date": "2024-04-14",
+        "source": {
+          "doc_id": "D2",
+          "quote": "HER2 (4B5): 0",
+          "char_start": 592,
+          "char_end": 605
+        }
+      },
+      "her2_ish": {
+        "status": "present",
+        "value": {
+          "result": "not_amplified",
+          "method": "FISH"
+        },
+        "raw": "HER2 FISH: not amplified",
+        "specimen": "primary",
+        "observed_date": "2024-04-14",
+        "source": {
+          "doc_id": "D2",
+          "quote": "HER2 FISH: not amplified",
+          "char_start": 608,
+          "char_end": 632
+        }
+      },
+      "pdl1": {
+        "status": "not_recorded"
+      }
+    },
+    "proliferation": {
+      "ki67_percent": {
+        "status": "present",
+        "value": {
+          "percent": 5
+        },
+        "raw": "Ki-67: 5%",
+        "specimen": "primary",
+        "observed_date": "2024-04-14",
+        "source": {
+          "doc_id": "D2",
+          "quote": "Ki-67: 5%",
+          "char_start": 635,
+          "char_end": 644
+        }
+      }
+    },
+    "patient": {
+      "gender": {
+        "status": "present",
+        "value": "FEMALE",
+        "raw": "F/53",
+        "source": {
+          "doc_id": "D2",
+          "quote": "F/53",
+          "char_start": 350,
+          "char_end": 354
+        }
+      },
+      "age": {
+        "status": "present",
+        "value": 53,
+        "raw": "F/53",
+        "source": {
+          "doc_id": "D2",
+          "quote": "F/53",
+          "char_start": 350,
+          "char_end": 354
+        }
+      },
+      "menopausal_status": {
+        "status": "present",
+        "value": "postmenopausal",
+        "raw": "폐경 후",
+        "source": {
+          "doc_id": "D1",
+          "quote": "폐경 후",
+          "char_start": 164,
+          "char_end": 168
+        }
+      },
+      "menopausal_basis": {
+        "status": "not_recorded"
+      },
+      "ecog": {
+        "status": "present",
+        "value": 0,
+        "raw": "ECOG PS 0",
+        "observed_date": "2028-08-28",
+        "source": {
+          "doc_id": "D1",
+          "quote": "ECOG PS 0",
+          "char_start": 172,
+          "char_end": 181
+        }
+      }
+    },
+    "treatment_history": [
+      {
+        "drugs": [
+          "doxorubicin",
+          "cyclophosphamide"
+        ],
+        "setting": "adjuvant",
+        "start_date": "2024-06-17",
+        "end_date": "2024-07-29",
+        "start_day": 85,
+        "end_day": 127,
+        "duration_days": 42,
+        "cycles": {
+          "value": 4,
+          "basis": "recorded",
+          "interval_days": 14,
+          "interval_basis": "recorded"
+        },
+        "progression_day": null,
+        "stop_reason": "planned_switch",
+        "best_response": null,
+        "source": {
+          "doc_id": "D4",
+          "quote": "doxorubicin 63mg/m2 + cyclophosphamide   2024.6.17   2024.7.29   q2w #4   -   계획된 변경",
+          "char_start": 1126,
+          "char_end": 1210
+        },
+        "doses": [
+          {
+            "drug": "doxorubicin",
+            "per_admin": {
+              "value": 63,
+              "unit": "mg/m2"
+            },
+            "total": {
+              "value": 252,
+              "unit": "mg/m2"
+            },
+            "basis": "estimated"
+          }
+        ],
+        "endocrine_line": null,
+        "chemo_line": null
+      },
+      {
+        "drugs": [
+          "paclitaxel"
+        ],
+        "setting": "adjuvant",
+        "start_date": "2024-08-12",
+        "end_date": "2024-09-24",
+        "start_day": 141,
+        "end_day": 184,
+        "duration_days": 43,
+        "cycles": {
+          "value": 4,
+          "basis": "recorded",
+          "interval_days": 14,
+          "interval_basis": "recorded"
+        },
+        "progression_day": null,
+        "stop_reason": null,
+        "best_response": null,
+        "source": {
+          "doc_id": "D4",
+          "quote": "paclitaxel   2024.8.12   2024.9.24   q2w #4   -   -",
+          "char_start": 1217,
+          "char_end": 1268
+        },
+        "endocrine_line": null,
+        "chemo_line": null
+      },
+      {
+        "drugs": [
+          "anastrozole"
+        ],
+        "setting": "adjuvant",
+        "start_date": "2024-10-31",
+        "end_date": "2026-06-14",
+        "start_day": 221,
+        "end_day": 812,
+        "duration_days": 591,
+        "cycles": null,
+        "progression_day": null,
+        "stop_reason": null,
+        "best_response": null,
+        "source": {
+          "doc_id": "D4",
+          "quote": "anastrozole   2024.10.31   2026.6.14   -   -   -",
+          "char_start": 1275,
+          "char_end": 1323
+        },
+        "endocrine_line": null,
+        "chemo_line": null
+      },
+      {
+        "drugs": [
+          "letrozole"
+        ],
+        "setting": "adjuvant",
+        "start_date": "2026-06-15",
+        "end_date": "2026-09-13",
+        "start_day": 813,
+        "end_day": 903,
+        "duration_days": 90,
+        "cycles": null,
+        "progression_day": null,
+        "stop_reason": null,
+        "best_response": "CR",
+        "source": {
+          "doc_id": "D4",
+          "quote": "letrozole   2026.6.15   2026.9.13   -   CR   -",
+          "char_start": 1330,
+          "char_end": 1376
+        },
+        "endocrine_line": null,
+        "chemo_line": null
+      },
+      {
+        "drugs": [
+          "anastrozole"
+        ],
+        "setting": "adjuvant",
+        "start_date": "2026-09-14",
+        "end_date": "2026-12-20",
+        "start_day": 904,
+        "end_day": 1001,
+        "duration_days": 97,
+        "cycles": null,
+        "progression_day": null,
+        "stop_reason": null,
+        "best_response": "CR",
+        "source": {
+          "doc_id": "D4",
+          "quote": "anastrozole   2026.9.14   2026.12.20   -   CR   -",
+          "char_start": 1383,
+          "char_end": 1432
+        },
+        "endocrine_line": null,
+        "chemo_line": null
+      },
+      {
+        "drugs": [
+          "exemestane"
+        ],
+        "setting": "adjuvant",
+        "start_date": "2026-12-21",
+        "end_date": "2027-12-19",
+        "start_day": 1002,
+        "end_day": 1365,
+        "duration_days": 363,
+        "cycles": null,
+        "progression_day": 1353,
+        "stop_reason": "progression",
+        "best_response": "PD",
+        "source": {
+          "doc_id": "D4",
+          "quote": "exemestane   2026.12.21   2027.12.19   -   PD   진행",
+          "char_start": 1439,
+          "char_end": 1489
+        },
+        "endocrine_line": null,
+        "chemo_line": null
+      },
+      {
+        "drugs": [
+          "zoledronic acid"
+        ],
+        "setting": "adjuvant",
+        "start_date": "2027-05-26",
+        "end_date": "2028-02-14",
+        "start_day": 1158,
+        "end_day": 1422,
+        "duration_days": 264,
+        "cycles": null,
+        "progression_day": 1353,
+        "stop_reason": "progression",
+        "best_response": "PD",
+        "source": {
+          "doc_id": "D4",
+          "quote": "zoledronic acid   2027.5.26   2028.2.14   -   PD   진행",
+          "char_start": 1496,
+          "char_end": 1549
+        },
+        "endocrine_line": null,
+        "chemo_line": null
+      },
+      {
+        "drugs": [
+          "fulvestrant"
+        ],
+        "setting": "palliative",
+        "start_date": "2027-12-20",
+        "end_date": "2028-07-03",
+        "start_day": 1366,
+        "end_day": 1562,
+        "duration_days": 196,
+        "cycles": null,
+        "progression_day": 1562,
+        "stop_reason": "progression",
+        "best_response": "PD",
+        "source": {
+          "doc_id": "D4",
+          "quote": "fulvestrant   2027.12.20   2028.7.3   -   PD   진행",
+          "char_start": 1556,
+          "char_end": 1605
+        },
+        "endocrine_line": 1,
+        "chemo_line": null
+      },
+      {
+        "drugs": [
+          "denosumab"
+        ],
+        "setting": "palliative",
+        "start_date": "2028-02-17",
+        "end_date": null,
+        "start_day": 1425,
+        "end_day": null,
+        "duration_days": null,
+        "ongoing": true,
+        "cycles": null,
+        "progression_day": null,
+        "stop_reason": null,
+        "best_response": null,
+        "source": {
+          "doc_id": "D4",
+          "quote": "denosumab   2028.2.17   현재 투약 중   -   -   -",
+          "char_start": 1612,
+          "char_end": 1655
+        },
+        "endocrine_line": null,
+        "chemo_line": null
+      }
+    ],
+    "anthracycline_drug_dose": {
+      "administered": "positive",
+      "drugs": [
+        {
+          "drug": "doxorubicin",
+          "timeline_index": null,
+          "combined_with": [
+            "cyclophosphamide"
+          ],
+          "dose_per_admin": {
+            "value": 63.0,
+            "unit": "mg/m2"
+          },
+          "cycles": {
+            "value": 4,
+            "basis": "recorded",
+            "interval_days": 14,
+            "interval_basis": "recorded"
+          },
+          "total_dose": {
+            "value": 252,
+            "unit": "mg/m2"
+          },
+          "raw": "doxorubicin 63mg/m2 + cyclophosphamide   2024.6.17   2024.7.29   q2w #4   -   계획된 변경",
+          "source": {
+            "doc_id": "D4",
+            "quote": "doxorubicin 63mg/m2 + cyclophosphamide   2024.6.17   2024.7.29   q2w #4   -   계획된 변경",
+            "char_start": 1126,
+            "char_end": 1210
+          }
+        }
+      ]
+    },
+    "neoadjuvant_response": {
+      "pcr": {
+        "status": "not_recorded"
+      },
+      "rcb": {
+        "status": "not_recorded"
+      }
+    },
+    "recurrence": {
+      "recurrence_date": {
+        "status": "present",
+        "value": "2027-12-07",
+        "raw": "2027.12.7",
+        "source": {
+          "doc_id": "D1",
+          "quote": "2027.12.7 골 전이",
+          "char_start": 244,
+          "char_end": 258
+        }
+      },
+      "adjuvant_endocrine_end_date": {
+        "status": "present",
+        "value": "2027-12-19",
+        "raw": "2027.12.19",
+        "source": {
+          "doc_id": "D1",
+          "quote": "2027.12.19 종료",
+          "char_start": 276,
+          "char_end": 289
+        }
+      },
+      "status": {
+        "status": "present",
+        "value": "distant",
+        "raw": "골 전이",
+        "source": {
+          "doc_id": "D1",
+          "quote": "골 전이",
+          "char_start": 254,
+          "char_end": 258
+        }
+      },
+      "metastatic_sites": {
+        "status": "present",
+        "value": [
+          "bone"
+        ],
+        "raw": "골 전이",
+        "source": {
+          "doc_id": "D1",
+          "quote": "골 전이",
+          "char_start": 254,
+          "char_end": 258
+        }
+      },
+      "metastasis_day": {
+        "status": "present",
+        "value": 1353,
+        "raw": "2027.12.7 골 전이",
+        "source": {
+          "doc_id": "D1",
+          "quote": "2027.12.7 골 전이",
+          "char_start": 244,
+          "char_end": 258
+        }
+      },
+      "recurrence_day": {
+        "status": "present",
+        "value": 1353,
+        "raw": "2027.12.7 골 전이",
+        "source": {
+          "doc_id": "D1",
+          "quote": "2027.12.7 골 전이",
+          "char_start": 244,
+          "char_end": 258
+        }
+      },
+      "surgery": {
+        "status": "not_recorded"
+      },
+      "surgery_intent": {
+        "status": "not_recorded"
+      }
+    },
+    "molecular": {
+      "mutations": {
+        "ESR1": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": {
+            "doc_id": "D3",
+            "quote": "ESR1, AKT1, PTEN, BRCA1, BRCA2, PALB2",
+            "char_start": 886,
+            "char_end": 923
+          }
+        },
+        "PIK3CA": {
+          "status": "present",
+          "result": "detected",
+          "variants": [
+            {
+              "protein_change": "Q546R",
+              "variant_type": "Missense_Mutation",
+              "vaf": 0.226,
+              "raw": "PIK3CA   c.1637A>G (p.Q546R)   VAF 22.6%"
+            }
+          ],
+          "specimen": "primary",
+          "source": {
+            "doc_id": "D3",
+            "quote": "PIK3CA   c.1637A>G (p.Q546R)   VAF 22.6%",
+            "char_start": 819,
+            "char_end": 859
+          }
+        },
+        "AKT1": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": {
+            "doc_id": "D3",
+            "quote": "ESR1, AKT1, PTEN, BRCA1, BRCA2, PALB2",
+            "char_start": 886,
+            "char_end": 923
+          }
+        },
+        "PTEN": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": {
+            "doc_id": "D3",
+            "quote": "ESR1, AKT1, PTEN, BRCA1, BRCA2, PALB2",
+            "char_start": 886,
+            "char_end": 923
+          }
+        },
+        "BRCA1": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": {
+            "doc_id": "D3",
+            "quote": "ESR1, AKT1, PTEN, BRCA1, BRCA2, PALB2",
+            "char_start": 886,
+            "char_end": 923
+          }
+        },
+        "BRCA2": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": {
+            "doc_id": "D3",
+            "quote": "ESR1, AKT1, PTEN, BRCA1, BRCA2, PALB2",
+            "char_start": 886,
+            "char_end": 923
+          }
+        },
+        "PALB2": {
+          "status": "present",
+          "result": "not_detected",
+          "variants": [],
+          "specimen": "primary",
+          "source": {
+            "doc_id": "D3",
+            "quote": "ESR1, AKT1, PTEN, BRCA1, BRCA2, PALB2",
+            "char_start": 886,
+            "char_end": 923
+          }
+        }
+      }
+    },
+    "genomic_reports": [
+      {
+        "doc_id": "D3",
+        "report_date": "2024-05-04",
+        "specimen": "primary",
+        "raw_text": "[분자병리 검사 결과]\n환자명: 김가상   등록번호: 00000043   F/53\n검사기관: 가상유전체검사센터   보고일: 2024.5.4\n검체: 원발 종양 조직 (수술 검체)\n검사법: 전장 엑솜 염기서열 분석\n\n검출된 변이 (Clinically significant variants)\n  PIK3CA   c.1637A>G (p.Q546R)   VAF 22.6%\n\n검출되지 않음 (Not detected)\n  ESR1, AKT1, PTEN, BRCA1, BRCA2, PALB2\n\n* 분석 유전자: ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2"
+      }
+    ],
+    "deemed_lines": [
+      {
+        "rule_id": "DEEM-ANTHRA-TAXANE",
+        "category": "chemo",
+        "status": "met",
+        "basis": "선행·보조요법에 anthracycline과 taxane이 모두 있음",
+        "regimen_refs": [
+          0,
+          1
+        ],
+        "gap_days": null,
+        "notice_page": "61-62"
+      },
+      {
+        "rule_id": "DEEM-SG-1Y",
+        "category": "chemo",
+        "status": "met",
+        "basis": "선행·보조요법 exemestane 투여 중 전이 (종료 12일 전) (기준 365일 이내)",
+        "regimen_refs": [
+          5
+        ],
+        "gap_days": -12,
+        "notice_page": "63"
+      },
+      {
+        "rule_id": "DEEM-HER2ADC-6M",
+        "category": "chemo",
+        "status": "not_met",
+        "basis": "trastuzumab 포함 보조요법 없음",
+        "regimen_refs": [],
+        "gap_days": null,
+        "notice_page": "62-63"
+      },
+      {
+        "rule_id": "DEEM-ENDO-ADJ-1Y",
+        "category": "endocrine",
+        "status": "met",
+        "basis": "보조 내분비요법 exemestane 투여 중 전이 (종료 12일 전) (기준 365일 이내)",
+        "regimen_refs": [
+          5
+        ],
+        "gap_days": -12,
+        "notice_page": "57"
+      }
+    ],
+    "at_index": {
+      "age": 57,
+      "recent_therapy_28d": {
+        "status": "no",
+        "basis": "fulvestrant 기준일 56일 전 종료 (28일 초과)",
+        "regimen_refs": [
+          7
+        ],
+        "gap_days": 56
+      }
+    }
+  },
+  "conflicts": []
+}

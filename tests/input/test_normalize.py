@@ -15,7 +15,7 @@ from src.input.script.pipeline import locate
 
 ALL = CASES + [p.id for p in PAIRS]
 FROM_CANDIDATE = {"source", "raw", "history", "superseded_reason", "specimen", "observed_date"}
-LATER = {"progression_day", "line", "endocrine_line", "chemo_line"}
+LATER = {"progression_day", "endocrine_line", "chemo_line"}
 
 
 def _entries(x, path):

@@ -1,0 +1,10 @@
+vp_id,branch,dx_date,index_day,scene_kind,scene_line,metastasis_day,sex,age
+VH-T0043,TCGA_recur,2024-03-24,1618,endocrine,2,1353,F,53
+VH-T0107,TCGA_recur,2024-01-09,311,chemo,1,291,F,72
+VH-T0203,TCGA_recur,2023-07-09,2422,chemo,1,1922,F,54
+VH-T0213,TCGA_recur,2024-12-06,1207,endocrine,2,1066,F,61
+VH-T0214,TCGA_recur,2022-04-22,292,chemo,1,143,F,36
+VH-T0514,TCGA_recur,2024-06-23,196,chemo,1,188,F,64
+VH-T0546,TCGA_recur,2024-05-10,1928,endocrine,2,1810,F,61
+VH-T0561,TCGA_recur,2022-12-21,468,chemo,1,361,F,71
+VH-T0578,TCGA_recur,2024-01-26,447,chemo,1,443,F,52
