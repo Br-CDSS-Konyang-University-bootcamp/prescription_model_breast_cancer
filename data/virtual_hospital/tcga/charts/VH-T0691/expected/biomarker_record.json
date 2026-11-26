@@ -1,0 +1,193 @@
+{
+  "schema_version": "0.1-draft",
+  "patient_ref": "VH-T0691",
+  "records": [
+    {
+      "marker": "ER",
+      "status": "negative",
+      "reason": "Allred 총점 0 (0~2, 음성)",
+      "rule_id": "BM2-ER-ALLRED-TOTAL",
+      "evidence": {
+        "specimen": "primary",
+        "test_date": "2024-06-25"
+      },
+      "source_span": {
+        "doc_id": "D2",
+        "quote": "ER 음성 (Allred 0, 0+0)"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "PR",
+      "status": "negative",
+      "reason": "Allred 총점 0 (0~2, 음성)",
+      "rule_id": "BM2-PR-ALLRED-TOTAL",
+      "evidence": {
+        "specimen": "primary",
+        "test_date": "2024-06-25"
+      },
+      "source_span": {
+        "doc_id": "D2",
+        "quote": "PR 음성 (Allred 0, 0+0)"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "HER2",
+      "status": "negative",
+      "reason": "IHC 점수 없음, ISH 비증폭 -> 음성 (0과 저발현은 구분 못 함)",
+      "rule_id": "BM2-HER2-ISH-NOTAMP",
+      "evidence": {
+        "specimen": "primary",
+        "test_date": "2024-06-25"
+      },
+      "source_span": {
+        "doc_id": "D2",
+        "quote": "HER2 FISH: not amplified"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "Ki-67",
+      "status": "positive",
+      "reason": "Ki-67 60% (20% 이상, 고증식)",
+      "rule_id": "BM2-KI67-PERCENT",
+      "evidence": {
+        "specimen": "primary",
+        "test_date": "2024-06-25",
+        "percent": 60.0
+      },
+      "source_span": {
+        "doc_id": "D2",
+        "quote": "Ki-67: 60%"
+      },
+      "rag_tags": [
+        "Ki-67-high"
+      ]
+    },
+    {
+      "marker": "PD-L1",
+      "status": "not_recorded",
+      "reason": "PD-L1 기록 없음",
+      "rule_id": "BM2-PDL1-NOTRECORDED",
+      "evidence": {
+        "specimen": null
+      },
+      "source_span": {
+        "doc_id": "",
+        "quote": ""
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "ESR1",
+      "status": "negative",
+      "reason": "ESR1 변이 없음",
+      "rule_id": "BM2-ESR1-NOTDETECTED",
+      "evidence": {
+        "specimen": "primary"
+      },
+      "source_span": {
+        "doc_id": "D3",
+        "quote": "ESR1, PIK3CA, AKT1, BRCA1, BRCA2, PALB2"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "PIK3CA",
+      "status": "negative",
+      "reason": "PIK3CA 변이 없음",
+      "rule_id": "BM2-PIK3CA-NOTDETECTED",
+      "evidence": {
+        "specimen": "primary"
+      },
+      "source_span": {
+        "doc_id": "D3",
+        "quote": "ESR1, PIK3CA, AKT1, BRCA1, BRCA2, PALB2"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "AKT1",
+      "status": "negative",
+      "reason": "AKT1 변이 없음",
+      "rule_id": "BM2-AKT1-NOTDETECTED",
+      "evidence": {
+        "specimen": "primary"
+      },
+      "source_span": {
+        "doc_id": "D3",
+        "quote": "ESR1, PIK3CA, AKT1, BRCA1, BRCA2, PALB2"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "PTEN",
+      "status": "positive",
+      "reason": "PTEN V217G (Missense_Mutation, VAF 0.231) → 양성: 단백질이 바뀌는 변이 있음 / 근거: ClinVar 파일 없음 (data/script/clinvar_download.py 실행 필요); CIViC 근거 없음; 급여: 심평원 공고책자 2026-11-01판 p.167 (병용 연번 22 capivasertib; hira-booklet-20261101-combo-r22); 지침: ESMO MBC 2026 p.1205 (capivasertib)",
+      "rule_id": "BM2-PTEN-PRESENT",
+      "evidence": {
+        "specimen": "primary",
+        "variant": "p.V217G",
+        "vaf": 0.231
+      },
+      "source_span": {
+        "doc_id": "D3",
+        "quote": "PTEN   c.650T>G (p.V217G)   VAF 23.1%"
+      },
+      "rag_tags": [
+        "PTEN-alt"
+      ]
+    },
+    {
+      "marker": "gBRCA1",
+      "status": "negative",
+      "reason": "BRCA1 변이 없음",
+      "rule_id": "BM2-BRCA1-NOTDETECTED",
+      "evidence": {
+        "specimen": "primary"
+      },
+      "source_span": {
+        "doc_id": "D3",
+        "quote": "ESR1, PIK3CA, AKT1, BRCA1, BRCA2, PALB2"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "gBRCA2",
+      "status": "negative",
+      "reason": "BRCA2 변이 없음",
+      "rule_id": "BM2-BRCA2-NOTDETECTED",
+      "evidence": {
+        "specimen": "primary"
+      },
+      "source_span": {
+        "doc_id": "D3",
+        "quote": "ESR1, PIK3CA, AKT1, BRCA1, BRCA2, PALB2"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "PALB2",
+      "status": "negative",
+      "reason": "PALB2 변이 없음",
+      "rule_id": "BM2-PALB2-NOTDETECTED",
+      "evidence": {
+        "specimen": "primary"
+      },
+      "source_span": {
+        "doc_id": "D3",
+        "quote": "ESR1, PIK3CA, AKT1, BRCA1, BRCA2, PALB2"
+      },
+      "rag_tags": []
+    }
+  ],
+  "subtype": "TNBC",
+  "setting": {
+    "disease": "early",
+    "line": "adjuvant",
+    "prior_drug_classes": [],
+    "reason": "진단 시 early / 선행·보조요법 기록 없음, 수술 먼저 함(병리 병기 있음) -> 이번에 정할 치료는 보조"
+  },
+  "tests_needed": []
+}

@@ -1,0 +1,118 @@
+vp_id,항목,값
+VH-T0043,subtype_rule,HR+/HER2-
+VH-T0043,pam50,BRCA_LumA
+VH-T0043,recurrence_status,distant
+VH-T0043,metastasis_dx_days,1353
+VH-T0043,actual_prescriptions_reference,doxorubicin [Chemotherapy] d85~d127 | cyclophosphamide [Chemotherapy] d85~d127 | paclitaxel [Chemotherapy] d141~d184 | anastrozole [Hormone Therapy] d221~d812 | letrozole [Hormone Therapy] d813~d903 (Complete Response) | anastrozole [Hormone Therapy] d904~d1001 (Complete Response) | exemestane [Hormone Therapy] d1002~d1365 (Clinical Progressive Disease) | zoledronic acid [Bone-modifying Agent] d1158~d1422 (Clinical Progressive Disease) | fulvestrant [Hormone Therapy] d1366~d1562 (Clinical Progressive Disease) | denosumab [Bone-modifying Agent] d1425~d1718 (Clinical Progressive Disease) | tamoxifen [Hormone Therapy] d1618~d1722 (Clinical Progressive Disease) | liposomal doxorubicin [Chemotherapy] d1696~d1787 (Clinical Progressive Disease)
+VH-T0043,os_months,61.93904724
+VH-T0043,os_status,1:DECEASED
+VH-T0043,pfs_months,44.48170431
+VH-T0043,pfs_status,1:PROGRESSION
+VH-T0043,dfs_months,
+VH-T0043,dfs_status,
+VH-T0043,scene,고식 내분비 2차 결정
+VH-T0043,actual_prescriptions_from_index_reference,tamoxifen d1618 (mini 내분비 2차) | liposomal doxorubicin d1696 (mini 항암 1차)
+VH-T0107,subtype_rule,HER2+
+VH-T0107,pam50,BRCA_LumA
+VH-T0107,recurrence_status,distant
+VH-T0107,metastasis_dx_days,291
+VH-T0107,actual_prescriptions_reference,anastrozole [Hormone Therapy] d44~d296 | paclitaxel [Chemotherapy] d311~d486
+VH-T0107,os_months,23.80247888
+VH-T0107,os_status,0:LIVING
+VH-T0107,pfs_months,9.567018444
+VH-T0107,pfs_status,1:PROGRESSION
+VH-T0107,dfs_months,9.567018444
+VH-T0107,dfs_status,1:Recurred/Progressed
+VH-T0107,scene,고식 항암 1차 결정
+VH-T0107,actual_prescriptions_from_index_reference,paclitaxel d311 (mini 항암 1차)
+VH-T0203,subtype_rule,HR+/HER2-
+VH-T0203,pam50,BRCA_LumB
+VH-T0203,recurrence_status,distant
+VH-T0203,metastasis_dx_days,1922
+VH-T0203,actual_prescriptions_reference,letrozole [Hormone Therapy] d1918~d2331 | exemestane [Hormone Therapy] d2332~d2422 | capecitabine [Chemotherapy] d2422~d2839 | bevacizumab [Other Targeted Therapy] d2451~d2822 | fulvestrant [Hormone Therapy] d2853~d2881
+VH-T0203,os_months,95.70306079
+VH-T0203,os_status,1:DECEASED
+VH-T0203,pfs_months,63.18834862
+VH-T0203,pfs_status,1:PROGRESSION
+VH-T0203,dfs_months,
+VH-T0203,dfs_status,
+VH-T0203,scene,고식 항암 1차 결정
+VH-T0203,actual_prescriptions_from_index_reference,capecitabine d2422 (mini 항암 1차) | bevacizumab d2451 (mini 항암 1차) | fulvestrant d2853 (mini 내분비 2차)
+VH-T0213,subtype_rule,HR+/HER2-
+VH-T0213,pam50,BRCA_LumA
+VH-T0213,recurrence_status,distant
+VH-T0213,metastasis_dx_days,1066
+VH-T0213,actual_prescriptions_reference,cyclophosphamide [Chemotherapy] d85~d128 | doxorubicin [Chemotherapy] d85~d128 | paclitaxel [Chemotherapy] d141~d141 | docetaxel [Chemotherapy] d161~d204 | anastrozole [Hormone Therapy] d239~d1023 | zoledronic acid [Bone-modifying Agent] d1072~? | exemestane [Hormone Therapy] d1072~d1207 | tamoxifen [Hormone Therapy] d1207~?
+VH-T0213,os_months,53.02955584
+VH-T0213,os_status,0:LIVING
+VH-T0213,pfs_months,35.04619128
+VH-T0213,pfs_status,1:PROGRESSION
+VH-T0213,dfs_months,35.04619128
+VH-T0213,dfs_status,1:Recurred/Progressed
+VH-T0213,scene,고식 내분비 2차 결정
+VH-T0213,actual_prescriptions_from_index_reference,tamoxifen d1207 (mini 내분비 2차)
+VH-T0214,subtype_rule,HR+/HER2-
+VH-T0214,pam50,BRCA_LumA
+VH-T0214,recurrence_status,distant
+VH-T0214,metastasis_dx_days,143
+VH-T0214,actual_prescriptions_reference,leuprolide [Hormone Therapy] d166~? | zoledronic acid [Bone-modifying Agent] d166~? | tamoxifen [Hormone Therapy] d166~d242 | paclitaxel [Chemotherapy] d292~?
+VH-T0214,os_months,21.53401059
+VH-T0214,os_status,0:LIVING
+VH-T0214,pfs_months,4.701318342
+VH-T0214,pfs_status,1:PROGRESSION
+VH-T0214,dfs_months,4.701318342
+VH-T0214,dfs_status,1:Recurred/Progressed
+VH-T0214,scene,고식 항암 1차 결정
+VH-T0214,actual_prescriptions_from_index_reference,paclitaxel d292 (mini 항암 1차)
+VH-T0514,subtype_rule,HR+/HER2-
+VH-T0514,pam50,BRCA_LumA
+VH-T0514,recurrence_status,distant
+VH-T0514,metastasis_dx_days,188
+VH-T0514,actual_prescriptions_reference,anastrozole [Hormone Therapy] d110~d188 | carboplatin [Chemotherapy] d196~d266 | paclitaxel [Chemotherapy] d196~d266
+VH-T0514,os_months,18.5093862
+VH-T0514,os_status,1:DECEASED
+VH-T0514,pfs_months,6.180754184
+VH-T0514,pfs_status,1:PROGRESSION
+VH-T0514,dfs_months,6.180754184
+VH-T0514,dfs_status,1:Recurred/Progressed
+VH-T0514,scene,고식 항암 1차 결정
+VH-T0514,actual_prescriptions_from_index_reference,carboplatin+paclitaxel d196 (mini 항암 1차)
+VH-T0546,subtype_rule,HR+/HER2-
+VH-T0546,pam50,BRCA_LumA
+VH-T0546,recurrence_status,distant
+VH-T0546,metastasis_dx_days,1810
+VH-T0546,actual_prescriptions_reference,doxorubicin [Chemotherapy] d62~d104 | cyclophosphamide [Chemotherapy] d62~d104 | paclitaxel [Chemotherapy] d118~d171 | anastrozole [Hormone Therapy] d252~d437 | tamoxifen [Hormone Therapy] d500~? | letrozole [Hormone Therapy] d1844~d1928 (Clinical Progressive Disease) | fulvestrant [Hormone Therapy] d1928~d2187 (Clinical Progressive Disease) | exemestane [Hormone Therapy] d2187~? | everolimus [Other Targeted Therapy] d2187~?
+VH-T0546,os_months,77.65394352
+VH-T0546,os_status,0:LIVING
+VH-T0546,pfs_months,59.50619719
+VH-T0546,pfs_status,1:PROGRESSION
+VH-T0546,dfs_months,59.50619719
+VH-T0546,dfs_status,1:Recurred/Progressed
+VH-T0546,scene,고식 내분비 2차 결정
+VH-T0546,actual_prescriptions_from_index_reference,fulvestrant d1928 (mini 내분비 2차) | exemestane+everolimus d2187 (mini 내분비 3차)
+VH-T0561,subtype_rule,HER2+
+VH-T0561,pam50,
+VH-T0561,recurrence_status,distant
+VH-T0561,metastasis_dx_days,361
+VH-T0561,actual_prescriptions_reference,trastuzumab [HER2-targeted Therapy] d54~d54 | docetaxel [Chemotherapy] d54~d54 | cyclophosphamide [Chemotherapy] d54~d54 | gemcitabine [Chemotherapy] d468~d530
+VH-T0561,os_months,28.89831344
+VH-T0561,os_status,1:DECEASED
+VH-T0561,pfs_months,11.86836309
+VH-T0561,pfs_status,1:PROGRESSION
+VH-T0561,dfs_months,11.86836309
+VH-T0561,dfs_status,1:Recurred/Progressed
+VH-T0561,scene,고식 항암 1차 결정
+VH-T0561,actual_prescriptions_from_index_reference,gemcitabine d468 (mini 항암 1차)
+VH-T0578,subtype_rule,HER2+
+VH-T0578,pam50,
+VH-T0578,recurrence_status,distant
+VH-T0578,metastasis_dx_days,443
+VH-T0578,actual_prescriptions_reference,tamoxifen [Hormone Therapy] d128~? | doxorubicin [Chemotherapy] d447~d574 (Stable Disease) | cyclophosphamide [Chemotherapy] d447~d574 (Stable Disease) | letrozole [Hormone Therapy] d575~d678 (Clinical Progressive Disease)
+VH-T0578,os_months,22.29016668
+VH-T0578,os_status,1:DECEASED
+VH-T0578,pfs_months,14.56422395
+VH-T0578,pfs_status,1:PROGRESSION
+VH-T0578,dfs_months,14.56422395
+VH-T0578,dfs_status,1:Recurred/Progressed
+VH-T0578,scene,고식 항암 1차 결정
+VH-T0578,actual_prescriptions_from_index_reference,doxorubicin+cyclophosphamide d447 (mini 항암 1차) | letrozole d575 (mini 내분비 1차)

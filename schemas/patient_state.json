@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "patient_state.json",
   "title": "patient_state",
-  "description": "[1] 입력 모듈(A)의 출력. 비식별화된 차트에서 추출한 환자 상태. 모든 값에 원문 근거 위치를 붙인다. 필드 설명은 src/input/schema_fields.md. 초안 v0.1-draft6 (2026-10-16, 판정 기준일 index_day, 첫 재발일 recurrence_day, 투약별 차수 line·endocrine_line·chemo_line, 심평원 차수 간주 규칙 deemed_lines 추가. draft5는 2026-10-15: 진단일 기준 일수, 투여 주기, 재발·전이 정보, PD-L1, 유전자 변이, anthracycline 투약 용량). 상대 일수(*_day)는 진단일 = 0인 정수다. 실제 날짜가 아니므로 TCGA 정답에도 넣는다. 2026-10-22 가상 차트용 선택 칸 추가 (draft7 후보, 4명 검토 전. schema_version은 검토 뒤 올린다): doc_type radiology, 종양 크기, 키·몸무게, 폐경 근거 값 2개, 투약 중 여부, 생식세포 검사. 이어서 TCGA 때문에 둔 한계 조항을 없애려고 심장 병력·LVEF·종격동 방사선·장기 위기·동반질환·영상 소견(imaging_findings) 칸 추가. 2026-10-23 모든 약의 용량 treatment_history[].doses 추가.",
+  "description": "[1] 입력 모듈(A)의 출력. 비식별화된 차트에서 추출한 환자 상태. 모든 값에 원문 근거 위치를 붙인다. 필드 설명은 src/input/schema_fields.md. 초안 v0.1-draft6 (2026-10-16, 판정 기준일 index_day, 첫 재발일 recurrence_day, 투약별 차수 endocrine_line·chemo_line, 심평원 차수 간주 규칙 deemed_lines 추가. draft5는 2026-10-15: 진단일 기준 일수, 투여 주기, 재발·전이 정보, PD-L1, 유전자 변이, anthracycline 투약 용량). 상대 일수(*_day)는 진단일 = 0인 정수다. 실제 날짜가 아니므로 TCGA 정답에도 넣는다. 2026-10-22 가상 차트용 선택 칸 추가 (draft7 후보, 4명 검토 전. schema_version은 검토 뒤 올린다): doc_type radiology, 종양 크기, 키·몸무게, 폐경 근거 값 2개, 투약 중 여부, 생식세포 검사. 이어서 TCGA 때문에 둔 한계 조항을 없애려고 심장 병력·LVEF·종격동 방사선·장기 위기·동반질환·영상 소견(imaging_findings) 칸 추가. 2026-10-23 모든 약의 용량 treatment_history[].doses 추가. 2026-11-18 전이 후 전체 차수 treatment_history[].line 삭제 (4명 확인, src/input/proposal_remove_overall_line_2026-11-06.md).",
   "type": "object",
   "required": ["schema_version", "patient_ref", "created_at", "documents", "fields", "conflicts"],
   "additionalProperties": false,
@@ -58,8 +58,8 @@
               "required": ["positive", "examined"],
               "additionalProperties": false,
               "properties": {
-                "positive": {"anyOf": [{"type": "integer", "minimum": 0}, {"const": "[Not Available]"}]},
-                "examined": {"anyOf": [{"type": "integer", "minimum": 0}, {"const": "[Not Available]"}]}
+                "positive": {"type": "integer", "minimum": 0},
+                "examined": {"type": "integer", "minimum": 0}
               }}}}]},
             "disease_extent": {"allOf": [{"$ref": "#/$defs/extracted"}, {"properties": {"value": {
               "enum": ["early", "locally_advanced", "metastatic"],
@@ -178,7 +178,6 @@
                 "description": "투여 주기 수 (trastuzumab 18주기, T-DM1 14주기 등 급여 조건). 매일 먹는 약(내분비요법 경구제 등)은 null"},
               "stop_reason": {"enum": ["progression", "toxicity", "completed", "planned_switch", "maintenance", "other", null], "description": "planned_switch = 계획된 순차 요법(AC→T 등), maintenance = 유지요법 전환. 둘 다 같은 차수로 센다"},
               "best_response": {"enum": ["CR", "PR", "SD", "PD", "unknown", null]},
-              "line": {"type": ["integer", "null"], "minimum": 1, "description": "전이 후 전체 차수 (지침용, 간주 규칙 없음). 전이 전 투약·보조약·골 보호제는 null. 계산 규칙은 src/input/script/rules.py, handoff_to_B.md §6.2"},
               "endocrine_line": {"type": ["integer", "null"], "minimum": 1, "description": "고식적 내분비요법 차수 (심평원 투여단계, 간주 규칙 없음). 이 투약이 내분비요법이 아니면 null"},
               "chemo_line": {"type": ["integer", "null"], "minimum": 1, "description": "고식적 항암화학요법 차수 (심평원 투여단계, 간주 규칙 없음). 항암·HER2 표적·면역항암제가 들어간 요법. 이 투약이 항암이 아니면 null"},
               "source": {"anyOf": [{"$ref": "#/$defs/source"}, {"type": "null"}]}
@@ -241,7 +240,6 @@
                 "additionalProperties": false,
                 "properties": {
                   "drug": {"enum": ["doxorubicin", "epirubicin", "liposomal doxorubicin"]},
-                  "timeline_index": {"type": ["integer", "null"], "minimum": 0, "description": "TCGA drug_timeline에서 몇 번째 항목인지 (0부터). 차트에서는 null"},
                   "combined_with": {"type": "array", "items": {"type": "string"}, "description": "같은 기록에 함께 적힌 약 (예: AC의 cyclophosphamide)"},
                   "dose_per_admin": {"$ref": "#/$defs/dose_or_novalue", "description": "1회 용량. TCGA drug_prescribed_dose + drug_dose_units"},
                   "cycles": {"anyOf": [{"$ref": "#/$defs/cycles_value"}, {"const": "No value"}], "description": "주기 수 기록값만 (basis는 항상 recorded, 추정하지 않음). TCGA drug_cycles"},
@@ -367,7 +365,7 @@
     "sites_value": {
       "anyOf": [
         {"type": "array", "items": {"type": "string"}, "description": "bone, liver, lung, brain, distant_ln, skin, other: <자유 기재>. 여러 개 나열"},
-        {"enum": ["[Not Applicable]", "[Not Available]"]}
+        {"enum": ["[Not Applicable]"]}
       ]
     },
     "cycles_value": {

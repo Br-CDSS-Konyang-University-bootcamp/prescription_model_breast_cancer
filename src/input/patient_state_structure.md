@@ -17,10 +17,10 @@ patient_state.json
 │   │   │                       {t, n, m, edition, residual_size_mm, positive_ln, examined_ln}
 │   │   │                       t·n은 y를 뺀 범주, m은 선행 전 값. not_done = 아직 수술 전 (raw '예정')
 │   │   ├── group             ◆ 0, I, IA … IIIC, IV, not_assessed (Stage X)
-│   │   ├── positive_ln_count ◆ {positive, examined}  정수 또는 "[Not Available]"
+│   │   ├── positive_ln_count ◆ {positive, examined}  정수
 │   │   ├── disease_extent    ◆ early / locally_advanced / metastatic (진단 시)
 │   │   ├── metastatic_sites  ◆ 진단 시 전이 부위 [bone, liver, lung, brain, distant_ln, skin, "other: …"]
-│   │   │                       또는 "[Not Applicable]"(M0) / "[Not Available]"
+│   │   │                       또는 "[Not Applicable]"(M0)
 │   │   ├── operable          ◆ yes / no / unknown
 │   │   ├── clinical_size_mm  ◆ 치료 전 임상 종양 최대 직경 (mm) [draft7 후보]
 │   │   └── pathologic_size_mm ◆ 수술 검체 침윤암 최대 직경 (mm, 관내암 제외) [draft7 후보]
@@ -101,7 +101,7 @@ patient_state.json
 │   │   ├── administered      positive / negative / No value
 │   │   └── drugs[]
 │   │       ├── drug          doxorubicin / epirubicin / liposomal doxorubicin
-│   │       ├── timeline_index, combined_with[]
+│   │       ├── combined_with[]
 │   │       ├── dose_per_admin   {value, unit} 또는 "No value"
 │   │       ├── cycles           cycles 형식 또는 "No value"
 │   │       ├── total_dose       {value, unit} 또는 "No value"

@@ -1,0 +1,278 @@
+vp_id,field,status,value,origin,basis,rule_id,source_column,observed_date,specimen,note
+VH-T0043,patient.gender,present,"""FEMALE""",real,,M-01,mini convert,,,
+VH-T0043,patient.age,present,53,real,,M-01,mini convert,,,
+VH-T0043,patient.menopausal_status,present,"""postmenopausal""",real,,M-01,mini convert,,,
+VH-T0043,diagnosis.histology,present,"""ILC""",real,,M-01,mini convert,,,
+VH-T0043,stage.ptnm,present,"{""t"": ""T1b"", ""n"": ""N3a"", ""m"": ""M0"", ""edition"": ""6th""}",real,,M-01,mini convert,2024-04-14,,
+VH-T0043,stage.group,present,"""IIIC""",real,,M-01,mini convert,,,
+VH-T0043,stage.positive_ln_count,not_recorded,,derived,①,N-05,,,,"원래 {'positive': 26, 'examined': '[Not Available]'}: 전이 수·검사 수 중 하나가 없으면 mini가 읽지 못해 쓰지 않음 (pN으로 남음)"
+VH-T0043,stage.disease_extent,present,"""locally_advanced""",real,,M-01,mini convert,,,
+VH-T0043,stage.metastatic_sites,present,"""[Not Applicable]""",real,,M-01,mini convert,,,
+VH-T0043,stage.operable,present,"""yes""",real,,M-01,mini convert,,,
+VH-T0043,receptors.er_percent,present,"{""allred"": {""total"": 8, ""ps"": 5, ""is"": 3}, ""result"": ""positive""}",synthetic,②,Y-06,,2024-04-14,primary,"판정은 실제, PS는 구간 [90, 99]에서 (D-07), IS는 합성 (TCGA 같은 판정 실제 강도 분포)"
+VH-T0043,receptors.pr_percent,present,"{""allred"": {""total"": 6, ""ps"": 3, ""is"": 3}, ""result"": ""positive""}",synthetic,②,Y-06,,2024-04-14,primary,"판정은 실제, PS는 구간 [10, 19]에서 (D-07), IS는 합성 (TCGA 같은 판정 실제 강도 분포)"
+VH-T0043,receptors.her2_ihc,present,"{""score"": ""0""}",derived,①,D-05,,2024-04-14,primary,"원래 {'score': '0', 'result': 'negative'} (판정은 점수에서 B가 정함)"
+VH-T0043,receptors.her2_ish,present,"{""result"": ""not_amplified"", ""method"": ""FISH""}",real,,M-01,mini convert,2024-04-14,primary,
+VH-T0043,molecular.mutations.ESR1,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0043,molecular.mutations.PIK3CA,present,"{""result"": ""detected"", ""variants"": [{""protein_change"": ""Q546R"", ""variant_type"": ""Missense_Mutation"", ""vaf"": 0.226}]}",derived,①,D-05,,,primary,"M-03 c. 표기 추가, 변이 종류는 표기에서"
+VH-T0043,molecular.mutations.AKT1,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0043,molecular.mutations.PTEN,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0043,molecular.mutations.BRCA1,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0043,molecular.mutations.BRCA2,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0043,molecular.mutations.PALB2,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0043,diagnosis.diagnosis_date,present,"""2024-03-24""",derived,⑤,D-01,,,,
+VH-T0043,proliferation.ki67_percent,present,"{""percent"": 5}",synthetic,③,Y-04,,2024-04-14,primary,
+VH-T0043,diagnosis.grade,present,1,synthetic,④,Y-05,,,,Thennavan 2021 판독 점수 없음
+VH-T0043,patient.ecog,present,0,synthetic,④,Y-01,,2024-05-12,,
+VH-T0043,recurrence.status,present,"""distant""",real,,M-01,recurrence_status,,,
+VH-T0043,recurrence.metastatic_sites,present,"[""bone""]",real,,M-01,nte_sites,,,
+VH-T0043,recurrence.metastasis_day,present,1353,real,,M-01,metastasis_dx_days,,,
+VH-T0043,recurrence.recurrence_day,present,1353,real,,M-01,metastasis_dx_days,,,
+VH-T0043,recurrence.recurrence_date,present,"""2027-12-07""",derived,①,D-01,,,,가짜 진단일 + 실제 전이 일수
+VH-T0043,recurrence.adjuvant_endocrine_end_date,present,"""2027-12-19""",derived,①,D-R2,drug_end_days,,,보조 내분비 투약 줄의 실제 종료일
+VH-T0107,patient.gender,present,"""FEMALE""",real,,M-01,mini convert,,,
+VH-T0107,patient.age,present,72,real,,M-01,mini convert,,,
+VH-T0107,patient.menopausal_status,present,"""postmenopausal""",real,,M-01,mini convert,,,
+VH-T0107,diagnosis.histology,present,"""IDC""",real,,M-01,mini convert,,,
+VH-T0107,stage.ptnm,present,"{""t"": ""T1"", ""n"": ""N1a"", ""m"": ""M0"", ""edition"": ""7th""}",real,,M-01,mini convert,2024-01-30,,
+VH-T0107,stage.group,present,"""IIA""",real,,M-01,mini convert,,,
+VH-T0107,stage.positive_ln_count,present,"{""positive"": 0, ""examined"": 5}",real,,M-01,mini convert,,,
+VH-T0107,stage.disease_extent,present,"""early""",real,,M-01,mini convert,,,
+VH-T0107,stage.metastatic_sites,present,"""[Not Applicable]""",real,,M-01,mini convert,,,
+VH-T0107,stage.operable,present,"""yes""",real,,M-01,mini convert,,,
+VH-T0107,receptors.er_percent,present,"{""allred"": {""total"": 8, ""ps"": 5, ""is"": 3}, ""result"": ""positive""}",synthetic,②,Y-06,,2024-01-30,primary,"판정은 실제, PS는 구간 [90, 99]에서 (D-07), IS는 합성 (TCGA 같은 판정 실제 강도 분포)"
+VH-T0107,receptors.pr_percent,present,"{""allred"": {""total"": 0, ""ps"": 0, ""is"": 0}, ""result"": ""negative""}",synthetic,②,Y-06,,2024-01-30,primary,"판정은 실제, PS는 구간 None에서 (D-07), IS는 합성 (TCGA 같은 판정 실제 강도 분포)"
+VH-T0107,receptors.her2_ihc,present,"{""score"": ""2+""}",derived,①,D-05,,2024-01-30,primary,"원래 {'score': '2+', 'result': 'positive'} (판정은 점수에서 B가 정함)"
+VH-T0107,receptors.her2_ish,present,"{""result"": ""amplified"", ""method"": ""FISH""}",real,,M-01,mini convert,2024-01-30,primary,
+VH-T0107,molecular.mutations.ESR1,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0107,molecular.mutations.PIK3CA,present,"{""result"": ""detected"", ""variants"": [{""protein_change"": ""H1047R"", ""variant_type"": ""Missense_Mutation"", ""vaf"": 0.373}]}",derived,①,D-05,,,primary,"M-03 c. 표기 추가, 변이 종류는 표기에서"
+VH-T0107,molecular.mutations.AKT1,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0107,molecular.mutations.PTEN,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0107,molecular.mutations.BRCA1,present,"{""result"": ""detected"", ""variants"": [{""protein_change"": ""T688Vfs*12"", ""variant_type"": ""Frame_Shift_Del"", ""vaf"": 0.367}]}",derived,①,D-05,,,primary,"M-03 c. 표기 추가, 변이 종류는 표기에서"
+VH-T0107,molecular.mutations.BRCA2,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0107,molecular.mutations.PALB2,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0107,diagnosis.diagnosis_date,present,"""2024-01-09""",derived,⑤,D-01,,,,
+VH-T0107,proliferation.ki67_percent,present,"{""percent"": 50}",synthetic,④,Y-04,,2024-01-30,primary,
+VH-T0107,diagnosis.grade,present,2,real,,M-05,"Thennavan 2021 Data S2: tubule, pleomorphism, mitosis",,,관 형성 3 + 핵 다형성 2 + 유사분열 2 = 7
+VH-T0107,patient.ecog,present,1,synthetic,④,Y-01,,2024-02-22,,
+VH-T0107,recurrence.status,present,"""distant""",real,,M-01,recurrence_status,,,
+VH-T0107,recurrence.metastatic_sites,present,"[""liver""]",real,,M-01,nte_sites,,,
+VH-T0107,recurrence.metastasis_day,present,291,real,,M-01,metastasis_dx_days,,,
+VH-T0107,recurrence.recurrence_day,present,291,real,,M-01,metastasis_dx_days,,,
+VH-T0107,recurrence.recurrence_date,present,"""2024-10-26""",derived,①,D-01,,,,가짜 진단일 + 실제 전이 일수
+VH-T0107,recurrence.adjuvant_endocrine_end_date,present,"""2024-10-31""",derived,①,D-R2,drug_end_days,,,보조 내분비 투약 줄의 실제 종료일
+VH-T0203,patient.gender,present,"""FEMALE""",real,,M-01,mini convert,,,
+VH-T0203,patient.age,present,54,real,,M-01,mini convert,,,
+VH-T0203,patient.menopausal_status,present,"""postmenopausal""",real,,M-01,mini convert,,,
+VH-T0203,diagnosis.histology,present,"""IDC""",real,,M-01,mini convert,,,
+VH-T0203,stage.ptnm,present,"{""t"": ""T2"", ""n"": ""N1"", ""m"": ""M0"", ""edition"": ""6th""}",real,,M-01,mini convert,2023-07-30,,
+VH-T0203,stage.group,present,"""IIB""",real,,M-01,mini convert,,,
+VH-T0203,stage.positive_ln_count,present,"{""positive"": 0, ""examined"": 26}",real,,M-01,mini convert,,,
+VH-T0203,stage.disease_extent,present,"""early""",real,,M-01,mini convert,,,
+VH-T0203,stage.metastatic_sites,present,"""[Not Applicable]""",real,,M-01,mini convert,,,
+VH-T0203,stage.operable,present,"""yes""",real,,M-01,mini convert,,,
+VH-T0203,receptors.er_percent,present,"{""allred"": {""total"": 6, ""ps"": 5, ""is"": 1}, ""result"": ""positive""}",synthetic,②,Y-06,,2023-07-30,primary,"판정은 실제, PS는 구간 [90, 99]에서 (D-07), IS는 합성 (TCGA 같은 판정 실제 강도 분포)"
+VH-T0203,receptors.pr_percent,present,"{""allred"": {""total"": 6, ""ps"": 4, ""is"": 2}, ""result"": ""positive""}",derived,①,D-08,,2023-07-30,primary,"판정은 실제, PS는 구간 [40, 49]에서 (D-07), IS는 실제 (TCGA 강도 점수 열)"
+VH-T0203,receptors.her2_ihc,present,"{""score"": ""0""}",derived,①,D-05,,2023-07-30,primary,"원래 {'score': '0', 'result': 'negative'} (판정은 점수에서 B가 정함)"
+VH-T0203,receptors.her2_ish,not_done,,real,,M-01,mini convert,,primary,
+VH-T0203,molecular.mutations.ESR1,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0203,molecular.mutations.PIK3CA,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0203,molecular.mutations.AKT1,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0203,molecular.mutations.PTEN,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0203,molecular.mutations.BRCA1,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0203,molecular.mutations.BRCA2,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0203,molecular.mutations.PALB2,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0203,diagnosis.diagnosis_date,present,"""2023-07-09""",derived,⑤,D-01,,,,
+VH-T0203,proliferation.ki67_percent,present,"{""percent"": 5}",synthetic,③,Y-04,,2023-07-30,primary,
+VH-T0203,diagnosis.grade,present,2,real,,M-05,"Thennavan 2021 Data S2: tubule, pleomorphism, mitosis",,,관 형성 3 + 핵 다형성 2 + 유사분열 2 = 7
+VH-T0203,patient.ecog,present,0,synthetic,④,Y-01,,2023-08-27,,
+VH-T0203,recurrence.status,present,"""distant""",real,,M-01,recurrence_status,,,
+VH-T0203,recurrence.metastatic_sites,present,"[""liver""]",real,,M-01,nte_sites,,,
+VH-T0203,recurrence.metastasis_day,present,1922,real,,M-01,metastasis_dx_days,,,
+VH-T0203,recurrence.recurrence_day,present,1922,real,,M-01,metastasis_dx_days,,,
+VH-T0203,recurrence.recurrence_date,present,"""2028-10-12""",derived,①,D-01,,,,가짜 진단일 + 실제 전이 일수
+VH-T0203,recurrence.adjuvant_endocrine_end_date,present,"""2029-11-25""",derived,①,D-R2,drug_end_days,,,보조 내분비 투약 줄의 실제 종료일
+VH-T0213,patient.gender,present,"""FEMALE""",real,,M-01,mini convert,,,
+VH-T0213,patient.age,present,61,real,,M-01,mini convert,,,
+VH-T0213,patient.menopausal_status,present,"""postmenopausal""",real,,M-01,mini convert,,,
+VH-T0213,diagnosis.histology,present,"""ILC""",real,,M-01,mini convert,,,
+VH-T0213,stage.ptnm,present,"{""t"": ""T2"", ""n"": ""N3"", ""m"": ""M0"", ""edition"": null}",real,,M-01,mini convert,2024-12-27,,
+VH-T0213,stage.group,present,"""IIIC""",real,,M-01,mini convert,,,
+VH-T0213,stage.positive_ln_count,present,"{""positive"": 15, ""examined"": 32}",real,,M-01,mini convert,,,
+VH-T0213,stage.disease_extent,present,"""locally_advanced""",real,,M-01,mini convert,,,
+VH-T0213,stage.metastatic_sites,present,"""[Not Applicable]""",real,,M-01,mini convert,,,
+VH-T0213,stage.operable,present,"""yes""",real,,M-01,mini convert,,,
+VH-T0213,receptors.er_percent,present,"{""allred"": {""total"": 8, ""ps"": 5, ""is"": 3}, ""result"": ""positive""}",synthetic,②,Y-06,,2024-12-27,primary,"판정은 실제, PS는 구간 [90, 99]에서 (D-07), IS는 합성 (TCGA 같은 판정 실제 강도 분포)"
+VH-T0213,receptors.pr_percent,present,"{""allred"": {""total"": 7, ""ps"": 4, ""is"": 3}, ""result"": ""positive""}",synthetic,②,Y-06,,2024-12-27,primary,"판정은 실제, PS는 구간 [30, 39]에서 (D-07), IS는 합성 (TCGA 같은 판정 실제 강도 분포)"
+VH-T0213,receptors.her2_ihc,not_done,,real,,M-01,mini convert,,primary,
+VH-T0213,receptors.her2_ish,present,"{""result"": ""not_amplified"", ""method"": ""FISH""}",real,,M-01,mini convert,2024-12-27,primary,
+VH-T0213,molecular.mutations.ESR1,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0213,molecular.mutations.PIK3CA,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0213,molecular.mutations.AKT1,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0213,molecular.mutations.PTEN,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0213,molecular.mutations.BRCA1,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0213,molecular.mutations.BRCA2,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0213,molecular.mutations.PALB2,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0213,diagnosis.diagnosis_date,present,"""2024-12-06""",derived,⑤,D-01,,,,
+VH-T0213,proliferation.ki67_percent,present,"{""percent"": 5}",synthetic,④,Y-04,,2024-12-27,primary,
+VH-T0213,diagnosis.grade,present,3,real,,M-05,"Thennavan 2021 Data S2: tubule, pleomorphism, mitosis",,,관 형성 3 + 핵 다형성 3 + 유사분열 2 = 8
+VH-T0213,patient.ecog,present,0,synthetic,④,Y-01,,2025-01-24,,
+VH-T0213,recurrence.status,present,"""distant""",real,,M-01,recurrence_status,,,
+VH-T0213,recurrence.metastatic_sites,present,"[""bone""]",real,,M-01,nte_sites,,,
+VH-T0213,recurrence.metastasis_day,present,1066,real,,M-01,metastasis_dx_days,,,
+VH-T0213,recurrence.recurrence_day,present,1066,real,,M-01,metastasis_dx_days,,,
+VH-T0213,recurrence.recurrence_date,present,"""2027-11-07""",derived,①,D-01,,,,가짜 진단일 + 실제 전이 일수
+VH-T0213,recurrence.adjuvant_endocrine_end_date,present,"""2027-09-25""",derived,①,D-R2,drug_end_days,,,보조 내분비 투약 줄의 실제 종료일
+VH-T0214,patient.gender,present,"""FEMALE""",real,,M-01,mini convert,,,
+VH-T0214,patient.age,present,36,real,,M-01,mini convert,,,
+VH-T0214,patient.menopausal_status,present,"""premenopausal""",real,,M-01,mini convert,,,
+VH-T0214,diagnosis.histology,present,"""IDC""",real,,M-01,mini convert,,,
+VH-T0214,stage.ptnm,present,"{""t"": ""T2"", ""n"": ""N3"", ""m"": ""M0"", ""edition"": null}",real,,M-01,mini convert,2022-05-13,,
+VH-T0214,stage.group,present,"""IIIC""",real,,M-01,mini convert,,,
+VH-T0214,stage.positive_ln_count,present,"{""positive"": 11, ""examined"": 11}",real,,M-01,mini convert,,,
+VH-T0214,stage.disease_extent,present,"""locally_advanced""",real,,M-01,mini convert,,,
+VH-T0214,stage.metastatic_sites,present,"""[Not Applicable]""",real,,M-01,mini convert,,,
+VH-T0214,stage.operable,present,"""yes""",real,,M-01,mini convert,,,
+VH-T0214,receptors.er_percent,present,"{""allred"": {""total"": 7, ""ps"": 5, ""is"": 2}, ""result"": ""positive""}",derived,①,D-08,,2022-05-13,primary,"판정은 실제, PS는 구간 [90, 99]에서 (D-07), IS는 실제 (TCGA 강도 점수 열)"
+VH-T0214,receptors.pr_percent,present,"{""allred"": {""total"": 3, ""ps"": 2, ""is"": 1}, ""result"": ""positive""}",derived,①,D-08,,2022-05-13,primary,"판정은 실제, PS는 구간 [1, 9]에서 (D-07), IS는 실제 (TCGA 강도 점수 열)"
+VH-T0214,receptors.her2_ihc,present,"{""score"": ""1+""}",derived,①,D-05,,2022-05-13,primary,"원래 {'score': '1+', 'result': 'negative'} (판정은 점수에서 B가 정함)"
+VH-T0214,receptors.her2_ish,not_done,,real,,M-01,mini convert,,primary,
+VH-T0214,molecular.mutations.ESR1,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0214,molecular.mutations.PIK3CA,present,"{""result"": ""detected"", ""variants"": [{""protein_change"": ""E542K"", ""variant_type"": ""Missense_Mutation"", ""vaf"": 0.329}]}",derived,①,D-05,,,primary,"M-03 c. 표기 추가, 변이 종류는 표기에서"
+VH-T0214,molecular.mutations.AKT1,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0214,molecular.mutations.PTEN,present,"{""result"": ""detected"", ""variants"": [{""protein_change"": ""Y88*"", ""variant_type"": ""Nonsense_Mutation"", ""vaf"": 0.525}]}",derived,①,D-05,,,primary,"M-03 c. 표기 추가, 변이 종류는 표기에서"
+VH-T0214,molecular.mutations.BRCA1,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0214,molecular.mutations.BRCA2,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0214,molecular.mutations.PALB2,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0214,diagnosis.diagnosis_date,present,"""2022-04-22""",derived,⑤,D-01,,,,
+VH-T0214,proliferation.ki67_percent,present,"{""percent"": 30}",synthetic,③,Y-04,,2022-05-13,primary,
+VH-T0214,diagnosis.grade,present,2,real,,M-05,"Thennavan 2021 Data S2: tubule, pleomorphism, mitosis",,,관 형성 3 + 핵 다형성 2 + 유사분열 1 = 6
+VH-T0214,patient.ecog,present,0,synthetic,④,Y-01,,2022-06-10,,
+VH-T0214,recurrence.status,present,"""distant""",real,,M-01,recurrence_status,,,
+VH-T0214,recurrence.metastatic_sites,present,"[""bone""]",real,,M-01,nte_sites,,,
+VH-T0214,recurrence.metastasis_day,present,143,real,,M-01,metastasis_dx_days,,,
+VH-T0214,recurrence.recurrence_day,present,143,real,,M-01,metastasis_dx_days,,,
+VH-T0214,recurrence.recurrence_date,present,"""2022-09-12""",derived,①,D-01,,,,가짜 진단일 + 실제 전이 일수
+VH-T0514,patient.gender,present,"""FEMALE""",real,,M-01,mini convert,,,
+VH-T0514,patient.age,present,64,real,,M-01,mini convert,,,
+VH-T0514,patient.menopausal_status,present,"""postmenopausal""",real,,M-01,mini convert,,,
+VH-T0514,diagnosis.histology,present,"""IDC""",real,,M-01,mini convert,,,
+VH-T0514,stage.ptnm,present,"{""t"": ""T1c"", ""n"": ""N0"", ""m"": ""M0"", ""edition"": ""6th""}",real,,M-01,mini convert,2024-07-14,,
+VH-T0514,stage.group,present,"""I""",real,,M-01,mini convert,,,
+VH-T0514,stage.positive_ln_count,present,"{""positive"": 0, ""examined"": 1}",real,,M-01,mini convert,,,
+VH-T0514,stage.disease_extent,present,"""early""",real,,M-01,mini convert,,,
+VH-T0514,stage.metastatic_sites,present,"""[Not Applicable]""",real,,M-01,mini convert,,,
+VH-T0514,stage.operable,present,"""yes""",real,,M-01,mini convert,,,
+VH-T0514,receptors.er_percent,present,"{""allred"": {""total"": 8, ""ps"": 5, ""is"": 3}, ""result"": ""positive""}",real,,D-09,gdc_er_positivity_method / gdc_er_positivity_scale_other,2024-07-14,primary,"판정은 실제, 총점·PS·IS 모두 실제"
+VH-T0514,receptors.pr_percent,present,"{""allred"": {""total"": 8, ""ps"": 5, ""is"": 3}, ""result"": ""positive""}",real,,D-09,gdc_pr_positivity_define_method / gdc_pr_positivity_scale_other,2024-07-14,primary,"판정은 실제, 총점·PS·IS 모두 실제"
+VH-T0514,receptors.her2_ihc,present,"{""score"": ""1+""}",derived,①,D-05,,2024-07-14,primary,"원래 {'score': '1+', 'result': 'negative'} (판정은 점수에서 B가 정함)"
+VH-T0514,receptors.her2_ish,not_done,,real,,M-01,mini convert,,primary,
+VH-T0514,molecular.mutations.ESR1,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0514,molecular.mutations.PIK3CA,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0514,molecular.mutations.AKT1,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0514,molecular.mutations.PTEN,present,"{""result"": ""detected"", ""variants"": [{""protein_change"": ""D252Rfs*42"", ""variant_type"": ""Frame_Shift_Del"", ""vaf"": 0.331}]}",derived,①,D-05,,,primary,"M-03 c. 표기 추가, 변이 종류는 표기에서"
+VH-T0514,molecular.mutations.BRCA1,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0514,molecular.mutations.BRCA2,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0514,molecular.mutations.PALB2,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0514,diagnosis.diagnosis_date,present,"""2024-06-23""",derived,⑤,D-01,,,,
+VH-T0514,proliferation.ki67_percent,present,"{""percent"": 30}",synthetic,③,Y-04,,2024-07-14,primary,
+VH-T0514,diagnosis.grade,present,2,real,,M-05,"Thennavan 2021 Data S2: tubule, pleomorphism, mitosis",,,관 형성 2 + 핵 다형성 2 + 유사분열 3 = 7
+VH-T0514,patient.ecog,present,0,synthetic,④,Y-01,,2024-08-11,,
+VH-T0514,recurrence.status,present,"""distant""",real,,M-01,recurrence_status,,,
+VH-T0514,recurrence.metastatic_sites,present,"[""bone"", ""liver""]",real,,M-01,nte_sites,,,
+VH-T0514,recurrence.metastasis_day,present,188,real,,M-01,metastasis_dx_days,,,
+VH-T0514,recurrence.recurrence_day,present,188,real,,M-01,metastasis_dx_days,,,
+VH-T0514,recurrence.recurrence_date,present,"""2024-12-28""",derived,①,D-01,,,,가짜 진단일 + 실제 전이 일수
+VH-T0514,recurrence.adjuvant_endocrine_end_date,present,"""2024-12-28""",derived,①,D-R2,drug_end_days,,,보조 내분비 투약 줄의 실제 종료일
+VH-T0546,patient.gender,present,"""FEMALE""",real,,M-01,mini convert,,,
+VH-T0546,patient.age,present,61,real,,M-01,mini convert,,,
+VH-T0546,patient.menopausal_status,present,"""postmenopausal""",real,,M-01,mini convert,,,
+VH-T0546,diagnosis.histology,present,"""IDC""",real,,M-01,mini convert,,,
+VH-T0546,stage.ptnm,present,"{""t"": ""T2"", ""n"": ""N1"", ""m"": ""M0"", ""edition"": ""6th""}",real,,M-01,mini convert,2024-05-31,,
+VH-T0546,stage.group,present,"""IIB""",real,,M-01,mini convert,,,
+VH-T0546,stage.positive_ln_count,present,"{""positive"": 1, ""examined"": 3}",real,,M-01,mini convert,,,
+VH-T0546,stage.disease_extent,present,"""early""",real,,M-01,mini convert,,,
+VH-T0546,stage.metastatic_sites,present,"""[Not Applicable]""",real,,M-01,mini convert,,,
+VH-T0546,stage.operable,present,"""yes""",real,,M-01,mini convert,,,
+VH-T0546,receptors.er_percent,present,"{""allred"": {""total"": 8, ""ps"": 5, ""is"": 3}, ""result"": ""positive""}",real,,D-09,gdc_er_positivity_method / gdc_er_positivity_scale_other,2024-05-31,primary,"판정은 실제, 총점·PS·IS 모두 실제"
+VH-T0546,receptors.pr_percent,present,"{""allred"": {""total"": 6, ""ps"": 3, ""is"": 3}, ""result"": ""positive""}",real,,D-09,gdc_pr_positivity_define_method / gdc_pr_positivity_scale_other,2024-05-31,primary,"판정은 실제, 총점·PS·IS 모두 실제"
+VH-T0546,receptors.her2_ihc,present,"{""score"": ""2+""}",derived,①,D-05,,2024-05-31,primary,"원래 {'score': '2+', 'result': 'negative'} (판정은 점수에서 B가 정함)"
+VH-T0546,receptors.her2_ish,present,"{""result"": ""not_amplified"", ""method"": ""FISH""}",real,,M-01,mini convert,2024-05-31,primary,
+VH-T0546,molecular.mutations.ESR1,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0546,molecular.mutations.PIK3CA,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0546,molecular.mutations.AKT1,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0546,molecular.mutations.PTEN,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0546,molecular.mutations.BRCA1,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0546,molecular.mutations.BRCA2,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0546,molecular.mutations.PALB2,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0546,diagnosis.diagnosis_date,present,"""2024-05-10""",derived,⑤,D-01,,,,
+VH-T0546,proliferation.ki67_percent,present,"{""percent"": 10}",synthetic,③,Y-04,,2024-05-31,primary,
+VH-T0546,diagnosis.grade,present,2,real,,M-05,"Thennavan 2021 Data S2: tubule, pleomorphism, mitosis",,,관 형성 3 + 핵 다형성 2 + 유사분열 1 = 6
+VH-T0546,patient.ecog,present,0,synthetic,④,Y-01,,2024-06-28,,
+VH-T0546,recurrence.status,present,"""distant""",real,,M-01,recurrence_status,,,
+VH-T0546,recurrence.metastatic_sites,present,"[""liver""]",real,,M-01,nte_sites,,,
+VH-T0546,recurrence.metastasis_day,present,1810,real,,M-01,metastasis_dx_days,,,
+VH-T0546,recurrence.recurrence_day,present,1810,real,,M-01,metastasis_dx_days,,,
+VH-T0546,recurrence.recurrence_date,present,"""2029-04-24""",derived,①,D-01,,,,가짜 진단일 + 실제 전이 일수
+VH-T0546,recurrence.adjuvant_endocrine_end_date,present,"""2029-04-24""",derived,①,D-R2,drug_end_days,,,보조 내분비 투약 줄의 실제 종료일
+VH-T0561,patient.gender,present,"""FEMALE""",real,,M-01,mini convert,,,
+VH-T0561,patient.age,present,71,real,,M-01,mini convert,,,
+VH-T0561,patient.menopausal_status,present,"""postmenopausal""",real,,M-01,mini convert,,,
+VH-T0561,diagnosis.histology,present,"""IDC""",real,,M-01,mini convert,,,
+VH-T0561,stage.ptnm,present,"{""t"": ""T2"", ""n"": ""N3a"", ""m"": ""M0"", ""edition"": ""6th""}",real,,M-01,mini convert,2023-01-11,,
+VH-T0561,stage.group,present,"""IIIC""",real,,M-01,mini convert,,,
+VH-T0561,stage.positive_ln_count,present,"{""positive"": 27, ""examined"": 28}",real,,M-01,mini convert,,,
+VH-T0561,stage.disease_extent,present,"""locally_advanced""",real,,M-01,mini convert,,,
+VH-T0561,stage.metastatic_sites,present,"""[Not Applicable]""",real,,M-01,mini convert,,,
+VH-T0561,stage.operable,present,"""yes""",real,,M-01,mini convert,,,
+VH-T0561,receptors.er_percent,present,"{""allred"": {""total"": 0, ""ps"": 0, ""is"": 0}, ""result"": ""negative""}",real,,D-09,gdc_er_positivity_method / gdc_er_positivity_scale_other,2023-01-11,primary,"판정은 실제, 총점·PS·IS 모두 실제"
+VH-T0561,receptors.pr_percent,present,"{""allred"": {""total"": 0, ""ps"": 0, ""is"": 0}, ""result"": ""negative""}",real,,D-09,gdc_pr_positivity_define_method / gdc_pr_positivity_scale_other,2023-01-11,primary,"판정은 실제, 총점·PS·IS 모두 실제"
+VH-T0561,receptors.her2_ihc,present,"{""score"": ""3+""}",derived,①,D-05,,2023-01-11,primary,"원래 {'score': '3+', 'result': 'positive'} (판정은 점수에서 B가 정함)"
+VH-T0561,receptors.her2_ish,not_done,,real,,M-01,mini convert,,primary,
+VH-T0561,molecular.mutations.ESR1,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0561,molecular.mutations.PIK3CA,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0561,molecular.mutations.AKT1,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0561,molecular.mutations.PTEN,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0561,molecular.mutations.BRCA1,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0561,molecular.mutations.BRCA2,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0561,molecular.mutations.PALB2,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0561,diagnosis.diagnosis_date,present,"""2022-12-21""",derived,⑤,D-01,,,,
+VH-T0561,proliferation.ki67_percent,present,"{""percent"": 60}",synthetic,④,Y-04,,2023-01-11,primary,
+VH-T0561,diagnosis.grade,present,3,real,,M-05,"Thennavan 2021 Data S2: tubule, pleomorphism, mitosis",,,관 형성 3 + 핵 다형성 3 + 유사분열 2 = 8
+VH-T0561,patient.ecog,present,0,synthetic,④,Y-01,,2023-02-08,,
+VH-T0561,recurrence.status,present,"""distant""",real,,M-01,recurrence_status,,,
+VH-T0561,recurrence.metastatic_sites,present,"[""lung""]",real,,M-01,nte_sites,,,
+VH-T0561,recurrence.metastasis_day,present,361,real,,M-01,metastasis_dx_days,,,
+VH-T0561,recurrence.recurrence_day,present,361,real,,M-01,metastasis_dx_days,,,
+VH-T0561,recurrence.recurrence_date,present,"""2023-12-17""",derived,①,D-01,,,,가짜 진단일 + 실제 전이 일수
+VH-T0578,patient.gender,present,"""FEMALE""",real,,M-01,mini convert,,,
+VH-T0578,patient.age,present,52,real,,M-01,mini convert,,,
+VH-T0578,patient.menopausal_status,present,"""postmenopausal""",real,,M-01,mini convert,,,
+VH-T0578,diagnosis.histology,present,"""IDC""",real,,M-01,mini convert,,,
+VH-T0578,stage.ptnm,present,"{""t"": ""T2"", ""n"": ""N1"", ""m"": ""M0"", ""edition"": ""7th""}",real,,M-01,mini convert,2024-02-16,,
+VH-T0578,stage.group,present,"""IIB""",real,,M-01,mini convert,,,
+VH-T0578,stage.positive_ln_count,present,"{""positive"": 2, ""examined"": 10}",real,,M-01,mini convert,,,
+VH-T0578,stage.disease_extent,present,"""early""",real,,M-01,mini convert,,,
+VH-T0578,stage.metastatic_sites,present,"""[Not Applicable]""",real,,M-01,mini convert,,,
+VH-T0578,stage.operable,not_recorded,,real,,M-01,mini convert,,,
+VH-T0578,receptors.er_percent,present,"{""allred"": {""total"": 7, ""ps"": 4, ""is"": 3}, ""result"": ""positive""}",synthetic,②,Y-06,,2024-02-16,primary,"판정은 실제, PS는 구간 [40, 49]에서 (D-07), IS는 합성 (TCGA 같은 판정 실제 강도 분포)"
+VH-T0578,receptors.pr_percent,present,"{""allred"": {""total"": 5, ""ps"": 4, ""is"": 1}, ""result"": ""positive""}",synthetic,②,Y-06,,2024-02-16,primary,"판정은 실제, PS는 구간 [40, 49]에서 (D-07), IS는 합성 (TCGA 같은 판정 실제 강도 분포)"
+VH-T0578,receptors.her2_ihc,present,"{""score"": ""3+""}",synthetic,②,Y-07,,2024-02-16,primary,원래 IHC 판정 positive만 있음 (점수·FISH 없음). 같은 판정 실제 조합 분포에서 뽑음
+VH-T0578,receptors.her2_ish,not_done,,real,,M-01,mini convert,,primary,
+VH-T0578,molecular.mutations.ESR1,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0578,molecular.mutations.PIK3CA,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0578,molecular.mutations.AKT1,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0578,molecular.mutations.PTEN,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0578,molecular.mutations.BRCA1,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0578,molecular.mutations.BRCA2,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0578,molecular.mutations.PALB2,present,"{""result"": ""not_detected"", ""variants"": []}",real,,M-01,mini convert,,primary,
+VH-T0578,diagnosis.diagnosis_date,present,"""2024-01-26""",derived,⑤,D-01,,,,
+VH-T0578,proliferation.ki67_percent,present,"{""percent"": 10}",synthetic,④,Y-04,,2024-02-16,primary,
+VH-T0578,diagnosis.grade,present,3,real,,M-05,"Thennavan 2021 Data S2: tubule, pleomorphism, mitosis",,,관 형성 3 + 핵 다형성 3 + 유사분열 3 = 9
+VH-T0578,patient.ecog,present,0,synthetic,④,Y-01,,2024-03-15,,
+VH-T0578,recurrence.status,present,"""distant""",real,,M-01,recurrence_status,,,
+VH-T0578,recurrence.metastatic_sites,present,"[""bone"", ""liver""]",real,,M-01,nte_sites,,,
+VH-T0578,recurrence.metastasis_day,present,443,real,,M-01,metastasis_dx_days,,,
+VH-T0578,recurrence.recurrence_day,present,443,real,,M-01,metastasis_dx_days,,,
+VH-T0578,recurrence.recurrence_date,present,"""2025-04-13""",derived,①,D-01,,,,가짜 진단일 + 실제 전이 일수
+VH-T0578,recurrence.adjuvant_endocrine_end_date,present,"""2025-04-13""",derived,①,D-R2,drug_end_days,,,보조 내분비 투약 줄의 실제 종료일

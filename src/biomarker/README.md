@@ -88,9 +88,9 @@ PD-L1 판정 (2026-10-16, 전달 문서 6.5절). 입력 `receptors.pdl1` (`assay
 
 | 현재 범주 | `line` | 규칙 |
 |---|---|---|
-| metastatic | `1L` / `2L` / `>=3L` | A가 넘긴 `treatment_history[].line` 중 마지막 고식적 요법의 차수. 그 요법이 진행(`best_response = PD`, `stop_reason = progression`)으로 끝났으면 다음 차수 (전달 문서 8.2절 예시: 1차 진행 → `2L`) |
+| metastatic | `1L` / `2L` / `>=3L` | 아래 `line_endocrine`·`line_chemo` 중 이번 결정의 주 차수. C `decision_lines`와 같은 규칙: HR+/HER2-이고 내분비 차수가 있으면 내분비 차수, 그 밖(HER2 양성, TNBC)은 항암 차수 (항암 차수가 없으면 내분비 차수). 전체 차수 `treatment_history[].line`은 2026-11-18 삭제 (`src/input/proposal_remove_overall_line_2026-11-06.md`) |
 | metastatic | `1L` | 전이 후 고식적 투약 없음: 이번에 결정할 차수는 1차 (2026-10-22, `handoff_confirmed_state_to_B.md` §6 1번 A 제안·B 찬성. 전에는 `unknown`) |
-| metastatic | `unknown` | 전이 후 투약은 있지만 `line` 값이 없음 |
+| metastatic | `unknown` | 전이 후 투약은 있지만 `endocrine_line`·`chemo_line` 값이 없음 |
 | early, locally_advanced | `neoadjuvant` / `adjuvant` | 마지막 선행·보조 투약에 A가 적은 `treatment_history[].setting`을 그대로 쓴다. 보조약·골 보호제는 빼고 본다 (6.2절 규칙 3) |
 | early, locally_advanced | `adjuvant` | 선행·보조 투약 없음 + 병리 병기(`stage.ptnm`) 있음: 수술을 먼저 했으니 이번에 정할 치료는 보조 (2026-11-02, 선행요법 뒤 수술 병기는 `yptnm`에 들어가 `ptnm`은 수술 먼저 한 환자). A 확정값 초안의 `setting.phase` 빈칸이 가상 차트 16명 → 3명 |
 | early, locally_advanced | `unknown` | 선행·보조 투약 없음 + 수술 전: 선행요법을 할지 수술을 먼저 할지는 의사가 정한다 |
@@ -99,10 +99,10 @@ PD-L1 판정 (2026-10-16, 전달 문서 6.5절). 입력 `receptors.pdl1` (`assay
 
 | 경우 | `line_endocrine` / `line_chemo` |
 |---|---|
-| 그 종류의 고식적 요법 이력 없음 (`endocrine_line`·`chemo_line` 없음) | `1L` (B 판단: 결정할 차수이므로 `line`과 달리 `unknown`이 아님) |
+| 그 종류의 고식적 요법 이력 없음 (`endocrine_line`·`chemo_line` 없음) | `1L` (B 판단: 결정할 차수이므로 `unknown`이 아님) |
 | 마지막 차수에서 진행 (PD, progression) | 다음 차수 |
 | 마지막 차수, 진행 기록 없음 | 그 차수 |
-| 전이 후 투약은 있지만 A가 `line`을 하나도 넣지 않음 | `unknown` |
+| 전이 후 투약은 있지만 A가 `endocrine_line`·`chemo_line`을 하나도 넣지 않음 | `unknown` |
 | HR 음성 (TNBC, HR-/HER2+) | 내분비 `not_applicable` |
 
 - 간주 규칙(`deemed_lines`)은 두 칸에 넣지 않는다. 충족한 간주 규칙은 `setting.reason`에 적고, 급여 판정은 [4] 추천 모듈이 급여 행마다 "결정할 차수 + 그 행의 간주 규칙"으로 한다 (6.3a절).

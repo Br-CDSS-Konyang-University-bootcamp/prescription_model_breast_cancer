@@ -1,0 +1,199 @@
+{
+  "schema_version": "0.1-draft",
+  "patient_ref": "VH-T0200",
+  "records": [
+    {
+      "marker": "ER",
+      "status": "positive",
+      "reason": "Allred 총점 7 (6~8, 양성)",
+      "rule_id": "BM2-ER-ALLRED-TOTAL",
+      "evidence": {
+        "specimen": "primary",
+        "test_date": "2023-08-09"
+      },
+      "source_span": {
+        "doc_id": "D2",
+        "quote": "ER 양성 (Allred 7, 5+2)"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "PR",
+      "status": "positive",
+      "reason": "Allred 총점 7 (3 이상, 양성)",
+      "rule_id": "BM2-PR-ALLRED-TOTAL",
+      "evidence": {
+        "specimen": "primary",
+        "test_date": "2023-08-09"
+      },
+      "source_span": {
+        "doc_id": "D2",
+        "quote": "PR 강양성 (Allred 7, 4+3)"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "HER2",
+      "status": "low",
+      "reason": "IHC 2+, ISH 비증폭 -> 저발현",
+      "rule_id": "BM2-HER2-2PLUS-NOTAMP",
+      "evidence": {
+        "specimen": "primary",
+        "test_date": "2023-08-09"
+      },
+      "source_span": {
+        "doc_id": "D2",
+        "quote": "HER2 (4B5): 2+"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "Ki-67",
+      "status": "positive",
+      "reason": "Ki-67 40% (20% 이상, 고증식)",
+      "rule_id": "BM2-KI67-PERCENT",
+      "evidence": {
+        "specimen": "primary",
+        "test_date": "2023-08-09",
+        "percent": 40.0
+      },
+      "source_span": {
+        "doc_id": "D2",
+        "quote": "Ki-67: 40%"
+      },
+      "rag_tags": [
+        "Ki-67-high"
+      ]
+    },
+    {
+      "marker": "PD-L1",
+      "status": "not_recorded",
+      "reason": "PD-L1 기록 없음",
+      "rule_id": "BM2-PDL1-NOTRECORDED",
+      "evidence": {
+        "specimen": null
+      },
+      "source_span": {
+        "doc_id": "",
+        "quote": ""
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "ESR1",
+      "status": "positive",
+      "reason": "ESR1 E523Q (Missense_Mutation, VAF 0.136) → 양성: elacestrant 대상 ESR1 미스센스 (판단 기준: FDA 동반진단 목록 elacestrant (codon 310~547 미스센스), 국내 미허가, 2026-10-22 확인) / 근거: 허가 동반진단 목록: 해당 없음; FDA 동반진단 범위(codon 310~547 미스센스): E523Q 해당; 급여: B가 연결한 심평원 행 없음 (D 확인 전); 지침: ESMO MBC 2026 p.1206 (elacestrant·imlunestrant)",
+      "rule_id": "BM2-ESR1-FDA-RANGE",
+      "evidence": {
+        "specimen": "primary",
+        "variant": "p.E523Q",
+        "vaf": 0.136
+      },
+      "source_span": {
+        "doc_id": "D3",
+        "quote": "ESR1   c.1567G>C (p.E523Q)   VAF 13.6%"
+      },
+      "rag_tags": [
+        "ESR1-mut"
+      ]
+    },
+    {
+      "marker": "PIK3CA",
+      "status": "positive",
+      "reason": "PIK3CA H1047R (Missense_Mutation, VAF 0.231) → 양성: alpelisib 허가 동반진단 변이 (FDA List of FDA-Authorized Companion Diagnostic Devices (alpelisib 행, 2026-10-22 확인)) / 근거: 허가 동반진단 목록: H1047R 해당; CIViC 근거 등급 C (Predictive Sensitivity/Response, HER2 Positive Breast Cancer, Fulvestrant,Everolimus, EID1623), 파일 civic_bm3_evidence_2026-10-19.csv, 판정에 쓰지 않음; 급여: 심평원 공고책자 2026-11-01판 p.167·170 (병용 연번 22 capivasertib, 23 alpelisib, 30 inavolisib; hira-booklet-20261101-combo-r22·r23·r30); 지침: ESMO MBC 2026 p.1205 (capivasertib)",
+      "rule_id": "BM2-PIK3CA-LABEL",
+      "evidence": {
+        "specimen": "primary",
+        "variant": "p.H1047R",
+        "vaf": 0.231
+      },
+      "source_span": {
+        "doc_id": "D3",
+        "quote": "PIK3CA   c.3140A>G (p.H1047R)   VAF 23.1%"
+      },
+      "rag_tags": [
+        "PIK3CA-mut"
+      ]
+    },
+    {
+      "marker": "AKT1",
+      "status": "negative",
+      "reason": "AKT1 변이 없음",
+      "rule_id": "BM2-AKT1-NOTDETECTED",
+      "evidence": {
+        "specimen": "primary"
+      },
+      "source_span": {
+        "doc_id": "D3",
+        "quote": "AKT1, PTEN, BRCA1, BRCA2"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "PTEN",
+      "status": "negative",
+      "reason": "PTEN 변이 없음",
+      "rule_id": "BM2-PTEN-NOTDETECTED",
+      "evidence": {
+        "specimen": "primary"
+      },
+      "source_span": {
+        "doc_id": "D3",
+        "quote": "AKT1, PTEN, BRCA1, BRCA2"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "gBRCA1",
+      "status": "negative",
+      "reason": "BRCA1 변이 없음",
+      "rule_id": "BM2-BRCA1-NOTDETECTED",
+      "evidence": {
+        "specimen": "primary"
+      },
+      "source_span": {
+        "doc_id": "D3",
+        "quote": "AKT1, PTEN, BRCA1, BRCA2"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "gBRCA2",
+      "status": "negative",
+      "reason": "BRCA2 변이 없음",
+      "rule_id": "BM2-BRCA2-NOTDETECTED",
+      "evidence": {
+        "specimen": "primary"
+      },
+      "source_span": {
+        "doc_id": "D3",
+        "quote": "AKT1, PTEN, BRCA1, BRCA2"
+      },
+      "rag_tags": []
+    },
+    {
+      "marker": "PALB2",
+      "status": "vus",
+      "reason": "PALB2 E53K (Missense_Mutation, VAF 0.191) → 의미 불명 변이(VUS), 음성으로 처리하되 표시 유지 / 근거: ClinVar 파일 없음 (data/script/clinvar_download.py 실행 필요); 급여: B가 연결한 심평원 행 없음 (D 확인 전); 지침: ESMO MBC 2026 p.1206·1212 (PARP 억제제)",
+      "rule_id": "BM2-PALB2-VUS",
+      "evidence": {
+        "specimen": "primary",
+        "variant": "p.E53K",
+        "vaf": 0.191
+      },
+      "source_span": {
+        "doc_id": "D3",
+        "quote": "PALB2   c.157G>A (p.E53K)   VAF 19.1%"
+      },
+      "rag_tags": []
+    }
+  ],
+  "subtype": "HR+/HER2-",
+  "setting": {
+    "disease": "early",
+    "line": "adjuvant",
+    "prior_drug_classes": [],
+    "reason": "진단 시 early / 선행·보조요법 기록 없음, 수술 먼저 함(병리 병기 있음) -> 이번에 정할 치료는 보조"
+  },
+  "tests_needed": []
+}

@@ -18,32 +18,32 @@ def tx(drugs, start, end=None, stop=None, response=None, setting="palliative"):
 
 
 def numbers(result):
-    return [(r["drugs"], r["line"], r["endocrine_line"], r["chemo_line"]) for r in result["regimens"]]
+    return [(r["drugs"], r["endocrine_line"], r["chemo_line"]) for r in result["regimens"]]
 
 
 def test_adjuvant_before_metastasis_not_counted():
     r = palliative_lines(state([tx(["anastrozole"], 10, setting="adjuvant"), tx(["letrozole"], 120)]))
-    assert numbers(r) == [(["letrozole"], 1, 1, None)]
+    assert numbers(r) == [(["letrozole"], 1, None)]
 
 
 def test_drugs_started_within_28_days_are_one_regimen():
     r = palliative_lines(state([tx(["letrozole"], 110, response="PD"), tx(["palbociclib"], 130)]))
-    assert numbers(r) == [(["letrozole", "palbociclib"], 1, 1, None)]
+    assert numbers(r) == [(["letrozole", "palbociclib"], 1, None)]
 
 
 def test_her2_targeted_plus_endocrine_counts_as_chemo():
     """공고 4.가.3: lapatinib + letrozole은 고식적 항암화학요법 표에 있다."""
     r = palliative_lines(state([tx(["lapatinib", "letrozole"], 110)]))
-    assert numbers(r) == [(["lapatinib", "letrozole"], 1, None, 1)]
+    assert numbers(r) == [(["lapatinib", "letrozole"], None, 1)]
 
 
 def test_planned_switch_stays_same_line():
     r = palliative_lines(state([tx(["doxorubicin", "cyclophosphamide"], 110, 170, stop="planned_switch"),
                                 tx(["paclitaxel"], 180, 260, stop="progression"),
                                 tx(["capecitabine"], 280)]))
-    assert numbers(r) == [(["doxorubicin", "cyclophosphamide"], 1, None, 1),
-                          (["paclitaxel"], 1, None, 1),
-                          (["capecitabine"], 2, None, 2)]
+    assert numbers(r) == [(["doxorubicin", "cyclophosphamide"], None, 1),
+                          (["paclitaxel"], None, 1),
+                          (["capecitabine"], None, 2)]
     assert r["notes"] == []
 
 
@@ -51,14 +51,13 @@ def test_anthracycline_then_taxane_is_same_line():
     """§6.2 규칙 5a: 끝난 이유를 몰라도 AC 종료 28일 이내 taxane이면 같은 차수 (2026-10-20)."""
     r = palliative_lines(state([tx(["cyclophosphamide", "doxorubicin"], 110, 166), tx(["paclitaxel"], 167, 250),
                                 tx(["capecitabine"], 300)]))
-    assert numbers(r) == [(["cyclophosphamide", "doxorubicin"], 1, None, 1), (["paclitaxel"], 1, None, 1),
-                          (["capecitabine"], 2, None, 2)]
+    assert numbers(r) == [(["cyclophosphamide", "doxorubicin"], None, 1), (["paclitaxel"], None, 1),
+                          (["capecitabine"], None, 2)]
 
 
 def test_regimen_started_before_previous_ends_is_same_line():
     """§6.2 규칙 5a: 앞 요법이 끝나기 전에 시작하면 병용 추가 (capecitabine 중 bevacizumab)."""
     r = palliative_lines(state([tx(["capecitabine"], 110, 520), tx(["bevacizumab"], 140, 500)]))
-    assert [x["line"] for x in r["regimens"]] == [1, 1]
     assert [x["chemo_line"] for x in r["regimens"]] == [1, 1]
 
 
@@ -66,33 +65,33 @@ def test_endocrine_maintenance_after_chemo_counts_endocrine_once():
     """§6.2 규칙 5b: 같은 차수 안에서 항암 → 내분비 유지면 내분비 차수만 처음 올린다."""
     r = palliative_lines(state([tx(["doxorubicin", "cyclophosphamide"], 110, 200, stop="maintenance"),
                                 tx(["letrozole"], 210)]))
-    assert numbers(r) == [(["doxorubicin", "cyclophosphamide"], 1, None, 1), (["letrozole"], 1, 1, None)]
+    assert numbers(r) == [(["doxorubicin", "cyclophosphamide"], None, 1), (["letrozole"], 1, None)]
 
 
 def test_endocrine_after_chemo_without_progression_is_maintenance():
     """§6.2 규칙 5a: 항암 후 진행 기록 없이 내분비로 바뀌면 유지요법, 같은 차수 (2026-10-20)."""
     r = palliative_lines(state([tx(["doxorubicin", "cyclophosphamide"], 110, 200, response="SD"), tx(["letrozole"], 210)]))
-    assert numbers(r) == [(["doxorubicin", "cyclophosphamide"], 1, None, 1), (["letrozole"], 1, 1, None)]
+    assert numbers(r) == [(["doxorubicin", "cyclophosphamide"], None, 1), (["letrozole"], 1, None)]
 
 
 def test_endocrine_and_chemo_counted_separately():
     r = palliative_lines(state([tx(["anastrozole"], 110, response="PD"),
                                 tx(["paclitaxel"], 300, response="PD"),
                                 tx(["fulvestrant", "palbociclib"], 500)]))
-    assert numbers(r) == [(["anastrozole"], 1, 1, None),
-                          (["paclitaxel"], 2, None, 1),
-                          (["fulvestrant", "palbociclib"], 3, 2, None)]
+    assert numbers(r) == [(["anastrozole"], 1, None),
+                          (["paclitaxel"], None, 1),
+                          (["fulvestrant", "palbociclib"], 2, None)]
 
 
 def test_unknown_stop_reason_counts_as_next_line_with_note():
     r = palliative_lines(state([tx(["anastrozole"], 110), tx(["exemestane"], 400)]))
-    assert [x["line"] for x in r["regimens"]] == [1, 2]
+    assert [x["endocrine_line"] for x in r["regimens"]] == [1, 2]
     assert len(r["notes"]) == 1
 
 
 def test_supportive_and_bone_agents_not_counted():
     r = palliative_lines(state([tx(["zoledronic acid"], 105), tx(["denosumab"], 400), tx(["letrozole"], 410)]))
-    assert numbers(r) == [(["letrozole"], 1, 1, None)]
+    assert numbers(r) == [(["letrozole"], 1, None)]
 
 
 def test_missing_start_day_is_dropped_with_note():
@@ -110,7 +109,7 @@ def test_palliative_without_metastasis_day_counts_only_palliative():
     r = palliative_lines(state([tx(["tamoxifen"], 45, 1150, setting="adjuvant"),
                                 tx(["paclitaxel"], 1150, 1240, stop="completed"),
                                 tx(["letrozole"], 1300, setting="adjuvant")], metastasis_day=None))
-    assert numbers(r) == [(["paclitaxel"], 1, None, 1)]
+    assert numbers(r) == [(["paclitaxel"], None, 1)]
 
 
 # ---------- 간주 규칙 (deemed_lines) ----------
@@ -154,7 +153,8 @@ def test_annotate_fills_line_fields_and_rules():
     ps = state([tx(["anastrozole"], 50, 300, setting="adjuvant"), tx(["letrozole"], 120, response="PD"),
                 tx(["paclitaxel"], 400)], metastasis_day=100)
     th = annotate(ps)["fields"]["treatment_history"]
-    assert [(t["line"], t["endocrine_line"], t["chemo_line"]) for t in th] == [(None, None, None), (1, 1, None), (2, None, 1)]
+    assert [(t["endocrine_line"], t["chemo_line"]) for t in th] == [(None, None), (1, None), (None, 1)]
+    assert all("line" not in t for t in th)  # 전체 차수는 2026-11-18 삭제
     assert len(ps["fields"]["deemed_lines"]) == 4
 
 

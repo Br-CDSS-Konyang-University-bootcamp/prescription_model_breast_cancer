@@ -130,7 +130,7 @@ patient_state.json
 │   ├── anthracycline_drug_dose
 │   │   ├── administered      positive / negative / No value
 │   │   └── drugs[]
-│   │       ├── drug, timeline_index, combined_with[]
+│   │       ├── drug, combined_with[]
 │   │       ├── dose_per_admin   {value, unit} 또는 "No value"
 │   │       ├── cycles           cycles 형식 또는 "No value"
 │   │       ├── total_dose       {value, unit} 또는 "No value"
@@ -172,7 +172,7 @@ patient_state.json
 | `source` | 원문 근거 `{doc_id, quote, char_start, char_end}` | B 출력의 `source_span`에 그대로 사용 |
 | `history[]` | 새 결과에 밀려난 이전 값. `superseded_reason`: `recurrence` / `newer_result` | 판정에는 쓰지 않고 "바뀜" 설명에 사용 |
 
-특수 표기: `not_assessed` 평가 안됨, `[Not Available]` 그 항목만 기록 없음, `[Not Applicable]` 해당 없음, `No value` anthracycline 용량 값 없음. 해당 없는 칸은 만들지 않는다.
+특수 표기: `not_assessed` 평가 안됨, `[Not Applicable]` 해당 없음, `No value` anthracycline 용량 값 없음. 해당 없는 칸은 만들지 않는다.
 
 ### 3.3 ER·PR (`receptors.er_percent`, `receptors.pr_percent`)
 
@@ -477,9 +477,9 @@ PROJECT.md §5 판정 기준표에 반영했다 (2026-10-15). 위에서부터 �
 | `stage.disease_extent = metastatic` 또는 `recurrence.status = distant` | `metastatic` |
 | 그 밖 (재발 없음, 국소 재발, 부위 모름, 재발 여부 모름) | `stage.disease_extent` 그대로 |
 
-### 6.2 차수 (`treatment_history[].line`, `endocrine_line`, `chemo_line`) [draft6]
+### 6.2 차수 (`treatment_history[].endocrine_line`, `chemo_line`) [draft6]
 
-A가 변환할 때 계산해 투약마다 넣는다 (`src/input/script/rules.py`의 `palliative_lines`, 2026-10-16). 전이 전 투약·보조약·골 보호제·시작일 없는 투약은 `null`. B는 이 값으로 `setting.line`을 채운다. 규칙:
+A가 변환할 때 계산해 투약마다 넣는다 (`src/input/script/rules.py`의 `palliative_lines`, 2026-10-16). 전이 전 투약·보조약·골 보호제·시작일 없는 투약은 `null`. B는 이 값으로 `setting.line_endocrine`·`line_chemo`와 `setting.line`(주 차수)을 채운다. 전이 후 전체 차수 `line`은 2026-11-18 삭제했다 (4명 확인, `proposal_remove_overall_line_2026-11-06.md`). 아래 규칙의 '차수'는 진행이면 다음으로 넘어가는 차수 묶음이고, 저장하는 값은 묶음 안에서 종류별로 센 내분비·항암 차수다. 규칙:
 
 1. `treatment_history`를 `start_day` 순으로 정렬한다 (`start_day` null은 순서를 알 수 없음).
 2. `start_day ≥ recurrence.metastasis_day`인 기록이 전이 이후 요법이다. 그 전은 선행·보조요법이다.
@@ -720,8 +720,7 @@ TCGA 기준으로 쓴 표다. "draft7 칸"이 적힌 줄은 가상·실제 차�
 | BM-4 수용체 검사 공백 | ER·PR·HER2 미시행, HER2 ISH 권고(2+), 전이성 HER2 재판정, 전이성 TNBC PD-L1 미시행 | 같음 (`tests_needed_of`) |
 | 유전자 7개 BM-2 (1차 규칙, PR #2) | ESR1, PIK3CA, AKT1, PTEN, BRCA1/2, PALB2. 허가 동반진단 변이 목록 또는 절단 변이로 양성, 나머지 검출 변이는 VUS, ESR1 재검 필요 | 같음 (`judge_gene`), `src/biomarker/actionable_variants.csv` |
 | 유전자 BM-4 (PR #2) | 전이성 + 미시행일 때 gBRCA·PALB2, PIK3CA·AKT1·PTEN, ESR1 검사, ESR1 재검 | 같음 (`tests_needed_of`) |
-| patient_state 변환 | TCGA 크롭본 → patient_state (B 테스트용으로만 남김) | `src/input/script/tcga/tcga_to_patient_state.py` |
-| 테스트 | 판정 규칙 케이스 + TCGA 크롭본 변환 → BM 출력 스키마 확인 | `tests/biomarker/test_bm.py` |
+| 테스트 | 판정 규칙 케이스 → BM 출력 스키마 확인 (TCGA 크롭본 검사는 2026-11-18 삭제) | `tests/biomarker/test_bm.py` |
 | PD-L1 약제별 판정 (2026-10-16) | 22C3 CPS ≥ 10, SP142 IC ≥ 1% (§6.5) | `BM1_…py` |
 | BM-3 ClinVar·CIViC 로컬 조회 (2026-10-19~20) | ClinVar는 BRCA1/2·PALB2 판정에, CIViC는 근거로만. VEP 미사용 | `BM1_…py`, `data/script/clinvar_download.py`, `civic_download.py` |
 | 차수 (2026-10-21~22) | 전이성 `setting.line_endocrine`·`line_chemo` = 이번에 결정할 차수 (전이 후 투약 없으면 1L). 판정 기준일 뒤 투약은 뺌 (2026-10-29) | `BM1_…py` |

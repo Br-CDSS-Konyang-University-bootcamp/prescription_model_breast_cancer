@@ -38,7 +38,7 @@
 |---|---|---|
 | 추출 상태 (IN-6) | `present` / `not_done` / `not_recorded` | 값 있음 / 미시행 / 기록 없음 |
 | 수용체 판정 (A가 옮긴 값) | `positive` / `low_positive` (ER만) / `negative` / `indeterminate` / `unknown` (HER2만) | 양성 / 저발현 / 음성 / 판정 불가 / 알 수 없음 |
-| 특수 표기 | `not_assessed` / `[Not Available]` / `[Not Applicable]` | 평가 안됨 / 기록 없음 / 해당 없음 |
+| 특수 표기 | `not_assessed` / `[Not Applicable]` | 평가 안됨 / 해당 없음 (TCGA 결측 코드였던 `[Not Available]`은 2026-11-19 삭제) |
 | 바이오마커 상태 | `positive` / `negative` / `intermediate` / `unknown` / `not_done` / `retest_needed` / `not_recorded` | 양성 / 음성 / 중간 (Ki-67) / 판정 불가 / 미시행 / 재검 필요 / 기록 없음 (`indeterminate`는 쓰지 않음, 2026-10-15) |
 | 바이오마커 세부 | `low` / `ultralow` / `vus` | 저발현 / 초저발현 / VUS (`zero`는 2026-10-15 삭제, HER2 IHC 0은 `negative`) |
 | 급여 분류 | `covered` | 급여 (조건 충족) |
@@ -54,6 +54,7 @@
 
 | 버전 | 날짜 | 추가 | 바뀜 | 제거 |
 |---|---|---|---|---|
+| (draft7 후보) | 2026-11-18 | | | `treatment_history[].line` (전이 후 전체 차수). 4명 확인. 차수는 `endocrine_line`·`chemo_line`만 쓴다 ([src/input/proposal_remove_overall_line_2026-11-06.md](../src/input/proposal_remove_overall_line_2026-11-06.md)) |
 | (draft7 후보, 4명 검토 전) | 2026-10-22 | 가상 차트용 선택 칸: `documents[].doc_type`에 `radiology` · `stage.clinical_size_mm`·`pathologic_size_mm` (종양 크기 mm) · `patient.height_cm`·`weight_kg` · `patient.menopausal_basis`에 `ovarian_radiation`·`hysterectomy` · `treatment_history[].ongoing` (기준일 투약 중) · `molecular.germline.{BRCA1, BRCA2, PALB2}` (생식세포 검사) · `stage.yptnm` (선행요법 뒤 병리 병기, 잔존 크기·림프절 수 포함. `ptnm`은 수술을 먼저 한 환자만) · TCGA 때문에 둔 한계 조항을 없애는 칸: `patient.cardiac_history`·`lvef_percent`·`mediastinal_radiation`·`visceral_crisis`·`comorbidities`, `fields.imaging_findings[]` (영상 소견, 골전이 영상 입증) (PROJECT.md §12) · `treatment_history[].doses[]` (모든 약의 1회·총 용량, 2026-10-23). `schema_version`은 검토 뒤 `0.1-draft7`로 올린다. 근거: A의 `notes/virtual_chart_data_coverage_2026-10-22.md` §5.1 | | 없음 |
 | 0.1-draft6 | 2026-10-16 (2026-10-19 보완) | 최상위 `index_day` (판정 기준일) · `recurrence.recurrence_day` (첫 재발일) · `treatment_history[].line`·`endocrine_line`·`chemo_line` (전이 후 차수) · `fields.deemed_lines[]` (심평원 차수 간주 규칙 4개) · `molecular.mutations.{유전자}.raw` · `fields.at_index` (기준일 나이, 최근 4주 이내 항암제·호르몬제 투여, 2026-10-20 추가) | `schema_version` 상수 · `recurrence.metastasis_day` 설명 (차수는 A가 계산) · 추출값 `raw` 설명 (미시행일 때 "결과 대기"·"예정" 고정 표기) | 없음 |
 | 0.1-draft5 | 2026-10-15 | 진단일 기준 일수(`*_day`), 투여 주기 `cycles`, 재발·전이 정보, PD-L1, 유전자 변이 `molecular.mutations`, anthracycline 투약 용량 | | |
@@ -81,8 +82,8 @@ draft6의 새 칸은 모두 선택 칸이다 (가상·실제 차트에서 비워
 | stage | `ctnm`, `ptnm` | `{t, n, m, edition}`. X값은 `not_assessed` |
 | | `group` | `IIA`, `IIIC`, `IV` … 또는 `not_assessed` |
 | | `disease_extent` | `early`(I~II기) / `locally_advanced`(III기, 심평원 급여 조건) / `metastatic`(IV기). 진단 시 기준 |
-| | `positive_ln_count` | `{positive, examined}`. 각각 정수 또는 `"[Not Available]"` |
-| | `metastatic_sites` | 부위 목록 또는 `"[Not Applicable]"` / `"[Not Available]"` |
+| | `positive_ln_count` | `{positive, examined}`. 각각 정수 |
+| | `metastatic_sites` | 부위 목록 또는 `"[Not Applicable]"` |
 | | `operable` | `yes` / `no` / `unknown` (수술 가능 여부) |
 | receptors | `er_percent`, `pr_percent` | `{percent, range, allred, result}` 중 있는 것 모두. `allred`는 `{total, ps, is}` (강도 점수는 `allred.is`. 별도 `score` 키 없음, 2026-10-15). `result`: `positive`·`negative`·`indeterminate`, ER만 `low_positive` 추가 |
 | | `her2_ihc` | `{score, faint, result}` 중 있는 것 모두. `result`는 ISH로 보정한 값 (`unknown` 포함) |
@@ -100,7 +101,7 @@ draft6의 새 칸은 모두 선택 칸이다 (가상·실제 차트에서 비워
 | molecular | `mutations.{ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2}` | `{status, result, variants[], specimen}`. 변이 있음 = `detected`, 변이 없음 = `not_detected`, 미시행 = `status: not_done` |
 | genomic_reports[] | 보고서 하나 | `doc_id`, `report_date`, `specimen`, `raw_text` (해석하지 않음) |
 
-TCGA 정답은 실제 날짜가 없으므로, 날짜 칸은 추출값이면 `status: not_recorded`, 치료 이력·보고서의 날짜는 `null`이다. 대신 진단일 기준 일수(`*_day`)를 넣는다. 차수는 A가 변환할 때 `start_day`와 `metastasis_day`로 계산해 `treatment_history[].line`·`endocrine_line`·`chemo_line`에 넣고, 심평원 간주 규칙 충족 여부는 `fields.deemed_lines`에 넣는다 (2026-10-16 draft6. 2026-10-15에는 B가 판단하기로 했었다).
+TCGA 정답은 실제 날짜가 없으므로, 날짜 칸은 추출값이면 `status: not_recorded`, 치료 이력·보고서의 날짜는 `null`이다. 대신 진단일 기준 일수(`*_day`)를 넣는다. 차수는 A가 변환할 때 `start_day`와 `metastasis_day`로 계산해 `treatment_history[].endocrine_line`·`chemo_line`에 넣고 (전체 차수 `line`은 2026-11-18 삭제), 심평원 간주 규칙 충족 여부는 `fields.deemed_lines`에 넣는다 (2026-10-16 draft6. 2026-10-15에는 B가 판단하기로 했었다).
 
 예시 (가상 차트에서 추출한 경우):
 
