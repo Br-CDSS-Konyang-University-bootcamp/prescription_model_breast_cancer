@@ -24,6 +24,13 @@ CREATE TABLE patients (
 
 CREATE TABLE charts (vp_id TEXT, branch TEXT, chart_text TEXT NOT NULL, PRIMARY KEY (vp_id, branch));
 
+-- 병원 쪽 문서 (EMR 흉내): 장면 차트를 입력 모듈 split()으로 나눈 문서. 본문을 이어 붙이면 chart_text와 같다
+-- doc_date가 비어 있는 문서(투약 기록 표)는 장면 판정 기준일 기준 목록
+CREATE TABLE documents (
+  vp_id TEXT, branch TEXT, doc_id TEXT, doc_type TEXT NOT NULL, doc_date TEXT, start INTEGER NOT NULL, text TEXT NOT NULL,
+  PRIMARY KEY (vp_id, branch, doc_id)
+);
+
 -- 정답 JSON: patient_state / biomarker_record / confirmed_state
 CREATE TABLE states (
   vp_id TEXT, branch TEXT, kind TEXT NOT NULL, json TEXT NOT NULL,

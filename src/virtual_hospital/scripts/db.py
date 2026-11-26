@@ -16,8 +16,10 @@ DB 파일 data/virtual_hospital/local/virtual_hospital.db는 BCNB에서 만든 �
 읽기 (모든 모듈 공통)
     from src.virtual_hospital.scripts import db
     con = db.connect()
+    db.find_patients(con, "10000043")                      # 병원 쪽: 등록번호·이름으로 찾기 (외래 날마다 한 줄)
+    db.request_chart(con, "10000043", as_of="2028-08-28")   # 병원 쪽: 그날까지의 문서 (입력 모듈에 넣을 것)
     db.list_patients(con, branch="bcnb_preop", subtype="TNBC")
-    db.get_state(con, "VH-B0002", "confirmed_state")
+    db.get_state(con, "VH-B0002", "confirmed_state", allow_answer=True)   # 정답 (채점용)
     db.similar(con, "VH-B0002-S1", k=10)
 """
 from __future__ import annotations
@@ -31,7 +33,7 @@ from pathlib import Path
 
 import numpy as np
 
-from src.virtual_hospital.scripts.common import BCNB_RAW, CODE, FEATURES, LOCAL, MINI, OUT, PROJECT, read_csv
+from src.virtual_hospital.scripts.common import BCNB_RAW, CODE, FEATURES, LOCAL, MINI, OUT, PROJECT, mini_on_path, read_csv
 
 DB_PATH = LOCAL / "virtual_hospital.db"
 SCHEMA = CODE / "db_schema.sql"
@@ -75,6 +77,16 @@ def _patient_rows(branch: str, base: Path) -> list[dict]:
     return rows
 
 
+def _documents(text: str) -> list[tuple]:
+    """차트 → 문서 (doc_id, doc_type, doc_date, start, 본문). 나누기는 입력 모듈 IN-1 split을 불러 쓰기만 하고,
+    본문은 다음 문서 시작 전까지의 원문 그대로라 이어 붙이면 차트와 같다."""
+    mini_on_path()
+    from src.input.script.pipeline import split
+    docs = split(text)
+    ends = [d.start for d in docs[1:]] + [len(text)]
+    return [(d.doc_id, d.doc_type, d.doc_date, d.start, text[d.start:e]) for d, e in zip(docs, ends)]
+
+
 def _rel(path: str, root: Path) -> str:
     """절대 경로 → 기준 폴더 상대 경로 (조원마다 폴더가 달라도 같은 값)."""
     try:
@@ -101,6 +113,8 @@ def build(path: Path = DB_PATH) -> dict:
         con.executemany(f"INSERT INTO patients ({','.join(cols)}) VALUES ({','.join('?' * len(cols))})",
                         [[r[c] for c in cols] for r in rows])
         con.executemany("INSERT INTO charts VALUES (?,?,?)", [(r["vp_id"], branch, r["_text"]) for r in rows])
+        con.executemany("INSERT INTO documents VALUES (?,?,?,?,?,?,?)",
+                        [(r["vp_id"], branch, *d) for r in rows for d in _documents(r["_text"])])
         con.executemany("INSERT INTO states VALUES (?,?,?,?)",
                         [(r["vp_id"], branch, k, json.dumps(v, ensure_ascii=False)) for r in rows for k, v in r["_states"].items()])
         keep = {r["vp_id"] for r in rows}
@@ -212,13 +226,63 @@ def get_chart(con, vp_id: str, branch: str | None = None) -> str:
     return con.execute("SELECT chart_text FROM charts WHERE vp_id = ? AND branch = ?", (vp_id, b)).fetchone()[0]
 
 
-def get_state(con, vp_id: str, kind: str, branch: str | None = None) -> dict:
-    """kind: patient_state / biomarker_record / confirmed_state (정답, 판정 기준일 시점)."""
+def get_state(con, vp_id: str, kind: str, branch: str | None = None, *, allow_answer: bool = False) -> dict:
+    """kind: patient_state / biomarker_record / confirmed_state (정답, 판정 기준일 시점).
+    병원 DB에는 없는 정답이라 allow_answer=True일 때만 꺼낸다 (채점, 정답 방식으로 B·C·D만 시험할 때)."""
+    if not allow_answer:
+        raise PermissionError("정답 JSON이다. 병원 쪽 입력은 request_chart()로 받고, 정답은 allow_answer=True로 꺼낼 것")
     b = _branch(con, vp_id, branch)
     r = con.execute("SELECT json FROM states WHERE vp_id = ? AND branch = ? AND kind = ?", (vp_id, b, kind)).fetchone()
     if r is None:
         raise KeyError(f"{vp_id} {b} {kind} 없음")
     return json.loads(r[0])
+
+
+# ---------------------------------------------------------------- 병원 쪽 요청 (EMR 흉내)
+# 실제 병원 DB에 있는 것만 내준다: 환자 식별 정보와 문서(종류·날짜·본문). 정답 JSON·fields·truth는 내주지 않는다.
+HOSPITAL_PATIENT = ("registration_no", "patient_name", "sex", "age", "patient_ref")
+
+
+def _visit_date(row) -> str:
+    """장면 판정 기준일 (진단일 + index_day). 외래에서 차트를 요청한 날."""
+    import datetime as dt
+    return (dt.date.fromisoformat(row["dx_date"]) + dt.timedelta(days=row["index_day"] or 0)).isoformat()
+
+
+def find_patients(con, query: str) -> list[dict]:
+    """환자 찾기: 등록번호(숫자), 가상 번호(VH-…), 이름. 같은 환자의 장면(외래 날)이 여럿이면 모두."""
+    q = re.sub(r"\s+", "", query or "")
+    if not q:
+        return []
+    if q.isdigit():
+        rows = con.execute("SELECT * FROM patients WHERE registration_no = ?", (q,))
+    elif q.upper().startswith("VH-"):
+        rows = con.execute("SELECT * FROM patients WHERE vp_id = ? OR patient_ref = ?", (q.upper(), q.upper()))
+    else:
+        rows = con.execute("SELECT * FROM patients WHERE patient_name = ?", (q,))
+    return sorted(({**{k: r[k] for k in HOSPITAL_PATIENT}, "visit_date": _visit_date(r)} for r in rows),
+                  key=lambda r: (r["registration_no"], r["visit_date"]))
+
+
+def request_chart(con, registration_no: str, as_of: str | None = None) -> dict:
+    """병원 DB에 차트 요청: 그 환자의 as_of(YYYY-MM-DD) 날까지 마지막 외래 장면의 문서. as_of가 없으면 마지막 외래.
+    돌려주는 것: patient (식별 정보, visit_date), documents ([{doc_id, doc_type, doc_date, text}]), chart_text.
+    문서 날짜가 as_of 뒤인 문서는 뺀다 (날짜 없는 투약 기록 표는 그 외래 날 기준이라 남긴다)."""
+    scenes = [r for r in con.execute("SELECT * FROM patients WHERE registration_no = ?", (str(registration_no),))]
+    if not scenes:
+        raise KeyError(f"등록번호 {registration_no} 없음")
+    scenes = sorted(scenes, key=_visit_date)
+    if as_of:
+        scenes = [r for r in scenes if _visit_date(r) <= as_of]
+        if not scenes:
+            raise KeyError(f"등록번호 {registration_no}: {as_of}까지 외래 기록 없음")
+    s = scenes[-1]
+    docs = [dict(d) for d in con.execute("SELECT doc_id, doc_type, doc_date, text FROM documents "
+                                         "WHERE vp_id = ? AND branch = ? ORDER BY start", (s["vp_id"], s["branch"]))]
+    if as_of:
+        docs = [d for d in docs if d["doc_date"] is None or d["doc_date"] <= as_of]
+    return {"patient": {**{k: s[k] for k in HOSPITAL_PATIENT}, "visit_date": _visit_date(s)},
+            "documents": docs, "chart_text": "".join(d["text"] for d in docs)}
 
 
 def truth(con, vp_id: str, branch: str | None = None, *, allow_future: bool = False) -> dict:
@@ -283,7 +347,7 @@ def similar(con, slide_id: str, k: int = 10, feature_set: str | None = None, *,
 
 def info(con) -> dict:
     out = {"patients": {r[0]: r[1] for r in con.execute("SELECT branch, count(*) FROM patients GROUP BY branch")}}
-    for t in ("charts", "states", "fields", "truth", "treatments", "slides", "annotations", "feature_sets", "slide_embeddings"):
+    for t in ("charts", "documents", "states", "fields", "truth", "treatments", "slides", "annotations", "feature_sets", "slide_embeddings"):
         out[t] = con.execute(f"SELECT count(*) FROM {t}").fetchone()[0]
     out["meta"] = {r[0]: r[1] for r in con.execute("SELECT key, value FROM meta")}
     return out
