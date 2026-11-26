@@ -249,10 +249,22 @@ class Context:
         return cls(doc, doc.text[s:e if e >= 0 else len(doc.text)], dx_date)
 
 
+GERMLINE_WORD = re.compile(r"생식세포|유전성|germline|gBRCA|g\s*BRCA", re.I)
+
+
 def normalize(field: str, quote: str, ctx: Context) -> dict | None:
     """칸 하나의 값. 목록 칸(treatment_history 등)은 항목 dict, 그 밖에는 {status, value}. 실패하면 None."""
     if field.startswith("molecular."):
-        return _gene(field.rsplit(".", 1)[1], quote, ctx)
+        out = _gene(field.rsplit(".", 1)[1], quote, ctx)
+        if out and ctx is not None and ctx.doc.doc_type == "progress_note":
+            # 경과기록에서는 미시행 줄만 (결과는 분자병리 보고서에서), 생식세포 칸은 그 줄에 생식세포 낱말이 있을 때만
+            # (가상 병원 시험: 'ESR1, …, PALB2 유전자 검사: 시행하지 않음'을 생식세포 칸으로 옮김, 2026-11-26)
+            germline = field.startswith("molecular.germline.")
+            if out.get("status") != "not_done" and not germline:
+                return None
+            if germline and not GERMLINE_WORD.search(ctx.line or quote):
+                return None
+        return out
     if field in ITEMS:
         return ITEMS[field](quote, ctx)
     # 미시행·결과 대기·예정은 검사 칸에만 (유전자 칸은 _gene). '보조 내분비요법 상의 예정' 같은 치료 계획은 검사 상태가 아니다
@@ -364,6 +376,17 @@ def _clinical_size(q: str):
 
 def _yes_no(text: str) -> str:
     return "no" if re.search(r"없음|아님|불가|inoperable|\bno\b", text, re.I) else "yes"
+
+
+# 수술 전 경과기록의 판단 구절 (예: 수술 가능 (operable), 수술 불가). 병리 검체 줄은 수술 이름 그대로 yes
+OPERABLE_JUDGMENT = re.compile(r"(?:수술|절제)\s*(?:가능|불가)|\b(?:in)?operable\b", re.I)
+
+
+def _operable(text: str, ctx: "Context") -> str | None:
+    """병리 검체 줄은 수술 이름 → yes/no. 그 밖의 문서는 판단 구절만 읽는다 ('수술 후' 같은 경과 문장은 버린다)."""
+    if ctx.doc.doc_type == "pathology":
+        return _yes_no(text)
+    return _yes_no(text) if OPERABLE_JUDGMENT.search(text) else None
 
 
 # ---------- 칸별 ----------
@@ -612,7 +635,7 @@ PARSERS = {
     "stage.disease_extent": _extent,
     "stage.metastatic_sites": _metastatic_sites,
     "stage.positive_ln_count": _ln_count,
-    "stage.operable": lambda q, ctx: _yes_no(q),
+    "stage.operable": lambda q, ctx: _operable(q, ctx),
     "stage.clinical_size_mm": lambda q, ctx: _clinical_size(q),
     "stage.pathologic_size_mm": lambda q, ctx: _size_mm(q),
     "receptors.er_percent": _receptor("er_percent"),
@@ -1395,6 +1418,9 @@ FIELDS = {
         "stage.disease_extent": "병기군 구절 (stage.group과 같은 구절을 한 번 더)",
         "stage.metastatic_sites": "진단 당시 원격 전이 부위 구절 (진단 시 IV기의 전이 부위, 또는 M0가 든 TNM). "
                                   "나중에 생긴 재발·전이는 넣지 않는다",
+        "stage.operable": "원발 유방암을 수술할 수 있는지 의사가 판단해 적은 구절 ('수술 가능'·'수술 불가'·'operable' 같은 낱말이 "
+                          "든 구절). 그런 낱말이 문서에 없으면 이 칸은 내지 않는다. '수술 후', '수술로 진단', '수술 예정'처럼 "
+                          "판단이 아닌 경과 문장은 내지 않는다",
         "patient.gender": "성별 (F/나이, 여성)",
         "patient.age": "나이 (F/나이, 00세)",
         "patient.menopausal_status": "폐경 상태 (폐경 전, 폐경 후)",
@@ -1424,6 +1450,10 @@ FIELDS = {
         "molecular.germline.BRCA1": "생식세포 BRCA1 검사 결과 또는 미시행",
         "molecular.germline.BRCA2": "생식세포 BRCA2 검사 결과 또는 미시행",
         "molecular.germline.PALB2": "생식세포 PALB2 검사 결과 또는 미시행",
+        **{f"molecular.mutations.{g}": f"종양 유전자 검사를 하지 않았다고 적힌 줄 가운데 {g}가 든 구절 "
+                                       f"(예: '…{g}… 유전자 검사: 시행하지 않음'). '생식세포'가 적힌 줄은 "
+                                       "molecular.germline 칸으로. 검사 결과·변이 요약은 내지 않는다"
+           for g in ("ESR1", "PIK3CA", "AKT1", "PTEN", "BRCA1", "BRCA2", "PALB2")},
     },
     "radiology": {
         "imaging_findings": "판독 결론에서 전이를 말하는 구절 하나 (전이 부위와 확실성: 전이, 전이 의심, 전이 없음). "

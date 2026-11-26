@@ -93,11 +93,41 @@ def test_not_done_and_failure(quote, want):
     # 3차 (2026-10-26)
     ("recurrence.adjuvant_endocrine_end_date", "보조 내분비요법 상의 예정"),  # 치료 계획은 검사 '예정'이 아님
     ("recurrence.status", "PD"),                                            # 치료 반응
+    # 경과기록의 수술 가능 여부는 판단 구절만 (가상 병원 BCNB 시험, 2026-11-26)
+    ("stage.operable", "수술 후 회복 양호"),
+    ("stage.operable", "수술로 진단"),
 ])
 def test_wrong_field_is_not_normalized(field, quote):
     """LLM이 칸을 잘못 고른 구절은 값을 만들지 않는다 (VC-0103 hari-q3-8b 시험, 2026-10-23)."""
     doc = split("<외래 경과기록>   2023.5.4\n" + quote + "\n")[0]
     assert normalize(field, quote, Context(doc)) is None
+
+
+@pytest.mark.parametrize("quote, want", [("수술 가능 (operable)", "yes"), ("수술 불가", "no"), ("inoperable", "no")])
+def test_operable_judgment_in_progress_note(quote, want):
+    """수술 전 환자는 경과기록의 판단 구절로 수술 가능 여부를 읽는다 (가상 병원 BCNB, 2026-11-26)."""
+    doc = split("<외래 경과기록>   2024.9.15\n" + quote + "\n")[0]
+    assert normalize("stage.operable", quote, Context(doc)) == {"status": "present", "value": want}
+
+
+def test_gene_not_done_line_in_progress_note():
+    """경과기록의 종양 유전자 미시행 줄은 미시행, 생식세포 칸으로는 읽지 않는다 (가상 병원, 2026-11-26)."""
+    line = "ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2 유전자 검사: 시행하지 않음"
+    doc = split("<외래 경과기록>   2024.9.15\n" + line + "\n")[0]
+    ctx = Context.of(doc, doc.start + doc.text.index(line))
+    assert normalize("molecular.mutations.PIK3CA", line, ctx) == {"status": "not_done"}
+    assert normalize("molecular.germline.BRCA1", line, ctx) is None
+    germ = "생식세포 BRCA1/2 검사: 시행하지 않음"
+    doc = split("<외래 경과기록>   2024.9.15\n" + germ + "\n")[0]
+    assert normalize("molecular.germline.BRCA2", germ, Context.of(doc, doc.start + doc.text.index(germ))) == {
+        "status": "not_done"}
+
+
+def test_gene_result_in_progress_note_is_left_to_report():
+    """경과기록의 변이 요약은 값으로 쓰지 않는다 (결과는 분자병리 보고서에서)."""
+    q = "PIK3CA H1047R 변이"
+    doc = split("<외래 경과기록>   2024.9.15\n" + q + "\n")[0]
+    assert normalize("molecular.mutations.PIK3CA", q, Context(doc)) is None
 
 
 def test_gene_detected_without_variant_is_not_negative():
