@@ -3,18 +3,18 @@
 DB 파일 data/virtual_hospital/local/virtual_hospital.db는 BCNB에서 만든 값을 담아 git에 넣지 않는다 (BCNB 약관:
 원본·수정본 재배포 금지). git pull 뒤 각자 만든다:
 
-    python -m src.virtual_hospital.db build      # 매번 처음부터 새로 만든다 (수십 초)
-    python -m src.virtual_hospital.db info       # 들어 있는 개수
+    python -m src.virtual_hospital.scripts.db build      # 매번 처음부터 새로 만든다 (수십 초)
+    python -m src.virtual_hospital.scripts.db info       # 들어 있는 개수
 
 넣는 것 (있는 것만, 없으면 건너뛰고 알린다)
 - TCGA ① 수술 후·② 재발: git의 data/virtual_hospital/tcga/, tcga_recur/
-- BCNB 수술 전: data/virtual_hospital/local/bcnb/ (BCNB를 받아 python -m src.virtual_hospital.bcnb로 만든 것)
+- BCNB 수술 전: data/virtual_hospital/local/bcnb/ (BCNB를 받아 python -m src.virtual_hospital.scripts.bcnb로 만든 것)
 - 슬라이드: BCNB jpg (local/bcnb_raw/), TCGA 썸네일 (team_project_final). 원본 파일은 DB에 넣지 않고 경로만
 - 슬라이드 벡터: local/features/<묶음>.npz (embed_slides.py로 GPU 서버에서 만든 것). 타일 벡터 .h5는 서버에 두고,
   필요하면 local/features/<묶음>/에 받아 tile_features()로 읽는다
 
 읽기 (모든 모듈 공통)
-    from src.virtual_hospital import db
+    from src.virtual_hospital.scripts import db
     con = db.connect()
     db.list_patients(con, branch="bcnb_preop", subtype="TNBC")
     db.get_state(con, "VH-B0002", "confirmed_state")
@@ -31,7 +31,7 @@ from pathlib import Path
 
 import numpy as np
 
-from src.virtual_hospital.common import BCNB_RAW, CODE, FEATURES, LOCAL, MINI, OUT, PROJECT, read_csv
+from src.virtual_hospital.scripts.common import BCNB_RAW, CODE, FEATURES, LOCAL, MINI, OUT, PROJECT, read_csv
 
 DB_PATH = LOCAL / "virtual_hospital.db"
 SCHEMA = CODE / "db_schema.sql"
@@ -91,7 +91,7 @@ def build(path: Path = DB_PATH) -> dict:
     for branch, base in BRANCHES.items():
         rows = _patient_rows(branch, base)
         if not rows:
-            notes.append(f"{branch}: 없음 ({base})" + (" — BCNB를 받아 python -m src.virtual_hospital.bcnb를 먼저"
+            notes.append(f"{branch}: 없음 ({base})" + (" — BCNB를 받아 python -m src.virtual_hospital.scripts.bcnb를 먼저"
                                                        if branch == "bcnb_preop" else ""))
             continue
         cols = ["vp_id", "branch", "dataset", "dx_date", "index_day", "age", "sex", "subtype", "stage_group", "disease",
@@ -132,7 +132,7 @@ def _slides(con, notes: list[str]) -> None:
     priv = {r["slide_id"]: r for r in read_csv(LOCAL / "slide_map.csv")} if (LOCAL / "slide_map.csv").exists() else {}
     if pub.exists():
         if not priv:
-            notes.append("TCGA 원본 슬라이드 대응표(local/slide_map.csv) 없음 → 썸네일·벡터 연결 안 함 (python -m src.virtual_hospital.build)")
+            notes.append("TCGA 원본 슬라이드 대응표(local/slide_map.csv) 없음 → 썸네일·벡터 연결 안 함 (python -m src.virtual_hospital.scripts.build)")
         con.executemany("INSERT INTO slides VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", [
             (r["slide_id"], r["vp_id"], r["dataset"], r["specimen"], "project" if r["slide_id"] in priv else None,
              priv.get(r["slide_id"], {}).get("thumb_path"), priv.get(r["slide_id"], {}).get("source_slide"),
@@ -180,7 +180,7 @@ def _features(con, notes: list[str]) -> None:
 # ---------------------------------------------------------------- 읽기
 def connect(path: Path = DB_PATH) -> sqlite3.Connection:
     if not path.exists():
-        raise FileNotFoundError(f"{path} 없음 → python -m src.virtual_hospital.db build")
+        raise FileNotFoundError(f"{path} 없음 → python -m src.virtual_hospital.scripts.db build")
     con = sqlite3.connect(path)
     con.row_factory = sqlite3.Row
     return con

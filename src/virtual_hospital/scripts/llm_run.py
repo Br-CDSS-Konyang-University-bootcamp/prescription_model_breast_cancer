@@ -4,8 +4,8 @@ mini 입력 모듈(pipeline.run, make_extract)과 채점기(evaluation.compare·
 (mini `python -m src.input.script.pipeline --out`과 같은 저장 형식). 결과는 local/llm_runs/<이름>/ (git 제외).
 
 실행 (virtual_hospital 폴더, team_project 환경, GPU 터널을 연 뒤):
-    python -m src.virtual_hospital.llm_run --name t1 --tcga 50 --recur          # TCGA ① 50명(고르게 뽑음) + ② 전체
-    python -m src.virtual_hospital.llm_run --name t1 --score                    # 저장한 결과만 다시 채점
+    python -m src.virtual_hospital.scripts.llm_run --name t1 --tcga 50 --recur          # TCGA ① 50명(고르게 뽑음) + ② 전체
+    python -m src.virtual_hospital.scripts.llm_run --name t1 --score                    # 저장한 결과만 다시 채점
 서버 주소는 코드에 쓰지 않는다. --host 기본값은 이 PC의 SSH 터널 (http://127.0.0.1:11435).
 """
 from __future__ import annotations
@@ -14,7 +14,7 @@ import argparse
 import json
 import time
 
-from src.virtual_hospital.common import LOCAL, OUT, mini_on_path
+from src.virtual_hospital.scripts.common import LOCAL, OUT, mini_on_path
 
 RUNS = LOCAL / "llm_runs"
 

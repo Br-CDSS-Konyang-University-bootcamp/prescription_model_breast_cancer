@@ -8,7 +8,7 @@ mini 입력 모듈은 변이를 'GENE c.… (p.…)' 표기로만 읽는다 (pip
    cBioPortal 변이 표의 염색체 위치·염기(GRCh37)로 Genome Nexus 주석 API에 물어 정규 전사체 HGVSc를 받는다.
    돌려받은 단백 변화(hgvspShort)가 cBioPortal proteinChange와 같을 때만 쓴다.
 
-실행: python -m src.virtual_hospital.fetch_hgvsc          (local/source_map.csv의 TCGA 환자 전부)
+실행: python -m src.virtual_hospital.scripts.fetch_hgvsc          (local/source_map.csv의 TCGA 환자 전부)
 """
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ import urllib.request
 
 import pandas as pd
 
-from src.virtual_hospital.common import LOCAL, MINI, ROOT, read_csv, write_csv
+from src.virtual_hospital.scripts.common import LOCAL, MINI, ROOT, read_csv, write_csv
 
 API = "https://api.gdc.cancer.gov/ssm_occurrences"
 GN = "https://www.genomenexus.org/annotation/genomic?fields=annotation_summary"

@@ -1,6 +1,6 @@
 # TCGA ① (수술 후) 가상환자 세트 — 생성 보고
 
-mini 커밋: `81abb64` · 실행: `python -m src.virtual_hospital.build`
+mini 커밋: `81abb64` · 실행: `python -m src.virtual_hospital.scripts.build`
 
 ## 인원
 
