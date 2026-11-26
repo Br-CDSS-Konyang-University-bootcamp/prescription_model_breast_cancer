@@ -137,6 +137,7 @@ def test_luminal_goes_from_confirmed_state_to_search_args():
     from src.rag.retrieve import from_confirmed_state
     path = Path(__file__).resolve().parents[2] / "tests" / "fixtures" / "virtual_charts" / "VC-0121" / "expected" / "confirmed_state.json"
     state = json.loads(path.read_text(encoding="utf-8"))
+    state["items"].pop("molecular_subtype", None)   # 고정 파일에 값이 생겨도 (B·A가 넣음) '값 없음' 경우를 본다
     record, patient, _ = from_confirmed_state(state)
     assert "luminal" not in search_args(record, **patient)
     for value, want in (("Luminal B(HER2 negative)", "B"), ("Luminal A", "A")):
