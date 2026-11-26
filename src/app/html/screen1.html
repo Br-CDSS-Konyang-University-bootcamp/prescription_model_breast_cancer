@@ -103,6 +103,10 @@ header h1 { font-size: 15px; margin: 0; }
 #msg .errors { color: var(--req); white-space: pre-wrap; font-size: 13px; padding: 0 12px; margin: 6px 0; }
 #msg .saved { color: var(--ok); font-size: 13px; padding: 0 12px; margin: 6px 0; }
 .emptymsg { padding: 40px; text-align: center; color: var(--muted); }
+.find { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.find .hits { display: flex; gap: 4px; flex-wrap: wrap; font-size: 12px; }
+.find .hits button { font-size: 12px; }
+.find .none { color: var(--muted); }
 
 @media (max-width: 900px) {
   body { display: block; }
@@ -115,6 +119,8 @@ header h1 { font-size: 15px; margin: 0; }
 <body>
 <header>
   <h1>화면 1 · 처방 조건 확인</h1>
+  <form id="findform" class="find"><input id="q" placeholder="환자 번호 또는 이름" size="16" autocomplete="off">
+    <button type="submit">찾기</button><span id="hits" class="hits"></span></form>
   <label>사례 <select id="case"></select></label>
   <span id="headinfo" class="headinfo"></span>
 </header>
@@ -177,6 +183,18 @@ async function init() {
   if (want && META.cases.includes(want)) { sel.value = want; load(want); }
   try { $("#by").value = localStorage.getItem("screen1.by") || ""; } catch (e) {}
   $("#save").onclick = save;
+  $("#findform").onsubmit = (e) => { e.preventDefault(); find(); };
+}
+
+// 환자 번호·이름으로 찾기. 하나면 바로 열고, 여럿이면 고르게 한다
+async function find() {
+  const box = $("#hits");
+  const { hits } = await api("/api/find", { q: $("#q").value });
+  const open = (c) => { $("#case").value = c; box.innerHTML = ""; load(c); };
+  if (hits.length === 1) { open(hits[0].case); return; }
+  box.innerHTML = hits.length ? hits.map((h) => `<button type="button" data-case="${esc(h.case)}">${esc(h.case)} · ${esc(h.name || "")} · ${esc(h.registration_no || "")} · ${esc(h.set)}</button>`).join("")
+    : '<span class="none">찾는 환자가 없습니다</span>';
+  box.querySelectorAll("button").forEach((b) => { b.onclick = () => open(b.dataset.case); });
 }
 
 async function load(caseId) {
