@@ -1,4 +1,4 @@
-class,disease,subtypes,menopausal,risk,members,source,note
+class,disease,subtypes,menopausal,risk,members,source,note,pcr
 ET,early,HR+/HER2-;HR+/HER2+,premenopausal,any,tamoxifen,esmo-ebc-2024-02-hrpos-6308eb,폐경 전 tamoxifen 단독 (luminal A-like I기)
 ET,early,HR+/HER2-;HR+/HER2+,premenopausal,high,LHRH+tamoxifen,esmo-ebc-2024-02-hrpos-6308eb,폐경 전 고위험 OFS + tamoxifen
 ET,early,HR+/HER2-;HR+/HER2+,premenopausal,high,LHRH+AI,esmo-ebc-2024-02-hrpos-6308eb,폐경 전 고위험 OFS + AI
@@ -14,3 +14,12 @@ ET,metastatic,HR+/HER2+,postmenopausal,any,AI,esmo-mbc-2026-05-her2-1l-2cded5,ER
 ET,metastatic,HR+/HER2+,premenopausal,any,LHRH+AI,esmo-mbc-2026-05-her2-1l-2cded5; esmo-mbc-2026-05-luminal-1l-c0c05b,위와 같음 + 폐경 전·주변기 OFS
 ChT,metastatic,HR+/HER2-,,,taxane;capecitabine,esmo-mbc-2026-05-luminal-3l-219e18; esmo-mbc-2026-05-luminal-3l-b023e3,항암 경험이 없으면 단독 순차 항암 [II; A]: capecitabine·taxane [I; C]. anthracycline은 3차 이후 재투여(ae383b)로만 나와 넣지 않음
 ChT,metastatic,TNBC,,,taxane;anthracycline;capecitabine;eribulin;vinorelbine;carboplatin,esmo-mbc-2026-05-tnbc-1l-a2bd8f; esmo-mbc-2026-05-tnbc-1l-961901; esmo-mbc-2026-05-tnbc-1l-015580; esmo-mbc-2026-05-tnbc-2l-e9b4f6; esmo-mbc-2026-05-tnbc-2l-aa0873,taxane·anthracycline 단독 [I; A]; gBRCA면 carboplatin 기반 [II; A]; 2차 이후 eribulin·capecitabine·vinorelbine [I; B]
+HER2,early,HR+/HER2+;HR-/HER2+,,,trastuzumab,esmo-ebc-2024-02-her2pos-16dd9e,선행 항암·항HER2 뒤 pCR: 항HER2를 12개월 채움 [I; A],yes
+HER2,early,HR+/HER2+;HR-/HER2+,,,pertuzumab+trastuzumab,esmo-ebc-2024-02-her2pos-16dd9e; esmo-ebc-2024-02-her2pos-c58918,위와 같음. 림프절 양성이면 pertuzumab 추가를 강하게 고려 [I; A],yes
+HER2,early,HR+/HER2+;HR-/HER2+,,,trastuzumab emtansine,esmo-ebc-2024-02-her2pos-ae367a,선행 항암·항HER2 뒤 잔존 침윤암(non-pCR): T-DM1 최대 14주기 [I; A],no
+HER2,metastatic,HR-/HER2+,,,pertuzumab+trastuzumab,esmo-mbc-2026-05-her2-1l-f39214,ER 음성 HER2 양성에서 항암 없이 항HER2 [III; C],
+HER2,metastatic,HR-/HER2+,,,trastuzumab,esmo-mbc-2026-05-her2-1l-f39214,위와 같음 (trastuzumab 단독),
+HER2_ET,metastatic,HR+/HER2+,,,trastuzumab,esmo-mbc-2026-05-her2-1l-406dd2,ER 양성 HER2 양성에서 ET와 함께 쓰는 항HER2 [II; B],
+HER2_ET,metastatic,HR+/HER2+,,,pertuzumab+trastuzumab,esmo-mbc-2026-05-her2-1l-406dd2,위와 같음 [II; B],
+HER2_ET,metastatic,HR+/HER2+,,,lapatinib+trastuzumab,esmo-mbc-2026-05-her2-1l-406dd2,위와 같음 [II; C],
+HER2_ET,metastatic,HR+/HER2+,,,lapatinib,esmo-mbc-2026-05-her2-1l-406dd2,위와 같음 [II; C],

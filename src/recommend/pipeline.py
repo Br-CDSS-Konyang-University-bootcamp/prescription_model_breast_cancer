@@ -135,7 +135,7 @@ def recommend(patient_state, biomarker_record, guideline_chunks, reimbursement_c
         out, post_log = postprocess(rec, biomarker_record, guideline_chunks, reimbursement_chunks, today,
                                     conditions_checker, phase=phase, bone_metastasis=bone,
                                     high_risk_early=_confirmed(confirmed_state, "high_risk_early"),
-                                    menopausal=menopausal, ofs=ofs)
+                                    menopausal=menopausal, ofs=ofs, pcr=_confirmed(confirmed_state, "pcr"))
         log.extend(post_log)
         return out, len(rec["options"])
 

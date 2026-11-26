@@ -440,7 +440,12 @@ def _apply_candidates(option, candidates):
 CLASS_CANDIDATES_CSV = Path(__file__).resolve().parent / "dictionaries" / "class_candidates.csv"
 ET_RE = re.compile(r"\bET\b|[Ee]ndocrine|내분비|호르몬")
 CHT_RE = re.compile(r"\bChT\b|[Cc]hemotherapy|항암|화학요법")
-OTHER_CLASS_RE = re.compile(r"[Aa]nti-HER2|HER2-(?:directed|targeted)|\bICI\b|PARP")
+OTHER_CLASS_RE = re.compile(r"\bICI\b|PARP")
+# 항HER2 계열 이름 (2026-11-26): 사전의 HER2 행(항HER2만), HER2_ET 행(ET와 함께 쓰는 항HER2)으로 펼친다
+HER2_RE = re.compile(r"[Aa]nti-HER2|HER2-(?:directed|targeted)|항HER2")
+WITHOUT_CHT_RE = re.compile(r"without\s+(?:ChT|chemotherapy)|(?:항암|화학요법)\s*없이", re.IGNORECASE)
+# "(e.g. an AI)", "(capecitabine, taxane 등)"처럼 예를 든 괄호의 약은 고정 약으로 넣지 않는다
+EXAMPLE_PAREN_RE = re.compile(r"\([^()]*(?:\be\.g\.|예:|\s등)[^()]*\)")
 # 항암 이름의 단서 (2026-11-26): 단독 항암은 약 하나짜리 급여 행만 ("Sequential single-agent ChT", ESMO MBC luminal 219e18).
 # "<약>-based"는 그 약이 든 항암 행만, 함께 쓰는 약은 항암이면 된다 ("Carboplatin-based ChT", ESMO MBC TNBC 015580·aa0873)
 SINGLE_AGENT_RE = re.compile(r"single[- ]agent|monotherapy|단독|단일")
@@ -474,31 +479,50 @@ def _allowed_drugs(tokens):
 
 
 def _broad_candidates(option, reimb_by_id, today, conditions_checker, ctx):
-    """ET·ChT 계열 이름 후보를 펼쳐 조합마다 급여를 판정한다. 펼칠 수 없으면 (None, 메모). ctx: disease, subtype,
-    menopausal, high_risk(ESMO yes/no/None), phase, prior_chemo(bool)."""
+    """ET·ChT·항HER2 계열 이름 후보를 펼쳐 조합마다 급여를 판정한다. 펼칠 수 없으면 (None, 메모). ctx: disease, subtype,
+    menopausal, high_risk(ESMO yes/no/None), phase, prior_chemo(bool), pcr(yes/no/None)."""
     therapy = option.get("therapy") or ""
     if option.get("drugs") or ctx["disease"] is None or OTHER_CLASS_RE.search(therapy):
         return None, None
     disease = "metastatic" if ctx["disease"] == "metastatic" else "early"
-    has_et, has_cht = bool(ET_RE.search(therapy)), bool(CHT_RE.search(therapy))
-    if not (has_et or has_cht):
+    text = WITHOUT_CHT_RE.sub(" ", therapy)   # "HER2-targeted therapy without ChT"의 ChT는 항암을 쓰라는 말이 아니다
+    has_et, has_cht, has_her2 = bool(ET_RE.search(text)), bool(CHT_RE.search(text)), bool(HER2_RE.search(text))
+    if not (has_et or has_cht or has_her2):
         return None, None
     note = None
-    if has_et and has_cht:   # "ChT followed by ET"
+    if has_her2 and has_cht:   # "HER2-directed therapy (with initial concurrent ChT)"
+        if ctx["phase"] == "adjuvant" and ctx["prior_chemo"]:
+            has_cht, note = False, "선행 항암·항HER2를 이미 받아 남은 항HER2를 펼침"
+        else:
+            return None, None   # 항암과 항HER2를 함께 시작하는 요법은 이번 범위 밖
+    elif has_et and has_cht:   # "ChT followed by ET"
         if ctx["phase"] == "adjuvant" and ctx["prior_chemo"]:
             has_cht, note = False, "선행 항암을 이미 받아 내분비요법을 펼침"
         else:
             has_et, note = False, "항암을 먼저 펼침 (내분비요법은 항암·수술 뒤 다음 단계)"
     rows = [r for r in _class_rows() if r["class"] == ("ET" if has_et else "ChT") and r["disease"] == disease
             and ctx["subtype"] in r["subtypes"].split(";")]
+    # 항HER2 자리: ET와 함께면 HER2_ET 행, 아니면 HER2 행. 조기 행은 선행요법 반응(pCR)이 맞는 것만 (사전의 pcr 칸)
+    her2 = []
+    if has_her2:
+        her2 = [([list(g) for g in pick], r["source"]) for r in _class_rows()
+                if r["class"] == ("HER2_ET" if has_et else "HER2") and r["disease"] == disease
+                and ctx["subtype"] in r["subtypes"].split(";") and (not r.get("pcr") or r["pcr"] == ctx.get("pcr"))
+                for pick in itertools.product(*[_member_choices(t) for t in r["members"].split("+")])]
+        if not her2:
+            return None, None
     # 요법 이름에 함께 적힌 약 (예: "olaparib + ET", "ET + LHRH agonist"). 내분비 약은 사전 규칙이 고르므로 빼고,
-    # LHRH가 적혀 있으면 OFS가 든 요법만 쓴다. 그 밖의 약(olaparib, abemaciclib 등)은 조합마다 더한다 (2026-11-18 VC-0107·0119)
-    fixed, _ = _fixed_groups(CHT_RE.sub(" ", ET_RE.sub(" ", therapy)))
+    # LHRH가 적혀 있으면 OFS가 든 요법만 쓴다. 그 밖의 약(olaparib, abemaciclib 등)은 조합마다 더한다 (2026-11-18 VC-0107·0119).
+    # 예를 든 괄호의 약과, 항HER2 자리를 사전이 고를 때의 항HER2 약은 더하지 않는다
+    fixed, _ = _fixed_groups(EXAMPLE_PAREN_RE.sub(" ", HER2_RE.sub(" ", CHT_RE.sub(" ", ET_RE.sub(" ", text)))))
     is_endo = lambda g: all("hormone therapy" in _drug_classes().get(d, set()) for d in g)   # noqa: E731
+    is_her2 = lambda g: all("her2-targeted therapy" in _drug_classes().get(d, set()) for d in g)   # noqa: E731
     want_lhrh = any(set(g) == {"goserelin", "leuprolide"} for g in fixed)
-    extra = [g for g in fixed if not is_endo(g)]
+    extra = [g for g in fixed if not is_endo(g) and not (has_her2 and is_her2(g))]
     combos = []
-    if has_et:
+    if has_her2 and not has_et:
+        combos = [(groups + extra, source) for groups, source in her2]
+    elif has_et:
         if ctx["menopausal"] not in ("premenopausal", "postmenopausal"):
             return None, None   # 폐경 상태를 모르면 펼치지 않는다 (확정값에서 필수)
         for r in rows:
@@ -509,6 +533,8 @@ def _broad_candidates(option, reimb_by_id, today, conditions_checker, ctx):
             for pick in itertools.product(*[_member_choices(t) for t in r["members"].split("+")]):
                 groups = [list(g) for g in pick] + extra
                 combos.append((groups, r["source"]))
+        if her2:   # "ET + HER2-targeted therapy": ET 요법마다 항HER2 요법을 곱한다 (ESMO MBC her2-1l-406dd2)
+            combos = [(groups + h, f"{source}; {h_source}") for groups, source in combos for h, h_source in her2]
     else:
         if extra and any(not all("chemotherapy" in _drug_classes().get(d, set()) for d in g) for g in extra):
             return None, None   # 항암에 표적·면역 약이 함께 적힌 후보는 이번 범위 밖 (급여 행이 병용 행이라 따로 봐야 함)
@@ -820,12 +846,12 @@ def _early_bma_supportive(guideline_chunks, done):
 
 def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursement_chunks, today=None,
                 conditions_checker=None, phase=None, bone_metastasis=False, high_risk_early=None, menopausal=None,
-                ofs=False):
+                ofs=False, pcr=None):
     """추천 결과를 고쳐서 돌려준다. (고친 결과, 로그 목록). 받은 값은 바꾸지 않는다.
     conditions_checker(option, 급여 청크 목록) -> {status, reason}: 급여 조건 판정 (conditions_eval.make_conditions_checker).
     phase(neoadjuvant / adjuvant / None)·bone_metastasis(bool)는 8번 보조 약물 규칙에, phase·high_risk_early
     (confirmed_state의 {hira, esmo})는 조기 결정 단계 규칙에, menopausal·ofs(난소 기능 억제를 받는 중)는 수술 후
-    bisphosphonate 보조 칸 채우기에 쓴다."""
+    bisphosphonate 보조 칸 채우기에, pcr(confirmed_state의 선행요법 반응 yes/no)은 수술 후 항HER2 펼치기에 쓴다."""
     today = today or date.today()
     rec = {**recommendation, "options": [dict(o) for o in recommendation.get("options") or []],
            "supportive_options": [dict(o) for o in recommendation.get("supportive_options") or []],
@@ -842,7 +868,8 @@ def postprocess(recommendation, biomarker_record, guideline_chunks, reimbursemen
     risk = (high_risk_early or {}).get("esmo") if isinstance(high_risk_early, dict) else None
     class_ctx = {"disease": setting.get("disease"), "subtype": biomarker_record.get("subtype"), "menopausal": menopausal,
                  "high_risk": risk if risk in ("yes", "no") else None, "phase": phase,
-                 "prior_chemo": "Chemotherapy" in (setting.get("prior_drug_classes") or [])}
+                 "prior_chemo": "Chemotherapy" in (setting.get("prior_drug_classes") or []),
+                 "pcr": pcr if pcr in ("yes", "no") else None}
     reimb_by_id = {c["chunk_id"]: c for c in reimbursement_chunks or []}
     records = {r["marker"]: r["status"] for r in biomarker_record.get("records") or []}
     disease = (biomarker_record.get("setting") or {}).get("disease")

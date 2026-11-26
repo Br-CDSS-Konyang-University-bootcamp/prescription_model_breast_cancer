@@ -447,3 +447,31 @@ def test_metastatic_cht_uses_allowed_rows_and_name_hints():
     assert {tuple(c["drugs"]) for c in cands} == {("docetaxel",), ("capecitabine",), ("paclitaxel",)}
     cands, _ = _broad("Carboplatin-based ChT", rows, **{**MET, "subtype": "TNBC", "menopausal": None})
     assert {tuple(c["drugs"]) for c in cands} == {("carboplatin",), ("paclitaxel", "carboplatin"), ("gemcitabine", "carboplatin")}
+
+
+# 2026-11-26 항HER2 계열 이름 펼치기 (사전의 HER2·HER2_ET 행)
+def test_early_her2_after_neoadjuvant_by_pcr():
+    """수술 후 결정, 선행 항암·항HER2를 받았으면 남은 항HER2만 pCR로 펼친다 (ESMO EBC her2pos-16dd9e·c58918·ae367a).
+    pCR을 모르거나, 선행 항암이 없으면(항암과 항HER2를 함께 시작) 펼치지 않는다."""
+    name = "HER2-directed therapy (with initial concurrent ChT) for 12 months"
+    base = {"subtype": "HR-/HER2+", "phase": "adjuvant", "prior_chemo": True}
+    cands, note = _broad(name, [], **base, pcr="no")
+    assert [c["drugs"] for c in cands] == [["trastuzumab emtansine"]] and "남은 항HER2" in note
+    cands, _ = _broad(name, [], **base, pcr="yes")
+    assert {tuple(c["drugs"]) for c in cands} == {("trastuzumab",), ("pertuzumab", "trastuzumab")}
+    assert _broad(name, [], **base, pcr=None) == (None, None)
+    assert _broad(name, [], **{**base, "prior_chemo": False}, pcr="yes") == (None, None)
+
+
+def test_metastatic_her2_without_cht_and_with_et():
+    """전이성: ER 음성 'HER2-targeted therapy without ChT'는 pertuzumab+trastuzumab·trastuzumab (her2-1l-f39214).
+    ER 양성 'ET + HER2-targeted therapy'는 AI마다 항HER2 4가지 (her2-1l-406dd2). 예를 든 괄호의 약은 고정 약이 아니다."""
+    cands, _ = _broad("HER2-targeted therapy without ChT", [], **{**MET, "subtype": "HR-/HER2+", "menopausal": None})
+    assert {tuple(c["drugs"]) for c in cands} == {("pertuzumab", "trastuzumab"), ("trastuzumab",)}
+    rows = [_row("tra-ana", ["trastuzumab", "anastrozole"]), _row("lap-let", ["lapatinib", "letrozole"])]
+    cands, _ = _broad("ET (e.g. an AI) + HER2-targeted therapy (e.g. trastuzumab)", rows, **{**MET, "subtype": "HR+/HER2+"})
+    drugs = {tuple(sorted(c["drugs"])) for c in cands}
+    assert len(drugs) == 12 and ("anastrozole", "trastuzumab") in drugs and ("lapatinib", "letrozole") in drugs
+    hit = {tuple(sorted(c["drugs"])): c["reimbursement_citations"] for c in cands}
+    assert hit[("anastrozole", "trastuzumab")] == ["tra-ana"] and hit[("lapatinib", "letrozole")] == ["lap-let"]
+    assert _broad("ICI + ChT", [], **{**MET, "subtype": "TNBC"}) == (None, None)   # ICI는 아직 펼치지 않음
