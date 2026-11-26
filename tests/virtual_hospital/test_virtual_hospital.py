@@ -75,6 +75,20 @@ def test_saved_charts_match_rebuild(built):
 
 
 
+@pytest.mark.parametrize("kind", ["patient_state", "biomarker_record", "confirmed_state"])
+def test_saved_answers_match_current_schemas(kind):
+    """저장된 정답 JSON이 지금 schemas/와 맞는지 (공용 schema가 바뀌면 다시 만들어야 함, 예: #164 timeline_index 삭제)."""
+    import jsonschema
+    from src.virtual_hospital.common import MINI
+    schema = json.loads((MINI / "schemas" / f"{kind}.json").read_text(encoding="utf-8"))
+    check = jsonschema.Draft202012Validator(schema)
+    files = [f for b in ("tcga", "tcga_recur") for f in (OUT / b / "charts").glob(f"*/expected/{kind}.json")]
+    assert files
+    bad = [(f.parts[-4], f.parts[-3], next(check.iter_errors(json.loads(f.read_text(encoding="utf-8")))).message)
+           for f in files if not check.is_valid(json.loads(f.read_text(encoding="utf-8")))]
+    assert bad == [], f"{len(bad)}건, 앞: {bad[:3]}"
+
+
 def test_saved_charts_pass_mini_check():
     from src.input.script.virtual.virtual_chart import check
     dirs = sorted(CHARTS.iterdir())
