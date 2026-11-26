@@ -103,7 +103,7 @@ tests/virtual_hospital/               ← git
 | 들어 있는 것 (2026-11-19) | 수 |
 |---|---|
 | 환자 (장면) | 1,651: tcga_postop 671, tcga_recur 9, bcnb_preop 971 |
-| 차트, 정답 JSON (patient_state·biomarker_record·confirmed_state) | 1,651, 4,953 |
+| 차트, 문서, 정답 JSON (patient_state·biomarker_record·confirmed_state) | 1,651, 4,946, 4,953 |
 | fields, truth, treatments | 35,201, 13,324, 28 |
 | 슬라이드, BCNB 주석 | 1,691, 971 |
 | 슬라이드 벡터 (H-optimus-0, 종양 타일 평균, 없으면 전체 평균) | 1,634: TCGA 663, BCNB 971 |
@@ -113,15 +113,20 @@ tests/virtual_hospital/               ← git
 ```python
 from src.virtual_hospital.scripts import db
 con = db.connect()
-db.list_patients(con, branch="bcnb_preop", subtype=...)   # 환자 목록
+# 병원 쪽 (EMR 흉내): 실제 병원 DB에 있는 것만 (식별 정보, 문서)
+db.find_patients(con, "10000043")                          # 등록번호·가상 번호·이름 → 외래 날(장면)마다 한 줄
+db.request_chart(con, "10000043", as_of="2028-08-28")      # 그날까지 마지막 외래의 문서 (종류·날짜·본문) + chart_text
+# 정답 쪽 (채점, 정답 방식 시험)
+db.list_patients(con, branch="bcnb_preop", subtype=...)   # 환자 목록 (아형 등 정답 요약 칸 포함)
 db.get_chart(con, vp_id)                                   # chart.txt
-db.get_state(con, vp_id, kind="confirmed_state")           # patient_state / biomarker_record / confirmed_state
+db.get_state(con, vp_id, kind="confirmed_state", allow_answer=True)   # patient_state / biomarker_record / confirmed_state
 db.slides(con, vp_id); db.slide_file(con, slide_id)        # 슬라이드 목록, 원본 파일 위치
 db.similar(con, slide_id, k=10)                            # 같은 묶음 안 cosine 유사 슬라이드 (같은 환자 제외)
 db.tile_features(con, slide_id, feature_set)               # 타일 벡터 (local/features/<묶음>/에 .h5가 있을 때, h5py 필요)
 db.truth(con, vp_id, allow_future=True)                    # 판정 기준일 뒤의 값: allow_future를 줘야만 읽힘
 ```
 
+- 병원 쪽과 정답 쪽: 실제 병원 DB에는 식별 정보와 문서만 있고 `patient_state` 같은 정답은 없다. 처방 모듈이 병원에 차트를 요청하는 그림은 `request_chart()`로 재현한다 (받은 `chart_text`를 입력 모듈 `pipeline.run`에 넣는다). 정답 JSON은 `allow_answer=True`, 미래 값은 `allow_future=True`를 줘야 읽힌다. `documents` 표는 장면 차트를 입력 모듈 `split()`으로 나눈 문서이고, 이어 붙이면 `chart.txt`와 같다
 - 열쇠는 `(vp_id, branch)`. 같은 TCGA 환자가 수술 후·재발 두 장면에 있을 수 있다 (예: VH-T0043). `branch`를 안 주면 하나뿐일 때만 찾는다
 - 차트 식별줄은 환자 단위다 (규칙 R-08·Y-08). 등록번호 8자리 = TCGA 1·BCNB 2 + 가상 번호 7자리 (VH-T0043 → 10000043), 연락처 010-등록번호 앞 4자리-뒤 4자리, 이름은 환자마다 다른 가상 이름. 같은 환자의 두 장면은 같은 번호·이름이다
 - `patient_ref`는 장면 단위다 (규칙 D-12). 재발 장면은 `vp_id` + `-R` (예: VH-T0043-R)이라 화면 1 확정 파일과 추천 저장 폴더가 장면마다 따로 생긴다. `patients` 표에 `registration_no`·`patient_name`·`patient_ref`가 있다

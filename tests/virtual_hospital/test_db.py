@@ -29,7 +29,7 @@ def test_states_are_the_saved_json(con):
     vp = read_csv(OUT / "tcga" / "patients.csv")[0]["vp_id"]
     for kind in db.STATE_KINDS:
         saved = json.loads((OUT / "tcga" / "charts" / vp / "expected" / f"{kind}.json").read_text(encoding="utf-8"))
-        assert db.get_state(con, vp, kind, branch="tcga_postop") == saved
+        assert db.get_state(con, vp, kind, branch="tcga_postop", allow_answer=True) == saved
     assert db.get_chart(con, vp, branch="tcga_postop") == (OUT / "tcga" / "charts" / vp / "chart.txt").read_text(encoding="utf-8")
 
 
@@ -52,6 +52,37 @@ def test_ident_per_patient_and_ref_per_scene(con):
     idents = [next(iter(v)) for v in by_vp.values()]
     assert len({i[0] for i in idents}) == len({i[1] for i in idents}) == len(idents)
     assert len({r["patient_ref"] for r in rows}) == len(rows)
+
+
+def test_answers_need_allow_answer(con):
+    """병원 DB에는 정답이 없다: 정답 JSON은 allow_answer=True일 때만."""
+    vp = read_csv(OUT / "tcga" / "patients.csv")[0]["vp_id"]
+    with pytest.raises(PermissionError):
+        db.get_state(con, vp, "patient_state", branch="tcga_postop")
+
+
+def test_documents_rejoin_to_chart(con):
+    for vp, branch in con.execute("SELECT vp_id, branch FROM patients"):
+        texts = [r[0] for r in con.execute("SELECT text FROM documents WHERE vp_id = ? AND branch = ? ORDER BY start",
+                                           (vp, branch))]
+        assert "".join(texts) == db.get_chart(con, vp, branch=branch), (vp, branch)
+
+
+def test_request_chart_by_registration_no_and_date(con):
+    """같은 환자의 두 외래(수술 후, 재발): as_of로 그날까지의 마지막 외래 문서를 받는다. 정답은 들어 있지 않다."""
+    vp = read_csv(OUT / "tcga_recur" / "patients.csv")[0]["vp_id"]
+    reg = db.list_patients(con, branch="tcga_recur", vp_id=vp)[0]["registration_no"]
+    visits = db.find_patients(con, reg)
+    assert [v["patient_ref"] for v in visits] == [vp, vp + "-R"]
+    assert db.find_patients(con, visits[0]["patient_name"]) == visits
+    last = db.request_chart(con, reg)
+    assert last["patient"]["patient_ref"] == vp + "-R" and last["chart_text"] == db.get_chart(con, vp, branch="tcga_recur")
+    first = db.request_chart(con, reg, as_of=visits[0]["visit_date"])
+    assert first["patient"]["patient_ref"] == vp and first["chart_text"] == db.get_chart(con, vp, branch="tcga_postop")
+    assert all(d["doc_date"] is None or d["doc_date"] <= visits[0]["visit_date"] for d in first["documents"])
+    assert set(last) == {"patient", "documents", "chart_text"} and "fields" not in json.dumps(last, ensure_ascii=False)
+    with pytest.raises(KeyError):
+        db.request_chart(con, reg, as_of="1990-01-01")
 
 
 def test_truth_needs_allow_future(con):
