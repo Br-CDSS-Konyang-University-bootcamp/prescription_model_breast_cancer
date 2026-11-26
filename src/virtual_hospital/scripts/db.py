@@ -264,6 +264,31 @@ def find_patients(con, query: str) -> list[dict]:
                   key=lambda r: (r["registration_no"], r["visit_date"]))
 
 
+def list_visits(con) -> list[dict]:
+    """병원 쪽 외래 목록 (장면마다 식별 정보 + visit_date)."""
+    return sorted(({**{k: r[k] for k in HOSPITAL_PATIENT}, "visit_date": _visit_date(r)}
+                   for r in con.execute("SELECT * FROM patients")), key=lambda r: r["patient_ref"])
+
+
+def request_visit(con, patient_ref: str) -> dict:
+    """외래 하나(patient_ref)의 차트 요청 = 그 환자의 그 외래 날까지 문서 (request_chart와 같은 것)."""
+    r = con.execute("SELECT * FROM patients WHERE patient_ref = ?", (patient_ref,)).fetchone()
+    if r is None:
+        raise KeyError(f"{patient_ref} 없음")
+    out = request_chart(con, r["registration_no"], as_of=_visit_date(r))
+    if out["patient"]["patient_ref"] != patient_ref:
+        raise ValueError(f"{patient_ref}: 같은 날 외래가 둘 ({out['patient']['patient_ref']})")
+    return out
+
+
+def get_answer(con, patient_ref: str, kind: str) -> dict:
+    """정답 JSON (patient_ref로). 채점·정답 방식 시험용으로, 병원 쪽 입력이 아니다."""
+    r = con.execute("SELECT vp_id, branch FROM patients WHERE patient_ref = ?", (patient_ref,)).fetchone()
+    if r is None:
+        raise KeyError(f"{patient_ref} 없음")
+    return get_state(con, r["vp_id"], kind, r["branch"], allow_answer=True)
+
+
 def request_chart(con, registration_no: str, as_of: str | None = None) -> dict:
     """병원 DB에 차트 요청: 그 환자의 as_of(YYYY-MM-DD) 날까지 마지막 외래 장면의 문서. as_of가 없으면 마지막 외래.
     돌려주는 것: patient (식별 정보, visit_date), documents ([{doc_id, doc_type, doc_date, text}]), chart_text.

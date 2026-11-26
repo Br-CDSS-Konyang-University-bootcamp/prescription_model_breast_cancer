@@ -195,7 +195,7 @@ async function init() {
   D = await api(`/api/screen2?case=${encodeURIComponent(Q.case)}&version=${Q.version}`);
   const cs = D.confirmed;
   $("#headinfo").textContent = `${cs.patient_ref} · 확정 v${cs.version} (${cs.confirmed_at}, ${cs.confirmed_by})`;
-  $("#back").href = `/?case=${encodeURIComponent(Q.case)}`;
+  $("#back").href = `/?case=${encodeURIComponent(Q.case)}&input=${encodeURIComponent(Q.input || "answer")}`;
   try { $("#by").value = localStorage.getItem("screen1.by") || ""; } catch (e) {}
   $("#save").onclick = save;
   renderState(); renderChoices();
@@ -233,7 +233,7 @@ function renderState() {
 
 // 오른쪽 위: 추천
 async function start(force) {
-  try { onStatus(await api("/api/rec/start", { case: Q.case, version: +Q.version, force })); }
+  try { onStatus(await api("/api/rec/start", { case: Q.case, version: +Q.version, force, input: Q.input || "answer" })); }
   catch (e) { $("#cards").innerHTML = `<div class="progress">${esc(e.message)}</div>`; }
 }
 function onStatus(st) {
