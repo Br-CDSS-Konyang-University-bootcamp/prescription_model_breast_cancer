@@ -72,6 +72,53 @@ def rng(key: str, rule_id: str) -> random.Random:
     return random.Random(seed)
 
 
+DATASET_DIGIT = {"T": "1", "B": "2"}                  # R-08: 등록번호 첫 자리 (TCGA 1, BCNB 2)
+
+
+def registration_no(vp_id: str) -> str:
+    """R-08: 등록번호 8자리 (VH-T0043 → 10000043). 같은 환자의 두 장면은 같은 번호."""
+    kind, num = vp_id.split("-")[1][0], vp_id.split("-")[1][1:]
+    return DATASET_DIGIT[kind] + num.zfill(7)
+
+
+def phone_no(vp_id: str) -> str:
+    """R-08: 연락처 010-등록번호 앞 4자리-뒤 4자리."""
+    n = registration_no(vp_id)
+    return f"010-{n[:4]}-{n[4:]}"
+
+
+def scene_ref(vp_id: str, branch: str) -> str:
+    """D-12: patient_ref (장면 단위). 재발 장면만 '-R'을 붙인다."""
+    return f"{vp_id}-R" if branch == "TCGA_recur" else vp_id
+
+
+_NAMES: dict[str, str] = {}
+
+
+def virtual_name(vp_id: str) -> str:
+    """Y-08: 가상 이름 (성 + 이름 2자). 성은 rules/names.csv의 성씨 인원 비율, 이름은 정해 둔 글자 조합.
+    VH-T0001, VH-B0001, VH-T0002, … VH-B1999 순서로 돌며 vp 번호 난수로 뽑고, 앞 번호가 쓴 이름이면 같은 성의
+    다음 이름 (다 찼으면 다음 성)으로 넘긴다. 실제 환자 수와 상관없이 번호마다 이름이 하나로 정해진다."""
+    if not _NAMES:
+        rows = read_csv(RULES / "names.csv")
+        sur = [(r["value"], int(r["weight"])) for r in rows if r["kind"] == "surname"]
+        given = [a["value"] + b["value"] for a in rows if a["kind"] == "first"
+                 for b in rows if b["kind"] == "second" and a["value"] != b["value"]]
+        combos = [s + g for s, _ in sur for g in given]
+        used: set[str] = set()
+        for i in range(1, 2000):                       # 2 × 1999 < 성 10 × 이름 610 조합
+            for kind in ("T", "B"):
+                vp = f"VH-{kind}{i:04d}"
+                r = rng(vp, "Y-08")
+                s = r.choices(range(len(sur)), weights=[w for _, w in sur])[0]
+                j = s * len(given) + r.randrange(len(given))
+                while combos[j] in used:
+                    j = (j + 1) % len(combos)
+                used.add(combos[j])
+                _NAMES[vp] = combos[j]
+    return _NAMES[vp_id]
+
+
 @dataclass
 class Rec:
     """fields.csv 한 행 = patient_state 칸 하나."""

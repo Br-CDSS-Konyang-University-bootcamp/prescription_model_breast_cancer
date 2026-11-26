@@ -15,7 +15,7 @@ import pandas as pd
 
 from src.virtual_hospital.scripts import gates
 from src.virtual_hospital.scripts.common import BCNB_RAW, CREATED_AT, LOCAL, ROOT, Patient, Rec, mini_on_path, ref, rng, write_csv
-from src.virtual_hospital.scripts.render import HISTOLOGY as HISTOLOGY_KO, allred_word
+from src.virtual_hospital.scripts.render import HISTOLOGY as HISTOLOGY_KO, allred_word, ident, new_chart
 from src.virtual_hospital.scripts.tcga import GENES, Context, allred_is_choices, allred_ps, dx_date, load as load_tcga, pick, pick_is, synth_ecog, synth_meno
 
 BCNB = BCNB_RAW                                       # BCNB 원자료 (common.BCNB_RAW)
@@ -140,7 +140,7 @@ def chart(p: Patient):
     from src.input.script.virtual.virtual_chart import Chart, F, check, kdate
     R = p.recs
     age = R["patient.age"].value
-    c = Chart(p.vp_id, p.dx_date, DAY_INDEX, created_at=CREATED_AT)
+    c = new_chart(p, DAY_INDEX)
     D = c.on
     side_en = {"좌측": "Lt.", "우측": "Rt."}[p.side]
     meno = R["patient.menopausal_status"].value
@@ -148,7 +148,7 @@ def chart(p: Patient):
 
     # R-B1 초진 경과기록 (VC-0118·0121 형식)
     d = c.doc("progress_note", c.index_date)
-    d.t(f"<외래 경과기록>   {kdate(c.index_date)}   유방외과\n").ident(age)
+    ident(d.t(f"<외래 경과기록>   {kdate(c.index_date)}   유방외과\n"), age)
     d.t("병원: 가상대학교병원 유방외과   담당의: 이가상\n\n")
     d.t("S) 검진에서 발견된 유방 종괴로 의뢰됨.\n   폐경: ")
     d.put({"postmenopausal": "폐경 후", "premenopausal": "폐경 전",
@@ -169,7 +169,7 @@ def chart(p: Patient):
 
     # R-B2 중심 생검 병리 (TCGA R-02 수술 병리와 같은 머리글·칸 이름, 수술 칸 없음)
     d = c.doc("pathology", D(DAY_PATH))
-    d.t("[병리결과보고서]\n").ident(age, F("patient.gender", "FEMALE"), F("patient.age", age), full=False)
+    ident(d.t("[병리결과보고서]\n"), age, F("patient.gender", "FEMALE"), F("patient.age", age), full=False)
     d.t(f"접수일: {kdate(D(0))}   보고일: {kdate(D(DAY_PATH))}\n검체: {p.side} 유방, 초음파 유도 중심 생검\n\n")
     hist = R["diagnosis.histology"].value
     d.t("진단\n  조직형: ").put(HISTOLOGY_KO[hist], F("diagnosis.histology", hist))
@@ -198,7 +198,7 @@ def chart(p: Patient):
 
     # R-B3 유방 초음파 (image 형식)
     d = c.doc("radiology", D(DAY_US))
-    d.t("[영상의학 판독]\n").ident(age, full=False)
+    ident(d.t("[영상의학 판독]\n"), age, full=False)
     d.t(f"검사: Breast ultrasound   검사일: {kdate(D(DAY_US))}\n\nFindings:\n  ")
     mm = R["stage.clinical_size_mm"].value
     d.put(f"{p.side} 유방 {mm / 10:g} cm 종괴", F("stage.clinical_size_mm", mm, observed_date=D(DAY_US)))

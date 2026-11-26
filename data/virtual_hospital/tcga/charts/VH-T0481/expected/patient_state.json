@@ -433,7 +433,7 @@
         "doc_id": "D3",
         "report_date": "2023-12-04",
         "specimen": "primary",
-        "raw_text": "[분자병리 검사 결과]\n환자명: 김가상   등록번호: 00000481   F/75\n검사기관: 가상유전체검사센터   보고일: 2023.12.4\n검체: 원발 종양 조직 (수술 검체)\n검사법: 전장 엑솜 염기서열 분석\n\n검출된 변이 (Clinically significant variants)\n  PIK3CA   c.3140A>G (p.H1047R)   VAF 10%\n  BRCA2   c.6523G>C (p.E2175Q)   VAF 25%\n\n검출되지 않음 (Not detected)\n  ESR1, AKT1, PTEN, BRCA1, PALB2\n\n* 분석 유전자: ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2"
+        "raw_text": "[분자병리 검사 결과]\n환자명: 김선혜   등록번호: 10000481   F/75\n검사기관: 가상유전체검사센터   보고일: 2023.12.4\n검체: 원발 종양 조직 (수술 검체)\n검사법: 전장 엑솜 염기서열 분석\n\n검출된 변이 (Clinically significant variants)\n  PIK3CA   c.3140A>G (p.H1047R)   VAF 10%\n  BRCA2   c.6523G>C (p.E2175Q)   VAF 25%\n\n검출되지 않음 (Not detected)\n  ESR1, AKT1, PTEN, BRCA1, PALB2\n\n* 분석 유전자: ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2"
       }
     ],
     "deemed_lines": [

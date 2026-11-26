@@ -177,6 +177,7 @@
     }
   ],
   "subtype": "HR+/HER2-",
+  "molecular_subtype": "Luminal A",
   "setting": {
     "disease": "early",
     "line": "adjuvant",

@@ -1,6 +1,6 @@
 {
   "schema_version": "0.1-draft",
-  "patient_ref": "VH-T0107",
+  "patient_ref": "VH-T0107-R",
   "records": [
     {
       "marker": "ER",
@@ -187,6 +187,7 @@
     }
   ],
   "subtype": "HR+/HER2+",
+  "molecular_subtype": "Luminal B(HER2 positive)",
   "setting": {
     "disease": "metastatic",
     "line": "1L",

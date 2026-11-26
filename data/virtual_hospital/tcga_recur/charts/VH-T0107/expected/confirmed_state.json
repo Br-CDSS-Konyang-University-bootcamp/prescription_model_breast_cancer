@@ -1,6 +1,6 @@
 {
   "schema_version": "0.1-draft",
-  "patient_ref": "VH-T0107",
+  "patient_ref": "VH-T0107-R",
   "version": 1,
   "visit_type": "initial",
   "decision_context": "metastatic",

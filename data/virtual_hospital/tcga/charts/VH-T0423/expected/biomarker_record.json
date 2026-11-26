@@ -185,6 +185,7 @@
     }
   ],
   "subtype": "TNBC",
+  "molecular_subtype": "Basal_like",
   "setting": {
     "disease": "early",
     "line": "adjuvant",

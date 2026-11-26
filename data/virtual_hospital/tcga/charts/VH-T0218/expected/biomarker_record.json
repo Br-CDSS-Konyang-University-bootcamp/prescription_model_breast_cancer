@@ -183,6 +183,7 @@
     }
   ],
   "subtype": "HR-/HER2+",
+  "molecular_subtype": "HER2_enriched",
   "setting": {
     "disease": "locally_advanced",
     "line": "adjuvant",

@@ -460,7 +460,7 @@
         "doc_id": "D3",
         "report_date": "2023-06-02",
         "specimen": "primary",
-        "raw_text": "[분자병리 검사 결과]\n환자명: 김가상   등록번호: 00000181   F/68\n검사기관: 가상유전체검사센터   보고일: 2023.6.2\n검체: 원발 종양 조직 (수술 검체)\n검사법: 전장 엑솜 염기서열 분석\n\n검출된 변이 (Clinically significant variants)\n  ESR1   c.1778C>A (p.A593D)   VAF 25.7%\n  PIK3CA   c.3062A>G (p.Y1021C)   VAF 33.3%\n  PTEN   c.176C>A (p.S59*)   VAF 23.5%; PTEN   c.389G>A (p.R130Q)   VAF 28.8%\n  BRCA1   c.3292C>A (p.L1098I)   VAF 20.5%\n  BRCA2   c.2954A>T (p.K985I)   VAF 16.1%; BRCA2   c.10024G>A (p.E3342K)   VAF 17.1%\n\n검출되지 않음 (Not detected)\n  AKT1, PALB2\n\n* 분석 유전자: ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2"
+        "raw_text": "[분자병리 검사 결과]\n환자명: 박은영   등록번호: 10000181   F/68\n검사기관: 가상유전체검사센터   보고일: 2023.6.2\n검체: 원발 종양 조직 (수술 검체)\n검사법: 전장 엑솜 염기서열 분석\n\n검출된 변이 (Clinically significant variants)\n  ESR1   c.1778C>A (p.A593D)   VAF 25.7%\n  PIK3CA   c.3062A>G (p.Y1021C)   VAF 33.3%\n  PTEN   c.176C>A (p.S59*)   VAF 23.5%; PTEN   c.389G>A (p.R130Q)   VAF 28.8%\n  BRCA1   c.3292C>A (p.L1098I)   VAF 20.5%\n  BRCA2   c.2954A>T (p.K985I)   VAF 16.1%; BRCA2   c.10024G>A (p.E3342K)   VAF 17.1%\n\n검출되지 않음 (Not detected)\n  AKT1, PALB2\n\n* 분석 유전자: ESR1, PIK3CA, AKT1, PTEN, BRCA1, BRCA2, PALB2"
       }
     ],
     "deemed_lines": [

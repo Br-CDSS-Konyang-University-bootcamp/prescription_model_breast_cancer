@@ -5,7 +5,8 @@ surgery_path·ngs), field_vocab.csv의 expression, mini TCGA 차트(data/tcga_br
 """
 from __future__ import annotations
 
-from src.virtual_hospital.scripts.common import CREATED_AT, Patient, mini_on_path
+from src.virtual_hospital.scripts.common import (CREATED_AT, Patient, mini_on_path, phone_no, registration_no,
+                                                 scene_ref, virtual_name)
 from src.virtual_hospital.scripts.tcga import DAY_NGS, DAY_PATH, DAY_SURGERY, GENES
 
 mini_on_path()
@@ -27,11 +28,28 @@ SETTING_KO = {"neoadjuvant": "선행", "adjuvant": "보조", "palliative": "고�
 STOP_KO = {"progression": "진행", "completed": "완료", "planned_switch": "계획된 변경"}     # field_vocab stop_reason
 
 
+def ident(d, age: int, *fs, full: bool = True):
+    """R-08·Y-08 식별줄. mini Doc.ident와 같은 형식에 가상 병원 등록번호·이름·연락처를 쓴다 (mini 파일은 고치지 않음)."""
+    vp, sex = d.chart.vp_id, d.chart.sex
+    d.t(f"환자명: {virtual_name(vp)}   등록번호: {registration_no(vp)}   ").put(f"{sex}/{age}", *fs)
+    if full:
+        code = 1 if sex == "M" else 2
+        d.t(f"   주민번호: {(d.chart.dx.year - age) % 100:02d}0101-{code}******   연락처: {phone_no(vp)}")
+    return d.t("\n")
+
+
+def new_chart(p: Patient, index_day: int) -> Chart:
+    """D-12: Chart의 patient_ref는 장면 단위 (재발 장면은 '-R'). 식별줄은 환자 단위 vp_id로 쓴다."""
+    c = Chart(scene_ref(p.vp_id, p.branch), p.dx_date, index_day, created_at=CREATED_AT)
+    c.vp_id = p.vp_id
+    return c
+
+
 def medication(c, age: int, rows: list[dict]) -> None:
     """투약 기록 표 (VC meds() 형식). 한 줄 = 요법 하나: 약   시작   종료   주기   반응   중단 사유."""
     D = c.on
     d = c.doc("medication", None)
-    d.t("[투약 기록]\n").ident(age, full=False)
+    ident(d.t("[투약 기록]\n"), age, full=False)
     d.t("구분    요법                                              시작         종료         주기       반응   중단 사유\n")
     for r in rows:
         cyc = r.get("cycles")
@@ -126,13 +144,13 @@ def chart(p: Patient) -> tuple[str, dict, list[str]]:
     R = p.recs
     age = R["patient.age"].value
     recur = p.branch == "TCGA_recur"
-    c = Chart(p.vp_id, p.dx_date, p.index_day, created_at=CREATED_AT)
+    c = new_chart(p, p.index_day)
     ngs = min(DAY_NGS, p.index_day) if p.branch == "TCGA_postop" else DAY_NGS   # D-10: 분자병리 보고는 외래일보다 늦지 않게
     D = c.on
 
     # R-01 경과기록 (VC-0118 형식, 재발 갈래는 VC-0103 형식)
     d = c.doc("progress_note", c.index_date)
-    d.t(f"<외래 경과기록>   {kdate(c.index_date)}   종양내과\n").ident(age)
+    ident(d.t(f"<외래 경과기록>   {kdate(c.index_date)}   종양내과\n"), age)
     d.t("병원: 가상대학교병원 종양내과   담당의: 이가상\n\n")
     kind = {"endocrine": "내분비", "chemo": "항암"}.get(p.scene_kind, "")
     if recur:                                      # R-05: 장면 = 주 차수 종류와 차수 (D-R1)
@@ -170,7 +188,7 @@ def chart(p: Patient) -> tuple[str, dict, list[str]]:
     # R-02 수술 병리 (surgery_path 형식)
     obs = D(DAY_SURGERY)
     d = c.doc("pathology", D(DAY_PATH))
-    d.t("[병리결과보고서]\n").ident(age, F("patient.gender", R["patient.gender"].value), F("patient.age", age),
+    ident(d.t("[병리결과보고서]\n"), age, F("patient.gender", R["patient.gender"].value), F("patient.age", age),
                               full=False)
     d.t(f"접수일: {kdate(obs)}   보고일: {kdate(D(DAY_PATH))}\n검체: ")
     if R["stage.operable"].status == "present":
@@ -211,7 +229,7 @@ def chart(p: Patient) -> tuple[str, dict, list[str]]:
     genes = {gname: R[f"molecular.mutations.{gname}"] for gname in GENES}
     if any(r.status == "present" for r in genes.values()):
         d = c.doc("molecular", D(ngs))
-        d.t("[분자병리 검사 결과]\n").ident(age, full=False)
+        ident(d.t("[분자병리 검사 결과]\n"), age, full=False)
         d.t(f"검사기관: 가상유전체검사센터   보고일: {kdate(D(ngs))}\n검체: 원발 종양 조직 (수술 검체)\n")
         d.t("검사법: 전장 엑솜 염기서열 분석\n\n검출된 변이 (Clinically significant variants)\n")
         found = [gname for gname, r in genes.items() if r.status == "present" and r.value["result"] == "detected"]

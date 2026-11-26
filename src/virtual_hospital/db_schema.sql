@@ -16,7 +16,9 @@ CREATE TABLE patients (
   stage_group TEXT, disease TEXT,    -- 병기군, early / locally_advanced / metastatic
   phase TEXT,                        -- 확정 상태 setting.phase (adjuvant / neoadjuvant), 전이성이면 NULL
   scene TEXT,                        -- 재발 갈래 장면 (예: 고식 항암 1차 결정)
-  registration_no TEXT,              -- 차트의 등록번호 (TCGA·BCNB가 겹칠 수 있음, 찾기는 vp_id로)
+  registration_no TEXT,              -- R-08 차트의 등록번호 (환자 단위, TCGA 1·BCNB 2로 시작, 두 장면은 같은 번호)
+  patient_name TEXT,                 -- Y-08 가상 이름 (실제 인물 아님, 환자마다 다름)
+  patient_ref TEXT NOT NULL UNIQUE,  -- D-12 장면 단위 (재발 장면은 vp_id + '-R'), 확정·추천 저장 폴더 이름
   PRIMARY KEY (vp_id, branch)
 );
 

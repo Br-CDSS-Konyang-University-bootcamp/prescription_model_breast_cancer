@@ -69,6 +69,8 @@ def _patient_rows(branch: str, base: Path) -> list[dict]:
             "stage_group": stage, "disease": _confirmed(items, "setting.disease"), "phase": _confirmed(items, "setting.phase"),
             "scene": f"고식 {kind} {r['scene_line']}차 결정" if kind else None,
             "registration_no": (m.group(1) if (m := re.search(r"등록번호:\s*(\d+)", text)) else None),
+            "patient_name": (m.group(1) if (m := re.search(r"환자명:\s*(\S+)", text)) else None),
+            "patient_ref": states["patient_state"]["patient_ref"],             # D-12: 장면 단위 (재발 장면은 -R)
             "_text": text, "_states": states, "_dir": base})
     return rows
 
@@ -95,7 +97,7 @@ def build(path: Path = DB_PATH) -> dict:
                                                        if branch == "bcnb_preop" else ""))
             continue
         cols = ["vp_id", "branch", "dataset", "dx_date", "index_day", "age", "sex", "subtype", "stage_group", "disease",
-                "phase", "scene", "registration_no"]
+                "phase", "scene", "registration_no", "patient_name", "patient_ref"]
         con.executemany(f"INSERT INTO patients ({','.join(cols)}) VALUES ({','.join('?' * len(cols))})",
                         [[r[c] for c in cols] for r in rows])
         con.executemany("INSERT INTO charts VALUES (?,?,?)", [(r["vp_id"], branch, r["_text"]) for r in rows])
