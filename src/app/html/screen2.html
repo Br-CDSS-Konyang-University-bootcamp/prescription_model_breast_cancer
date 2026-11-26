@@ -193,6 +193,7 @@ async function init() {
   if (!Q.case || !Q.version) { $("#cards").innerHTML = '<div class="progress">화면 1에서 확정한 뒤 넘어오세요.</div>'; return; }
   META = await api("/api/meta");
   D = await api(`/api/screen2?case=${encodeURIComponent(Q.case)}&version=${Q.version}`);
+  if (D.input) Q.input = D.input;                       // 확정할 때 남긴 입력값이 주소보다 앞선다
   const cs = D.confirmed;
   $("#headinfo").textContent = `${cs.patient_ref} · 확정 v${cs.version} (${cs.confirmed_at}, ${cs.confirmed_by})`;
   $("#back").href = `/?case=${encodeURIComponent(Q.case)}&input=${encodeURIComponent(Q.input || "answer")}`;

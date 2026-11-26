@@ -46,6 +46,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 from src.app.script import screen2 as s2
+from src.app.script.records import DbStore, FileStore
 from src.app.script.sources import Extractor, FolderSource, HospitalDbSource
 from src.input.script import confirmed as c
 from src.input.script.pipeline import NO_SURGERY_NEO, split
@@ -54,6 +55,7 @@ ROOT = c.ROOT
 HTML = Path(__file__).resolve().parents[1] / "html" / "screen1.html"
 HTML2 = Path(__file__).resolve().parents[1] / "html" / "screen2.html"
 DEFAULT_CASES = ROOT / "tests" / "fixtures" / "virtual_charts"
+RECORDS_DB = "hospital_records.db"                          # 확정값 저장 DB (--records)
 FIELD_VOCAB = ROOT / "data" / "dictionaries" / "field_vocab.csv"
 
 HR_POS = ("HR+/HER2-", "HR+/HER2+")
@@ -448,12 +450,13 @@ def warnings(patient_state: dict, br: dict) -> list[dict]:
 
 
 class App:
-    def __init__(self, cases_dir: Path | list[Path] | object, save_dir: Path, app_dir: Path | None = None,
+    def __init__(self, cases_dir: Path | list[Path] | object, save_dir: Path | object, app_dir: Path | None = None,
                  model: str = s2.DEFAULT_MODEL, llm_host: str | None = None):
-        """cases_dir: 사례 폴더 하나·여럿 (FolderSource) 또는 차트 받는 곳 (sources.HospitalDbSource 등)."""
+        """cases_dir: 사례 폴더 하나·여럿 (FolderSource) 또는 차트 받는 곳 (sources.HospitalDbSource 등).
+        save_dir: 확정 파일 폴더 (records.FileStore) 또는 확정값 저장소 (records.DbStore 등)."""
         self.source = (FolderSource([cases_dir]) if isinstance(cases_dir, Path) else
                        FolderSource(cases_dir) if isinstance(cases_dir, (list, tuple)) else cases_dir)
-        self.save_dir = save_dir
+        self.store = FileStore(save_dir) if isinstance(save_dir, Path) else save_dir
         self.decision_dir = (app_dir / "decisions") if app_dir else s2.DECISION_DIR
         self.recommender = s2.Recommender(None, model, (app_dir / "recommendations") if app_dir else s2.REC_DIR, llm_host)
         self.extractor = Extractor((app_dir or s2.DECISION_DIR.parent) / "extracted", llm_host)
@@ -486,17 +489,25 @@ class App:
         """확정 파일 + 추천 진행 상태 + 기타 처방 약 목록. 확정 파일은 사례(patient_ref) 이름으로 저장된다."""
         if case not in self.cases():
             raise KeyError(f"없는 사례: {case}")
-        doc = s2.load_confirmed(self.save_dir, case, version)
+        doc = self.store.load(case, version)
         self._drugs = self._drugs or s2.drug_list()
         _ = self.bm
         return {"confirmed": doc, "rec": self.recommender.status(case, version), "drugs": self._drugs,
-                "lhrh": s2.lhrh_drugs(),
+                "lhrh": s2.lhrh_drugs(), "input": self.store.input_of(case, version),
                 "decisions": sorted(p.name for p in (self.decision_dir / case).glob("v*.json")),
-                "versions": [p.name for p in c._versions(case, self.save_dir)]}
+                "versions": self.saved(case)}
+
+    def saved(self, case: str) -> list[str]:
+        """저장된 확정 버전 이름 (화면 표시용 v<n>.json)."""
+        return [f"v{n}.json" for n in self.store.versions(case)]
+
+    def finalize(self, draft: dict, by: str, input: str | None = None) -> tuple[str | None, dict, list[str]]:
+        return self.store.finalize(draft, by, input)
 
     def rec_start(self, case: str, version: int, force: bool = False, input: str = "answer") -> dict:
-        ps = self.patient_state(case, input)
-        doc = s2.load_confirmed(self.save_dir, ps["patient_ref"], version)
+        """확정할 때 남긴 입력값이 있으면 그것을 쓴다 (정답으로 확정한 버전에 LLM 값을 섞지 않게)."""
+        doc = self.store.load(case, version)
+        ps = self.patient_state(case, self.store.input_of(case, version) or input)
         _ = self.bm
         return self.recommender.start(ps["patient_ref"], version, doc, ps, force)
 
@@ -519,9 +530,9 @@ class App:
         draft = c.build_draft(ps, br)
         index_day = ps.get("index_day")
         return {**self.state(draft),
-                "saved": [p.name for p in c._versions(ps["patient_ref"], self.save_dir)],
+                "saved": self.saved(ps["patient_ref"]),
                 "header": {"index_day": index_day, "index_date": _day_date(ps, index_day), "input": input,
-                           "source": self.source.kind},
+                           "source": self.source.kind, "store": self.store.kind},
                 "attention": attention(draft["items"], ps),
                 "documents": documents(chart, ps), "reasons": reasons(ps, br, draft), "warnings": warnings(ps, br)}
     def state(self, draft: dict) -> dict:
@@ -590,15 +601,15 @@ def make_handler(app: App):
                     memo = (body.get("memo") or "").strip()
                     if memo:
                         draft["memo"] = memo
-                    path, doc, errors = c.finalize(drop_not_applicable(draft), by, save_dir=app.save_dir)
-                    self._send(200, {"errors": errors, "doc": doc, "path": str(path) if path else None})
+                    path, doc, errors = app.finalize(drop_not_applicable(draft), by, body.get("input"))
+                    self._send(200, {"errors": errors, "doc": doc, "path": path})
                 elif self.path == "/api/extract/start":
                     self._send(200, app.extract_start(body["case"], bool(body.get("force"))))
                 elif self.path == "/api/rec/start":
                     self._send(200, app.rec_start(body["case"], int(body["version"]), bool(body.get("force")),
                                                   body.get("input") or "answer"))
                 elif self.path == "/api/decision":
-                    doc = s2.load_confirmed(app.save_dir, body["case"], int(body["version"]))
+                    doc = app.store.load(body["case"], int(body["version"]))
                     rec = app.recommender.status(body["case"], int(body["version"]))
                     path, out, errors = s2.save_decision(body, doc, rec, app.decision_dir)
                     self._send(200, {"errors": errors, "doc": out, "path": str(path) if path else None})
@@ -617,17 +628,26 @@ def main():
                     help="사례 폴더 (여럿 가능, 예: data/virtual_hospital/tcga/charts data/virtual_hospital/tcga_recur/charts)")
     ap.add_argument("--db", type=Path, nargs="?", const=True, default=None,
                     help="사례 폴더 대신 가상 병원 DB에 차트를 요청한다 (경로를 안 주면 data/virtual_hospital/local/virtual_hospital.db)")
-    ap.add_argument("--save-dir", type=Path, default=c.SAVE_DIR, help="확정 파일 (confirmed_state) 폴더")
+    ap.add_argument("--save-dir", type=Path, default=c.SAVE_DIR, help="확정 파일 (confirmed_state) 폴더 (--records가 없을 때)")
+    ap.add_argument("--records", type=Path, nargs="?", const=True, default=None,
+                    help="확정값을 파일 대신 병원 기록 DB에 저장한다. --db를 쓰면 기본으로 켜지고, 경로를 안 주면 "
+                         "가상 병원 DB 옆의 hospital_records.db (db build로 지워지지 않는 별도 파일)")
     ap.add_argument("--app-dir", type=Path, default=None, help="추천·처방 결정 폴더 (기본 data/app)")
     ap.add_argument("--model", default=s2.DEFAULT_MODEL, help="추천 LLM (llm/config.toml에 [recommend]가 없을 때)")
     ap.add_argument("--llm-host", default=None, help="추천·입력 모듈 LLM 주소. GPU 서버는 SSH 터널을 연 뒤 http://127.0.0.1:11435")
     args = ap.parse_args()
     source = (HospitalDbSource(None if args.db is True else args.db.resolve()) if args.db
               else [p.resolve() for p in args.cases])
-    app = App(source, args.save_dir.resolve(), args.app_dir.resolve() if args.app_dir else None, args.model,
-              args.llm_host)
+    if isinstance(args.records, Path):
+        store = DbStore(args.records.resolve())
+    elif args.records or args.db:                  # 기본 위치: 가상 병원 DB 옆
+        store = DbStore((source.path if args.db else c.ROOT / "data" / "virtual_hospital" / "local" / "x").with_name(RECORDS_DB))
+    else:
+        store = args.save_dir.resolve()
+    app = App(source, store, args.app_dir.resolve() if args.app_dir else None, args.model, args.llm_host)
     server = ThreadingHTTPServer(("127.0.0.1", args.port), make_handler(app))
-    print(f"화면 1: http://127.0.0.1:{args.port}  ({app.source.kind}, 사례 {len(app.cases())}개, 저장 {app.save_dir})")
+    where = app.store.path if app.store.kind == "records_db" else app.store.save_dir
+    print(f"화면 1: http://127.0.0.1:{args.port}  ({app.source.kind}, 사례 {len(app.cases())}개, 확정 저장 {where})")
     server.serve_forever()
 
 

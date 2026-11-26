@@ -445,7 +445,7 @@ async function save() {
   if (!S) return;                                        // 아직 차트를 읽는 중
   const by = $("#by").value.trim();
   try { localStorage.setItem("screen1.by", by); } catch (e) {}
-  const data = await api("/api/finalize", { draft: S.draft, confirmed_by: by, memo: $("#memo").value });
+  const data = await api("/api/finalize", { draft: S.draft, confirmed_by: by, memo: $("#memo").value, input: S.header.input });
   $("#msg").innerHTML = data.errors && data.errors.length
     ? `<p class="errors">저장하지 못함:\n${data.errors.map(esc).join("\n")}</p>`
     : `<p class="saved">저장함: ${esc(data.path)} (version ${data.doc.version}). 처방 추천 화면으로 넘어갑니다…</p>`;
