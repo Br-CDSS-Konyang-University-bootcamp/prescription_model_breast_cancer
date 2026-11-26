@@ -6,8 +6,8 @@ import json
 
 import pytest
 
-from src.virtual_hospital import db
-from src.virtual_hospital.common import FEATURES, LOCAL, OUT, read_csv
+from src.virtual_hospital.scripts import db
+from src.virtual_hospital.scripts.common import FEATURES, LOCAL, OUT, read_csv
 
 
 @pytest.fixture(scope="module")

@@ -6,7 +6,7 @@ import json
 import re
 from functools import lru_cache
 
-from src.virtual_hospital.common import MINI, Patient, boundary, mini_on_path, read_csv
+from src.virtual_hospital.scripts.common import MINI, Patient, boundary, mini_on_path, read_csv
 
 CATEGORICAL_INT = {"diagnosis.grade", "patient.ecog"}
 DATE = re.compile(r"\d{4}-\d{2}-\d{2}")

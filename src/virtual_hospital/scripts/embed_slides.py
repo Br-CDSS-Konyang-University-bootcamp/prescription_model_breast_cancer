@@ -6,7 +6,7 @@ numpy와 h5py만 쓰므로 이 저장소가 없는 GPU 서버에서도 파일 �
 모으는 방식: 종양 타일(tumor_tile)이 있으면 종양 타일 평균 (mean_tumor), 없으면 모든 타일 평균 (mean_all).
 
     python embed_slides.py <h5 폴더> <출력.npz>
-    (저장소 안에서는 python -m src.virtual_hospital.embed_slides <h5 폴더> <출력.npz>)
+    (저장소 안에서는 python -m src.virtual_hospital.scripts.embed_slides <h5 폴더> <출력.npz>)
 """
 from __future__ import annotations
 

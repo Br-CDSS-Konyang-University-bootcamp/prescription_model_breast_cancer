@@ -113,7 +113,9 @@ def test_named_drug_kept_even_if_not_in_chunk_drugs_and_reason_is_rule_only():
                          lambda opt, chunks: {"status": "met", "reason": "조건 충족 (r-ana)"})
     out = rec["options"][0]
     assert out["drugs"] == ["anastrozole", "goserelin", "leuprolide"] and out["reimbursement_citations"] == ["r-ana"]
-    assert out["reimbursement"] == "covered" and out["reimbursement_reason"] == "조건 충족 (r-ana)"
+    # LHRH 약은 화면 2에서 고르므로 이유는 조합(anastrozole + goserelin 등)마다 판정기 문장이다 (2026-11-26)
+    assert out["reimbursement"] == "covered"
+    assert [c["reimbursement_reason"] for c in out["candidates"]] == ["조건 충족 (r-ana)"] * 2
 
 
 def combo_row(cid, drugs, added, coverage, stage="combination"):
@@ -155,7 +157,7 @@ def test_no_row_reason_is_rule_text_even_if_llm_said_no_criteria():
     rec, _ = run({**option("anastrozole", ["anastrozole"], []), **llm})
     o = rec["options"][0]
     assert (o["reimbursement"], o["reimbursement_reason"], o["reimbursement_citations"]) == ("no_criteria", NO_ROW_REASON, [])
-    assert "비급여로 확정한 것은 아님" in o["reimbursement_reason"]
+    assert o["reimbursement_reason"] == "후보 약과 맞는 시행 중인 급여 행 없음"   # 덧붙이는 말 없이 (2026-11-26)
     rec, _ = run({**option("Adjuvant Endocrine Therapy (ET)", [], []), **llm})
     o = rec["options"][0]
     assert (o["reimbursement"], o["reimbursement_reason"]) == ("no_criteria", NO_CLASS_ROW_REASON)
@@ -200,3 +202,55 @@ def test_narrow_class_or_is_alternative():
     assert cands and all(len(c["drugs"]) == 1 for c in cands)
     names = {c["drugs"][0] for c in cands}
     assert {"doxorubicin", "paclitaxel"} <= names and "tesetaxel" not in names
+    # 'or'가 든 괄호는 앞말의 예시라 조합을 만들지 않는다 (2026-11-26, 전에는 paclitaxel + docetaxel 같은 조합이 나옴)
+    cands = _narrow_candidates({"therapy": "Rechallenge with anthracyclines or taxanes (liposomal anthracyclines or "
+                                           "protein-bound paclitaxel, if available)", "drugs": []}, [], {}, TODAY, None)
+    assert cands and all(len(c["drugs"]) == 1 for c in cands)
+
+
+OFS_G = {**G, "drugs": ["goserelin", "leuprolide", "tamoxifen", "anastrozole", "letrozole", "exemestane"],
+         "text": "TEST CHUNK (made up): OFS with tamoxifen or OFS with an AI."}
+
+
+def test_or_splits_named_drug_and_ofs_is_one_drug_per_combo():
+    """2026-11-26 VC-0121: 'OFS-tamoxifen or OFS-AI'에서 tamoxifen을 AI 조합에 곱하지 않고,
+    goserelin·leuprolide는 그중 하나라 조합마다 하나만 넣는다. 급여 행은 약이 맞는 행만 붙는다."""
+    rows = [row("r-gos-tam", ["goserelin", "tamoxifen"]), row("r-leu-tam", ["leuprolide", "tamoxifen"]),
+            row("r-ofs-ana", ["goserelin", "leuprolide", "anastrozole"])]
+    for therapy in ("Ovarian Suppression with OFS-tamoxifen or OFS-AI", "OFS-tamoxifen 또는 OFS-AI"):
+        rec, _ = postprocess({"options": [option(therapy, [], [])]}, RECORD, [OFS_G], rows, TODAY)
+        cands = {tuple(c["drugs"]): c for c in rec["options"][0]["candidates"]}
+        assert set(cands) == {("goserelin", "tamoxifen"), ("leuprolide", "tamoxifen")} | \
+            {(o, a) for o in ("goserelin", "leuprolide") for a in ("anastrozole", "letrozole", "exemestane")}, therapy
+        assert cands[("leuprolide", "tamoxifen")]["reimbursement_citations"] == ["r-leu-tam"]
+        assert cands[("goserelin", "anastrozole")]["reimbursement_citations"] == ["r-ofs-ana"]
+        assert cands[("goserelin", "letrozole")]["reimbursement"] == "no_criteria"
+
+
+def test_named_members_after_class_narrow_the_class_and_ofs_ai_cdk_fits():
+    """2026-11-26: 'AI (anastrozole, letrozole) + LHRH agonist'의 괄호 안 약은 AI 자리의 그중 하나다 (고정 약이 아님).
+    OFS 2 x AI 3 x CDK4/6 3 = 18개도 펼친다. 'Tamoxifen or …'의 tamoxifen 단독도 한 조합이다."""
+    from src.recommend.postprocess import _narrow_candidates
+    cands = _narrow_candidates({"therapy": "AI (anastrozole, letrozole) + LHRH agonist", "drugs": []}, [OFS_G], {}, TODAY, None)
+    assert sorted(c["drugs"] for c in cands) == sorted([a, o] for a in ("anastrozole", "letrozole")
+                                                       for o in ("goserelin", "leuprolide"))
+    # 화면 2에서 LHRH 약만 다른 조합은 한 줄이라 9줄(18개 조합)도 상한 12줄 안이다
+    g = {**OFS_G, "drugs": OFS_G["drugs"] + ["palbociclib", "ribociclib", "abemaciclib"]}
+    cands = _narrow_candidates({"therapy": "OFS + AI + CDK4/6 inhibitor", "drugs": []}, [g], {}, TODAY, None)
+    assert cands and len(cands) == 18 and all(len(c["drugs"]) == 3 for c in cands)
+    cands = _narrow_candidates({"therapy": "Tamoxifen or OFS-tamoxifen or OFS-AI", "drugs": []}, [OFS_G], {}, TODAY, None)
+    assert ["tamoxifen"] in [c["drugs"] for c in cands] and len(cands) == 9
+
+
+def test_named_ofs_option_gets_one_lhrh_drug_per_combo():
+    """2026-11-26: 약 이름으로 정한 'OFS-tamoxifen'도 LHRH 약마다 조합을 달아 화면 2에서 고르게 한다.
+    후보 drugs는 그대로 둔다 (같은 요법 합치기·OFS 중 bisphosphonate 판단)."""
+    rows = [row("r-gos-tam", ["goserelin", "tamoxifen"]), row("r-leu-tam", ["leuprolide", "tamoxifen"])]
+    rec, _ = postprocess({"options": [option("Ovarian Suppression with OFS-tamoxifen", [], [])]}, RECORD, [OFS_G], rows, TODAY)
+    o = rec["options"][0]
+    assert o["drugs"] == ["goserelin", "leuprolide", "tamoxifen"]
+    assert {tuple(c["drugs"]): c["reimbursement_citations"] for c in o["candidates"]} == \
+        {("goserelin", "tamoxifen"): ["r-gos-tam"], ("leuprolide", "tamoxifen"): ["r-leu-tam"]}
+    assert o["reimbursement_citations"] == ["r-gos-tam", "r-leu-tam"]
+    rec, _ = postprocess({"options": [option("tamoxifen", [], [])]}, RECORD, [OFS_G], rows, TODAY)
+    assert "candidates" not in rec["options"][0]                  # 묶음이 없으면 조합을 달지 않는다

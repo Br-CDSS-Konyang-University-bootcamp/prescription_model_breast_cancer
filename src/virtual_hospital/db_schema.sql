@@ -1,4 +1,4 @@
--- 가상 병원 DB (SQLite). python -m src.virtual_hospital.db build가 매번 새로 만든다.
+-- 가상 병원 DB (SQLite). python -m src.virtual_hospital.scripts.db build가 매번 새로 만든다.
 -- DB 파일(data/virtual_hospital/local/virtual_hospital.db)은 BCNB에서 만든 값을 담으므로 git에 넣지 않는다 (BCNB 약관).
 -- 표 이름·칸은 rules/image_tables.csv(모듈 결과 틀)와 맞춘다.
 

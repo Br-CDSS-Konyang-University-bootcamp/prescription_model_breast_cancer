@@ -33,15 +33,16 @@ TCGA-BRCA와 BCNB의 실제 값을 뼈대로, 데이터에 없는 칸만 근거 
 ```
 src/virtual_hospital/                 ← git: 코드와 문서
 ├── README.md                         이 문서
-├── common.py                         경로, 규칙 표 읽기, vp 번호로 정한 난수
-├── tcga_convert.py · tcga.py         TCGA → patient_state, 고르기·옮기기·계산·합성
-├── render.py · gates.py · verify.py  chart.txt, 관문 G, 검증 V
-├── build.py · tcga_recur.py · bcnb.py · confirmed.py   만들기 (아래 "만드는 순서")
-├── fetch_hgvsc.py · fetch_thennavan.py                 자료 받기
-├── bcnb_check.py · mini_probe.py · llm_run.py          점검·시험
-├── embed_slides.py                   타일 벡터 .h5 → 슬라이드 벡터 .npz (GPU 서버에서, numpy·h5py만)
-├── db_schema.sql                     가상 병원 DB 표 정의
-├── db.py                             DB 만들기 + 읽기 함수
+├── db_schema.sql                     가상 병원 DB 표 정의 (scripts/db.py가 읽음)
+├── scripts/                          코드 전부 (python -m src.virtual_hospital.scripts.<이름>)
+│   ├── common.py                     경로, 규칙 표 읽기, vp 번호로 정한 난수
+│   ├── tcga_convert.py · tcga.py     TCGA → patient_state, 고르기·옮기기·계산·합성
+│   ├── render.py · gates.py · verify.py   chart.txt, 관문 G, 검증 V
+│   ├── build.py · tcga_recur.py · bcnb.py · confirmed.py   만들기 (아래 "만드는 순서")
+│   ├── fetch_hgvsc.py · fetch_thennavan.py                 자료 받기
+│   ├── bcnb_check.py · mini_probe.py · llm_run.py          점검·시험
+│   ├── embed_slides.py               타일 벡터 .h5 → 슬라이드 벡터 .npz (GPU 서버에서, numpy·h5py만)
+│   └── db.py                         DB 만들기 + 읽기 함수
 └── notes/                            설계·기준·기록 (아래 "문서")
 
 data/virtual_hospital/
@@ -78,21 +79,21 @@ tests/virtual_hospital/               ← git
 
 | 단계 | 명령 | 읽는 것 | 만드는 것 | 언제 |
 |---|---|---|---|---|
-| 0 | `python -m src.virtual_hospital.fetch_thennavan` | Europe PMC | `local/thennavan2021/mmc3.xlsx` | 처음 한 번 (1단계의 grade 판독 점수) |
-| 1 | `python -m src.virtual_hospital.build` | `source/`, `tcga_hgvsc.csv`, `local/thennavan2021/`, `team_project_final` | `tcga/`, `reports/`, `local/source_map.csv`·`slide_map.csv` | 규칙·코드를 바꿀 때마다 |
-| (1-1) | `python -m src.virtual_hospital.fetch_hgvsc` | `local/source_map.csv`, `local/mutations.tsv`, GDC·Genome Nexus | `tcga_hgvsc.csv` | 변이 표기가 없을 때만 (git에 있음). 받은 뒤 1단계를 다시 |
-| 2 | `python -m src.virtual_hospital.tcga_recur` | 1단계와 같은 원본 (TCGA ①을 다시 계산해 씀) | `tcga_recur/` | 1단계 뒤 |
-| 3 | `python -m src.virtual_hospital.bcnb` | `local/bcnb_raw/`, `source/`(Allred·폐경 분포) | `local/bcnb/`, `local/reports/` | BCNB 원자료를 받은 사람만 |
-| 4 | `python -m src.virtual_hospital.confirmed` | 1~3단계의 `charts/*/expected/` | 차트마다 `expected/confirmed_state.json`, `reports/confirmed.md` | **마지막에** (1·2단계가 차트 폴더를 새로 만들어서) |
+| 0 | `python -m src.virtual_hospital.scripts.fetch_thennavan` | Europe PMC | `local/thennavan2021/mmc3.xlsx` | 처음 한 번 (1단계의 grade 판독 점수) |
+| 1 | `python -m src.virtual_hospital.scripts.build` | `source/`, `tcga_hgvsc.csv`, `local/thennavan2021/`, `team_project_final` | `tcga/`, `reports/`, `local/source_map.csv`·`slide_map.csv` | 규칙·코드를 바꿀 때마다 |
+| (1-1) | `python -m src.virtual_hospital.scripts.fetch_hgvsc` | `local/source_map.csv`, `local/mutations.tsv`, GDC·Genome Nexus | `tcga_hgvsc.csv` | 변이 표기가 없을 때만 (git에 있음). 받은 뒤 1단계를 다시 |
+| 2 | `python -m src.virtual_hospital.scripts.tcga_recur` | 1단계와 같은 원본 (TCGA ①을 다시 계산해 씀) | `tcga_recur/` | 1단계 뒤 |
+| 3 | `python -m src.virtual_hospital.scripts.bcnb` | `local/bcnb_raw/`, `source/`(Allred·폐경 분포) | `local/bcnb/`, `local/reports/` | BCNB 원자료를 받은 사람만 |
+| 4 | `python -m src.virtual_hospital.scripts.confirmed` | 1~3단계의 `charts/*/expected/` | 차트마다 `expected/confirmed_state.json`, `reports/confirmed.md` | **마지막에** (1·2단계가 차트 폴더를 새로 만들어서) |
 | 5 | `python -m pytest tests/virtual_hospital` | 위 결과 | — | 만들 때마다 |
-| 6 | `python embed_slides.py <h5 폴더> <출력.npz>` | 타일 벡터 `.h5` (GPU 서버의 `tcga_all/features`, `bcnb-ln-module2/outputs/features_hoptimus0`) | `local/features/<묶음>_hoptimus0.npz` | 타일 벡터가 바뀔 때. 저장소 없이 파일 하나만 서버에 복사해 돌림 |
-| 7 | `python -m src.virtual_hospital.db build` | 1~4단계 결과, `local/features/` | `local/virtual_hospital.db` | 1~6단계 뒤. 매번 새로 만듦. 확인: `python -m src.virtual_hospital.db info` |
+| 6 | `python scripts/embed_slides.py <h5 폴더> <출력.npz>` (GPU 서버에 파일만 복사해 실행) | 타일 벡터 `.h5` (GPU 서버의 `tcga_all/features`, `bcnb-ln-module2/outputs/features_hoptimus0`) | `local/features/<묶음>_hoptimus0.npz` | 타일 벡터가 바뀔 때. 저장소 없이 파일 하나만 서버에 복사해 돌림 |
+| 7 | `python -m src.virtual_hospital.scripts.db build` | 1~4단계 결과, `local/features/` | `local/virtual_hospital.db` | 1~6단계 뒤. 매번 새로 만듦. 확인: `python -m src.virtual_hospital.scripts.db info` |
 
 점검·시험 (필요할 때):
 
-- `python -m src.virtual_hospital.bcnb_check data/virtual_hospital/local/bcnb_raw`: BCNB 원자료 점검 (개수·ID만)
-- `python -m src.virtual_hospital.mini_probe`: 정답을 B `assess`와 화면 1 초안에 넣어 `unknown`·빈 칸을 셈
-- `python -m src.virtual_hospital.llm_run`: 차트를 입력 모듈 LLM으로 끝까지 돌리고 채점 (GPU 터널 필요)
+- `python -m src.virtual_hospital.scripts.bcnb_check data/virtual_hospital/local/bcnb_raw`: BCNB 원자료 점검 (개수·ID만)
+- `python -m src.virtual_hospital.scripts.mini_probe`: 정답을 B `assess`와 화면 1 초안에 넣어 `unknown`·빈 칸을 셈
+- `python -m src.virtual_hospital.scripts.llm_run`: 차트를 입력 모듈 LLM으로 끝까지 돌리고 채점 (GPU 터널 필요)
 - 처방 흐름 전체(C 검색 → B 추천 → D 급여)는 `src.app.script.run_flow`로 돈다. 가상 병원 차트로 돌린 방법은 [notes/progress.md](notes/progress.md) §3
 
 ## 가상 병원 DB
@@ -107,10 +108,10 @@ tests/virtual_hospital/               ← git
 | 슬라이드, BCNB 주석 | 1,691, 971 |
 | 슬라이드 벡터 (H-optimus-0, 종양 타일 평균, 없으면 전체 평균) | 1,634: TCGA 663, BCNB 971 |
 
-읽기 함수 (`src.virtual_hospital.db`):
+읽기 함수 (`src.virtual_hospital.scripts.db`):
 
 ```python
-from src.virtual_hospital import db
+from src.virtual_hospital.scripts import db
 con = db.connect()
 db.list_patients(con, branch="bcnb_preop", subtype=...)   # 환자 목록
 db.get_chart(con, vp_id)                                   # chart.txt

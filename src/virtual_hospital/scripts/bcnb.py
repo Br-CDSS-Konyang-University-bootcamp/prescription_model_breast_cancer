@@ -1,7 +1,7 @@
 """BCNB (수술 전, 생검 직후) 갈래: 고르기 → 옮기기 → 계산 → 합성 → 관문 → chart.txt → 검증.
 
 BCNB 약관(원본·수정본 재배포 금지) 때문에 산출물은 모두 local/bcnb/, 보고는 local/reports/에 쓴다.
-실행 (virtual_hospital 폴더에서, mini의 team_project 환경으로): python -m src.virtual_hospital.bcnb
+실행 (virtual_hospital 폴더에서, mini의 team_project 환경으로): python -m src.virtual_hospital.scripts.bcnb
 """
 from __future__ import annotations
 
@@ -13,10 +13,10 @@ import shutil
 
 import pandas as pd
 
-from src.virtual_hospital import gates
-from src.virtual_hospital.common import BCNB_RAW, CREATED_AT, LOCAL, ROOT, Patient, Rec, mini_on_path, ref, rng, write_csv
-from src.virtual_hospital.render import HISTOLOGY as HISTOLOGY_KO, allred_word
-from src.virtual_hospital.tcga import GENES, Context, allred_is_choices, allred_ps, dx_date, load as load_tcga, pick, pick_is, synth_ecog, synth_meno
+from src.virtual_hospital.scripts import gates
+from src.virtual_hospital.scripts.common import BCNB_RAW, CREATED_AT, LOCAL, ROOT, Patient, Rec, mini_on_path, ref, rng, write_csv
+from src.virtual_hospital.scripts.render import HISTOLOGY as HISTOLOGY_KO, allred_word
+from src.virtual_hospital.scripts.tcga import GENES, Context, allred_is_choices, allred_ps, dx_date, load as load_tcga, pick, pick_is, synth_ecog, synth_meno
 
 BCNB = BCNB_RAW                                       # BCNB 원자료 (common.BCNB_RAW)
 OUT = LOCAL / "bcnb"

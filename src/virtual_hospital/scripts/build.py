@@ -1,7 +1,7 @@
 """TCGA ① (수술 후) 가상환자 세트를 만든다: 고르기 → 옮기기 → 계산 → 합성 → 관문 → chart.txt → 검증.
 
 실행 (virtual_hospital 폴더에서, mini의 team_project 환경으로):
-    python -m src.virtual_hospital.build              # out/tcga/, reports/, local/source_map.csv
+    python -m src.virtual_hospital.scripts.build              # out/tcga/, reports/, local/source_map.csv
 결과:
     out/tcga/patients.csv · fields.csv · truth.csv · images/slides.csv · charts/<vp>/chart.txt, expected/
     reports/tcga_postop.md (요약) · excluded.csv · handoff_candidates.csv · gates.csv
@@ -14,9 +14,9 @@ import json
 import shutil
 import subprocess
 
-from src.virtual_hospital import gates, render, verify
-from src.virtual_hospital.common import FINAL, LOCAL, MINI, OUT, REPORTS, write_csv
-from src.virtual_hospital.tcga import build_all
+from src.virtual_hospital.scripts import gates, render, verify
+from src.virtual_hospital.scripts.common import FINAL, LOCAL, MINI, OUT, REPORTS, write_csv
+from src.virtual_hospital.scripts.tcga import build_all
 
 
 def mini_version() -> str:
@@ -115,7 +115,7 @@ def report(kept, dropped, handoff, v) -> None:
     origin = collections.Counter((r.origin, r.rule_id) for p in kept for r in p.recs.values() if r.status == "present")
     sub = collections.Counter(p.truth["subtype_rule"] for p in kept)
     lines = ["# TCGA ① (수술 후) 가상환자 세트 — 생성 보고", "",
-             f"mini 커밋: `{mini_version()}` · 실행: `python -m src.virtual_hospital.build`", "",
+             f"mini 커밋: `{mini_version()}` · 실행: `python -m src.virtual_hospital.scripts.build`", "",
              "## 인원", "", "| 항목 | 수 |", "|---|---|", f"| 세트 (관문 통과) | {len(kept)} |"]
     lines += [f"| 뺀 환자: {k} | {n} |" for k, n in sorted(by.items())]
     lines += [f"| 넘길 목록 (실제 값 원인) | {len(handoff)} |", "",

@@ -49,6 +49,13 @@ def drug_list() -> list[str]:
     return sorted(names)
 
 
+def lhrh_drugs() -> list[str]:
+    """LHRH 작용제 (drug_classes.csv의 drug_subclass LHRH_agonist). 약 조합 중 이 약만 다른 조합은 화면 2에서 한 줄로
+    묶고 약을 고르게 한다 (2026-11-26, OFS-tamoxifen → goserelin 또는 leuprolide + tamoxifen)."""
+    with open(DRUG_NAMES.parent / "drug_classes.csv", encoding="utf-8-sig", newline="") as f:
+        return [r["generic_name"].strip() for r in csv.DictReader(f) if (r.get("drug_subclass") or "").strip() == "LHRH_agonist"]
+
+
 def evidence_key(evidence: str | None) -> tuple[int, int]:
     """"LoE I, GoR A" · "I, A" → (1, 1). 읽지 못하면 맨 뒤."""
     m = re.search(r"\b(IV|V|I{1,3})\s*,\s*(?:GoR\s*)?([A-E])\b", evidence or "")

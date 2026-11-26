@@ -7,7 +7,7 @@ mini의 가상 차트 정답과 같은 방법 (mini src/app/script/confirmed_fix
 - 필수 칸이 비거나 schema를 통과하지 못하면 파일을 쓰지 않고 이유를 적는다 (의사가 정할 칸)
 - 확정자·시각은 고정값 (같은 입력 → 같은 파일)
 
-실행 (team_project 폴더, team_project 환경): python -m src.virtual_hospital.confirmed
+실행 (team_project 폴더, team_project 환경): python -m src.virtual_hospital.scripts.confirmed
 결과: <차트>/expected/confirmed_state.json, reports/confirmed.md·confirmed_skipped.csv
       (BCNB는 local/bcnb/charts/…, local/reports/ — 약관)
 """
@@ -17,7 +17,7 @@ import collections
 import json
 from pathlib import Path
 
-from src.virtual_hospital.common import CREATED_AT, LOCAL, OUT, REPORTS, mini_on_path, read_csv, write_csv
+from src.virtual_hospital.scripts.common import CREATED_AT, LOCAL, OUT, REPORTS, mini_on_path, read_csv, write_csv
 
 CONFIRMED_BY = "virtual-hospital"
 SETS = {"TCGA ①": (OUT / "tcga" / "charts", REPORTS), "TCGA ②": (OUT / "tcga_recur" / "charts", REPORTS),
