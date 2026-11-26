@@ -53,6 +53,7 @@ MET = "metastatic"
 # "rec": 재발 유형 시스템 값}을 받는다. None = 항상
 ROWS = [
     ("subtype", "rule", None, "", True),
+    ("molecular_subtype", "rule", lambda x: x["sub"] == "HR+/HER2-", "HR+/HER2-에서만 판정에 씀 (Luminal A/B 경로)", False),
     ("markers.ER", "rule", None, "", True),
     ("markers.PR", "rule", None, "", True),
     ("markers.HER2", "rule", None, "", True),
@@ -94,7 +95,7 @@ CONFLICT_ITEM = {"proliferation.ki67_percent": "markers.Ki-67", "receptors.er_pe
 
 LABELS = {
     "grade": "등급", "stage.t": "T", "stage.n": "림프절 (N)", "stage.group": "병기군", "stage.positive_ln_count": "양성 림프절 수",
-    "setting.disease": "병기 범주", "setting.phase": "치료 단계", "subtype": "아형", "menopausal_status": "폐경",
+    "setting.disease": "병기 범주", "setting.phase": "치료 단계", "subtype": "아형", "molecular_subtype": "분자 아형 (Luminal)", "menopausal_status": "폐경",
     "metastatic_sites": "전이 부위", "high_risk_early": "재발 고위험군", "stage.size_mm": "종양 크기 (mm)", "operable": "수술 가능",
     "pcr": "pCR", "setting.line_endocrine": "고식적 내분비 차수", "setting.line_chemo": "고식적 항암 차수",
     "prior_regimens": "이전 요법", "endocrine_relapse_12m": "보조 ET 중·12개월 내 재발", "dfi_days": "무병 기간 (일)",
