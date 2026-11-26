@@ -224,6 +224,8 @@
         "setting.line_chemo": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"enum": ["1L", "2L", ">=3L"]}}}],
                                "description": "전이성만. 이번에 정할 고식적 항암화학요법 차수. 간주 규칙은 반영하지 않는다"},
         "subtype": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"enum": ["HR+/HER2-", "HR+/HER2+", "HR-/HER2+", "TNBC"]}}}]},
+        "molecular_subtype": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"enum": ["Luminal A", "Luminal B(HER2 negative)", "Luminal B(HER2 positive)", "HER2_enriched", "Basal_like", null]}}}],
+                              "description": "분자 아형 (2026-11-18 제안, 선택 칸). biomarker_record.molecular_subtype의 기본값을 의사가 확인한다. Ki-67을 몰라 정하지 못하면 비운다. C가 ESMO 그림 5의 반대 경로(Luminal A-like / B-like) 청크를 감점하는 데 쓴다"},
         "menopausal_status": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"enum": ["premenopausal", "postmenopausal"]}}}],
                               "description": "peri는 premenopausal로 확정한다 (급여 2026-10-15 규칙, ESMO M01). 근거는 detail.basis"},
         "age_at_index": {"allOf": [{"$ref": "#/$defs/item"}, {"properties": {"confirmed": {"type": "integer", "minimum": 0}}}],

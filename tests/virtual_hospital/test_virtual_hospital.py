@@ -9,7 +9,7 @@ import re
 
 import pytest
 
-from src.virtual_hospital.common import CODE, FINAL, LOCAL, OUT, ROOT, read_csv, rules
+from src.virtual_hospital.scripts.common import CODE, FINAL, LOCAL, OUT, ROOT, read_csv, rules
 
 RULE_ID = re.compile(r"\b([SMDYNRIG]-\d\d)\b")
 CHARTS = OUT / "tcga" / "charts"
@@ -17,7 +17,7 @@ CHARTS = OUT / "tcga" / "charts"
 
 def test_rule_ids_in_code_are_in_table():
     table = rules()
-    used = {m for f in CODE.glob("*.py") for m in RULE_ID.findall(f.read_text(encoding="utf-8"))}
+    used = {m for f in (CODE / "scripts").glob("*.py") for m in RULE_ID.findall(f.read_text(encoding="utf-8"))}
     refs = {r["ref_id"] for r in read_csv(ROOT / "rules" / "references.csv")}      # R-0n은 근거 표 id이기도 하다
     assert used - set(table) - refs == set()
 
@@ -58,14 +58,14 @@ def test_no_source_ids_outside_local():
 def built():
     if not FINAL.exists():
         pytest.skip(f"{FINAL} 없음 (모듈 1 데이터)")
-    from src.virtual_hospital.tcga import build_all
+    from src.virtual_hospital.scripts.tcga import build_all
     pts, *_ = build_all()
     return {p.vp_id: p for p in pts}
 
 
 def test_saved_charts_match_rebuild(built):
     """저장된 차트 중 앞·가운데·끝 3건을 다시 만들어 같은지 (같은 규칙 + 같은 원본 → 같은 글)."""
-    from src.virtual_hospital.render import chart
+    from src.virtual_hospital.scripts.render import chart
     saved = sorted(d.name for d in CHARTS.iterdir())
     for vp in (saved[0], saved[len(saved) // 2], saved[-1]):
         text, ps, errs = chart(built[vp])
@@ -79,7 +79,7 @@ def test_saved_charts_match_rebuild(built):
 def test_saved_answers_match_current_schemas(kind):
     """저장된 정답 JSON이 지금 schemas/와 맞는지 (공용 schema가 바뀌면 다시 만들어야 함, 예: #164 timeline_index 삭제)."""
     import jsonschema
-    from src.virtual_hospital.common import MINI
+    from src.virtual_hospital.scripts.common import MINI
     schema = json.loads((MINI / "schemas" / f"{kind}.json").read_text(encoding="utf-8"))
     check = jsonschema.Draft202012Validator(schema)
     files = [f for b in ("tcga", "tcga_recur") for f in (OUT / b / "charts").glob(f"*/expected/{kind}.json")]

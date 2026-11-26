@@ -439,7 +439,8 @@ def subtype_of(er, pr, her2):
     return "unknown"  # ER·PR·HER2 중 판정이 없어 아형을 정할 수 없음 (indeterminate는 쓰지 않음, 2026-10-15)
 
 
-# 분자 아형 (팀 결정 2026-10-15). 쓸 곳이 정해지지 않아 출력(biomarker_record)에는 아직 넣지 않는다
+# 분자 아형 (팀 결정 2026-10-15). 2026-11-18부터 biomarker_record.molecular_subtype으로 낸다: ESMO EBC 그림 5의
+# Luminal A-like / B-like 경로를 가르는 데 쓴다 (C가 반대 경로 청크를 감점, 프롬프트 [환자]에도 넣음)
 MOLECULAR_SUBTYPES = ("Luminal A", "Luminal B(HER2 negative)", "Luminal B(HER2 positive)",
                       "HER2_enriched", "Basal_like", "unknown")
 
@@ -1116,6 +1117,7 @@ def assess(patient_state):
         "patient_ref": patient_ref,
         "records": records,
         "subtype": subtype,
+        "molecular_subtype": molecular_subtype_of(subtype, (by.get("Ki-67") or {}).get("status")),
         "setting": setting,
         "tests_needed": tests_needed_of(by, subtype, setting["disease"], fields),
     }

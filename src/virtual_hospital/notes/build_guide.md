@@ -49,7 +49,7 @@ TCGA-BRCA와 BCNB의 실제 값을 뼈대로, 빈칸만 근거 있는 규칙으�
 | 관문 | G- | 2 | mini 규칙 검사 |
 | 이미지 | I- | 2 | 슬라이드·주석 좌표 |
 
-## 3. 코드 (`src/virtual_hospital/`, 모두 `team_project` 폴더에서 `python -m src.virtual_hospital.<이름>`)
+## 3. 코드 (`src/virtual_hospital/scripts/`, 모두 `team_project` 폴더에서 `python -m src.virtual_hospital.scripts.<이름>`)
 
 ### 3.1 만들기
 
@@ -87,13 +87,13 @@ TCGA-BRCA와 BCNB의 실제 값을 뼈대로, 빈칸만 근거 있는 규칙으�
 ### 3.4 실행 순서
 
 ```bash
-python -m src.virtual_hospital.fetch_hgvsc        # 처음 한 번 (build를 먼저 한 번 돌려 data/virtual_hospital/local/source_map.csv가 있어야 함)
-python -m src.virtual_hospital.fetch_thennavan    # 처음 한 번
-python -m src.virtual_hospital.build              # TCGA ①
-python -m src.virtual_hospital.tcga_recur         # TCGA ②
-python -m src.virtual_hospital.bcnb               # BCNB (data/virtual_hospital/local/bcnb_raw/ 필요)
-python -m src.virtual_hospital.confirmed          # 확정 상태 초안 (build가 차트 폴더를 새로 만드므로 마지막에)
-python -m src.virtual_hospital.db build           # 가상 병원 DB (위 결과 + local/features/)
+python -m src.virtual_hospital.scripts.fetch_hgvsc        # 처음 한 번 (build를 먼저 한 번 돌려 data/virtual_hospital/local/source_map.csv가 있어야 함)
+python -m src.virtual_hospital.scripts.fetch_thennavan    # 처음 한 번
+python -m src.virtual_hospital.scripts.build              # TCGA ①
+python -m src.virtual_hospital.scripts.tcga_recur         # TCGA ②
+python -m src.virtual_hospital.scripts.bcnb               # BCNB (data/virtual_hospital/local/bcnb_raw/ 필요)
+python -m src.virtual_hospital.scripts.confirmed          # 확정 상태 초안 (build가 차트 폴더를 새로 만드므로 마지막에)
+python -m src.virtual_hospital.scripts.db build           # 가상 병원 DB (위 결과 + local/features/)
 python -m pytest tests/virtual_hospital
 ```
 

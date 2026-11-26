@@ -78,6 +78,8 @@ def patient_summary(patient_state, biomarker_record, confirmed_state=None):
         "positive_markers": [r["marker"] for r in biomarker_record.get("records") or []
                              if r.get("status") in ("positive", "low", "ultralow")],
         "subtype": biomarker_record.get("subtype"),
+        # ESMO EBC 그림 5의 Luminal A-like / B-like 경로를 고르는 데 쓴다 (2026-11-18). 의사 확정값을 먼저 본다
+        "molecular_subtype": _confirmed(confirmed_state, "molecular_subtype") or biomarker_record.get("molecular_subtype"),
         "disease": setting.get("disease"),
         "line_endocrine": _confirmed(confirmed_state, "setting.line_endocrine") or setting.get("line_endocrine"),
         "line_chemo": _confirmed(confirmed_state, "setting.line_chemo") or setting.get("line_chemo"),

@@ -1,7 +1,7 @@
 """mini 처방 모듈 점검 (읽기 전용): 만든 차트의 정답 patient_state를 mini B assess와 화면 1 초안(build_draft)에 넣어
 어디서 unknown·빈 칸·검사 권고가 나오는지 센다. mini 파일은 고치지 않고 불러 쓰기만 한다.
 
-실행 (team_project 폴더, team_project 환경): python -m src.virtual_hospital.mini_probe
+실행 (team_project 폴더, team_project 환경): python -m src.virtual_hospital.scripts.mini_probe
 결과: reports/mini_probe.md (TCGA), local/reports/mini_probe_bcnb.md (BCNB)
 """
 from __future__ import annotations
@@ -9,8 +9,8 @@ from __future__ import annotations
 import collections
 import json
 
-from src.virtual_hospital.common import LOCAL, OUT, REPORTS, mini_on_path
-from src.virtual_hospital.gates import biomarker
+from src.virtual_hospital.scripts.common import LOCAL, OUT, REPORTS, mini_on_path
+from src.virtual_hospital.scripts.gates import biomarker
 
 
 def probe(charts) -> dict:

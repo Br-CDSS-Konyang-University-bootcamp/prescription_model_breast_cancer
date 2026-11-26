@@ -1,7 +1,7 @@
 # mini 처방 모듈 점검 결과 (mini는 고치지 않음)
 
 처음 점검: 2026-11-10 (A), mini 커밋 `0a1488e` · 상태 다시 확인: 2026-11-18, mini 커밋 `ff86fcd` (읽기만 함)
-근거: 관문 G7(입력 모듈 재현), `python -m src.virtual_hospital.mini_probe` (B `assess` + 화면 1 초안 `build_draft`). 결과 `data/virtual_hospital/reports/mini_probe.md`, `data/virtual_hospital/local/reports/mini_probe_bcnb.md`
+근거: 관문 G7(입력 모듈 재현), `python -m src.virtual_hospital.scripts.mini_probe` (B `assess` + 화면 1 초안 `build_draft`). 결과 `data/virtual_hospital/reports/mini_probe.md`, `data/virtual_hospital/local/reports/mini_probe_bcnb.md`
 
 C 지침 검색, B `recommend()`(LLM), D 급여 판정은 Qdrant·LLM이 필요해 여기서 돌리지 않았다 (처방 모듈 시험은 mini 쪽 세션에서).
 

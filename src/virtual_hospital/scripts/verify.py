@@ -9,8 +9,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.virtual_hospital.common import FINAL, Patient, thresholds
-from src.virtual_hospital.tcga import DAY_INDEX, DAY_PATH, Context, entry, nottingham, synth_meno, synth_range
+from src.virtual_hospital.scripts.common import FINAL, Patient, thresholds
+from src.virtual_hospital.scripts.tcga import DAY_INDEX, DAY_PATH, Context, entry, nottingham, synth_meno, synth_range
 
 STAGE = {"Stage I": "I", "Stage IA": "IA", "Stage IB": "IB", "Stage II": "II", "Stage IIA": "IIA",
          "Stage IIB": "IIB", "Stage III": "III", "Stage IIIA": "IIIA", "Stage IIIB": "IIIB", "Stage IIIC": "IIIC"}

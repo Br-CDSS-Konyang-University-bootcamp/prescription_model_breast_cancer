@@ -5,8 +5,8 @@ surgery_path·ngs), field_vocab.csv의 expression, mini TCGA 차트(data/tcga_br
 """
 from __future__ import annotations
 
-from src.virtual_hospital.common import CREATED_AT, Patient, mini_on_path
-from src.virtual_hospital.tcga import DAY_NGS, DAY_PATH, DAY_SURGERY, GENES
+from src.virtual_hospital.scripts.common import CREATED_AT, Patient, mini_on_path
+from src.virtual_hospital.scripts.tcga import DAY_NGS, DAY_PATH, DAY_SURGERY, GENES
 
 mini_on_path()
 from src.input.script.virtual.virtual_chart import Chart, F, check, kdate  # noqa: E402

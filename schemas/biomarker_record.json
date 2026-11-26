@@ -14,6 +14,10 @@
       "enum": ["HR+/HER2-", "HR+/HER2+", "HR-/HER2+", "TNBC", "unknown"],
       "description": "HR+ = ER 또는 PR 양성. RAG 하드 필터에 쓴다."
     },
+    "molecular_subtype": {
+      "enum": ["Luminal A", "Luminal B(HER2 negative)", "Luminal B(HER2 positive)", "HER2_enriched", "Basal_like", "unknown"],
+      "description": "분자 아형 (2026-11-18 제안, 선택 칸). HR+/HER2-는 Ki-67로 가른다: 저증식(negative) Luminal A, 고증식·중간 Luminal B(HER2 negative), Ki-67을 모르면 unknown. ESMO EBC 그림 5의 Luminal A-like / B-like 경로를 가르는 데 쓴다"
+    },
     "setting": {
       "type": "object",
       "description": "치료 상황. RAG 하드 필터(setting, line)에 쓴다. B가 산출한다 (2026-10-15 협의): disease는 patient_state의 stage.disease_extent와 recurrence.status로, line은 treatment_history[].start_day와 recurrence.metastasis_day로 판단한다. 심평원 투여단계는 고식적 내분비요법과 고식적 항암화학요법을 따로 센다 (src/input/handoff_to_B.md §6).",
