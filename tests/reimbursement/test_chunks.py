@@ -7,7 +7,7 @@ import pytest
 
 from src.reimbursement.booklet import Section
 from src.reimbursement.chunks import (
-    biomarker_tags_from, booklet_chunks, check_chunks, clean_regimen, combo_filters, copay_text,
+    biomarker_tags_from, booklet_chunks, build_regimens, check_chunks, clean_regimen, combo_filters, copay_text,
     footnote_marks, parse_regimen, split_notes, extract_drugs, lines_from,
     offlabel_chunks, parse_breast_table, parse_combination, split_row, subtypes_from,
 )
@@ -343,6 +343,76 @@ def test_parse_regimen():
     assert copay_text(p, ["liposomal doxorubicin"]) == "50/100"
 
 
+def _regs(regimen, combination=None, row_text="", stage="adjuvant"):
+    return build_regimens(regimen, parse_regimen(regimen), combination, row_text, stage)
+
+
+def _drug_sets(regs):
+    return [r["drugs"] for r in regs]
+
+
+def test_build_regimens_single_and_sequence():
+    """B 제안 형식(2026-11-26): drugs 같이 쓰는 약, optional ± 약, steps 순차 단계, copay_by_drug 약별 본인부담."""
+    assert _regs("anastrozole") == [{"drugs": ["anastrozole"], "optional": [],
+                                     "copay_by_drug": {"anastrozole": "급여"}}]
+    r = _regs("AC (doxorubicin + cyclophosphamide) → trastuzumab(IV, SC) + paclitaxel ± pertuzumab(100/100)주1")
+    assert r == [{"drugs": ["doxorubicin", "cyclophosphamide", "trastuzumab", "paclitaxel"], "optional": ["pertuzumab"],
+                  "steps": [["doxorubicin", "cyclophosphamide"], ["trastuzumab", "paclitaxel"]],
+                  "copay_by_drug": {"doxorubicin": "급여", "cyclophosphamide": "급여", "trastuzumab": "급여",
+                                    "paclitaxel": "급여", "pertuzumab": "100/100"}}]
+    # 괄호 밖 약은 모든 단계에 (NOAH: [AP → P → CMF] + trastuzumab)
+    r = _regs("[doxorubicin + paclitaxel → paclitaxel → cyclophosphamide + methotrexate + fluorouracil] + trastuzumab(IV, SC)")
+    assert all("trastuzumab" in st for st in r[0]["steps"]) and len(r[0]["steps"]) == 3
+    assert _regs("eribulin(50/100)")[0]["copay_by_drug"] == {"eribulin": "50/100"}
+    assert _regs("goserelin ± tamoxifen")[0] == {"drugs": ["goserelin"], "optional": ["tamoxifen"],
+                                                  "copay_by_drug": {"goserelin": "급여", "tamoxifen": "급여"}}
+
+
+def test_build_regimens_one_of():
+    """'LHRH agonist'는 goserelin 또는 leuprolide, 'AC/EC'는 둘 중 하나: 요법을 따로 만든다."""
+    assert _drug_sets(_regs("anastrozole + LHRH agonist")) == [["anastrozole", "goserelin"], ["anastrozole", "leuprolide"]]
+    r = _regs("[선행화학요법] paclitaxel + carboplatin + pembrolizumab → AC/EC + pembrolizumab → [수술후보조요법] pembrolizumab",
+              stage="combination")
+    assert [x["steps"][1] for x in r] == [["doxorubicin", "cyclophosphamide", "pembrolizumab"],
+                                          ["epirubicin", "cyclophosphamide", "pembrolizumab"]]
+    assert all(len(x["steps"]) == 3 and x["steps"][2] == ["pembrolizumab"] for x in r)
+
+
+def test_build_regimens_footnote_and_combination():
+    # 보조요법 주2: 단독 요법 + abemaciclib(100/100)은 더해도 되는 약
+    comb = {"added_drug": ["abemaciclib"], "added_drug_coverage": "100/100", "base_regimen": ["letrozole + LHRH agonist"]}
+    r = _regs("letrozole + LHRH agonist", comb)
+    assert [(x["drugs"], x["optional"]) for x in r] == [(["letrozole", "goserelin"], ["abemaciclib"]),
+                                                       (["letrozole", "leuprolide"], ["abemaciclib"])]
+    assert r[0]["copay_by_drug"]["abemaciclib"] == "100/100" and r[0]["copay_by_drug"]["letrozole"] == "급여"
+    # 40장: 추가 약제는 같이 쓰는 약, '(비급여)'
+    comb = {"added_drug": ["capivasertib"], "added_drug_coverage": "비급여", "base_regimen": ["fulvestrant"]}
+    r = _regs("fulvestrant + capivasertib (비급여)", comb, stage="combination")
+    assert r == [{"drugs": ["fulvestrant", "capivasertib"], "optional": [],
+                  "copay_by_drug": {"fulvestrant": "급여", "capivasertib": "비급여"}}]
+    # 'olaparib + 내분비요법': 급여 요법 칸의 요법마다 olaparib을 더한다
+    comb = {"added_drug": ["olaparib"], "added_drug_coverage": None,
+            "base_regimen": ["anastrozole", "exemestane + LHRH agonist", "goserelin ± tamoxifen"]}
+    r = _regs("olaparib + 내분비요법", comb, stage="combination")
+    assert [(x["drugs"], x["optional"]) for x in r] == [
+        (["olaparib", "anastrozole"], []), (["olaparib", "exemestane", "goserelin"], []),
+        (["olaparib", "exemestane", "leuprolide"], []), (["olaparib", "goserelin"], ["tamoxifen"])]
+
+
+def test_build_regimens_premenopausal_lhrh_note():
+    """'※ 폐경 전 여성의 경우 4주 간격의 goserelin 혹은 leuprolide를 함께 투여해야 함': LHRH 없는 요법 + 약마다 하나씩."""
+    note = "palbociclib + fulvestrant\n① HER2 음성\n※ 폐경 전 여성의 경우 4주 간격의 goserelin 혹은\nleuprolide를 함께 투여해야 함"
+    r = _regs("palbociclib + fulvestrant", row_text=note, stage="palliative_endocrine")
+    assert _drug_sets(r) == [["palbociclib", "fulvestrant"], ["palbociclib", "fulvestrant", "goserelin"],
+                             ["palbociclib", "fulvestrant", "leuprolide"]]
+    assert _drug_sets(_regs("palbociclib + fulvestrant", stage="palliative_endocrine")) == [["palbociclib", "fulvestrant"]]
+
+
+def test_build_regimens_unknown_part_gives_empty():
+    """약을 못 찾은 자리가 있으면 펼치지 않는다 (사람이 확인)."""
+    assert _regs("새 요법") == []
+
+
 def test_split_notes_and_marks():
     n = split_notes(["- 머리 규칙", "연번 20∼24 trastuzumab 관련:", "(1) 3주 요법", "주1. 고정용량 복합제",
                      "• [pertuzumab + trastuzumab] SC (100/100)", "주2. abemaciclib 병용"])
@@ -412,3 +482,9 @@ def test_real_booklet_chunks(booklet):
     assert all(c["reimbursement"]["stage"] == "supportive" for c in supp.values())
     regimens = [r for c in bc.chunks for r in c["reimbursement"].get("regimen", [])]
     assert not [r for r in regimens if re.search(r"주\d", r)]                       # 각주 표시가 남지 않음
+    # 인정 요법 (regimens, 2026-11-26): 요법 행은 모두 펼쳐지고, LHRH 약 두 개가 한 요법에 같이 들어가지 않는다
+    regimen_rows = [c for c in rows if c["reimbursement"]["stage"] != "supportive"]
+    assert all(c["reimbursement"].get("regimens") for c in regimen_rows)
+    assert not [c["chunk_id"] for c in regimen_rows for r in c["reimbursement"]["regimens"]
+                if {"goserelin", "leuprolide"} <= set(r["drugs"])]
+    assert [r["optional"] for r in by_id["hira-booklet-20261001-bc-adj-r01"]["reimbursement"]["regimens"]] == [["abemaciclib"]]

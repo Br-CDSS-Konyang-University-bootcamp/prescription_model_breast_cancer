@@ -755,6 +755,119 @@ def copay_text(parsed: dict, drugs: list[str]) -> str | None:
     return None
 
 
+# ---------- 인정 요법 펼치기 (reimbursement.regimens, B 제안 형식 2026-11-26) ----------
+# 행 하나의 요법 글을 실제로 처방하는 약 조합으로 펼친다. drugs = 같이 쓰는 약, optional = 더해도 되는 약(±, 각주 병용),
+# steps = 순차 요법 단계(순차일 때만), copay_by_drug = 약마다 급여·30/100·50/100·100/100·비급여.
+# 'LHRH agonist'는 goserelin, leuprolide 중 하나 (공고: '4주 간격의 goserelin과 leuprolide만 인정'),
+# 'AC/EC'는 둘 중 하나, '내분비요법'은 그 행 급여 요법 칸에 적힌 요법 하나.
+
+COPAY_VALUES = ["급여", "30/100", "50/100", "100/100", "비급여"]
+_LHRH_AGONIST = re.compile(r"LHRH\s*agonist", re.I)
+_SETTING_BRACKET = re.compile(r"\[\s*(?:선행\s*화학\s*요법|수술\s*후\s*보조\s*요법)\s*\]")
+_ABBR_PAIR = re.compile(r"^([A-Z]{2,4})\s*/\s*([A-Z]{2,4})$")
+_OPTIONAL = re.compile(r"±\s*([A-Za-z][A-Za-z\-]*(?:\s+[a-z][a-z\-]+)?(?:\s*\([^)]*\))?)")
+_NONREIMB_AFTER = re.compile(r"([A-Za-z][A-Za-z\-\s]*?)\s*\(\s*비급여\s*\)")
+# CDK4/6·inavolisib 행의 '※ 폐경 전 여성의 경우 4주 간격의 goserelin 혹은 leuprolide를 함께 투여해야 함'
+_LHRH_WITH = re.compile(r"폐경전여성의경우(?:4주간격의)?goserelin혹은leuprolide를함께투여")
+
+
+def _split_top(s: str, sep: str) -> list[str]:
+    """괄호 () [] 밖의 sep로만 나눈다 ('AC(doxorubicin + cyclophosphamide)'의 +는 나누지 않음)."""
+    out, depth, cur = [], 0, ""
+    for ch in s:
+        depth += ch in "([" and 1 or 0
+        depth -= ch in ")]" and 1 or 0
+        if ch == sep and depth == 0:
+            out.append(cur)
+            cur = ""
+        else:
+            cur += ch
+    return [p.strip() for p in out + [cur] if p.strip()]
+
+
+def _part_choices(part: str) -> list[list[str]]:
+    """'+'로 나눈 한 조각 -> 그 자리에 올 수 있는 약 조합들 (보통 하나, 'LHRH agonist'·'AC/EC'는 둘)."""
+    if _LHRH_AGONIST.search(part):
+        rest = _regimen_drugs(_LHRH_AGONIST.sub(" ", part))
+        return [rest + ["goserelin"], rest + ["leuprolide"]]
+    if (m := _ABBR_PAIR.match(part.strip())) and m.group(1) in _ABBR and m.group(2) in _ABBR:
+        return [list(_ABBR[m.group(1)]), list(_ABBR[m.group(2)])]
+    return [_regimen_drugs(part)]
+
+
+def _step_choices(step: str) -> tuple[list[list[str]], list[str]]:
+    """순차 한 단계 -> (같이 쓰는 약 조합들, ± 약)."""
+    optional = [d for m in _OPTIONAL.finditer(step) for d in _regimen_drugs(m.group(1))]
+    body = _OPTIONAL.sub(" ", step)
+    choices: list[list[str]] = [[]]
+    for part in _split_top(body, "+"):
+        choices = [c + p for c in choices for p in _part_choices(part)]
+    return [list(dict.fromkeys(c)) for c in choices], list(dict.fromkeys(optional))
+
+
+def _expand(regimen: str) -> list[dict]:
+    """요법 글 하나 -> [{drugs, optional, steps}]. 약을 못 찾은 자리가 있으면 []."""
+    s = _SETTING_BRACKET.sub(" ", clean_regimen(regimen))
+    common: list[str] = []
+    # '[A → B → C] + trastuzumab': 괄호 밖 약은 모든 단계에 같이 쓴다
+    if (m := re.fullmatch(r"\s*\[([^\]]*→[^\]]*)\]\s*\+\s*(.+)", s)):
+        s, common = m.group(1), _regimen_drugs(m.group(2))
+    steps = [_step_choices(p) for p in _split_top(s, "→")]
+    if not steps or any(not c or not all(c) for c, _ in steps):
+        return []
+    out: list[dict] = [{"steps": [], "optional": []}]
+    for choices, optional in steps:
+        out = [{"steps": o["steps"] + [list(dict.fromkeys(c + common))], "optional": o["optional"] + optional}
+               for o in out for c in choices]
+    regs = []
+    for o in out:
+        drugs = list(dict.fromkeys(d for st in o["steps"] for d in st))
+        reg = {"drugs": drugs, "optional": [d for d in dict.fromkeys(o["optional"]) if d not in drugs]}
+        if len(o["steps"]) > 1:
+            reg["steps"] = o["steps"]
+        regs.append(reg)
+    return regs
+
+
+def build_regimens(regimen: str, parsed: dict, combination: dict | None = None, row_text: str = "",
+                   stage: str | None = None) -> list[dict]:
+    """reimbursement.regimens: 행이 인정하는 약 조합 목록.
+
+    regimen: 요법 칸 글 (40장 병용 행은 '항암제 병용요법' 칸). combination: 그 행의 combination 칸.
+    40장 '…+ 내분비요법'처럼 계열 이름이면 급여 요법 칸(base_regimen)의 요법마다 추가 약제를 더해 펼친다.
+    보조요법 각주 병용(abemaciclib)은 optional로 넣는다. 약을 하나도 못 찾으면 [] (사람이 확인)."""
+    combination = combination or {}
+    added = list(combination.get("added_drug") or [])
+    footnote = bool(combination) and stage != "combination"      # 보조요법 주2: 단독 요법 + 각주 병용
+    if stage == "combination" and re.search(r"내분비\s*요법", regimen) and combination.get("base_regimen"):
+        regs = [{**r, "drugs": list(dict.fromkeys(added + r["drugs"]))}
+                for base in combination["base_regimen"] for r in _expand(base)]
+    else:
+        regs = _expand(regimen)
+    if footnote:
+        regs = [{**r, "optional": list(dict.fromkeys(r["optional"] + [d for d in added if d not in r["drugs"]]))}
+                for r in regs]
+    if _LHRH_WITH.search(re.sub(r"\s+", "", row_text)):
+        with_lhrh = []
+        for r in regs:
+            with_lhrh.append(r)
+            if not {"goserelin", "leuprolide"} & set(r["drugs"]):
+                with_lhrh += [{**r, "drugs": r["drugs"] + [d]} for d in ("goserelin", "leuprolide")]
+        regs = with_lhrh
+    # 약별 본인부담: 요법 글의 'X(30/100)', 'X (비급여)', 각주·40장의 추가 약제 급여. 나머지는 급여
+    copay = dict(parsed.get("copay_by_drug") or {})
+    for m in _NONREIMB_AFTER.finditer(clean_regimen(regimen)):
+        if (d := _last_drug(m.group(1))):
+            copay[d] = "비급여"
+    if combination.get("added_drug_coverage") in ("비급여", "100/100"):
+        copay.update({d: combination["added_drug_coverage"] for d in added})
+    out = []
+    for r in regs:
+        cbd = {d: copay.get(d, "급여") for d in r["drugs"] + r["optional"]}
+        out.append({**r, "copay_by_drug": cbd})
+    return out
+
+
 def _normalized(text: str) -> str:
     """판정용 정규화 텍스트 (설계 §5: ①→1, ㎝→cm). 원문 text는 그대로 둔다."""
     return unicodedata.normalize("NFKC", text)
@@ -1091,6 +1204,7 @@ def booklet_chunks(b: Booklet) -> BookletChunks:
             if added:
                 reimb["combination"] = {**added, "base_regimen": [clean_regimen(regimen)]}
                 drugs = list(dict.fromkeys(drugs + added["added_drug"]))
+            reimb["regimens"] = build_regimens(regimen, parsed, reimb.get("combination"), text, sub.stage)
             chunks.append(_base(
                 chunk_id, "HIRA-booklet", ver, f"{heading} > 연번 {r.no}", text, "reimbursement_condition",
                 settings_for(sub.main, target), subtypes_from(filt, hr_implied), line, drugs, reimb,
@@ -1144,6 +1258,7 @@ def booklet_chunks(b: Booklet) -> BookletChunks:
                      "history": history_of(r.text), "regimen_parsed": parsed,
                      "combination": {k: cols[k] for k in ("added_drug", "added_drug_coverage", "base_regimen")},
                      "conditions": _line_rule(stage, line_rule), "text_normalized": _normalized(text)}
+            reimb["regimens"] = build_regimens(cols["combined"], parsed, reimb["combination"], text, "combination")
             chunks.append(_base(chunk_id, "HIRA-booklet", ver, heading, text, "reimbursement_condition",
                                 setting, subtypes_from(r.text), line, scan.drugs, reimb,
                                 parent_id=combo_id, page_start=ps, page_end=pe))
@@ -1243,6 +1358,14 @@ REIMBURSEMENT_EXTENSION = {
                                    "added_drug_coverage": {"enum": ["비급여", "100/100", None]},
                                    "base_regimen": {"type": "array", "items": {"type": "string"}}}},
     "conditions_inherited_from": {"type": ["string", "null"]},
+    # 인정 요법 (B 제안 형식, 2026-11-26). 공용 스키마 반영 전까지 D 검사용 (schema_proposal.md 'regimens')
+    "regimens": {"type": "array", "items": {
+        "type": "object", "additionalProperties": False, "required": ["drugs", "optional", "copay_by_drug"],
+        "properties": {"drugs": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+                       "optional": {"type": "array", "items": {"type": "string"}},
+                       "steps": {"type": "array", "minItems": 2,
+                                 "items": {"type": "array", "items": {"type": "string"}}},
+                       "copay_by_drug": {"type": "object", "additionalProperties": {"enum": COPAY_VALUES}}}}},
 }
 # 청크 최상위에 더하는 칸 (지침 청크와 같이 쓰는 판정용 정규화 본문, 2026-10-20 결정)
 TOP_LEVEL_EXTENSION = {"text_normalized": {"type": "string"}}
