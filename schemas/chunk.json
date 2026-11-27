@@ -94,7 +94,22 @@
             "base_regimen": {"type": "array", "items": {"type": "string"}}
           }
         },
-        "conditions_inherited_from": {"type": ["string", "null"], "description": "병합 셀로 조건을 물려받은 위 연번. 예: r01"}
+        "conditions_inherited_from": {"type": ["string", "null"], "description": "병합 셀로 조건을 물려받은 위 연번. 예: r01"},
+        "regimens": {
+          "type": "array",
+          "description": "인정 요법 (B 제안 형식, 2026-11-26). 행이 인정하는 약 조합마다 하나. drugs = 같이 쓰는 약, optional = 더해도 되는 약(±, 각주 병용), steps = 순차 요법 단계(순차일 때만), copay_by_drug = drugs·optional 약마다 본인부담. 'LHRH agonist'는 goserelin·leuprolide 하나씩, 'AC/EC'는 둘 중 하나로 나눈다. 펼치는 규칙: src/reimbursement/schema_proposal.md",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["drugs", "optional", "copay_by_drug"],
+            "properties": {
+              "drugs": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+              "optional": {"type": "array", "items": {"type": "string"}},
+              "steps": {"type": "array", "minItems": 2, "items": {"type": "array", "items": {"type": "string"}}},
+              "copay_by_drug": {"type": "object", "additionalProperties": {"enum": ["급여", "30/100", "50/100", "100/100", "비급여"]}}
+            }
+          }
+        }
       }
     }
   },

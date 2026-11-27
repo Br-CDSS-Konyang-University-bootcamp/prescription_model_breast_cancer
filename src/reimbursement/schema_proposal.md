@@ -17,7 +17,7 @@
 | `regimen_list` | 배열 | `{regimen, setting, drugs}` (G-CSF 예방 요법 목록) | §10.2 |
 | `combination` | 객체 | `added_drug[]`, `added_drug_coverage`(비급여, 100/100, null), `base_regimen[]` | §1.4, §2.1 |
 | `conditions_inherited_from` | 문자열 또는 null | 예: `r01` (병합 셀을 물려받은 위 연번) | §2.2 |
-| `regimens` | 배열 | `{drugs, optional, steps?, copay_by_drug}` (인정 요법, 아래 "`reimbursement.regimens`") | B 요청 2026-11-26, 아직 공용 스키마에 없음 |
+| `regimens` | 배열 | `{drugs, optional, steps?, copay_by_drug}` (인정 요법, 아래 "`reimbursement.regimens`") | B 요청 2026-11-26, `chunk.json`에 넣음 (4명 검토) |
 
 ## 청크 최상위에 더할 칸
 
@@ -38,8 +38,8 @@
 
 B 요청(OFS+AI 급여 판정 복구 PR): 행의 `drugs`에는 같이 쓰는 약과 골라 쓰는 약이 섞여 있다. 예를 들어 bc-adj-r04의
 goserelin, leuprolide는 둘 중 하나다. 그래서 행이 인정하는 약 조합을 하나씩 적는다. `drugs`(검색용)와 `regimen_parsed`는 그대로 둔다.
-공용 스키마에 합쳐지기 전까지 D는 `chunks.REIMBURSEMENT_EXTENSION`으로 검사한다. 급여 청크를 공용 스키마로 검사하는 다른 모듈은 없다
-(C의 검사는 지침 청크만 본다).
+`schemas/chunk.json`의 `reimbursement.regimens`에 넣었다 (D 코드와 같은 PR, 4명 검토). 필수 칸이 아니라 지침 청크와
+이 칸이 없는 옛 급여 청크도 그대로 통과한다.
 
 ```json
 "regimens": [
@@ -71,7 +71,6 @@ goserelin, leuprolide는 둘 중 하나다. 그래서 행이 인정하는 약 �
 - 요법 글에서 약을 못 찾은 자리가 있으면 `[]`로 두고 사람이 확인한다. Ⅳ 기타 약제(G-CSF 등)는 요법이 아니라 칸이 없다.
 
 2026-11-01 책자: 요법 행 121개 모두 펼쳐진다 (요법 151개, 요법 2개 이상인 행 15개).
-공용 스키마 반영(`schemas/chunk.json`의 `reimbursement.regimens`)은 4명 검토 대상이다.
 
 ## `reimbursement.conditions` 형식 (§3.5, D와 B 합의 대상)
 

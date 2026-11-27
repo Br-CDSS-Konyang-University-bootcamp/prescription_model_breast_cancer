@@ -1358,15 +1358,8 @@ REIMBURSEMENT_EXTENSION = {
                                    "added_drug_coverage": {"enum": ["비급여", "100/100", None]},
                                    "base_regimen": {"type": "array", "items": {"type": "string"}}}},
     "conditions_inherited_from": {"type": ["string", "null"]},
-    # 인정 요법 (B 제안 형식, 2026-11-26). 공용 스키마 반영 전까지 D 검사용 (schema_proposal.md 'regimens')
-    "regimens": {"type": "array", "items": {
-        "type": "object", "additionalProperties": False, "required": ["drugs", "optional", "copay_by_drug"],
-        "properties": {"drugs": {"type": "array", "minItems": 1, "items": {"type": "string"}},
-                       "optional": {"type": "array", "items": {"type": "string"}},
-                       "steps": {"type": "array", "minItems": 2,
-                                 "items": {"type": "array", "items": {"type": "string"}}},
-                       "copay_by_drug": {"type": "object", "additionalProperties": {"enum": COPAY_VALUES}}}}},
 }
+# reimbursement.regimens(인정 요법, 2026-11-26)는 schemas/chunk.json에 넣었다 (같은 PR, 4명 검토)
 # 청크 최상위에 더하는 칸 (지침 청크와 같이 쓰는 판정용 정규화 본문, 2026-10-20 결정)
 TOP_LEVEL_EXTENSION = {"text_normalized": {"type": "string"}}
 
