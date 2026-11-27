@@ -17,6 +17,7 @@
 | `regimen_list` | 배열 | `{regimen, setting, drugs}` (G-CSF 예방 요법 목록) | §10.2 |
 | `combination` | 객체 | `added_drug[]`, `added_drug_coverage`(비급여, 100/100, null), `base_regimen[]` | §1.4, §2.1 |
 | `conditions_inherited_from` | 문자열 또는 null | 예: `r01` (병합 셀을 물려받은 위 연번) | §2.2 |
+| `regimens` | 배열 | `{drugs, optional, steps?, copay_by_drug}` (인정 요법, 아래 "`reimbursement.regimens`") | B 요청 2026-11-26, `chunk.json`에 넣음 (4명 검토) |
 
 ## 청크 최상위에 더할 칸
 
@@ -32,6 +33,44 @@
 
 요법 전체에 하나로 정해질 때만 값을 두고, 일부 약제에만 붙은 값은 `null`이다. 약제별 값은 `regimen_parsed.copay_by_drug`에 있다
 (아래 "copay와 regimen_parsed.copay_by_drug", 2026-10-20 D 반영).
+
+## `reimbursement.regimens` (인정 요법, B 제안 형식, 2026-11-26)
+
+B 요청(OFS+AI 급여 판정 복구 PR): 행의 `drugs`에는 같이 쓰는 약과 골라 쓰는 약이 섞여 있다. 예를 들어 bc-adj-r04의
+goserelin, leuprolide는 둘 중 하나다. 그래서 행이 인정하는 약 조합을 하나씩 적는다. `drugs`(검색용)와 `regimen_parsed`는 그대로 둔다.
+`schemas/chunk.json`의 `reimbursement.regimens`에 넣었다 (D 코드와 같은 PR, 4명 검토). 필수 칸이 아니라 지침 청크와
+이 칸이 없는 옛 급여 청크도 그대로 통과한다.
+
+```json
+"regimens": [
+  {"drugs": ["anastrozole", "goserelin"], "optional": ["abemaciclib"],
+   "copay_by_drug": {"anastrozole": "급여", "goserelin": "급여", "abemaciclib": "100/100"}},
+  {"drugs": ["anastrozole", "leuprolide"], "optional": ["abemaciclib"],
+   "copay_by_drug": {"anastrozole": "급여", "leuprolide": "급여", "abemaciclib": "100/100"}}
+]
+```
+
+| 칸 | 뜻 |
+|---|---|
+| `drugs` | 같이 쓰는 약 (순차 요법이면 모든 단계의 약) |
+| `optional` | 더해도 되는 약 (`±` 약, 보조요법 주2의 abemaciclib 병용) |
+| `steps` | 순차 요법(`→`)일 때만. 단계마다 약 목록 |
+| `copay_by_drug` | `drugs`와 `optional`의 약마다 급여, 30/100, 50/100, 100/100, 비급여. 값이 적히지 않은 약은 급여 |
+
+펼치는 규칙 (`chunks.build_regimens`):
+
+- 'LHRH agonist'는 goserelin, leuprolide 중 하나다 (공고: '4주 간격의 goserelin과 leuprolide만 인정'). 요법을 약마다 따로 만든다.
+- 'AC/EC'(combo-r21 2단계)는 doxorubicin 쪽과 epirubicin 쪽으로 나눈다.
+- '[A → B → C] + X'는 X를 모든 단계에 넣는다 (선행 HER2 양성 연번 1).
+- 40장 'olaparib + 내분비요법'은 그 행 급여 요법 칸(`combination.base_regimen`)의 요법마다 olaparib을 더한다 (12개).
+- 행에 '※ 폐경 전 여성의 경우 4주 간격의 goserelin 혹은 leuprolide를 함께 투여해야 함'이 있으면, LHRH 없는 요법과 goserelin,
+  leuprolide를 하나씩 더한 요법을 둔다 (고식적 내분비 1차 ribociclib 2행, 2차 이상 palbociclib·abemaciclib + fulvestrant 2행,
+  combo-r30). 폐경 전인지는 조건(`menopause`)으로 가린다.
+- 본인부담은 요법 글의 'X(30/100)', 'X (비급여)', 각주·40장 추가 약제의 급여(`combination.added_drug_coverage`)에서 가져온다.
+  고정용량 복합제(`fixed_dose_combination`)의 본인부담은 제형 하나에만 붙어 여기에 넣지 않는다.
+- 요법 글에서 약을 못 찾은 자리가 있으면 `[]`로 두고 사람이 확인한다. Ⅳ 기타 약제(G-CSF 등)는 요법이 아니라 칸이 없다.
+
+2026-11-01 책자: 요법 행 121개 모두 펼쳐진다 (요법 151개, 요법 2개 이상인 행 15개).
 
 ## `reimbursement.conditions` 형식 (§3.5, D와 B 합의 대상)
 

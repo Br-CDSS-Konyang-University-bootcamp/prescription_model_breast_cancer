@@ -11,6 +11,8 @@
 - 청크 계층 (설계 §0.2): L1 원칙(`section`) / L2 단계·소단원(`section`) / L3 요법 행·조건 묶음(`reimbursement_condition`).
   chunk_id 예: `hira-booklet-20261101-bc-pal-endo-1l-r01`, `…-combo-r22`, `…-supp-zoledronic-b`
 - 설계가 제안한 새 칸(stage, line_rule, history, combination 등)은 공용 스키마에 아직 없다. 개정안: `schema_proposal.md`
+- 요법 행마다 인정 요법 `reimbursement.regimens`를 둔다 (B 제안 형식, 2026-11-26). 'LHRH agonist', 'AC/EC', '내분비요법'을
+  실제 약 조합으로 펼치고, 약마다 본인부담(급여, 30/100, 50/100, 100/100, 비급여)을 적는다. 규칙: `schema_proposal.md` "`reimbursement.regimens`"
 - 입력: 심평원 게시판 (항암화학요법, 공고, 공고예고)
 - 출력: `schemas/chunk.json` 형식의 급여 청크 (doc_type = reimbursement), SQLite 레지스트리
 - 색인 반영은 `src/rag/`의 색인 함수를 호출한다. 색인 코드를 이 폴더에 따로 만들지 않는다.
